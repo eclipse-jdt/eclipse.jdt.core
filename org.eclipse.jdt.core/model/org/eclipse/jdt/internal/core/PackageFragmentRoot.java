@@ -160,8 +160,9 @@ SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
 		this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true)); // only project options if associated with resource
 	return mapper;
 }
-/*
+/**
  * @see org.eclipse.jdt.core.IPackageFragmentRoot#delete
+ * @deprecated
  */
 public void delete(
 	int updateFlags,
@@ -169,7 +170,24 @@ public void delete(
 	IProgressMonitor monitor)
 	throws JavaModelException {
 
-	DeletePackageFragmentRootOperation op = new DeletePackageFragmentRootOperation(this, updateFlags, updateClasspath);
+	delete(
+		updateFlags,
+		updateClasspath
+			? (ORIGINATING_PROJECT_CLASSPATH
+				| OTHER_REFERRING_PROJECTS_CLASSPATH)
+			: IResource.NONE,
+		monitor);
+}
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#delete
+ */
+public void delete(
+	int updateResourceFlags,
+	int updateModelFlags,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	DeletePackageFragmentRootOperation op = new DeletePackageFragmentRootOperation(this, updateResourceFlags, updateModelFlags);
 	runOperation(op, monitor);
 }
 
@@ -265,8 +283,9 @@ public IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) throws 
 	if (mapper.rootPath == null) return null;
 	return new Path(mapper.rootPath);
 }
-/*
+/**
  * @see org.eclipse.jdt.core.IPackageFragmentRoot#copy
+ * @deprecated
  */
 public void copy(
 	IPath destination,
@@ -275,9 +294,27 @@ public void copy(
 	IClasspathEntry sibling,
 	IProgressMonitor monitor)
 	throws JavaModelException {
+
+	copy(
+		destination,
+		updateFlags,
+		updateClasspath ? DESTINATION_PROJECT_CLASSPATH : IResource.NONE,
+		sibling,
+		monitor);
+}
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#copy
+ */
+public void copy(
+	IPath destination,
+	int updateResourceFlags,
+	int updateModelFlags,
+	IClasspathEntry sibling,
+	IProgressMonitor monitor)
+	throws JavaModelException {
 		
 	CopyPackageFragmentRootOperation op = 
-		new CopyPackageFragmentRootOperation(this, destination, updateFlags, updateClasspath, sibling);
+		new CopyPackageFragmentRootOperation(this, destination, updateResourceFlags, updateModelFlags, sibling);
 	runOperation(op, monitor);
 }
 
@@ -735,8 +772,9 @@ protected boolean isOnClasspath() {
 	}
 	return false;
 }
-/*
+/**
  * @see org.eclipse.jdt.core.IPackageFragmentRoot#move
+ * @deprecated
  */
 public void move(
 	IPath destination,
@@ -746,8 +784,30 @@ public void move(
 	IProgressMonitor monitor)
 	throws JavaModelException {
 
+	move(
+		destination,
+		updateFlags,
+		updateClasspath
+			? (DESTINATION_PROJECT_CLASSPATH
+				| ORIGINATING_PROJECT_CLASSPATH
+				| OTHER_REFERRING_PROJECTS_CLASSPATH)
+			: IResource.NONE,
+		sibling,
+		monitor);
+}
+/*
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot#move
+ */
+public void move(
+	IPath destination,
+	int updateResourceFlags,
+	int updateModelFlags,
+	IClasspathEntry sibling,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
 	MovePackageFragmentRootOperation op = 
-		new MovePackageFragmentRootOperation(this, destination, updateFlags, updateClasspath, sibling);
+		new MovePackageFragmentRootOperation(this, destination, updateResourceFlags, updateModelFlags, sibling);
 	runOperation(op, monitor);
 }
 

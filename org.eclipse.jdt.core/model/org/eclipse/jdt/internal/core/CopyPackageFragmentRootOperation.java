@@ -23,34 +23,49 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 	IPath destination;
-	int updateFlags;
-	boolean updateClasspath;
+	int updateResourceFlags;
+	int updateModelFlags;
 	IClasspathEntry sibling;
 
 	public CopyPackageFragmentRootOperation(
 		IPackageFragmentRoot root,
 		IPath destination,
-		int updateFlags,
-		boolean updateClasspath,
+		int updateResourceFlags,
+		int updateModelFlags,
 		IClasspathEntry sibling) {
 			
 		super(root);
 		this.destination = destination;
-		this.updateFlags = updateFlags;
-		this.updateClasspath = updateClasspath;
+		this.updateResourceFlags = updateResourceFlags;
+		this.updateModelFlags = updateModelFlags;
 		this.sibling = sibling;
 	}
 	protected void executeOperation() throws JavaModelException {
 		
-		// copy resource
 		IPackageFragmentRoot root = (IPackageFragmentRoot)this.getElementToProcess();
 		IClasspathEntry rootEntry = root.getRawClasspathEntry();
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+
+		// copy resource
+		if (!root.isExternal() && (this.updateModelFlags & IPackageFragmentRoot.NO_RESOURCE_MODIFICATION) == 0) {
+			copyResource(root, rootEntry, workspaceRoot);
+		}
+		
+		// update classpath if needed
+		if ((this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0) {
+			updateDestProjectClasspath(rootEntry, workspaceRoot);
+		}
+	}
+	protected void copyResource(
+		IPackageFragmentRoot root,
+		IClasspathEntry rootEntry,
+		IWorkspaceRoot workspaceRoot)
+		throws JavaModelException {
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
 		IResource rootResource = root.getResource();
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY || exclusionPatterns == null) {
 			try {
-				rootResource.copy(this.destination, this.updateFlags, fMonitor);
+				rootResource.copy(this.destination, this.updateResourceFlags, fMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}
@@ -70,17 +85,17 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 							} else {
 								// folder containing nested source folder
 								IFolder folder = destFolder.getFolder(path.removeFirstSegments(sourceSegmentCount));
-								folder.create(updateFlags, true, fMonitor);
+								folder.create(updateResourceFlags, true, fMonitor);
 								return true;
 							}
 						} else {
 							// subtree doesn't contain any nested source folders
-							resource.copy(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateFlags, fMonitor);
+							resource.copy(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
 							return false;
 						}
 					} else {
 						IPath path = resource.getFullPath();
-						resource.copy(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateFlags, fMonitor);
+						resource.copy(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
 						return false;
 					}
 				}
@@ -92,11 +107,6 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			}
 		}
 		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
-		
-		// update classpath if needed
-		if (this.updateClasspath) {
-			updateDestProjectClasspath(rootEntry, workspaceRoot);
-		}
 	}
 	protected void updateDestProjectClasspath(
 		IClasspathEntry rootEntry,
@@ -164,40 +174,34 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, root);
 		}
 			
-		if (root.isExternal()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE_TYPE, root.getPath().toOSString());
-		}
-			
-		if (this.updateClasspath) {
+		if ((this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0) {
 			String destProjectName = this.destination.segment(0);
 			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(destProjectName);
-			if (!JavaProject.hasJavaNature(project)) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PROJECT, destProjectName);
-			}
-			
-			try {
-				IJavaProject destProject = JavaCore.create(project);
-				IClasspathEntry[] destClasspath = destProject.getRawClasspath();
-				boolean foundSibling = false;
-				boolean foundExistingEntry = false;
-				for (int i = 0, length = destClasspath.length; i < length; i++) {
-					IClasspathEntry entry = destClasspath[i];
-					if (entry.equals(this.sibling)) {
-						foundSibling = true;
-						break;
+			if (JavaProject.hasJavaNature(project)) {
+				try {
+					IJavaProject destProject = JavaCore.create(project);
+					IClasspathEntry[] destClasspath = destProject.getRawClasspath();
+					boolean foundSibling = false;
+					boolean foundExistingEntry = false;
+					for (int i = 0, length = destClasspath.length; i < length; i++) {
+						IClasspathEntry entry = destClasspath[i];
+						if (entry.equals(this.sibling)) {
+							foundSibling = true;
+							break;
+						}
+						if (entry.getPath().equals(this.destination)) {
+							foundExistingEntry = true;
+						}
 					}
-					if (entry.getPath().equals(this.destination)) {
-						foundExistingEntry = true;
+					if (this.sibling != null && !foundSibling) {
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling == null ? "null" : this.sibling.toString()); //$NON-NLS-1$
 					}
+					if (foundExistingEntry && (this.updateResourceFlags & IResource.FORCE) == 0) {
+						return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, this.destination.toString());
+					}
+				} catch (JavaModelException e) {
+					return e.getJavaModelStatus();
 				}
-				if (this.sibling != null && !foundSibling) {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling == null ? "null" : this.sibling.toString()); //$NON-NLS-1$
-				}
-				if (foundExistingEntry) {
-					return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, this.destination.toString());
-				}
-			} catch (JavaModelException e) {
-				return e.getJavaModelStatus();
 			}
 		}
 

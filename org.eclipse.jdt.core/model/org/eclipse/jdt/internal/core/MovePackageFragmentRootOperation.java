@@ -19,15 +19,15 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	public MovePackageFragmentRootOperation(
 		IPackageFragmentRoot root,
 		IPath destination,
-		int updateFlags,
-		boolean updateClasspath,
+		int updateResourceFlags,
+		int updateModelFlags,
 		IClasspathEntry sibling) {
 			
 		super(
 			root,
 			destination,
-			updateFlags,
-			updateClasspath,
+			updateResourceFlags,
+			updateModelFlags,
 			sibling);
 	}
 	protected void executeOperation() throws JavaModelException {
@@ -37,11 +37,32 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		
 		// move resource
+		if (!root.isExternal() && (this.updateModelFlags & IPackageFragmentRoot.NO_RESOURCE_MODIFICATION) == 0) {
+			moveResource(root, rootEntry, workspaceRoot);
+		}
+
+		// update classpath if needed
+		if ((this.updateModelFlags & IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH) != 0) {
+			updateProjectClasspath(rootEntry.getPath(), root.getJavaProject());
+		}
+		if ((this.updateModelFlags & IPackageFragmentRoot.OTHER_REFERRING_PROJECTS_CLASSPATH) != 0) {
+			updateReferringProjectClasspaths(rootEntry.getPath(), root.getJavaProject());
+		}
+		if ((this.updateModelFlags & IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH) != 0) {
+			updateDestProjectClasspath(rootEntry, workspaceRoot);
+		}
+	}
+	protected void moveResource(
+		IPackageFragmentRoot root,
+		IClasspathEntry rootEntry,
+		IWorkspaceRoot workspaceRoot)
+		throws JavaModelException {
+			
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
 		IResource rootResource = root.getResource();
 		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
-				rootResource.move(this.destination, this.updateFlags, fMonitor);
+				rootResource.move(this.destination, this.updateResourceFlags, fMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}
@@ -61,17 +82,17 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 							} else {
 								// folder containing nested source folder
 								IFolder folder = destFolder.getFolder(path.removeFirstSegments(sourceSegmentCount));
-								folder.create(updateFlags, true, fMonitor);
+								folder.create(updateResourceFlags, true, fMonitor);
 								return true;
 							}
 						} else {
 							// subtree doesn't contain any nested source folders
-							resource.move(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateFlags, fMonitor);
+							resource.move(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
 							return false;
 						}
 					} else {
 						IPath path = resource.getFullPath();
-						resource.move(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateFlags, fMonitor);
+						resource.move(destination.append(path.removeFirstSegments(sourceSegmentCount)), updateResourceFlags, fMonitor);
 						return false;
 					}
 				}
@@ -83,12 +104,6 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 			}
 		}
 		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
-
-		// update classpath if needed
-		if (this.updateClasspath) {
-			updateReferringProjectClasspaths(rootEntry.getPath());
-			updateDestProjectClasspath(rootEntry, workspaceRoot);
-		}
 	}
 	/*
 	 * Renames the classpath entries equal to the given path in all Java projects.
@@ -96,37 +111,48 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	 * and reference will be updated later on). Otherwise if a source entry refers to this 
 	 * path, deletes it (a project cannot refer to an outside source folder)
 	 */
-	protected void updateReferringProjectClasspaths(IPath rootPath) throws JavaModelException {
+	protected void updateReferringProjectClasspaths(IPath rootPath, IJavaProject projectOfRoot) throws JavaModelException {
 		IJavaModel model = this.getJavaModel();
 		IJavaProject[] projects = model.getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject project = projects[i];
-			IClasspathEntry[] classpath = project.getRawClasspath();
-			IClasspathEntry[] newClasspath = null;
-			int cpLength = classpath.length;
-			int newCPIndex = -1;
-			for (int j = 0; j < cpLength; j++) {
-				IClasspathEntry entry = classpath[j];
-				if (rootPath.equals(entry.getPath())) {
-					if (newClasspath == null) {
-						newClasspath = new IClasspathEntry[cpLength];
-						System.arraycopy(classpath, 0, newClasspath, 0, j);
-						newCPIndex = j;
-					}
-					if (this.destination.segment(0).equals(project.getElementName())) continue;
-					if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) { // library entry
-						newClasspath[newCPIndex++] = copy(entry);
-					} // else source folder is moved to another project: deletes its classpath entry
-				} else if (newClasspath != null) {
-					newClasspath[newCPIndex++] = entry;
+			if (project.equals(projectOfRoot)) continue;
+			updateProjectClasspath(rootPath, project);
+		}
+	}
+	/*
+	 * Renames the classpath entries equal to the given path in the given project.
+	 * However if destination is inside project, leave reference as is (this is a rename 
+	 * and reference will be updated later on). Otherwise if a source entry refers to this 
+	 * path, deletes it (a project cannot refer to an outside source folder)
+	 */
+	protected void updateProjectClasspath(IPath rootPath, IJavaProject project)
+		throws JavaModelException {
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		IClasspathEntry[] newClasspath = null;
+		int cpLength = classpath.length;
+		int newCPIndex = -1;
+		for (int j = 0; j < cpLength; j++) {
+			IClasspathEntry entry = classpath[j];
+			if (rootPath.equals(entry.getPath())) {
+				if (newClasspath == null) {
+					newClasspath = new IClasspathEntry[cpLength];
+					System.arraycopy(classpath, 0, newClasspath, 0, j);
+					newCPIndex = j;
 				}
+				if (this.destination.segment(0).equals(project.getElementName())) continue;
+				if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) { // library entry
+					newClasspath[newCPIndex++] = copy(entry);
+				} // else source folder is moved to another project: deletes its classpath entry
+			} else if (newClasspath != null) {
+				newClasspath[newCPIndex++] = entry;
 			}
-			if (newClasspath != null) {
-				if (newCPIndex < newClasspath.length) {
-					System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
-				}
-				project.setRawClasspath(newClasspath, fMonitor);
+		}
+		if (newClasspath != null) {
+			if (newCPIndex < newClasspath.length) {
+				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
 			}
+			project.setRawClasspath(newClasspath, fMonitor);
 		}
 	}
 }

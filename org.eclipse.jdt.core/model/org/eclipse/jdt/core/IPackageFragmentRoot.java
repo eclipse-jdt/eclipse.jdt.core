@@ -48,6 +48,30 @@ public interface IPackageFragmentRoot
 	 */
 	String DEFAULT_PACKAGEROOT_PATH = ""; //$NON-NLS-1$
 	/**
+	 * Update model flag constant (bit mask value 1) indicating that the operation
+	 * is to not copy/move/delete the package fragment root resource.
+	 * @since 2.1
+	 */
+	public static final int NO_RESOURCE_MODIFICATION = 1;
+	/**
+	 * Update model flag constant (bit mask value 2) indicating that the operation
+	 * is to update the classpath of the originating project.
+	 * @since 2.1
+	 */
+	public static final int ORIGINATING_PROJECT_CLASSPATH = 2;
+	/**
+	 * Update model flag constant (bit mask value 4) indicating that the operation
+	 * is to update the classpath of all referring projects except the originating project.
+	 * @since 2.1
+	 */
+	public static final int OTHER_REFERRING_PROJECTS_CLASSPATH = 4;
+	/**
+	 * Update model flag constant (bit mask value 8) indicating that the operation
+	 * is to update the classpath of the destination project.
+	 * @since 2.1
+	 */
+	public static final int DESTINATION_PROJECT_CLASSPATH = 8;	
+	/**
 	 * Attaches the source archive identified by the given absolute path to this
 	 * binary package fragment root. <code>rootPath</code> specifies the location 
 	 * of the root within the archive or folder (empty specifies the default root 
@@ -89,18 +113,35 @@ public interface IPackageFragmentRoot
 	 * as specified by <code>IResource.copy(IPath, int, IProgressMonitor)</code>
 	 * but excluding nested source folders.
 	 * <p>
-	 * If specified, update the classpath of the destination's project. If a
-	 * non-<code>null</code> sibling is specified, a copy of this root's
-	 * classpath entry is inserted before the sibling on the destination
-	 * project's raw classpath. If <code>null></code> is specified, the
-	 * classpath entry is added at the end of the raw classpath.
+	 * If <code>NO_RESOURCE_MODIFICATION</code> is specified in 
+	 * <code>updateModelFlags</code> or if this package fragment root is external, 
+	 * this operation doesn't copy the resource. <code>updateResourceFlags</code> 
+	 * is then ignored.
+	 * </p><p>
+	 * If <code>DESTINATION_PROJECT_CLASSPATH</code> is specified in 
+	 * <code>updateModelFlags</code>, updates the classpath of the 
+	 * destination's project (if it is a Java project). If a non-<code>null</code> 
+	 * sibling is specified, a copy of this root's classpath entry is inserted before the 
+	 * sibling on the destination project's raw classpath. If <code>null></code> is 
+	 * specified, the classpath entry is added at the end of the raw classpath.
+	 * </p><p>
+	 * If <code>IResource.FORCE</code> is specified in <code>updateResourceFlags</code>
+	 * and the same classpath entry already exists on the destination project's raw
+	 * classpath, then the sibling is ignored and the new classpath entry replaces the 
+	 * existing one.
+	 * </p><p>
+	 * If no flags is specified in <code>updateModelFlags</code> (using 
+	 * <code>IResource.NONE</code>), the default behavior applies: the
+	 * resource is copied (if this package fragment root is not external) and the
+	 * classpath is not updated.
 	 * </p>
 	 * 
 	 * @param destination the destination path
-	 * @param updateFlags bit-wise or of update flag constants
-	 *   (<code>FORCE</code> and <code>SHALLOW</code>)
-	 * @param updateClasspath whether the classpath of the destination project
-	 * should be updated
+	 * @param updateResourceFlags bit-wise or of update resource flag constants
+	 *   (<code>IResource.FORCE</code> and <code>IResource.SHALLOW</code>)
+	 * @param updateModelFlags bit-wise or of update resource flag constants
+	 *   (<code>DESTINATION_PROJECT_CLASSPATH</code> and 
+	 *   <code>NO_RESOURCE_MODIFICATION</code>)
 	 * @param sibling the classpath entry before which a copy of the classpath
 	 * entry should be inserted or <code>null</code> if the classpath entry should
 	 * be inserted at the end
@@ -111,20 +152,25 @@ public interface IPackageFragmentRoot
 	 * <ul>
 	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while copying the
-	 * resource</li>
-	 * <li> This root is external (INVALID_RESOURCE_TYPE)</li>
-	 * <li> The destination is not in a Java project and 
-	 * <code>updateClasspath</code> was specified (INVALID_PROJECT)</li>
+	 * resource or updating a classpath</li>
+	 * <li> TODO: (jim) if we want to later remove the following restriction, can we still specify it?
+	 * The destination is not inside an existing project and <code>updateModelFlags</code>
+	 * has been specified as <code>DESTINATION_PROJECT_CLASSPATH</code> 
+	 * (INVALID_DESTINATION)</li>
 	 * <li> The sibling is not a classpath entry on the destination project's
 	 * raw classpath (INVALID_SIBLING)</li>
 	 * <li> The same classpath entry already exists on the destination project's
-	 * classpath (NAME_COLLISION) and <code>updateFlags</code> has not been
-	 * specified as <code>FORCE</code></li>
+	 * classpath (NAME_COLLISION) and <code>updateResourceFlags</code>
+	 * has not been specified as <code>IResource.FORCE</code></li>
 	 * </ul>
 	 * @see IResource#copy
 	 * @since 2.1
 	 */
-	public void copy(IPath destination, int updateFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
+	void copy(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
+	/**
+	 * @deprecated Use copy(IPath, int, int, IClasspathEntry, IProgressMonitor) instead
+	 */
+	void copy(IPath destination, int updateResourceFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 		
 	/**
 	 * Creates and returns a package fragment in this root with the 
@@ -160,29 +206,51 @@ public interface IPackageFragmentRoot
 	 * <code>IResource.delete(int, IProgressMonitor)</code> but excluding nested
 	 * source folders.
 	 * <p>
-	 * If specified, update the raw classpaths of all Java projects referring to
-	 * this root's resource by removing the corresponding classpath entries on
-	 * the raw classpaths.
+	 * If <code>NO_RESOURCE_MODIFICATION</code> is specified in 
+	 * <code>updateModelFlags</code> or if this package fragment root is external, 
+	 * this operation doesn't delete the resource. <code>updateResourceFlags</code> 
+	 * is then ignored.
+	 * </p><p>
+	 * If <code>ORIGINATING_PROJECT_CLASSPATH</code> is specified in 
+	 * <code>updateModelFlags</code>, update the raw classpath of this package 
+	 * fragment root's project by removing the corresponding classpath entry.
+	 * </p><p>
+	 * If <code>OTHER_REFERRING_PROJECTS_CLASSPATH</code> is specified in 
+	 * <code>updateModelFlags</code>, update the raw classpaths of all other Java
+	 * projects referring to this root's resource by removing the corresponding classpath 
+	 * entries.
+	 * </p><p>
+	 * If no flags is specified in <code>updateModelFlags</code> (using 
+	 * <code>IResource.NONE</code>), the default behavior applies: the
+	 * resource is deleted (if this package fragment root is not external) and no
+	 * classpaths are updated.
 	 * </p>
 	 * 
-	 * @param updateFlags bit-wise or of update flag constants
-	 *   (<code>FORCE</code> and <code>KEEP_HISTORY</code>)
-	 * @param updateClasspath whether the classpaths of the referring projects
-	 * should be updated
+	 * @param updateResourceFlags bit-wise or of update resource flag constants
+	 *   (<code>IResource.FORCE</code> and <code>IResource.KEEP_HISTORY</code>)
+	 * @param updateModelFlags bit-wise or of update resource flag constants
+	 *   (<code>ORIGINATING_PROJECT_CLASSPATH</code>,
+	 *   <code>OTHER_REFERRING_PROJECTS_CLASSPATH</code> and 
+	 *   <code>NO_RESOURCE_MODIFICATION</code>)
 	 * @param monitor a progress monitor
 	 * 
 	 * @exception JavaModelException if this root could not be deleted. Reasons
 	 * include:
 	 * <ul>
 	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * <li> A <code>CoreException</code> occurred while deleting the resource
+	 * <li> A <code>CoreException</code> occurred while deleting the resource 
+	 * or updating a classpath
 	 * </li>
-	 * <li> This root is external (INVALID_RESOURCE_TYPE)</li>
 	 * </ul>
 	 * @see IResource#delete
 	 * @since 2.1
 	 */
-	void delete(int updateFlags, boolean updateClasspath, IProgressMonitor monitor) throws JavaModelException;
+	void delete(int updateResourceFlags, int updateModelFlags, IProgressMonitor monitor) throws JavaModelException;
+	/**
+	 * @deprecated Use delete(int, int, IProgressMonitor) instead
+	 */
+	void delete(int updateResourceFlags, boolean updateClasspath, IProgressMonitor monitor) throws JavaModelException;
+
 		
 	/**
 	 * Returns this package fragment root's kind encoded as an integer.
@@ -291,20 +359,47 @@ public interface IPackageFragmentRoot
 	 * as specified by <code>IResource.move(IPath,int,IProgressMonitor)</code>
 	 * but excluding nested source folders.
 	 * <p>
-	 * If specified, update the raw classpaths of all Java projects referring to
-	 * this root's resource by removing the corresponding classpath entries on
-	 * the raw classpaths and update the classpath of the destination's project.
-	 * If a non-<code>null</code> sibling is specified, a copy of this root's
-	 * classpath entry is inserted before the sibling on the destination
-	 * project's raw classpath. If <code>null</code> is specified, the classpath
-	 * entry is added at the end of the destination project's raw classpath.
+	 * If <code>NO_RESOURCE_MODIFICATION</code> is specified in 
+	 * <code>updateModelFlags</code> or if this package fragment root is external, 
+	 * this operation doesn't move the resource. <code>updateResourceFlags</code> 
+	 * is then ignored.
+	 * </p><p>
+	 * If <code>DESTINATION_PROJECT_CLASSPATH</code> is specified in 
+	 * <code>updateModelFlags</code>, updates the classpath of the 
+	 * destination's project (if it is a Java project). If a non-<code>null</code> 
+	 * sibling is specified, a copy of this root's classpath entry is inserted before the 
+	 * sibling on the destination project's raw classpath. If <code>null></code> is 
+	 * specified, the classpath entry is added at the end of the raw classpath.
+	 * </p><p>
+	 * If <code>ORIGINATING_PROJECT_CLASSPATH</code> is specified in 
+	 * <code>updateModelFlags</code>, update the raw classpath of this package 
+	 * fragment root's project by removing the corresponding classpath entry.
+	 * </p><p>
+	 * If <code>OTHER_REFERRING_PROJECTS_CLASSPATH</code> is specified in 
+	 * <code>updateModelFlags</code>, update the raw classpaths of all other Java
+	 * projects referring to this root's resource by removing the corresponding classpath 
+	 * entries.
+	 * </p><p>
+	 * If <code>IResource.FORCE</code> is specified in <code>updateResourceFlags</code>
+	 * and the same classpath entry already exists on the destination project's raw
+	 * classpath, then the sibling is ignored and the new classpath entry replaces the 
+	 * existing one.
+	 * </p><p>
+	 * If no flags is specified in <code>updateModelFlags</code> (using 
+	 * <code>IResource.NONE</code>), the default behavior applies: the
+	 * resource is moved (if this package fragment root is not external) and no
+	 * classpaths are updated.
 	 * </p>
 	 * 
 	 * @param destination the destination path
 	 * @param updateFlags bit-wise or of update flag constants
-	 * (<code>FORCE</code>, <code>KEEP_HISTORY</code> and <code>SHALLOW</code>)
-	 * @param updateClasspath whether the classpaths of the referring projects
-	 * and destination project should be updated
+	 * (<code>IResource.FORCE</code>, <code>IResource.KEEP_HISTORY</code> 
+	 * and <code>IResource.SHALLOW</code>)
+	 * @param updateModelFlags bit-wise or of update resource flag constants
+	 *   (<code>DESTINATION_PROJECT_CLASSPATH</code>,
+	 *   <code>ORIGINATING_PROJECT_CLASSPATH</code>,
+	 *   <code>OTHER_REFERRING_PROJECTS_CLASSPATH</code> and 
+	 *   <code>NO_RESOURCE_MODIFICATION</code>)
 	 * @param sibling the classpath entry before which a copy of the classpath
 	 * entry should be inserted or <code>null</code> if the classpath entry should
 	 * be inserted at the end
@@ -315,18 +410,23 @@ public interface IPackageFragmentRoot
 	 * <ul>
 	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while copying the
-	 * resource</li>
-	 * <li> This root is external (INVALID_RESOURCE_TYPE)</li>
-	 * <li> The destination is not in a Java project and
-	 * <code>updateClasspath</code> was specified (INVALID_DESTINATION)</li>
+	 * resource or updating a classpath</li>
+	 * <li> TODO: (jim) if we want to later remove the following restriction, can we still specify it?
+	 * The destination is not inside an existing project and <code>updateModelFlags</code>
+	 * has been specified as <code>DESTINATION_PROJECT_CLASSPATH</code> 
+	 * (INVALID_DESTINATION)</li>
 	 * <li> The sibling is not a classpath entry on the destination project's
 	 * raw classpath (INVALID_SIBLING)</li>
 	 * <li> The same classpath entry already exists on the destination project's
-	 * classpath (NAME_COLLISION) and <code>updateFlags</code> has not been
-	 * specified as <code>FORCE</code>
+	 * classpath (NAME_COLLISION) and <code>updateResourceFlags</code>
+	 * has not been specified as <code>IResource.FORCE</code></li>
 	 * </ul>
 	 * @see IResource#move
 	 * @since 2.1
 	 */
-	void move(IPath destination, int updateFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
+	void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
+	/**
+	 * @deprecated Use move(IPath, int, int, IClasspathEntry, IProgressMonitor) instead
+	 */
+	void move(IPath destination, int updateResourceFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 }
