@@ -28,19 +28,11 @@ public abstract class Scope
 	implements BaseTypes, BindingIds, CompilerModifiers, ProblemReasons, TagBits, TypeConstants, TypeIds {
 
 	public final static int BLOCK_SCOPE = 1;
-	public final static int METHOD_SCOPE = 2;
 	public final static int CLASS_SCOPE = 3;
 	public final static int COMPILATION_UNIT_SCOPE = 4;
-
-	public int kind;
-	public Scope parent;
-
-	protected Scope(int kind, Scope parent) {
-		this.kind = kind;
-		this.parent = parent;
-	}
-
-	/* Answer an int describing the relationship between the given types.
+	public final static int METHOD_SCOPE = 2;
+	
+   /* Answer an int describing the relationship between the given types.
 	*
 	* 		NotRelated 
 	* 		EqualOrMoreSpecific : left is compatible with right
@@ -95,6 +87,86 @@ public abstract class Scope
 	    }
 	    return substitutedTypes;
 	}
+
+	public int kind;
+	public Scope parent;
+
+	protected Scope(int kind, Scope parent) {
+		this.kind = kind;
+		this.parent = parent;
+	}
+
+	/*
+	 * Boxing primitive
+	 */
+	public int boxing(int id) {
+		switch (id) {
+			case T_int :
+				return T_JavaLangInteger;
+			case T_byte :
+				return T_JavaLangByte;
+			case T_short :
+				return T_JavaLangShort;
+			case T_char :
+				return T_JavaLangCharacter;
+			case T_long :
+				return T_JavaLangLong;
+			case T_float :
+				return T_JavaLangFloat;
+			case T_double :
+				return T_JavaLangDouble;
+			case T_boolean :
+				return T_JavaLangBoolean;
+			case T_void :
+				return T_JavaLangVoid;
+		}
+		return id;
+	}
+	/*
+	 * Boxing primitive
+	 */
+	public TypeBinding boxing(TypeBinding type) {
+		TypeBinding boxedType;
+		switch (type.id) {
+			case T_int :
+				boxedType = environment().getType(JAVA_LANG_INTEGER);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, NotFound);				
+			case T_byte :
+				boxedType = environment().getType(JAVA_LANG_BYTE);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_BYTE, NotFound);				
+			case T_short :
+				boxedType = environment().getType(JAVA_LANG_SHORT);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_SHORT, NotFound);				
+			case T_char :
+				boxedType = environment().getType(JAVA_LANG_CHARACTER);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, NotFound);				
+			case T_long :
+				boxedType = environment().getType(JAVA_LANG_LONG);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_LONG, NotFound);				
+			case T_float :
+				boxedType = environment().getType(JAVA_LANG_FLOAT);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, NotFound);				
+			case T_double :
+				boxedType = environment().getType(JAVA_LANG_DOUBLE);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, NotFound);				
+			case T_boolean :
+				boxedType = environment().getType(JAVA_LANG_BOOLEAN);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
+			case T_void :
+				boxedType = environment().getType(JAVA_LANG_VOID);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_VOID, NotFound);				
+		}
+		return type;
+	}	
 
 	public final ClassScope classScope() {
 		Scope scope = this;
@@ -2760,4 +2832,56 @@ public abstract class Scope
 		} while (scope != null);
 		return null;
 	}
+	/*
+	 * Unboxing primitive
+	 */
+	public int unboxing(int id) {
+		switch (id) {
+			case T_JavaLangInteger :
+				return T_int;
+			case T_JavaLangByte :
+				return T_byte;
+			case T_JavaLangShort :
+				return T_short;
+			case T_JavaLangCharacter :
+				return T_char;
+			case T_JavaLangLong :
+				return T_long;
+			case T_JavaLangFloat :
+				return T_float;
+			case T_JavaLangDouble :
+				return T_double;
+			case T_JavaLangBoolean :
+				return T_boolean;
+			case T_JavaLangVoid :
+				return T_void;
+		}
+		return id;
+	}
+	/*
+	 * Unboxing primitive
+	 */
+	public TypeBinding unboxing(TypeBinding type) {
+		switch (type.id) {
+			case T_JavaLangInteger :
+				return IntBinding;
+			case T_JavaLangByte :
+				return ByteBinding;
+			case T_JavaLangShort :
+				return ShortBinding;		
+			case T_JavaLangCharacter :
+				return CharBinding;				
+			case T_JavaLangLong :
+				return LongBinding;
+			case T_JavaLangFloat :
+				return FloatBinding;
+			case T_JavaLangDouble :
+				return DoubleBinding;
+			case T_JavaLangBoolean :
+				return BooleanBinding;
+			case T_JavaLangVoid :
+				return VoidBinding;
+		}
+		return type;
+	}		
 }

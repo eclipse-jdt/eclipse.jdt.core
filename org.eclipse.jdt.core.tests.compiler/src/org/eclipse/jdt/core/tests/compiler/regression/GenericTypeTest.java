@@ -8016,4 +8016,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");	
 	}
+	// 74244
+	public void test299() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public class X {\n" + 
+				" public static void main(String argv[]) {\n" + 
+				" 	System.out.println(Boolean.class == boolean.class ? \"FAILED\" : \"SUCCESS\");\n" + 
+				" }\n" + 
+				"}\n",
+			},
+			"SUCCESS");	
+	}	
 }
