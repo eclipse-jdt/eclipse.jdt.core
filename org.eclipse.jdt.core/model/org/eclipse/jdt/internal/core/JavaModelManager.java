@@ -67,6 +67,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public HashMap containers = new HashMap(5);
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
+	public boolean batchContainerInitializations = true;
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
@@ -197,6 +198,10 @@ public class JavaModelManager implements ISaveParticipant {
 			return;
 		} else {
 			projectInitializations.remove(containerPath);
+			if (projectInitializations.size() == 0) {
+				Map initializations = (Map)this.containerInitializationInProgress.get();
+				initializations.remove(project);
+			}
 
 			Map projectContainers = (Map)this.containers.get(project);
 			if (projectContainers == null){
@@ -778,6 +783,22 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 	
+	public IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
+
+		IClasspathContainer container = containerGet(project, containerPath);
+
+		if (container == null) {
+			if (this.batchContainerInitializations) {
+				// avoid deep recursion while initializaing container on workspace restart
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
+				this.batchContainerInitializations = false;
+				return initializeAllContainers(project, containerPath);
+			}
+			return initializeContainer(project, containerPath);
+		}
+		return container;			
+	}
+
 	public DeltaProcessor getDeltaProcessor() {
 		return this.deltaState.getDeltaProcessor();
 	}
@@ -1047,6 +1068,164 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public boolean hasTemporaryCache() {
 		return this.temporaryCache.get() != null;
+	}
+	
+	/*
+	 * Initialize all container at the same time as the given container.
+	 * Return the container for the given path and project.
+	 */
+	private IClasspathContainer initializeAllContainers(IJavaProject javaProjectToInit, IPath containerToInit) throws JavaModelException {
+		if (CP_RESOLVE_VERBOSE) {
+			Util.verbose(
+				"CPContainer INIT - batching containers initialization\n" + //$NON-NLS-1$
+				"	project to init: " + javaProjectToInit.getElementName() + '\n' + //$NON-NLS-1$
+				"	container path to init: " + containerToInit); //$NON-NLS-1$
+		}
+
+		// collect all container paths
+		HashMap allContainerPaths = new HashMap();
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (int i = 0, length = projects.length; i < length; i++) {
+			IProject project = projects[i];
+			if (!JavaProject.hasJavaNature(project)) continue;
+			IJavaProject javaProject = new JavaProject(project, getJavaModel());
+			HashSet paths = null;
+			IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
+			for (int j = 0, length2 = rawClasspath.length; j < length2; j++) {
+				IClasspathEntry entry = rawClasspath[j];
+				IPath path = entry.getPath();
+				if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER
+						&& containerGet(javaProject, path) == null) {
+					if (paths == null) {
+						paths = new HashSet();
+						allContainerPaths.put(javaProject, paths);
+					}
+					paths.add(path);
+				}
+			}
+			if (javaProject.equals(javaProjectToInit)) {
+				if (paths == null) {
+					paths = new HashSet();
+					allContainerPaths.put(javaProject, paths);
+				}
+				paths.add(containerToInit);
+			}
+		}
+		
+		// mark all containers as being initialized
+		this.containerInitializationInProgress.set(allContainerPaths);
+		
+		// initialize all containers
+		Set keys = allContainerPaths.keySet();
+		int length = keys.size();
+		IJavaProject[] javaProjects = new IJavaProject[length]; // clone as the following will have a side effect
+		keys.toArray(javaProjects);
+		for (int i = 0; i < length; i++) {
+			IJavaProject javaProject = javaProjects[i];
+			HashSet pathSet = (HashSet) allContainerPaths.get(javaProject);
+			if (pathSet == null) continue;
+			int length2 = pathSet.size();
+			IPath[] paths = new IPath[length2];
+			pathSet.toArray(paths); // clone as the following will have a side effect
+			for (int j = 0; j < length2; j++) {
+				IPath path = paths[j];
+				initializeContainer(javaProject, path);
+			}
+		}
+		
+		return containerGet(javaProjectToInit, containerToInit);
+	}
+
+	private IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
+
+		IClasspathContainer container = null;
+		final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
+		if (initializer != null){
+			if (CP_RESOLVE_VERBOSE){
+				Util.verbose(
+					"CPContainer INIT - triggering initialization\n" + //$NON-NLS-1$
+					"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+					"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+					"	initializer: " + initializer + '\n' + //$NON-NLS-1$
+					"	invocation stack trace:"); //$NON-NLS-1$
+				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
+			}
+			containerPut(project, containerPath, CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
+			boolean ok = false;
+			try {
+				// let OperationCanceledException go through
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59363)
+				initializer.initialize(containerPath, project);
+				
+				// retrieve value (if initialization was successful)
+				container = containerGet(project, containerPath);
+				if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
+				ok = true;
+			} catch (CoreException e) {
+				if (e instanceof JavaModelException) {
+					throw (JavaModelException) e;
+				} else {
+					throw new JavaModelException(e);
+				}
+			} catch (RuntimeException e) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+					e.printStackTrace();
+				}
+				throw e;
+			} catch (Error e) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+					e.printStackTrace();
+				}
+				throw e;
+			} finally {
+				if (!ok) {
+					containerPut(project, containerPath, null); // flush cache
+					if (CP_RESOLVE_VERBOSE) {
+						if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+							Util.verbose(
+								"CPContainer INIT - FAILED (initializer did not initialize container)\n" + //$NON-NLS-1$
+								"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+								"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+								"	initializer: " + initializer); //$NON-NLS-1$
+							
+						} else {
+							Util.verbose(
+								"CPContainer INIT - FAILED (see exception above)\n" + //$NON-NLS-1$
+								"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+								"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+								"	initializer: " + initializer); //$NON-NLS-1$
+						}
+					}
+				}
+			}
+			if (CP_RESOLVE_VERBOSE){
+				StringBuffer buffer = new StringBuffer();
+				buffer.append("CPContainer INIT - after resolution\n"); //$NON-NLS-1$
+				buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
+				buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
+				if (container != null){
+					buffer.append("	container: "+container.getDescription()+" {\n"); //$NON-NLS-2$//$NON-NLS-1$
+					IClasspathEntry[] entries = container.getClasspathEntries();
+					if (entries != null){
+						for (int i = 0; i < entries.length; i++){
+							buffer.append("		" + entries[i] + '\n'); //$NON-NLS-1$
+						}
+					}
+					buffer.append("	}");//$NON-NLS-1$
+				} else {
+					buffer.append("	container: {unbound}");//$NON-NLS-1$
+				}
+				Util.verbose(buffer.toString());
+			}
+		} else {
+			if (CP_RESOLVE_VERBOSE){
+				Util.verbose(
+					"CPContainer INIT - no initializer found\n" + //$NON-NLS-1$
+					"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+					"	container path: " + containerPath); //$NON-NLS-1$
+			}
+		}
+		return container;
 	}
 
 	public void loadVariablesAndContainers() throws CoreException {

@@ -387,8 +387,11 @@ public class DeltaProcessor {
 				JavaProject javaProject = (JavaProject)JavaCore.create(project);
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
+						this.manager.batchContainerInitializations = true;
+					
 						// remember project and its dependents
 						this.addToRootsToRefreshWithDependents(javaProject);
+						
 						// workaround for bug 15168 circular errors not reported 
 						if (JavaProject.hasJavaNature(project)) {
 							this.addToParentInfo(javaProject);
@@ -398,6 +401,8 @@ public class DeltaProcessor {
 						
 					case IResourceDelta.CHANGED : 
 							if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+								this.manager.batchContainerInitializations = true;
+		
 								// project opened or closed: remember  project and its dependents
 								this.addToRootsToRefreshWithDependents(javaProject);
 								
@@ -419,6 +424,8 @@ public class DeltaProcessor {
 								boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(project) != null;
 								boolean isJavaProject = JavaProject.hasJavaNature(project);
 								if (wasJavaProject != isJavaProject) { 
+									this.manager.batchContainerInitializations = true;
+									
 									// java nature added or removed: remember  project and its dependents
 									this.addToRootsToRefreshWithDependents(javaProject);
 		
@@ -455,10 +462,12 @@ public class DeltaProcessor {
 							break;
 
 					case IResourceDelta.REMOVED : 
-							// remove classpath cache so that initializeRoots() will not consider the project has a classpath
-							this.manager.removePerProjectInfo((JavaProject)JavaCore.create(resource));
-							this.state.rootsAreStale = true;
-							break;
+						this.manager.batchContainerInitializations = true;
+
+						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
+						this.manager.removePerProjectInfo((JavaProject)JavaCore.create(resource));
+						this.state.rootsAreStale = true;
+						break;
 				}
 				
 				// in all cases, refresh the external jars for this project
@@ -469,6 +478,7 @@ public class DeltaProcessor {
 				IFile file = (IFile) resource;
 				/* classpath file change */
 				if (file.getName().equals(JavaProject.CLASSPATH_FILENAME)) {
+					this.manager.batchContainerInitializations = true;
 					reconcileClasspathFileUpdate(delta, (JavaProject)JavaCore.create(file.getProject()));
 					this.state.rootsAreStale = true;
 				}

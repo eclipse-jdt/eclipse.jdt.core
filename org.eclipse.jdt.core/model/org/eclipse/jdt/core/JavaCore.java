@@ -891,10 +891,6 @@ public final class JavaCore extends Plugin {
 	public JavaCore() {
 		super();
 		JAVA_CORE_PLUGIN = this;
-		
-		// TODO (jerome) remove workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=60537
-		String option = Platform.getDebugOption(JavaCore.PLUGIN_ID + "/debug"); //$NON-NLS-1$
-		setDebugging(option != null && option.equalsIgnoreCase("true")); //$NON-NLS-1$
 	}
 
 	/**
@@ -1190,99 +1186,10 @@ public final class JavaCore extends Plugin {
 	 * @see #setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @since 2.0
 	 */
-	public static IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
+	public static IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
 
-		IClasspathContainer container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
-		if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
-
-		if (container == null){
-			final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
-			if (initializer != null){
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					Util.verbose(
-						"CPContainer INIT - triggering initialization\n" + //$NON-NLS-1$
-						"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-						"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-						"	initializer: " + initializer + '\n' + //$NON-NLS-1$
-						"	invocation stack trace:"); //$NON-NLS-1$
-					new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-				}
-				JavaModelManager.getJavaModelManager().containerPut(project, containerPath, JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
-				boolean ok = false;
-				try {
-					// let OperationCanceledException go through
-					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59363)
-					initializer.initialize(containerPath, project);
-					
-					// retrieve value (if initialization was successful)
-					container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
-					if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
-					ok = true;
-				} catch (CoreException e) {
-					if (e instanceof JavaModelException) {
-						throw (JavaModelException) e;
-					} else {
-						throw new JavaModelException(e);
-					}
-				} catch (RuntimeException e) {
-					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-						e.printStackTrace();
-					}
-					throw e;
-				} catch (Error e) {
-					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-						e.printStackTrace();
-					}
-					throw e;
-				} finally {
-					if (!ok) {
-						JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
-						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
-								Util.verbose(
-									"CPContainer INIT - FAILED (initializer did not initialize container)\n" + //$NON-NLS-1$
-									"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-									"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-									"	initializer: " + initializer); //$NON-NLS-1$
-								
-							} else {
-								Util.verbose(
-									"CPContainer INIT - FAILED (see exception above)\n" + //$NON-NLS-1$
-									"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-									"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-									"	initializer: " + initializer); //$NON-NLS-1$
-							}
-						}
-					}
-				}
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					StringBuffer buffer = new StringBuffer();
-					buffer.append("CPContainer INIT - after resolution\n"); //$NON-NLS-1$
-					buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
-					buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
-					if (container != null){
-						buffer.append("	container: "+container.getDescription()+" {\n"); //$NON-NLS-2$//$NON-NLS-1$
-						IClasspathEntry[] entries = container.getClasspathEntries();
-						if (entries != null){
-							for (int i = 0; i < entries.length; i++){
-								buffer.append("		" + entries[i] + '\n'); //$NON-NLS-1$
-							}
-						}
-						buffer.append("	}");//$NON-NLS-1$
-					} else {
-						buffer.append("	container: {unbound}");//$NON-NLS-1$
-					}
-					Util.verbose(buffer.toString());
-				}
-			} else {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					Util.verbose(
-						"CPContainer INIT - no initializer found\n" + //$NON-NLS-1$
-						"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-						"	container path: " + containerPath); //$NON-NLS-1$
-				}
-			}
-		}
+		IClasspathContainer container = JavaModelManager.getJavaModelManager().getClasspathContainer(containerPath, project);
+		if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null;
 		return container;			
 	}
 

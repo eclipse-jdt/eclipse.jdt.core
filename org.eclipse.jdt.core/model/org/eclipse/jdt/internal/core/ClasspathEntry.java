@@ -1002,10 +1002,13 @@ public class ClasspathEntry implements IClasspathEntry {
 			case IClasspathEntry.CPE_CONTAINER :
 				if (path != null && path.segmentCount() >= 1){
 					try {
-						IClasspathContainer container = JavaCore.getClasspathContainer(path, project);
+						IClasspathContainer container = JavaModelManager.getJavaModelManager().getClasspathContainer(path, project);
 						// container retrieval is performing validation check on container entry kinds.
 						if (container == null){
 							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, project, path);
+						} else if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+							// don't create a marker if initialization is in progress (case of cp initialization batching)
+							return JavaModelStatus.VERIFIED_OK;
 						}
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){

@@ -13,7 +13,9 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
@@ -142,7 +144,7 @@ public ClasspathInitializerTests(String name) {
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testContainerInitializer5"));
+		suite.addTest(new ClasspathInitializerTests("testContainerInitializer8"));
 		return suite;
 	}
 	return new Suite(ClasspathInitializerTests.class);
@@ -157,28 +159,28 @@ protected void tearDown() throws Exception {
 }
 public void testContainerInitializer1() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
-		IJavaProject p2 = this.createJavaProject(
+		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
-		IPackageFragmentRoot root = p2.getPackageFragmentRoot(this.getFile("/P1/lib.jar"));
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getFile("/P1/lib.jar"));
 		assertTrue("/P1/lib.jar should exist", root.exists());
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 public void testContainerInitializer2() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
-		IJavaProject p2 = this.createJavaProject(
+		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -201,23 +203,23 @@ public void testContainerInitializer2() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 public void testContainerInitializer3() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
-		IJavaProject p2 = this.createJavaProject(
+		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
 				
 		// change value of TEST_CONTAINER
-		this.createFile("/P1/lib2.jar", "");
+		createFile("/P1/lib2.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib2.jar"}));
 
 		// simulate state on startup (flush containers, and preserve their previous values)
@@ -239,8 +241,8 @@ public void testContainerInitializer3() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /* Ensure that initializer is not callled when resource tree is locked.
@@ -248,11 +250,11 @@ public void testContainerInitializer3() throws CoreException {
  */
 public void testContainerInitializer4() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
 		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"});
 		ContainerInitializer.setInitializer(initializer);
-		IJavaProject p2 = this.createJavaProject(
+		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {""}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -267,7 +269,7 @@ public void testContainerInitializer4() throws CoreException {
 		p2.close();
 		
 		startDeltas();
-		this.createFile("/P2/X.java", "public class X {}");
+		createFile("/P2/X.java", "public class X {}");
 		
 		assertEquals("Should not get exception", null, initializer.exception);
 		
@@ -280,8 +282,8 @@ public void testContainerInitializer4() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /* 
@@ -291,7 +293,7 @@ public void testContainerInitializer5() throws CoreException {
 	try {
 		NullContainerInitializer nullInitializer = new NullContainerInitializer();
 		ContainerInitializer.setInitializer(nullInitializer);
-		IJavaProject p1 = this.createJavaProject(
+		IJavaProject p1 = createJavaProject(
 				"P1", 
 				new String[] {""}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -308,7 +310,7 @@ public void testContainerInitializer5() throws CoreException {
 		startDeltas();
 
 		// will trigger classpath resolution (with null container value)
-		this.createFile("/P1/X.java", "public class X {}");
+		createFile("/P1/X.java", "public class X {}");
 		assertDeltas(
 			"Unexpected delta on startup", 
 			"P1[*]: {CHILDREN}\n" + 
@@ -326,7 +328,7 @@ public void testContainerInitializer5() throws CoreException {
 
 		// assigning new (non-null) value to container
 		waitForAutoBuild();
-		this.createFile("/P1/lib.jar", "");
+		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
 		p1.getResolvedClasspath(true);
 		assertDeltas(
@@ -345,7 +347,7 @@ public void testContainerInitializer5() throws CoreException {
 		assertTrue("stack overflow assigning container", false);
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
+		deleteProject("P1");
 	}
 }
 /*
@@ -356,9 +358,9 @@ public void testContainerInitializer5() throws CoreException {
 public void testContainerInitializer6() throws CoreException {
     ICompilationUnit workingCopy = null;
 	try {
-		this.createProject("P1");
+		createProject("P1");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", ""}));
-		IJavaProject p2 = this.createJavaProject(
+		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {"src"}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -400,8 +402,8 @@ public void testContainerInitializer6() throws CoreException {
 	} finally {
 		stopDeltas();
 		if (workingCopy != null) workingCopy.discardWorkingCopy();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /*
@@ -416,7 +418,7 @@ public void testContainerInitializer7() throws CoreException {
 				public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 					throw new OperationCanceledException("test");
 				}});
-			IJavaProject p1 = this.createJavaProject(
+			IJavaProject p1 = createJavaProject(
 					"P1", 
 					new String[] {}, 
 					new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -428,54 +430,133 @@ public void testContainerInitializer7() throws CoreException {
 		assertTrue("Should get an OperationCanceledException", gotException);
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
+		deleteProject("P1");
+	}
+}
+/*
+ * Ensure that the stack doesn't blow up if initializer is missbehaving
+ * (regression test for bug 61052 Flatten cp container initialization)
+ */
+public void testContainerInitializer8() throws CoreException {
+	final int projectLength = 10;
+	final String[] projects = new String[projectLength];
+	for (int i = 0; i < projectLength; i++) {
+		projects[i] = "P" + i;
+	}
+	try {
+		String[] projectRefs = new String[(projectLength-1) * 2];
+		for (int i = 0; i < projectLength-1; i++) {
+			projectRefs[i*2] = "P" + i;
+			projectRefs[(i*2)+1] = "/P" + i + "/test.jar";
+		}
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(projectRefs) {
+			void foo(int n) {
+				if (n > 0) {
+					foo(n-1);
+					return;
+				}
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				for (int i = 0; i < projectLength-1; i++) {
+					try {
+						JavaCore.create(root.getProject(projects[i])).getResolvedClasspath(true);
+					} catch (JavaModelException e) {
+						// project doesn't exist: ignore
+					}
+				}
+			}
+			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+				foo(500);
+				super.initialize(containerPath, project);
+			}
+		});
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				for (int i = 0; i < projectLength; i++) {
+					createProject(projects[i]);
+					editFile(
+						"/" + projects[i] + "/.project",
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+						"<projectDescription>\n" + 
+						"	<name>" + projects[i] + "</name>\n" + 
+						"	<comment></comment>\n" + 
+						"	<projects>\n" + 
+						(i == 0 ? "" : "<project>" + projects[i-1] + "</project>\n") +
+						"	</projects>\n" + 
+						"	<buildSpec>\n" + 
+						"		<buildCommand>\n" + 
+						"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
+						"			<arguments>\n" + 
+						"			</arguments>\n" + 
+						"		</buildCommand>\n" + 
+						"	</buildSpec>\n" + 
+						"	<natures>\n" + 
+						"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
+						"	</natures>\n" + 
+						"</projectDescription>"
+					);
+					createFile(
+						"/" + projects[i] + "/.classpath",
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+						"<classpath>\n" +
+						(i == 0 ? "" : "<classpathentry kind=\"src\" path=\"/" + projects[i-1] + "\"/>\n") +					 
+						"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+						"	<classpathentry kind=\"output\" path=\"\"/>\n" +
+						"</classpath>"
+					);
+				}
+			}
+		}, null);
+		getJavaProject("P0").getResolvedClasspath(true);
+	} finally {
+		stopDeltas();
+		deleteProjects(projects);
 	}
 }
 public void testVariableInitializer1() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P1/lib.jar"}));
-		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB"}, "");
-		IPackageFragmentRoot root = p2.getPackageFragmentRoot(this.getFile("/P1/lib.jar"));
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB"}, "");
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getFile("/P1/lib.jar"));
 		assertTrue("/P1/lib.jar should exist", root.exists());
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 		VariablesInitializer.reset();
 	}
 }
 public void testVariableInitializer2() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
-		this.createFile("/P1/src.zip", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		createFile("/P1/src.zip", "");
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
 			"TEST_LIB", "/P1/lib.jar",
 			"TEST_SRC", "/P1/src.zip",
 			"TEST_ROOT", "src",
 		}));
-		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
-		IPackageFragmentRoot root = p2.getPackageFragmentRoot(this.getFile("/P1/lib.jar"));
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getFile("/P1/lib.jar"));
 		assertEquals("Unexpected source attachment path", "/P1/src.zip", root.getSourceAttachmentPath().toString());
 		assertEquals("Unexpected source attachment root path", "src", root.getSourceAttachmentRootPath().toString());
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 		VariablesInitializer.reset();
 	}
 }
 public void testVariableInitializer3() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
-		this.createFile("/P1/src.zip", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		createFile("/P1/src.zip", "");
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
 			"TEST_LIB", "/P1/lib.jar",
 			"TEST_SRC", "/P1/src.zip",
 			"TEST_ROOT", "src",
 		}));
-		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
 		// simulate state on startup (flush variables, and preserve their previous values)
 		waitUntilIndexesReady();
@@ -496,8 +577,8 @@ public void testVariableInitializer3() throws CoreException {
 	} finally {
 		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 		VariablesInitializer.reset();
 	}
 }
@@ -512,13 +593,13 @@ public void testVariableInitializer4() throws CoreException {
 				JavaCore.setClasspathVariable(variable, path, null);
 			}
 		});
-		this.createJavaProject("P", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		createJavaProject("P", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 		assertEquals(
 			"Initializing TEST_LIB\n" +
 			"Setting variable TEST_LIB to test_lib\n",
 			buffer.toString());
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 		VariablesInitializer.reset();
 	}
 }
@@ -534,7 +615,7 @@ public void testVariableInitializer5() throws CoreException {
 				JavaCore.setClasspathVariable(variable, path, null);
 			}
 		});
-		this.createJavaProject("P", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		createJavaProject("P", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 		assertEquals(
 			"Initializing TEST_LIB\n" +
 			"Initializing TEST_SRC\n" +
@@ -542,7 +623,7 @@ public void testVariableInitializer5() throws CoreException {
 			"Setting variable TEST_LIB to test_lib\n",
 			buffer.toString());
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 		VariablesInitializer.reset();
 	}
 }
@@ -577,18 +658,18 @@ public void testVariableInitializer6() throws CoreException {
 }
 public void testVariableInitializer7() throws CoreException {
 	try {
-		this.createProject("P1");
-		this.createFile("/P1/lib.jar", "");
-		this.createFile("/P1/src.zip", "");
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		createFile("/P1/src.zip", "");
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
 			"TEST_LIB", "/P1/lib.jar",
 			"TEST_SRC", "/P1/src.zip",
 			"TEST_ROOT", "src",
 		}));
-		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
 		// change value of TEST_LIB
-		this.createFile("/P1/lib2.jar", "");
+		createFile("/P1/lib2.jar", "");
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
 			"TEST_LIB", "/P1/lib2.jar",
 			"TEST_SRC", "/P1/src.zip",
@@ -616,8 +697,8 @@ public void testVariableInitializer7() throws CoreException {
 	} finally {
 		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 		VariablesInitializer.reset();
 	}
 }
@@ -635,14 +716,14 @@ public void testVariableInitializer8() throws CoreException {
 					throw new OperationCanceledException("test");
 				}
 			});
-			IJavaProject p1 = this.createJavaProject("P1", new String[] {}, new String[] {"TEST_LIB"}, "");
+			IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"TEST_LIB"}, "");
 			p1.getResolvedClasspath(true);
 		} catch (OperationCanceledException e) {
 			gotException = true;
 		}
 		assertTrue("Should get an OperationCanceledException", gotException);
 	} finally {
-		this.deleteProject("P1");
+		deleteProject("P1");
 		VariablesInitializer.reset();
 	}
 }
