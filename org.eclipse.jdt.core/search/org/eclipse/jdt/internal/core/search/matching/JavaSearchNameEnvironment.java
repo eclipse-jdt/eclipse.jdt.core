@@ -12,18 +12,21 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.builder.*;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.builder.ClasspathJar;
+import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 
 public class JavaSearchNameEnvironment implements INameEnvironment {
 	
@@ -134,24 +137,9 @@ public NameEnvironmentAnswer findType(char[][] compoundName) {
 	return null;
 }
 
-private ClasspathLocation getClasspathJar(IFile file) {
-	try {
-		ZipFile zipFile = JavaModelManager.getJavaModelManager().getZipFile(file.getFullPath());
-		return new ClasspathJar(zipFile);
-	} catch (CoreException e) {
-		return null;
-	}
-}
 
-private ClasspathLocation getClasspathJar(String zipPathString) {
-	IPath zipPath = new Path(zipPathString);
-	try {
-		ZipFile zipFile = JavaModelManager.getJavaModelManager().getZipFile(zipPath);
-		return new ClasspathJar(zipFile);
-	} catch (CoreException e) {
-		return null;
-	}
-}
+
+
 
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')));
