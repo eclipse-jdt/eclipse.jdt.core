@@ -12,14 +12,12 @@ package org.eclipse.jdt.internal.core.search;
 
 import java.util.HashSet;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.core.IJavaProject;
 
 /**
  * A Java-specific scope for searching the entire workspace.
@@ -72,19 +70,13 @@ public boolean equals(Object o) {
 public int hashCode() {
 	return JavaWorkspaceScope.class.hashCode();
 }
-
-
 public void initialize() {
 	super.initialize();
-	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-	for (int i = 0, length = projects.length; i < length; i++) {
-		IProject project = projects[i];
-		if (project.isAccessible()) {
-			try {
-				this.add(JavaCore.create(project), false, new HashSet(2));
-			} catch (JavaModelException e) {
-			}
-		}
+	try {
+		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+		for (int i = 0, length = projects.length; i < length; i++)
+			this.add(projects[i], false, new HashSet(2));
+	} catch (JavaModelException ignored) {
 	}
 	this.needsInitialize = false;
 }
