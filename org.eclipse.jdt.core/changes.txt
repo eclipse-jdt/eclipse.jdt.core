@@ -122,6 +122,7 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3174      Open-on-selection doesn't work on MouseAdapter (1GF69TH)  
   3337      Open on selection failed with double message (1GIFA80)  
   3207		JM - Smart save when empty CU (1G4EVHM) 
   1672		Cannot evaluate classes in a sealed jar (1GHU6YK) 
