@@ -195,12 +195,14 @@ public class SourceMapper
 	public void close() throws JavaModelException {
 		fSourceRanges = null;
 	}
-	
+
 	/**
-	 * Converts these type names to signatures.
+	 * Converts these type names to unqualified signatures. This needs to be done in order to be consistent
+	 * with the way the source range is retrieved.
+	 * @see SourceMapper#getUnqualifiedMethodHandle
 	 * @see Signature.
 	 */
-	public String[] convertTypeNamesToSigs(char[][] typeNames) {
+	private String[] convertTypeNamesToSigs(char[][] typeNames) {
 		if (typeNames == null)
 			return fgEmptyStringArray;
 		int n = typeNames.length;
@@ -208,7 +210,13 @@ public class SourceMapper
 			return fgEmptyStringArray;
 		String[] typeSigs = new String[n];
 		for (int i = 0; i < n; ++i) {
-			typeSigs[i] = Signature.createTypeSignature(typeNames[i], false);
+			String typeSig = Signature.createTypeSignature(typeNames[i], false);
+			int lastIndex = typeSig.lastIndexOf('.');
+			if (lastIndex == -1) {
+				typeSigs[i] = typeSig;
+			} else {
+				typeSigs[i] = "" + Signature.C_UNRESOLVED + typeSig.substring(lastIndex + 1, typeSig.length());
+			}
 		}
 		return typeSigs;
 	}
