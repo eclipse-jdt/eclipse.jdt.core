@@ -2797,32 +2797,18 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
-	 * for the project's source folder identified by the given absolute 
-	 * workspace-relative path. This specifies that all package fragments
-	 * within the root will have children of type <code>ICompilationUnit</code>.
+	 * for all files in the project's source folder identified by the given
+	 * absolute workspace-relative path.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the
-	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
-	 * folders are located with that project. That is, a source classpath
-	 * entry specifying the path <code>/P1/src</code> is only usable for
-	 * project <code>P1</code>.
-	 * </p>
-	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path. To selectively exclude
-	 * some of these source files, use the factory method 
-	 * <code>JavaCore.newSourceEntry(IPath,IPath[])</code> instead.
-	 * </p>
-	 * <p>
-	 * Note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * The convenience method is fully equivalent to:
+	 * <pre>
+	 * newSourceEntry(path, new IPath[] {}, new IPath[] {}, null);
+	 * </pre>
 	 * </p>
 	 * 
 	 * @param path the absolute workspace-relative path of a source folder
-	 * @return a new source classpath entry with not exclusion patterns
-	 * 
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath[])
+	 * @return a new source classpath entry
+	 * @see #newSourceEntry(IPath, IPath[], IPath[], IPath)
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 
@@ -2833,52 +2819,19 @@ public final class JavaCore extends Plugin {
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
 	 * for the project's source folder identified by the given absolute 
 	 * workspace-relative path but excluding all source files with paths
-	 * matching any of the given patterns. This specifies that all package
-	 * fragments within the root will have children of type 
-	 * <code>ICompilationUnit</code>.
+	 * matching any of the given patterns.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the
-	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
-	 * folders are located with that project. That is, a source classpath
-	 * entry specifying the path <code>/P1/src</code> is only usable for
-	 * project <code>P1</code>.
-	 * </p>
-	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path except for those matched
-	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
-	 * is represented by a relative path, which is interpreted as relative to
-	 * the source folder. For example, if the source folder path is 
-	 * <code>/Project/src</code> and the exclusion pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
-	 * like <code>/Project/src/com/xyz/Foo.java</code>
-	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
-	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
-	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
-	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
-	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
-	 * for the full description of the syntax and semantics of exclusion
-	 * patterns.
-	 * </p>
-	 * If the empty list of exclusion patterns is specified, the source folder
-	 * will automatically include all resources located inside the source
-	 * folder. In that case, the result is entirely equivalent to using the
-	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
-	 * </p>
-	 * <p>
-	 * Note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * The convenience method is fully equivalent to:
+	 * <pre>
+	 * newSourceEntry(path, new IPath[] {}, exclusionPatterns, null);
+	 * </pre>
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
 	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
-	 * @return a new source classpath entry with the given exclusion patterns
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
-	 * @see IClasspathEntry#getInclusionPatterns()
-	 * @see IClasspathEntry#getExclusionPatterns()
-	 * 
+	 * @return a new source classpath entry
+	 * @see #newSourceEntry(IPath, IPath[], IPath[], IPath)
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns) {
@@ -2892,63 +2845,19 @@ public final class JavaCore extends Plugin {
 	 * workspace-relative path but excluding all source files with paths
 	 * matching any of the given patterns, and associated with a specific output location
 	 * (that is, ".class" files are not going to the project default output location). 
-	 * All package fragments within the root will have children of type 
-	 * <code>ICompilationUnit</code>.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the
-	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
-	 * folders are located with that project. That is, a source classpath
-	 * entry specifying the path <code>/P1/src</code> is only usable for
-	 * project <code>P1</code>.
-	 * </p>
-	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path except for those matched
-	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
-	 * is represented by a relative path, which is interpreted as relative to
-	 * the source folder. For example, if the source folder path is 
-	 * <code>/Project/src</code> and the exclusion pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
-	 * like <code>/Project/src/com/xyz/Foo.java</code>
-	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
-	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
-	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
-	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
-	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
-	 * for the full description of the syntax and semantics of exclusion
-	 * patterns.
-	 * </p>
-	 * If the empty list of exclusion patterns is specified, the source folder
-	 * will automatically include all resources located inside the source
-	 * folder. In that case, the result is entirely equivalent to using the
-	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
-	 * </p>
-	 * <p>
-	 * Additionally, a source entry can be associated with a specific output location. 
-	 * By doing so, the Java builder will ensure that the generated ".class" files will 
-	 * be issued inside this output location, as opposed to be generated into the 
-	 * project default output location (when output location is <code>null</code>). 
-	 * Note that multiple source entries may target the same output location.
-	 * The output location is referred to using an absolute path relative to the 
-	 * workspace root, e.g. <code>"/Project/bin"</code>, it must be located inside 
-	 * the same project as the source folder.
-	 * </p>
-	 * <p>
-	 * Also note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * The convenience method is fully equivalent to:
+	 * <pre>
+	 * newSourceEntry(path, new IPath[] {}, exclusionPatterns, specificOutputLocation);
+	 * </pre>
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
 	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
 	 * @param specificOutputLocation the specific output location for this source entry (<code>null</code> if using project default ouput location)
-	 * @return a new source classpath entry with the given exclusion patterns
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
-	 * @see IClasspathEntry#getInclusionPatterns()
-	 * @see IClasspathEntry#getExclusionPatterns()
-	 * @see IClasspathEntry#getOutputLocation()
-	 * 
+	 * @return a new source classpath entry
+	 * @see #newSourceEntry(IPath, IPath[], IPath[], IPath)
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns, IPath specificOutputLocation) {
@@ -2956,14 +2865,12 @@ public final class JavaCore extends Plugin {
 	    return newSourceEntry(path, ClasspathEntry.INCLUDE_ALL, exclusionPatterns, specificOutputLocation);
 	}
 		
-	/** TODO (philippe) fixup spec for inclusion patterns
+	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
 	 * for the project's source folder identified by the given absolute 
-	 * workspace-relative path but excluding all source files with paths
-	 * matching any of the given patterns, and associated with a specific output location
-	 * (that is, ".class" files are not going to the project default output location). 
-	 * All package fragments within the root will have children of type 
-	 * <code>ICompilationUnit</code>.
+	 * workspace-relative path using the given inclusion and exclusion patterns
+	 * to determine which source files are included, and the given output path
+	 * to control the output location of generated files.
 	 * <p>
 	 * The source folder is referred to using an absolute path relative to the
 	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
@@ -2972,26 +2879,33 @@ public final class JavaCore extends Plugin {
 	 * project <code>P1</code>.
 	 * </p>
 	 * <p>
-	 * The source classpath entry created by this method includes all source
-	 * files below the given workspace-relative path except for those matched
-	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
-	 * is represented by a relative path, which is interpreted as relative to
-	 * the source folder. For example, if the source folder path is 
-	 * <code>/Project/src</code> and the exclusion pattern is 
+	 * The inclusion patterns determines the initial set of source files that
+	 * are to be included; the exclusion patterns are then used to reduce this
+	 * set. When no inclusion patterns are specified, the initial file set
+	 * includes all relevent files in the resource tree rooted at the source
+	 * entry's path. On the other hand, specifying one or more inclusion
+	 * patterns means that all <b>and only</b> files matching at least one of
+	 * the specified patterns are to be included. If exclusion patterns are 
+	 * specified, the initial set of files is then reduced by eliminating files
+	 * matched by at least one of the exclusion patterns. Inclusion and
+	 * exclusion patterns look like relative file paths with wildcards and are
+	 * interpreted relative to the source entry's path. File patterns are 
+	 * case-sensitive can contain '**', '*' or '?' wildcards (see
+	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
+	 * of their syntax and semantics). The resulting set of files are included
+	 * in the corresponding package fragment root; all package fragments within
+	 * the root will have children of type <code>ICompilationUnit</code>.
+	 * </p>
+	 * <p>
+	 * For example, if the source folder path is 
+	 * <code>/Project/src</code>, there are no inclusion filters, and the
+	 * exclusion pattern is 
 	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
 	 * like <code>/Project/src/com/xyz/Foo.java</code>
 	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
 	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
 	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
-	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
-	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
-	 * for the full description of the syntax and semantics of exclusion
-	 * patterns.
-	 * </p>
-	 * If the empty list of exclusion patterns is specified, the source folder
-	 * will automatically include all resources located inside the source
-	 * folder. In that case, the result is entirely equivalent to using the
-	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
+	 * excluded. 
 	 * </p>
 	 * <p>
 	 * Additionally, a source entry can be associated with a specific output location. 
@@ -3004,9 +2918,10 @@ public final class JavaCore extends Plugin {
 	 * the same project as the source folder.
 	 * </p>
 	 * <p>
-	 * Also note that all sources/binaries inside a project are contributed as a whole through
-	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
-	 * source entries cannot be selectively exported.
+	 * Also note that all sources/binaries inside a project are contributed as
+	 * a whole through a project entry
+	 * (see <code>JavaCore.newProjectEntry</code>). Particular source entries
+	 * cannot be selectively exported.
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
@@ -3016,11 +2931,9 @@ public final class JavaCore extends Plugin {
 	 *    represented as relative paths
 	 * @param specificOutputLocation the specific output location for this source entry (<code>null</code> if using project default ouput location)
 	 * @return a new source classpath entry with the given exclusion patterns
-	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
 	 * @see IClasspathEntry#getInclusionPatterns()
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @see IClasspathEntry#getOutputLocation()
-	 * 
 	 * @since 3.0
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] inclusionPatterns, IPath[] exclusionPatterns, IPath specificOutputLocation) {
@@ -3028,6 +2941,7 @@ public final class JavaCore extends Plugin {
 		if (path == null) Assert.isTrue(false, "Source path cannot be null"); //$NON-NLS-1$
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		if (exclusionPatterns == null) Assert.isTrue(false, "Exclusion pattern set cannot be null"); //$NON-NLS-1$
+		if (inclusionPatterns == null) Assert.isTrue(false, "Inclusion pattern set cannot be null"); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,

@@ -267,15 +267,15 @@ public interface IClasspathEntry {
 	 * <p>
 	 * When no inclusion patterns are specified, the source entry includes all
 	 * relevent files in the resource tree rooted at this source entry's path.
-	 * Specifying one or more inclusion patterns only the specified portions
-	 * of the resource tree to be included. Each path specified must be a
-	 * relative path, and will be interpreted relative to this source entry's
-	 * path. File patterns are case-sensitive. A file matched by one or more of
-	 * these patterns is included in the corresponding package fragment root
-	 * unless it is excluded by one or more of this entrie's exclusion patterns.
-	 * Exclusion patterns have higher precedence than inclusion patterns; in
-	 * other words, exclusion patterns can remove files for the ones that are
-	 * to be included, not the other way around.
+	 * Specifying one or more inclusion patterns means that only the specified
+	 * portions of the resource tree are to be included. Each path specified
+	 * must be a relative path, and will be interpreted relative to this source
+	 * entry's path. File patterns are case-sensitive. A file matched by one or
+	 * more of these patterns is included in the corresponding package fragment
+	 * root unless it is excluded by one or more of this entrie's exclusion
+	 * patterns. Exclusion patterns have higher precedence than inclusion
+	 * patterns; in other words, exclusion patterns can remove files for the
+	 * ones that are to be included, not the other way around.
 	 * </p>
 	 * <p>
 	 * See {@link #getExclusionPatterns()} for a discussion of the syntax and
