@@ -85,6 +85,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testPackageFragmentRootNonJavaResources"));
 	suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
 	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
+	suite.addTest(new JavaProjectTests("testGetClasspathOnClosedProject"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -356,6 +357,37 @@ public void testFolderWithDotName() throws JavaModelException, CoreException {
 	} finally {
 		folder.getFolder(new Path("org.eclipse")).delete(true, null);
 	}	
+}
+/*
+ * Ensures that getting the classpath on a closed project throws a JavaModelException
+ * (regression test for bug 25358 Creating a new Java class - Browse for parent)
+ */ 
+public void testGetClasspathOnClosedProject() throws CoreException {
+	IProject project = getProject("JavaProjectTests");
+	try {
+		project.close(null);
+		boolean gotException = false;
+		IJavaProject javaProject = JavaCore.create(project);
+		try {
+			javaProject.getRawClasspath();
+		} catch (JavaModelException e) {
+			if (e.isDoesNotExist()) {
+				gotException = true;
+			}
+		}
+		assertTrue("Should get a not present exception for getRawClasspath()", gotException);
+		gotException = false;
+		try {
+			javaProject.getResolvedClasspath(true);
+		} catch (JavaModelException e) {
+			if (e.isDoesNotExist()) {
+				gotException = true;
+			}
+		}
+		assertTrue("Should get a not present exception for getResolvedClasspath(true)", gotException);
+	} finally {
+		project.open(null);
+	}
 }
 /**
  * Test that an (internal) jar

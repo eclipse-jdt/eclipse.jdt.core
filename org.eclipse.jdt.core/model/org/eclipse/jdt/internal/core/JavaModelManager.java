@@ -919,7 +919,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
 		JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
 		if (info == null) {
-			if (!project.exists()) {
+			if (!project.isAccessible()) {
 				throw ((JavaProject)JavaCore.create(project)).newNotPresentException();
 			}
 			info = getPerProjectInfo(project, true /* create info */);
