@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 /**
@@ -52,6 +53,7 @@ public class SourceElementParser extends CommentRecorderParser {
 	int unknownRefsCounter;
 	LocalDeclarationVisitor localDeclarationVisitor = null;
 	CompilerOptions options;
+	HashtableOfObjectToInt sourceEnds = new HashtableOfObjectToInt();
 	
 /**
  * An ast visitor that visits local type declarations.
@@ -222,129 +224,33 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 	}
 }
 protected void consumeConstructorHeaderName() {
-	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
-
-	/* recovering - might be an empty message send */
-	if (currentElement != null){
-		if (lastIgnoredToken == TokenNamenew){ // was an allocation expression
-			lastCheckPoint = scanner.startPosition; // force to restart at this exact position				
-			restartRecovery = true;
-			return;
-		}
-	}
-	SourceConstructorDeclaration cd = new SourceConstructorDeclaration(this.compilationUnit.compilationResult);
-
-	//name -- this is not really revelant but we do .....
-	cd.selector = identifierStack[identifierPtr];
-	long selectorSourcePositions = identifierPositionStack[identifierPtr--];
-	identifierLengthPtr--;
-
-	//modifiers
-	cd.declarationSourceStart = intStack[intPtr--];
-	cd.modifiers = intStack[intPtr--];
-	// consume annotations
-	int length;
-	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.expressionStack, 
-			(this.expressionPtr -= length) + 1, 
-			cd.annotations = new Annotation[length], 
-			0, 
-			length); 
-	}
-	// javadoc
-	cd.javadoc = this.javadoc;
-	this.javadoc = null;
-
-	//highlight starts at the selector starts
-	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
-	cd.selectorSourceEnd = (int) selectorSourcePositions;
-	pushOnAstStack(cd);
-
-	cd.sourceEnd = lParenPos;
-	cd.bodyStart = lParenPos+1;
-	listLength = 0; // initialize listLength before reading parameters/throws
-
-	// recovery
-	if (currentElement != null){
-		lastCheckPoint = cd.bodyStart;
-		if ((currentElement instanceof RecoveredType && lastIgnoredToken != TokenNameDOT)
-			|| cd.modifiers != 0){
-			currentElement = currentElement.add(cd, 0);
-			lastIgnoredToken = -1;
-		}
-	}	
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeConstructorHeaderName();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 }
 protected void consumeConstructorHeaderNameWithTypeParameters() {
-
-	/* recovering - might be an empty message send */
-	if (this.currentElement != null){
-		if (this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
-			this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position				
-			this.restartRecovery = true;
-			return;
-		}
-	}
-	
-	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
-	SourceConstructorDeclaration cd = new SourceConstructorDeclaration(this.compilationUnit.compilationResult);
-
-	//name -- this is not really revelant but we do .....
-	cd.selector = this.identifierStack[this.identifierPtr];
-	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
-	this.identifierLengthPtr--;
-
-	// consume type parameters
-	int length = this.genericsLengthStack[this.genericsLengthPtr--];
-	this.genericsPtr -= length;
-	System.arraycopy(this.genericsStack, this.genericsPtr + 1, cd.typeParameters = new TypeParameter[length], 0, length);
-	
-	//modifiers
-	cd.declarationSourceStart = this.intStack[this.intPtr--];
-	cd.modifiers = this.intStack[this.intPtr--];
-	// consume annotations
-	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.expressionStack, 
-			(this.expressionPtr -= length) + 1, 
-			cd.annotations = new Annotation[length], 
-			0, 
-			length); 
-	}
-	// javadoc
-	cd.javadoc = this.javadoc;
-	this.javadoc = null;
-
-	//highlight starts at the selector starts
-	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
-	cd.selectorSourceEnd = (int) selectorSourcePositions;
-	pushOnAstStack(cd);
-	cd.sourceEnd = this.lParenPos;
-	cd.bodyStart = this.lParenPos+1;
-	this.listLength = 0; // initialize listLength before reading parameters/throws
-
-	// recovery
-	if (this.currentElement != null){
-		this.lastCheckPoint = cd.bodyStart;
-		if ((this.currentElement instanceof RecoveredType && this.lastIgnoredToken != TokenNameDOT)
-			|| cd.modifiers != 0){
-			this.currentElement = this.currentElement.add(cd, 0);
-			this.lastIgnoredToken = -1;
-		}
-	}	
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeConstructorHeaderNameWithTypeParameters();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 }
 protected void consumeEnumConstantWithClassBody() {
 	super.consumeEnumConstantWithClassBody();
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
-			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
-		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+			&& astStack[astPtr] instanceof FieldDeclaration) {
+		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
 	}
 }
 protected void consumeEnumConstantNoClassBody() {
 	super.consumeEnumConstantNoClassBody();
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
-			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
-		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+			&& this.astStack[this.astPtr] instanceof FieldDeclaration) {
+		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
 	}
 }
 protected void consumeExitVariableWithInitialization() {
@@ -353,8 +259,8 @@ protected void consumeExitVariableWithInitialization() {
 	// we want to include the comma or the semi-colon
 	super.consumeExitVariableWithInitialization();
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
-			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
-		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+			&& this.astStack[this.astPtr] instanceof FieldDeclaration) {
+		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
 	}
 }
 protected void consumeExitVariableWithoutInitialization() {
@@ -362,8 +268,8 @@ protected void consumeExitVariableWithoutInitialization() {
 	// do nothing by default
 	super.consumeExitVariableWithoutInitialization();
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
-			&& astStack[astPtr] instanceof SourceFieldDeclaration) {
-		((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
+			&& astStack[astPtr] instanceof FieldDeclaration) {
+		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
 	}
 }
 /*
@@ -380,109 +286,20 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	}
 }
 protected void consumeMethodHeaderName() {
-	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
-
-	//name
-	md.selector = this.identifierStack[identifierPtr];
-	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
-	this.identifierLengthPtr--;
-	//type
-	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
-	//modifiers
-	md.declarationSourceStart = this.intStack[this.intPtr--];
-	md.modifiers = this.intStack[this.intPtr--];
-	// consume annotations
-	int length;
-	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.expressionStack, 
-			(this.expressionPtr -= length) + 1, 
-			md.annotations = new Annotation[length], 
-			0, 
-			length); 
-	}
-	// javadoc
-	md.javadoc = this.javadoc;
-	this.javadoc = null;
-
-	//highlight starts at selector start
-	md.sourceStart = (int) (selectorSourcePositions >>> 32);
-	md.selectorSourceEnd = (int) selectorSourcePositions;
-	pushOnAstStack(md);
-	md.sourceEnd = this.lParenPos;
-	md.bodyStart = this.lParenPos+1;
-	this.listLength = 0; // initialize listLength before reading parameters/throws
-	
-	// recovery
-	if (this.currentElement != null){
-		if (this.currentElement instanceof RecoveredType 
-			//|| md.modifiers != 0
-			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
-					== this.scanner.getLineNumber(md.sourceStart))){
-			this.lastCheckPoint = md.bodyStart;
-			this.currentElement = currentElement.add(md, 0);
-			this.lastIgnoredToken = -1;			
-		} else {
-			this.lastCheckPoint = md.sourceStart;
-			this.restartRecovery = true;
-		}
-	}		
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeMethodHeaderName();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 }
 protected void consumeMethodHeaderNameWithTypeParameters() {
-	// MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
-	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
-
-	//name
-	md.selector = this.identifierStack[this.identifierPtr];
-	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
-	this.identifierLengthPtr--;
-	//type
-	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
-	
-	// consume type parameters
-	int length = this.genericsLengthStack[this.genericsLengthPtr--];
-	this.genericsPtr -= length;
-	System.arraycopy(this.genericsStack, this.genericsPtr + 1, md.typeParameters = new TypeParameter[length], 0, length);
-	
-	//modifiers
-	md.declarationSourceStart = this.intStack[this.intPtr--];
-	md.modifiers = this.intStack[this.intPtr--];
-	// consume annotations
-	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.expressionStack, 
-			(this.expressionPtr -= length) + 1, 
-			md.annotations = new Annotation[length], 
-			0, 
-			length); 
-	}	
-	// javadoc
-	md.javadoc = this.javadoc;
-	this.javadoc = null;
-
-	//highlight starts at selector start
-	md.sourceStart = (int) (selectorSourcePositions >>> 32);
-	md.selectorSourceEnd = (int) selectorSourcePositions;
-	pushOnAstStack(md);
-	md.sourceEnd = this.lParenPos;
-	md.bodyStart = this.lParenPos+1;
-	this.listLength = 0; // initialize this.listLength before reading parameters/throws
-	
-	// recovery
-	if (this.currentElement != null){
-		if (this.currentElement instanceof RecoveredType 
-			//|| md.modifiers != 0
-			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
-					== this.scanner.getLineNumber(md.sourceStart))){
-			this.lastCheckPoint = md.bodyStart;
-			this.currentElement = this.currentElement.add(md, 0);
-			this.lastIgnoredToken = -1;
-		} else {
-			this.lastCheckPoint = md.sourceStart;
-			this.restartRecovery = true;
-		}
-	}		
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeMethodHeaderNameWithTypeParameters();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 }
 /*
  *
@@ -627,28 +444,11 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	}
 }
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
-	SourceMethodDeclaration m = new SourceMethodDeclaration(compilationResult);
-	m.sourceStart = c.sourceStart;
-	m.sourceEnd = c.sourceEnd;
-	m.bodyStart = c.bodyStart;
-	m.bodyEnd = c.bodyEnd;
-	m.declarationSourceEnd = c.declarationSourceEnd;
-	m.declarationSourceStart = c.declarationSourceStart;
-	m.selector = c.selector;
-	m.statements = c.statements;
-	m.modifiers = c.modifiers;
-	m.annotations = c.annotations;
-	m.arguments = c.arguments;
-	m.thrownExceptions = c.thrownExceptions;
-	m.explicitDeclarations = c.explicitDeclarations;
-	m.returnType = null;
-	if (c instanceof SourceConstructorDeclaration) {
-		m.selectorSourceEnd = ((SourceConstructorDeclaration)c).selectorSourceEnd;
-	}
-	return m;
-}
-protected FieldDeclaration createFieldDeclaration(char[] fieldName, int sourceStart, int sourceEnd) {
-	return new SourceFieldDeclaration(fieldName, sourceStart, sourceEnd);
+	MethodDeclaration methodDeclaration = super.convertToMethodDeclaration(c, compilationResult);
+	int selectorSourceEnd = this.sourceEnds.removeKey(c);
+	if (selectorSourceEnd != -1)
+		this.sourceEnds.put(methodDeclaration, selectorSourceEnd);
+	return methodDeclaration;
 }
 protected CompilationUnitDeclaration endParse(int act) {
 	if (sourceType != null) {
@@ -1032,10 +832,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 	// by default no selector end position
 	int selectorSourceEnd = -1;
 	if (methodDeclaration.isConstructor()) {
-		if (methodDeclaration instanceof SourceConstructorDeclaration) {
-			selectorSourceEnd = 
-				((SourceConstructorDeclaration) methodDeclaration).selectorSourceEnd; 
-		}
+		selectorSourceEnd = this.sourceEnds.get(methodDeclaration);
 		if (isInRange){
 			int currentModifiers = methodDeclaration.modifiers;
 			if (isVarArgs)
@@ -1081,10 +878,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		}
 		return;
 	}
-	if (methodDeclaration instanceof SourceMethodDeclaration) {
-		selectorSourceEnd = 
-			((SourceMethodDeclaration) methodDeclaration).selectorSourceEnd; 
-	}
+	selectorSourceEnd = this.sourceEnds.get(methodDeclaration);
 	if (isInRange) {
 		int currentModifiers = methodDeclaration.modifiers;
 		if (isVarArgs)
@@ -1181,13 +975,10 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 			}
 			// fall through next case
 		case AbstractVariableDeclaration.FIELD:
-			int fieldEndPosition = fieldDeclaration.declarationSourceEnd;
-			if (fieldDeclaration instanceof SourceFieldDeclaration) {
-				fieldEndPosition = ((SourceFieldDeclaration) fieldDeclaration).fieldEndPosition;
-				if (fieldEndPosition == 0) {
-					// use the declaration source end by default
-					fieldEndPosition = fieldDeclaration.declarationSourceEnd;
-				}
+			int fieldEndPosition = this.sourceEnds.get(fieldDeclaration);
+			if (fieldEndPosition == 0) {
+				// use the declaration source end by default
+				fieldEndPosition = fieldDeclaration.declarationSourceEnd;
 			}
 			if (isInRange) {
 				int currentModifiers = fieldDeclaration.modifiers;
