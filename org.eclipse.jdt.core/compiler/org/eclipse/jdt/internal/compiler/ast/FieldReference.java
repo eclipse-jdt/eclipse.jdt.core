@@ -54,6 +54,10 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 			manageSyntheticReadAccessIfNecessary(currentScope);
 		}
+		flowInfo =
+			receiver
+				.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic())
+				.unconditionalInits();
 		if (assignment.expression != null) {
 			flowInfo =
 				assignment
@@ -61,10 +65,6 @@ public class FieldReference extends Reference implements InvocationSite {
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
 		}
-		flowInfo =
-			receiver
-				.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic())
-				.unconditionalInits();
 		manageSyntheticWriteAccessIfNecessary(currentScope);
 
 		// check if assigning a final field 

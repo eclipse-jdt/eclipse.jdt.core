@@ -41,13 +41,6 @@ public class QualifiedNameReference extends NameReference {
 		Assignment assignment,
 		boolean isCompound) {
 
-		if (assignment.expression != null) {
-			flowInfo =
-				assignment
-					.expression
-					.analyseCode(currentScope, flowContext, flowInfo)
-					.unconditionalInits();
-		}
 		// determine the rank until which we now we do not need any actual value for the field access
 		int otherBindingsCount = otherBindings == null ? 0 : otherBindings.length;
 		int indexOfFirstValueRequired = otherBindingsCount;
@@ -133,6 +126,15 @@ public class QualifiedNameReference extends NameReference {
 					? 0 
 					: otherBindingsCount);
 		}
+		
+		if (assignment.expression != null) {
+			flowInfo =
+				assignment
+					.expression
+					.analyseCode(currentScope, flowContext, flowInfo)
+					.unconditionalInits();
+		}
+		
 		// the last field access is a write access
 		if (lastFieldBinding.isFinal()) {
 			// in a context where it can be assigned?
