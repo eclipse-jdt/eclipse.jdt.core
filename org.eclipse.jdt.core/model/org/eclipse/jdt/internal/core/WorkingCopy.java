@@ -51,7 +51,10 @@ protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory buffe
  */
 protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory, IProblemRequestor problemRequestor) {
 	super(parent, name);
-	this.bufferFactory = bufferFactory;
+	this.bufferFactory = 
+		bufferFactory == null ? 
+			this.getBufferManager().getDefaultBufferFactory() :
+			bufferFactory;
 	this.problemRequestor = problemRequestor;
 	this.useCount = 1;
 }
@@ -95,10 +98,7 @@ public void destroy() {
 		// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 		Map sharedWorkingCopies = manager.sharedWorkingCopies;
 		
-		Map perFactoryWorkingCopies = 
-			this.bufferFactory == null 
-				?(Map) sharedWorkingCopies.get(CompilationUnit.DEFAULT_FACTORY)  
-				: (Map) sharedWorkingCopies.get(this.bufferFactory);
+		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(this.bufferFactory);
 		if (perFactoryWorkingCopies != null){
 			if (perFactoryWorkingCopies.remove(originalElement) != null) {
 				if (SHARED_WC_VERBOSE) {
@@ -305,16 +305,9 @@ public void open(IProgressMonitor pm) throws JavaModelException {
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 
-	// get buffer factory
-	BufferManager bufManager = getBufferManager();
-	IBufferFactory factory = 
-		this.bufferFactory == null ? 
-			bufManager.getDefaultBufferFactory() :
-			this.bufferFactory;
-			
 	// create buffer
-	IBuffer buffer = factory.createBuffer(this);
-	bufManager.addBuffer(buffer);
+	IBuffer buffer = this.bufferFactory.createBuffer(this);
+	this.getBufferManager().addBuffer(buffer);
 
 	// set the buffer source
 	if (buffer != null && buffer.getCharacters() == null){

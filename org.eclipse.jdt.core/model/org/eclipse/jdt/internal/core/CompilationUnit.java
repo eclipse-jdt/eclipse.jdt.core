@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit {
 	
 	public static boolean SHARED_WC_VERBOSE = false;
-	public final static Object DEFAULT_FACTORY = "DEFAULT"; //$NON-NLS-1$
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -284,15 +283,15 @@ public IType findPrimaryType() {
  */
 public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 
+	// if factory is null, default factory must be used
+	if (factory == null) factory = this.getBufferManager().getDefaultBufferFactory();
+
 	// In order to be shared, working copies have to denote the same compilation unit 
 	// AND use the same buffer factory.
 	// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 	Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
 	
-	Map perFactoryWorkingCopies = 
-		factory == null 
-			?(Map) sharedWorkingCopies.get(CompilationUnit.DEFAULT_FACTORY) 
-			: (Map) sharedWorkingCopies.get(factory);
+	Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(factory);
 	if (perFactoryWorkingCopies == null) return null;
 	return (WorkingCopy)perFactoryWorkingCopies.get(this);
 }
@@ -557,6 +556,9 @@ public IType[] getTypes() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+	
+	// if factory is null, default factory must be used
+	if (factory == null) factory = this.getBufferManager().getDefaultBufferFactory();
 
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	
@@ -565,17 +567,10 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
 	
-	Map perFactoryWorkingCopies = 
-		factory == null 
-			?(Map) sharedWorkingCopies.get(CompilationUnit.DEFAULT_FACTORY) 
-			: (Map) sharedWorkingCopies.get(factory);
+	Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(factory);
 	if (perFactoryWorkingCopies == null){
 		perFactoryWorkingCopies = new HashMap();
-		if (factory == null){
-			sharedWorkingCopies.put(CompilationUnit.DEFAULT_FACTORY, perFactoryWorkingCopies); 
-		} else {
-			sharedWorkingCopies.put(factory, perFactoryWorkingCopies);
-		}
+		sharedWorkingCopies.put(factory, perFactoryWorkingCopies);
 	}
 	WorkingCopy workingCopy = (WorkingCopy)perFactoryWorkingCopies.get(this);
 	if (workingCopy != null) {
