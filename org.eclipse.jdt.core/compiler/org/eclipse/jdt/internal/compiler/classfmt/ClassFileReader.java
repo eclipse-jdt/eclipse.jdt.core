@@ -258,7 +258,7 @@ public int[] getConstantPoolOffsets() {
  * or null if the receiver is a top level type.
  */
 public char[] getEnclosingTypeName() {
-	if (this.innerInfo != null) {
+	if (this.innerInfo != null && !this.isAnonymous()) {
 		return this.innerInfo.getEnclosingTypeName();
 	}
 	return null;
