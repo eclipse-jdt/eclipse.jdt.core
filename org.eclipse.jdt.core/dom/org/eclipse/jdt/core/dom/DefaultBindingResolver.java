@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
@@ -738,9 +739,9 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
-		if (node instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) node;
-			return this.getMethodBinding(messageSend.binding);
+		if (node instanceof ExplicitConstructorCall) {
+			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
+			return this.getMethodBinding(explicitConstructorCall.binding);
 		}
 		return null;
 	}
@@ -753,9 +754,9 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
-		if (node instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) node;
-			return this.getMethodBinding(messageSend.binding);
+		if (node instanceof ExplicitConstructorCall) {
+			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
+			return this.getMethodBinding(explicitConstructorCall.binding);
 		}
 		return null;
 	}

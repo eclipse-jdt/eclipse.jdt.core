@@ -572,9 +572,12 @@ class ASTConverter {
 				methodDecl.parameters().add(convert(parameters[i]));
 			}
 		}
+		ExplicitConstructorCall explicitConstructorCall = null;
 		if (isConstructor) {
 			// set the return type to VOID
 			methodDecl.setReturnType(this.ast.newPrimitiveType(PrimitiveType.VOID));
+			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
+			explicitConstructorCall = constructorDeclaration.constructorCall;
 		} else {
 			org.eclipse.jdt.internal.compiler.ast.MethodDeclaration method = (org.eclipse.jdt.internal.compiler.ast.MethodDeclaration) methodDeclaration;
 			TypeReference typeReference = method.returnType;
@@ -588,12 +591,16 @@ class ASTConverter {
 		retrieveRightBraceOrSemiColonPosition(methodDecl);
 		
 		org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
-		if (statements != null) {
+		
+		if (statements != null || explicitConstructorCall != null) {
 			Block block = this.ast.newBlock();
 			int start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 			int end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
 			block.setSourceRange(start, end - start + 1);
-			int statementsLength = statements.length;
+			if (explicitConstructorCall != null) {
+				block.statements().add(convert(explicitConstructorCall));
+			}
+			int statementsLength = statements == null ? 0 : statements.length;
 			for (int i = 0; i < statementsLength; i++) {
 				if (statements[i] instanceof LocalDeclaration) {
 					checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
@@ -1700,6 +1707,9 @@ class ASTConverter {
 			newStatement = constructorInvocation;
 		}
 		newStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		if (this.resolveBindings) {
+			recordNodes(newStatement, statement);
+		}
 		return newStatement;
 	}
 	
