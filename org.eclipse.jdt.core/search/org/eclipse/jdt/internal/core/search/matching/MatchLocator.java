@@ -1366,7 +1366,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 				// fault in fields & methods
 				unit.scope.faultInTypes();
 				// verify inherited methods
-				unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
+//				unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 			}
 			unit.resolve();
 
