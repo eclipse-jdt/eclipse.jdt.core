@@ -48,9 +48,9 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		String expectedSource = 
 			"public class A {\n" + 
 			"\n" + 
-			"	public void foo() {\n" + 
-			"		System.out.println(\"Hello World\");\n" + 
-			"	}\n" +
+			"    public void foo() {\n" + 
+			"    	System.out.println(\"Hello World\");\n" + 
+			"    }\n" + 
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
