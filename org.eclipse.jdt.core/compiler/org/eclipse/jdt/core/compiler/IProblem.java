@@ -196,6 +196,9 @@ public interface IProblem {
 	int ImportRelated = 0x10000000;
 	int Internal = 0x20000000;
 	int Syntax = 0x40000000;
+	/**
+	 * @since 3.0
+	 */
 	int Javadoc = 0x80000000;
 	
 	/**
