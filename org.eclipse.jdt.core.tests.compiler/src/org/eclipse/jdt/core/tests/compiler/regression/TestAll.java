@@ -51,6 +51,7 @@ public static Test suite() {
 	addTest(suite, ProblemConstructorTest.class);
 	addTest(suite, UtilTest.class);
 	addTest(suite, ScannerTest.class);
+	addTest(suite, DebugAttributeTest.class);
 		
 	if (EXPERT) {
 		return new RegressionTestSetup(suite);
