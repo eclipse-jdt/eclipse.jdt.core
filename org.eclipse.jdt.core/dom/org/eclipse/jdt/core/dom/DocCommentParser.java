@@ -130,15 +130,17 @@ class DocCommentParser extends AbstractCommentParser {
 			SimpleName fieldName = this.ast.newSimpleName(new String(this.identifierStack[0]));
 			fieldRef.setName(fieldName);
 			int start = (int) (this.identifierPositionStack[0] >>> 32);
-			int length = ((int) this.identifierPositionStack[0]) - start + 1;
-			fieldName.setSourceRange(start, length);
+			int end = (int) this.identifierPositionStack[0];
+			fieldName.setSourceRange(start, end - start + 1);
 			if (receiver == null) {
-				fieldRef.setSourceRange(this.memberStart, length);
+				start = this.memberStart;
+				fieldRef.setSourceRange(start, end - start + 1);
 			} else {
 				Name typeRef = (Name) receiver;
 				fieldRef.setQualifier(typeRef);
-				int end = fieldName.getStartPosition()+fieldName.getLength()-1;
-				fieldRef.setSourceRange(typeRef.getStartPosition(), end-typeRef.getStartPosition()+1);
+				start = typeRef.getStartPosition();
+				end = fieldName.getStartPosition()+fieldName.getLength()-1;
+				fieldRef.setSourceRange(start, end-start+1);
 			}
 			return fieldRef;
 		}
@@ -156,12 +158,13 @@ class DocCommentParser extends AbstractCommentParser {
 			SimpleName methodName = this.ast.newSimpleName(new String(this.identifierStack[0]));
 			methodRef.setName(methodName);
 			int start = (int) (this.identifierPositionStack[0] >>> 32);
-			int length = ((int) this.identifierPositionStack[0]) - start + 1;
-			methodName.setSourceRange(start, length);
+			int end = (int) this.identifierPositionStack[0];
+			methodName.setSourceRange(start, end - start + 1);
 			// Set qualifier
 //			int end = methodName.getStartPosition()+methodName.getLength()-1;
 			if (receiver == null) {
-				methodRef.setSourceRange(this.memberStart, length);
+				start = this.memberStart;
+				methodRef.setSourceRange(start, end - start + 1);
 			} else {
 				Name typeRef = (Name) receiver;
 				methodRef.setQualifier(typeRef);
@@ -296,15 +299,15 @@ class DocCommentParser extends AbstractCommentParser {
 		ASTNode node = (ASTNode) statement;
 		seeTag.fragments().add(node);
 		int end = node.getStartPosition()+node.getLength()-1;
-		seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
 		if (this.inlineTagStarted) {
+			seeTag.setSourceRange(this.inlineTagStart, end-this.inlineTagStart+1);
 			if (plain) {
 				seeTag.setTagName(TagElement.TAG_LINKPLAIN);
 			} else {
 				seeTag.setTagName(TagElement.TAG_LINK);
 			}
 			TagElement previousTag = null;
-			int previousStart = this.tagSourceStart;
+			int previousStart = this.inlineTagStart;
 			if (this.astPtr == -1) {
 				previousTag = this.ast.newTagElement();
 				pushOnAstStack(previousTag, true);
@@ -316,6 +319,7 @@ class DocCommentParser extends AbstractCommentParser {
 			previousTag.setSourceRange(previousStart, end-previousStart+1);
 		} else {
 			seeTag.setTagName(TagElement.TAG_SEE);
+			seeTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
 			pushOnAstStack(seeTag, true);
 		}
 		return true;
@@ -362,6 +366,13 @@ class DocCommentParser extends AbstractCommentParser {
 			if (this.inlineTagStarted) {
 				int previousStart = previousTag.getStartPosition();
 				previousTag.setSourceRange(previousStart, previousPosition-previousStart+1);
+				if (previousTag.fragments().size() > 0) {
+					ASTNode inlineTag = (ASTNode) previousTag.fragments().get(previousTag.fragments().size()-1);
+					if (inlineTag.getNodeType() == ASTNode.TAG_ELEMENT) {
+						int inlineStart = inlineTag.getStartPosition();
+						inlineTag.setSourceRange(inlineStart, previousPosition-inlineStart+1);
+					}
+				}
 			}
 		}
 	}

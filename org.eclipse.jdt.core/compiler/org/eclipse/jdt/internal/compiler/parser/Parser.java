@@ -6111,6 +6111,9 @@ protected void resetStacks() {
  */
 protected boolean resumeAfterRecovery() {
 
+	// Reset javadoc before restart parsing after recovery
+	this.javadoc = null;
+
 	// reset internal stacks 
 	this.resetStacks();
 	
