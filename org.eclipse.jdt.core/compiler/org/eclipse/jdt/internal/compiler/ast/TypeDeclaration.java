@@ -762,6 +762,8 @@ public class TypeDeclaration
 					FieldDeclaration field = fields[i];
 					if (field.isField()) {
 						if (field.binding == null) {
+							// still discover secondary errors
+							// if (field.initialization != null) field.initialization.resolve(field.isStatic() ? staticInitializerScope : initializerScope);
 							ignoreFurtherInvestigation = true;
 							continue;
 						}
