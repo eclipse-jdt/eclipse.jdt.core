@@ -2324,16 +2324,14 @@ protected void consumeConstructorHeader() {
 	}
 	// recovery
 	if (currentElement != null){
-// TODO: (david) investigate why the following breaks regression tests
-// it should just be the same as for consumeMethodHeader()
-//		if (currentToken == TokenNameSEMICOLON){ // for invalid constructors
-//			method.modifiers |= AccSemicolonBody;			
-//			method.declarationSourceEnd = scanner.currentPosition-1;
-//			method.bodyEnd = scanner.currentPosition-1;
-//			if (currentElement.parent != null){ // --> suspecting this is the offending part causing breakage
-//				currentElement = currentElement.parent;
-//			}
-//		}		
+		if (currentToken == TokenNameSEMICOLON){ // for invalid constructors
+			method.modifiers |= AccSemicolonBody;			
+			method.declarationSourceEnd = scanner.currentPosition-1;
+			method.bodyEnd = scanner.currentPosition-1;
+			if (currentElement.parseTree() == method && currentElement.parent != null) {
+				currentElement = currentElement.parent;
+			}
+		}		
 		restartRecovery = true; // used to avoid branching back into the regular automaton
 	}		
 }
@@ -3098,7 +3096,7 @@ protected void consumeMethodHeader() {
 			method.modifiers |= AccSemicolonBody;			
 			method.declarationSourceEnd = scanner.currentPosition-1;
 			method.bodyEnd = scanner.currentPosition-1;
-			if (currentElement.parent != null){
+			if (currentElement.parseTree() == method && currentElement.parent != null) {
 				currentElement = currentElement.parent;
 			}
 		}		
