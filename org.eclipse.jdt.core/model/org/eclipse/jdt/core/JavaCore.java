@@ -1858,8 +1858,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return the list of shared working copies for a given buffer factory
 	 * @see IWorkingCopy
 	 * @since 2.0
-	 * @deprecated Use IPackageFragment.getCompilationUnits() instead
-	 * TODO: Remove before 3.0
+	 * TODO: use a CompilationUnitOwner instead of a IBufferFactory
 	 */
 	public static IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
 		
