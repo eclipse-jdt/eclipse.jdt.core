@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.parser.NLSLine;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.core.*;
 
