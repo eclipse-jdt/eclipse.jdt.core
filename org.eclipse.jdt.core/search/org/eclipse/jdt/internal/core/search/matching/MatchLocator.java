@@ -185,7 +185,11 @@ public class MatchLocator implements ITypeRequestor {
 			return ((CompilationUnit)currentOpenable).getImport(
 				new String(importName));
 		} else {
-			return currentOpenable;
+			try {
+				return ((org.eclipse.jdt.internal.core.ClassFile)currentOpenable).getType();
+			} catch (JavaModelException e) {
+				return null;
+			}
 		}
 	}
 
@@ -279,7 +283,11 @@ public class MatchLocator implements ITypeRequestor {
 			return unit.getType(new String(simpleTypeName));
 		} else {
 			try {
-				return ((org.eclipse.jdt.internal.core.ClassFile)currentOpenable).getType();
+				org.eclipse.jdt.core.IClassFile classFile = ((IPackageFragment)currentOpenable.getParent()).getClassFile(new String(simpleTypeName) + ".class");
+				if (!classFile.exists()) {
+					classFile = (org.eclipse.jdt.internal.core.ClassFile)currentOpenable;
+				} 
+				return classFile.getType();
 			} catch (JavaModelException e) {
 				return null;
 			}
