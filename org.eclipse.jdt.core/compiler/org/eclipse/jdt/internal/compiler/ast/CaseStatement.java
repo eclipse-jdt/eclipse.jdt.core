@@ -97,6 +97,10 @@ public class CaseStatement extends Statement {
 		}
 		// add into the collection of cases of the associated switch statement
 		switchStatement.cases[switchStatement.caseCount++] = this;
+		// tag constant name with enum type for privileged access to its members
+		if (switchExpressionType.isEnum() && (constantExpression instanceof SingleNameReference)) {
+			((SingleNameReference) constantExpression).setActualReceiverType((ReferenceBinding)switchExpressionType);
+		}
 		TypeBinding caseType = constantExpression.resolveType(scope);
 		if (caseType == null || switchExpressionType == null) return NotAConstant;
 		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)

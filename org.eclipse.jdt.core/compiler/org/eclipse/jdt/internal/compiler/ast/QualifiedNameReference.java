@@ -773,7 +773,7 @@ public class QualifiedNameReference extends NameReference {
 		// field and/or local are done before type lookups
 		// the only available value for the restrictiveFlag BEFORE
 		// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField 
-		this.actualReceiverType = this.receiverType = scope.enclosingSourceType();
+		this.actualReceiverType = scope.enclosingSourceType();
 		constant = Constant.NotAConstant;
 		if ((this.codegenBinding = this.binding = scope.getBinding(tokens, bits & RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {

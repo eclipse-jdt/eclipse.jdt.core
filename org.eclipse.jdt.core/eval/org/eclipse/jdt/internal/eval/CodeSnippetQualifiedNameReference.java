@@ -480,12 +480,11 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	 * Check and/or redirect the field access to the delegate receiver if any
 	 */
 	public TypeBinding getReceiverType(BlockScope currentScope) {
-		if (this.receiverType != null) return this.receiverType;
 		Scope scope = currentScope.parent;
 		while (true) {
 				switch (scope.kind) {
 					case Scope.CLASS_SCOPE :
-						return this.receiverType = ((ClassScope) scope).referenceContext.binding;
+						return ((ClassScope) scope).referenceContext.binding;
 					default:
 						scope = scope.parent;
 				}

@@ -637,9 +637,14 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public TypeBinding resolveType(BlockScope scope) {
 		// for code gen, harm the restrictiveFlag 	
 	
-		this.actualReceiverType = this.receiverType = scope.enclosingSourceType();
-		
-		if ((this.codegenBinding = this.binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
+		if (this.actualReceiverType != null) {
+			this.binding = scope.getField(this.actualReceiverType, token, this);
+		} else {
+			this.actualReceiverType = scope.enclosingSourceType();
+			this.binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this, true /*resolve*/);
+		}
+		this.codegenBinding = this.binding;
+		if (this.binding.isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {
 				case Binding.VARIABLE : // =========only variable============
 				case Binding.VARIABLE | Binding.TYPE : //====both variable and type============

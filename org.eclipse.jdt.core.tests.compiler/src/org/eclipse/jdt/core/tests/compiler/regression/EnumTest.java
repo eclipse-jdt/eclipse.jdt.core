@@ -806,7 +806,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"----------\n");
 	}	
 	// check enum name visibility
-	public void _test027() {
+	public void test027() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -829,7 +829,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"");
 	}		
 	// check enum name visibility
-	public void _test028() {
+	public void test028() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -868,7 +868,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"----------\n");
 	}		
 	// check enum name visibility
-	public void _test029() {
+	public void test029() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -895,7 +895,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"");
 	}		
 	// check enum name visibility
-	public void _test030() {
+	public void test030() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -925,7 +925,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"");
 	}		
 	// check enum name visibility
-	public void _test031() {
+	public void test031() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1386,7 +1386,7 @@ public class EnumTest extends AbstractComparisonTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77211
 	 */
-	public void _test048() {
+	public void test048() {
 		this.runConformTest(
 			new String[] {
 				"StopLight.java",
@@ -1424,16 +1424,14 @@ public class EnumTest extends AbstractComparisonTest {
 		"----------\n"
 		);
 	}
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78916
-	 */
-	public void _test050() {
-		this.runNegativeTest(
+
+	public void test050() {
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public enum X {}"
 			},
-			"ERROR"
+			""
 		);
 	}
 	
@@ -1596,4 +1594,78 @@ public class EnumTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77430
+	 */
+	public void test057() {
+		this.runConformTest(
+			new String[] {
+				"Enum2.java",
+				"public class Enum2 {\n" + 
+				"    enum Color { RED, GREEN };\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Color c= Color.GREEN;\n" + 
+				"        switch (c) {\n" + 
+				"        case RED:\n" + 
+				"            System.out.println(Color.RED);\n" + 
+				"            break;\n" + 
+				"        case GREEN:\n" + 
+				"            System.out.println(c);\n" + 
+				"            break;\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"GREEN"
+		);
+	}			
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77430 - variation
+	 */
+	public void test058() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"enum X { a }\n" + 
+				"class A {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		test(X.a, 9);\n" + 
+				"		test2(X.a, 3);\n" + 
+				"	}\n" + 
+				"	static void test(X x, int a) {\n" + 
+				"		if (x == a) a++; // incomparable types: X and int\n" + 
+				"		switch(x) {\n" + 
+				"			case a : System.out.println(a); // prints \'9\'\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	static void test2(X x, final int aa) {\n" + 
+				"		switch(x) {\n" + 
+				"			case aa : // unqualified enum constant error\n" + 
+				"				System.out.println(a); // cannot find a\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	if (x == a) a++; // incomparable types: X and int\n" + 
+			"	    ^^^^^^\n" + 
+			"Incompatible operand types X and int\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	case aa : // unqualified enum constant error\n" + 
+			"	     ^^\n" + 
+			"aa cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 16)\n" + 
+			"	System.out.println(a); // cannot find a\n" + 
+			"	                   ^\n" + 
+			"a cannot be resolved\n" + 
+			"----------\n"
+		);
+	}			
+
+
 }
