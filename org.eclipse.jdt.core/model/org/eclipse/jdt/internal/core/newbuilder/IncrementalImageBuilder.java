@@ -318,11 +318,24 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 								System.out.println("Deleting class file of removed file " + typePath); //$NON-NLS-1$
 							classFile.delete(true, null);
 						}
-						newState.remove(location);
+						char[][] additionalTypeNames = newState.getAdditionalTypeNamesFor(location.toString());
+						if (additionalTypeNames != null) {
+							for (int i = 0, length = additionalTypeNames.length; i < length; i++) {
+								typePath = typePath.removeLastSegments(1).append(new String(additionalTypeNames[i]));
+								classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
+								if (classFile.exists()) {
+									if (JavaBuilder.DEBUG)
+										System.out.println("Deleting class file of removed file " + typePath); //$NON-NLS-1$
+									classFile.delete(true, null);
+								}
+								addDependentsOf(typePath, true);
+							}
+						}
 						// add dependents even when the type thinks it does not exist to be on the safe side
 						if (JavaBuilder.DEBUG)
 							System.out.println("Add dependents of removed source file " + typePath); //$NON-NLS-1$
 						addDependentsOf(typePath, true);
+						newState.remove(location);
 						return;
 					case IResourceDelta.CHANGED :
 						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0)
