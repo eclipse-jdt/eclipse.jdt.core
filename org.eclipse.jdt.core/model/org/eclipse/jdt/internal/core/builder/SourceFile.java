@@ -26,12 +26,12 @@ public SourceFile(String fileName, String initialTypeName) {
 	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
 }
 
-public SourceFile(String fileName, String mainTypeName, String qualifiedPackageName) {
+public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
-	this.mainTypeName = mainTypeName.toCharArray();
-	this.packageName = CharOperation.splitOn('/', qualifiedPackageName.toCharArray());
+	this.mainTypeName = mainTypeName;
+	this.packageName = packageName;
 }
 
 public char[] getContents() {

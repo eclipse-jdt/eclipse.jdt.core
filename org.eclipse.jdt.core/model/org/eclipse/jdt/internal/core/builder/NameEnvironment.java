@@ -22,8 +22,12 @@ ClasspathLocation[] classpathLocations;
 String[] initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
 String[] additionalSourceFilenames; // assumed that each name is of the form "d:/eclipse/Test/a/b/ClassName.java"
 
+ClasspathLocation[] binaryLocations;
+ClasspathMultiDirectory[] sourceLocations;
+
 public NameEnvironment(ClasspathLocation[] classpathLocations) {
 	this.classpathLocations = classpathLocations;
+	splitLocations();
 }
 
 public NameEnvironment(IJavaProject javaProject) {
@@ -37,6 +41,7 @@ public NameEnvironment(IJavaProject javaProject) {
 	} catch(JavaModelException e) {
 		this.classpathLocations = new ClasspathLocation[0];
 	}
+	splitLocations();
 }
 
 /* Some examples of resolved class path entries.
@@ -148,16 +153,29 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 				return null; // looking for a file which we know was provided at the beginning of the compilation
 	}
 
-	String qualifiedBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
-	String binaryFileName = qualifiedBinaryFileName;
-	String qualifiedPackageName =  ""; //$NON-NLS-1$
+	String qBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
+	String binaryFileName = qBinaryFileName;
+	String qPackageName =  ""; //$NON-NLS-1$
 	if (qualifiedTypeName.length() > typeName.length) {
-		int typeNameStart = qualifiedBinaryFileName.length() - typeName.length - 6; // size of ".class"
-		qualifiedPackageName =  qualifiedBinaryFileName.substring(0, typeNameStart - 1);
-		binaryFileName = qualifiedBinaryFileName.substring(typeNameStart);
+		int typeNameStart = qBinaryFileName.length() - typeName.length - 6; // size of ".class"
+		qPackageName =  qBinaryFileName.substring(0, typeNameStart - 1);
+		binaryFileName = qBinaryFileName.substring(typeNameStart);
 	}
-	for (int i = 0, length = classpathLocations.length; i < length; i++) {
-		NameEnvironmentAnswer answer = classpathLocations[i].findClass(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName);
+
+	if (sourceLocations != null && sourceLocations[0].isPackage(qPackageName)) { // looks in common output folder
+		if (additionalSourceFilenames != null) {
+			String qSourceFileName = qualifiedTypeName + ".java"; //$NON-NLS-1$
+			for (int i = 0, length = sourceLocations.length; i < length; i++) {
+				NameEnvironmentAnswer answer =
+					sourceLocations[i].findSourceFile(qSourceFileName, qPackageName, typeName, additionalSourceFilenames);
+				if (answer != null) return answer;
+			}
+		}
+		NameEnvironmentAnswer answer = sourceLocations[0].findClass(binaryFileName, qPackageName, qBinaryFileName);
+		if (answer != null) return answer;
+	}
+	for (int i = 0, length = binaryLocations.length; i < length; i++) {
+		NameEnvironmentAnswer answer = binaryLocations[i].findClass(binaryFileName, qPackageName, qBinaryFileName);
 		if (answer != null) return answer;
 	}
 	return null;
@@ -181,8 +199,10 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, '/'));
-	for (int i = 0, length = classpathLocations.length; i < length; i++)
-		if (classpathLocations[i].isPackage(qualifiedPackageName))
+	if (sourceLocations != null && sourceLocations[0].isPackage(qualifiedPackageName)) // looks in common output folder
+		return true;
+	for (int i = 0, length = binaryLocations.length; i < length; i++)
+		if (binaryLocations[i].isPackage(qualifiedPackageName))
 			return true;
 	return false;
 }
@@ -190,11 +210,29 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 public void setNames(String[] initialTypeNames, String[] additionalSourceFilenames) {
 	this.initialTypeNames = initialTypeNames;
 	this.additionalSourceFilenames = additionalSourceFilenames;
-	for (int i = 0, length = classpathLocations.length; i < length; i++) {
+	for (int i = 0, length = classpathLocations.length; i < length; i++)
+		classpathLocations[i].reset();
+}
+
+private void splitLocations() {
+	int length = classpathLocations.length;
+	ArrayList sLocations = new ArrayList(length);
+	ArrayList bLocations = new ArrayList(length);
+	for (int i = 0; i < length; i++) {
 		ClasspathLocation classpath = classpathLocations[i];
-		classpath.reset();
 		if (classpath instanceof ClasspathMultiDirectory)
-			((ClasspathMultiDirectory) classpath).nameEnvironment = this;
+			sLocations.add(classpath);
+		else
+			bLocations.add(classpath);
 	}
+
+	if (sLocations.isEmpty()) {
+		this.sourceLocations = null;
+	} else {
+		this.sourceLocations = new ClasspathMultiDirectory[sLocations.size()];
+		sLocations.toArray(this.sourceLocations);
+	}
+	this.binaryLocations = new ClasspathLocation[bLocations.size()];
+	bLocations.toArray(this.binaryLocations);
 }
 }
