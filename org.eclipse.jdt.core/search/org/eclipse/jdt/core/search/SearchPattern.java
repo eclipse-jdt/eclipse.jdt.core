@@ -749,7 +749,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
-	 * 
+	 */
+	/* (non-Javadoc) 
 	 * SEARCH_15
 	 * 	Modified to handle generics.
 	 * 	Note that no change are done for declaration patterns as the search works well for generics
@@ -1155,7 +1156,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * Type pattern are formed by [qualification.]type
 	 * e.g. java.lang.Object
 	 *		Runnable
-	 *
+	 */
+	/* (non-Javadoc)
 	 * SEARCH_15
 	 * 	Modified to be able to identify type arguments in pattern
 	 * 	Note that:
