@@ -37,10 +37,6 @@ import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.text.edits.TextEdit;
 
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
@@ -119,47 +115,8 @@ public class ToolFactory {
 	 * @deprecated - use #createCodeFormatter(Map) instead
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
-		final String NEW_CODE_FORMATTER_ACTIVATION = JavaCore.PLUGIN_ID + ".newformatter.activation"; //$NON-NLS-1$
-	
-		Object newFormatterActivation = JavaCore.getOption(NEW_CODE_FORMATTER_ACTIVATION);
-		
-		ICodeFormatter codeFormatter;
-		if (JavaCore.ENABLED.equals(newFormatterActivation)) {
-			class CompatibleCodeFormatter extends DefaultCodeFormatter implements ICodeFormatter {
-				CompatibleCodeFormatter(Map settings) {
-					super(settings);
-				}
-				/**
-				 * @see org.eclipse.jdt.core.ICodeFormatter#format(String, int, int[], String)
-				 */
-				public String format(
-					String source,
-					int indentationLevel,
-					int[] positions,
-					String lineSeparator) {
-					
-					TextEdit textEdit = probeFormatting(source, indentationLevel, lineSeparator, 0, source.length());
-					if (textEdit == null) {
-						return source;
-					} else {
-						Document document = new Document(source);
-						try {
-							textEdit.apply(document, TextEdit.UPDATE_REGIONS);
-						} catch (MalformedTreeException e) {
-							e.printStackTrace();
-						} catch (BadLocationException e) {
-							e.printStackTrace();
-						}
-						return document.get();
-					}
-				}			
-			}
-			codeFormatter = new CompatibleCodeFormatter(options);
-		} else {
-			if (options == null) options = JavaCore.getOptions();
-			codeFormatter = new org.eclipse.jdt.internal.formatter.CodeFormatter(options);
-		}
-		return codeFormatter;
+		if (options == null) options = JavaCore.getOptions();
+		return new org.eclipse.jdt.internal.formatter.CodeFormatter(options);
 	}
 	
 	/**
