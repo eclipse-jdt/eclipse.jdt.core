@@ -693,4 +693,49 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+
+	public void test021() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.B.foo;\n" + 
+				"public class X {\n" + 
+				"  void test() { foo(); }\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public static void foo() {} }\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B extends A { }\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.B.foo;\n" + 
+				"public class X {\n" + 
+				"  void test() { foo(); }\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public void foo() {} }\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B extends A { static void foo(int i) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p.B.foo;\n" + 
+			"	              ^^^^^^^\n" + 
+			"The import p.B.foo cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	void test() { foo(); }\n" + 
+			"	              ^^^\n" + 
+			"The method foo() is undefined for the type X\n" + 
+			"----------\n"
+		);
+	}
 }

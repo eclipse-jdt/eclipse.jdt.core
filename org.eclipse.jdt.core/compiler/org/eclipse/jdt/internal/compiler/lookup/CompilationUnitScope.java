@@ -438,18 +438,12 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	// look to see if its a static field first
 	ReferenceBinding type = (ReferenceBinding) binding;
 	FieldBinding field = findField(type, name, null, true);
-	if (field != null && field.isStatic() && field.canBeSeenBy(fPackage))
+	if (field != null && field.isValidBinding() && field.isStatic() && field.canBeSeenBy(fPackage))
 		return field;
 
 	// look to see if there is a static method with the same selector
-	MethodBinding[] methods = type.getMethods(name);
-	if (methods != NoMethods) {
-		for (int i = methods.length; --i >= 0;) {
-			MethodBinding method = methods[i];
-			if (method.isStatic() && method.canBeSeenBy(fPackage))
-				return method;
-		}
-	}
+	MethodBinding method = findStaticMethod(type, name);
+	if (method != null) return method;
 
 	type = findMemberType(name, type);
 	if (type == null || !type.isStatic())
@@ -457,6 +451,24 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, NotVisible);
 	return type;
+}
+MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
+	if (!currentType.canBeSeenBy(this))
+		return null;
+
+	do {
+		MethodBinding[] methods = currentType.getMethods(selector);
+		if (methods != NoMethods) {
+			for (int i = methods.length; --i >= 0;) {
+				MethodBinding method = methods[i];
+				if (method.isStatic() && method.canBeSeenBy(fPackage))
+					return method;
+			}
+		}
+		if (currentType.superInterfaces() == null) // needed for statically imported types which don't know their hierarchy yet
+			((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
+	} while ((currentType = currentType.superclass()) != null);
+	return null;
 }
 ImportBinding[] getDefaultImports() {
 	// initialize the default imports if necessary... share the default java.lang.* import
