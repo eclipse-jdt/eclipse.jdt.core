@@ -5333,15 +5333,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		final TypeReference[] bounds = typeParameter.bounds;
 		if (bounds != null) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_wilcard);
-			if (this.preferences.insert_space_after_and_in_wilcard) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_type_parameter);
+			if (this.preferences.insert_space_after_and_in_type_parameter) {
 				this.scribe.space();
 			}
 			int boundsLength = bounds.length;
 			for (int i = 0; i < boundsLength - 1; i++) {
 				bounds[i].traverse(this, scope);
-				this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_wilcard);
-				if (this.preferences.insert_space_after_and_in_wilcard) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_type_parameter);
+				if (this.preferences.insert_space_after_and_in_type_parameter) {
 					this.scribe.space();
 				}
 			}
@@ -5359,15 +5359,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		final TypeReference[] bounds = typeParameter.bounds;
 		if (bounds != null) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_wilcard);
-			if (this.preferences.insert_space_after_and_in_wilcard) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_type_parameter);
+			if (this.preferences.insert_space_after_and_in_type_parameter) {
 				this.scribe.space();
 			}
 			int boundsLength = bounds.length;
 			for (int i = 0; i < boundsLength - 1; i++) {
 				bounds[i].traverse(this, scope);
-				this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_wilcard);
-				if (this.preferences.insert_space_after_and_in_wilcard) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_and_in_type_parameter);
+				if (this.preferences.insert_space_after_and_in_type_parameter) {
 					this.scribe.space();
 				}
 			}

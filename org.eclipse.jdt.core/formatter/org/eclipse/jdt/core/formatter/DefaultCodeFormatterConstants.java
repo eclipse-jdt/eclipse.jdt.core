@@ -925,7 +925,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space after and in wilcard
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_and_in_wildcard"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_and_in_type_parameter"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
 	 * </pre>
@@ -933,7 +933,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.1
 	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_AND_IN_WILDCARD = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_and_in_wildcard"; //$NON-NLS-1$
+	public static final String FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_and_in_type_parameter"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space after an assignment operator
@@ -1621,7 +1621,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before and in wildcard
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_and_in_wildcard"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_and_in_type_parameter"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
 	 * </pre>
@@ -1629,7 +1629,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.1
 	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_AND_IN_WILDCARD = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_and_in_wildcard";	//$NON-NLS-1$
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_AND_IN_TYPE_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_and_in_type_parameter";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before at in annotation type declaration

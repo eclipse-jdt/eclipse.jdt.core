@@ -105,7 +105,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_in_empty_enum_declaration;
 	public boolean insert_new_line_in_empty_method_body;
 	public boolean insert_new_line_in_empty_type_declaration;
-	public boolean insert_space_after_and_in_wilcard;
+	public boolean insert_space_after_and_in_type_parameter;
 	public boolean insert_space_after_assignment_operator;
 	public boolean insert_space_after_at_in_annotation;
 	public boolean insert_space_after_at_in_annotation_type_declaration;
@@ -163,7 +163,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_question_in_conditional;
 	public boolean insert_space_after_semicolon_in_for;
 	public boolean insert_space_after_unary_operator;
-	public boolean insert_space_before_and_in_wilcard;
+	public boolean insert_space_before_and_in_type_parameter;
 	public boolean insert_space_before_at_in_annotation_type_declaration;
 	public boolean insert_space_before_assignment_operator;
 	public boolean insert_space_before_binary_operator;
@@ -351,7 +351,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ENUM_DECLARATION, this.insert_new_line_in_empty_enum_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY, this.insert_new_line_in_empty_method_body? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION, this.insert_new_line_in_empty_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AND_IN_WILDCARD, this.insert_space_after_and_in_wilcard? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER, this.insert_space_after_and_in_type_parameter? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, this.insert_space_after_assignment_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AT_IN_ANNOTATION, this.insert_space_after_at_in_annotation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AT_IN_ANNOTATION_TYPE_DECLARATION, this.insert_space_after_at_in_annotation_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -409,7 +409,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_QUESTION_IN_WILDCARD, this.insert_space_after_question_in_wilcard? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR, this.insert_space_after_semicolon_in_for? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR, this.insert_space_after_unary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AND_IN_WILDCARD, this.insert_space_before_and_in_wilcard ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AND_IN_TYPE_PARAMETER, this.insert_space_before_and_in_type_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AT_IN_ANNOTATION_TYPE_DECLARATION, this.insert_space_before_at_in_annotation_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, this.insert_space_before_assignment_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, this.insert_space_before_binary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1002,9 +1002,9 @@ public class DefaultCodeFormatterOptions {
 		if (insertNewLineInEmptyTypeDeclarationOption != null) {
 			this.insert_new_line_in_empty_type_declaration = JavaCore.INSERT.equals(insertNewLineInEmptyTypeDeclarationOption);
 		}
-		final Object insertSpaceAfterAndInWildcardOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AND_IN_WILDCARD);
+		final Object insertSpaceAfterAndInWildcardOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER);
 		if (insertSpaceAfterAndInWildcardOption != null) {
-			this.insert_space_after_and_in_wilcard = JavaCore.INSERT.equals(insertSpaceAfterAndInWildcardOption);
+			this.insert_space_after_and_in_type_parameter = JavaCore.INSERT.equals(insertSpaceAfterAndInWildcardOption);
 		}
 		final Object insertSpaceAfterAssignmentOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR);
 		if (insertSpaceAfterAssignmentOperatorOption != null) {
@@ -1234,9 +1234,9 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterUnaryOperatorOption != null) {
 			this.insert_space_after_unary_operator = JavaCore.INSERT.equals(insertSpaceAfterUnaryOperatorOption);
 		}
-		final Object insertSpaceBeforeAndInWildcardOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AND_IN_WILDCARD);
+		final Object insertSpaceBeforeAndInWildcardOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AND_IN_TYPE_PARAMETER);
 		if (insertSpaceBeforeAndInWildcardOption != null) {
-			this.insert_space_before_and_in_wilcard = JavaCore.INSERT.equals(insertSpaceBeforeAndInWildcardOption);
+			this.insert_space_before_and_in_type_parameter = JavaCore.INSERT.equals(insertSpaceBeforeAndInWildcardOption);
 		}
 		final Object insertSpaceBeforeAtInAnnotationTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AT_IN_ANNOTATION_TYPE_DECLARATION);
 		if (insertSpaceBeforeAtInAnnotationTypeDeclarationOption != null) {
@@ -1731,7 +1731,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_in_empty_enum_declaration = true;
 		this.insert_new_line_in_empty_method_body = true;
 		this.insert_new_line_in_empty_type_declaration = true;
-		this.insert_space_after_and_in_wilcard = true;
+		this.insert_space_after_and_in_type_parameter = true;
 		this.insert_space_after_assignment_operator = true;
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
@@ -1789,7 +1789,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_question_in_wilcard = true;
 		this.insert_space_after_semicolon_in_for = true;
 		this.insert_space_after_unary_operator = false;
-		this.insert_space_before_and_in_wilcard = true;
+		this.insert_space_before_and_in_type_parameter = true;
 		this.insert_space_before_at_in_annotation_type_declaration = true;
 		this.insert_space_before_assignment_operator = true;
 		this.insert_space_before_binary_operator = true;
@@ -1958,7 +1958,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_in_empty_enum_declaration = true;
 		this.insert_new_line_in_empty_method_body = true;
 		this.insert_new_line_in_empty_type_declaration = true;
-		this.insert_space_after_and_in_wilcard = true;
+		this.insert_space_after_and_in_type_parameter = true;
 		this.insert_space_after_assignment_operator = true;
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
@@ -2016,7 +2016,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_question_in_wilcard = true;
 		this.insert_space_after_semicolon_in_for = true;
 		this.insert_space_after_unary_operator = false;
-		this.insert_space_before_and_in_wilcard = true;
+		this.insert_space_before_and_in_type_parameter = true;
 		this.insert_space_before_at_in_annotation_type_declaration = true;
 		this.insert_space_before_assignment_operator = true;
 		this.insert_space_before_binary_operator = true;
