@@ -26,7 +26,7 @@ public CompletionOnSingleTypeReference(char[] source, long pos) {
 	super(source, pos);
 }
 public void aboutToResolve(Scope scope) {
-	getTypeBinding(scope.parent); // step up from the ClassScope
+	getTypeBinding(scope);
 }
 /*
  * No expansion of the completion reference into an array one
