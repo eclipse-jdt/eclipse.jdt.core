@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0469"));			
+		suite.addTest(new ASTConverterTest2("test0470"));			
 		return suite;
 	}
 	/**
@@ -1793,6 +1793,25 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode parent = node.getParent();
 		assertNotNull(parent);
 		assertTrue("not a block", parent.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
-	}	
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42647
+	 */
+	public void test0470() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		try {
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			JavaCore.setOptions(newOptions);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0470", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(sourceUnit, true);
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+			assertNotNull("No node", node);
+		} finally  {
+		}
+	}		
 }
 

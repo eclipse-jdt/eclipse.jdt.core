@@ -1789,8 +1789,8 @@ class ASTConverter {
 
 	public AssertStatement convert(org.eclipse.jdt.internal.compiler.ast.AssertStatement statement) {
 		AssertStatement assertStatement = this.ast.newAssertStatement();
-		assertStatement.setExpression(convert(statement.assertExpression));
 		int end = statement.assertExpression.sourceEnd + 1;
+		assertStatement.setExpression(convert(statement.assertExpression));
 		org.eclipse.jdt.internal.compiler.ast.Expression exceptionArgument = statement.exceptionArgument;
 		if (exceptionArgument != null) {
 			assertStatement.setMessage(convert(exceptionArgument));
