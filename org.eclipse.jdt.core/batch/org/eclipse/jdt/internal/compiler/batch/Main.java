@@ -33,6 +33,7 @@ public class Main implements ProblemSeverities {
 	boolean showProgress = false;
 	public long time = 0;
 	long lineCount;
+	private boolean generatePackagesStructure;
 
 	Hashtable options;
 	String[] filenames;
@@ -332,6 +333,7 @@ private void configure(String[] argv) throws InvalidInputException {
 			if (destinationPath != null)
 				throw new InvalidInputException(Main.bind("configure.duplicateOutputPath",currentArg)); //$NON-NLS-1$
 			mode = InsideDestinationPath;
+			generatePackagesStructure = true;
 			continue;
 		}
 		if (currentArg.equals("-classpath") || currentArg.equals("-cp")) { //$NON-NLS-1$
@@ -625,6 +627,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	}
 	if (destinationPath == null) {
 		destinationPath = System.getProperty("user.dir"); //$NON-NLS-1$
+		generatePackagesStructure = false;
 	} else if ("none".equals(destinationPath)) { //$NON-NLS-1$
 		destinationPath = null;
 	}
@@ -777,6 +780,7 @@ protected void outputClassFiles(CompilationResult unitResult) {
 				CharOperation.replace(relativeName, '/', File.separatorChar);
 				try {
 					ClassFile.writeToDisk(
+						generatePackagesStructure,
 						destinationPath,
 						new String(relativeName),
 						classFile.getBytes());

@@ -2782,18 +2782,50 @@ public class ClassFile
 	 *	   c:\temp\ the last character is a file separator
 	 * relativeFileName is formed like:
 	 *     java\lang\String.class
-	 * @param fileName java.lang.String
-	 * @param content byte[]
+	 * @param generatePackagesStructure a flag to know if the packages structure has to be generated.
+	 * @param outputPath the output directory
+	 * @param relativeFileName java.lang.String
+	 * @param contents byte[]
+	 * 
 	 */
 	public static void writeToDisk(
+		boolean generatePackagesStructure,
 		String outputPath,
 		String relativeFileName,
 		byte[] contents)
 		throws IOException {
 			
-		BufferedOutputStream output = new BufferedOutputStream(
-			new FileOutputStream(
-					new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
+		BufferedOutputStream output = null;
+		if (generatePackagesStructure) {
+			output = new BufferedOutputStream(
+				new FileOutputStream(
+						new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
+		} else {
+			String fileName = null;
+			char fileSeparatorChar = File.separatorChar;
+			String fileSeparator = File.separator;
+			// First we ensure that the outputPath exists
+			outputPath = outputPath.replace('/', fileSeparatorChar);
+			// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
+			int indexOfPackageSeparator = relativeFileName.lastIndexOf(fileSeparatorChar);
+			if (indexOfPackageSeparator == -1) {
+				if (outputPath.endsWith(fileSeparator)) {
+					fileName = outputPath + relativeFileName;
+				} else {
+					fileName = outputPath + fileSeparator + relativeFileName;
+				}
+			} else {
+				int length = relativeFileName.length();
+				if (outputPath.endsWith(fileSeparator)) {
+					fileName = outputPath + relativeFileName.substring(indexOfPackageSeparator + 1, length);
+				} else {
+					fileName = outputPath + fileSeparator + relativeFileName.substring(indexOfPackageSeparator + 1, length);
+				}
+			}
+			output = new BufferedOutputStream(
+				new FileOutputStream(
+						new File(fileName)));
+		}
 		try {
 			output.write(contents);
 		} finally {
