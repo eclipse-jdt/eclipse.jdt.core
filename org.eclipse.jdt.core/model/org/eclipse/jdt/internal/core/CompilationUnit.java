@@ -59,29 +59,31 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
 	CompilationUnitVisitor.visit(this, visitor);
 } 
 
-protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor) throws JavaModelException {
+
+	if (monitor != null && monitor.isCanceled()) return;
 
 	// remove existing (old) infos
 	removeInfo();
 
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource()));
+	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getUnderlyingResource()));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
 		fgJavaModelManager.putInfo(key, value);
 	}
+	// problem detection 
+	if (monitor != null && monitor.isCanceled()) return;
 
-	// error detection
 	IProblemRequestor problemRequestor = this.getProblemRequestor();
 	if (problemRequestor != null && problemRequestor.isActive()){
 		problemRequestor.beginReporting();
-		CompilationUnitProblemFinder.resolve(this, problemRequestor);
+		CompilationUnitProblemFinder.resolve(this, problemRequestor, monitor);
 		problemRequestor.endReporting();
 	}
 	
-
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.
 	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
@@ -772,6 +774,16 @@ protected boolean parentExists(){
 public IMarker[] reconcile() throws JavaModelException {
 	// Reconciling is not supported on non working copies
 	return null;
+}
+
+/**
+ * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
+ */
+public void reconcile(
+	boolean forceProblemDetection,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+	// Reconciling is not supported on non working copies
 }
 
 /**

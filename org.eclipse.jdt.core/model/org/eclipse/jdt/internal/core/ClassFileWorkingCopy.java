@@ -421,6 +421,16 @@ public IResource getResource() {
 	}
 
 	/**
+	 * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
+	 */
+	public void reconcile(
+		boolean forceProblemDetection,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.IWorkingCopy#restore()
 	 */
 	public void restore() throws JavaModelException {

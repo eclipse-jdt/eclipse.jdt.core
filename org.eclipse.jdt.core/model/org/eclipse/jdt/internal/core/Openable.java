@@ -56,18 +56,21 @@ protected Openable(int type, IJavaElement parent, String name) {
  * removing the current infos, generating new infos, and then placing
  * the new infos into the Java Model cache tables.
  */
-protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor) throws JavaModelException {
 
+	if (monitor != null && monitor.isCanceled()) return;
+	
 	// remove existing (old) infos
 	removeInfo();
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource()));
+	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getUnderlyingResource()));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
 		fgJavaModelManager.putInfo(key, value);
 	}
+		
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.
 	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type

@@ -268,7 +268,10 @@ public interface IWorkingCopy {
 	 * over the cached contents and the new contents, and finally firing
 	 * this delta.
 	 * <p>
-	 * Syntax problems found in the new contents are notified through the
+	 * If the working copy hasn't changed, then no problem will be detected,
+	 * this is equivalent to <code>IWorkingCopy#reconcile(false, null)</code>.
+	 * <p>
+	 * Compilation problems found in the new contents are notified through the
 	 * <code>IProblemRequestor</code> interface which was passed at
 	 * creation, and no longer as transient markers. Therefore this API will
 	 * return <code>null</code>.
@@ -285,6 +288,37 @@ public interface IWorkingCopy {
 	 */
 	IMarker[] reconcile() throws JavaModelException;
 	
+	/**
+	 * Reconciles the contents of this working copy.
+	 * It performs the reconciliation by locally caching the contents of 
+	 * the working copy, updating the contents, then creating a delta 
+	 * over the cached contents and the new contents, and finally firing
+	 * this delta.
+	 * <p>
+	 * The boolean argument allows to force problem detection even if the
+	 * working copy is already consistent.
+	 * <p>
+	 * Compilation problems found in the new contents are notified through the
+	 * <code>IProblemRequestor</code> interface which was passed at
+	 * creation, and no longer as transient markers. Therefore this API answers
+	 * nothing.
+	 * <p>
+	 * Note: It has been assumed that added inner types should
+	 * not generate change deltas.  The implementation has been
+	 * modified to reflect this assumption.
+	 *
+	 * @param forceProblemDetection - boolean indicating whether problem should be recomputed
+	 *   even if the source hasn't changed.
+	 * @param monitor - a progress monitor
+	 * @exception JavaModelException if the contents of the original element
+	 *		cannot be accessed. Reasons include:
+	 * <ul>
+	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * </ul>
+	 * @since 2.0
+	 */
+	void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
+
 	/**
 	 * Restores the contents of this working copy to the current contents of
 	 * this working copy's original element. Has no effect if this element

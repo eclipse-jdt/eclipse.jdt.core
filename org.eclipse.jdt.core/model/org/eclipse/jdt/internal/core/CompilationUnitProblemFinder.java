@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
@@ -133,17 +135,20 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	public static CompilationUnitDeclaration resolve(
-		ICompilationUnit unitElement, IProblemRequestor problemRequestor)
+		ICompilationUnit unitElement, 
+		IProblemRequestor problemRequestor,
+		IProgressMonitor monitor)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
+		
 		CompilationUnitProblemFinder problemFinder =
 			new CompilationUnitProblemFinder(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
 				JavaCore.getOptions(),
 				getRequestor(),
-				getProblemFactory(fileName, problemRequestor));
+				getProblemFactory(fileName, problemRequestor, monitor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -170,7 +175,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 	}
 	
-	protected static IProblemFactory getProblemFactory(final char[] fileName, final IProblemRequestor problemRequestor) {
+	protected static IProblemFactory getProblemFactory(
+		final char[] fileName, 
+		final IProblemRequestor problemRequestor,
+		final IProgressMonitor monitor) {
 
 		return new DefaultProblemFactory(Locale.getDefault()) {
 			public IProblem createProblem(
@@ -182,6 +190,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 				int endPosition,
 				int lineNumber) {
 
+				if (monitor != null && monitor.isCanceled()){
+					throw new AbortCompilation(true, null); // silent abort
+				}
+				
 				IProblem problem =
 					super.createProblem(
 						originatingFileName,
@@ -198,6 +210,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 					}
 					problemRequestor.acceptProblem(problem);
 				}
+				if (monitor != null && monitor.isCanceled()){
+					throw new AbortCompilation(true, null); // silent abort
+				}
+
 				return problem;
 			}
 		};
