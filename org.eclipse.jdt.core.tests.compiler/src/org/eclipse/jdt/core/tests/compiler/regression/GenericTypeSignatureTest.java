@@ -68,7 +68,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
 //		testsRange = new int[] { 66, -1 };
-		testsNumbers = new int[] { 6, 7 };
+//		testsNumbers = new int[] { 6, 7 };
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
