@@ -340,7 +340,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
- 	 * Retrieve the client classpath variable initializer for a given variable
+ 	 * Retrieve the client classpath variable initializer registered for a given variable if any
  	 */
 	private static ClasspathVariableInitializer getClasspathVariableInitializer(String variable){
 		
@@ -526,7 +526,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Variable source attachment path and root path are also resolved and recorded in the resulting classpath entry.
 	 * <p>
 	 * NOTE: This helper method does not handle classpath containers, for which should rather be used
-	 * <code>#getResolvedClasspathContainer(IJavaProject)</code>.
+	 * <code>JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)</code>.
 	 * <p>
 	 * @return the resolved library or project classpath entry, or <code>null</code>
 	 *   if the given variable entry could not be resolved to a valid classpath entry
@@ -669,40 +669,41 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			&& element.getHandleIdentifier().equals(markerDelta.getAttribute(ATT_HANDLE_ID));
 	}
 
-	/** TOFIX
-	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. The first segment of the the path is the name of a classpath variable.
-	 * The trailing segments of the path will be appended to resolved variable path.
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
+	 * for the given path. The path of the container will be used during resolution so as to map this
+	 * container entry to a set of other classpath entries the container is acting for.
 	 * <p>
-	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
-	 * depending on what the classpath variable is referring.
-	 * </p>
+	 * A container entry allows to express indirect references to a set of libraries, projects and variable entries,
+	 * which can be interpreted differently for each Java project where it is used.
+	 * A classpath container entry can be resolved using <code>JavaCore#getResolvedClasspathContainer</code>,
+	 * and updated with <code>JavaCore#classpathContainerChanged</code>
 	 * <p>
-	 * e.g. Here are some examples of variable path usage<ul>
-	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
-	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
-	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
-	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
-	 * </ul>
-	 * </p>
+	 * A container is exclusively resolved by a <code>ClasspathContainerResolver</code> registered onto the
+	 * extension point "org.eclipse.jdt.core.classpathContainerResolver".
 	 * <p>
-	 * Note that this operation does not attempt to validate classpath variables
+	 * Example of an ClasspathContainerResolver for a classpath container named "JDK/1.2"
+	 * <extension
+	 *    point="org.eclipse.jdt.core.containerResolver">
+	 *    <containerResolver
+	 *       prefix="JDK"
+	 *       class="com.example.MyResolver"/> 
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
-	 * </p>
-	 *
-	 * @param variablePath the path of the binary archive; first segment is the
-	 *   name of a classpath variable
-	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
-	 *    or <code>null</code> if none; if present, the first segment is the
-	 *    name of a classpath variable (not necessarily the same variable
-	 *    as the one that begins <code>variablePath</code>)
-	 * @param sourceAttachmentRootPath the location of the root within the source archive
-	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new variable classpath entry
+	 * <p>
+	 * The resulting entry is not exported to dependent projects. This method is equivalent to
+	 * <code>newContainerEntry(-,false)</code>.
+	 * <p>
+	 * @param containerPath - the path identifying the container, it must be formed of at least one
+	 * 	segment
+	 * @param isExported - a boolean indicating whether this entry is contributed to dependent
+	 *		projects in addition to the output location
+	 * @return a new container classpath entry
+	 * 
+	 * @see JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)
+	 * @see JavaCore#classpathContainerChanged(IPath, IJavaElement, IProgressMonitor)
+	 * @see JavaCore#newContainerEntry(IPath, boolean)
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath) {
@@ -710,40 +711,37 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return newContainerEntry(containerPath, false);
 	}
 
-	/** TOFIX
-	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. The first segment of the the path is the name of a classpath variable.
-	 * The trailing segments of the path will be appended to resolved variable path.
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
+	 * for the given path. The path of the container will be used during resolution so as to map this
+	 * container entry to a set of other classpath entries the container is acting for.
 	 * <p>
-	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
-	 * depending on what the classpath variable is referring.
-	 * </p>
+	 * A container entry allows to express indirect references to a set of libraries, projects and variable entries,
+	 * which can be interpreted differently for each Java project where it is used.
+	 * A classpath container entry can be resolved using <code>JavaCore#getResolvedClasspathContainer</code>,
+	 * and updated with <code>JavaCore#classpathContainerChanged</code>
 	 * <p>
-	 * e.g. Here are some examples of variable path usage<ul>
-	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
-	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
-	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
-	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
-	 * </ul>
-	 * </p>
+	 * A container is exclusively resolved by a <code>ClasspathContainerResolver</code> registered onto the
+	 * extension point "org.eclipse.jdt.core.classpathContainerResolver".
 	 * <p>
-	 * Note that this operation does not attempt to validate classpath variables
+	 * Example of an ClasspathContainerResolver for a classpath container named "JDK/1.2"
+	 * <extension
+	 *    point="org.eclipse.jdt.core.containerResolver">
+	 *    <containerResolver
+	 *       prefix="JDK"
+	 *       class="com.example.MyResolver"/> 
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
-	 * </p>
-	 *
-	 * @param variablePath the path of the binary archive; first segment is the
-	 *   name of a classpath variable
-	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
-	 *    or <code>null</code> if none; if present, the first segment is the
-	 *    name of a classpath variable (not necessarily the same variable
-	 *    as the one that begins <code>variablePath</code>)
-	 * @param sourceAttachmentRootPath the location of the root within the source archive
-	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new variable classpath entry
+	 * <p>
+	 * @param containerPath - the path identifying the container, it must be formed of at least one
+	 * 	segment
+	 * @param isExported - a boolean indicating whether this entry is contributed to dependent
+	 *		projects in addition to the output location
+	 * @return a new container classpath entry
+	 * 
+	 * @see JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)
+	 * @see JavaCore#classpathContainerChanged(IPath, IJavaElement, IProgressMonitor)
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
@@ -769,7 +767,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
 	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 *
+	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
@@ -777,11 +775,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
-	 * </p>
 	 * <p>
 	 * The resulting entry is not exported to dependent projects. This method is equivalent to
 	 * <code>newLibraryEntry(-,-,-,false)</code>.
-	 * </p>
+	 * <p>
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive, 
@@ -789,7 +786,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
 	 * @return a new library classpath entry
-	 * @see #newLibraryEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,boolean)
+	 * 
+	 * @see #newLibraryEntry(IPath, IPath, IPath, boolean)
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
@@ -807,7 +805,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
 	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 *
+	 *	<p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
@@ -815,7 +813,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
-	 * </p>
+	 * <p>
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive, 
@@ -854,21 +852,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
 	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
 	 * whole output location).
-	 * </p>
 	 * <p>
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
-	 * </p>
 	 * <p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 * </p>
 	 * <p>
 	 * The resulting entry is not exported to dependent projects. This method is equivalent to
-	 * <code>newProjectEntry(path,false)</code>.
-	 * </p>
+	 * <code>newProjectEntry(_,false)</code>.
+	 * <p>
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @return a new project classpath entry
-	 * @see #newProjectEntry(org.eclipse.core.runtime.IPath,boolean)
+	 * 
+	 * @see JavaCore#newProjectEntry(IPath, boolean)
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path) {
 		return newProjectEntry(path, false);
@@ -882,13 +878,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
 	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
 	 * whole output location).
-	 * </p>
 	 * <p>
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
-	 * </p>
 	 * <p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 * </p>
+	 * <p>
 	 * 
 	 * @param path the absolute path of the prerequisite project
 	 * @param isExported indicates whether this entry is contributed to dependent
@@ -950,12 +944,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. The first segment of the the path is the name of a classpath variable.
+	 * for the given path. The first segment of the path is the name of a classpath variable.
 	 * The trailing segments of the path will be appended to resolved variable path.
 	 * <p>
 	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
 	 * depending on what the classpath variable is referring.
-	 * </p>
+	 * <p>
+	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>)
+	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
+	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
@@ -965,15 +962,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
-	 * </p>
-	 * <p>
 	 * Note that this operation does not attempt to validate classpath variables
 	 * or access the resources at the given paths.
-	 * </p>
 	 * <p>
 	 * The resulting entry is not exported to dependent projects. This method is equivalent to
 	 * <code>newVariableEntry(-,-,-,false)</code>.
-	 * </p>
+	 * <p>
 	 * 
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
@@ -984,7 +978,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
 	 * @return a new library classpath entry
-	 * @see #newVariableEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,boolean)
+	 * 
+	 * @see JavaCore#newVariableEntry(IPath, IPath, IPath, boolean)
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
@@ -997,13 +992,16 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. The first segment of the the path is the name of a classpath variable.
+	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
+	 * for the given path. The first segment of the path is the name of a classpath variable.
 	 * The trailing segments of the path will be appended to resolved variable path.
 	 * <p>
 	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
 	 * depending on what the classpath variable is referring.
-	 * </p>
+	 * <p>
+	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>)
+	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
+	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
@@ -1013,11 +1011,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
-	 * </p>
-	 * <p>
 	 * Note that this operation does not attempt to validate classpath variables
 	 * or access the resources at the given paths.
-	 * </p>
+	 * <p>
 	 *
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
