@@ -254,7 +254,7 @@ public class IteratorForStatement extends Statement {
 		TypeBinding elementType = localDeclaration.type.resolvedType;
 		TypeBinding collectionType = collection.resolveType(scope);
 		// TODO need to handle java.lang.Iterable and java.lang.Iterable<E>
-		if (collectionType.isArrayType()) {
+		if (collectionType.isArrayType() && collectionType.dimensions() == 1) {
 			this.kind = ARRAY;
 			TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
 			// in case we need to do a conversion
