@@ -270,7 +270,7 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	/*
-	 * Parse @return tag declaration
+	 * Parse tag declaration
 	 */
 	protected boolean parseTag() {
 		TagElement tag = this.ast.newTagElement();
