@@ -44,7 +44,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test036"));
+			suite.addTest(new BatchASTCreationTests("test043"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -949,5 +949,37 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+
+	/*
+	 * Ensures that a source parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key.
+	 */
+	public void test043() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  X<? super T> field;\n" +
+				"}",
+			},
+			"Lp1/X<-Lp1/X<TT;>;:TT;>;");
+	}
+	
+	/*
+	 * Ensures that a binary parameterized type binding (where the parameters contain wildcard with a super bound) can be created using its key.
+	 * (regression test for 83499 ClassCastException when restoring ITypeBinding from key)
+	 */
+	public void test044() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<E> {\n" +
+				"  Class<? extends E> field;\n" +
+				"}",
+			},
+			"Ljava/lang/Class<+Lp1/X<TE;>;:TE;>;");
+	}
+	
 
 }

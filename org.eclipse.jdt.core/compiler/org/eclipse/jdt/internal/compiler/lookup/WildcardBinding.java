@@ -93,6 +93,17 @@ public class WildcardBinding extends ReferenceBinding {
 		}	    
 	}
 	
+	public char[] computeUniqueKey() {
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+                return WILDCARD_STAR;
+            case Wildcard.EXTENDS :
+                return CharOperation.concat(WILDCARD_PLUS, this.bound.computeUniqueKey());
+			default: // SUPER
+			    return CharOperation.concat(WILDCARD_MINUS, this.bound.computeUniqueKey());
+        }
+       }
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */

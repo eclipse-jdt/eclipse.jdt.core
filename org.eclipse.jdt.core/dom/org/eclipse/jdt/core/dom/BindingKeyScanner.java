@@ -24,9 +24,8 @@ class BindingKeyScanner {
 	static final int FIELD = 2;
 	static final int METHOD = 3;
 	static final int ARRAY = 4;
-	static final int TYPE_PARAMETER = 5;
-	static final int LOCAL_VAR = 6;
-	static final int END = 7;
+	static final int LOCAL_VAR = 5;
+	static final int END = 6;
 	
 	int index = 0, start;
 	char[] source;
@@ -77,6 +76,12 @@ class BindingKeyScanner {
 			&& this.source[this.index+1] == 'T';
 	}
 	
+	boolean isAtTypeVariableStart() {
+		return 
+			this.index+3 < this.source.length
+			&& this.source[this.index+3] == ':';
+	}
+
 	boolean isAtTypeStart() {
 		return this.index+1 < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
 	}
@@ -126,6 +131,7 @@ class BindingKeyScanner {
 					break;
 				case '.':
 				case '%':
+				case ':':
 					this.start = this.index+1;
 					previousTokenEnd = this.start;
 					break;
@@ -159,9 +165,6 @@ class BindingKeyScanner {
 				case ')':
 					this.start = ++this.index;
 					this.token = END;
-					return this.token;
-				case ':':
-					this.token = TYPE_PARAMETER;
 					return this.token;
 				case '#':
 					if (this.index == previousTokenEnd) {
@@ -238,9 +241,6 @@ class BindingKeyScanner {
 			case ARRAY:
 				buffer.append("ARRAY: "); //$NON-NLS-1$
 				break;
-			case TYPE_PARAMETER:
-				buffer.append("TYPE PARAMETER: "); //$NON-NLS-1$
-				break;
 			case LOCAL_VAR:
 				buffer.append("LOCAL VAR: "); //$NON-NLS-1$
 				break;
@@ -268,4 +268,5 @@ class BindingKeyScanner {
 		}
 		return buffer.toString();
 	}
+
 }

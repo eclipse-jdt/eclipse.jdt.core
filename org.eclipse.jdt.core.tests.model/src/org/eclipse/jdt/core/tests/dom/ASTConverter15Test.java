@@ -92,7 +92,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0109"));
+		suite.addTest(new ASTConverter15Test("test0126"));
 		return suite;
 	}
 	
@@ -3616,6 +3616,23 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding binding = method.resolveMethodBinding().getMethodDeclaration();
 		assertBindingEquals(
 			"LX;.foo<E:Ljava/lang/Object;>()V",
+			binding);
+	}
+
+	/*
+	 * Ensures that the key for a parameterized type binding with an extends wildcard bounded to a type variable
+	 * is correct.
+	 */
+	public void test0126() throws CoreException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"public class X<E> {\n" +
+			"  /*start*/Class<? extends E>/*end*/ field;\n" +
+			"}",
+			this.workingCopy);
+		ITypeBinding binding = type.resolveBinding();
+		assertBindingEquals(
+			"Ljava/lang/Class<+LX<TE;>;:TE;>;",
 			binding);
 	}
 

@@ -138,12 +138,7 @@ class BindingKey {
 		return ((SourceTypeBinding) binding).scope.compilationUnitScope().referenceContext;
 	 }
 	 
-	 /*
-	  * Returns the compiler binding corresponding to this key.
-	  * This key's scanner should be positioned on the top level type token.
-	  * Returns null otherwise.
-	  */
-	 Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit) {
+	  Binding getCompilerBinding(CompilationUnitDeclaration parsedUnit) {
 	 	switch (this.scanner.token) {
 	 		case BindingKeyScanner.PACKAGE:
 	 			return new PackageBinding(this.compoundName, null, this.environment);
@@ -158,18 +153,18 @@ class BindingKey {
 	 			int dim = this.dimension;
 	 			TypeBinding binding = parsedUnit == null ? getBinaryBinding() : getTypeBinding(parsedUnit, parsedUnit.types, typeName);
 	 			if (binding == null) return null;
- 				TypeBinding typeBinding = null;
- 				if (this.scanner.isAtParametersStart()) {
+				TypeBinding typeBinding = null;
+				if (this.scanner.isAtParametersStart()) {
 					if (this.scanner.isAtTypeParameterStart())	 					
 	 					// generic type binding
 	 					typeBinding = getGenericTypeBinding((SourceTypeBinding) binding);
 	 				else if (this.scanner.isAtTypeStart() || this.scanner.isAtWildCardStart())
- 						// parameterized type binding
+						// parameterized type binding
 	 					typeBinding = getParameterizedTypeBinding((ReferenceBinding) binding, null/*no enclosing type*/); 
- 				} else if (binding.typeVariables().length > 0)
- 					// raw type binding
- 					typeBinding = this.environment.createRawType((ReferenceBinding) binding, null/*no enclosing type*/);
- 				else
+				} else if (binding.typeVariables().length > 0)
+					// raw type binding
+					typeBinding = this.environment.createRawType((ReferenceBinding) binding, null/*no enclosing type*/);
+				else
 					// non-generic type binding
 					typeBinding = binding;
 	 			if (this.scanner.isAtFieldOrMethodStart()) {
@@ -188,6 +183,8 @@ class BindingKey {
 		 						return methodBinding;
 	 				}
 	 				return null; // malformed key
+	 			} else if (this.scanner.isAtTypeVariableStart()) {
+	 				return getTypeVariableBinding((SourceTypeBinding) binding);
 	 			} else {
 	 				return getArrayBinding(dim, typeBinding);
 	 			}
@@ -378,6 +375,21 @@ class BindingKey {
 		return null;
 	 }
 	 
+	 TypeVariableBinding getTypeVariableBinding(SourceTypeBinding typeBinding) {
+	 	// skip ";>"
+	 	this.scanner.skipParametersEnd();
+		if (this.scanner.nextToken() != BindingKeyScanner.TYPE)
+			return null;
+	 	char[] typeVariableName = this.scanner.getTokenSource();
+	 	TypeVariableBinding[] typeVariableBindings = typeBinding.typeVariables();
+	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
+			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
+			if (CharOperation.equals(typeVariableName, typeVariableBinding.sourceName()))
+				return typeVariableBinding;
+		}
+	 	return null;
+	 }
+	 
 	 TypeBinding getWildCardBinding(ReferenceBinding genericType, int rank) {
 	 	if (this.scanner.nextToken() != BindingKeyScanner.TYPE) return null;
 	 	char[] source = this.scanner.getTokenSource();
@@ -400,6 +412,7 @@ class BindingKey {
 		 		break;
 	 	}
 	 	if (kind == -1) return null; // malformed key
+	 	if (kind != Wildcard.UNBOUND && bound == null) return null; // malformed key
  		return this.environment.createWildcard(genericType, rank, bound, kind);
 	 }
 	 
@@ -414,4 +427,5 @@ class BindingKey {
 	 public String toString() {
 		return getKey();
 	}
+
 }

@@ -109,6 +109,30 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public void computeId() {
 		this.id = NoId;		
 	}
+	
+	public char[] computeUniqueKey() {
+	    StringBuffer sig = new StringBuffer(10);
+		if (this.isMemberType() && enclosingType().isParameterizedType()) {
+		    char[] typeSig = enclosingType().computeUniqueKey();
+		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		    sig.append('.').append(sourceName());
+		} else {
+		    char[] typeSig = this.type.signature();
+		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		}	   	    
+		if (this.arguments != null) {
+		    sig.append('<');
+		    for (int i = 0, length = this.arguments.length; i < length; i++) {
+		        sig.append(this.arguments[i].computeUniqueKey());
+		    }
+		    sig.append('>'); //$NON-NLS-1$
+		}
+		sig.append(';');
+		int sigLength = sig.length();
+		char[] uniqueKey = new char[sigLength];
+		sig.getChars(0, sigLength, uniqueKey, 0);			
+		return uniqueKey;
+   	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#constantPoolName()
