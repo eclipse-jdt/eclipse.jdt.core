@@ -62,21 +62,21 @@ public class Scanner implements TerminalSymbols {
 	public int linePtr = -1;
 	public boolean wasAcr = false;
 
-	public static final String END_OF_SOURCE = "End_Of_Source";
+	public static final String END_OF_SOURCE = "End_Of_Source"/*nonNLS*/;
 
-	public static final String INVALID_HEXA = "Invalid_Hexa_Literal";
-	public static final String INVALID_OCTAL = "Invalid_Octal_Literal";
+	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"/*nonNLS*/;
+	public static final String INVALID_OCTAL = "Invalid_Octal_Literal"/*nonNLS*/;
 	public static final String INVALID_CHARACTER_CONSTANT = 
-		"Invalid_Character_Constant"; 
-	public static final String INVALID_ESCAPE = "Invalid_Escape";
-	public static final String INVALID_INPUT = "Invalid_Input";
-	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape";
-	public static final String INVALID_FLOAT = "Invalid_Float_Literal";
+		"Invalid_Character_Constant"/*nonNLS*/; 
+	public static final String INVALID_ESCAPE = "Invalid_Escape"/*nonNLS*/;
+	public static final String INVALID_INPUT = "Invalid_Input"/*nonNLS*/;
+	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape"/*nonNLS*/;
+	public static final String INVALID_FLOAT = "Invalid_Float_Literal"/*nonNLS*/;
 
-	public static final String NULL_SOURCE_STRING = "Null_Source_String";
-	public static final String UNTERMINATED_STRING = "Unterminated_String";
-	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment";
-	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String";
+	public static final String NULL_SOURCE_STRING = "Null_Source_String"/*nonNLS*/;
+	public static final String UNTERMINATED_STRING = "Unterminated_String"/*nonNLS*/;
+	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"/*nonNLS*/;
+	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"/*nonNLS*/;
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'}, 
@@ -114,7 +114,7 @@ public class Scanner implements TerminalSymbols {
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
 	public boolean checkNonExternalizedStringLiterals = true;
-	public static char[] NonNLS_TAG = "/*nonNLS*/".toCharArray();
+	public static char[] NonNLS_TAG = "/*nonNLS*/"/*nonNLS*/.toCharArray();
 	public boolean wasNonExternalizedStringLiteral = false;
 	/*static*/ {
 		for (int i = 0; i < 6; i++) {
@@ -1084,7 +1084,7 @@ public int getNextToken() throws InvalidInputException {
 					if (atEnd())
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
-					throw new InvalidInputException("Ctrl-Z");
+					throw new InvalidInputException("Ctrl-Z"/*nonNLS*/);
 
 				default :
 					if (Character.isJavaIdentifierStart(currentCharacter))
@@ -2649,9 +2649,9 @@ public final void setSourceBuffer(char[] sourceString){
 }
 public String toString() {
 	if (startPosition == source.length)
-		return "EOF\n\n" + new String(source);
+		return "EOF\n\n"/*nonNLS*/ + new String(source);
 	if (currentPosition > source.length)
-		return "behind the EOF :-( ....\n\n" + new String(source);
+		return "behind the EOF :-( ....\n\n"/*nonNLS*/ + new String(source);
 
 	char front[] = new char[startPosition];
 	System.arraycopy(source, 0, front, 0, startPosition);
@@ -2679,221 +2679,221 @@ public String toString() {
 		source.length - (currentPosition - 1) - 1);
 	
 	return new String(front)
-		+ "\n===============================\nStarts here -->"
+		+ "\n===============================\nStarts here -->"/*nonNLS*/
 		+ new String(middle)
-		+ "<-- Ends here\n===============================\n"
+		+ "<-- Ends here\n===============================\n"/*nonNLS*/
 		+ new String(end); 
 }
 public final String toStringAction(int act) {
 	switch (act) {
 		case TokenNameIdentifier :
-			return "Identifier(" + new String(getCurrentTokenSource()) + ")";
+			return "Identifier("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 		case TokenNameabstract :
-			return "abstract";
+			return "abstract"/*nonNLS*/;
 		case TokenNameboolean :
-			return "boolean";
+			return "boolean"/*nonNLS*/;
 		case TokenNamebreak :
-			return "break";
+			return "break"/*nonNLS*/;
 		case TokenNamebyte :
-			return "byte";
+			return "byte"/*nonNLS*/;
 		case TokenNamecase :
-			return "case";
+			return "case"/*nonNLS*/;
 		case TokenNamecatch :
-			return "catch";
+			return "catch"/*nonNLS*/;
 		case TokenNamechar :
-			return "char";
+			return "char"/*nonNLS*/;
 		case TokenNameclass :
-			return "class";
+			return "class"/*nonNLS*/;
 		case TokenNamecontinue :
-			return "continue";
+			return "continue"/*nonNLS*/;
 		case TokenNamedefault :
-			return "default";
+			return "default"/*nonNLS*/;
 		case TokenNamedo :
-			return "do";
+			return "do"/*nonNLS*/;
 		case TokenNamedouble :
-			return "double";
+			return "double"/*nonNLS*/;
 		case TokenNameelse :
-			return "else";
+			return "else"/*nonNLS*/;
 		case TokenNameextends :
-			return "extends";
+			return "extends"/*nonNLS*/;
 		case TokenNamefalse :
-			return "false";
+			return "false"/*nonNLS*/;
 		case TokenNamefinal :
-			return "final";
+			return "final"/*nonNLS*/;
 		case TokenNamefinally :
-			return "finally";
+			return "finally"/*nonNLS*/;
 		case TokenNamefloat :
-			return "float";
+			return "float"/*nonNLS*/;
 		case TokenNamefor :
-			return "for";
+			return "for"/*nonNLS*/;
 		case TokenNameif :
-			return "if";
+			return "if"/*nonNLS*/;
 		case TokenNameimplements :
-			return "implements";
+			return "implements"/*nonNLS*/;
 		case TokenNameimport :
-			return "import";
+			return "import"/*nonNLS*/;
 		case TokenNameinstanceof :
-			return "instanceof";
+			return "instanceof"/*nonNLS*/;
 		case TokenNameint :
-			return "int";
+			return "int"/*nonNLS*/;
 		case TokenNameinterface :
-			return "interface";
+			return "interface"/*nonNLS*/;
 		case TokenNamelong :
-			return "long";
+			return "long"/*nonNLS*/;
 		case TokenNamenative :
-			return "native";
+			return "native"/*nonNLS*/;
 		case TokenNamenew :
-			return "new";
+			return "new"/*nonNLS*/;
 		case TokenNamenull :
-			return "null";
+			return "null"/*nonNLS*/;
 		case TokenNamepackage :
-			return "package";
+			return "package"/*nonNLS*/;
 		case TokenNameprivate :
-			return "private";
+			return "private"/*nonNLS*/;
 		case TokenNameprotected :
-			return "protected";
+			return "protected"/*nonNLS*/;
 		case TokenNamepublic :
-			return "public";
+			return "public"/*nonNLS*/;
 		case TokenNamereturn :
-			return "return";
+			return "return"/*nonNLS*/;
 		case TokenNameshort :
-			return "short";
+			return "short"/*nonNLS*/;
 		case TokenNamestatic :
-			return "static";
+			return "static"/*nonNLS*/;
 		case TokenNamesuper :
-			return "super";
+			return "super"/*nonNLS*/;
 		case TokenNameswitch :
-			return "switch";
+			return "switch"/*nonNLS*/;
 		case TokenNamesynchronized :
-			return "synchronized";
+			return "synchronized"/*nonNLS*/;
 		case TokenNamethis :
-			return "this";
+			return "this"/*nonNLS*/;
 		case TokenNamethrow :
-			return "throw";
+			return "throw"/*nonNLS*/;
 		case TokenNamethrows :
-			return "throws";
+			return "throws"/*nonNLS*/;
 		case TokenNametransient :
-			return "transient";
+			return "transient"/*nonNLS*/;
 		case TokenNametrue :
-			return "true";
+			return "true"/*nonNLS*/;
 		case TokenNametry :
-			return "try";
+			return "try"/*nonNLS*/;
 		case TokenNamevoid :
-			return "void";
+			return "void"/*nonNLS*/;
 		case TokenNamevolatile :
-			return "volatile";
+			return "volatile"/*nonNLS*/;
 		case TokenNamewhile :
-			return "while";
+			return "while"/*nonNLS*/;
 
 		case TokenNameIntegerLiteral :
-			return "Integer(" + new String(getCurrentTokenSource()) + ")";
+			return "Integer("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 		case TokenNameLongLiteral :
-			return "Long(" + new String(getCurrentTokenSource()) + ")";
+			return "Long("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 		case TokenNameFloatingPointLiteral :
-			return "Float(" + new String(getCurrentTokenSource()) + ")";
+			return "Float("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 		case TokenNameDoubleLiteral :
-			return "Double(" + new String(getCurrentTokenSource()) + ")";
+			return "Double("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 		case TokenNameCharacterLiteral :
-			return "Char(" + new String(getCurrentTokenSource()) + ")";
+			return "Char("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 		case TokenNameStringLiteral :
-			return "String(" + new String(getCurrentTokenSource()) + ")";
+			return "String("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
 
 		case TokenNamePLUS_PLUS :
-			return "++";
+			return "++"/*nonNLS*/;
 		case TokenNameMINUS_MINUS :
-			return "--";
+			return "--"/*nonNLS*/;
 		case TokenNameEQUAL_EQUAL :
-			return "==";
+			return "=="/*nonNLS*/;
 		case TokenNameLESS_EQUAL :
-			return "<=";
+			return "<="/*nonNLS*/;
 		case TokenNameGREATER_EQUAL :
-			return ">=";
+			return ">="/*nonNLS*/;
 		case TokenNameNOT_EQUAL :
-			return "!=";
+			return "!="/*nonNLS*/;
 		case TokenNameLEFT_SHIFT :
-			return "<<";
+			return "<<"/*nonNLS*/;
 		case TokenNameRIGHT_SHIFT :
-			return ">>";
+			return ">>"/*nonNLS*/;
 		case TokenNameUNSIGNED_RIGHT_SHIFT :
-			return ">>>";
+			return ">>>"/*nonNLS*/;
 		case TokenNamePLUS_EQUAL :
-			return "+=";
+			return "+="/*nonNLS*/;
 		case TokenNameMINUS_EQUAL :
-			return "-=";
+			return "-="/*nonNLS*/;
 		case TokenNameMULTIPLY_EQUAL :
-			return "*=";
+			return "*="/*nonNLS*/;
 		case TokenNameDIVIDE_EQUAL :
-			return "/=";
+			return "/="/*nonNLS*/;
 		case TokenNameAND_EQUAL :
-			return "&=";
+			return "&="/*nonNLS*/;
 		case TokenNameOR_EQUAL :
-			return "|=";
+			return "|="/*nonNLS*/;
 		case TokenNameXOR_EQUAL :
-			return "^=";
+			return "^="/*nonNLS*/;
 		case TokenNameREMAINDER_EQUAL :
-			return "%=";
+			return "%="/*nonNLS*/;
 		case TokenNameLEFT_SHIFT_EQUAL :
-			return "<<=";
+			return "<<="/*nonNLS*/;
 		case TokenNameRIGHT_SHIFT_EQUAL :
-			return ">>=";
+			return ">>="/*nonNLS*/;
 		case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL :
-			return ">>>=";
+			return ">>>="/*nonNLS*/;
 		case TokenNameOR_OR :
-			return "||";
+			return "||"/*nonNLS*/;
 		case TokenNameAND_AND :
-			return "&&";
+			return "&&"/*nonNLS*/;
 		case TokenNamePLUS :
-			return "+";
+			return "+"/*nonNLS*/;
 		case TokenNameMINUS :
-			return "-";
+			return "-"/*nonNLS*/;
 		case TokenNameNOT :
-			return "!";
+			return "!"/*nonNLS*/;
 		case TokenNameREMAINDER :
-			return "%";
+			return "%"/*nonNLS*/;
 		case TokenNameXOR :
-			return "^";
+			return "^"/*nonNLS*/;
 		case TokenNameAND :
-			return "&";
+			return "&"/*nonNLS*/;
 		case TokenNameMULTIPLY :
-			return "*";
+			return "*"/*nonNLS*/;
 		case TokenNameOR :
-			return "|";
+			return "|"/*nonNLS*/;
 		case TokenNameTWIDDLE :
-			return "~";
+			return "~"/*nonNLS*/;
 		case TokenNameDIVIDE :
-			return "/";
+			return "/"/*nonNLS*/;
 		case TokenNameGREATER :
-			return ">";
+			return ">"/*nonNLS*/;
 		case TokenNameLESS :
-			return "<";
+			return "<"/*nonNLS*/;
 		case TokenNameLPAREN :
-			return "(";
+			return "("/*nonNLS*/;
 		case TokenNameRPAREN :
-			return ")";
+			return ")"/*nonNLS*/;
 		case TokenNameLBRACE :
-			return "{";
+			return "{"/*nonNLS*/;
 		case TokenNameRBRACE :
-			return "}";
+			return "}"/*nonNLS*/;
 		case TokenNameLBRACKET :
-			return "[";
+			return "["/*nonNLS*/;
 		case TokenNameRBRACKET :
-			return "]";
+			return "]"/*nonNLS*/;
 		case TokenNameSEMICOLON :
-			return ";";
+			return ";"/*nonNLS*/;
 		case TokenNameQUESTION :
-			return "?";
+			return "?"/*nonNLS*/;
 		case TokenNameCOLON :
-			return ":";
+			return ":"/*nonNLS*/;
 		case TokenNameCOMMA :
-			return ",";
+			return ","/*nonNLS*/;
 		case TokenNameDOT :
-			return ".";
+			return "."/*nonNLS*/;
 		case TokenNameEQUAL :
-			return "=";
+			return "="/*nonNLS*/;
 		case TokenNameEOF :
-			return "EOF";
+			return "EOF"/*nonNLS*/;
 		default :
-			return "not-a-token";
+			return "not-a-token"/*nonNLS*/;
 	}
 }
 

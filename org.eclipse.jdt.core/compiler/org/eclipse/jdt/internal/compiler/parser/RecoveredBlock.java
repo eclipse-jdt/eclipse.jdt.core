@@ -134,11 +134,11 @@ public AstNode parseTree(){
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
-	result.append("Recovered block:\n");
+	result.append("Recovered block:\n"/*nonNLS*/);
 	result.append(blockDeclaration.toString(tab + 1));
 	if (this.statements != null) {
 		for (int i = 0; i < this.statementCount; i++) {
-			result.append("\n");
+			result.append("\n"/*nonNLS*/);
 			result.append(this.statements[i].toString(tab + 1));
 		}
 	}

@@ -56,9 +56,9 @@ public void constantPoolName(char[] computedConstantPoolName) /* java/lang/Objec
 public char[] readableName() {
 	if (isAnonymousType()) {
 		if (superInterfaces == NoSuperInterfaces)
-			return ("<anonymous subclass of " + new String(superclass.readableName()) + ">").toCharArray();
+			return ("<"/*nonNLS*/+Util.bind("binding.subclass"/*nonNLS*/,new String(superclass.readableName())) + ">"/*nonNLS*/).toCharArray();
 		else
-			return ("<anonymous implementation of " + new String(superInterfaces[0].readableName()) + ">").toCharArray();			
+			return ("<"/*nonNLS*/+Util.bind("binding.implementation"/*nonNLS*/,new String(superInterfaces[0].readableName())) + ">"/*nonNLS*/).toCharArray();			
 	} else if (isMemberType()) {
 		return CharOperation.concat(enclosingType().readableName(), sourceName, '.');
 	} else {
@@ -78,10 +78,10 @@ public char[] sourceName() {
 }
 public String toString() {
 	if (isAnonymousType())
-		return "Anonymous type : " + super.toString();
+		return "Anonymous type : "/*nonNLS*/ + super.toString();
 	if (isMemberType())
-		return "Local member type : " + new String(sourceName()) + " " + super.toString();
-	return "Local type : " + new String(sourceName()) + " " + super.toString();
+		return "Local member type : "/*nonNLS*/ + new String(sourceName()) + " "/*nonNLS*/ + super.toString();
+	return "Local type : "/*nonNLS*/ + new String(sourceName()) + " "/*nonNLS*/ + super.toString();
 }
 /* Trigger the dependency mechanism forcing the innerclass emulation
 * to be propagated to all dependent source types.

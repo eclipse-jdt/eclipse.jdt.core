@@ -471,7 +471,7 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 		reader.read(contents, 0, contents.length);
 		reader.close();
 	} catch (IOException ex) {
-		System.out.println("The path for the javadcl.java file is incorrect");
+		System.out.println(Util.bind("parser.incorrectPath"/*nonNLS*/));
 		return;
 	}
 	java.util.StringTokenizer st = 
@@ -488,7 +488,7 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "asb"/*nonNLS*/, tokens, false);
 	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "asr"/*nonNLS*/, tokens, false);
 	buildFileFor(prefix + (++i) + ".rsc"/*nonNLS*/, "symbol_index"/*nonNLS*/, tokens, false);
-	System.out.println("MOVE FILES IN THE Runtime DIRECTORY OF Parser.class");
+	System.out.println(Util.bind("parser.moveFiles"/*nonNLS*/));
 }
 /*
  * Build initial recovery state.
@@ -4293,13 +4293,15 @@ protected CompilationUnitDeclaration endParse(int act) {
 	if (currentElement != null){
 		currentElement.topElement().updateParseTree();
 		if (VERBOSE_RECOVERY){
-			System.out.println("SYNTAX RECOVERY--------------------------");		
+			System.out.print(Util.bind("parser.syntaxRecovery"/*nonNLS*/));
+			System.out.println("--------------------------"/*nonNLS*/);		
 			System.out.println(compilationUnit);		
 			System.out.println("----------------------------------"/*nonNLS*/);
 		}		
 	} else {
 		if (diet & VERBOSE_RECOVERY){
-			System.out.println("REGULAR PARSE--------------------------");		
+			System.out.print(Util.bind("parser.regularParse"/*nonNLS*/));	
+			System.out.println("--------------------------"/*nonNLS*/);	
 			System.out.println(compilationUnit);		
 			System.out.println("----------------------------------"/*nonNLS*/);
 		}
@@ -6637,7 +6639,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	InputStream stream = Parser.class.getResourceAsStream(filename);
 	if (stream == null) {
-		throw new java.io.IOException("missing file" + filename);
+		throw new java.io.IOException(Util.bind("parser.missingFile"/*nonNLS*/,filename));
 	}
 
 	ByteArrayOutputStream os = new ByteArrayOutputStream(32000);
@@ -6655,7 +6657,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//minimal integrity check (even size expected)
 	if (streamLength % 2 != 0)
-		throw new java.io.IOException("corrupted file " + filename);
+		throw new java.io.IOException(Util.bind("parser.corruptedFile"/*nonNLS*/,filename));
 
 	// convert bytes into chars
 	char[] chars = new char[streamLength / 2];
