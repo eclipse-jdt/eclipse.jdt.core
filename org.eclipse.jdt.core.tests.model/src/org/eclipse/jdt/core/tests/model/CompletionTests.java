@@ -169,6 +169,10 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionQualifiedAllocationType1"));
 	suite.addTest(new CompletionTests("testCompletionClassLiteralAfterAnonymousType1"));
 	suite.addTest(new CompletionTests("testCompletionArraysCloneMethod"));
+	suite.addTest(new CompletionTests("testCompletionAbstractMethod1"));
+	suite.addTest(new CompletionTests("testCompletionAbstractMethod2"));
+	suite.addTest(new CompletionTests("testCompletionAbstractMethod3"));
+	suite.addTest(new CompletionTests("testCompletionAbstractMethod4"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8317,6 +8321,58 @@ public void testCompletionArraysCloneMethod() throws JavaModelException {
 
 	assertEquals(
 		"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_STATIC),
+		requestor.getResults());
+}
+public void testCompletionAbstractMethod1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAbstractMethod1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"",
+		requestor.getResults());
+}
+public void testCompletionAbstractMethod2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAbstractMethod2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_STATIC),
+		requestor.getResults());
+}
+public void testCompletionAbstractMethod3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAbstractMethod3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_STATIC),
+		requestor.getResults());
+}
+public void testCompletionAbstractMethod4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAbstractMethod4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"",
 		requestor.getResults());
 }
 }

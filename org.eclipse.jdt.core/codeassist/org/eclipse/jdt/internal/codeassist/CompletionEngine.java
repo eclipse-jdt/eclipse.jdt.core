@@ -423,7 +423,7 @@ public final class CompletionEngine
 			findKeywordsForMember(completionToken, field.modifiers);
 			
 			if(!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
-				findMethods(completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false);
+				findMethods(completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false, false);
 			}
 		} else {
 			if(astNode instanceof CompletionOnMethodReturnType) {
@@ -436,7 +436,7 @@ public final class CompletionEngine
 				findKeywordsForMember(completionToken, method.modifiers);
 			
 				if(method.modifiers == CompilerModifiers.AccDefault) {
-					findMethods(completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false);
+					findMethods(completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false);
 				}
 			} else {
 				
@@ -495,7 +495,7 @@ public final class CompletionEngine
 								setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 								TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
 								if (receiverType != null) {
-									findFieldsAndMethods(completionToken, receiverType, scope, ref, scope,false);
+									findFieldsAndMethods(completionToken, receiverType, scope, ref, scope,false,false);
 								}
 	
 							} else {
@@ -537,6 +537,7 @@ public final class CompletionEngine
 										false,
 										ref,
 										scope,
+										false,
 										false);
 	
 								} else {
@@ -603,7 +604,8 @@ public final class CompletionEngine
 										scope,
 										access,
 										scope,
-										false);
+										false,
+										access.receiver instanceof SuperReference);
 	
 								} else {
 	
@@ -630,7 +632,8 @@ public final class CompletionEngine
 												false,
 												messageSend,
 												scope,
-												false);
+												false,
+												messageSend.receiver instanceof SuperReference);
 										}
 	
 									} else {
@@ -1413,7 +1416,8 @@ public final class CompletionEngine
 		Scope scope,
 		InvocationSite invocationSite,
 		Scope invocationScope,
-		boolean implicitCall) {
+		boolean implicitCall,
+		boolean superCall) {
 
 		if (token == null)
 			return;
@@ -1510,7 +1514,8 @@ public final class CompletionEngine
 			false,
 			invocationSite,
 			invocationScope,
-			implicitCall);
+			implicitCall,
+			superCall);
 	}
 
 	private void findImports(CompletionOnImportReference importReference) {
@@ -1844,7 +1849,8 @@ public final class CompletionEngine
 		boolean isCompletingDeclaration,
 		InvocationSite invocationSite,
 		Scope invocationScope,
-		boolean implicitCall) {
+		boolean implicitCall,
+		boolean superCall) {
 
 		if (selector == null)
 			return;
@@ -1890,7 +1896,8 @@ public final class CompletionEngine
 									receiverType,
 									invocationSite,
 									invocationScope,
-									implicitCall);
+									implicitCall,
+									superCall);
 							}
 						}
 
@@ -1959,7 +1966,8 @@ public final class CompletionEngine
 						false,
 						invocationSite,
 						invocationScope,
-						true);
+						true,
+						false);
 					staticsOnly |= enclosingType.isStatic();
 					break;
 
@@ -1982,7 +1990,8 @@ public final class CompletionEngine
 		ReferenceBinding receiverType,
 		InvocationSite invocationSite,
 		Scope invocationScope,
-		boolean implicitCall) {
+		boolean implicitCall,
+		boolean superCall) {
 
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
@@ -2005,6 +2014,11 @@ public final class CompletionEngine
 
 			if (options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+
+			if(superCall && method.isAbstract()) {
+				methodsFound.add(new Object[]{method, receiverType});
+				continue next;
+			}
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
@@ -2390,7 +2404,8 @@ public final class CompletionEngine
 		boolean isCompletingDeclaration,
 		InvocationSite invocationSite,
 		Scope invocationScope,
-		boolean implicitCall) {
+		boolean implicitCall,
+		boolean superCall) {
 		if (selector == null)
 			return;
 		
@@ -2420,7 +2435,8 @@ public final class CompletionEngine
 					isCompletingDeclaration,
 					invocationSite,
 					invocationScope,
-					implicitCall);
+					implicitCall,
+					superCall);
 			} else {
 				findIntefacesMethods(
 					selector,
@@ -2434,7 +2450,8 @@ public final class CompletionEngine
 					isCompletingDeclaration,
 					invocationSite,
 					invocationScope,
-					implicitCall);
+					implicitCall,
+					superCall);
 			}
 			
 			currentType = scope.getJavaLangObject();
@@ -2452,7 +2469,8 @@ public final class CompletionEngine
 					isCompletingDeclaration,
 					invocationSite,
 					invocationScope,
-					implicitCall);
+					implicitCall,
+					superCall);
 				
 				currentType = receiverType.superclass();
 			}
@@ -2483,7 +2501,8 @@ public final class CompletionEngine
 						receiverType,
 						invocationSite,
 						invocationScope,
-						implicitCall);
+						implicitCall,
+						superCall);
 				}
 			}
 			
@@ -2500,7 +2519,8 @@ public final class CompletionEngine
 					isCompletingDeclaration,
 					invocationSite,
 					invocationScope,
-					implicitCall);
+					implicitCall,
+					superCall);
 			} else {
 				hasPotentialDefaultAbstractMethods = false;
 			}
@@ -2951,7 +2971,8 @@ public final class CompletionEngine
 						false,
 						invocationSite,
 						invocationScope,
-						true);
+						true,
+						false);
 					staticsOnly |= enclosingType.isStatic();
 					//				}
 					break;
