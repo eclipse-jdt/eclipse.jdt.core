@@ -253,7 +253,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 	int methodModifiers = method.getModifiers() | AccUnresolved;
 	ReferenceBinding[] exceptions = NoExceptions;
 	TypeBinding[] parameters = NoParameters;
-	TypeVariableBinding[] staticVariables = NoTypeVariables;
+	TypeVariableBinding[] typeVariables = NoTypeVariables;
 	TypeBinding returnType = null;
 
 	char[] methodSignature = checkGenericSignatures ? method.getGenericSignature() : null;
@@ -310,8 +310,8 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 			int rank = 0;
 			do {
 				TypeVariableBinding variable = createTypeVariable(wrapper, rank);
-				System.arraycopy(staticVariables, 0, staticVariables = new TypeVariableBinding[rank + 1], 0, rank);
-				staticVariables[rank++] = variable;
+				System.arraycopy(typeVariables, 0, typeVariables = new TypeVariableBinding[rank + 1], 0, rank);
+				typeVariables[rank++] = variable;
 			} while (wrapper.signature[wrapper.start] != '>');
 			wrapper.start++; // skip '>'
 		}
@@ -324,9 +324,9 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 				java.util.ArrayList types = new java.util.ArrayList(2);
 				int startIndex = (method.isConstructor() && isMemberType() && !isStatic()) ? 1 : 0;
 				if (startIndex == 1)
-					environment.getTypeFromTypeSignature(wrapper, staticVariables, this); // skip synthetic argument
+					environment.getTypeFromTypeSignature(wrapper, typeVariables, this); // skip synthetic argument
 				while (wrapper.signature[wrapper.start] != ')') {
-					types.add(environment.getTypeFromTypeSignature(wrapper, staticVariables, this));
+					types.add(environment.getTypeFromTypeSignature(wrapper, typeVariables, this));
 				}
 				wrapper.start++; // skip ')'
 				parameters = new TypeBinding[types.size()];
@@ -335,14 +335,14 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 		}
 
 		if (!method.isConstructor())
-			returnType = environment.getTypeFromTypeSignature(wrapper, staticVariables, this);
+			returnType = environment.getTypeFromTypeSignature(wrapper, typeVariables, this);
 
 		if (!wrapper.atEnd() && wrapper.signature[wrapper.start] == '^') {
 			// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
 			java.util.ArrayList types = new java.util.ArrayList(2);
 			do {
 				wrapper.start++; // skip '^'
-				types.add(environment.getTypeFromTypeSignature(wrapper, staticVariables, this));
+				types.add(environment.getTypeFromTypeSignature(wrapper, typeVariables, this));
 			} while (!wrapper.atEnd() && wrapper.signature[wrapper.start] == '^');
 			exceptions = new ReferenceBinding[types.size()];
 			types.toArray(exceptions);
@@ -362,7 +362,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
-	result.typeVariables = staticVariables;
+	result.typeVariables = typeVariables;
 	return result;
 }
 /**
@@ -593,21 +593,21 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	field.modifiers ^= AccUnresolved;
 	return field;
 }
-private MethodBinding resolveTypesFor(MethodBinding method) {  
-    if ((method.modifiers & AccUnresolved) == 0)
-      return method;
- 
-   if (!method.isConstructor())
-      method.returnType = resolveType(method.returnType, this.environment, null, 0);
-   for (int i = method.parameters.length; --i >= 0;)
-      method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
-   for (int i = method.thrownExceptions.length; --i >= 0;)
-      method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
-   for (int i = method.typeVariables.length; --i >= 0;)
-      resolveTypesFor(method.typeVariables[i]);
-   method.modifiers ^= AccUnresolved;
-   return method;
-  }
+private MethodBinding resolveTypesFor(MethodBinding method) {
+	if ((method.modifiers & AccUnresolved) == 0)
+		return method;
+
+	if (!method.isConstructor())
+		method.returnType = resolveType(method.returnType, this.environment, null, 0);
+	for (int i = method.parameters.length; --i >= 0;)
+		method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
+	for (int i = method.thrownExceptions.length; --i >= 0;)
+		method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
+	for (int i = method.typeVariables.length; --i >= 0;)
+		resolveTypesFor(method.typeVariables[i]);
+	method.modifiers ^= AccUnresolved;
+	return method;
+}
 private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	if ((variable.modifiers & AccUnresolved) == 0)
 		return variable;
