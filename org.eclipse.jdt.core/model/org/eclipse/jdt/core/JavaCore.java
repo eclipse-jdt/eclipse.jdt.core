@@ -322,7 +322,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
 				boolean ok = false;
 				try {
+					// activate initializer
 					initializer.initialize(containerPath, project);
+					
+					// retrieve value (if initialization was successful)
 					container = (IClasspathContainer)projectContainers.get(containerPath);
 					if (container != null){
 						IClasspathEntry[] entries = container.getClasspathEntries();
