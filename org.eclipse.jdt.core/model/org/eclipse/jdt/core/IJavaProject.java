@@ -34,10 +34,10 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * references packages in another project can access the packages by including
  * the required project in a classpath entry. The Java model will present the
  * source elements in the required project, and when building, the compiler will
- * use the binaries from that project (that is, generated class files in the
- * output location(s) of the required project is used as a library). The
- * classpath format is a sequence of classpath entries describing the location
- * and contents of package fragment roots.
+ * use the binaries from that project (that is, the output location of the 
+ * required project is used as a library). The classpath format is a sequence 
+ * of classpath entries describing the location and contents of package fragment
+ * roots.
  * </p>
  * Java project elements need to be opened before they can be navigated or manipulated.
  * The children of a Java project are the package fragment roots that are 
@@ -458,29 +458,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 
 	/**
-	 * Returns whether the Java builder should delete all files from the
-	 * default output folder before a full build. The default (and recommended)
-	 * behavior is to scrub the default output folder.
-	 * <p>
-	 * If an output folder is not scrubbed before full builds, there may be
-	 * obsolete class files (and copied resource files) left in it,
-	 * corresponding to deleted source files. These obsolete files may cause
-	 * several different kinds of problems: they are available when a dependent
-	 * project is compiled, and may therefore cause the dependent project to
-	 * compile incorrectly; they are available at runtime, and may cause the
-	 * program to run incorrectly; they may end up being exported to a JAR.
-	 * </p>
-	 * 
-	 *TODO: This method will be deleted soon. Becomes a new per-project option
-	 * 
-	 * @return <code>true</code> if files in the default output folder should be
-	 * deleted before full builds, and <code>false</code> otherwise
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
-	 * @since 2.1	 */
-	boolean isCleaningOutputLocation() throws JavaModelException;
-	
-	/**
 	 * Creates a new evaluation context.
 	 * @return a new evaluation context.
 	 */
@@ -569,43 +546,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	void setOutputLocation(IPath path, IProgressMonitor monitor)
 		throws JavaModelException;
-		
-	/**
-	 * Sets the default output location of this project to the location
-	 * described by the given workspace-relative absolute path, and sets
-	 * whether the output folder should be scrubbed before full builds.
-	 * <p>
-	 * The default output location is where class files are ordinarily generated
-	 * (and resource files, copied). Each source classpath entries can also
-	 * specify an output location for the generated class files (and copied
-	 * resource files) corresponding to compilation units under that source
-	 * folder. This makes it possible to arrange that generated class files for
-	 * different source folders to end up in different output folders, and not
-	 * necessarily the default output folder. This means that the generated
-	 * class files for the project may end up scattered across several folders,
-	 * rather than all in the default output folder (which is more standard).
-	 * </p>
-	 * 
-	 *TODO: Method to be deleted when isCleaning is a new per-project option
-	 * 
-	 * @param path the workspace-relative absolute path
-	 * @param isCleaning <code>true</code> if files in the default output folder
-	 * should be deleted before full builds, and <code>false</code> otherwise
-	 * @param monitor the progress monitor
-	 * @exception JavaModelException if the classpath could not be set. Reasons
-	 * include:
-	 * <ul>
-	 *  <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
-	 *  <li> The path is not an absolute path (<code>RELATIVE_PATH</code>)
-	 *  <li> The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
-	 *  <li> The output location is being modified during resource change event notification (CORE_EXCEPTION)	 
-	 * </ul>
-	 * @since 2.1
-	 */
-	void setOutputLocation(IPath path, boolean isCleaning, IProgressMonitor monitor)
-		throws JavaModelException;
-	
 
 	/**
 	 * Sets the classpath of this project using a list of classpath entries. In particular such a classpath may contain
@@ -684,14 +624,5 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @since 2.0
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor)
-		throws JavaModelException;
-
-	/**
-	 * 
-	 *TODO: Method to be deleted when isCleaning is a new per-project option
-	 * 
-	 * @param entries	 * @param outputLocation	 * @param isCleaningOutputLocation	 * @param monitor	 * @throws JavaModelException
-	 * @since 2.1	 */
-	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, boolean isCleaningOutputLocation, IProgressMonitor monitor)
 		throws JavaModelException;
 }

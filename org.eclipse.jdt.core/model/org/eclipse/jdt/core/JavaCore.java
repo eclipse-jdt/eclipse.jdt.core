@@ -1595,6 +1595,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(CORE_JAVA_BUILD_DUPLICATE_RESOURCE, WARNING); 
 		optionNames.add(CORE_JAVA_BUILD_DUPLICATE_RESOURCE);
 		
+		preferences.setDefault(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, IGNORE); 
+		optionNames.add(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER);
+
 		// JavaCore settings
 		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); 
 		optionNames.add(CORE_JAVA_BUILD_ORDER);

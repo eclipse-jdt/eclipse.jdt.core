@@ -100,10 +100,6 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath specificOutputLocation;
 	
 	/**
-	 * Flag indicating whether the specific output location is to be cleaned	 */
-	public boolean isCleaningOutputLocation;
-	
-	/**
 	 * A constant indicating an output location.
 	 */
 	public static final int K_OUTPUT = 10;
@@ -124,7 +120,6 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
 		IPath specificOutputLocation,
-		boolean isCleaningOutputLocation,
 		boolean isExported) {
 
 		this.contentKind = contentKind;
@@ -137,7 +132,6 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.specificOutputLocation = specificOutputLocation;
-		this.isCleaningOutputLocation = isCleaningOutputLocation;
 		this.isExported = isExported;
 	}
 	
@@ -196,10 +190,6 @@ public class ClasspathEntry implements IClasspathEntry {
 			element.setAttribute("exported", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
-		if (!this.isCleaningOutputLocation && this.specificOutputLocation != null) {
-			element.setAttribute("cleaning", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
 		if (this.exclusionPatterns.length > 0) {
 			StringBuffer excludeRule = new StringBuffer(10);
 			for (int i = 0, max = this.exclusionPatterns.length; i < max; i++){
@@ -260,9 +250,6 @@ public class ClasspathEntry implements IClasspathEntry {
 		String outputLocationStr = element.getAttribute("output"); //$NON-NLS-1$ 
 		IPath outputLocation = outputLocationStr.equals("") ? null : new Path(outputLocationStr); //$NON-NLS-1$
 		
-		// cleaning flag (optional)
-		boolean isCleaning = !element.getAttribute("cleaning").equals("false"); //$NON-NLS-1$ //$NON-NLS-2$
-
 		// recreate the CP entry
 		switch (kind) {
 
@@ -280,7 +267,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				// must be an entry in this project or specify another project
 				String projSegment = path.segment(0);
 				if (projSegment != null && projSegment.equals(project.getElementName())) { // this project
-					return JavaCore.newSourceEntry(path, exclusionPatterns, outputLocation, outputLocation != null && isCleaning);
+					return JavaCore.newSourceEntry(path, exclusionPatterns, outputLocation);
 				} else { // another project
 					return JavaCore.newProjectEntry(path, isExported);
 				}
@@ -307,7 +294,6 @@ public class ClasspathEntry implements IClasspathEntry {
 						null, // source attachment
 						null, // source attachment root
 						null, // custom output location
-						isCleaning, // clean
 						false);
 			default :
 				throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", kindAttr)); //$NON-NLS-1$
@@ -331,9 +317,6 @@ public class ClasspathEntry implements IClasspathEntry {
 				return false;
 
 			if (this.isExported != otherEntry.isExported())
-				return false;
-
-			if (this.isCleaningOutputLocation != otherEntry.isCleaningOutputLocation())
 				return false;
 
 			if (!this.path.equals(otherEntry.getPath()))
@@ -436,13 +419,6 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public int hashCode() {
 		return this.path.hashCode();
-	}
-
-	/**
-	 * @see IClasspathEntry#isCleaningOutputLocation()
-	 */
-	public boolean isCleaningOutputLocation() {
-		return this.isCleaningOutputLocation;
 	}
 
 	/**
@@ -562,9 +538,6 @@ public class ClasspathEntry implements IClasspathEntry {
 			buffer.append(getOutputLocation());
 			buffer.append(']');
 		}
-		buffer.append("[isCleaning:"); //$NON-NLS-1$
-		buffer.append(this.isCleaningOutputLocation);
-		buffer.append(']');
 		return buffer.toString();
 	}
 	

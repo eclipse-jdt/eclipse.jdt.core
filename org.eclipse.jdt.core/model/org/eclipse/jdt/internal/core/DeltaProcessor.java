@@ -1256,7 +1256,7 @@ private JavaModelException newInvalidElementType() {
 		switch (delta.getKind()) {
 			case IResourceDelta.REMOVED : // recreate one based on in-memory path
 				try {
-					project.saveClasspath(project.getRawClasspath(), project.getOutputLocation(), project.isCleaningOutputLocation());
+					project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
 				} catch (JavaModelException e) {
 					if (project.getProject().isAccessible()) {
 						Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
@@ -1276,7 +1276,7 @@ private JavaModelException newInvalidElementType() {
 					IClasspathEntry[] fileEntries = project.readClasspathFile(true/*create markers*/, false/*don't log problems*/);
 					if (fileEntries == null)
 						break; // could not read, ignore 
-					if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), project.isCleaningOutputLocation(), fileEntries)) {
+					if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries)) {
 						wasSuccessful = true;
 						break;
 					}
@@ -1284,12 +1284,10 @@ private JavaModelException newInvalidElementType() {
 					// will force an update of the classpath/output location based on the file information
 					// extract out the output location
 					IPath outputLocation = null;
-					boolean isCleaning = true;
 					if (fileEntries != null && fileEntries.length > 0) {
 						IClasspathEntry entry = fileEntries[fileEntries.length - 1];
 						if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
 							outputLocation = entry.getPath();
-							isCleaning = entry.isCleaningOutputLocation();
 							IClasspathEntry[] copy = new IClasspathEntry[fileEntries.length - 1];
 							System.arraycopy(fileEntries, 0, copy, 0, copy.length);
 							fileEntries = copy;
@@ -1303,7 +1301,6 @@ private JavaModelException newInvalidElementType() {
 					project.setRawClasspath(
 						fileEntries, 
 						outputLocation, 
-						isCleaning,
 						null, // monitor
 						true, // canChangeResource
 						project.getResolvedClasspath(true), // ignoreUnresolvedVariable

@@ -805,13 +805,11 @@ public class JavaProject
 				// read classpath property (contains actual classpath and output location settings)
 				IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 				IPath outputLocation = null;
-				boolean isCleaning = true;
 				// extract out the output location
 				if (classpath != null && classpath.length > 0) {
 					IClasspathEntry entry = classpath[classpath.length - 1];
 					if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
 						outputLocation = entry.getPath();
-						isCleaning = entry.isCleaningOutputLocation();
 						IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
 						System.arraycopy(classpath, 0, copy, 0, copy.length);
 						classpath = copy;
@@ -826,7 +824,6 @@ public class JavaProject
 				synchronized (perProjectInfo) {
 					// clear cache of resolved classpath
 					perProjectInfo.outputLocation = outputLocation;
-					perProjectInfo.isCleaningOutputLocation = isCleaning;
 				}
 
 				// restore classpath
@@ -869,8 +866,7 @@ public class JavaProject
 	 */
 	protected String getClasspathAsXML(
 		IClasspathEntry[] classpath,
-		IPath outputLocation,
-		boolean isCleaning)
+		IPath outputLocation)
 		throws JavaModelException {
 
 		Document document = new DocumentImpl();
@@ -887,7 +883,6 @@ public class JavaProject
 			Element oElement = document.createElement("classpathentry"); //$NON-NLS-1$
 			oElement.setAttribute("kind", ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));	//$NON-NLS-1$
 			oElement.setAttribute("path", outputLocation.toString()); //$NON-NLS-1$
-			if (!isCleaning) oElement.setAttribute("cleaning", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			cpElement.appendChild(oElement);
 		}
 
@@ -1298,13 +1293,11 @@ public class JavaProject
 		classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 		
 		// extract out the output location
-		boolean isCleaning = true;
 		IPath outputLocation = null;
 		if (classpath != null && classpath.length > 0) {
 			IClasspathEntry entry = classpath[classpath.length - 1];
 			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
 				outputLocation = entry.getPath();
-				isCleaning = entry.isCleaningOutputLocation();
 				IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
 				System.arraycopy(classpath, 0, copy, 0, copy.length);
 				classpath = copy;
@@ -1321,7 +1314,6 @@ public class JavaProject
 		*/
 		perProjectInfo.classpath = classpath;
 		perProjectInfo.outputLocation = outputLocation;
-		perProjectInfo.isCleaningOutputLocation = isCleaning;
 		return classpath;
 	}
 
@@ -1464,7 +1456,6 @@ public class JavaProject
 								containerRawEntry.getSourceAttachmentPath(),
 								containerRawEntry.getSourceAttachmentRootPath(),
 								containerRawEntry.getOutputLocation(),
-								containerRawEntry.isCleaningOutputLocation(),
 								true); // duplicate container entry for tagging it as exported
 						}
 						resolvedEntries.add(containerRawEntry);
@@ -1611,7 +1602,7 @@ public class JavaProject
 	 * Compare current classpath with given one to see if any different.
 	 * Note that the argument classpath contains its binary output.
 	 */
-	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, boolean newIsCleaning, IClasspathEntry[] otherClasspathWithOutput)
+	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, IClasspathEntry[] otherClasspathWithOutput)
 		throws JavaModelException {
 
 		if (otherClasspathWithOutput != null && otherClasspathWithOutput.length > 0) {
@@ -1628,8 +1619,7 @@ public class JavaProject
 				// compare binary outputs
 				IClasspathEntry output = otherClasspathWithOutput[length - 1];
 				if (output.getContentKind() == ClasspathEntry.K_OUTPUT
-						&& output.getPath().equals(newOutputLocation)
-						&& output.isCleaningOutputLocation() == newIsCleaning)
+						&& output.getPath().equals(newOutputLocation))
 					return true;
 			}
 		}
@@ -1653,21 +1643,6 @@ public class JavaProject
 		return this.findPackageFragmentRoot0(rootPath) != null;
 	}
 
-
-	/**
-	 * @see IJavaProject#isCleaningOutputLocation()
-	 */
-	public boolean isCleaningOutputLocation() throws JavaModelException {
-
-		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
-		IClasspathEntry[] classpath = perProjectInfo.classpath;
-		if (classpath != null){ // if classpath is set, then flag is up to date
-			return perProjectInfo.isCleaningOutputLocation;
-		}
-		// force to read classpath - will position clean mode (since flag is persisted in there)
-		this.getRawClasspath();
-		return perProjectInfo.isCleaningOutputLocation;
-		}
 
 	/*
 	 * load preferences from a shareable format (VCM-wise)
@@ -1916,12 +1891,12 @@ public class JavaProject
 	 * 
 	 * @return Return whether the .classpath file was modified.
 	 */
-	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation, boolean newIsCleaning) throws JavaModelException {
+	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
 
 		if (!getProject().exists()) return false;
 
 		IClasspathEntry[] fileEntries = readClasspathFile(false /*don't create markers*/, false/*don't log problems*/);
-		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, newIsCleaning, fileEntries)) {
+		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
 			// no need to save it, it is the same
 			return false;
 		}
@@ -1930,7 +1905,7 @@ public class JavaProject
 		try {
 			setSharedProperty(
 				CLASSPATH_FILENAME,
-				getClasspathAsXML(newClasspath, newOutputLocation, newIsCleaning));
+				getClasspathAsXML(newClasspath, newOutputLocation));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
@@ -2042,22 +2017,13 @@ public class JavaProject
 	public void setOutputLocation(IPath path, IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setOutputLocation(path, true/*clean*/, monitor);
-	}
-
-	/**
-	 * @see IJavaProject#setOutputLocation(IPath, boolean, IProgressMonitor)
-	 */
-	public void setOutputLocation(IPath path, boolean isCleaning, IProgressMonitor monitor)
-		throws JavaModelException {
-
 		if (path == null) {
 			throw new IllegalArgumentException(Util.bind("path.nullpath")); //$NON-NLS-1$
 		}
 		if (path.equals(getOutputLocation())) {
 			return;
 		}
-		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, path, isCleaning, monitor);
+		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, path, monitor);
 	}
 
 	/*
@@ -2093,7 +2059,6 @@ public class JavaProject
 		setRawClasspath(
 			entries, 
 			outputLocation, 
-			true, // clean
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
@@ -2101,31 +2066,9 @@ public class JavaProject
 			true); // need to save
 	}
 
-	/**
-	 * @see IJavaProject#setRawClasspath(IClasspathEntry[], IPath, boolean, IProgressMonitor)
-	 */
-	public void setRawClasspath(
-		IClasspathEntry[] entries,
-		IPath outputLocation,
-		boolean isCleaning,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-			
-		setRawClasspath(
-			entries, 
-			outputLocation, 
-			isCleaning,
-			monitor, 
-			true, // canChangeResource (as per API contract)
-			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true, // needValidation
-			true); // need to save			
-	}
-
 	public void setRawClasspath(
 		IClasspathEntry[] newEntries,
 		IPath newOutputLocation,
-		boolean newIsCleaning,
 		IProgressMonitor monitor,
 		boolean canChangeResource,
 		IClasspathEntry[] oldResolvedPath,
@@ -2146,7 +2089,6 @@ public class JavaProject
 					oldResolvedPath, 
 					newRawPath, 
 					newOutputLocation,
-					newIsCleaning,
 					canChangeResource, 
 					needValidation,
 					needSave);
@@ -2169,7 +2111,6 @@ public class JavaProject
 		setRawClasspath(
 			entries, 
 			SetClasspathOperation.ReuseOutputLocation, 
-			true, // dummy value since ReuseOutputLocation is used
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable

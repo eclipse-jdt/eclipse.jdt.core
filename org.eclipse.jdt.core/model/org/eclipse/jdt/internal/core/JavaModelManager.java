@@ -437,7 +437,6 @@ public class JavaModelManager implements ISaveParticipant {
 		public IClasspathEntry[] classpath;
 		public IClasspathEntry[] lastResolvedClasspath;
 		public IPath outputLocation;
-		public boolean isCleaningOutputLocation;
 		public Preferences preferences;
 		public PerProjectInfo(IProject project) {
 			this.triedRead = false;
