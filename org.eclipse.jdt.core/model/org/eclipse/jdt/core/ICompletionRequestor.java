@@ -21,8 +21,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
  *
  * @see ICodeAssist
  * @since 2.0
- * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor}, an abstract class
- * with all the same methods (and more).
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor}, an abstract class with all the same methods (and more).
 public interface ICompletionRequestor {
