@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -70,7 +71,12 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
 			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
 		} else {
-			return setupSuite(testClass());
+			if (true) {
+				return setupSuite(testClass());
+			}
+			TestSuite suite = new TestSuite(testClass().getName());
+			suite.addTest(new GenericTypeSignatureTest("test004"));
+			return suite;
 		}
 	}
 
@@ -124,69 +130,52 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			writeFiles(testFiles);
 			
 			final String[] fileNames = getFileNames(testFiles);
-			// Create thread to run process
-			Thread waitThread = new Thread() {
-				public void run() {
-					Process process = null;
-					try {
-						// Compute classpath
-						String[] classpath = getDefaultClassPaths();
-						StringBuffer cp = new StringBuffer();
-						int length = classpath.length;
-						for (int i = 0; i < length; i++) {
-							if (classpath[i].indexOf(" ") != -1) {
-								cp.append("\"" + classpath[i] + "\"");
-							} else {
-								cp.append(classpath[i]);
-							}
-							if (i<(length-1)) cp.append(";");
-						}
-						// Compute command line
-						IPath jdkDir = (new Path(Util.getJREDirectory())).removeLastSegments(1);
-						IPath javacPath = jdkDir.append("bin").append("javac.exe");
-						StringBuffer cmdLine = new StringBuffer(javacPath.toString());
-						cmdLine.append(" -classpath ");
-						cmdLine.append(cp);
-						cmdLine.append(" -source 1.5 -deprecation -g -Xlint "); // enable recommended warnings
-						for (int i = 0, length2 = fileNames.length; i < length2; i++) {
-							cmdLine.append(fileNames[i] + " ");
-						}
-						// System.out.println(testName+": "+cmdLine.toString());
-						// Launch process
-						process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeSignatureTest.this.dirPath.toFile());
-			            // Log errors
-			            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
-			            
-			            // Log output
-			            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
-			                
-			            // start the threads to run outputs (standard/error)
-			            errorLogger.start();
-			            outputLogger.start();
-						process.waitFor();
-						int exitValue = process.exitValue();
-						if (exitValue != 0) {
-							System.out.println(testName+": javac has found error(s)!");
-						}
-					} catch (IOException ioe) {
-						System.out.println(testName+": Not possible to launch Sun javac compilation!");
-					} catch (InterruptedException e1) {
-						if (process != null) process.destroy();
-						System.out.println(testName+": Sun javac compilation was aborted!");
-					}
-				}
-			};
-			
-			// Run thread and wait 5 seconds for end of compilation
-			waitThread.start();
+			Process process = null;
 			try {
-				waitThread.join(2000);
-
+				// Compute classpath
+				String[] classpath = getDefaultClassPaths();
+				StringBuffer cp = new StringBuffer();
+				int length = classpath.length;
+				for (int i = 0; i < length; i++) {
+					if (classpath[i].indexOf(" ") != -1) {
+						cp.append("\"" + classpath[i] + "\"");
+					} else {
+						cp.append(classpath[i]);
+					}
+					if (i<(length-1)) cp.append(";");
+				}
+				// Compute command line
+				IPath jdkDir = (new Path(Util.getJREDirectory())).removeLastSegments(1);
+				IPath javacPath = jdkDir.append("bin").append("javac.exe");
+				StringBuffer cmdLine = new StringBuffer(javacPath.toString());
+				cmdLine.append(" -classpath ");
+				cmdLine.append(cp);
+				cmdLine.append(" -source 1.5 -deprecation -g -Xlint "); // enable recommended warnings
+				for (int i = 0, length2 = fileNames.length; i < length2; i++) {
+					cmdLine.append(fileNames[i] + " ");
+				}
+				// System.out.println(testName+": "+cmdLine.toString());
+				// Launch process
+				process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeSignatureTest.this.dirPath.toFile());
+	            // Log errors
+	            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
+	            
+	            // Log output
+	            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
+	                
+	            // start the threads to run outputs (standard/error)
+	            errorLogger.start();
+	            outputLogger.start();
+				process.waitFor();
+				int exitValue = process.exitValue();
+				if (exitValue != 0) {
+					System.out.println(testName+": javac has found error(s)!");
+				}
+			} catch (IOException ioe) {
+				System.out.println(testName+": Not possible to launch Sun javac compilation!");
 			} catch (InterruptedException e1) {
-				// do nothing
-			}
-			if (waitThread.isAlive()) {
-				waitThread.interrupt();
+				if (process != null) process.destroy();
+				System.out.println(testName+": Sun javac compilation was aborted!");
 			}
 		} catch (Exception e) {
 			// fails silently...
@@ -569,7 +558,57 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
 	}	
-	
+
+	public void test005() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X <T extends Object & p.B & p.C> extends p.A<T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" + 
+			"        super(t);\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"}",
+			"p/A.java",
+			"package p;\n" + 
+			"public class A<P> {\n" + 
+			"    protected P p;\n" + 
+			"    protected A(P p) {\n" + 
+			"        this.p = p;\n" + 
+			"    }\n" + 
+			"}",
+			"p/B.java",
+			"package p;\n" + 
+			"public interface B<T> {\n" + 
+			"}",
+			"p/C.java",
+			"package p;\n" + 
+			"public interface C<T> {\n" + 
+			"}"			
+		};
+		this.runConformTest(testsSource);
+		
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+
+		if (!RunJavac) return;
+
+		// Compare with javac
+		cleanUp();
+		runJavac("test005", testsSource);
+		
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+	}	
+
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
