@@ -1207,7 +1207,10 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 			if (focusType != null) {
 					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
 					this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
-					this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+					if (this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
+						// focus type is not visible from this project
+						return;
+					}
 			} else {
 				this.hierarchyResolver = null;
 			}
