@@ -322,25 +322,6 @@ public class TestingEnvironment {
 		return project;
 	}
 
-	private void deleteFile(File file) {
-		file = file.getAbsoluteFile();
-		if (!file.exists())
-			return;
-		if (file.isDirectory()) {
-			String[] files = file.list();
-			//file.list() can return null
-			if (files != null) {
-				for (int i = 0; i < files.length; ++i) {
-					deleteFile(new File(file, files[i]));
-				}
-			}
-		}
-		if (!file.delete()) {
-			System.out.println(
-				"WARNING: deleteFile(File) could not delete: " + file.getPath()); //$NON-NLS-1$
-		}
-	}
-	
 	/** Batch builds the workspace.  A workspace must be
 	 * open.
 	 */
