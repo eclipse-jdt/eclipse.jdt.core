@@ -18,6 +18,9 @@ import org.eclipse.jdt.core.JavaCore;
  */
 public interface DefaultCodeFormatterConstants {
 
+	public static final String END_OF_LINE = "end_of_line";						//$NON-NLS-1$
+	public static final String NEXT_LINE = "next_line";							//$NON-NLS-1$
+	public static final String NEXT_LINE_SHIFTED = "next_line_shifted";	//$NON-NLS-1$
 	public static final String TRUE = "true"; 											//$NON-NLS-1$
 	public static final String FALSE = "false"; 										//$NON-NLS-1$
 	public static final String FORMATTER_LINE_SPLIT = JavaCore.PLUGIN_ID + ".formatter.lineSplit"; //$NON-NLS-1$
