@@ -926,6 +926,7 @@ class ASTConverter {
 			if (this.resolveBindings) {
 				recordNodes(classInstanceCreation, expression);
 			}
+			removeTrailingCommentFromExpressionEndingWithAParen(classInstanceCreation);
 			return classInstanceCreation;
 		}
 	}
