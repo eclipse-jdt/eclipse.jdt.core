@@ -563,13 +563,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
 				TypeBinding[] substitutedArguments = Scope.substitute(this, originalArguments);
 				if (substitutedArguments != originalArguments) {
-					identicalVariables: { // if substituted with original variables, then answer the generic type itself
-						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-						for (int i = 0, length = originalVariables.length; i < length; i++) {
-							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-						}
-						return originalParameterizedType.type;
-					}
 					return this.environment.createParameterizedType(
 							originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
 				}

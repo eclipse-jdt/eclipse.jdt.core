@@ -465,7 +465,6 @@ public abstract class Expression extends Statement {
 		BlockScope scope,
 		TypeBinding expectedType) {
 
-		this.setExpectedType(expectedType); // needed in case of generic method invocation
 		TypeBinding expressionType = this.resolveType(scope);
 		if (expressionType == null) return null;
 		if (expressionType == expectedType) return expressionType;

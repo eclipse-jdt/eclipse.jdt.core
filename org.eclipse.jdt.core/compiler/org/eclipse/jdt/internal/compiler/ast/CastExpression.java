@@ -23,7 +23,6 @@ public class CastExpression extends Expression {
 
 	public Expression expression;
 	public Expression type;
-	public TypeBinding expectedType; // when assignment conversion to a given expected type: String s = (String) t;
 	
 	//expression.implicitConversion holds the cast for baseType casting 
 	public CastExpression(Expression expression, Expression type) {
@@ -159,19 +158,14 @@ public class CastExpression extends Expression {
 				if (castType.isCompatibleWith(expressionType)) {
 					// potential runtime  error
 					this.bits |= NeedRuntimeCheckCastMASK;
-					if (castType.isParameterizedType() || castType.isGenericType())
-						scope.problemReporter().unsafeCast(this);
 					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
-				if (expressionType.isCompatibleWith(castType)) {
+				if (expressionType.isCompatibleWith(castType)) 
 					return false;
-				}
 				if (!((ReferenceBinding) expressionType).isFinal()) {
 					// a subclass may implement the interface ==> no check at compile time
 					this.bits |= NeedRuntimeCheckCastMASK;
-					if (castType.isParameterizedType() || castType.isGenericType())
-						scope.problemReporter().unsafeCast(this);
 					return true;				    
 				}
 				// no subclass for expressionType, thus compile-time check is valid
@@ -484,50 +478,23 @@ public class CastExpression extends Expression {
 				&& ((type.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
 
 			this.resolvedType = type.resolveType(scope);
-			expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation			
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
 				boolean necessary = checkCastTypesCompatibility(scope, this.resolvedType, expressionType);
 				if (!necessary && this.expression.resolvedType != null) { // cannot do better if expression is not bound
 					this.bits |= UnnecessaryCastMask;
 					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
-						if (!usedForGenericMethodReturnTypeInference()) // used for generic type inference ?
-							scope.problemReporter().unnecessaryCast(this);
+						scope.problemReporter().unnecessaryCast(this);
 					}
 				}
 			}
 			return this.resolvedType;
-		} else { // expression as a cast
+		} else { // expression as a cast !!!!!!!!
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (expressionType == null) return null;
 			scope.problemReporter().invalidTypeReference(type);
 			return null;
 		}
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
-	 */
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
-	}
-
-	/**
-	 * Determines whether apparent unnecessary cast wasn't actually used to
-	 * perform return type inference of generic method invocation.
-	 */
-	private boolean usedForGenericMethodReturnTypeInference() {
-		if (this.expression instanceof MessageSend) {
-			MethodBinding method = ((MessageSend)this.expression).binding;
-			if (method instanceof ParameterizedGenericMethodBinding
-						&& ((ParameterizedGenericMethodBinding)method).inferredReturnType) {
-				if (this.expectedType == null) 
-					return true;
-				if (this.resolvedType != this.expectedType)
-					return true;
-			}
-		}
-		return false;
 	}
 
 	public void traverse(

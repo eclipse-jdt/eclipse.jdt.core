@@ -184,7 +184,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					
 					TypeBinding fieldType = this.binding.type;
 					TypeBinding initializationType;
-					this.initialization.setExpectedType(fieldType); // needed in case of generic method invocation
+					
 					if (this.initialization instanceof ArrayInitializer) {
 
 						if ((initializationType = this.initialization.resolveTypeExpecting(initializationScope, fieldType)) != null) {

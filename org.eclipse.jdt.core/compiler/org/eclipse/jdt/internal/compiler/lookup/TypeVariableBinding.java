@@ -43,8 +43,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
 	public boolean boundCheck(Substitution substitution, TypeBinding argumentType) {
-		if (argumentType == NullBinding) 
-			return true;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return false;
 		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(substitution.substitute(this.superclass))) {
@@ -69,9 +67,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
 	 */
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
-		// cannot infer anything from a null type
-		if (otherType == NullBinding) return;
-		
 	    TypeBinding[] variableSubstitutes = (TypeBinding[])substitutes.get(this);
 	    if (variableSubstitutes != null) {
 	        int length = variableSubstitutes.length;
@@ -108,6 +103,17 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return this.superclass; // java/lang/Object
 	}	
 
+	/**
+	 * Returns the type to use for generic cast, or null if none required
+	 */
+	public TypeBinding genericCast(TypeBinding otherType) {
+	    if (this == otherType) return null;
+		if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
+		TypeBinding otherErasure = otherType.erasure();
+		if (otherErasure == this.firstBound) return null;
+		return otherErasure;
+	}
+	
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>

@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /*
  * Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -64,16 +63,6 @@ public int dimensions(){
 }
 public TypeBinding erasure() {
     return this;
-}
-/**
- * Returns the type to use for generic cast, or null if none required
- */
-public TypeBinding genericCast(TypeBinding otherType) {
-    if (this == otherType) return null;
-	if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
-	TypeBinding otherErasure = otherType.erasure();
-	if (otherErasure == this.erasure()) return null;
-	return otherErasure;
 }
 public char[] genericTypeSignature() {
     return signature();

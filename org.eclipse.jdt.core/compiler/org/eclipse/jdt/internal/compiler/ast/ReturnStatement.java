@@ -186,9 +186,7 @@ public class ReturnStatement extends Statement {
 			expression.printExpression(0, output) ;
 		return output.append(';');
 	}
-	
 	public void resolve(BlockScope scope) {
-		
 		MethodScope methodScope = scope.methodScope();
 		MethodBinding methodBinding;
 		TypeBinding methodType =
@@ -210,14 +208,9 @@ public class ReturnStatement extends Statement {
 			if (methodType != null) scope.problemReporter().shouldReturn(methodType, this);
 			return;
 		}
-		expression.setExpectedType(methodType); // needed in case of generic method invocation
 		if ((expressionType = expression.resolveType(scope)) == null)
 			return;
 	
-		if (expressionType.isRawType() && (methodType.isParameterizedType() || methodType.isGenericType())) {
-		    scope.problemReporter().unsafeRawReturnValue(this.expression, expressionType, methodType);
-		}
-		
 		if (methodType != null && expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
 			// dealing with constant
 			expression.computeConversion(scope, methodType, expressionType);

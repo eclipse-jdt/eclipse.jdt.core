@@ -129,9 +129,10 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// if method from parameterized type got found, use the original method at codegen time
 	this.codegenBinding = this.binding.original();
 	if (this.codegenBinding != this.binding) {
-	    // extra cast needed if method return type has type variable
-	    if ((this.codegenBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0) {
-	        this.genericCast = this.codegenBinding.returnType.genericCast(this.binding.returnType);
+	    // extra cast needed if method return type was type variable
+	    if (this.codegenBinding.returnType.isTypeVariable()) {
+	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
+	        this.genericCast = variableReturnType.genericCast(this.binding.returnType);
 	    }
 	} 
 	if (this.binding.isPrivate()){
