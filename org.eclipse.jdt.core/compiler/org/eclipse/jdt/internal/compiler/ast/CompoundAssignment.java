@@ -108,8 +108,8 @@ public TypeBinding resolveType(BlockScope scope) {
 			// <Object> += <String> is illegal
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
-		} else if (lhsType.isNumericType() && !expressionType.isNumericType()){
-			// <int> += <String> is illegal
+		} else if ((lhsType.isNumericType() || lhsId == T_boolean) && !expressionType.isNumericType()){
+			// <int | boolean> += <String> is illegal
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
 		}
