@@ -34,13 +34,14 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
-	public static Test suite() {
-		if (false) {
-			return allTests();
-		}
+	public static Test setUpTest(Test someTest) {
 		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingMoveCodeTest("testCopyMultipleNodes"));
+		suite.addTest(someTest);
 		return suite;
+	}
+	
+	public static Test suite() {
+		return allTests();
 	}
 	
 	public void testMove() throws Exception {

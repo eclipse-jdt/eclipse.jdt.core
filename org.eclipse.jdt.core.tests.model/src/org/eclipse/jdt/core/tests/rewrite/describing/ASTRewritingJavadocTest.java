@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	
@@ -34,13 +34,14 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
-	public static Test suite() {
-		if (false) {
-			return allTests();
-		}
+	public static Test setUpTest(Test someTest) {
 		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingJavadocTest("testMoveTags"));
+		suite.addTest(someTest);
 		return suite;
+	}
+	
+	public static Test suite() {
+		return allTests();
 	}
 	
 	public void testParamName() throws Exception {

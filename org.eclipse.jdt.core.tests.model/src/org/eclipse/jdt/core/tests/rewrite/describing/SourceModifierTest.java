@@ -35,13 +35,14 @@ public class SourceModifierTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
-	public static Test suite() {
-		if (true) {
-			return allTests();
-		}
+	public static Test setUpTest(Test someTest) {
 		TestSuite suite= new Suite("one test");
-		suite.addTest(new SourceModifierTest("testCollapsedTargetNodes2"));
+		suite.addTest(someTest);
 		return suite;
+	}
+	
+	public static Test suite() {
+		return allTests();
 	}
 	
 	public void testRemoveIndents() throws Exception {

@@ -32,13 +32,14 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
-	public static Test suite() {
-		if (false) {
-			return allTests();
-		}
+	public static Test setUpTest(Test someTest) {
 		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingExpressionsTest("testClassInstanceCreation2"));
+		suite.addTest(someTest);
 		return suite;
+	}
+	
+	public static Test suite() {
+		return allTests();
 	}
 	
 	public void testArrayAccess() throws Exception {
