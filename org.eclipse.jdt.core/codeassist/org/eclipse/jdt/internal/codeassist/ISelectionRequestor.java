@@ -139,6 +139,10 @@ public interface ISelectionRequestor {
 	 * @param declaringTypeName char[]
 	 * 		Name of the type declaring this new method.
 	 * 
+	 * @param enclosingDeclaringTypeSignature String
+	 *  	Type signature of the declaring type of the declaring type or <code>null</code>
+	 *  	if declaring type is a top level type.
+	 * 
 	 * @param selector char[]
 	 * 		Name of the new method.
 	 * 
@@ -148,6 +152,10 @@ public interface ISelectionRequestor {
 	 * 
 	 * @param parameterTypeNames char[][]
 	 * 		Names of the parameters types.
+	 *    	Should contain as many elements as parameterPackageNames.
+	 * 
+	 * @param parameterSignatures String[]
+	 * 		Signature of the parameters types.
 	 *    	Should contain as many elements as parameterPackageNames.
 	 * 
 	 *  @param isConstructor boolean
@@ -173,9 +181,11 @@ public interface ISelectionRequestor {
 	void acceptMethod(
 		char[] declaringTypePackageName,
 		char[] declaringTypeName,
+		String enclosingDeclaringTypeSignature,
 		char[] selector,
 		char[][] parameterPackageNames,
 		char[][] parameterTypeNames,
+		String[] parameterSignatures,
 		boolean isConstructor,
 		boolean isDeclaration,
 		int start,

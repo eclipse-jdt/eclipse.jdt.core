@@ -643,13 +643,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		} else
 			if (binding instanceof MethodBinding) {
 				MethodBinding methodBinding = (MethodBinding) binding;
-				TypeBinding[] parameterTypes = methodBinding.parameters;
+				TypeBinding[] parameterTypes = methodBinding.original().parameters;
 				int length = parameterTypes.length;
 				char[][] parameterPackageNames = new char[length][];
 				char[][] parameterTypeNames = new char[length][];
+				String[] parameterSignatures = new String[length];
 				for (int i = 0; i < length; i++) {
 					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
 					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
+					parameterSignatures[i] = getSignature(parameterTypes[i]).replace('/', '.');
 				}
 				this.noProposal = false;
 				ReferenceBinding declaringClass = methodBinding.declaringClass;
@@ -661,6 +663,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							: methodBinding.selector,
 						parameterPackageNames,
 						parameterTypeNames,
+						parameterSignatures,
 						methodBinding.isConstructor(),
 						parsedUnit,
 						isDeclaration,
@@ -670,11 +673,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
 						declaringClass.qualifiedSourceName(),
+						declaringClass.enclosingType() == null ? null : getSignature(declaringClass.enclosingType()),
 						methodBinding.isConstructor()
 							? declaringClass.sourceName()
 							: methodBinding.selector,
 						parameterPackageNames,
 						parameterTypeNames,
+						parameterSignatures,
 						methodBinding.isConstructor(), 
 						isDeclaration,
 						this.actualSelectionStart,
@@ -1011,7 +1016,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.requestor.acceptMethod(
 					packageName,
 					qualifiedSourceName,
+					null, // SelectionRequestor does not need of declaring type signature for method declaration
 					method.selector,
+					null, // SelectionRequestor does not need of parameters type for method declaration
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					method.isConstructor(),

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
+import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -70,24 +71,8 @@ public SelectionRequestor(NameLookup nameLookup, Openable openable) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {
-	String[] parameterTypes= null;
-	if (parameterTypeNames != null) {
-		parameterTypes= new String[parameterTypeNames.length];
-		for (int i= 0, max = parameterTypeNames.length; i < max; i++) {
-			String pkg = IPackageFragment.DEFAULT_PACKAGE_NAME;
-			if (parameterPackageNames[i] != null && parameterPackageNames[i].length > 0) {
-				pkg = new String(parameterPackageNames[i]) + "."; //$NON-NLS-1$
-			}
-			
-			String typeName = new String(parameterTypeNames[i]);
-			if (typeName.indexOf('.') > 0) 
-				typeName = typeName.replace('.', '$');
-			parameterTypes[i]= Signature.createTypeSignature(
-				pkg + typeName, true);
-		}
-	}
-	IMethod method= type.getMethod(new String(selector), parameterTypes);
+protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] paramterSignatures) {
+	IMethod method= type.getMethod(new String(selector), paramterSignatures);
 	if (method.exists()) {
 		addElement(method);
 		if(SelectionEngine.DEBUG){
@@ -175,7 +160,7 @@ public void acceptLocalField(SourceTypeBinding typeBinding, char[] name, Compila
 		}
 	}
 }
-public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, CompilationUnitDeclaration parsedUnit, boolean isDeclaration, int start, int end) {
+public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, CompilationUnitDeclaration parsedUnit, boolean isDeclaration, int start, int end) {
 	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
 	// fix for 1FWFT6Q
 	if (type != null) {
@@ -195,12 +180,14 @@ public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, ch
 				int length = parameterPackageNames.length;
 				System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
 				System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
+				System.arraycopy(parameterSignatures, 0, parameterSignatures = new String[length+1], 1, length);
 				
 				parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
 				parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
+				parameterSignatures[0] = Engine.getSignature(typeBinding.enclosingType());
 			}
 			
-			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
+			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures);
 		} else {
 			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
 		}
@@ -231,7 +218,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, CompilationUnitDec
 /**
  * Resolve the method
  */
-public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, boolean isDeclaration, int start, int end) {
+public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, int start, int end) {
 	if(isDeclaration) {
 		IType type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
@@ -261,12 +248,14 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 					int length = parameterPackageNames.length;
 					System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
 					System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
+					System.arraycopy(parameterSignatures, 0, parameterSignatures = new String[length+1], 1, length);
 					
 					parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
 					parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
+					parameterSignatures[0] = enclosingDeclaringTypeSignature;
 				}
 				
-				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
+				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures);
 			} else {
 				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
 			}

@@ -398,4 +398,40 @@ public void test0021() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74286
+ */
+public void test0022() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0022", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "add";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"add(T, A<T>, A<T>.B, A<T>.C<T>, A<T>.B.D<T>) [in X [in X.java [in test0022 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74286
+ */
+public void test0023() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0023", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "add";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"add(T, test0023.A<T>, test0023.A<T>.B, test0023.A<T>.C<T>, test0023.A<T>.B.D<T>, test0023.E, test0023.E.F<T>) [in X [in X.class [in test0023 [in test0023.jar [in Resolve]]]]]",
+		elements
+	);
+}
 }
