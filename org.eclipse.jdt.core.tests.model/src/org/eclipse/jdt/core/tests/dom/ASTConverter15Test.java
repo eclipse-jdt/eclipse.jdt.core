@@ -3978,4 +3978,30 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a raw type", typeBinding.isRawType());
     	assertFalse("From source", typeBinding.isFromSource());
     }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84181
+    public void test0134() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"import java.util.Vector;\n" +
+    		"\n" +
+    		"public class X {\n" +
+    		"  void k() {\n" +
+    		"    Vector v2 = /*start*/new Vector<String>()/*end*/;\n" +
+    		"\n" +
+    		"    v2.add(\"\");\n" +
+    		"   }\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a class instance creation unit", ASTNode.CLASS_INSTANCE_CREATION, node.getNodeType());
+    	ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node;
+    	ITypeBinding typeBinding = classInstanceCreation.resolveTypeBinding();
+    	assertEquals("wrong qualified name", "java.util.Vector<java.lang.String>", typeBinding.getQualifiedName());
+    	assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
+    	assertFalse("From source", typeBinding.isFromSource());
+    }
 }

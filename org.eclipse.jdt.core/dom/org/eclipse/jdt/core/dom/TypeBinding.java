@@ -830,8 +830,14 @@ class TypeBinding implements ITypeBinding {
 		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isRawType()) {
-				RawTypeBinding rawTypeBinding = (RawTypeBinding) referenceBinding;
-				return !rawTypeBinding.type.isBinaryBinding();
+				return !((RawTypeBinding) referenceBinding).type.isBinaryBinding();
+			} else if (referenceBinding.isParameterizedType()) {
+				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) referenceBinding;
+				org.eclipse.jdt.internal.compiler.lookup.TypeBinding erasure = parameterizedTypeBinding.erasure();
+				if (erasure instanceof ReferenceBinding) {
+					return !((ReferenceBinding) erasure).isBinaryBinding();
+				}
+				return false;
 			} else {
 				return !referenceBinding.isBinaryBinding();
 			}
