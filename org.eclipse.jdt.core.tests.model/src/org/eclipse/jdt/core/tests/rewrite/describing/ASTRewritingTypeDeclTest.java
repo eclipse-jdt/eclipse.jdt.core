@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	
@@ -34,13 +34,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
+	public static Test setUpTest(Test someTest) {
+		TestSuite suite= new Suite("one test");
+		suite.addTest(someTest);
+		return suite;
+	}
+	
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return allTests();
 		}
-		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingTypeDeclTest("testVariableDeclarationFragment"));
-		return suite;
+		return setUpTest(new ASTRewritingTypeDeclTest("testEnumDeclaration"));
 	}
 		
 	public void testTypeDeclChanges() throws Exception {
@@ -1106,5 +1110,55 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
+	public void testEnumDeclaration() throws Exception {
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		{  // insert an enum inner class
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			List members= type.bodyDeclarations();
+			assertTrue("Has declarations", members.isEmpty());
+			
+	        EnumDeclaration enumD= ast.newEnumDeclaration();
+		      
+	        // where fEnumName is a String
+	        SimpleName enumName= ast.newSimpleName("MyEnum");
+	        enumD.setName(enumName);
+	        List enumBody= enumD.bodyDeclarations();
+
+	        String[] names= { "a", "b", "c" };
+	        
+	        // where fFieldsToExtract is an array of SimpleNames
+	        for (int i= 0; i < names.length; i++) {
+	            String curr= names[i];
+	            EnumConstantDeclaration constDecl= ast.newEnumConstantDeclaration();
+	            constDecl.setName(ast.newSimpleName(curr));
+	            enumBody.add(constDecl);
+	        }
+
+	        ListRewrite declarations= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+	        declarations.insertFirst(enumD, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    enum MyEnum {a,b,c}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());		
+	}
+	
 	
 }
