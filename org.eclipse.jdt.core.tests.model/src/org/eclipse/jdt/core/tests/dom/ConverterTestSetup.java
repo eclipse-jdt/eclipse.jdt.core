@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.util.Util;
 
 abstract class ConverterTestSetup extends AbstractJavaModelTests {
 
@@ -158,6 +159,9 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		if (containsLineSeparator(actualContentsString)) {
 			assertArraysEquals(actualContentsString, expectedContents);
 		} else {		
+			if (!actualContentsString.equals(expectedContents)) {
+				System.out.println(Util.displayString(actualContentsString, 2));
+			}
 			assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
@@ -169,8 +173,14 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	private void assertArraysEquals(String actualContents, String expectedContents) {
 		String[] actualContentsArray = createArrayOfString(actualContents);
 		String[] expectedContentsArray = createArrayOfString(expectedContents);
-		assertTrue("Different size", actualContentsArray.length == expectedContentsArray.length); //$NON-NLS-1$
+		if (actualContentsArray.length !=expectedContentsArray.length) {
+			System.out.println(Util.displayString(actualContents, 2));
+		}
+		assertEquals("Different size", expectedContentsArray.length, actualContentsArray.length); //$NON-NLS-1$
 		for (int i = 0, max = expectedContentsArray.length; i < max; i++) {
+			if (!expectedContentsArray[i].equals(actualContentsArray[i])){
+				System.out.println(Util.displayString(actualContentsArray[i], 2));
+			}
 			assertEquals("Different array parts", expectedContentsArray[i], actualContentsArray[i]); //$NON-NLS-1$
 		}
 	}

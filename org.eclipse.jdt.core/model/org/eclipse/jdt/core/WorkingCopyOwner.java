@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.BufferManager;
  * 
  * @see ICompilationUnit#becomeWorkingCopy
  * @see ICompilationUnit#discardWorkingCopy
+ * @see ICompilationUnit#getWorkingCopy
  * @since 3.0
  */
 public abstract class WorkingCopyOwner {
@@ -38,7 +39,7 @@ public abstract class WorkingCopyOwner {
 	 * @see IBuffer
 	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
-		
+
 		return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
 	}
 
