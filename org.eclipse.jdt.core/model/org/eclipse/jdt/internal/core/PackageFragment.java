@@ -145,7 +145,6 @@ public IClassFile getClassFile(String name) {
  * recognize class files.
  *
  * @see IPackageFragment#getClassFiles()
- * @see JarPackageFragment#getClassFiles()
  */
 public IClassFile[] getClassFiles() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_SOURCE) {

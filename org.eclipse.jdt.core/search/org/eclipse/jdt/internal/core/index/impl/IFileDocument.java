@@ -40,7 +40,7 @@ public class IFileDocument extends PropertyDocument {
 		this.charContents= charContents;
 	}
 	/**
-	 * @see IDocument#getByteContent()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
 	 */
 	public byte[] getByteContent() throws IOException {
 		if (byteContents != null) return byteContents;
@@ -49,7 +49,7 @@ public class IFileDocument extends PropertyDocument {
 		return byteContents = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(location.toFile());
 	}
 	/**
-	 * @see IDocument#getCharContent()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getCharContent()
 	 */
 	public char[] getCharContent() throws IOException {
 		if (charContents != null) return charContents;
@@ -58,19 +58,19 @@ public class IFileDocument extends PropertyDocument {
 		return charContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile(), null);
 	}
 	/**
-	 * @see IDocument#getName()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getName()
 	 */
 	public String getName() {
 		return file.getFullPath().toString();
 	}
 	/**
-	 * @see IDocument#getStringContent()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getStringContent()
 	 */
 	public String getStringContent() throws java.io.IOException {
 		return new String(getCharContent());
 	}
 	/**
-	 * @see IDocument#getType()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getType()
 	 */
 	public String getType() {
 		String extension= file.getFileExtension();

@@ -200,7 +200,7 @@ protected int getMainAmountOfWork(){
  * progress reporting.
  * @see #executeOperation()
  */
-protected abstract String getMainTaskName();
+public abstract String getMainTaskName();
 /**
  * Returns the elements created by this operation.
  */

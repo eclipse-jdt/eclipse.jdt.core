@@ -362,7 +362,6 @@ private byte[] getCodeSnippetBytes() {
 /**
  * Returns the source of the CodeSnippet class.
  * This is used to generate the binary of the CodeSnippetClass
- * @see #getCodeSnippetBytes()
  */
 public static String getCodeSnippetSource() {
 	return

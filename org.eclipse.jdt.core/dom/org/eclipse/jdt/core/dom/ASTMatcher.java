@@ -100,7 +100,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the nodes match according
 	 *    to <code>AST.subtreeMatch</code> or both are <code>null</code>, and 
 	 *    <code>false</code> otherwise
-	 * @see AST#subtreeMatch
+	 * @see ASTNode#subtreeMatch(ASTMatcher, Object)
 	 */
 	public final boolean safeSubtreeMatch(Object node1, Object node2) {
 		if (node1 == null && node2 == null) {

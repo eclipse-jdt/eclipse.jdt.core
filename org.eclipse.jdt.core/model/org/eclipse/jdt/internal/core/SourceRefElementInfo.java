@@ -17,17 +17,17 @@ protected SourceRefElementInfo() {
 	setIsStructureKnown(true);
 }
 /**
- * @see ISourceType
- * @see ISourceMethod
- * @see ISourceField
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getDeclarationSourceEnd()
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getDeclarationSourceEnd()
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getDeclarationSourceEnd()
  */
 public int getDeclarationSourceEnd() {
 	return fSourceRangeEnd;
 }
 /**
- * @see ISourceType
- * @see ISourceMethod
- * @see ISourceField
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getDeclarationSourceStart()
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getDeclarationSourceStart()
+ * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getDeclarationSourceStart()
  */
 public int getDeclarationSourceStart() {
 	return fSourceRangeStart;

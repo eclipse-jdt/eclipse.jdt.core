@@ -627,7 +627,7 @@ public void exitClass(int bodyEnd, int declarationEnd) {
  * Finishes the configuration of the method DOM object which
  * was created by a previous enterConstructor call.
  *
- * @see IDocumentElementRequestor.exitConstructor(...);
+ * @see IDocumentElementRequestor#exitConstructor(int, int)
  */
 public void exitConstructor(int bodyEnd, int declarationEnd) {
 	exitAbstractMethod(bodyEnd, declarationEnd);

@@ -1403,7 +1403,7 @@ public class JavaProject
 	 * which form of storage to use appropriately. Shared properties produce real resource files which
 	 * can be shared through a VCM onto a server. Persistent properties are not shareable.
 	 *
-	 * @see JavaProject#setSharedProperty(QualifiedName key)
+	 * @see JavaProject#setSharedProperty(QualifiedName, String)
 	 */
 	public String getSharedProperty(QualifiedName key) throws CoreException {
 

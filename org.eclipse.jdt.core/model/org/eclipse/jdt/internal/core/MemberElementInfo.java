@@ -57,7 +57,7 @@ import org.eclipse.core.resources.*;
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceStart()
-	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceStart())
+	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceStart()
 	 * @see org.eclipse.jdt.internal.compiler.env.ISourceField#getNameSourceStart()
 	 */
 	public int getNameSourceStart() {

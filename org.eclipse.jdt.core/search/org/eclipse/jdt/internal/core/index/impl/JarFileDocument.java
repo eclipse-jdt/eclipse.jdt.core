@@ -22,14 +22,14 @@ public class JarFileDocument extends PropertyDocument {
 	}
 	/**
 	 * This API always return null for a JarFileDocument
-	 * @see IDocument#getByteContent()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
 	 */
 	public byte[] getByteContent() throws IOException {
 		return null;
 	}
 	/**
 	 * This API always return null for a JarFileDocument
-	 * @see IDocument#getByteContent()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getCharContent()
 	 */
 	public char[] getCharContent() throws IOException {
 		return null;
@@ -38,20 +38,20 @@ public class JarFileDocument extends PropertyDocument {
 		return file.getLocation().toFile();
 	}
 	/**
-	 * @see IDocument#getName()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getName()
 	 */
 	public String getName() {
 		return file.getFullPath().toString();
 	}
 	/**
 	 * This API always return null for a JarFileDocument
-	 * @see IDocument#getByteContent()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
 	 */
 	public String getStringContent() throws java.io.IOException {
 		return null;
 	}
 	/**
-	 * @see IDocument#getType()
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getType()
 	 */
 	public String getType() {
 		String extension= file.getFileExtension();

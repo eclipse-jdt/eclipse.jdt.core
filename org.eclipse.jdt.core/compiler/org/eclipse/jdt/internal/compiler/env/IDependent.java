@@ -11,8 +11,6 @@ import org.eclipse.jdt.internal.compiler.*;
  * All implementors of this interface are containers for types or types
  * themselves which must be able to identify their source file name
  * when file dependencies are collected.
- * 
- * @see IDependencyInfo
  */
 public interface IDependent {
 /**

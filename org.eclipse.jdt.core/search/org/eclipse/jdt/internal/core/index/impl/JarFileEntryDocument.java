@@ -30,33 +30,33 @@ public JarFileEntryDocument(ZipEntry entry, byte[] contents, Path zipFilePath) {
 }
 /**
  * This API always return null for a JarFileDocument
- * @see IDocument#getByteContent
+ * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
  */
 public byte[] getByteContent() throws IOException {
 	return this.byteContents;
 }
 /**
  * This API always return null for a JarFileDocument
- * @see IDocument#getByteContent
+ * @see org.eclipse.jdt.internal.core.index.IDocument#getCharContent()
  */
 public char[] getCharContent() throws IOException {
 	return null;
 }
 	/**
-	 * @see IDocument#getName
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getName()
 	 */
 	public String getName() {
 		return zipFilePath + JAR_FILE_ENTRY_SEPARATOR + zipEntry.getName();
 	}
 /**
  * This API always return null for a JarFileDocument
- * @see IDocument#getByteContent
+ * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
  */
 public String getStringContent() throws java.io.IOException {
 	return null;
 }
 	/**
-	 * @see IDocument#getType
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getType()
 	 */
 	public String getType() {
 		return "class"; //$NON-NLS-1$

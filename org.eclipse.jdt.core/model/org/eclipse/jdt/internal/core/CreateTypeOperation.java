@@ -27,7 +27,7 @@ public CreateTypeOperation(IJavaElement parentElement, String source, boolean fo
 	super(parentElement, source, force);
 }
 /**
- * @see CreateTypeMemberOperation#generateElementDOM
+ * @see CreateElementInCUOperation#generateElementDOM()
  */
 protected IDOMNode generateElementDOM() throws JavaModelException {
 	if (fDOMNode == null) {
@@ -45,7 +45,7 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
 	return fDOMNode;
 }
 /**
- * @see CreateElementInCUOperation#generateResultHandle
+ * @see CreateElementInCUOperation#generateResultHandle()
  */
 protected IJavaElement generateResultHandle() {
 	IJavaElement parent= getParentElement();
