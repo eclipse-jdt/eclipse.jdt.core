@@ -88,7 +88,7 @@ public class AND_AND_Expression extends BinaryExpression {
 			} else {
 				// <expr> && false --> false
 				this.left.generateCode(currentScope, codeStream, false);
-				if (valueRequired) codeStream.iconst_1();
+				if (valueRequired) codeStream.iconst_0();
 			}
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
