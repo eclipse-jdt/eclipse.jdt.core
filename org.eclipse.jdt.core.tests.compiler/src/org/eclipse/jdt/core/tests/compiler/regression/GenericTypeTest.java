@@ -93,11 +93,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
 			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
-		} else {
-			// To run a specific test, just uncomment line with testNumbers in static initializer above
-			// and put numbers of tests you want to perform
-			return setupSuite(testClass());
 		}
+		return setupSuite(testClass());
 	}
 
 	/*
@@ -108,9 +105,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		int idx = fname.indexOf(" - ");
 		if (idx < 0) {
 			return fname;
-		} else {
-			return fname.substring(idx+3);
 		}
+		return fname.substring(idx+3);
 	}
 
 	/*######################################
