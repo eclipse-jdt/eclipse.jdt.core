@@ -194,7 +194,7 @@ public void computeId() {
 	if (!CharOperation.equals(LANG, compoundName[1])) {
 		if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
 			id = T_JavaIoPrintStream;
-		else if (CharOperation.equals(compoundName, JAVA_UTIL_ITERATOR))
+		else if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName))
 			id = T_JavaUtilIterator;
 		return;
 	}
