@@ -117,15 +117,10 @@ protected boolean matchIndexEntry() {
  * find out if this method pattern matches it.
  */
 protected boolean mustResolve() {
-	if (super.mustResolve()) return true;
-
-	// declaring type
 	if (this.declaringSimpleName != null || this.declaringQualification != null) return true;
-
-	// return type
 	if (this.typeSimpleName != null || this.typeQualification != null) return true;
 
-	return false;
+	return super.mustResolve();
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
