@@ -131,12 +131,10 @@ public CompilationResult compilationResult(){
  */
 public void generateCode(ClassScope classScope, ClassFile classFile) {
 	int problemResetPC = 0;
-	// for each method we start the code generate with wideMode equals to false
-	// in the code Stream.
-	classFile.codeStream.wideMode = false;
+	classFile.codeStream.wideMode = false; // reset wideMode to false
 	if (ignoreFurtherInvestigation) {
-		if (this.binding == null)
-			return; // Handle methods with invalid signature or duplicates
+		// method is known to have errors, dump a problem method
+		if (this.binding == null) return; // handle methods with invalid signature or duplicates
 		int problemsLength;
 		IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
 		IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
@@ -144,11 +142,14 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		classFile.addProblemMethod(this, binding, problemsCopy);
 		return;
 	}
+	// regular code generation
 	try {
 		problemResetPC = classFile.contentsOffset;
-		this.internalGenerateCode(classScope, classFile);
+		this.generateCode(classFile);
 	} catch (AbortMethod e) {
+		// a fatal error was detected during code generation, need to restart code gen if possible
 		if (e.compilationResult == null) {
+			// a branch target required a goto_w, restart code gen in wide mode.
 			try {
 				if (statements != null) {
 					for (int i = 0, max = statements.length; i < max; i++)
@@ -156,9 +157,9 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 				}
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
-				classFile.codeStream.wideMode = true;
+				classFile.codeStream.wideMode = true; // request wide mode 
 				problemResetPC = classFile.contentsOffset;
-				this.internalGenerateCode(classScope, classFile);
+				this.generateCode(classFile); // restart method generation
 			} catch(AbortMethod e2) {
 				int problemsLength;
 				IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
@@ -167,6 +168,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 				classFile.addProblemMethod(this, binding, problemsCopy, problemResetPC);
 			}
 		} else {
+			// produce a problem method accounting for this fatal error
 			int problemsLength;
 			IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
 			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
@@ -176,7 +178,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 	}
 }
 
-private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
+private void generateCode(ClassFile classFile) {
 	classFile.generateMethodInfoHeader(binding);
 	int methodAttributeOffset = classFile.contentsOffset;
 	int attributeNumber = classFile.generateMethodInfoAttribute(binding);

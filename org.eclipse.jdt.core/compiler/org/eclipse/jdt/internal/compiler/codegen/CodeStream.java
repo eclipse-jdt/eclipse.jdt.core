@@ -2457,7 +2457,7 @@ final public void if_acmpeq(Label lbl) {
 	countLabels = 0;
 	stackDepth-=2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_acmpeq, lbl);
+		generateWideConditionalBranch(OPC_if_acmpeq, lbl);
 	} else {	
 		try {
 			position++;
@@ -2472,7 +2472,7 @@ final public void if_acmpne(Label lbl) {
 	countLabels = 0;
 	stackDepth-=2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_acmpne, lbl);
+		generateWideConditionalBranch(OPC_if_acmpne, lbl);
 	} else {	
 		try {
 			position++;
@@ -2487,7 +2487,7 @@ final public void if_icmpeq(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_icmpeq, lbl);
+		generateWideConditionalBranch(OPC_if_icmpeq, lbl);
 	} else {	
 		try {
 			position++;
@@ -2502,7 +2502,7 @@ final public void if_icmpge(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_icmpge, lbl);
+		generateWideConditionalBranch(OPC_if_icmpge, lbl);
 	} else {	
 		try {
 			position++;
@@ -2517,7 +2517,7 @@ final public void if_icmpgt(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_icmpgt, lbl);
+		generateWideConditionalBranch(OPC_if_icmpgt, lbl);
 	} else {	
 		try {
 			position++;
@@ -2532,7 +2532,7 @@ final public void if_icmple(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_icmple, lbl);
+		generateWideConditionalBranch(OPC_if_icmple, lbl);
 	} else {	
 		try {
 			position++;
@@ -2547,7 +2547,7 @@ final public void if_icmplt(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_icmplt, lbl);
+		generateWideConditionalBranch(OPC_if_icmplt, lbl);
 	} else {
 		try {
 			position++;
@@ -2562,7 +2562,7 @@ final public void if_icmpne(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_if_icmpne, lbl);
+		generateWideConditionalBranch(OPC_if_icmpne, lbl);
 	} else {
 		try {
 			position++;
@@ -2577,7 +2577,7 @@ final public void ifeq(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifeq, lbl);
+		generateWideConditionalBranch(OPC_ifeq, lbl);
 	} else {
 		try {
 			position++;
@@ -2592,7 +2592,7 @@ final public void ifge(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifge, lbl);
+		generateWideConditionalBranch(OPC_ifge, lbl);
 	} else {
 		try {
 			position++;
@@ -2607,7 +2607,7 @@ final public void ifgt(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifgt, lbl);
+		generateWideConditionalBranch(OPC_ifgt, lbl);
 	} else {
 		try {
 			position++;
@@ -2622,7 +2622,7 @@ final public void ifle(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifle, lbl);
+		generateWideConditionalBranch(OPC_ifle, lbl);
 	} else {
 		try {
 			position++;
@@ -2637,7 +2637,7 @@ final public void iflt(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_iflt, lbl);
+		generateWideConditionalBranch(OPC_iflt, lbl);
 	} else {
 		try {
 			position++;
@@ -2652,7 +2652,7 @@ final public void ifne(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifne, lbl);
+		generateWideConditionalBranch(OPC_ifne, lbl);
 	} else {
 		try {
 			position++;
@@ -2667,7 +2667,7 @@ final public void ifnonnull(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifnonnull, lbl);
+		generateWideConditionalBranch(OPC_ifnonnull, lbl);
 	} else {
 		try {
 			position++;
@@ -2682,7 +2682,7 @@ final public void ifnull(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		internal_goto_w_management(OPC_ifnull, lbl);
+		generateWideConditionalBranch(OPC_ifnull, lbl);
 	} else {
 		try {
 			position++;
@@ -5701,7 +5701,7 @@ public final void writeUnsignedWord(int value) {
 	}
 }
 
-private void internal_goto_w_management(byte opcode, Label lbl) {
+public void generateWideConditionalBranch(byte opcode, Label lbl) {
 		/* we handle the goto_w problem inside an if.... with some macro expansion
 		 * at the bytecode level
 		 * instead of:
