@@ -81,11 +81,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 	// check if this compilation unit can be opened
 	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
-		if (((IPackageFragment)getParent()).getKind() == IPackageFragmentRoot.K_BINARY
-				|| !isValidCompilationUnit()
-				|| !underlyingResource.isAccessible()) {
-			throw newNotPresentException();
-		}
+		IStatus status = validateCompilationUnit();
+		if (!status.isOK()) throw newJavaModelException(status);
+		if (!underlyingResource.isAccessible()) throw newNotPresentException();
 	}
 	
 	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
@@ -458,7 +456,7 @@ public boolean exists() {
 	if (getPerWorkingCopyInfo() != null) return true;	
 	
 	// if not a working copy, it exists only if it is a primary compilation unit
-	return isPrimary() && super.exists() && isValidCompilationUnit();
+	return isPrimary() && super.exists() && validateCompilationUnit().isOK();
 }
 /**
  * @see ICompilationUnit#findElements(IJavaElement)
@@ -936,21 +934,22 @@ public boolean isPrimary() {
 protected boolean isSourceElement() {
 	return true;
 }
-protected boolean isValidCompilationUnit() {
+protected IStatus validateCompilationUnit() {
 	IPackageFragmentRoot root = getPackageFragmentRoot();
 	try {
-		if (root.getKind() != IPackageFragmentRoot.K_SOURCE) return false;
+		if (root.getKind() != IPackageFragmentRoot.K_SOURCE) 
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, root);
 	} catch (JavaModelException e) {
-		return false;
+		return e.getJavaModelStatus();
 	}
 	IResource resource = getResource();
 	if (resource != null) {
 		char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
 		char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
-		if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+		if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) 
+			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this);
 	}
-	if (!Util.isValidCompilationUnitName(getElementName())) return false;
-	return true;
+	return JavaConventions.validateCompilationUnitName(getElementName());
 }
 /*
  * @see ICompilationUnit#isWorkingCopy()

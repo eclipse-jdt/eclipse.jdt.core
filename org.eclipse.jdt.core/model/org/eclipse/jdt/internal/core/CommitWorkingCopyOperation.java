@@ -75,7 +75,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 			JavaElementDeltaBuilder deltaBuilder = null;
 			PackageFragmentRoot root = (PackageFragmentRoot)workingCopy.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			boolean isIncluded = !Util.isExcluded(workingCopy);
-			if (isPrimary || (root.isOnClasspath() && isIncluded && resource.isAccessible() && Util.isValidCompilationUnitName(workingCopy.getElementName()))) {
+			if (isPrimary || (root.validateOnClasspath().isOK() && isIncluded && resource.isAccessible() && Util.isValidCompilationUnitName(workingCopy.getElementName()))) {
 				
 				// force opening so that the delta builder can get the old info
 				if (!isPrimary && !primary.isOpen()) {

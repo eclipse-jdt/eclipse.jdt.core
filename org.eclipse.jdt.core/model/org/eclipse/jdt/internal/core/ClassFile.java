@@ -24,6 +24,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
@@ -76,7 +77,8 @@ protected ClassFile(PackageFragment parent, String name) {
  */
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	// check whether the class file can be opened
-	if (!isValidClassFile()) throw newNotPresentException();
+	IStatus status = validateClassFile();
+	if (!status.isOK()) throw newJavaModelException(status);
 	if (underlyingResource != null && !underlyingResource.isAccessible()) throw newNotPresentException();
 
 	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
@@ -164,7 +166,7 @@ public boolean equals(Object o) {
 	return super.equals(o);
 }
 public boolean exists() {
-	return super.exists() && isValidClassFile();
+	return super.exists() && validateClassFile().isOK();
 }
 
 /**
@@ -255,7 +257,7 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	}
 }
 public IBuffer getBuffer() throws JavaModelException {
-	if (isValidClassFile()) {
+	if (validateClassFile().isOK()) {
 		return super.getBuffer();
 	} else {
 		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
@@ -461,15 +463,15 @@ public boolean isInterface() throws JavaModelException {
 public boolean isReadOnly() {
 	return true;
 }
-private boolean isValidClassFile() {
+private IStatus validateClassFile() {
 	IPackageFragmentRoot root = getPackageFragmentRoot();
 	try {
-		if (root.getKind() != IPackageFragmentRoot.K_BINARY) return false;
+		if (root.getKind() != IPackageFragmentRoot.K_BINARY) 
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, root);
 	} catch (JavaModelException e) {
-		return false;
+		return e.getJavaModelStatus();
 	}
-	if (!Util.isValidClassFileName(getElementName())) return false;
-	return true;
+	return JavaConventions.validateClassFileName(getElementName());
 }
 /**
  * Opens and returns buffer on the source code associated with this class file.

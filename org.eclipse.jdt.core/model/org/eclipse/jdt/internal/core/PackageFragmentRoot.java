@@ -165,9 +165,9 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	
 	// check whether this pkg fragment root can be opened
-	if (!resourceExists() || !isOnClasspath()) {
-		throw newNotPresentException();
-	}
+	IStatus status = validateOnClasspath();
+	if (!status.isOK()) throw newJavaModelException(status);
+	if (!resourceExists()) throw newNotPresentException();
 
 	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
 	return computeChildren(info, newElements);
@@ -348,7 +348,7 @@ public boolean equals(Object o) {
  * @see IJavaElement
  */
 public boolean exists() {
-	return super.exists() && isOnClasspath();
+	return super.exists() && validateOnClasspath().isOK();
 }
 
 public IClasspathEntry findSourceAttachmentRecommendation() {
@@ -779,9 +779,9 @@ public boolean isExternal() {
 }
 
 /*
- * Returns whether this package fragment root is on the classpath of its project.
+ * Validate whether this package fragment root is on the classpath of its project.
  */
-protected boolean isOnClasspath() {
+protected IStatus validateOnClasspath() {
 	
 	IPath path = this.getPath();
 	try {
@@ -791,13 +791,14 @@ protected boolean isOnClasspath() {
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getPath().equals(path)) {
-				return true;
+				return Status.OK_STATUS;
 			}
 		}
 	} catch(JavaModelException e){
 		// could not read classpath, then assume it is outside
+		return e.getJavaModelStatus();
 	}
-	return false;
+	return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this);
 }
 /*
  * @see org.eclipse.jdt.core.IPackageFragmentRoot#move

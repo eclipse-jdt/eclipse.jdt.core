@@ -527,10 +527,19 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return ((JavaElementInfo)getElementInfo()).isStructureKnown();
 	}
 	/**
-	 * Creates and returns and not present exception for this element.
+	 * Creates and returns a new not present exception for this element.
 	 */
 	public JavaModelException newNotPresentException() {
 		return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+	/**
+	 * Creates and returns a new Java model exception for this element with the given status.
+	 */
+	public JavaModelException newJavaModelException(IStatus status) {
+		if (status instanceof IJavaModelStatus)
+			return new JavaModelException((IJavaModelStatus) status);
+		else
+			return new JavaModelException(new JavaModelStatus(status.getSeverity(), status.getCode(), status.getMessage()));
 	}
 	/*
 	 * Opens an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).

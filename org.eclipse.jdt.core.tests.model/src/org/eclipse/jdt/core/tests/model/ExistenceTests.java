@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.tests.util.Util;
 public class ExistenceTests extends ModifyingResourceTests {
 public ExistenceTests(String name) {
 	super(name);
@@ -39,16 +40,18 @@ protected void assertCorrespondingResourceFails(IJavaElement element) {
 	}
 	assertTrue("Should not be able to get corresponding resource", gotException);
 }
-protected void assertOpenFails(IOpenable openable) {
-	boolean gotException = false;
+protected void assertOpenFails(String expectedMessage, IOpenable openable) {
+	String message = "";
 	try {
 		openable.open(null);
 	} catch (JavaModelException e) {
-		if (e.isDoesNotExist()) {
-			gotException = true;
-		}
+		message = e.getMessage();
 	}
-	assertTrue("Should not be able to open element", gotException);
+	if (!expectedMessage.equals(message)) {
+		System.out.print(Util.displayString(message, 3));
+		System.out.println(",");
+	}
+	assertEquals(expectedMessage, message);
 }
 protected void assertUnderlyingResourceFails(IJavaElement element) {
 	boolean gotException = false;
@@ -106,7 +109,9 @@ public void testClassFileInSource1() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFile("P/src/X.class", "");
 		IClassFile classFile = this.getClassFile("P/src/X.class");
-		assertOpenFails(classFile);
+		assertOpenFails(
+			"Operation not supported for specified element type(s):src [in P]", 
+			classFile);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -142,7 +147,9 @@ public void testCompilationUnitInLibrary2() throws CoreException {
 			"public class X {}"
 		);
 		ICompilationUnit cu = this.getCompilationUnit("P/lib/X.java");
-		assertOpenFails(cu);
+		assertOpenFails(
+			"Operation not supported for specified element type(s):lib [in P]",
+			cu);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -150,15 +157,33 @@ public void testCompilationUnitInLibrary2() throws CoreException {
 /*
  * Ensure that a non-existing class file cannot be opened.
  */
-public void testNonExistingClassFile() throws CoreException {
+public void testNonExistingClassFile1() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"lib"}, "bin");
 		IClassFile classFile = getClassFile("/P/lib/X.class");
-		assertOpenFails(classFile);
+		assertOpenFails(
+			"X.class [in <default> [in lib [in P]]] does not exist", 
+			classFile);
 	} finally {
 		this.deleteProject("P");
 	}
 }
+/*
+ * Ensure that a non-existing class file cannot be opened.
+ * (regression test for 52379 JavaElement.getElementInfo no longer works)
+ */
+public void testNonExistingClassFile2() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, new String[] {}, "bin");
+		IClassFile classFile = getClassFile("/P/lib/X.class");
+		assertOpenFails(
+			"lib [in P] is not on its project\'s build path",
+			classFile);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
 /*
  * Ensure that a non-existing compilation unit cannot be opened.
  */
@@ -166,7 +191,9 @@ public void testNonExistingCompilationUnit() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		ICompilationUnit cu = getCompilationUnit("/P/src/X.java");
-		assertOpenFails(cu);
+		assertOpenFails(
+			"X.java [in <default> [in src [in P]]] does not exist", 
+			cu);
 	} finally {
 		this.deleteProject("P");
 	}
@@ -174,13 +201,30 @@ public void testNonExistingCompilationUnit() throws CoreException {
 /*
  * Ensure that a non-existing package fragment cannot be opened.
  */
-public void testNonExistingPackageFragment() throws CoreException {
+public void testNonExistingPackageFragment1() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		IPackageFragment pkg = this.getPackage("/P/src/x");
-		assertOpenFails(pkg);
+		assertOpenFails(
+			"x [in src [in P]] does not exist", 
+			pkg);
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a non-existing package fragment cannot be opened.
+ */
+public void testNonExistingPackageFragment2() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {}, "bin");
+		IFolder folder = createFolder("/P/src/x");
+		IPackageFragment pkg = project.getPackageFragmentRoot(folder).getPackageFragment("x");
+		assertOpenFails(
+			"src/x [in P] is not on its project\'s build path",
+			pkg);
+	} finally {
+		deleteProject("P");
 	}
 }
 /*
@@ -189,13 +233,13 @@ public void testNonExistingPackageFragment() throws CoreException {
  */
 public void testNonJavaProject() throws CoreException {
 	try {
-		this.createProject("P");
-		IProject project = this.getProject("P");
+		createProject("P");
+		IProject project = getProject("P");
 		IJavaProject javaProject = JavaCore.create(project);
 		
 		assertTrue("Simple project should not exist", !javaProject.exists());
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -203,21 +247,15 @@ public void testNonJavaProject() throws CoreException {
  */
 public void testPkgFragmentRootNotInClasspath() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
-		IFolder folder = this.createFolder("/P/otherRoot");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, "bin");
+		IFolder folder = createFolder("/P/otherRoot");
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(folder);
 		assertTrue("Root should not exist", !root.exists());
-		boolean gotException = false;
-		try {
-			root.open(null);
-		} catch (JavaModelException e) {
-			if (e.isDoesNotExist()) {
-				gotException = true;
-			}
-		}
-		assertTrue("Should not be able to open root", gotException);
+		assertOpenFails(
+			"otherRoot [in P] is not on its project\'s build path",
+			root);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -233,7 +271,7 @@ public void testTypeParameter1() throws CoreException {
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
 		assertTrue("Type parameter should exist", typeParameter.exists()); 
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -251,7 +289,7 @@ public void testTypeParameter2() throws CoreException {
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("T");
 		assertTrue("Type parameter should exist", typeParameter.exists()); 
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -267,7 +305,7 @@ public void testTypeParameter3() throws CoreException {
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("U");
 		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -285,7 +323,7 @@ public void testTypeParameter4() throws CoreException {
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[0]).getTypeParameter("String");
 		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -304,7 +342,7 @@ public void testTypeParameter5() throws CoreException {
 		ITypeParameter typeParameter = getCompilationUnit("P/X.java").getType("X").getTypeParameter("T");
 		assertTrue("Type parameter should not exist", !typeParameter.exists()); 
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -312,11 +350,11 @@ public void testTypeParameter5() throws CoreException {
  */
 public void testCorrespondingResourceNonExistingClassFile() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, new String[] {"lib"}, "bin");
-		IClassFile classFile = this.getClassFile("/P/lib/X.class");
+		createJavaProject("P", new String[] {"src"}, new String[] {"lib"}, "bin");
+		IClassFile classFile = getClassFile("/P/lib/X.class");
 		assertCorrespondingResourceFails(classFile);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -324,11 +362,11 @@ public void testCorrespondingResourceNonExistingClassFile() throws CoreException
  */
 public void testCorrespondingResourceNonExistingCompilationUnit() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, "bin");
-		ICompilationUnit compilationUnit = this.getCompilationUnit("/P/src/X.java");
+		createJavaProject("P", new String[] {"src"}, "bin");
+		ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
 		assertCorrespondingResourceFails(compilationUnit);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -336,11 +374,11 @@ public void testCorrespondingResourceNonExistingCompilationUnit() throws CoreExc
  */
 public void testCorrespondingResourceNonExistingJarPkgFragmentRoot() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, "bin");
 		IPackageFragmentRoot root = project.getPackageFragmentRoot("/nonExisting.jar");
 		assertCorrespondingResourceFails(root);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -348,11 +386,11 @@ public void testCorrespondingResourceNonExistingJarPkgFragmentRoot() throws Core
  */
 public void testCorrespondingResourceNonExistingPkgFragment() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, "bin");
-		IPackageFragment pkg = this.getPackage("/P/src/nonExisting");
+		createJavaProject("P", new String[] {"src"}, "bin");
+		IPackageFragment pkg = getPackage("/P/src/nonExisting");
 		assertCorrespondingResourceFails(pkg);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -360,12 +398,12 @@ public void testCorrespondingResourceNonExistingPkgFragment() throws CoreExcepti
  */
 public void testCorrespondingResourceNonExistingPkgFragmentRoot() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
-		IFolder folder = this.createFolder("/P/nonExistingRoot");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, "bin");
+		IFolder folder = createFolder("/P/nonExistingRoot");
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(folder);
 		assertCorrespondingResourceFails(root);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -381,8 +419,8 @@ public void testCorrespondingResourceNonExistingProject() {
  */
 public void testCorrespondingResourceNonExistingType() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, "bin");
-		this.createFile(
+		createJavaProject("P", new String[] {"src"}, "bin");
+		createFile(
 			"/P/src/X.java",
 			"public class X{\n" +
 			"}"
@@ -390,7 +428,7 @@ public void testCorrespondingResourceNonExistingType() throws CoreException {
 		IType type = getCompilationUnit("/P/src/X.java").getType("NonExisting");
 		assertCorrespondingResourceFails(type);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -398,11 +436,11 @@ public void testCorrespondingResourceNonExistingType() throws CoreException {
  */
 public void testUnderlyingResourceNonExistingClassFile() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, new String[] {"lib"}, "bin");
-		IClassFile classFile = this.getClassFile("/P/lib/X.class");
+		createJavaProject("P", new String[] {"src"}, new String[] {"lib"}, "bin");
+		IClassFile classFile = getClassFile("/P/lib/X.class");
 		assertUnderlyingResourceFails(classFile);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -410,11 +448,11 @@ public void testUnderlyingResourceNonExistingClassFile() throws CoreException {
  */
 public void testUnderlyingResourceNonExistingCompilationUnit() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, "bin");
-		ICompilationUnit compilationUnit = this.getCompilationUnit("/P/src/X.java");
+		createJavaProject("P", new String[] {"src"}, "bin");
+		ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
 		assertUnderlyingResourceFails(compilationUnit);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -422,11 +460,11 @@ public void testUnderlyingResourceNonExistingCompilationUnit() throws CoreExcept
  */
 public void testUnderlyingResourceNonExistingJarPkgFragmentRoot() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, "bin");
 		IPackageFragmentRoot root = project.getPackageFragmentRoot("/nonExisting.jar");
 		assertUnderlyingResourceFails(root);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -434,11 +472,11 @@ public void testUnderlyingResourceNonExistingJarPkgFragmentRoot() throws CoreExc
  */
 public void testUnderlyingResourceNonExistingPkgFragment() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, "bin");
-		IPackageFragment pkg = this.getPackage("/P/src/nonExisting");
+		createJavaProject("P", new String[] {"src"}, "bin");
+		IPackageFragment pkg = getPackage("/P/src/nonExisting");
 		assertUnderlyingResourceFails(pkg);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -446,12 +484,12 @@ public void testUnderlyingResourceNonExistingPkgFragment() throws CoreException 
  */
 public void testUnderlyingResourceNonExistingPkgFragmentRoot() throws CoreException {
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
-		IFolder folder = this.createFolder("/P/nonExistingRoot");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, "bin");
+		IFolder folder = createFolder("/P/nonExistingRoot");
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(folder);
 		assertUnderlyingResourceFails(root);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 /*
@@ -467,8 +505,8 @@ public void testUnderlyingResourceNonExistingProject() {
  */
 public void testUnderlyingResourceNonExistingType() throws CoreException {
 	try {
-		this.createJavaProject("P", new String[] {"src"}, "bin");
-		this.createFile(
+		createJavaProject("P", new String[] {"src"}, "bin");
+		createFile(
 			"/P/src/X.java",
 			"public class X{\n" +
 			"}"
@@ -476,7 +514,7 @@ public void testUnderlyingResourceNonExistingType() throws CoreException {
 		IType type = getCompilationUnit("/P/src/X.java").getType("NonExisting");
 		assertUnderlyingResourceFails(type);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
 	}
 }
 }
