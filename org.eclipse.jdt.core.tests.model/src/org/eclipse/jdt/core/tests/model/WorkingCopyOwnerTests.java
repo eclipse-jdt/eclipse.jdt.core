@@ -72,7 +72,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Tests that a working copy remains a working copy when becomeWorkingCopy is called.
+	 * Tests that a working copy remains a working copy when becomeWorkingCopy() is called.
 	 */
 	public void testBecomeWorkingCopy2() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -85,6 +85,84 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
+	/*
+	 * Tests that a primary working copy is back in compilation unit mode when discardWorkingCopy() is called.
+	 */
+	public void testDiscardWorkingCopy1() throws CoreException {
+		ICompilationUnit cu = null;
+		try {
+			cu = getCompilationUnit("P/X.java");
+			cu.becomeWorkingCopy(null, null);
+			assertTrue("should be in working copy mode", cu.isWorkingCopy());
+			
+			cu.discardWorkingCopy();
+			assertTrue("should no longer be in working copy mode", !cu.isWorkingCopy());
+		} finally {
+			if (cu != null) {
+				cu.discardWorkingCopy();
+			}
+		}
+	}
+
+	/*
+	 * Tests that the same number of calls to discardWorkingCopy() is needed for primary working copy to be back 
+	 * in compilation uint mode.
+	 */
+	public void testDiscardWorkingCopy2() throws CoreException {
+		ICompilationUnit cu = null;
+		try {
+			cu = getCompilationUnit("P/X.java");
+			cu.becomeWorkingCopy(null, null);
+			cu.becomeWorkingCopy(null, null);
+			cu.becomeWorkingCopy(null, null);
+			assertTrue("should be in working copy mode", cu.isWorkingCopy());
+			
+			cu.discardWorkingCopy();
+			assertTrue("should still be in working copy mode", cu.isWorkingCopy());
+
+			cu.discardWorkingCopy();
+			cu.discardWorkingCopy();
+			assertTrue("should no longer be in working copy mode", !cu.isWorkingCopy());
+		} finally {
+			if (cu != null) {
+				int max = 3;
+				while (cu.isWorkingCopy() && max-- > 0) {
+					cu.discardWorkingCopy();
+				}
+			}
+		}
+	}
+
+	/*
+	 * Tests that the same number of calls to discardWorkingCopy() is needed for non-primary working copy 
+	 * to be dicsarded.
+	 */
+	public void testDiscardWorkingCopy3() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+			assertTrue("should be in working copy mode", workingCopy.isWorkingCopy());
+			
+			workingCopy.discardWorkingCopy();
+			assertTrue("should still be in working copy mode", workingCopy.isWorkingCopy());
+
+			workingCopy.discardWorkingCopy();
+			workingCopy.discardWorkingCopy();
+			assertTrue("should no longer be in working copy mode", !workingCopy.isWorkingCopy());
+		} finally {
+			if (workingCopy != null) {
+				int max = 3;
+				while (workingCopy.isWorkingCopy() && max-- > 0) {
+					workingCopy.discardWorkingCopy();
+				}
 			}
 		}
 	}
