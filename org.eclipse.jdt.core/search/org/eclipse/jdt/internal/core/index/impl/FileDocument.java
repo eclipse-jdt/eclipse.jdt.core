@@ -48,7 +48,7 @@ public class FileDocument extends PropertyDocument {
 	public String getType() {
 		int lastDot= file.getPath().lastIndexOf('.');
 		if (lastDot == -1)
-			return "";
+			return ""/*nonNLS*/;
 		return file.getPath().substring(lastDot + 1);
 	}
 }

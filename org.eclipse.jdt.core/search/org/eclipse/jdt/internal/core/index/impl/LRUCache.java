@@ -86,7 +86,7 @@ public class LRUCache implements Cloneable {
 		 */
 		public String toString() {
 
-			return "LRUCacheEntry [" + _fKey + "-->" + _fValue + "]";
+			return "LRUCacheEntry ["/*nonNLS*/ + _fKey + "-->"/*nonNLS*/ + _fValue + "]"/*nonNLS*/;
 		}
 	}
 
@@ -451,7 +451,7 @@ public class LRUCache implements Cloneable {
 	 */
 	public String toString() {
 
-		return "LRUCache " + (getCurrentSpace() * 100.0 / getSpaceLimit()) + "% full";
+		return "LRUCache "/*nonNLS*/ + (getCurrentSpace() * 100.0 / getSpaceLimit()) + "% full"/*nonNLS*/;
 	}
 	/**
 	 * Updates the timestamp for the given entry, ensuring that the queue is 

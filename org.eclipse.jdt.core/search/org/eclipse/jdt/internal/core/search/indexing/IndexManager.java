@@ -56,13 +56,13 @@ public void activateProcessing() {
 public void add(IFile resource){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
 	String extension = resource.getFileExtension();
-	if ("java".equals(extension)){
+	if ("java"/*nonNLS*/.equals(extension)){
 		AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
 		}
 		request(job);
-	} else if ("class".equals(extension)){
+	} else if ("class"/*nonNLS*/.equals(extension)){
 		AddClassFileToIndex job = new AddClassFileToIndex(resource, this);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
@@ -76,7 +76,7 @@ public void add(IFile resource){
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) System.out.println("STARTING - ensuring consistency");
+	if (VERBOSE) System.out.println("STARTING - ensuring consistency"/*nonNLS*/);
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -93,15 +93,15 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) System.out.println("DONE - ensuring consistency");
+		if (VERBOSE) System.out.println("DONE - ensuring consistency"/*nonNLS*/);
 	}
 }
 private String computeIndexName(String pathString) {
 	byte[] pathBytes = pathString.getBytes();
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
-	String fileName = Long.toString(checksumCalculator.getValue()) + ".index";
-	if (VERBOSE) System.out.println(" index name: " + pathString + " <----> " + fileName);
+	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"/*nonNLS*/;
+	if (VERBOSE) System.out.println(" index name: "/*nonNLS*/ + pathString + " <----> "/*nonNLS*/ + fileName);
 	IPath indexPath = getJavaPluginWorkingLocation();
 	String indexDirectory = indexPath.toOSString();
 	if (indexDirectory.endsWith(File.separator)) {

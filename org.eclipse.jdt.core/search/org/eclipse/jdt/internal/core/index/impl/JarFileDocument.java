@@ -56,7 +56,7 @@ public String getStringContent() throws java.io.IOException {
 	public String getType() {
 		String extension= file.getFileExtension();
 		if (extension == null)
-			return "";
+			return ""/*nonNLS*/;
 		return extension;
 	}
 }

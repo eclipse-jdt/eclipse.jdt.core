@@ -56,9 +56,9 @@ public final class ObjectVector {
 		size= 0;
 	}
 	public String toString() {
-		String s= "";
+		String s= ""/*nonNLS*/;
 		for (int i= 0; i < size; i++)
-			s += elements[i].toString() + "\n";
+			s += elements[i].toString() + "\n"/*nonNLS*/;
 		return s;
 	}
 }

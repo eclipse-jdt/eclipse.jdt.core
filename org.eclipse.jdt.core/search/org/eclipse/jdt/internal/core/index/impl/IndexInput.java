@@ -1,12 +1,12 @@
 package org.eclipse.jdt.internal.core.index.impl;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
 import java.io.*;
 import org.eclipse.jdt.internal.core.index.*;
-
+
 /**
  * This class provides an input on an index, after it has been generated.<br>
  * You can access all the files of an index via getNextFile(), getCurrentFile() 
@@ -15,12 +15,12 @@ import org.eclipse.jdt.internal.core.index.*;
  * (the open() method), usage, and closing (the close() method), to release the
  * data source used by this input.
  */
-
+
 public abstract class IndexInput {
 	protected int filePosition;
 	protected WordEntry currentWordEntry;
 	protected int wordPosition;
-
+
 	public IndexInput() {
 		super();
 		wordPosition= 1;
@@ -101,12 +101,6 @@ public abstract class IndexInput {
 	 * Open the Source where the input gets the information from.
 	 */
 	public abstract void open() throws IOException;
-	public void printStats(PrintStream out) {
-		out.println("Index stats :");
-		int numFiles= getNumFiles();
-		out.println("  files: " + numFiles);
-		out.println("  total words indexed (unique): " + this.getNumWords());
-	}
 	/**
 	 * Returns the list of the files containing the given word in the index.
 	 */

@@ -69,6 +69,6 @@ public void initializeContents() {
 	}
 }
 public String toString(){
-	return "indexing " + resource.getName();
+	return "indexing "/*nonNLS*/ + resource.getName();
 }
 }
