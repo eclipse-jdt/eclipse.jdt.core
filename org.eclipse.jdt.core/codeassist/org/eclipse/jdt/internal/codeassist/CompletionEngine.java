@@ -2344,8 +2344,7 @@ public final class CompletionEngine
 						for (int f = 0; f < localsFound.size; f++) {
 							LocalVariableBinding otherLocal =
 								(LocalVariableBinding) localsFound.elementAt(f);
-							if (CharOperation.equals(otherLocal.name, local.name, false /* ignore case */
-								))
+							if (CharOperation.equals(otherLocal.name, local.name, true))
 								continue next;
 						}
 						localsFound.add(local);
