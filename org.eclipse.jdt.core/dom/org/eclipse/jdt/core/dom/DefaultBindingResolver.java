@@ -50,11 +50,6 @@ class DefaultBindingResolver extends BindingResolver {
 	Map bindingKeysToAstNodes;
 	
 	/**
-	 * This map is used to get a binding from its ast node
-	 */
-	Map astNodesToBindings;
-	
-	/**
 	 * This map is used to retrieve the corresponding block scope for a ast node
 	 */
 	Map astNodesToBlockScope;
@@ -71,7 +66,6 @@ class DefaultBindingResolver extends BindingResolver {
 		this.newAstToOldAst = new HashMap();
 		this.compilerBindingsToASTBindings = new HashMap();
 		this.bindingsToAstNodes = new HashMap();
-		this.astNodesToBindings = new HashMap();
 		this.astNodesToBlockScope = new HashMap();
 		this.bindingKeysToAstNodes = new HashMap();
 	}

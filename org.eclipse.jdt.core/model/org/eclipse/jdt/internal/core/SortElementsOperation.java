@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 public class SortElementsOperation extends JavaModelOperation {
 	
 	Comparator comparator;
-	boolean hasChanged;
 	int[] positions;
 	
 	/**
@@ -85,7 +84,6 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param bufferContents
 	 */
 	private String processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) {
-		this.hasChanged = false;
 		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, comparator);
 		SourceElementParser parser = new SourceElementParser(builder,
 			ProblemFactory.getProblemFactory(Locale.getDefault()), new CompilerOptions(JavaCore.getOptions()), true);

@@ -41,8 +41,6 @@ public class SourceElementParser extends Parser {
 	
 	ISourceElementRequestor requestor;
 	int fieldCount;
-	int localIntPtr;
-	int lastFieldEndPosition;
 	ISourceType sourceType;
 	boolean reportReferenceInfo;
 	char[][] typeNames;
@@ -332,23 +330,6 @@ protected CompilationUnitDeclaration endParse(int act) {
 	} else {
 		return null;
 	}		
-}
-/*
- * Flush annotations defined prior to a given positions.
- *
- * Note: annotations are stacked in syntactical order
- *
- * Either answer given <position>, or the end position of a comment line 
- * immediately following the <position> (same line)
- *
- * e.g.
- * void foo(){
- * } // end of method foo
- */
- 
-public int flushAnnotationsDefinedPriorTo(int position) {
-
-	return lastFieldEndPosition = super.flushAnnotationsDefinedPriorTo(position);
 }
 public TypeReference getTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
