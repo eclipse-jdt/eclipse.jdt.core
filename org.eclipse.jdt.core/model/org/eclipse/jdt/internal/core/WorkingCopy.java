@@ -408,17 +408,13 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
  * @see Openable#openParent(IProgressMonitor)
  */
 protected void openParent(IProgressMonitor pm) throws JavaModelException {
-	if (FIX_BUG25184) {
-		try {
-			super.openParent(pm);
-		} catch(JavaModelException e){
-			// allow parent to not exist for working copies defined outside classpath
-			if (!e.isDoesNotExist()){ 
-				throw e;
-			}
-		}
-	} else {
+	try {
 		super.openParent(pm);
+	} catch(JavaModelException e){
+		// allow parent to not exist for working copies defined outside classpath
+		if (!e.isDoesNotExist()){ 
+			throw e;
+		}
 	}
 }
 

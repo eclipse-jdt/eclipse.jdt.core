@@ -15,8 +15,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
-
 import junit.framework.Test;
 public class FactoryTests extends ModifyingResourceTests {
 public FactoryTests(String name) {
@@ -95,31 +93,19 @@ public void testCreateCompilationUnitsNotOnClasspath() throws CoreException {
 		IJavaElement objectA = JavaCore.create(fileA);
 		assertTrue("tooling object A not created", objectA != null);
 		assertTrue("wrong object A created", objectA instanceof ICompilationUnit);
-		if (CompilationUnit.FIX_BUG25184) {
-			assertTrue("compilation unit A should not exist", !objectA.exists());
-		} else {
-			assertTrue("compilation unit A should exist", objectA.exists());
-		}
+		assertTrue("compilation unit A should not exist", !objectA.exists());
 
 		IJavaElement objectB = JavaCore.create(fileB);
 		assertTrue("tooling object B not created", objectB != null);
 		assertTrue("wrong object B created", objectB instanceof ICompilationUnit);
-		if (CompilationUnit.FIX_BUG25184) {
-			assertTrue("compilation unit B should not exist", !objectB.exists());
-		} else {
-			assertTrue("compilation unit B should exist", objectB.exists());
-		}
+		assertTrue("compilation unit B should not exist", !objectB.exists());
 
 		assertEquals("should share project", ((ICompilationUnit)objectA).getJavaProject(), ((ICompilationUnit)objectB).getJavaProject());
 
 		IJavaElement objectC = JavaCore.create(fileC);
 		assertTrue("tooling object C not created", objectC != null);
 		assertTrue("wrong object C created", objectC instanceof ICompilationUnit);
-		if (CompilationUnit.FIX_BUG25184) {
-			assertTrue("compilation unit C should not exist", !objectC.exists());
-		} else {
-			assertTrue("compilation unit C should exist", objectC.exists());
-		}
+		assertTrue("compilation unit C should not exist", !objectC.exists());
 
 		IPackageFragment pkg= (IPackageFragment)objectA.getParent() ;
 		IPackageFragmentRoot root= (IPackageFragmentRoot)pkg.getParent();
