@@ -1299,7 +1299,7 @@ Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression
 -- this rule is added to parse an array initializer in a assigment and then report a syntax error knowing the exact senario
 InvalidArrayInitializerAssignement ::= PostfixExpression AssignmentOperator ArrayInitializer
 /:$readableName ArrayInitializerAssignement:/
-Assignment -> InvalidArrayInitializerAssignement
+Assignment ::= InvalidArrayInitializerAssignement
 /.$putcase ignoreExpressionAssignment();$break ./
 
 AssignmentOperator ::= '='
