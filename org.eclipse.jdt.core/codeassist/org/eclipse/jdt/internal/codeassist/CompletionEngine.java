@@ -2624,7 +2624,7 @@ public final class CompletionEngine
 				TypeDeclaration parsedType;
 
 				if ((parsedType = sourceType.scope.referenceContext) != null){
-					AbstractMethodDeclaration methodDecl = parsedType.declarationOf(method);
+					AbstractMethodDeclaration methodDecl = parsedType.declarationOf(method.original());
 
 					if (methodDecl != null){
 						Argument[] arguments = methodDecl.arguments;

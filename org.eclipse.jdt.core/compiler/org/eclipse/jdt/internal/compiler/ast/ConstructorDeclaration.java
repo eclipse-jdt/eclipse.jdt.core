@@ -341,7 +341,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		ConstructorDeclaration targetConstructor = 
-			((ConstructorDeclaration)this.scope.referenceType().declarationOf(constructorCall.binding));
+			((ConstructorDeclaration)this.scope.referenceType().declarationOf(constructorCall.binding.original()));
 		if (this == targetConstructor) return true; // direct case
 
 		if (visited == null) { // lazy allocation

@@ -73,7 +73,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 		// super interface (if extending an interface)
 		if (anonymousType.binding.superInterfaces == NoSuperInterfaces) {
 			// find the constructor binding inside the super constructor call
-			ConstructorDeclaration constructor = (ConstructorDeclaration) anonymousType.declarationOf(binding);
+			ConstructorDeclaration constructor = (ConstructorDeclaration) anonymousType.declarationOf(binding.original());
 			throw new SelectionNodeFound(constructor.constructorCall.binding);
 		} else {
 			// open on the only superinterface

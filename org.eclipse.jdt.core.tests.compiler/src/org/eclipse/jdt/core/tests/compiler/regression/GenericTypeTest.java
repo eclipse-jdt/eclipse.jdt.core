@@ -7144,5 +7144,21 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-
+	// 70767 - NPE compiling code with explicit constructor invocation
+	public void test259() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"	\n" + 
+				"	<E> X(E e) {\n" + 
+				"		<E> this();\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	<E> X() {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}
 }

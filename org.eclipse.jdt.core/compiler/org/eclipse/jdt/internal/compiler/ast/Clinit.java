@@ -60,7 +60,7 @@ public class Clinit extends AbstractMethodDeclaration {
 					&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
 					scope.problemReporter().uninitializedBlankFinalField(
 						field,
-						scope.referenceType().declarationOf(field));
+						scope.referenceType().declarationOf(field.original()));
 					// can complain against the field decl, since only one <clinit>
 				}
 			}
