@@ -1871,6 +1871,26 @@ public void testEmptyClasspath() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/*
+ * Ensures that a source folder that contains character that must be encoded can be written.
+ * (regression test for bug 70193 DBCS – The GB18030 character cannot be correctly generated into “.classpath” file when new a source folder named with GB18030 character.)
+ */
+public void testEncoding() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src\u3400"}, "bin");
+		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath"), "UTF-8"));
+		encodedContents = Util.convertToIndependantLineDelimiter(encodedContents);
+		assertEquals(
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"src\" path=\"src\u3400\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>\n",
+			encodedContents);
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Ensures that adding an empty classpath container
  * generates the correct deltas.
