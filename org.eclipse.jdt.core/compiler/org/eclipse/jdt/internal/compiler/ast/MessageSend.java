@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -30,7 +31,7 @@ public class MessageSend extends Expression implements InvocationSite {
 	public long nameSourcePosition ; //(start<<32)+end
 
 	public TypeBinding actualReceiverType;
-	public TypeBinding genericCast;
+	public TypeBinding valueCast; // extra reference type cast to perform on method returned value
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	
@@ -63,9 +64,15 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		if (originalBinding != this.binding) {
 		    // extra cast needed if method return type has type variable
 		    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
-		        this.genericCast = originalBinding.returnType.genericCast(runtimeTimeType);
+		        this.valueCast = originalBinding.returnType.genericCast(runtimeTimeType);
 		    }
-		} 	
+		} 	else if (this.actualReceiverType.isArrayType() 
+						&& this.binding.parameters == NoParameters 
+						&& scope.environment().options.complianceLevel >= JDK1_5 
+						&& CharOperation.equals(this.binding.selector, CLONE)) {
+					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
+			this.valueCast = runtimeTimeType;			
+		}
 	}
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
 }
@@ -115,7 +122,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (valueRequired){
 		// implicit conversion if necessary
 		codeStream.generateImplicitConversion(implicitConversion);
-		if (this.genericCast != null) codeStream.checkcast(this.genericCast);
+		if (this.valueCast != null) 
+			codeStream.checkcast(this.valueCast);
 	} else {
 		// pop return value if any
 		switch(binding.returnType.id){
@@ -360,8 +368,18 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
-	return this.resolvedType = this.binding.returnType;
+	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
+	if (actualReceiverType.isArrayType() 
+			&& this.binding.parameters == NoParameters 
+			&& scope.environment().options.complianceLevel >= JDK1_5 
+			&& CharOperation.equals(this.binding.selector, CLONE)) {
+		this.resolvedType = actualReceiverType;
+	} else {
+		this.resolvedType = this.binding.returnType;
+	}
+	return this.resolvedType;
 }
+
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	this.actualReceiverType = receiverType;
 }

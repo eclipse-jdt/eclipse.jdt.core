@@ -169,7 +169,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	    if (this.codegenBinding.returnType.isTypeVariable()) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
 	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = this.binding.returnType;
+			    this.valueCast = this.binding.returnType;
 	        }
 	    }
 	} 

@@ -2012,6 +2012,173 @@ public void test055() {
 	);
 }
 
+public void test056() {
+	this.runConformTest(
+		new String[] {
+			"p/MethodQualification.java",
+			"package p;\n" + 
+			"public class MethodQualification {\n" + 
+			"  void foo() {\n" + 
+			"  System.out.println(\"Inherited foo() for anonymous type\");\n" + 
+			"  class Local {\n" + 
+			"    void foo(){\n" + 
+			"    System.out.println(\"Enclosing foo() for anonymous type\");\n" + 
+			"    new MethodQualification () { {foo();} };\n" + 
+			"    }\n" + 
+			"  };\n" + 
+			"  }  \n" + 
+			"}",
+		}, 
+		""
+	);
+}
+
+public void test057() {
+	this.runConformTest(
+		new String[] {
+			"p/AG.java",
+			"package p;\n" + 
+			"/**\n" + 
+			" * 1F9RITI\n" + 
+			" */\n" + 
+			"public class AG {\n" + 
+			"  public class X {\n" + 
+			"    class B {\n" + 
+			"      int intValueOfB = -9;\n" + 
+			"    }\n" + 
+			"    class SomeInner extends A {\n" + 
+			"      void someMethod() {\n" + 
+			"        int i = new B().intValueOfB; \n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  class A {\n" + 
+			"    class B {\n" + 
+			"      int intValueOfB = -9;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		}, 
+		""
+	);
+}
+
+public void test058() {
+	this.runConformTest(
+		new String[] {
+			"p/AE.java",
+			"package p;\n" + 
+			"/**\n" + 
+			" * 1F9RITI\n" + 
+			" */\n" + 
+			"public class AE {\n" + 
+			"  public class X {\n" + 
+			"    int intValue = 153;\n" + 
+			"    class SomeInner extends A {\n" + 
+			"      void someMethod() {\n" + 
+			"        int i = intValue; \n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  class A {\n" + 
+			"    int intValue = 153;\n" + 
+			"  }\n" + 
+			"}",
+		}, 
+		""
+	);
+}
+
+public void test059() {
+	this.runNegativeTest(
+		new String[] {
+			"p/FieldQualification.java",
+			"package p;\n" + 
+			"public class FieldQualification {\n" + 
+			"  String field = \"Inherited field for anonymous type\";\n" + 
+			"void foo() {\n" + 
+			"  class Local {\n" + 
+			"    String field = \"Enclosing field for anonymous type\";\n" + 
+			"    void foo() {\n" + 
+			"      System.out.println(\"Enclosing foo() for anonymous type\");\n" + 
+			"      new FieldQualification() {\n" + 
+			"        {\n" + 
+			"          System.out.println(field);\n" + 
+			"        }\n" + 
+			"      };\n" + 
+			"    }\n" + 
+			"  };\n" + 
+			"}\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\FieldQualification.java (at line 6)\n" + 
+		"	String field = \"Enclosing field for anonymous type\";\n" + 
+		"	       ^^^^^\n" + 
+		"The field Local.field is hiding a field from type FieldQualification\n" + 
+		"----------\n"
+	);
+}
+
+public void test060() {
+	this.runConformTest(
+		new String[] {
+			"p/AF.java",
+			"package p;\n" + 
+			"/**\n" + 
+			" * 1F9RITI\n" + 
+			" */\n" + 
+			"public class AF {\n" + 
+			"  public class X {\n" + 
+			"    int intMethod() {\n" + 
+			"      return 3333;\n" + 
+			"    }\n" + 
+			"    class SomeInner extends A {\n" + 
+			"      void someMethod() {\n" + 
+			"        int i = intMethod();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  class A {\n" + 
+			"    int intMethod() {\n" + 
+			"      return 3333;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		}, 
+		""
+	);
+}
+
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=32342
+ */
+public void test061() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //======================
+			"package p;	\n" +
+			"public class X extends q.Y {	\n" +
+			"	X someField;	\n" + // no ambiguity since inherited Y.X isn't visible
+			"}	\n" +
+			"class Z extends q.Y {	\n" +
+			"	Z someField;	\n" + // ambiguous
+			"}	\n",
+			"q/Y.java", //======================
+			"package q;	\n" +
+			"public class Y {	\n" +
+			"	private static class X {}	\n" +
+			"	public static class Z {}	\n" +
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. WARNING in q\\Y.java (at line 3)\n" + 
+		"	private static class X {}	\n" + 
+		"	                     ^\n" + 
+		"The private type Y.X is never used locally\n" + 
+		"----------\n");
+}
+
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
  * variant - must still complain when targeting super abstract method
@@ -2904,7 +3071,77 @@ public void test088() {
 		"----------\n"
 	);
 }
-
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089
+ */
+public void test089() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"    @interface I1 {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String argv[])   {\n" + 
+			"    	System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\r\n" + 
+		"	@interface I1 {}\r\n" + 
+		"	           ^^\n" + 
+		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
+		"----------\n");
+}
+//78104
+public void test090() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo(int[] ints, Object o) {\n" + 
+			"		ints = ints.clone();\n" + 
+			"		ints = (int[])ints.clone();\n" + 
+			"		X x = this.clone();\n" + 
+			"	}\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	ints = ints.clone();\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to int[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	X x = this.clone();\n" + 
+		"	  ^\n" + 
+		"Type mismatch: cannot convert from Object to X\n" + 
+		"----------\n"
+	);
+}
+//78104 - variation
+public void test091() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		args = args.clone();\n" + 
+			"	}\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	args = args.clone();\r\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to String[]\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

@@ -1068,7 +1068,7 @@ public abstract class Scope
 			if (argumentTypes == NoParameters) {
 			    switch (selector[0]) {
 			        case 'c': 
-			            if (CharOperation.equals(selector, CLONE))
+			            if (CharOperation.equals(selector, CLONE)) {
 							return new UpdatedMethodBinding(
 								environment().options.targetJDK >= ClassFileConstants.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
 								(methodBinding.modifiers & ~AccProtected) | AccPublic,
@@ -1077,6 +1077,7 @@ public abstract class Scope
 								argumentTypes,
 								null,
 								object);
+			            }
 			            break;
 			        case 'g': 
 			            if (CharOperation.equals(selector, GETCLASS) && methodBinding.returnType.isParameterizedType()/*1.5*/) {

@@ -3076,7 +3076,77 @@ public void test088() {
 		"----------\n"
 	);
 }
-
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089
+ */
+public void test089() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"    @interface I1 {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String argv[])   {\n" + 
+			"    	System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@interface I1 {}\n" + 
+		"	           ^^\n" + 
+		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
+		"----------\n");
+}
+//78104
+public void test090() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo(int[] ints, Object o) {\n" + 
+			"		ints = ints.clone();\n" + 
+			"		ints = (int[])ints.clone();\n" + 
+			"		X x = this.clone();\n" + 
+			"	}\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	ints = ints.clone();\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to int[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	X x = this.clone();\n" + 
+		"	  ^\n" + 
+		"Type mismatch: cannot convert from Object to X\n" + 
+		"----------\n"
+	);
+}
+//78104 - variation
+public void test091() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		args = args.clone();\n" + 
+			"	}\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	args = args.clone();\r\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to String[]\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
