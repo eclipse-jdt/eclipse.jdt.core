@@ -75,7 +75,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * It can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
 	 * 
-	 * @param matchRule the rule to apply for matching index keys. 
+	 * @param matchRule one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
+	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
+	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
 	 */
 	public SearchPattern(int matchRule) {
 		this.matchRule = matchRule;
@@ -99,10 +101,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * e.g. java.lang.Object()
 	 *		Main(*)
 	 */
-	private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
+	private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchRule) {
 	
-		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
-		
 		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		scanner.setSource(patternString.toCharArray());
 		final int InsideName = 1;
@@ -253,10 +253,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * e.g. java.lang.String.serialVersionUID long
 	 *		field*
 	 */
-	private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
+	private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchRule) {
 		
-		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
-	
 		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		final int InsideDeclaringPart = 1;
@@ -426,10 +424,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * e.g. java.lang.Runnable.run() void
 	 *		main(*)
 	 */
-	private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
+	private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchRule) {
 		
-		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
-	
 		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		final int InsideSelector = 1;
@@ -657,8 +653,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		return new OrPattern(leftPattern, rightPattern);
 	}
 	
-	private static SearchPattern createPackagePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
-		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
+	private static SearchPattern createPackagePattern(String patternString, int limitTo, int matchRule) {
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS :
 				return new PackageDeclarationPattern(patternString.toCharArray(), matchRule);
@@ -713,21 +708,71 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @param matchMode one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH
 	 * @param isCaseSensitive indicates whether the search is case sensitive or not
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
+	 * @deprecated Use createPattern(stringPattern, searchFor, limitTo, isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode) instead
 	 */
+	// TODO (jerome) remove before 3.0 M9
 	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchMode, boolean isCaseSensitive) {
+		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
+		return createPattern(stringPattern, searchFor, limitTo, matchRule);
+	}
+	/**
+	 * Returns a search pattern based on a given string pattern. The string patterns support '*' wild-cards.
+	 * The remaining parameters are used to narrow down the type of expected results.
+	 *
+	 * <br>
+	 *	Examples:
+	 *	<ul>
+	 * 		<li>search for case insensitive references to <code>Object</code>:
+	 *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code></li>
+	 *  	<li>search for case sensitive references to exact <code>Object()</code> constructor:
+	 *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code></li>
+	 *  	<li>search for implementers of <code>java.lang.Runnable</code>:
+	 *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code></li>
+	 *  </ul>
+	 * @param stringPattern the given pattern
+	 * @param searchFor determines the nature of the searched elements
+	 *	<ul>
+	 * 	<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
+	 *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces</li>
+	 * 	<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
+	 *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
+	 *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
+	 *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
+	 *		<li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
+	 *	</ul>
+	 * @param limitTo determines the nature of the expected matches
+	 *	<ul>
+	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
+	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
+	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
+	 *
+	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
+	 *
+	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
+	 *  		above.</li>
+	 *
+	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 *	</ul>
+	 * @param matchRule one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
+	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
+	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
+	 * @param isCaseSensitive indicates whether the search is case sensitive or not
+	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
+	 */
+	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
 		if (stringPattern == null || stringPattern.length() == 0) return null;
 	
 		switch (searchFor) {
 			case IJavaSearchConstants.TYPE:
-				return createTypePattern(stringPattern, limitTo, matchMode, isCaseSensitive);
+				return createTypePattern(stringPattern, limitTo, matchRule);
 			case IJavaSearchConstants.METHOD:
-				return createMethodPattern(stringPattern, limitTo, matchMode, isCaseSensitive);
+				return createMethodPattern(stringPattern, limitTo, matchRule);
 			case IJavaSearchConstants.CONSTRUCTOR:
-				return createConstructorPattern(stringPattern, limitTo, matchMode, isCaseSensitive);
+				return createConstructorPattern(stringPattern, limitTo, matchRule);
 			case IJavaSearchConstants.FIELD:
-				return createFieldPattern(stringPattern, limitTo, matchMode, isCaseSensitive);
+				return createFieldPattern(stringPattern, limitTo, matchRule);
 			case IJavaSearchConstants.PACKAGE:
-				return createPackagePattern(stringPattern, limitTo, matchMode, isCaseSensitive);
+				return createPackagePattern(stringPattern, limitTo, matchRule);
 		}
 		return null;
 	}
@@ -855,7 +900,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				if (lastDot == -1) return null; // invalid import declaration
 				IImportDeclaration importDecl = (IImportDeclaration)element;
 				if (importDecl.isOnDemand()) {
-					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, R_EXACT_MATCH, true);
+					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE);
 				} else {
 					searchPattern = 
 						createTypePattern(
@@ -1059,7 +1104,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
 			case IJavaElement.PACKAGE_FRAGMENT :
-				searchPattern = createPackagePattern(element.getElementName(), limitTo, R_EXACT_MATCH, true);
+				searchPattern = createPackagePattern(element.getElementName(), limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE);
 				break;
 		}
 		if (searchPattern != null)
@@ -1107,10 +1152,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *		Runnable
 	 *
 	 */
-	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
+	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule) {
 		
-		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
-	
 		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		String type = null;
@@ -1259,7 +1302,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
 	 * 
-	 * @return the rule to apply for matching index keys
+	 * @return one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
+	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
+	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
 	 */	
 	public final int getMatchRule() {
 		return this.matchRule;

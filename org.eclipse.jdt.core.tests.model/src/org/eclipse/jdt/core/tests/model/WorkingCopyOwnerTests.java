@@ -1082,8 +1082,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"X", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.REFERENCES, 
-				SearchPattern.R_EXACT_MATCH,
-				true);
+				SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			new SearchEngine(owner).search(
 				pattern, 
@@ -1119,8 +1118,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"X", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS, 
-				SearchPattern.R_EXACT_MATCH,
-				true);
+				SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			new SearchEngine(owner).search(
 				pattern, 
@@ -1219,8 +1217,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"*", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS, 
-				SearchPattern.R_PATTERN_MATCH,
-				true);
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			new SearchEngine(new ICompilationUnit[] {workingCopy}).search(
 				pattern, 
 				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},

@@ -113,9 +113,7 @@ public void testAddNewType() throws CoreException {
 		"NewType",
 		TYPE,
 		DECLARATIONS, 
-		SearchPattern.R_EXACT_MATCH,
-		true
-	);
+		SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
 		pattern, 
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -318,9 +316,7 @@ public void testMoveType() throws CoreException {
 			"X",
 			TYPE,
 			DECLARATIONS, 
-			SearchPattern.R_EXACT_MATCH,
-			true
-		);
+			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 		searchEngine.search(
 			pattern, 
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -366,9 +362,7 @@ public void testRemoveType() throws CoreException {
 		"X",
 		TYPE,
 		DECLARATIONS, 
-		SearchPattern.R_EXACT_MATCH,
-		true
-	);
+		SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
 		pattern, 
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
