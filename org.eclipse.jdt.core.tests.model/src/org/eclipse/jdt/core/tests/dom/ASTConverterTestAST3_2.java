@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0596"));
+		suite.addTest(new ASTConverterTestAST3_2("test0597"));
 		return suite;
 	}
 	/**
@@ -5990,5 +5990,42 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83210
+	 */
+	public void test0597() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0597", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+		IfStatement ifStatement = (IfStatement) node;
+		Expression expression = ifStatement.getExpression();
+		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+		Type type = instanceofExpression.getRightOperand();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+		SimpleType simpleType = (SimpleType) type;
+		Name name = simpleType.getName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		SimpleName simpleName = (SimpleName) name;
+		ITypeBinding typeBinding = simpleName.resolveTypeBinding();
+		
+		List imports = compilationUnit.imports();
+		assertEquals("Wrong size", 2, imports.size());
+		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
+		name = importDeclaration.getName();
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		simpleName = qualifiedName.getName();
+		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
+		
+		assertTrue("not identical", typeBinding == typeBinding2);
+		assertTrue("not identical", typeBinding.isEqualTo(typeBinding2));
 	}
 }
