@@ -11,6 +11,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
+import org.eclipse.jdt.internal.core.JavaModel;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.zip.ZipFile;
@@ -38,6 +40,7 @@ public class HierarchyScope
 		HashMap resources = new HashMap();
 		HashMap paths = new HashMap();
 		fTypes = fHierarchy.getAllTypes();
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (int i = 0; i < fTypes.length; i++) {
 			IType type = fTypes[i];
 			IResource resource = type.getUnderlyingResource();
@@ -50,21 +53,14 @@ public class HierarchyScope
 			if (root instanceof JarPackageFragmentRoot) {
 				// type in a jar
 				JarPackageFragmentRoot jar = (JarPackageFragmentRoot) root;
+				Object target = JavaModel.getTarget(workspaceRoot, jar.getPath(), true);
 				String zipFileName;
-				ZipFile zipFile = null;
-				try {
-					zipFile = jar.getJar();
-					zipFileName = zipFile.getName();
-				} catch (CoreException e) {
-					throw new JavaModelException(e);
-				} finally {
-					if (zipFile != null) {
-						try {
-							zipFile.close();
-						} catch (IOException e) {
-							// ignore 
-						}
-					}
+				if (target instanceof IFile) {
+					zipFileName = ((IFile)target).getLocation().toOSString();
+				} else if (target instanceof File) {
+					zipFileName = ((File)target).getPath();
+				} else {
+					continue; // unknown target
 				}
 				String resourcePath =
 					zipFileName
