@@ -378,7 +378,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType
 		this.uniqueParameterizedTypeBindings.put(rawType, cachedInfo);
 	}
 	// add new binding
-	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(rawType,typeArguments);
+	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(rawType,typeArguments, this);
 	cachedInfo[cachedInfo.length-1] = parameterizedType;
 	return parameterizedType;
 }

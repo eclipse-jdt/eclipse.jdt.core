@@ -17,8 +17,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 
 	public ReferenceBinding type; 
 	public TypeBinding[] typeArguments;
+	public LookupEnvironment environment; // TODO is back pointer actually needed in long term ?
 	
-	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] typeArguments){
+	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] typeArguments, LookupEnvironment environment){
 		
 		this.type = type;
 		this.fPackage = type.fPackage;
@@ -29,10 +30,27 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 	
 	/**
+	 * Returns a parameterized type, instantiated using the parameters from a given parameterized type
+	 */
+	public TypeBinding[] argumentSubstitution(ReferenceBinding targetType) {
+	    
+	    if (!this.isGeneric()) return null;
+	    TypeVariableBinding[] targetVariables = targetType.typeVariables();
+	    if (targetVariables == NoTypeVariables) return null; 
+	    int length = targetVariables.length;
+	    TypeBinding[] boundArguments = new TypeBinding[length];
+	    for (int i = 0; i < length; i++) {
+	        // TODO to complete - unclear whether it is actually needed, may only answer the supertpye
+	    }
+	    return boundArguments;
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableFields()
 	 */
 	public FieldBinding[] availableFields() {
 
+	    // TODO need to instantiate generic fields 
 		return this.type.availableFields();
 	}
 
@@ -41,6 +59,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public MethodBinding[] availableMethods() {
 
+	    // TODO need to instantiate generic methods
 		return this.type.availableMethods();
 	}
 
@@ -219,7 +238,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superclass()
 	 */
 	public ReferenceBinding superclass() {
-		return this.type.superclass();
+	    ReferenceBinding superclass = this.type.superclass();
+	    if (superclass.isGeneric()) {
+	        return superclass = this.environment.createParameterizedType(superclass, argumentSubstitution(superclass));
+	    }
+		return superclass;
 	}
 
 	/**

@@ -291,24 +291,26 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
-		buildTypeParameters();
+		buildTypeVariables();
 		buildMemberTypes();
 		return sourceType;
 	}
 	
-	private void buildTypeParameters() {
+	private void buildTypeVariables() {
 	    SourceTypeBinding sourceType = referenceContext.binding;
 		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
 		if (referenceContext.typeParameters != null) {
 			int length = referenceContext.typeParameters.length;
 			typeVariableBindings = new TypeVariableBinding[length];
 			HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
+			boolean duplicate = false;
 			int count = 0;
 			nextParameter : for (int i = 0; i < length; i++) {
 				TypeParameter typeParameter = referenceContext.typeParameters[i];
-				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, this);
+				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
 				
 				if (knownTypeParameterNames.containsKey(typeParameter.name)) {
+					duplicate = true;
 					TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
 					if (previousBinding != null) {
 						for (int j = 0; j < i; j++) {
@@ -781,7 +783,7 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
 	
-	private boolean connectTypeParameters() {
+	private boolean connectTypeVariables() {
 	    // TODO connect type parameter bounds
 //		SourceTypeBinding sourceType = referenceContext.binding;
 //		sourceType.typeParameters = NoTypeParameters;
@@ -789,6 +791,7 @@ public class ClassScope extends Scope {
 //			return true;
 //		if (isJavaLangObject(sourceType)) // already handled the case of redefining java.lang.Object
 //			return true;
+	    // TODO remember to position slot firstBound for further usage.
 	    return true;
 	}
 	
@@ -924,13 +927,6 @@ public class ClassScope extends Scope {
 			}
 		}
 		return superType;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.Scope#isClassScope()
-	 */
-	public boolean isClassScope() {
-		return true;
 	}
 
 	/* Answer the problem reporter to use for raising new problems.

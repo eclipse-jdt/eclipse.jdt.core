@@ -101,7 +101,7 @@ public abstract class Scope
 			}
 			return environment().createParameterizedType(rawType, parameters);
 		}
-		return new ParameterizedTypeBinding(rawType, parameters);
+		return new ParameterizedTypeBinding(rawType, parameters, environment());
 	}
 	
 	public final ClassScope enclosingClassScope() {
