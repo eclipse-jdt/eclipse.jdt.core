@@ -166,8 +166,8 @@ private String findLineSeparator(char[] text) {
 			char currentChar = nextChar;
 			nextChar = i < length-1 ? text[i+1] : ' ';
 			switch (currentChar) {
-				case '\n': return "\n"; //$NON-NLS-1$
-				case '\r': return nextChar == '\n' ? "\r\n" : "\r"; //$NON-NLS-1$ //$NON-NLS-2$
+				case '\n': return "\n"/*nonNLS*/;
+				case '\r': return nextChar == '\n' ? "\r\n"/*nonNLS*/ : "\r"/*nonNLS*/;
 			}
 		}
 	}
@@ -208,7 +208,7 @@ public char[] getCharacters() {
  */
 public String getContents() {
 	if (fContents == null)
-		return ""; //$NON-NLS-1$
+		return ""/*nonNLS*/;
 	synchronized (fLock) {
 		if (fGapStart < 0) {
 			return new String(fContents);
@@ -261,7 +261,7 @@ public IOpenable getOwner() {
  */
 public String getText(int offset, int length) {
 	if (fContents == null)
-		return ""; //$NON-NLS-1$
+		return ""/*nonNLS*/;
 	synchronized (fLock) {
 		if (offset + length < fGapStart)
 			return new String(fContents, offset, length);
@@ -373,8 +373,9 @@ private char[] normalizeCRs(char[] text) {
 				buffer.append(lineSeparator);
 				if (nextChar == '\n') {
 					nextChar = ' ';
+					i++;
 				}
-				lineStart = i+2;
+				lineStart = i+1;
 				break;
 		}
 	}
@@ -615,19 +616,19 @@ public String toString() {
 	char[] contents = this.getCharacters();
 	int length = contents.length;
 	StringBuffer buffer = new StringBuffer(length);
-	buffer.append("Buffer:\n"); //$NON-NLS-1$
+	buffer.append("Buffer:\n"/*nonNLS*/);
 	for (int i = 0; i < length; i++) {
 		char car = contents[i];
 		switch (car) {
 			case '\n': 
-				buffer.append("\\n\n"); //$NON-NLS-1$
+				buffer.append("\\n\n"/*nonNLS*/);
 				break;
 			case '\r':
 				if (i < length-1 && contents[i+1] == '\n') {
-					buffer.append("\\r\\n\n"); //$NON-NLS-1$
+					buffer.append("\\r\\n\n"/*nonNLS*/);
 					i++;
 				} else {
-					buffer.append("\\r\n"); //$NON-NLS-1$
+					buffer.append("\\r\n"/*nonNLS*/);
 				}
 				break;
 			default:

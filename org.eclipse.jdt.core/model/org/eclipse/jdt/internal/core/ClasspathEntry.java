@@ -170,38 +170,38 @@ public String toString() {
 	buffer.append('[');
 	switch (getEntryKind()) {
 		case IClasspathEntry.CPE_LIBRARY:
-			buffer.append("CPE_LIBRARY"); //$NON-NLS-1$
+			buffer.append("CPE_LIBRARY"/*nonNLS*/);
 			break;
 		case IClasspathEntry.CPE_PROJECT:
-			buffer.append("CPE_PROJECT"); //$NON-NLS-1$
+			buffer.append("CPE_PROJECT"/*nonNLS*/);
 			break;
 		case IClasspathEntry.CPE_SOURCE:
-			buffer.append("CPE_SOURCE"); //$NON-NLS-1$
+			buffer.append("CPE_SOURCE"/*nonNLS*/);
 			break;
 		case IClasspathEntry.CPE_VARIABLE:
-			buffer.append("CPE_VARIABLE"); //$NON-NLS-1$
+			buffer.append("CPE_VARIABLE"/*nonNLS*/);
 			break;
 	}
-	buffer.append("]["); //$NON-NLS-1$
+	buffer.append("]["/*nonNLS*/);
 	switch (getContentKind()) {
 		case IPackageFragmentRoot.K_BINARY:
-			buffer.append("K_BINARY"); //$NON-NLS-1$
+			buffer.append("K_BINARY"/*nonNLS*/);
 			break;
 		case IPackageFragmentRoot.K_SOURCE:
-			buffer.append("K_SOURCE"); //$NON-NLS-1$
+			buffer.append("K_SOURCE"/*nonNLS*/);
 			break;
 		case ClasspathEntry.K_OUTPUT:
-			buffer.append("K_OUTPUT"); //$NON-NLS-1$
+			buffer.append("K_OUTPUT"/*nonNLS*/);
 			break;
 	}
 	buffer.append(']');
 	if (getSourceAttachmentPath() != null){
-		buffer.append("[sourcePath:"); //$NON-NLS-1$
+		buffer.append("[sourcePath:"/*nonNLS*/);
 		buffer.append(getSourceAttachmentPath());
 		buffer.append(']');
 	}
 	if (getSourceAttachmentRootPath() != null){
-		buffer.append("[rootPath:"); //$NON-NLS-1$
+		buffer.append("[rootPath:"/*nonNLS*/);
 		buffer.append(getSourceAttachmentRootPath());
 		buffer.append(']');
 	}

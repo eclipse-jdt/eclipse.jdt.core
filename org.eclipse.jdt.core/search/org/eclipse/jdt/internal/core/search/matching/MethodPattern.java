@@ -85,45 +85,45 @@ public String toString(){
 	if (declaringQualification != null) buffer.append(declaringQualification).append('.');
 	if (declaringSimpleName != null) 
 		buffer.append(declaringSimpleName).append('.');
-	else if (declaringQualification != null) buffer.append("*."); //$NON-NLS-1$
+	else if (declaringQualification != null) buffer.append("*."/*nonNLS*/);
 	if (selector != null) {
 		buffer.append(selector);
 	} else {
-		buffer.append("*"); //$NON-NLS-1$
+		buffer.append("*"/*nonNLS*/);
 	}
 	buffer.append('(');
 	if (parameterSimpleNames == null) {
-		buffer.append("..."); //$NON-NLS-1$
+		buffer.append("..."/*nonNLS*/);
 	} else {
 		for (int i = 0, max = parameterSimpleNames.length; i < max; i++){
-			if (i > 0) buffer.append(", "); //$NON-NLS-1$
+			if (i > 0) buffer.append(", "/*nonNLS*/);
 			if (parameterQualifications[i] != null) buffer.append(parameterQualifications[i]).append('.');
 			if (parameterSimpleNames[i] == null) buffer.append('*'); else buffer.append(parameterSimpleNames[i]);
 		}
 	}
 	buffer.append(')');
 	if (returnQualification != null) 
-		buffer.append(" --> ").append(returnQualification).append('.'); //$NON-NLS-1$
-	else if (returnSimpleName != null) buffer.append(" --> "); //$NON-NLS-1$
+		buffer.append(" --> "/*nonNLS*/).append(returnQualification).append('.');
+	else if (returnSimpleName != null) buffer.append(" --> "/*nonNLS*/);
 	if (returnSimpleName != null) 
 		buffer.append(returnSimpleName);
-	else if (returnQualification != null) buffer.append("*"); //$NON-NLS-1$
-	buffer.append(", "); //$NON-NLS-1$
+	else if (returnQualification != null) buffer.append("*"/*nonNLS*/);
+	buffer.append(", "/*nonNLS*/);
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
+			buffer.append("exact match, "/*nonNLS*/);
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
+			buffer.append("prefix match, "/*nonNLS*/);
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
+			buffer.append("pattern match, "/*nonNLS*/);
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"); //$NON-NLS-1$
+		buffer.append("case sensitive"/*nonNLS*/);
 	else
-		buffer.append("case insensitive"); //$NON-NLS-1$
+		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
 }
 }

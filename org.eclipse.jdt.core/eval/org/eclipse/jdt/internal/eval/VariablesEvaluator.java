@@ -176,7 +176,7 @@ protected char[] getSource() {
 	// package declaration
 	char[] packageName = getPackageName();
 	if (packageName.length != 0) {
-		buffer.append("package "); //$NON-NLS-1$
+		buffer.append("package "/*nonNLS*/);
 		buffer.append(packageName);
 		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
 		lineNumberOffset++;
@@ -185,20 +185,20 @@ protected char[] getSource() {
 	// import declarations
 	char[][] imports = this.context.imports;
 	for (int i = 0; i < imports.length; i++) {
-		buffer.append("import "); //$NON-NLS-1$
+		buffer.append("import "/*nonNLS*/);
 		buffer.append(imports[i]);
 		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
 		lineNumberOffset++;
 	}
 
 	// class declaration
-	buffer.append("public class "); //$NON-NLS-1$
+	buffer.append("public class "/*nonNLS*/);
 	buffer.append(getClassName());
-	buffer.append(" extends "); //$NON-NLS-1$
+	buffer.append(" extends "/*nonNLS*/);
 	buffer.append(PACKAGE_NAME);
-	buffer.append("."); //$NON-NLS-1$
+	buffer.append("."/*nonNLS*/);
 	buffer.append(ROOT_CLASS_NAME);
-	buffer.append(" {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append(" {"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 	lineNumberOffset++;
 	startPosOffset = buffer.length();
 
@@ -207,10 +207,10 @@ protected char[] getSource() {
 	VariablesInfo installedVars = this.context.installedVars;
 	for (int i = 0; i < this.context.variableCount; i++){
 		GlobalVariable var = vars[i];
-		buffer.append("\tpublic static "); //$NON-NLS-1$
+		buffer.append("\tpublic static "/*nonNLS*/);
 		var.declarationStart = buffer.length();
 		buffer.append(var.typeName);
-		buffer.append(" "); //$NON-NLS-1$
+		buffer.append(" "/*nonNLS*/);
 		char[] varName = var.name;
 		buffer.append(varName);
 		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
@@ -218,7 +218,7 @@ protected char[] getSource() {
 	}
 
 	// field initializations
-	buffer.append("\tstatic {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append("\tstatic {"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 	lineNumberOffset++;
 	for (int i = 0; i < this.context.variableCount; i++){
 		GlobalVariable var = vars[i];
@@ -228,40 +228,40 @@ protected char[] getSource() {
 			// Initialize with initializer if there was no previous value
 			char[] initializer = var.initializer;
 			if (initializer != null) {
-				buffer.append("\t\ttry {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+				buffer.append("\t\ttry {"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 				lineNumberOffset++;
 				var.initializerLineStart = lineNumberOffset;
-				buffer.append("\t\t\t"); //$NON-NLS-1$
+				buffer.append("\t\t\t"/*nonNLS*/);
 				var.initializerStart = buffer.length();
 				buffer.append(varName);
-				buffer.append("= "); //$NON-NLS-1$
+				buffer.append("= "/*nonNLS*/);
 				var.initExpressionStart = buffer.length();
 				buffer.append(initializer);
 				lineNumberOffset += numberOfCRs(initializer);
 				buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
-				buffer.append("\t\t} catch (Throwable e) {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
-				buffer.append("\t\t\te.printStackTrace();").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
-				buffer.append("\t\t}").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+				buffer.append("\t\t} catch (Throwable e) {"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
+				buffer.append("\t\t\te.printStackTrace();"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
+				buffer.append("\t\t}"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 				lineNumberOffset += 4; // 4 CRs
 			}
 		} else {
 			// Initialize with previous value if name and type are the same
-			buffer.append("\t\t"); //$NON-NLS-1$
+			buffer.append("\t\t"/*nonNLS*/);
 			buffer.append(varName);
-			buffer.append("= "); //$NON-NLS-1$
+			buffer.append("= "/*nonNLS*/);
 			char[] installedPackageName = installedVars.packageName;
 			if (installedPackageName != null && installedPackageName.length != 0) {
 				buffer.append(installedPackageName);
-				buffer.append("."); //$NON-NLS-1$
+				buffer.append("."/*nonNLS*/);
 			}
 			buffer.append(installedVars.className);
-			buffer.append("."); //$NON-NLS-1$
+			buffer.append("."/*nonNLS*/);
 			buffer.append(varName);
 			buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
 			lineNumberOffset++;
 		}
 	}
-	buffer.append("\t}").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append("\t}"/*nonNLS*/).append(JavaModelManager.LINE_SEPARATOR);
 	
 	// end of class declaration
 	buffer.append('}').append(JavaModelManager.LINE_SEPARATOR);

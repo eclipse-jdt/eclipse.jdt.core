@@ -57,8 +57,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(int tab) {
 	return 
 		((this.enclosingInstance == null) ? 
-			"<SelectOnAllocationExpression:" :  //$NON-NLS-1$
-			"<SelectOnQualifiedAllocationExpression:") +  //$NON-NLS-1$
-		super.toStringExpression(tab) + ">"; //$NON-NLS-1$
+			"<SelectOnAllocationExpression:"/*nonNLS*/ : 
+			"<SelectOnQualifiedAllocationExpression:"/*nonNLS*/) + 
+		super.toStringExpression(tab) + ">"/*nonNLS*/;
 }
 }

@@ -65,7 +65,7 @@ public void copyAllResourcesOnClasspath(){
 				if (this.outputLocation.equals(this.sourceFolders[i].getFullPath())) continue; // do nothing if output is same as source folder
 				if (!hasNotified){
 					hasNotified = true;
-					if (notifier != null) notifier.subTask(Util.bind("build.copyingResources")); //$NON-NLS-1$
+					if (notifier != null) notifier.subTask(Util.bind("build.copyingResources"/*nonNLS*/));
 				}
 				this.sourceFolders[i].accept(this);
 			}
@@ -87,7 +87,7 @@ private boolean copyToOutput(IResource resource) {
 	switch (resource.getType()){
 		case IResource.FILE :
 			if (sourceFolderPath == null) return false; // resource is not inside the classpath		
-			if (!"java".equals(resource.getFileExtension())){ // ignore source files //$NON-NLS-1$
+			if (!"java"/*nonNLS*/.equals(resource.getFileExtension())){ // ignore source files
 				
 				IFile currentFile = (IFile) resource;
 				IPath pathSuffix = resourcePath.removeFirstSegments(sourceFolderPath.segmentCount());
@@ -140,7 +140,7 @@ private boolean deleteResourceCopyFromOutput(IResource resource) {
 	
 	switch (resource.getType()){
 		case IResource.FILE :
-			if (!"java".equals(resource.getFileExtension())){ // ignore source files //$NON-NLS-1$
+			if (!"java"/*nonNLS*/.equals(resource.getFileExtension())){ // ignore source files
 				
 				IFile currentFile = (IFile) resource;
 				pathSuffix = resourcePath.removeFirstSegments(sourceFolderPath.segmentCount());
@@ -195,7 +195,7 @@ private IPath getSourceFolderPath(IResource resource) {
 			if (this.outputLocation.equals(this.sourceFolders[i].getFullPath())) continue; // do nothing if output is same as source folder
 			if (!hasNotified){
 				hasNotified = true;
-				if (notifier != null) notifier.subTask(Util.bind("build.updatingResources")); //$NON-NLS-1$
+				if (notifier != null) notifier.subTask(Util.bind("build.updatingResources"/*nonNLS*/));
 			}
 		}
 	}

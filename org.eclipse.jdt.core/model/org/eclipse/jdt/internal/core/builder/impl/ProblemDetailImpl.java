@@ -197,6 +197,6 @@ public void setSourceStart(int sourceStart) {
  * purposes only. Non-NLS.
  */
 public String toString() {
-	return "ProblemDetail(" + getMessage() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+	return "ProblemDetail("/*nonNLS*/ + getMessage() + ")"/*nonNLS*/;
 }
 }

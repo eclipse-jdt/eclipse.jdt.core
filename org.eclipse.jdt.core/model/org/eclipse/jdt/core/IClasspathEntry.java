@@ -54,9 +54,9 @@ import org.eclipse.core.runtime.IPath;
  * Classpath entries can be created via methods on <code>JavaCore</code>.
  * </p>
  *
- * @see JavaCore#newLibraryEntry
- * @see JavaCore#newProjectEntry
- * @see JavaCore#newSourceEntry
+ * @see IJavaProject#newLibraryEntry
+ * @see IJavaProject#newProjectEntry
+ * @see IJavaProject#newSourceEntry
  */
 public interface IClasspathEntry {
 

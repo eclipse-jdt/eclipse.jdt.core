@@ -63,6 +63,6 @@ public IType[] getTypes() {
 	 * purposes only.
 	 */
 	public String toString() {
-		return "TypeNode(" + fType.getFileName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "TypeNode("/*nonNLS*/ + fType.getFileName() + ")"/*nonNLS*/;
 	}
 }

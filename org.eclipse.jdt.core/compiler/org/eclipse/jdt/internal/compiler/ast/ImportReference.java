@@ -38,16 +38,15 @@ public String toString(int tab, boolean withOnDemand) {
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append("."); //$NON-NLS-1$
+			buffer.append("."/*nonNLS*/);
 		}
 	}
 	if (withOnDemand && onDemand) {
-		buffer.append(".*"); //$NON-NLS-1$
+		buffer.append(".*"/*nonNLS*/);
 	}
 	return buffer.toString();
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, CompilationUnitScope scope) {
 	visitor.visit(this, scope);
-	visitor.endVisit(this, scope);
 }
 }

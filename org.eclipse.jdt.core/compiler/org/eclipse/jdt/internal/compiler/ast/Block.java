@@ -86,9 +86,9 @@ public String toString(int tab) {
 
 	String s = tabString(tab);
 	if (this.statements == null) {
-		s += "{\n"; //$NON-NLS-1$
+		s += "{\n"/*nonNLS*/;
 		s += tabString(tab);
-		s += "}"; //$NON-NLS-1$
+		s += "}"/*nonNLS*/;
 		return s;
 	}
 
@@ -96,22 +96,22 @@ public String toString(int tab) {
 	//				? " { // ---scope needed for "+String.valueOf(explicitDeclarations) +" locals------------ \n"
 	//				: "{// ---NO scope needed------ \n") ;
 
-	s += "{\n"; //$NON-NLS-1$
+	s += "{\n"/*nonNLS*/;
 	s += this.toStringStatements(tab);
 	s += tabString(tab);
-	s += "}"; //$NON-NLS-1$
+	s += "}"/*nonNLS*/;
 	return s;
 }
 public String toStringStatements(int tab) {
 	/* slow code */
- 	if (this.statements == null) return ""; //$NON-NLS-1$
+ 	if (this.statements == null) return ""/*nonNLS*/;
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < statements.length; i++) {
 		buffer.append(statements[i].toString(tab + 1));
 		if (statements[i] instanceof Block){
-			buffer.append("\n"); //$NON-NLS-1$
+			buffer.append("\n"/*nonNLS*/);
 		} else {
-			buffer.append(";\n"); //$NON-NLS-1$
+			buffer.append(";\n"/*nonNLS*/);
 		}
 	};
 	return buffer.toString();

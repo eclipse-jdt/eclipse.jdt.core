@@ -135,7 +135,6 @@ public void connect(IGenericType suppliedType, IGenericType superclass, IGeneric
  * Returns a handle for the given generic type or null if not found.
  */
 protected IType getHandle(IGenericType genericType) {
-	if (genericType == null) return null;
 	if (genericType.isBinaryType()) {
 		IClassFile classFile = (IClassFile)this.infoToHandle.get(genericType);
 		// if it's null, it's from outside the region, so do lookup

@@ -67,7 +67,7 @@ private void buildResourceVector() throws JavaModelException {
 				zipFileName + 
 				JAR_FILE_ENTRY_SEPARATOR + 
 				type.getFullyQualifiedName().replace('.', '/') +
-				".class"; //$NON-NLS-1$
+				".class"/*nonNLS*/;
 			this.resourcePaths.put(resourcePath, resourcePath);
 			paths.put(jar.getPath(), type);
 		} else {

@@ -190,10 +190,10 @@ public class BlocksIndexInput extends IndexInput {
 
 	public void open() throws IOException {
 		if (!opened) {
-			raf= new SafeRandomAccessFile(indexFile, "r"); //$NON-NLS-1$
+			raf= new SafeRandomAccessFile(indexFile, "r"/*nonNLS*/);
 			String sig= raf.readUTF();
 			if (!sig.equals(IIndexConstants.SIGNATURE))
-				throw new IOException(Util.bind("exception.wrongFormat")); //$NON-NLS-1$
+				throw new IOException(Util.bind("exception.wrongFormat"/*nonNLS*/));
 			int summaryBlockNum= raf.readInt();
 			raf.seek(summaryBlockNum * (long) IIndexConstants.BLOCK_SIZE);
 			summary= new IndexSummary();

@@ -36,6 +36,6 @@ public CompletionOnExceptionReference(char[] source, long pos) {
 	super(source, pos);
 }
 public String toStringExpression(int tab) {
-	return "<CompleteOnException:" + new String(token) + ">"; //$NON-NLS-2$ //$NON-NLS-1$
+	return "<CompleteOnException:"/*nonNLS*/ + new String(token) + ">"/*nonNLS*/;
 }
 }

@@ -187,37 +187,37 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	switch (this.evaluationType) {
 		case T_CODE_SNIPPET:
-			buffer.append("Code snippet"); //$NON-NLS-1$
+			buffer.append("Code snippet"/*nonNLS*/);
 			break;
 		case T_IMPORT:
-			buffer.append("Import"); //$NON-NLS-1$
+			buffer.append("Import"/*nonNLS*/);
 			break;
 		case T_INTERNAL:
-			buffer.append("Internal problem"); //$NON-NLS-1$
+			buffer.append("Internal problem"/*nonNLS*/);
 			break;
 		case T_PACKAGE:
-			buffer.append("Package"); //$NON-NLS-1$
+			buffer.append("Package"/*nonNLS*/);
 			break;
 		case T_VARIABLE:
-			buffer.append("Global variable"); //$NON-NLS-1$
+			buffer.append("Global variable"/*nonNLS*/);
 			break;
 	}
-	buffer.append(": "); //$NON-NLS-1$
+	buffer.append(": "/*nonNLS*/);
 	buffer.append(this.evaluationID);
-	buffer.append("\n"); //$NON-NLS-1$
+	buffer.append("\n"/*nonNLS*/);
 	if (hasProblems()) {
-		buffer.append("Problems:\n"); //$NON-NLS-1$
+		buffer.append("Problems:\n"/*nonNLS*/);
 		for (int i = 0; i < this.problems.length; i++) {
 			buffer.append(this.problems[i].toString());
 		}
 	} else {
 		if (hasValue()) {
-			buffer.append("("); //$NON-NLS-1$
+			buffer.append("("/*nonNLS*/);
 			buffer.append(this.typeName);
-			buffer.append(") "); //$NON-NLS-1$
+			buffer.append(") "/*nonNLS*/);
 			buffer.append(this.displayString);
 		} else {
-			buffer.append("(No explicit return value)"); //$NON-NLS-1$
+			buffer.append("(No explicit return value)"/*nonNLS*/);
 		}
 	}
 	return buffer.toString();

@@ -28,6 +28,6 @@ protected TypeCollaboratorIndictment(char[] name) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("TypeIndictment(").append(fName).append(")").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+	return new StringBuffer("TypeIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
 }
 }

@@ -53,14 +53,14 @@ public String getTypeSignature() throws JavaModelException {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (info == null) {
 		buffer.append(getElementName());
-		buffer.append(" (not open)"); //$NON-NLS-1$
+		buffer.append(" (not open)"/*nonNLS*/);
 	} else {
 		try {
 			buffer.append(Signature.toString(this.getTypeSignature()));
-			buffer.append(" "); //$NON-NLS-1$
+			buffer.append(" "/*nonNLS*/);
 			buffer.append(this.getElementName());
 		} catch (JavaModelException e) {
-			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+			buffer.append("<JavaModelException in toString of "/*nonNLS*/ + getElementName());
 		}
 	}
 }

@@ -60,7 +60,7 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 		for (int i= 0, max = parameterTypeNames.length; i < max; i++) {
 			String pkg = IPackageFragment.DEFAULT_PACKAGE_NAME;
 			if (parameterPackageNames[i] != null && parameterPackageNames[i].length > 0) {
-				pkg = new String(parameterPackageNames[i]) + "."; //$NON-NLS-1$
+				pkg = new String(parameterPackageNames[i]) + "."/*nonNLS*/;
 			}
 			parameterTypes[i]= Signature.createTypeSignature(
 				pkg + new String(parameterTypeNames[i]), true);

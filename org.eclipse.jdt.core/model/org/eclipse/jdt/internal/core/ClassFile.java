@@ -33,7 +33,7 @@ public class ClassFile extends Openable implements IClassFile {
 protected ClassFile(IPackageFragment parent, String name) {
 	super(CLASS_FILE, parent, name);
 	if (!Util.isClassFileName(name)) {
-		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName"/*nonNLS*/));
 	}
 }
 /**
@@ -42,7 +42,7 @@ protected ClassFile(IPackageFragment parent, String name) {
 public void codeComplete(int offset, ICodeCompletionRequestor requestor) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
-		BasicCompilationUnit cu = new BasicCompilationUnit(getSource().toCharArray(), getElementName() + ".java"); //$NON-NLS-1$
+		BasicCompilationUnit cu = new BasicCompilationUnit(getSource().toCharArray(), getElementName() + ".java"/*nonNLS*/);
 		codeComplete(cu, cu, offset, requestor);
 	}
 }
@@ -56,7 +56,7 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 		contents = buffer.getCharacters();
 		String name = getElementName();
 		name = name.substring(0, name.length() - 6); // remove ".class"
-		name = name + ".java"; //$NON-NLS-1$
+		name = name + ".java"/*nonNLS*/;
 		BasicCompilationUnit cu = new BasicCompilationUnit(contents, name);
 		return super.codeSelect(cu, offset, length);
 	} else {
@@ -141,7 +141,7 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 				zip = root.getJar();
 				String entryName = getParent().getElementName();
 				entryName = entryName.replace('.', '/');
-				if (entryName.equals("")) { //$NON-NLS-1$
+				if (entryName.equals(""/*nonNLS*/)) {
 					entryName += getElementName();
 				} else {
 					entryName += '/' + getElementName();
@@ -278,7 +278,7 @@ public IType getType() throws JavaModelException {
 public WorkingCopy getWorkingCopy() {
 	String name = getElementName();
 	name = name.substring(0, name.length() - 6); // remove ".class"
-	name = name + ".java"; //$NON-NLS-1$
+	name = name + ".java"/*nonNLS*/;
 	return new WorkingCopy((IPackageFragment) getParent(), name);
 }
 /**

@@ -309,7 +309,7 @@ public char[] readableName() /* foo(int, Thread) */ {
 	if (parameters != NoParameters) {
 		for (int i = 0, length = parameters.length; i < length; i++) {
 			if (i > 0)
-				buffer.append(", "); //$NON-NLS-1$
+				buffer.append(", "/*nonNLS*/);
 			buffer.append(parameters[i].sourceName());
 		}
 	}
@@ -387,35 +387,35 @@ public final void tagForClearingPrivateModifier() {
 	modifiers |= AccClearPrivateModifier;
 }
 public String toString() {
-	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE"; //$NON-NLS-1$
-	s += " "; //$NON-NLS-1$
-	s += (selector != null) ? new String(selector) : "UNNAMED METHOD"; //$NON-NLS-1$
+	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE"/*nonNLS*/;
+	s += " "/*nonNLS*/;
+	s += (selector != null) ? new String(selector) : "UNNAMED METHOD"/*nonNLS*/;
 
-	s += "("; //$NON-NLS-1$
+	s += "("/*nonNLS*/;
 	if (parameters != null) {
 		if (parameters != NoParameters) {
 			for (int i = 0, length = parameters.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "; //$NON-NLS-1$
-				s += (parameters[i] != null) ? parameters[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
+					s += ", "/*nonNLS*/;
+				s += (parameters[i] != null) ? parameters[i].debugName() : "NULL TYPE"/*nonNLS*/;
 			}
 		}
 	} else {
-		s += "NULL PARAMETERS"; //$NON-NLS-1$
+		s += "NULL PARAMETERS"/*nonNLS*/;
 	}
-	s += ") "; //$NON-NLS-1$
+	s += ") "/*nonNLS*/;
 
 	if (thrownExceptions != null) {
 		if (thrownExceptions != NoExceptions) {
-			s += "throws "; //$NON-NLS-1$
+			s += "throws "/*nonNLS*/;
 			for (int i = 0, length = thrownExceptions.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "; //$NON-NLS-1$
-				s += (thrownExceptions[i] != null) ? thrownExceptions[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
+					s += ", "/*nonNLS*/;
+				s += (thrownExceptions[i] != null) ? thrownExceptions[i].debugName() : "NULL TYPE"/*nonNLS*/;
 			}
 		}
 	} else {
-		s += "NULL THROWN EXCEPTIONS"; //$NON-NLS-1$
+		s += "NULL THROWN EXCEPTIONS"/*nonNLS*/;
 	}
 	return s;
 }
