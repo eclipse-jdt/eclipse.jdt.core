@@ -886,18 +886,6 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
 
-	public boolean detectAnnotationCycle(TypeBinding sourceType, TypeBinding annotationElementType, TypeReference reference) {
-		if (!annotationElementType.isAnnotationType()) 
-			return false;
-
-		if (sourceType == annotationElementType) {
-			problemReporter().annotationCircularity(sourceType, annotationElementType, reference);
-			return true;
-		}
-		// TODO (kent) add support for detecting indirect cases using TagBits.BeginAnnotationCheck/EndAnnotationCheck
-		return false;
-	}
-
 	public boolean detectHierarchyCycle(TypeBinding superType, TypeReference reference, TypeBinding[] argTypes) {
 		if (!(superType instanceof ReferenceBinding)) return false;
 
