@@ -170,6 +170,23 @@ public class MethodInvocation extends Expression {
 		return arguments;
 	}
 
+	/**
+	 * Resolves and returns the binding for the method invoked by this
+	 * expression.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 *
+	 * @return the method binding, or <code>null</code> if the binding cannot
+	 * be resolved
+	 * @since 2.1
+	 */
+	public IMethodBinding resolveMethodBinding() {
+		// TODO: missing implementation
+		throw new RuntimeException();
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
