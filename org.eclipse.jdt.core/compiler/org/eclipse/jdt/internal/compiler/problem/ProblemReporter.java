@@ -103,23 +103,33 @@ public void argumentTypeCannotBeVoidArray(SourceTypeBinding type, AbstractMethod
 }
 public void argumentTypeProblem(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, Argument arg, TypeBinding expectedType) {
 	int problemId = expectedType.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.ArgumentTypeNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.ArgumentTypeNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.ArgumentTypeAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.ArgumentTypeInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			this.handle(
-				IProblem.ArgumentProblemBase + problemId,
-				new String[] {new String(methodDecl.selector), arg.name(), new String(expectedType.readableName())},
-				arg.type.sourceStart,
-				arg.type.sourceEnd);
+			id = IProblem.ArgumentTypeInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+	this.handle(
+		id,
+		new String[] {new String(methodDecl.selector), arg.name(), new String(expectedType.readableName())},
+		arg.type.sourceStart,
+		arg.type.sourceEnd);
 }
 public void arrayConstantsOnlyInArrayInitializers(int sourceStart, int sourceEnd) {
 	this.handle(
@@ -336,11 +346,11 @@ public int computeSeverity(int problemId){
 			}
 			return Ignore;
 */
-		case IProblem.ImportProblemBase + NotFound :
-		case IProblem.ImportProblemBase + NotVisible :
-		case IProblem.ImportProblemBase + Ambiguous :
-		case IProblem.ImportProblemBase + InternalNameProvided :
-		case IProblem.ImportProblemBase + InheritedNameHidesEnclosingName :
+		case IProblem.ImportNotFound :
+		case IProblem.ImportNotVisible :
+		case IProblem.ImportAmbiguous :
+		case IProblem.ImportInternalNameProvided :
+		case IProblem.ImportInheritedNameHidesEnclosingName :
 		case IProblem.DuplicateImport :
 		case IProblem.ConflictingImport :
 		case IProblem.CannotImportPackage :
@@ -676,23 +686,33 @@ public void errorThisSuperInStatic(AstNode reference) {
 }
 public void exceptionTypeProblem(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, TypeReference exceptionType, TypeBinding expectedType) {
 	int problemId = expectedType.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.ExceptionTypeNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.ExceptionTypeNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.ExceptionTypeAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.ExceptionTypeInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			this.handle(
-				IProblem.ExceptionTypeProblemBase + problemId,
-				new String[] {new String(methodDecl.selector), new String(expectedType.readableName())},
-				exceptionType.sourceStart,
-				exceptionType.sourceEnd);
+			id = IProblem.ExceptionTypeInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+	this.handle(
+		id,
+		new String[] {new String(methodDecl.selector), new String(expectedType.readableName())},
+		exceptionType.sourceStart,
+		exceptionType.sourceEnd);
 }
 public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 	this.handle(
@@ -703,23 +723,33 @@ public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 }
 public void fieldTypeProblem(SourceTypeBinding type, FieldDeclaration fieldDecl, TypeBinding expectedType) {
 	int problemId = expectedType.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.FieldTypeNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.FieldTypeNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.FieldTypeAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.FieldTypeInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			this.handle(
-				IProblem.FieldTypeProblemBase + problemId,
-				new String[] {fieldDecl.name(), new String(type.sourceName()), new String(expectedType.readableName())},
-				fieldDecl.type.sourceStart,
-				fieldDecl.type.sourceEnd);
+			id = IProblem.FieldTypeInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+	this.handle(
+		id,
+		new String[] {fieldDecl.name(), new String(type.sourceName()), new String(expectedType.readableName())},
+		fieldDecl.type.sourceStart,
+		fieldDecl.type.sourceEnd);
 }
 public void finalMethodCannotBeOverridden(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	this.handle(
@@ -987,29 +1017,35 @@ public void illegalVoidExpression(AstNode location) {
 }
 public void importProblem(ImportReference importRef, Binding expectedImport) {
 	int problemId = expectedImport.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.ImportNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.ImportNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.ImportAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.ImportInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			String argument;
-			if(expectedImport instanceof ProblemReferenceBinding) {
-				argument = CharOperation.toString(((ProblemReferenceBinding)expectedImport).compoundName);
-			} else {
-				argument = CharOperation.toString(importRef.tokens);
-			}
-			this.handle(
-				IProblem.ImportProblemBase + problemId,
-				new String[] {argument},
-				importRef.sourceStart,
-				importRef.sourceEnd);
+			id = IProblem.ImportInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+	String argument;
+	if(expectedImport instanceof ProblemReferenceBinding) {
+		argument = CharOperation.toString(((ProblemReferenceBinding)expectedImport).compoundName);
+	} else {
+		argument = CharOperation.toString(importRef.tokens);
+	}
+	this.handle(id, new String[] {argument}, importRef.sourceStart, importRef.sourceEnd);
 }
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
 	if (type == currentMethod.declaringClass)
@@ -1456,43 +1492,63 @@ public void invalidOperator(UnaryExpression expression, TypeBinding type) {
 }
 public void invalidSuperclass(SourceTypeBinding type, TypeReference superclassRef, ReferenceBinding expectedType) {
 	int problemId = expectedType.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.SuperclassNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.SuperclassNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.SuperclassAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.SuperclassInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			this.handle(
-				IProblem.InvalidSuperclassBase + problemId,
-				new String[] {new String(expectedType.readableName()), new String(type.sourceName())},
-				superclassRef.sourceStart,
-				superclassRef.sourceEnd);
+			id = IProblem.SuperclassInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+	this.handle(
+		id,
+		new String[] {new String(expectedType.readableName()), new String(type.sourceName())},
+		superclassRef.sourceStart,
+		superclassRef.sourceEnd);
 }
 public void invalidSuperinterface(SourceTypeBinding type, TypeReference superinterfaceRef, ReferenceBinding expectedType) {
 	int problemId = expectedType.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.InterfaceNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.InterfaceNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.InterfaceAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.InterfaceInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			this.handle(
-				IProblem.InvalidInterfaceBase + problemId,
-				new String[] {new String(expectedType.readableName()), new String(type.sourceName())},
-				superinterfaceRef.sourceStart,
-				superinterfaceRef.sourceEnd);
+			id = IProblem.InterfaceInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+		this.handle(
+			id,
+			new String[] {new String(expectedType.readableName()), new String(type.sourceName())},
+			superinterfaceRef.sourceStart,
+			superinterfaceRef.sourceEnd);
 }
 public void invalidType(Expression expression, TypeBinding type) {
 	// CODE should be UPDATED according to error coding in the different type binding errors
@@ -1923,23 +1979,33 @@ public void returnTypeCannotBeVoidArray(SourceTypeBinding type, MethodDeclaratio
 }
 public void returnTypeProblem(SourceTypeBinding type, MethodDeclaration methodDecl, TypeBinding expectedType) {
 	int problemId = expectedType.problemId();
+	int id;
 	switch (problemId) {
 		case NotFound : // 1
+			id = IProblem.ReturnTypeNotFound;
+			break;
 		case NotVisible : // 2
+			id = IProblem.ReturnTypeNotVisible;
+			break;
 		case Ambiguous : // 3
+			id = IProblem.ReturnTypeAmbiguous;
+			break;
 		case InternalNameProvided : // 4
+			id = IProblem.ReturnTypeInternalNameProvided;
+			break;
 		case InheritedNameHidesEnclosingName : // 5
-			this.handle(
-				IProblem.ReturnTypeProblemBase + problemId,
-				new String[] {new String(methodDecl.selector), new String(expectedType.readableName())},
-				methodDecl.returnType.sourceStart,
-				methodDecl.returnType.sourceEnd);
+			id = IProblem.ReturnTypeInheritedNameHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
-			break;
+			return;
 	}
+	this.handle(
+		id,
+		new String[] {new String(methodDecl.selector), new String(expectedType.readableName())},
+		methodDecl.returnType.sourceStart,
+		methodDecl.returnType.sourceEnd);
 }
 public void scannerError(Parser parser, String errorTokenName) {
 	Scanner scanner = parser.scanner;

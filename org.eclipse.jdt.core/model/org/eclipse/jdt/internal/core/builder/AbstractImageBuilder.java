@@ -316,16 +316,16 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 			case IProblem.HierarchyCircularitySelfReference :
 			case IProblem.HierarchyCircularity :
 			case IProblem.HierarchyHasProblems :
-			case IProblem.InvalidSuperclassBase :
-			case IProblem.InvalidSuperclassBase + 1 :
-			case IProblem.InvalidSuperclassBase + 2 :
-			case IProblem.InvalidSuperclassBase + 3 :
-			case IProblem.InvalidSuperclassBase + 4 :
-			case IProblem.InvalidInterfaceBase :
-			case IProblem.InvalidInterfaceBase + 1 :
-			case IProblem.InvalidInterfaceBase + 2 :
-			case IProblem.InvalidInterfaceBase + 3 :
-			case IProblem.InvalidInterfaceBase + 4 :
+			case IProblem.SuperclassNotFound :
+			case IProblem.SuperclassNotVisible :
+			case IProblem.SuperclassAmbiguous :
+			case IProblem.SuperclassInternalNameProvided :
+			case IProblem.SuperclassInheritedNameHidesEnclosingName :
+			case IProblem.InterfaceNotFound :
+			case IProblem.InterfaceNotVisible :
+			case IProblem.InterfaceAmbiguous :
+			case IProblem.InterfaceInternalNameProvided :
+			case IProblem.InterfaceInheritedNameHidesEnclosingName :
 				// ensure that this file is always retrieved from source for the rest of the build
 				String fileLocation = resource.getLocation().toString();
 				if (!problemTypeLocations.contains(fileLocation))

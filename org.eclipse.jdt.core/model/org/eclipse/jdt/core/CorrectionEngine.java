@@ -122,28 +122,28 @@ public class CorrectionEngine implements ProblemReasons {
 		try {
 			switch (id) {
 				// Type correction
-				case IProblem.FieldTypeProblemBase + NotFound :
-				case IProblem.ArgumentProblemBase + NotFound :
+				case IProblem.FieldTypeNotFound :
+				case IProblem.ArgumentTypeNotFound :
 					filter = CLASSES | INTERFACES;
 					argument = arguments[2];
 					break;
-				case IProblem.InvalidSuperclassBase + NotFound :
+				case IProblem.SuperclassNotFound :
 					filter = CLASSES;
 					argument = arguments[0];
 					break;
-				case IProblem.InvalidInterfaceBase + NotFound :
+				case IProblem.InterfaceNotFound :
 					filter = INTERFACES;
 					argument = arguments[0];
 					break;
-				case IProblem.ExceptionTypeProblemBase + NotFound :
+				case IProblem.ExceptionTypeNotFound :
 					filter = CLASSES;
 					argument = arguments[1];
 					break;
-				case IProblem.ReturnTypeProblemBase + NotFound :
+				case IProblem.ReturnTypeNotFound :
 					filter = CLASSES | INTERFACES;
 					argument = arguments[1];
 					break;
-				case IProblem.ImportProblemBase + NotFound :
+				case IProblem.ImportNotFound :
 					filter = IMPORT;
 					argument = arguments[0];
 					break;

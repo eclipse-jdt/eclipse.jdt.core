@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.compiler.problem;
 import org.eclipse.jdt.internal.compiler.*;
 
 public interface ProblemSeverities {
+	
 	final int Ignore = -1; // during handling only
 	final int Warning = 0; // during handling only
 

@@ -279,15 +279,15 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
 						packageName = splitDeclaration[splitLength - 2];
 				}
 				if (!environment.isPackage(parentName, packageName)) {
-					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 				}
 			} else {
 				if (environment.findType(splitDeclaration) == null) {
-					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 				}
 			}
 		} else {
-			problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportProblemBase + ProblemReasons.NotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+			problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, new String[] {new String(importDeclaration)}, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 		}
 		if (problems[0] != null) {
 			requestor.acceptProblem(problems[0], importDeclaration, EvaluationResult.T_IMPORT);

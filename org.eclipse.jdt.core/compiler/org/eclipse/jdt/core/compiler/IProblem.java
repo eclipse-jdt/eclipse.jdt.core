@@ -5,6 +5,7 @@ package org.eclipse.jdt.core.compiler;
  */
  
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 
 public interface IProblem { 
 	
@@ -217,9 +218,20 @@ public interface IProblem {
 	final int MustSpecifyPackage = 326;
 	final int HierarchyHasProblems = TypeRelated + 327;
 	final int PackageIsNotExpectedPackage = 328;
-	final int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
 
-	final int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
+	// final int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
+	final int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
+	final int SuperclassNotVisible =  TypeRelated + 329 + ProblemReasons.NotVisible; // TypeRelated + 331
+	final int SuperclassAmbiguous =  TypeRelated + 329 + ProblemReasons.Ambiguous; // TypeRelated + 332
+	final int SuperclassInternalNameProvided =  TypeRelated + 329 + ProblemReasons.InternalNameProvided; // TypeRelated + 333
+	final int SuperclassInheritedNameHidesEnclosingName =  TypeRelated + 329 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 334
+
+	// final int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
+	final int InterfaceNotFound =  TypeRelated + 334 + ProblemReasons.NotFound; // TypeRelated + 335
+	final int InterfaceNotVisible =  TypeRelated + 334 + ProblemReasons.NotVisible; // TypeRelated + 336
+	final int InterfaceAmbiguous =  TypeRelated + 334 + ProblemReasons.Ambiguous; // TypeRelated + 337
+	final int InterfaceInternalNameProvided =  TypeRelated + 334 + ProblemReasons.InternalNameProvided; // TypeRelated + 338
+	final int InterfaceInheritedNameHidesEnclosingName =  TypeRelated + 334 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 339
 
 	// field related problems
 	final int DuplicateField = FieldRelated + 340;
@@ -229,8 +241,14 @@ public interface IProblem {
 	final int IllegalVisibilityModifierCombinationForField = FieldRelated + 344;
 	final int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
 	final int UnexpectedStaticModifierForField = FieldRelated + 346;
-	final int FieldTypeProblemBase = FieldRelated + 349; //reserved to 354
 
+	// final int FieldTypeProblemBase = FieldRelated + 349; //reserved to 354
+	final int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350
+	final int FieldTypeNotVisible =  FieldRelated + 349 + ProblemReasons.NotVisible; // FieldRelated + 351
+	final int FieldTypeAmbiguous =  FieldRelated + 349 + ProblemReasons.Ambiguous; // FieldRelated + 352
+	final int FieldTypeInternalNameProvided =  FieldRelated + 349 + ProblemReasons.InternalNameProvided; // FieldRelated + 353
+	final int FieldTypeInheritedNameHidesEnclosingName =  FieldRelated + 349 + ProblemReasons.InheritedNameHidesEnclosingName; // FieldRelated + 354
+	
 	// method related problems
 	final int DuplicateMethod = MethodRelated + 355;
 	final int IllegalModifierForArgument = MethodRelated + 356;
@@ -245,18 +263,40 @@ public interface IProblem {
 	final int ArgumentTypeCannotBeVoidArray = MethodRelated + 365;
 	final int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
 	final int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
-	final int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
 
-	final int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
+	//	final int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
+	final int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
+	final int ArgumentTypeNotVisible =  MethodRelated + 369 + ProblemReasons.NotVisible; // MethodRelated + 371
+	final int ArgumentTypeAmbiguous =  MethodRelated + 369 + ProblemReasons.Ambiguous; // MethodRelated + 372
+	final int ArgumentTypeInternalNameProvided =  MethodRelated + 369 + ProblemReasons.InternalNameProvided; // MethodRelated + 373
+	final int ArgumentTypeInheritedNameHidesEnclosingName =  MethodRelated + 369 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 374
 
-	final int ReturnTypeProblemBase = MethodRelated + 379; // reserved to 384 included.
+	//	final int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
+	final int ExceptionTypeNotFound =  MethodRelated + 374 + ProblemReasons.NotFound; // MethodRelated + 375
+	final int ExceptionTypeNotVisible =  MethodRelated + 374 + ProblemReasons.NotVisible; // MethodRelated + 376
+	final int ExceptionTypeAmbiguous =  MethodRelated + 374 + ProblemReasons.Ambiguous; // MethodRelated + 377
+	final int ExceptionTypeInternalNameProvided =  MethodRelated + 374 + ProblemReasons.InternalNameProvided; // MethodRelated + 378
+	final int ExceptionTypeInheritedNameHidesEnclosingName =  MethodRelated + 374 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 379
+
+	//	final int ReturnTypeProblemBase = MethodRelated + 379;
+	final int ReturnTypeNotFound =  MethodRelated + 379 + ProblemReasons.NotFound; // MethodRelated + 380
+	final int ReturnTypeNotVisible =  MethodRelated + 379 + ProblemReasons.NotVisible; // MethodRelated + 381
+	final int ReturnTypeAmbiguous =  MethodRelated + 379 + ProblemReasons.Ambiguous; // MethodRelated + 382
+	final int ReturnTypeInternalNameProvided =  MethodRelated + 379 + ProblemReasons.InternalNameProvided; // MethodRelated + 383
+	final int ReturnTypeInheritedNameHidesEnclosingName =  MethodRelated + 379 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 384
 
 	// import related problems
 	final int ConflictingImport = ImportRelated + 385;
 	final int DuplicateImport = ImportRelated + 386;
 	final int CannotImportPackage = ImportRelated + 387;
-	final int ImportProblemBase = ImportRelated + 389; // reserved to 394 included.
 
+	//	final int ImportProblemBase = ImportRelated + 389;
+	final int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
+	final int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
+	final int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
+	final int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
+	final int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
+		
 	// local variable related problems
 	final int DuplicateModifierForVariable = MethodRelated + 395;
 	final int IllegalModifierForVariable = MethodRelated + 396;
@@ -312,11 +352,6 @@ public interface IProblem {
 	 */
 	char[] getOriginatingFileName();
 	
-	/**
-	 * Answer the severity of the problem.
-	 */
-	int getSeverity();
-
 	/**
 	 * Answer the end position of the problem (inclusive), or -1 if unknown.
 	 */

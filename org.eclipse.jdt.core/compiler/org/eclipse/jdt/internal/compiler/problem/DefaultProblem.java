@@ -155,15 +155,6 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 	}
 
 	/**
-	 * Answer the severity of the problem.
-	 * @return int
-	 */
-	public int getSeverity() {
-
-		return severity;
-	}
-
-	/**
 	 * Answer the end position of the problem (inclusive), or -1 if unknown.
 	 * @return int
 	 */
