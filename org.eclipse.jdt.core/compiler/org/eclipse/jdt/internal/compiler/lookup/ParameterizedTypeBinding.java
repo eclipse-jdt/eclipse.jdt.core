@@ -31,6 +31,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.environment = environment;
 		initialize(type, arguments);
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
+
+		if (type instanceof UnresolvedReferenceBinding)
+			((UnresolvedReferenceBinding) type).addWrapper(this);
+		for (int i = 0, l = arguments == null ? 0 : arguments.length; i < l; i++)
+			if (arguments[i] instanceof UnresolvedReferenceBinding)
+				((UnresolvedReferenceBinding) arguments[i]).addWrapper(this);
 	}
 	
 	/**
@@ -289,14 +295,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.fPackage = someType.fPackage;
 		this.fileName = someType.fileName;
 		// expect the fields & methods to be initialized correctly later
+		this.superclass = null; // recomputed when needed
+		this.superInterfaces = null;
 		this.fields = null;
 		this.methods = null;		
 		this.modifiers = someType.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
 		if (someArguments != null) {
-			this.arguments =someArguments;
-			for (int i = 0, length =someArguments.length; i < length; i++) {
-			    this.tagBits |= (someArguments[i].tagBits & (HasTypeVariable|HasWildcard));
-			}
+			this.arguments = someArguments;
+			for (int i = 0, length = someArguments.length; i < length; i++)
+			    this.tagBits |= someArguments[i].tagBits & (HasTypeVariable | HasWildcard);
 		}	    
 	}
 	
@@ -388,16 +395,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	ReferenceBinding resolve() {
-		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
+		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
 		int argLength = this.arguments.length;
-		for (int i = 0; i < argLength; i++) {
-		   BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
-		}
+		for (int i = 0; i < argLength; i++)
+			BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
 		// arity check
 		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic
 			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, this.arguments);
-			return type;
+			return type; // TODO (philippe) what do you expect this to be? is it not == resolvedType?
 		} else if (argLength != refTypeVariables.length) { // check arity
 			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
 			return type;
@@ -411,7 +417,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
@@ -535,6 +541,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	    	this.superInterfaces = substitute(this.type.superInterfaces());
 	    }
 		return this.superInterfaces;
+	}
+
+	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+		boolean update = false;
+		if (this.type == unresolvedType) {
+			this.type = resolvedType;
+			update = true;
+		}
+		if (this.arguments != null) {
+			for (int i = 0, l = this.arguments.length; i < l; i++) {
+				if (this.arguments[i] == unresolvedType) {
+					this.arguments[i] = resolvedType;
+					update = true;
+				}
+			}
+		}
+		if (update)
+			initialize(this.type, this.arguments);
 	}
 
 	/**

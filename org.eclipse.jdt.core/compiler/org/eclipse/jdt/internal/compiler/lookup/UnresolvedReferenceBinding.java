@@ -15,30 +15,44 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 public class UnresolvedReferenceBinding extends ReferenceBinding {
 
 ReferenceBinding resolvedType;
+TypeBinding[] wrappers;
 
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
+	this.wrappers = null;
+}
+void addWrapper(TypeBinding wrapper) {
+	if (this.wrappers == null) {
+		this.wrappers = new TypeBinding[] {wrapper};
+	} else {
+		int length = this.wrappers.length;
+		System.arraycopy(this.wrappers, 0, this.wrappers = new TypeBinding[length + 1], 0, length);
+		this.wrappers[length] = wrapper;
+	}
 }
 public String debugName() {
 	return toString();
 }
 ReferenceBinding resolve(LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
-	if (resolvedType != null) return resolvedType;
+	if (this.resolvedType != null) return this.resolvedType;
 
-	ReferenceBinding environmentType = fPackage.getType0(compoundName[compoundName.length - 1]);
+	ReferenceBinding environmentType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
 	if (environmentType == this)
-		environmentType = environment.askForType(compoundName);
+		environmentType = environment.askForType(this.compoundName);
 	if (environmentType != null && environmentType != this) { // could not resolve any better, error was already reported against it
-		resolvedType = environmentType;
+		this.resolvedType = environmentType;
 		// must ensure to update any other type bindings that can contain the resolved type
 		// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
+		if (this.wrappers != null)
+			for (int i = 0, l = this.wrappers.length; i < l; i++)
+				this.wrappers[i].swapUnresolved(this, environmentType);
 		environment.updateCaches(this, environmentType);
 		return environmentType; // when found, it replaces the unresolved type in the cache
 	}
 
-	environment.problemReporter.isClassPathCorrect(compoundName, null);
+	environment.problemReporter.isClassPathCorrect(this.compoundName, null);
 	return null; // will not get here since the above error aborts the compilation
 }
 public String toString() {

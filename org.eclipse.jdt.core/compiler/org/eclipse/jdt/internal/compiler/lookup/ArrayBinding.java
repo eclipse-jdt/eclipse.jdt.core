@@ -26,6 +26,9 @@ public ArrayBinding(TypeBinding type, int dimensions) {
 	this.tagBits |= IsArrayType;
 	this.leafComponentType = type;
 	this.dimensions = dimensions;
+
+	if (type instanceof UnresolvedReferenceBinding)
+		((UnresolvedReferenceBinding) type).addWrapper(this);
 }
 /**
  * Answer the receiver's constant pool name.
@@ -150,6 +153,10 @@ public char[] sourceName() {
 		brackets[i - 1] = '[';
 	}
 	return CharOperation.concat(leafComponentType.sourceName(), brackets);
+}
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+	if (this.leafComponentType == unresolvedType)
+		this.leafComponentType = resolvedType;
 }
 public String toString() {
 	return leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$

@@ -174,6 +174,8 @@ public char[] signature() {
 
 public abstract char[] sourceName();
 
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+}
 /**
  * Match a well-known type id to its binding
  */

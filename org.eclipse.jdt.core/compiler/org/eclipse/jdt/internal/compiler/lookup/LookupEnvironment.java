@@ -724,22 +724,7 @@ public void reset() {
 }
 void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
 	// walk all the unique collections & replace the unresolvedType with the resolvedType
-	// must prevent 2 entries, 1 containing the unresolvedType and the other containing the resolvedType
-	nextDimension : for (int i = 0, length = uniqueArrayBindings.length; i < length; i++) {
-		ArrayBinding[] arrayBindings = uniqueArrayBindings[i];
-		if (arrayBindings != null) {
-			for (int j = 0, max = arrayBindings.length; j < max; j++) {
-				ArrayBinding currentBinding = arrayBindings[j];
-				if (currentBinding == null)
-					continue nextDimension;
-				if (currentBinding.leafComponentType == unresolvedType) {
-					currentBinding.leafComponentType = resolvedType;
-					continue nextDimension;
-				}
-			}
-		}
-	}
-
+	// must prevent 2 entries so == still works (1 containing the unresolvedType and the other containing the resolvedType)
 	if (uniqueParameterizedTypeBindings.get(unresolvedType) != null) { // update the key
 		Object[] keys = uniqueParameterizedTypeBindings.keyTable;
 		for (int i = 0, l = keys.length; i < l; i++) {
@@ -749,37 +734,9 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 			}
 		}
 	}
-	Object[] values = uniqueParameterizedTypeBindings.valueTable;
-	for (int i = 0, l = values.length; i < l; i++) {
-		if (values[i] != null) {
-			ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[]) values[i];
-			boolean didUpdate = false;
-			for (int j = 0, m = cachedInfo.length; j < m; j++) {
-				ParameterizedTypeBinding cachedType = cachedInfo[j];
-				if (cachedType.type == unresolvedType) {
-					cachedType.type = resolvedType;
-					didUpdate = true;
-				}
-				TypeBinding[] cachedArguments = cachedType.arguments;
-				if (cachedArguments != null)
-					for (int k = 0, n = cachedArguments.length; k < n; k++)
-						if (cachedArguments[k] == unresolvedType) {
-							cachedArguments[k] = resolvedType;
-							didUpdate = true;
-						}
-				if (didUpdate) cachedType.initialize(cachedType.type, cachedType.arguments);
-//				if (cachedType.superclass == unresolvedType)
-//					cachedType.superclass = resolvedType;
-//				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
-//				if (cachedInterfaces != null)
-//					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
-//						if (cachedInterfaces[k] == unresolvedType)
-//							cachedInterfaces[k] = resolvedType;
-			}
-		}
-	}
 
 // TODO (kent) we should be recreating unresolved raw bindings from binaries (in case no generic signature and referencing a generic type)
+// TODO (philippe) what????
 //	if (uniqueRawTypeBindings.get(unresolvedType) != null) { // update the key
 //		Object[] keys = uniqueRawTypeBindings.keyTable;
 //		for (int i = 0, l = keys.length; i < l; i++) {
@@ -804,26 +761,6 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 			if (keys[i] == unresolvedType) {
 				keys[i] = resolvedType; // hashCode is based on compoundName so this works
 				break;
-			}
-		}
-	}
-	values = uniqueWildcardBindings.valueTable;
-	for (int i = 0, l = values.length; i < l; i++) {
-		if (values[i] != null) {
-			WildcardBinding[] cachedInfo = (WildcardBinding[]) values[i];
-			for (int j = 0, m = cachedInfo.length; j < m; j++) {
-				WildcardBinding cachedType = cachedInfo[j];
-				if (cachedType == null) continue;
-				if (cachedType.bound == unresolvedType) {
-					cachedType.initialize(resolvedType);
-				}
-//				if (cachedType.superclass == unresolvedType)
-//					cachedType.superclass = resolvedType;
-//				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
-//				if (cachedInterfaces != null)
-//					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
-//						if (cachedInterfaces[k] == unresolvedType)
-//							cachedInterfaces[k] = resolvedType;
 			}
 		}
 	}

@@ -36,6 +36,9 @@ public class WildcardBinding extends ReferenceBinding {
 		this.tagBits |= HasWildcard;
 		this.environment = environment;
 		initialize(bound);
+
+		if (bound instanceof UnresolvedReferenceBinding)
+			((UnresolvedReferenceBinding) bound).addWrapper(this);
 	}
 
 	/**
@@ -81,7 +84,11 @@ public class WildcardBinding extends ReferenceBinding {
     
 	void initialize(TypeBinding someBound) {
 		this.bound = someBound;
-		if (someBound != null) this.fPackage = someBound.getPackage();
+		if (someBound != null) {
+			this.fPackage = someBound.getPackage();
+			this.superclass = null; // recomputed when needed
+			this.superInterfaces = null;
+		}
 	}
 	
 	/**
@@ -191,17 +198,12 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding superclass() {
 		if (this.superclass == null) {
-		    TypeBinding superType = this.bound;
-		    if (this.kind == Wildcard.UNBOUND) {
-		   		TypeVariableBinding boundVariable = (TypeVariableBinding) superType;
-		   		superType = boundVariable.firstBound;
-		   		if (superType == null) environment.getType(JAVA_LANG_OBJECT);
-		    }
-		    if (superType.isClass()) {
-		        this.superclass = (ReferenceBinding) superType;
-		    } else {
-		        this.superclass = environment.getType(JAVA_LANG_OBJECT);
-		    }
+			TypeBinding superType = this.bound;
+			if (this.kind == Wildcard.UNBOUND)
+				superType = ((TypeVariableBinding) superType).firstBound;
+			this.superclass = superType != null && superType.isClass()
+				? (ReferenceBinding) superType
+				: environment.getType(JAVA_LANG_OBJECT);
 		}
 		return this.superclass;
     }
@@ -211,19 +213,21 @@ public class WildcardBinding extends ReferenceBinding {
     public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {
 		    TypeBinding superType = this.bound;
-		    if (this.kind == Wildcard.UNBOUND) {
-		   		TypeVariableBinding boundVariable = (TypeVariableBinding) superType;
-		   		superType = boundVariable.firstBound;
-		   		if (superType == null) environment.getType(JAVA_LANG_OBJECT);
-		    }
-            if (superType.isInterface()) {
-                this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) superType };
-            } else {
-                this.superInterfaces = NoSuperInterfaces;
-            }
+			if (this.kind == Wildcard.UNBOUND)
+				superType = ((TypeVariableBinding) superType).firstBound;
+			this.superInterfaces = superType != null && superType.isInterface()
+				? new ReferenceBinding[] { (ReferenceBinding) superType }
+				: NoSuperInterfaces;
         }
         return this.superInterfaces;
     }
+
+	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+		if (this.bound == unresolvedType) {
+			this.bound = resolvedType;
+			initialize(this.bound);
+		}
+	}
 
 	/**
 	 * @see java.lang.Object#toString()
