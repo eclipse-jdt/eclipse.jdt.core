@@ -15,11 +15,8 @@ public class FileSystem implements INameEnvironment  {
 	String[] knownFileNames;
 
 	interface Classpath {
-		boolean exists(String filename, char[][] packageName);
-		long lastModified(String filename, char[][] packageName);
-		NameEnvironmentAnswer readClassFile(String filename, char[][] packageName);
-		NameEnvironmentAnswer readJavaFile(String filename, char[][] packageName);
-		boolean isPackage(char[][] compoundName, char[] packageName); 
+		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
+		boolean isPackage(String qualifiedPackageName); 
 		/**
 		 * This method resets the environment. The resulting state is equivalent to
 		 * a new name environment without creating a new object.
@@ -45,7 +42,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
 				}
 			} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
-				classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
+				classpaths[i] = this.getClasspathJar(file, true); // will throw an IOException if file does not exist
 				pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
 			}
 		} catch (IOException e) {
@@ -84,83 +81,53 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 			knownFileNames[i] = fileName.substring(matchingPathName.length());
 	}
 }
-static String assembleName(char[] fileName, char[][] packageName, char separator) {
-	return new String(CharOperation.concatWith(packageName, fileName, separator));
-}
-static String assembleName(String fileName, char[][] packageName, char separator) {
-	return new String(
-		CharOperation.concatWith(
-			packageName,
-			fileName == null ? null : fileName.toCharArray(),
-			separator));
+public void cleanup() {
+	for (int i = 0, max = classpaths.length; i < max; i++)
+		classpaths[i].reset();
 }
 private String convertPathSeparators(String path) {
-	if (File.separatorChar == '/')
-		return path.replace('\\', '/');
-	else
-		return path.replace('/', '\\');
+	return File.separatorChar == '/'
+		? path.replace('\\', '/')
+		 : path.replace('/', '\\');
 }
-private NameEnvironmentAnswer findClass(char[] name, char[][] packageName) {
-	String fullName = assembleName(name, packageName, File.separatorChar);
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName){
 	for (int i = 0, length = knownFileNames.length; i < length; i++)
-		if (fullName.equals(knownFileNames[i]))
+		if (qualifiedTypeName.equals(knownFileNames[i]))
 			return null; // looking for a file which we know was provided at the beginning of the compilation
 
-	String filename = new String(name);
-	String binaryFilename = filename + ".class"; //$NON-NLS-1$
-	String sourceFilename = filename + ".java"; //$NON-NLS-1$
+	String qualifiedBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
+	String qualifiedPackageName =
+		qualifiedTypeName.length() == typeName.length
+			? "" //$NON-NLS-1$
+			: qualifiedBinaryFileName.substring(0, qualifiedTypeName.length() - typeName.length - 1);
 	for (int i = 0, length = classpaths.length; i < length; i++) {
-		Classpath classpath = classpaths[i];
-		boolean binaryExists = classpath.exists(binaryFilename, packageName);
-		boolean sourceExists = classpath.exists(sourceFilename, packageName);
-		if (binaryExists == sourceExists) {
-			if (binaryExists) { // so both are true
-				long binaryModified = classpath.lastModified(binaryFilename, packageName);
-				long sourceModified = classpath.lastModified(sourceFilename, packageName);
-				if (binaryModified > sourceModified)
-					return classpath.readClassFile(binaryFilename, packageName);
-				if (sourceModified > 0)
-					return classpath.readJavaFile(sourceFilename, packageName);
-			}
-		} else {
-			if (binaryExists)
-				return classpath.readClassFile(binaryFilename, packageName);
-			else
-				return classpath.readJavaFile(sourceFilename, packageName);
-		}
+		NameEnvironmentAnswer answer = classpaths[i].findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
+		if (answer != null) return answer;
 	}
-	return null; 
+	return null;
 }
 public NameEnvironmentAnswer findType(char[][] compoundName) {
-	if (compoundName == null)
-		return null;
-	else
+	if (compoundName != null)
 		return findClass(
-			compoundName[compoundName.length - 1],
-			CharOperation.subarray(compoundName, 0, compoundName.length - 1));
+			new String(CharOperation.concatWith(compoundName, File.separatorChar)),
+			compoundName[compoundName.length - 1]);
+	return null;
 }
-public ClasspathJar getClasspathJar(File file) throws IOException {
-	return new ClasspathJar(new ZipFile(file));
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+	if (typeName != null)
+		return findClass(
+			new String(CharOperation.concatWith(packageName, typeName, File.separatorChar)),
+			typeName);
+	return null;
 }
-public NameEnvironmentAnswer findType(char[] name, char[][] compoundName) {
-	if (name == null)
-		return null;
-	else
-		return findClass(name, compoundName);
+public ClasspathJar getClasspathJar(File file, boolean closeZipFileAtEnd) throws IOException {
+	return new ClasspathJar(new ZipFile(file), closeZipFileAtEnd);
 }
 public boolean isPackage(char[][] compoundName, char[] packageName) {
-	if (compoundName == null)
-		compoundName = new char[0][];
-
+	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, File.separatorChar));
 	for (int i = 0, length = classpaths.length; i < length; i++)
-		if (classpaths[i].isPackage(compoundName, packageName))
+		if (classpaths[i].isPackage(qualifiedPackageName))
 			return true;
 	return false;
-}
-
-public void cleanup() {
-	for (int i = 0, max = classpaths.length; i < max; i++) {
-		classpaths[i].reset();
-	}
 }
 }
