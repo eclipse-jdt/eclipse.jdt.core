@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 
 import junit.framework.*;
 
