@@ -6728,8 +6728,34 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Unnecessary cast to type Class<? extends Object> for expression of type Class\n" + 
 			"----------\n");
 	}		
-	// TODO (kent) simple covariance cases
 	public void test243() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public X foo() {\n" +
+				"        System.out.println(\"Did NOT add bridge method\");\n" +
+				"        return this;\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        X x = new A();\n" +
+				"        x.foo();\n" +
+				"        System.out.print(\" + \");\n" +
+				"        I i = new A();\n" +
+				"        i.foo();\n" +
+				"    }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"    public I foo();\n" +
+				"}\n" +
+				"class A extends X implements I {\n" +
+				"    public A foo() {\n" +
+				"        System.out.print(\"Added bridge method\");\n" +
+				"        return this;\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"Added bridge method + Added bridge method");
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
