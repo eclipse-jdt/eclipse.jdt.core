@@ -66,15 +66,6 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 boolean areReturnTypesEqual(MethodBinding one, MethodBinding two) {
 	return areTypesEqual(one.returnType, two.returnType);
 }
-boolean canSkipInheritedMethods() {
-	if (this.type.superclass() != null && this.type.superclass().isAbstract())
-		return false;
-	return this.type.superInterfaces() == NoSuperInterfaces;
-}
-boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
-	return two == null // already know one is not null
-		|| one.declaringClass == two.declaringClass;
-}
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
 
@@ -88,6 +79,15 @@ boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 		return ((UnresolvedReferenceBinding) two).resolvedType == one;
 	return false; // all other type bindings are identical
 }
+boolean canSkipInheritedMethods() {
+	if (this.type.superclass() != null && this.type.superclass().isAbstract())
+		return false;
+	return this.type.superInterfaces() == NoSuperInterfaces;
+}
+boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
+	return two == null // already know one is not null
+		|| one.declaringClass == two.declaringClass;
+}
 void checkAbstractMethod(MethodBinding abstractMethod) {
 	if (mustImplementAbstractMethod(abstractMethod.declaringClass)) {
 		TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
@@ -99,7 +99,7 @@ void checkAbstractMethod(MethodBinding abstractMethod) {
 		}
 	}
 }
-void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
+void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length, MethodBinding[] otherInheritedMethods) {
 	boolean isAnnotationMember = this.type.isAnnotationType();
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
@@ -148,7 +148,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 					problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
 				}
 			}
-			checkForBridgeMethod(currentMethod, inheritedMethod);
+			checkForBridgeMethod(currentMethod, inheritedMethod, otherInheritedMethods);
 		}
 	}
 }
@@ -170,7 +170,13 @@ void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMethod) {
 				problemReporter(newMethod).incompatibleExceptionInThrowsClause(this.type, newMethod, inheritedMethod, newException);
 	}
 }
-void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] otherInheritedMethods) {
+	// no op before 1.5
+}
+void checkForInheritedNameClash(MethodBinding inheritedMethod, MethodBinding otherInheritedMethod) {
+	// no op before 1.5
+}
+void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// no op before 1.5
 }
 void checkInheritedMethods(MethodBinding[] methods, int length) {
@@ -275,11 +281,13 @@ void checkMethods() {
 						if (areMethodsEqual(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
 							inherited[j] = null; // do not want to find it again
+						} else {
+							checkForNameClash(currentMethod, inheritedMethod);
 						}
 					}
 				}
 				if (index >= 0)
-					checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1); // pass in the length of matching
+					checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1, inherited); // pass in the length of matching
 			}
 		}
 
@@ -296,6 +304,8 @@ void checkMethods() {
 					if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
 						matchingInherited[++index] = otherInheritedMethod;
 						inherited[j] = null; // do not want to find it again
+					} else {
+						checkForInheritedNameClash(inheritedMethod, otherInheritedMethod);
 					}
 				}
 			}
@@ -500,7 +510,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	return inheritedMethod;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	return areReturnTypesEqual(method, inheritedMethod) && areParametersEqual(method, inheritedMethod);
+	return areReturnTypesEqual(method, inheritedMethod) && areMethodsEqual(method, inheritedMethod);
 }
 public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inheritedMethod) {
 	return method.returnType != inheritedMethod.returnType

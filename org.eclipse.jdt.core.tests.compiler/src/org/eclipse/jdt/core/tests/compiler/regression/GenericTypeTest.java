@@ -7750,7 +7750,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	public void putAll(Map<String, ? extends V> t) { }\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method putAll(Map<String,? extends V>) of type X<V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<String,V> but does not override it\n" + 
+			"Name clash: The method putAll(Map<String,? extends V>) of type X<V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<K,V> but does not override it\n" + 
 			"----------\n");
 		this.runConformTest(
 			new String[] {
@@ -7771,7 +7771,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public void putAll(java.util.Map<? extends String, ? extends V> t) { }\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method putAll(Map<? extends String,? extends V>) of type X<S,V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<S,V> but does not override it\n" + 
+			"Name clash: The method putAll(Map<? extends String,? extends V>) of type X<S,V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<K,V> but does not override it\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74244
@@ -10575,7 +10575,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 34)\n" + 
 			"	public <J extends I> void mm(M1<J> q) { \n" + 
 			"	                          ^^^^^^^^^^^\n" + 
-			"Name clash: The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<I> but does not override it\n" + 
+			"Name clash: The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<H> but does not override it\n" + 
 			"----------\n"
 		);
 	}			
@@ -11570,9 +11570,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 		"SUCCESS");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80083
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80765
 	public void test435() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"Test.java",//===============================
 				"import java.lang.reflect.InvocationTargetException;\n" + 
@@ -11671,7 +11671,20 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" + 
 				"}\n",
 			},
-		"*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success");
+			"----------\n" + 
+			"1. ERROR in orders\\impl\\IntegerOrder2.java (at line 10)\r\n" + 
+			"	public Comparable previous(Comparable arg0) {\r\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method previous(Comparable) of type IntegerOrder2 has the same erasure as previous(E) of type DiscreteOrder<E> but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in orders\\impl\\IntegerOrder2.java (at line 14)\r\n" + 
+			"	public Comparable next(Comparable arg0) {\r\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method next(Comparable) of type IntegerOrder2 has the same erasure as next(E) of type DiscreteOrder<E> but does not override it\n" + 
+			"----------\n"
+			// "*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success"
+			// name clash: next(java.lang.Comparable) in orders.impl.IntegerOrder2 and next(E) in orders.DiscreteOrder<java.lang.Integer> have the same erasure, yet neither overrides the other
+		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
 	public void test436() {
