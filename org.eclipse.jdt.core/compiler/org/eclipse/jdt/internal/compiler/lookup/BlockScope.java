@@ -103,8 +103,8 @@ public class BlockScope extends Scope {
 		} while ((scope = scope.parent) instanceof BlockScope);
 
 		ClassScope localTypeScope = new ClassScope(this, localType);
-		localTypeScope.buildLocalTypeBinding(enclosingSourceType());
 		addSubscope(localTypeScope);
+		localTypeScope.buildLocalTypeBinding(enclosingSourceType());
 	}
 
 	/* Insert a local variable into a given scope, updating its position
