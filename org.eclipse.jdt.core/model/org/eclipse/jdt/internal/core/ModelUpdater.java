@@ -160,7 +160,7 @@ public class ModelUpdater {
 	public void processJavaDelta(IJavaElementDelta delta) {
 
 		if (DeltaProcessor.VERBOSE){
-			System.out.println("UPDATING Model with Delta: ["+Thread.currentThread()+":" + delta + "]:");//$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("UPDATING Model with Delta: ["+Thread.currentThread()+":" + delta + "]:");//$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 		try {

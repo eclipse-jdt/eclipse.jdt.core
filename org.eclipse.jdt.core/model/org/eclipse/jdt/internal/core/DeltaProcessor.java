@@ -424,19 +424,19 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 							PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
 							if (status == EXTERNAL_JAR_ADDED){
 								if (VERBOSE){
-									System.out.println("- External JAR ADDED, affecting root: "+root.getElementName());
+									System.out.println("- External JAR ADDED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								} 
 								elementAdded(root, null);
 								hasDelta = true;
 							} else if (status == EXTERNAL_JAR_CHANGED) {
 								if (VERBOSE){
-									System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName());
+									System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								}
 								contentChanged(root, null);
 								hasDelta = true;
 							} else if (status == EXTERNAL_JAR_REMOVED) {
 								if (VERBOSE){
-									System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName());
+									System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								}
 								elementRemoved(root, null);
 								hasDelta = true;

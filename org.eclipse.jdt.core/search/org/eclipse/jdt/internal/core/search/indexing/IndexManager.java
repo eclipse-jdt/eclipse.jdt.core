@@ -398,7 +398,7 @@ public void shutdown() {
 		File[] indexesFiles = indexesDirectory.listFiles();
 		for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
 			String fileName = indexesFiles[i].getAbsolutePath();
-			if (fileName.toLowerCase().endsWith(".index") && keepingIndexesPaths.get(fileName) == null) {
+			if (fileName.toLowerCase().endsWith(".index") && keepingIndexesPaths.get(fileName) == null) { //$NON-NLS-1$
 				if (VERBOSE) {
 					JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
 				}

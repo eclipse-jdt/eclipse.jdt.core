@@ -209,7 +209,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
      */
     private void addExtdirs(Path extdirs, Path classpath) {
         if (extdirs == null) {
-            String extProp = System.getProperty("java.ext.dirs");
+            String extProp = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
             if (extProp != null) {
                 extdirs = new Path(classpath.getProject(), extProp);
             } else {
@@ -223,7 +223,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
             if (dir.exists() && dir.isDirectory()) {
                 FileSet fs = new FileSet();
                 fs.setDir(dir);
-                fs.setIncludes("*");
+                fs.setIncludes("*"); //$NON-NLS-1$
                 classpath.addFileset(fs);
             }
         }

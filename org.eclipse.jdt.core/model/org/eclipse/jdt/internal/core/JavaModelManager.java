@@ -678,7 +678,7 @@ public class JavaModelManager implements ISaveParticipant {
 			try {
 				ZipFile zipFile = (ZipFile)iterator.next();
 				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					System.out.println("(" + currentThread + ") [JavaModelManager.flushZipFiles()] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$ //$NON-NLS-1$
+					System.out.println("(" + currentThread + ") [JavaModelManager.flushZipFiles()] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$//$NON-NLS-2$
 				}
 				zipFile.close();
 			} catch (IOException e) {
