@@ -817,12 +817,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * Returns a sample node of a type suitable for storing
 		 * in this property.
 		 * 
-		 * @param ast the target AST
+		 * @param targetAST the target AST
 		 * @param parented <code>true</code> if the sample should be
 		 *    parented, and <code>false</code> if unparented
 		 * @return a sample node
 		 */
-		public abstract ASTNode sample(AST ast, boolean parented);
+		public abstract ASTNode sample(AST targetAST, boolean parented);
 
 		/**
 		 * Returns examples of node of types unsuitable for storing
@@ -832,10 +832,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * should reimplement to specify counter-examples.
 		 * </p>
 		 * 
-		 * @param ast the target AST
+		 * @param targetAST the target AST
 		 * @return a list of counter-example nodes
 		 */
-		public ASTNode[] counterExamples(AST ast) {
+		public ASTNode[] counterExamples(AST targetAST) {
 			return new ASTNode[] {};
 		}
 
@@ -2670,13 +2670,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 			public ASTNode wrap() {
 				// return TagElement that embeds x
-				TagElement s1 = ast.newTagElement();
-				s1.fragments().add(x);
-				return s1;
+				TagElement tagElement = ast.newTagElement();
+				tagElement.fragments().add(x);
+				return tagElement;
 			}
 			public void unwrap() {
-				TagElement s1 = (TagElement) x.getParent();
-				s1.fragments().remove(x);
+				TagElement tagElement = (TagElement) x.getParent();
+				tagElement.fragments().remove(x);
 			}
 			public ASTNode[] counterExamples(AST targetAst) {
 				return new ASTNode[] {
@@ -4720,10 +4720,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		md.parameters().add(singleVariableDeclaration);
 		td.bodyDeclarations().add(md);
 		
-		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
+/* TODO (jeem) this is never used
+ 		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
 		SimpleName sn2 =target.newSimpleName("two"); //$NON-NLS-1$
 		QualifiedName qn = target.newQualifiedName(sn1, sn2);
-
+*/
 		PrimitiveType pt = target.newPrimitiveType(PrimitiveType.INT);
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);
@@ -4851,7 +4852,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * Walks the given AST and assigns properly-nested (but otherwise totally bogus)
 	 * source ranges to all nodes.
 	 */
-	void assignSourceRanges(ASTNode ast) {
+	void assignSourceRanges(ASTNode astToWalk) {
 		final StringBuffer buffer = new StringBuffer();
 		final List stack = new ArrayList();
 		// pretend that every construct begins with "(" and ends with ")"
@@ -4870,7 +4871,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				node.setSourceRange(start, length);
 			}
 		}
-		ast.accept(new PositionAssigner());
+		astToWalk.accept(new PositionAssigner());
 	}
 	
 	public void testClone() {

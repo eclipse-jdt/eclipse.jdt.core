@@ -186,7 +186,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		
 		TAG1 = ast.newTagElement();
 		TAG1.setTagName("@foo"); //$NON-NLS-1$
-		TAG1S = "[(TG@foo@fooTG)]";;  //$NON-NLS-1$
+		TAG1S = "[(TG@foo@fooTG)]";  //$NON-NLS-1$
 
 		TEXT1 = ast.newTextElement();
 		TEXT1.setText("foo"); //$NON-NLS-1$

@@ -3005,6 +3005,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MethodDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0132() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0132", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3053,6 +3054,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for FieldDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0135() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0135", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3136,6 +3138,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for TypeDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0140() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0140", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3159,6 +3162,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0141() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0141", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3249,6 +3253,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0147() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0147", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3271,6 +3276,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0148() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0148", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4852,6 +4858,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MethodDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0207() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0207", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4900,6 +4907,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for FieldDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0210() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0210", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4983,6 +4991,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for TypeDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0215() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0215", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5006,6 +5015,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0216() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0216", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5096,6 +5106,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0222() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0222", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5118,6 +5129,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
+	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0223() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0223", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
