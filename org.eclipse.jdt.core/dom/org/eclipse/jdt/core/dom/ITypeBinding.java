@@ -141,6 +141,7 @@ public interface ITypeBinding extends IBinding {
 	 * 
 	 * @return the unqualified name of the type represented by this binding, an
 	 *    empty string this is an anonymous type, or "null" for the null type
+	 * @see #getQualifiedName
 	 */
 	public String getName();
 			
@@ -378,15 +379,36 @@ public interface ITypeBinding extends IBinding {
 	public boolean isFromSource();
 	
 	/**
-	 * Returns the fully qualified name of this type binding if it exists, null otherwise.
+	 * Returns the fully qualified name of the type represented by this 
+	 * binding if it has one.
+	 * <ul>
+	 * <li>For top-level types, the fully qualified name is the simple name of
+	 * the type qualified by the package name (or unqualified if in a default
+	 * package).
+	 * Example: <code>"java.lang.String"</code>.</li>
+	 * <li>For members of top-level types, the fully qualified name is the
+	 * simple name of the type qualified by the fully qualified name of the
+	 * enclosing type.
+	 * Example: <code>"java.io.ObjectInputStream.GetField"</code>.</li>
+	 * <li>For primitive types, the fully qualified name is the keyword for
+	 * the primitive type.
+	 * Example: <code>"int"</code>.</li>
+	 * <li>For array types whose component type has a fully qualified name, 
+	 * the fully qualified name is the fully qualified name of the component
+	 * type followed by "[]".
+	 * Example: <code>"java.lang.String[]"</code>.</li>
+	 * <li>For the null type, the fully qualified name is the string 
+	 * "null".</li>
+	 * <li>Local types (including anonymous classes) and members of local
+	 * types do not have a fully qualified name. For these types, and array
+	 * types thereof, this method returns an empty string.</li>
+	 * </ul>
 	 * 
-	 * If this type binding represents an anonymous or a local type, then it returns null.
-	 * If this type binding represents a member type, then it returns its VM name preceeded with
-	 * its package name replacing all '$' with a dot.
-	 * For example, the member class p.A$B (VM name) is converted to "p.A.B".
-	 * For a top level type, is returns its name preceeded with its package name.
-	 * 
-	 * @return the fully qualified name of this type binding if it exists, null otherwise.
+	 * @return the fully qualified name of the type represented by this 
+	 *    binding, or an empty string if this type does not have such an
+	 *    unambiguous name
+	 * @see #getName
+	 * @since 2.1
 	 */
 	public String getQualifiedName();
 }
