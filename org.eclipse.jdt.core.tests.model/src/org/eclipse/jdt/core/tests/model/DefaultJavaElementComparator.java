@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -39,11 +40,11 @@ public class DefaultJavaElementComparator implements Comparator {
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	public int compare(Object o1, Object o2) {
-		if (!(o1 instanceof ASTNode) && !(o2 instanceof ASTNode)) {
+		if (!(o1 instanceof BodyDeclaration) && !(o2 instanceof BodyDeclaration)) {
 			throw new ClassCastException();
 		}
-		ASTNode node1 = (ASTNode) o1;
-		ASTNode node2 = (ASTNode) o2;
+		BodyDeclaration node1 = (BodyDeclaration) o1;
+		BodyDeclaration node2 = (BodyDeclaration) o2;
 		int category1 = JavaCompilationUnitSorter.getCategory(node1, JavaCore.getOptions());
 		int category2 = JavaCompilationUnitSorter.getCategory(node2, JavaCore.getOptions());
 		

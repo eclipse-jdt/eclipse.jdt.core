@@ -290,7 +290,7 @@ public void sortUnit(ICompilationUnit unit) throws CoreException {
 	System.out.println(source);
 	System.out.println("========================== BEFORE ==============================");
 	System.out.println("========================== AFTER  ==============================");
-	JavaCompilationUnitSorter.sort(unit, new DefaultJavaElementComparator(), new NullProgressMonitor());
+	JavaCompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new DefaultJavaElementComparator(), new NullProgressMonitor());
 	source = unit.getBuffer().getContents();
 	System.out.println(source);
 	System.out.println("========================== AFTER  ==============================");

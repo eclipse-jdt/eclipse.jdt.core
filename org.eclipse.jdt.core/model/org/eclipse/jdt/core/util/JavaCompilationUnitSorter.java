@@ -63,6 +63,15 @@ public class JavaCompilationUnitSorter {
 		return 0;
 	}
 
+	/**
+	 * This method is used to sort elements within a compilation unit.
+	 * 
+	 * @param compilationUnits compilation units to process
+	 * @param comparator the comparator to use for the sorting
+	 * @param monitor the given progress monitor
+	 * 
+	 * @since 2.1
+	 */
 	public static void sort(ICompilationUnit[] compilationUnits, Comparator comparator, IProgressMonitor monitor) throws CoreException {
 		if (comparator == null || compilationUnits == null) {
 			return;
