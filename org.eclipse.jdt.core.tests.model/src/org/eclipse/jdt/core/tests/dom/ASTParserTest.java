@@ -57,6 +57,19 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 		super.tearDown();
 	}
 	
+	public String getName() {
+		String name = super.getName();
+		switch (this.API_LEVEL) {
+			case AST.JLS2:
+				name = "JLS2 - " + name;
+				break;
+			case AST.JLS3:
+				name = "JLS3 - " + name; 
+				break;
+		}
+		return name;
+	}
+	
 	public void testKConstants() {
 		assertTrue(ASTParser.K_EXPRESSION == 1);
 		assertTrue(ASTParser.K_STATEMENTS == 2);

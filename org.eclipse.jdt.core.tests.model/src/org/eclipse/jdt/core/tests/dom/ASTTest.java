@@ -759,6 +759,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		super.tearDown();
 	}
 	
+	public String getName() {
+		String name = super.getName();
+		switch (this.API_LEVEL) {
+			case AST.JLS2:
+				name = "JLS2 - " + name;
+				break;
+			case AST.JLS3:
+				name = "JLS3 - " + name; 
+				break;
+		}
+		return name;
+	}
+	
 	/**
 	 * Snippets that show how to...
 	 */
