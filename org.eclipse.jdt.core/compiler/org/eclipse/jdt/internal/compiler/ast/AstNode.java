@@ -15,6 +15,7 @@ public abstract class AstNode  implements BaseTypes, CompilerModifiers, TypeCons
 	
 	//some global provision for the hierarchy
 	public final static Constant NotAConstant = Constant.NotAConstant;
+	public static final int IsLocalDeclarationReachableMASK = 0x40000000; // below highest bit
 
 /**
  * AstNode constructor comment.

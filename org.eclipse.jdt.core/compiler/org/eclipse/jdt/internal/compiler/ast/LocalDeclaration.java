@@ -34,7 +34,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		currentScope.referenceType().recordReferenceTo(binding.type);
 	}
 	*/
-
+	// record variable initialization if any
+	if (!flowInfo.isDeadEnd() && !flowInfo.isFakeReachable()) {
+		bits |= IsLocalDeclarationReachableMASK; // only set if actually reached
+	}
 	if (initialization == null)
 		return flowInfo;
 	flowInfo = initialization.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();

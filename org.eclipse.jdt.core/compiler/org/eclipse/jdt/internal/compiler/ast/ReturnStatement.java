@@ -23,49 +23,53 @@ public ReturnStatement(Expression expr, int s, int e ) {
 	sourceEnd = e;
 	expression = expr ;
 }
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-
-	// here requires to generate a sequence of finally blocks invocations depending corresponding
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {	// here requires to generate a sequence of finally blocks invocations depending corresponding
 	// to each of the traversed try statements, so that execution will terminate properly.
-
 	// lookup the label, this should answer the returnContext
 
 	if (expression != null) {
 		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo);
 	}
 	// compute the return sequence (running the finally blocks)
-	FlowContext targetContext;
 	FlowContext traversedContext = flowContext;
 	int subIndex = 0, maxSub = 5;
 	boolean saveValueNeeded = false;
+	boolean hasValueToSave = expression != null && expression.constant == NotAConstant;
 	while (true) {
 		AstNode sub;
 		if ((sub = traversedContext.subRoutine()) != null) {
-			if (subroutines == null){
-				subroutines = new AstNode[maxSub];
+			if (this.subroutines == null){
+				this.subroutines = new AstNode[maxSub];
 			}
 			if (subIndex == maxSub) {
-				System.arraycopy(subroutines, 0, (subroutines = new AstNode[maxSub *= 2]), 0, subIndex); // grow
+				System.arraycopy(this.subroutines, 0, (this.subroutines = new AstNode[maxSub *= 2]), 0, subIndex); // grow
 			}
-			subroutines[subIndex++] = sub;
+			this.subroutines[subIndex++] = sub;
 			if (sub.cannotReturn()) {
 				saveValueNeeded = false;
 				break;
 			}
 		}
 		AstNode node;
+
 		if ((node = traversedContext.associatedNode) instanceof SynchronizedStatement) {
 			isSynchronized = true;
-		} else {
-			if ((expression != null) && (node instanceof TryStatement)) {
-				saveValueNeeded = true;
-			} else {
-				if (traversedContext instanceof InitializationFlowContext) {
-					currentScope.problemReporter().cannotReturnInInitializer(this);
-					return FlowInfo.DeadEnd;
+
+		} else if (node instanceof TryStatement && hasValueToSave) {
+				if (this.saveValueVariable == null){ // closest subroutine secret variable is used
+					prepareSaveValueLocation((TryStatement)node);
 				}
-			}
+				saveValueNeeded = true;
+
+		} else if (traversedContext instanceof InitializationFlowContext) {
+				currentScope.problemReporter().cannotReturnInInitializer(this);
+				return FlowInfo.DeadEnd;
 		}
+
+		// remember the initialization at this
+		// point for dealing with blank final variables.
+		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+
 		FlowContext parentContext;
 		if ((parentContext = traversedContext.parent) == null) { // top-context
 			break;
@@ -77,21 +81,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if ((subroutines != null) && (subIndex != maxSub)) {
 		System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
 	}
-	// the top returning context may want to remember the initialization at this
-	// point for dealing with blank final fields.
-	traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 
-	// no need to save a constant value
-	if((expression != null) && (expression.constant != NotAConstant)){
-		saveValueNeeded = false;
-	}
 	// secret local variable for return value (note that this can only occur in a real method)
 	if (saveValueNeeded) {
-		prepareSaveValueLocation(currentScope);
+		if (this.saveValueVariable != null) {
+			this.saveValueVariable.used = true;
+		}
 	} else {
-		MethodScope methodScope;
+		this.saveValueVariable = null;
 		if ((!isSynchronized) && (expressionType == BooleanBinding)) {
-			expression.bits |= ValueForReturnMASK;
+			this.expression.bits |= ValueForReturnMASK;
 		}
 	}
 	return FlowInfo.DeadEnd;
@@ -180,10 +179,9 @@ public void generateStoreSaveValueIfNecessary(BlockScope currentScope, CodeStrea
 public boolean needValue(){
 	return (subroutines == null) || (saveValueVariable != null) || isSynchronized;
 }
-public void prepareSaveValueLocation(BlockScope currentScope){
+public void prepareSaveValueLocation(TryStatement targetTryStatement){
 		
-	saveValueVariable = ((AbstractMethodDeclaration) currentScope.methodScope().referenceContext).secretReturnValue;
-	saveValueVariable.used = true;
+	saveValueVariable =  targetTryStatement.secretReturnValue;
 }
 public void resolve(BlockScope scope) {
 	MethodScope methodScope = scope.methodScope();

@@ -13,6 +13,7 @@ public Argument(char[] name , long posNom , TypeReference tr , int modifiers){
 	super(null,name, (int) (posNom >>> 32), (int) (posNom & 0xFFFFFFFFL));
 	this.modifiers = modifiers;
 	type = tr;
+	this.bits |= IsLocalDeclarationReachableMASK;	
 }
 public void resolve(BlockScope scope) {
 	// an argument may be final ==> cannot be assigned

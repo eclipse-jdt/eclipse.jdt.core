@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.eval;
  */
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -73,8 +74,10 @@ public boolean isTypeAccess() {
 public boolean needValue(){
 	return true;
 }
-public void prepareSaveValueLocation(BlockScope currentScope){
-		
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.ReturnStatement#prepareSaveValueLocation(TryStatement)
+ */
+public void prepareSaveValueLocation(TryStatement targetTryStatement) {
 	// do nothing: no storage is necessary for snippets
 }
 public void resolve(BlockScope scope) {

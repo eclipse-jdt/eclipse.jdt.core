@@ -1651,21 +1651,21 @@ public void nestedClassCannotDeclareInterface(TypeDeclaration typeDecl) {
 		typeDecl.sourceStart(),
 		typeDecl.sourceEnd());
 }
-public void noMoreAvailableSpaceForArgument(LocalDeclaration localDeclaration) {
+public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, AstNode location) {
 	this.handle(
 		TooManyArgumentSlots,
-		new String[]{localDeclaration.name()},
+		new String[]{new String(local.name)},
 		Abort | Error,
-		localDeclaration.sourceStart(),
-		localDeclaration.sourceEnd());
+		location.sourceStart(),
+		location.sourceEnd());
 }
-public void noMoreAvailableSpaceForLocal(LocalDeclaration localDeclaration) {
+public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, AstNode location) {
 	this.handle(
 		TooManyLocalVariableSlots,
-		new String[]{localDeclaration.name()},
+		new String[]{new String(local.name)},
 		Abort | Error,
-		localDeclaration.sourceStart(),
-		localDeclaration.sourceEnd());
+		location.sourceStart(),
+		location.sourceEnd());
 }
 public void notCompatibleTypesError(EqualExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	this.handle(

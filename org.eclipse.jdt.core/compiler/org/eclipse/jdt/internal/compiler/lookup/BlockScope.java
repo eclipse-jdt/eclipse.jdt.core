@@ -17,6 +17,12 @@ public class BlockScope extends Scope {
 	public int analysisIndex; 	// for setting flow-analysis id
 	public int startIndex; 		// start position in this scope - for ordering scopes vs. variables
 
+	public int offset; // for variable allocation throughout scopes
+	public int maxOffset; // for variable allocation throughout scopes
+
+	// finally scopes must be shifted behind respective try scope
+	public BlockScope[] shiftScopes; 
+	
 	public final static VariableBinding[] EmulationPathToImplicitThis = {};
 
 	public Scope[] subscopes = new Scope[1];	// need access from code assist
@@ -28,6 +34,13 @@ public BlockScope(BlockScope parent) {
 	this(BLOCK_SCOPE, parent);
 	locals = new LocalVariableBinding[5]; 
 	parent.addSubscope(this);
+	this.startIndex = parent.localIndex;
+}
+public BlockScope(BlockScope parent, boolean addToParentScope) {
+
+	this(BLOCK_SCOPE, parent);
+	locals = new LocalVariableBinding[5];
+	if (addToParentScope) parent.addSubscope(this);
 	this.startIndex = parent.localIndex;
 }
 public BlockScope(BlockScope parent, int variableCount) {
@@ -118,7 +131,7 @@ public final void addLocalVariable(LocalVariableBinding binding) {
 	}
 */
 }
-private void addSubscope(Scope childScope) {
+public void addSubscope(Scope childScope) {
 	if (scopeIndex == subscopes.length)
 		System.arraycopy(subscopes, 0, (subscopes = new Scope[scopeIndex * 2]), 0, scopeIndex);
 	subscopes[scopeIndex++] = childScope;
@@ -167,69 +180,94 @@ private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 * ignoring unused local variables.
 */
 
-public final void computeLocalVariablePositions(int offset, CodeStream codeStream) {
-	// local variable init
-	int ilocal = 0, maxLocals = 0, localsLength = locals.length;
-	while ((maxLocals < localsLength) && (locals[maxLocals] != null))
-		maxLocals++;
-	boolean hasMoreVariables = maxLocals > 0;
+public final void computeLocalVariablePositions(int initOffset, CodeStream codeStream) {
 
-	// scope init
-	int iscope = 0, maxScopes = 0, subscopesLength = subscopes.length;
-	while ((maxScopes < subscopesLength) && (subscopes[maxScopes] != null))
-		maxScopes++;
-	boolean hasMoreScopes = maxScopes > 0;
+		this.offset = initOffset;
+		this.maxOffset = initOffset;
 
-	// iterate scopes and variables in parallel
-	while (hasMoreVariables || hasMoreScopes) {
-		if (hasMoreScopes && (!hasMoreVariables || (subscopes[iscope].startIndex() <= ilocal))) {
-			// consider subscope first
-			if (subscopes[iscope] instanceof BlockScope)
-				((BlockScope) subscopes[iscope]).computeLocalVariablePositions(offset, codeStream);
-			hasMoreScopes = ++iscope < maxScopes;
-		} else {	
-			// consider variable first
-			LocalVariableBinding local = locals[ilocal];
+		// local variable init
+		int ilocal = 0, maxLocals = 0, localsLength = locals.length;
+		while ((maxLocals < localsLength) && (locals[maxLocals] != null))
+			maxLocals++;
+		boolean hasMoreVariables = maxLocals > 0;
 
-			// check if variable is actually used, and may force it to be preserved
-			boolean generatesLocal = (local.used && (local.constant == Constant.NotAConstant)) || local.isArgument;
-			if (!local.used && (local.declaration != null)) { // unused (and non secret) local
-				if (local.isArgument) // method argument
-					this.problemReporter().unusedArgument(local.declaration);
-				else if (!(local.declaration instanceof Argument)) // catch variable
-					this.problemReporter().unusedLocalVariable(local.declaration);
-			} 
-			if (!generatesLocal) {
-				if (local.declaration != null && referenceCompilationUnit().problemReporter.options.preserveAllLocalVariables) {
-					generatesLocal = true; // force it to be preserved in the generated code
-					local.used = true;
+		// scope init
+		int iscope = 0, maxScopes = 0, subscopesLength = subscopes.length;
+		while ((maxScopes < subscopesLength) && (subscopes[maxScopes] != null))
+			maxScopes++;
+		boolean hasMoreScopes = maxScopes > 0;
+
+		// iterate scopes and variables in parallel
+		while (hasMoreVariables || hasMoreScopes) {
+			if (hasMoreScopes
+				&& (!hasMoreVariables || (subscopes[iscope].startIndex() <= ilocal))) {
+				// consider subscope first
+				if (subscopes[iscope] instanceof BlockScope) {
+					BlockScope subscope = (BlockScope) subscopes[iscope];
+					int subOffset = subscope.shiftScopes == null ? this.offset : subscope.maxShiftedOffset();
+					subscope.computeLocalVariablePositions(subOffset, codeStream);
+					if (subscope.maxOffset > this.maxOffset)
+						this.maxOffset = subscope.maxOffset;
 				}
-			}
-			if (generatesLocal) {
-				if (local.declaration != null)
-					codeStream.record(local); // record user local variables for attribute generation
-				local.resolvedPosition = offset;
-				// check for too many arguments/local variables
-				if(local.isArgument){
-					if (offset > 0xFF){ // no more than 255 words of arguments
-						this.problemReporter().noMoreAvailableSpaceForArgument(local.declaration);
+				hasMoreScopes = ++iscope < maxScopes;
+			} else {
+				// consider variable first
+				LocalVariableBinding local = locals[ilocal];
+
+				// check if variable is actually used, and may force it to be preserved
+				boolean generatesLocal =
+					(local.used && (local.constant == Constant.NotAConstant)) || local.isArgument;
+				if (!local.used
+					&& (local.declaration != null) // unused (and non secret) local
+					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+					if (local.isArgument) // method argument
+						this.problemReporter().unusedArgument(local.declaration);
+					else if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
+						this.problemReporter().unusedLocalVariable(local.declaration);
+				}
+				if (!generatesLocal) {
+					if (local.declaration != null
+						&& environment().options.preserveAllLocalVariables) {
+						generatesLocal = true; // force it to be preserved in the generated code
+						local.used = true;
+					}
+				}
+				if (generatesLocal) {
+
+					if (local.declaration != null) {
+						codeStream.record(local);
+						// record user local variables for attribute generation
+					}
+					// allocate variable position
+					local.resolvedPosition = this.offset;
+
+					// check for too many arguments/local variables
+					if (local.isArgument) {
+						if (this.offset > 0xFF) { // no more than 255 words of arguments
+							this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
+						}
+					} else {
+						if (this.offset > 0xFFFF) { // no more than 65535 words of locals
+							this.problemReporter().noMoreAvailableSpaceForLocal(
+								local, local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
+						}
+					}
+
+					// increment offset
+					if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
+						this.offset += 2;
+					} else {
+						this.offset++;
 					}
 				} else {
-					if(offset > 0xFFFF){ // no more than 65535 words of locals
-						this.problemReporter().noMoreAvailableSpaceForLocal(local.declaration);
-					}
+					local.resolvedPosition = -1; // not generated
 				}
-				if ((local.type == LongBinding) || (local.type == DoubleBinding))
-					offset += 2;
-				else
-					offset++;
-			} else {
-				local.resolvedPosition = -1; // not generated
+				hasMoreVariables = ++ilocal < maxLocals;
 			}
-			hasMoreVariables = ++ilocal < maxLocals;
 		}
+		if (this.offset > this.maxOffset)
+			this.maxOffset = this.offset;
 	}
-}
 /* Answer true if the variable name already exists within the receiver's scope.
 */
 
@@ -1116,6 +1154,18 @@ public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBi
 	}
 	return methodBinding;
 }
+
+public int maxShiftedOffset() {
+	int max = -1;
+	if (this.shiftScopes != null){
+		for (int i = 0, length = this.shiftScopes.length; i < length; i++){
+			int subMaxOffset = this.shiftScopes[i].maxOffset;
+			if (subMaxOffset > max) max = subMaxOffset;
+		}
+	}
+	return max;
+}
+	
 /* Answer the problem reporter to use for raising new problems.
 *
 * Note that as a side-effect, this updates the current reference context

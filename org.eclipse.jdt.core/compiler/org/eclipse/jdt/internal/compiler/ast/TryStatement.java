@@ -27,10 +27,11 @@ public class TryStatement extends Statement {
 	public int[] preserveExceptionHandler;
 	
 	Label subRoutineStartLabel;
-	LocalVariableBinding anyExceptionVariable, returnAddressVariable;
+	LocalVariableBinding anyExceptionVariable, returnAddressVariable, secretReturnValue;
 
 	final static char[] SecretReturnName = " returnAddress"/*nonNLS*/.toCharArray() ;
 	final static char[] SecretAnyHandlerName = " anyExceptionHandler"/*nonNLS*/.toCharArray();
+	public static final char[] SecretLocalDeclarationName = " returnValue".toCharArray(); //$NON-NLS-1$
 
 	// for local variables table attributes
 	int preTryInitStateIndex = -1;
@@ -325,50 +326,94 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 public void resolve(BlockScope upperScope) {
 
-	// special scope for secret locals optimization.	
-	scope = new BlockScope(upperScope);
-	if (finallyBlock != null && finallyBlock.statements != null) { // provision for returning and forcing the finally block to run
-		returnAddressVariable = new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), 0); // the type does not matter as long as its not a normal base type
-		scope.addLocalVariable(returnAddressVariable);
-		returnAddressVariable.constant = NotAConstant; // not inlinable
-		subRoutineStartLabel = new Label();
+		// special scope for secret locals optimization.	
+		this.scope = new BlockScope(upperScope);
 
-		BlockScope finallyScope = new BlockScope(scope);
-		anyExceptionVariable = new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), 0);
-		finallyScope.addLocalVariable(anyExceptionVariable);
-		anyExceptionVariable.constant = NotAConstant; // not inlinable
-		finallyBlock.resolveUsing(finallyScope);
-	}
-	tryBlock.resolve(scope);
+		BlockScope tryScope = new BlockScope(scope);
+		BlockScope finallyScope = null;
+		
+		if (finallyBlock != null
+			&& finallyBlock.statements != null) {
 
-	// arguments type are checked against JavaLangThrowable in resolveForCatch(..)
-	if (catchBlocks != null) {
-		int length = catchArguments.length;
-		TypeBinding[] argumentTypes = new TypeBinding[length];
-		for (int i = 0; i < length; i++) {
-			BlockScope catchScope = new BlockScope(scope);
-			// side effect on catchScope in resolveForCatch(..)
-			if ((argumentTypes[i] = catchArguments[i].resolveForCatch(catchScope)) == null)
-				return;
-			catchBlocks[i].resolveUsing(catchScope);
-		}
+			finallyScope = new BlockScope(scope, false); // don't add it yet to parent scope
 
-		// Verify that the catch clause are ordered in the right way:
-		// more specialized first.
-		caughtExceptionTypes = new ReferenceBinding[length];
-		for (int i = 0; i < length; i++) {
-			caughtExceptionTypes[i] = (ReferenceBinding) argumentTypes[i];
-			for (int j = 0; j < i; j++) {
-				if (scope.areTypesCompatible(caughtExceptionTypes[i], argumentTypes[j])) {
-					scope.problemReporter().wrongSequenceOfExceptionTypesError(this, i, j);
-					return;
+			// provision for returning and forcing the finally block to run
+			MethodScope methodScope = scope.methodScope();
+
+			// the type does not matter as long as its not a normal base type
+			this.returnAddressVariable =
+				new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
+			finallyScope.addLocalVariable(returnAddressVariable);
+			this.returnAddressVariable.constant = NotAConstant; // not inlinable
+			this.subRoutineStartLabel = new Label();
+
+			this.anyExceptionVariable =
+				new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
+			finallyScope.addLocalVariable(this.anyExceptionVariable);
+			this.anyExceptionVariable.constant = NotAConstant; // not inlinable
+
+			if (!methodScope.isInsideInitializer()) {
+				MethodBinding methodBinding =
+					((AbstractMethodDeclaration) methodScope.referenceContext).binding;
+				if (methodBinding != null) {
+					TypeBinding methodReturnType = methodBinding.returnType;
+					if (methodReturnType.id != T_void) {
+						this.secretReturnValue =
+							new LocalVariableBinding(
+								SecretLocalDeclarationName,
+								methodReturnType,
+								AccDefault,
+								false);
+						finallyScope.addLocalVariable(this.secretReturnValue);
+						this.secretReturnValue.constant = NotAConstant; // not inlinable
+					}
 				}
 			}
+			finallyBlock.resolveUsing(finallyScope);
+			// force the finally scope to have variable positions shifted after its try scope and catch ones
+			finallyScope.shiftScopes = new BlockScope[catchArguments == null ? 1 : catchArguments.length+1];
+			finallyScope.shiftScopes[0] = tryScope;
 		}
-	} else {
-		caughtExceptionTypes = new ReferenceBinding[0];
+		this.tryBlock.resolveUsing(tryScope);
+
+		// arguments type are checked against JavaLangThrowable in resolveForCatch(..)
+		if (this.catchBlocks != null) {
+			int length = this.catchArguments.length;
+			TypeBinding[] argumentTypes = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				BlockScope catchScope = new BlockScope(scope);
+				if (finallyScope != null){
+					finallyScope.shiftScopes[i+1] = catchScope;
+				}
+				// side effect on catchScope in resolveForCatch(..)
+				if ((argumentTypes[i] = catchArguments[i].resolveForCatch(catchScope)) == null)
+					return;
+				catchBlocks[i].resolveUsing(catchScope);
+			}
+
+			// Verify that the catch clause are ordered in the right way:
+			// more specialized first.
+			this.caughtExceptionTypes = new ReferenceBinding[length];
+			for (int i = 0; i < length; i++) {
+				caughtExceptionTypes[i] = (ReferenceBinding) argumentTypes[i];
+				for (int j = 0; j < i; j++) {
+					if (scope.areTypesCompatible(caughtExceptionTypes[i], argumentTypes[j])) {
+						scope.problemReporter().wrongSequenceOfExceptionTypesError(this, i, j);
+						// cannot return - since may still proceed if unreachable code is ignored (21203)
+					}
+				}
+			}
+		} else {
+			caughtExceptionTypes = new ReferenceBinding[0];
+		}
+		
+		if (finallyScope != null){
+			// add finallyScope as last subscope, so it can be shifted behind try/catch subscopes.
+			// the shifting is necessary to achieve no overlay in between the finally scope and its
+			// sibling in term of local variable positions.
+			this.scope.addSubscope(finallyScope);
+		}
 	}
-}
 public String toString(int tab){
 	/* slow code */
 
