@@ -177,6 +177,8 @@ public interface IClasspathEntry {
 	
 	/**
 	 * Returns whether this entry is exported to dependent projects.
+	 * Always returns <code>false</code> for source entries (kind
+	 * <code>CPE_SOURCE</code>), which cannot be exported.
 	 * 
 	 * @return <code>true</code> if exported, and <code>false</code> otherwise
 	 * @since 2.0
