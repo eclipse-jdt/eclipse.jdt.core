@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
@@ -575,14 +574,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				info = newElements.get(this);
 			}
 			if (info == null) { // a source ref element could not be opened
-				// close any buffer that was opened for the openable parent
-				Iterator iterator = newElements.keySet().iterator();
-				while (iterator.hasNext()) {
-					IJavaElement element = (IJavaElement)iterator.next();
-					if (element instanceof Openable) {
-						((Openable)element).closeBuffer();
-					}
-				}
+				// close the buffer that was opened for the openable parent
+			    // close only the openable's buffer (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62854)
+			    Openable openable = (Openable) getOpenable();
+			    if (newElements.containsKey(openable)) {
+			        openable.closeBuffer();
+			    }
 				throw newNotPresentException();
 			}
 			if (!hadTemporaryCache) {

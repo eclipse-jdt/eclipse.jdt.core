@@ -308,6 +308,32 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		""
 	);
 }
+/*
+ * Ensures that reconciling a subclass doesn't close the buffer while resolving its superclass.
+ * (regression test for bug 62854 refactoring does not trigger reconcile)
+ */
+public void testBufferOpenAfterReconcile() throws CoreException {
+ 	try {
+		createFile(
+			"/Reconciler/src/p1/Super.java",
+			"package p1;\n" +
+			"public class Super {\n" +
+			"}"
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X extends Super {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}");
+		IBuffer buffer = this.workingCopy.getBuffer();
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+		assertTrue("Buffer should still be open", !buffer.isClosed());
+	} finally {
+		deleteFile("/Reconciler/src/p1/Super.java");
+	}
+}
 /**
  * Ensures that the reconciler reconciles the new contents with the current
  * contents,updating the structure of this reconciler's compilation
