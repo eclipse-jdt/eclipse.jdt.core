@@ -85,18 +85,18 @@
 
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${dest}/jdtcoresrc.zip">
-	    <zipfileset dir="batch" />
-	    <zipfileset dir="codeassist" />
-	    <zipfileset dir="compiler" />
-	    <zipfileset dir="dom" />
-	    <zipfileset dir="eval" />
-	    <zipfileset dir="formatter" />
-	    <zipfileset dir="model" />
-	    <zipfileset dir="search" />
+	    <fileset dir="batch" />
+	    <fileset dir="codeassist" />
+	    <fileset dir="compiler" />
+	    <fileset dir="dom" />
+	    <fileset dir="eval" />
+	    <fileset dir="formatter" />
+	    <fileset dir="model" />
+	    <fileset dir="search" />
 	</zip>		
 	<echo message="UPDATE jdtCompilerAdaptersrc.zip" />
 	<zip zipfile="${dest}/jdtCompilerAdaptersrc.zip">
-		<zipfileset dir="antadapter" />
+		<fileset dir="antadapter" />
 	</zip>	    
 </target>
 
@@ -136,15 +136,15 @@
 
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${src_dest}/jdtcoresrc.zip">
-	    <zipfileset dir="antadapter" />
-	    <zipfileset dir="batch" />
-	    <zipfileset dir="codeassist" />
-	    <zipfileset dir="compiler" />
-	    <zipfileset dir="dom" />
-	    <zipfileset dir="eval" />
-	    <zipfileset dir="formatter" />
-	    <zipfileset dir="model" />
-	    <zipfileset dir="search" />
+	    <fileset dir="antadapter" />
+	    <fileset dir="batch" />
+	    <fileset dir="codeassist" />
+	    <fileset dir="compiler" />
+	    <fileset dir="dom" />
+	    <fileset dir="eval" />
+	    <fileset dir="formatter" />
+	    <fileset dir="model" />
+	    <fileset dir="search" />
 	</zip>		
 </target>
 
