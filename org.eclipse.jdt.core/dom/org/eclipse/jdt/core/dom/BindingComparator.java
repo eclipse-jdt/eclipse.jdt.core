@@ -248,6 +248,7 @@ class BindingComparator {
 				}
 			} else {
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
+					&& CharOperation.equals(referenceBinding.constantPoolName(), referenceBinding2.constantPoolName())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
 					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
 					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())

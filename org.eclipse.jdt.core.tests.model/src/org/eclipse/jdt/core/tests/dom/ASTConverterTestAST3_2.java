@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0600"));
+		suite.addTest(new ASTConverterTestAST3_2("test0601"));
 		return suite;
 	}
 	/**
@@ -6116,5 +6116,72 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding().getMethodDeclaration();
 		
 		assertTrue("Not equals", methodBinding.isEqualTo(methodBinding2));
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89014
+	 */
+	public void test0601() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	Runnable one= new Runnable(){\n" +
+				"		public void run() {\n" +
+				"		}\n" +
+				"	};\n" +
+				"	Runnable two= new Runnable(){\n" +
+				"		public void run() {\n" +
+				"		}\n" +
+				"	};\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			List fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			Expression expression = fragment.getInitializer();
+			assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+			ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+			AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+			assertNotNull("No anonymous", anonymousClassDeclaration);
+			List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+			assertEquals("Wrong size", 1, bodyDeclarations.size());
+			BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+			IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+			
+			node = getASTNode(compilationUnit, 0, 1);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			fieldDeclaration = (FieldDeclaration) node;
+			fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			expression = fragment.getInitializer();
+			assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+			classInstanceCreation = (ClassInstanceCreation) expression;
+			anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+			assertNotNull("No anonymous", anonymousClassDeclaration);
+			bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+			assertEquals("Wrong size", 1, bodyDeclarations.size());
+			bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+			methodDeclaration = (MethodDeclaration) bodyDeclaration;
+			IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+			
+			assertFalse("Bindings are equals", methodBinding.isEqualTo(methodBinding2));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }
