@@ -2423,7 +2423,7 @@ public final class CharOperation {
 	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
 	 *    start = 2
 	 *    end = 5
-	 *    result => { {  }, {  }, { 'a' } }
+	 *    result => { {  }, { 'a' }, {  } }
 	 * </pre>
 	 * </li>
 	 * </ol>
