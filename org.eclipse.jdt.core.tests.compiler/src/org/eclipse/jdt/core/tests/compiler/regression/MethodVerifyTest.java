@@ -1330,4 +1330,41 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			// warning: test() in C overrides test() in A; return type requires unchecked conversion
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	public void _test027() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void test() {\n" + 
+				"		Pair<Double, Integer> p = new InvertedPair<Integer, Double>();\n" + 
+				"		p.setA(new Double(1.1));\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class Pair<A, B> {\n" + 
+				"	public void setA(A a) {}\n" + 
+				"}\n" +
+				"class InvertedPair<A, B> extends Pair<B, A> {\n" + 
+				"	public void setA(A a) {}\n" + 
+				"}\n"
+			},
+			"name clash: "
+			// name clash: setA(A) in InvertedPair<A,B> and setA(A) in Pair<B,A> have the same erasure, yet neither overrides the other
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81727
+	public void test028() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements I<X>{\n" + 
+				"	public X foo() { return null; }\n" + 
+				"}\n" +
+				"interface I<T extends I> { T foo(); }\n"
+			},
+			""
+		);
+	}
 }
