@@ -1366,10 +1366,6 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 			activate();
 			this.changeListeners = listeners;
 		}
-		if (monitor != null) {
-			monitor.done();
-		}
-		this.progressMonitor = null;
 		if (DEBUG) {
 			if (this.computeSubtypes) {
 				System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1386,6 +1382,11 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		throw new JavaModelException(e);
 	} catch (OperationCanceledException oce) {
 		refreshCancelled(oce);
+	} finally {
+		if (monitor != null) {
+			monitor.done();
+		}
+		this.progressMonitor = null;
 	}
 }
 /**
