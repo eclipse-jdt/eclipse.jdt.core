@@ -19,8 +19,11 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, BaseTypes, TypeConstants, TypeIds {
-	// It will be responsible for the following items.
 
+	// codegen trace - TODO (olivier) need to be completed for macros and optimizations
+	public static final boolean DEBUG = false;
+	
+	// It will be responsible for the following items.
 	// -> Tracking Max Stack.
 
 	public int stackMax; // Use Ints to keep from using extra bc when adding
@@ -64,9 +67,6 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	// to handle goto_w
 	public boolean wideMode = false;
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
-	
-	// codegen trace - TODO (olivier) need to be completed for macros and optimizations
-	public static final boolean DEBUG = false;
 	
 public CodeStream(ClassFile classFile) {
 	generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
