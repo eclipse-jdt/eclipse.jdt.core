@@ -509,7 +509,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()
 										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString())); //$NON-NLS-1$
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString(), path.toString())); //$NON-NLS-1$
 									}
 								}
 								break;
@@ -518,7 +518,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 									&& sourceAttachment != null 
 									&& !sourceAttachment.isEmpty()
 									&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString())); //$NON-NLS-1$
+									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString(), path.toString())); //$NON-NLS-1$
 								}
 						}
 					} else if (target instanceof File){
@@ -526,7 +526,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 							&& sourceAttachment != null 
 							&& !sourceAttachment.isEmpty()
 							&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString())); //$NON-NLS-1$
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", sourceAttachment.toString(), path.toString())); //$NON-NLS-1$
 						}
 					} else {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundLibrary", path.toString())); //$NON-NLS-1$
@@ -543,6 +543,9 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 					try {
 						if (!project.exists() || !project.hasNature(JavaCore.NATURE_ID)){
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0).toString())); //$NON-NLS-1$
+						}
+						if (!project.isOpen()){
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.closedProject", path.segment(0).toString())); //$NON-NLS-1$
 						}
 					} catch (CoreException e){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0).toString())); //$NON-NLS-1$
