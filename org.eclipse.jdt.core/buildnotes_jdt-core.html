@@ -47,6 +47,15 @@ Eclipse SDK 3.1M6 - ?th March 2005 - 3.1 MILESTONE 6
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The org.eclipse.jdt.core plugin now honors the "org.eclipse.jdt.core.javaSource" content-type extensions. One can add Java-like file extensions 
+	by addding the following extension to a plugin.xml:
+	<pre>
+	&lt;extension point="org.eclipse.core.runtime.contentTypes"&gt;
+	    &lt;file-association 
+	        content-type="org.eclipse.jdt.core.javaSource"
+	        file-extensions="foo,bar"/&gt;
+	</pre>
+</li>
 <li>In order to fix bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=49896">49896</a> and <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=77809">77809</a>, we added the following
 two APIs:
 <ul>
@@ -57,7 +66,9 @@ two APIs:
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89477">89477</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71460">71460</a>
+[model] Non *.java file association with Java contents.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89477">89477</a>
 [1.5][select] ArrayStoreException in SelectionEngine
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73658">73658</a>
 [1.5] Not all new 1.5 formatter options seem to work

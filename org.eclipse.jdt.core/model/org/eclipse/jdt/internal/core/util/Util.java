@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -788,26 +789,29 @@ public class Util {
 	 */
 	public static char[][] getJavaLikeExtensions() {
 		if (JAVA_LIKE_EXTENSIONS == null) {
-				
-			Plugin jdtCorePlugin = JavaCore.getPlugin();
-			if (jdtCorePlugin == null) return null;
-	
-			ArrayList fileExtensionsList = new ArrayList(5);
-			fileExtensionsList.add(SuffixConstants.SUFFIX_java);
-			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.EXTRA_JAVA_LIKE_FILE_EXTENSIONS_EXTPOINT_ID);
-			if (extension != null) {
-				IExtension[] extensions =  extension.getExtensions();
-				for(int i = 0; i < extensions.length; i++){
-					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					for(int j = 0; j < configElements.length; j++){
-						String fileExtensionAttribute = configElements[j].getAttribute("extension"); //$NON-NLS-1$
-						if (fileExtensionAttribute != null) fileExtensionsList.add(('.' + fileExtensionAttribute).toCharArray());
-					}
-				}	
+			IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
+			String[] fileExtensions = javaContentType == null ? null : javaContentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+			// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
+			int length = fileExtensions == null ? 0 : fileExtensions.length;
+			char[][] extensions = new char[length][];
+			SimpleWordSet knownExtensions = new SimpleWordSet(length); // used to ensure no duplicate extensions
+			extensions[0] = SuffixConstants.SUFFIX_java; // ensure that ".java" is first
+			knownExtensions.add(SuffixConstants.SUFFIX_java);
+			int index = 1;
+			for (int i = 0; i < length; i++) {
+				String fileExtension = fileExtensions[i];
+				int extensionLength = fileExtension.length() + 1;
+				char[] extension = new char[extensionLength];
+				extension[0] = '.';
+				fileExtension.getChars(0, extensionLength-1, extension, 1);
+				if (!knownExtensions.includes(extension)) {
+					extensions[index++] = extension;
+					knownExtensions.add(extension);
+				}
 			}
-			JAVA_LIKE_EXTENSIONS = new char[fileExtensionsList.size()][];
-			fileExtensionsList.toArray(JAVA_LIKE_EXTENSIONS);
-	
+			if (index != length)
+				System.arraycopy(extensions, 0, extensions = new char[index][], 0, index);
+			JAVA_LIKE_EXTENSIONS = extensions;
 		}
 		return JAVA_LIKE_EXTENSIONS;
 	}

@@ -44,9 +44,10 @@
 	</extension>
 
 	<!-- Extra Java-like file extensions -->
-	<extension point="org.eclipse.jdt.core.extraJavaLikeFileExtensions">            
-	   <extraJavaLikeFile extension="foo"/>
-	   <extraJavaLikeFile extension="bar"/>
+	<extension point="org.eclipse.core.runtime.contentTypes">
+	    <file-association 
+	        content-type="org.eclipse.jdt.core.javaSource"
+	        file-extensions="foo,bar"/>
 	</extension>
 
 	<!-- Repository provider -->

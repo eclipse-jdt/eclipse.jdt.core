@@ -105,9 +105,9 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
 	
 	/**
-	 * Name of the extension point for contributing extra Java-like file extensions
+	 * Value of the content-type for Java source files
 	 */
-	public static final String EXTRA_JAVA_LIKE_FILE_EXTENSIONS_EXTPOINT_ID = "extraJavaLikeFileExtensions" ; //$NON-NLS-1$
+	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
 
 	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles

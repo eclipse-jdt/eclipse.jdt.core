@@ -57,14 +57,6 @@
 	schema="schema/codeFormatter.exsd"/>
 
 <!-- =================================================================================== -->
-<!-- Extension Point: Extra Java-like File Extensions                                           -->
-<!-- =================================================================================== -->
-
-<extension-point name="%extraJavaLikeFileExtensions" 
-	id="extraJavaLikeFileExtensions"
-	schema="schema/extraJavaLikeFileExtensions.exsd"/>
-
-<!-- =================================================================================== -->
 <!-- Extension: Java Nature                                                              -->
 <!-- =================================================================================== -->
 
