@@ -11,6 +11,44 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
+Eclipse SDK Build 200205? - ?th May 2002 
+<br>Project org.eclipse.jdt.core v_250
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API to trigger a Java model refresh with respect to external JARs: <code>IJavaModel#refreshExternalJARs</code>. </li>
+<pre>
+/**
+ * Triggers an update of the JavaModel with respect to the referenced external JARs.
+ * This operation will issue a JavaModel delta describing the discovered changes, in term
+ * of Java element package fragment roots added, removed or changed.
+ * 
+ * @param monitor - a progress monitor used to report progress
+ * @exception JavaModelException in one of the corresponding situation:
+ * <ul>
+ *    <li> an exception occurs while accessing project resources </li>
+ * </ul>
+ * 
+ * @see IJavaElementDelta
+ * @since 2.0
+ */
+void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
+</pre>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=16091">16091</a>
+Need way to refresh JAR files
+
+<h3>Problem Reports Closed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12520">12520</a>
+JDTCompilerAdapter does not understand -extdirs
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=10047">10047</a>
+JDTCompilerAdapter  ignores -nowarn and deprecation off.
+
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
 Eclipse SDK Build 20020522 - 22nd May 2002 
 <br>Project org.eclipse.jdt.core v_249
 <h2>
