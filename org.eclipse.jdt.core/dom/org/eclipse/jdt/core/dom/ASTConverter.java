@@ -2220,13 +2220,22 @@ class ASTConverter {
 	 */
 	private int retrievePositionBeforeNextCommaOrSemiColon(int start, int end) {
 		scanner.resetTo(start, end);
+		int braceCounter = 0;
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
 				switch(token) {
+					case Scanner.TokenNameLBRACE :
+						braceCounter++;
+						break;
+					case Scanner.TokenNameRBRACE :
+						braceCounter--;
+						break;
 					case Scanner.TokenNameCOMMA :
 					case Scanner.TokenNameSEMICOLON :
-						return scanner.startPosition - 1;
+						if (braceCounter == 0) {
+							return scanner.startPosition - 1;
+						}
 				}
 			}
 		} catch(InvalidInputException e) {
