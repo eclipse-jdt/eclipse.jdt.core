@@ -347,15 +347,6 @@ protected void consumeInstanceOfExpression(int op) {
 protected void consumeLocalVariableDeclarationStatement() {
 	super.consumeLocalVariableDeclarationStatement();
 	
-	
-	// update source end to include the semi-colon
-	int variableDeclaratorsCounter = astLengthStack[astLengthPtr];
-	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
-		LocalDeclaration localDeclaration = (LocalDeclaration) astStack[astPtr - i];
-		localDeclaration.declarationSourceEnd = endStatementPosition; 
-		localDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
-	}
-
 	// force to restart in recovery mode if the declaration contains the selection
 	if (!this.diet) {
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];

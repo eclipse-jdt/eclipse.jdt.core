@@ -2754,7 +2754,6 @@ class ASTConverter {
 			variableDeclarationStatement.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
 			variableDeclarationStatement.setFlags(ASTNode.MALFORMED);
 		}
-		retrieveSemiColonPosition(variableDeclarationStatement);
 		return variableDeclarationStatement;
 	}
 	

@@ -2442,6 +2442,15 @@ protected void consumeLocalVariableDeclarationStatement() {
 	// see blockReal in case of change: duplicated code
 	// increment the amount of declared variables for this block
 	realBlockStack[realBlockPtr]++;
+	
+	// update source end to include the semi-colon
+	int variableDeclaratorsCounter = astLengthStack[astLengthPtr];
+	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
+		LocalDeclaration localDeclaration = (LocalDeclaration) astStack[astPtr - i];
+		localDeclaration.declarationSourceEnd = endStatementPosition; 
+		localDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
+	}
+
 }
 protected void consumeMethodBody() {
 	// MethodBody ::= NestedMethod '{' BlockStatementsopt '}' 
