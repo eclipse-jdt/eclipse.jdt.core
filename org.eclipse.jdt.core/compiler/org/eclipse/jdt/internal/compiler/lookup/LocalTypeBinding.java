@@ -18,6 +18,8 @@ public final class LocalTypeBinding extends NestedTypeBinding {
 	final static char[] LocalTypePrefix = { '$', 'L', 'o', 'c', 'a', 'l', '$' };
 
 	private InnerEmulationDependency[] dependents;
+	ArrayBinding[] localArrayBindings; // used to cache array bindings of various dimensions for this local type
+
 public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType) {
 	super(
 		new char[][] {CharOperation.concat(LocalTypePrefix, scope.referenceContext.name)},
@@ -60,6 +62,24 @@ public char[] constantPoolName() /* java/lang/Object */ {
 public void constantPoolName(char[] computedConstantPoolName) /* java/lang/Object */ {
 	this.constantPoolName = computedConstantPoolName;
 }
+
+ArrayBinding createArrayType(int dimensionCount) {
+	if (localArrayBindings == null) {
+		localArrayBindings = new ArrayBinding[] {new ArrayBinding(this, dimensionCount)};
+		return localArrayBindings[0];
+	}
+
+	// find the cached array binding for this dimensionCount (if any)
+	int length = localArrayBindings.length;
+	for (int i = 0; i < length; i++)
+		if (localArrayBindings[i].dimensions == dimensionCount)
+			return localArrayBindings[i];
+
+	// no matching array
+	System.arraycopy(localArrayBindings, 0, localArrayBindings = new ArrayBinding[length + 1], 0, length); 
+	return localArrayBindings[length] = new ArrayBinding(this, dimensionCount);
+}
+
 public char[] readableName() {
 	if (isAnonymousType()) {
 		if (superInterfaces == NoSuperInterfaces)
