@@ -12,8 +12,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class PackageDeclarationPattern extends SearchPattern {
+public class PackageDeclarationPattern extends SearchPattern implements IIndexConstants {
 
 protected char[] pkgName;
 
@@ -21,7 +22,7 @@ public PackageDeclarationPattern(char[] pkgName, int matchRule) {
 	super(PKG_DECL_PATTERN, matchRule);
 	this.pkgName = pkgName;
 }
-public EntryResult[] queryIn(Index index) {
+EntryResult[] queryIn(Index index) {
 	// package declarations are not indexed
 	return null;
 }
@@ -33,7 +34,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -44,7 +45,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (this.isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

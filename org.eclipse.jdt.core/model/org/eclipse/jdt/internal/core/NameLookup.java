@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -407,8 +408,8 @@ public class NameLookup implements SuffixConstants {
 				workspace,
 				pkg.getElementName().toCharArray(),
 				typeName.toCharArray(),
-				partialMatch ? IJavaSearchConstants.PREFIX_MATCH : IJavaSearchConstants.EXACT_MATCH,
-				partialMatch ? IJavaSearchConstants.CASE_INSENSITIVE : IJavaSearchConstants.CASE_SENSITIVE,
+				partialMatch ? SearchPattern.R_PREFIX_MATCH : SearchPattern.R_EXACT_MATCH,
+				!partialMatch, // case sensitive
 				IJavaSearchConstants.TYPE,
 				SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg}, false),
 				nameRequestor,

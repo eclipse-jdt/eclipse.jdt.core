@@ -58,7 +58,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		wkspEncoding = getWorkspaceRoot().getDefaultCharset();
-		System.out.println("Encoding tests using Worpsace charset: "+wkspEncoding+" and VM charset: "+vmEncoding);
+		System.out.println("Encoding tests using Workspace charset: "+wkspEncoding+" and VM charset: "+vmEncoding);
 		this.encodingJavaProject = setUpJavaProject("Encoding");
 		this.encodingProject = (IProject) this.encodingJavaProject.getResource();
 		this.utf8File = (IFile) this.encodingProject.findMember("src/testUTF8/Test.java");

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.Flags;
@@ -26,6 +25,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 /**
  * @see IMember
@@ -155,7 +155,7 @@ public int getFlags() throws JavaModelException {
 /*
  * @see JavaElement
  */
-public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner workingCopyOwner) {
+public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 	switch (token.charAt(0)) {
 		case JEM_COUNT:
 			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);

@@ -29,13 +29,13 @@ public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
 		// must be a write only access with an initializer
 		if (this.pattern.writeAccess && !this.pattern.readAccess && node.initialization != null)
 			if (matchesName(this.pattern.name, node.name))
-				referencesLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				referencesLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	int declarationsLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findDeclarations)
 		if (matchesName(this.pattern.name, node.name))
 			if (node.declarationSourceStart == getLocalVariable().declarationSourceStart)
-				declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
@@ -44,16 +44,20 @@ private LocalVariable getLocalVariable() {
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (reference instanceof SingleNameReference) {
-		SearchMatch match = locator.newLocalVariableReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+		int offset = reference.sourceStart;
+		SearchMatch match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		long sourcePosition = qNameRef.sourcePositions[0];
-		SearchMatch match = locator.newLocalVariableReferenceMatch(element, accuracy, ((int) (sourcePosition >>> 32)), ((int) sourcePosition)+1, reference);
+		int start = (int) (sourcePosition >>> 32);
+		int end = (int) sourcePosition;
+		SearchMatch match = locator.newLocalVariableReferenceMatch(element, accuracy, start, end-start+1, reference);
 		locator.report(match);
 	} else if (reference instanceof LocalDeclaration) {
 		LocalVariable localVariable = getLocalVariable();
-		SearchMatch match = locator.newLocalVariableReferenceMatch(localVariable, accuracy, localVariable.nameStart, localVariable.nameEnd+1, reference);
+		int offset = localVariable.nameStart;
+		SearchMatch match = locator.newLocalVariableReferenceMatch(localVariable, accuracy, offset, localVariable.nameEnd-offset+1, reference);
 		locator.report(match);
 	}
 }

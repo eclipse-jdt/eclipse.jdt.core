@@ -12,19 +12,20 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern {
+public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern implements IIndexConstants {
 
 protected char[] qualification;
 
 public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char classOrInterface, int matchRule) {
 	this(matchRule);
 
-	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
-	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
+	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 
-	this.mustResolve = this.qualification != null;
+	((InternalSearchPattern)this).mustResolve = this.qualification != null;
 }
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);
@@ -83,7 +84,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -94,7 +95,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (this.isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

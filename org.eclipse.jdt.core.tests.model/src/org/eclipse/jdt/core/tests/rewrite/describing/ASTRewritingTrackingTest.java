@@ -65,7 +65,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -133,7 +133,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -205,7 +205,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -281,7 +281,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -353,7 +353,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -421,7 +421,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -475,7 +475,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		ASTRewrite rewrite= new ASTRewrite(ast);
+		ASTRewrite rewrite= ASTRewrite.create(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();

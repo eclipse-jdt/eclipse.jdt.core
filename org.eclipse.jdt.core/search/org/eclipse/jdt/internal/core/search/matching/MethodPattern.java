@@ -16,8 +16,9 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class MethodPattern extends SearchPattern {
+public class MethodPattern extends SearchPattern implements IIndexConstants {
 
 protected boolean findDeclarations;
 protected boolean findReferences;
@@ -70,25 +71,25 @@ public MethodPattern(
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
 
-	this.selector = this.isCaseSensitive ? selector : CharOperation.toLowerCase(selector);
-	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
-	this.returnQualification = this.isCaseSensitive ? returnQualification : CharOperation.toLowerCase(returnQualification);
-	this.returnSimpleName = this.isCaseSensitive ? returnSimpleName : CharOperation.toLowerCase(returnSimpleName);
+	this.selector = isCaseSensitive() ? selector : CharOperation.toLowerCase(selector);
+	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.returnQualification = isCaseSensitive() ? returnQualification : CharOperation.toLowerCase(returnQualification);
+	this.returnSimpleName = isCaseSensitive() ? returnSimpleName : CharOperation.toLowerCase(returnSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
 		this.parameterQualifications = new char[this.parameterCount][];
 		this.parameterSimpleNames = new char[this.parameterCount][];
 		for (int i = 0; i < this.parameterCount; i++) {
-			this.parameterQualifications[i] = this.isCaseSensitive ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
-			this.parameterSimpleNames[i] = this.isCaseSensitive ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
+			this.parameterQualifications[i] = isCaseSensitive() ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
+			this.parameterSimpleNames[i] = isCaseSensitive() ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
 		}
 	} else {
 		this.parameterCount = -1;
 	}
 
 	this.declaringType = declaringType;
-	this.mustResolve = mustResolve();
+	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 MethodPattern(int matchRule) {
 	super(METHOD_PATTERN, matchRule);
@@ -110,7 +111,7 @@ public char[][] getMatchCategories() {
 		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
 }
-public boolean isPolymorphicSearch() {
+boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
@@ -138,11 +139,11 @@ protected boolean mustResolve() {
 			if (parameterQualifications[i] != null) return true;
 	return false;
 }
-public EntryResult[] queryIn(Index index) throws IOException {
+EntryResult[] queryIn(Index index) throws IOException {
 	char[] key = this.selector; // can be null
 	int matchRule = getMatchRule();
 
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
 			if (this.selector != null && this.parameterCount >= 0)
 				key = createIndexKey(this.selector, this.parameterCount);
@@ -203,7 +204,7 @@ public String toString() {
 	else if (returnQualification != null)
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -214,7 +215,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(this.isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

@@ -16,7 +16,8 @@ package org.eclipse.jdt.core.search;
  *
  * @see SearchEngine#createSearchPattern(org.eclipse.jdt.core.IJavaElement, int)
  * @see SearchEngine#createSearchPattern(String, int, int, boolean)
- * @deprecated use SearchPattern instead
+ * @deprecated Since 3.0, the class
+ * {@link org.eclipse.jdt.core.search.SearchPattern} replaces this interface.
  */
 public interface ISearchPattern {
 	// used as a marker interface: contains no methods

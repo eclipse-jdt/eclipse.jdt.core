@@ -63,8 +63,8 @@ public void setUpSuite() throws Exception {
 			project.getProject().getWorkspace(),
 			null,
 			"!@$#!@".toCharArray(),
-			IJavaSearchConstants.PATTERN_MATCH,
-			IJavaSearchConstants.CASE_SENSITIVE,
+			SearchPattern.R_PATTERN_MATCH,
+			true, // case sensitive
 			IJavaSearchConstants.CLASS,
 			scope, 
 			new ITypeNameRequestor() {

@@ -1100,20 +1100,6 @@ public class Scribe {
 			throw new AbortFormatting(e);
 		}
 	}
-		
-	public void printNextToken(int expectedTokenType, boolean considerSpaceIfAny, boolean considerNewLineAfterComment){
-		printComment();
-		try {
-			this.currentToken = this.scanner.getNextToken();
-			char[] currentTokenSource = this.scanner.getRawTokenSource();
-			if (expectedTokenType != this.currentToken) {
-				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
-			}
-			this.print(currentTokenSource, considerSpaceIfAny);
-		} catch (InvalidInputException e) {
-			throw new AbortFormatting(e);
-		}
-	}
 
 	public void printNextToken(int[] expectedTokenTypes){
 		printComment();
@@ -1131,27 +1117,6 @@ public class Scribe {
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
 			this.print(currentTokenSource, false);
-		} catch (InvalidInputException e) {
-			throw new AbortFormatting(e);
-		}
-	}
-	
-	public void printNextToken(int[] expectedTokenTypes, boolean considerSpaceIfAny, boolean considerNewLineAfterComment){
-		printComment();
-		try {
-			this.currentToken = this.scanner.getNextToken();
-			char[] currentTokenSource = this.scanner.getRawTokenSource();
-			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
-				StringBuffer expectations = new StringBuffer(5);
-				for (int i = 0; i < expectedTokenTypes.length; i++){
-					if (i > 0) {
-						expectations.append(',');
-					}
-					expectations.append(expectedTokenTypes[i]);
-				}				
-				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
-			}
-			this.print(currentTokenSource, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}

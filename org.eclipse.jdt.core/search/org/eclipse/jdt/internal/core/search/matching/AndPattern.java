@@ -35,8 +35,8 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	try {
 		index.startQuery();
 		do {
-			SearchPattern pattern = currentPattern();
-			EntryResult[] entries = pattern.queryIn(index);
+			SearchPattern pattern = ((InternalSearchPattern) this).currentPattern();
+			EntryResult[] entries = ((InternalSearchPattern)pattern).queryIn(index);
 			if (entries == null) return;
 
 			SearchPattern decodedResult = pattern.getBlankPattern();
@@ -70,7 +70,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	Object[] names = intersectedNames.values;
 	for (int i = 0, l = names.length; i < l; i++)
 		if (names[i] != null)
-			acceptMatch((String) names[i], null, requestor, participant, scope); // AndPatterns cannot provide the decoded result
+			((InternalSearchPattern) this).acceptMatch((String) names[i], null, requestor, participant, scope); // AndPatterns cannot provide the decoded result
 }
 /**
  * Returns whether another query must be done.

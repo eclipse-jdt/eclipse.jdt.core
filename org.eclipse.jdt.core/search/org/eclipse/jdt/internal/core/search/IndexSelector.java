@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 
 /**
  * Selects the indexes that correspond to projects in a given search scope
@@ -125,8 +126,8 @@ private void initializeIndexKeys() {
 	ArrayList requiredIndexKeys = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-	IJavaElement projectOrJarFocus = this.pattern == null || this.pattern.focus == null ? null : getProjectOrJar(this.pattern.focus);
-	boolean isPolymorphicSearch = this.pattern == null ? false : this.pattern.isPolymorphicSearch();
+	IJavaElement projectOrJarFocus = MatchLocator.projectOrJarFocus(this.pattern);
+	boolean isPolymorphicSearch = this.pattern == null ? false : MatchLocator.isPolymorphicSearch(this.pattern);
 	for (int i = 0; i < projectsAndJars.length; i++) {
 		IPath location;
 		IPath path = projectsAndJars[i];
@@ -164,11 +165,5 @@ private static IJavaProject getJavaProject(IPath path, IJavaModel model) {
 	} else {
 		return null;
 	}
-}
-public static IJavaElement getProjectOrJar(IJavaElement element) {
-	while (!(element instanceof IJavaProject) && !(element instanceof JarPackageFragmentRoot)) {
-		element = element.getParent();
-	}
-	return element;
 }
 }

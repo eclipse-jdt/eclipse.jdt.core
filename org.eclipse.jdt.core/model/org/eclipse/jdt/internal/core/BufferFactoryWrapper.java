@@ -28,11 +28,7 @@ public class BufferFactoryWrapper extends WorkingCopyOwner {
 	}
 	
 	public static WorkingCopyOwner create(org.eclipse.jdt.core.IBufferFactory factory) {
-		if (factory != null && factory == DefaultWorkingCopyOwner.PRIMARY.factory) {
-			return DefaultWorkingCopyOwner.PRIMARY;
-		} else {
-			return new BufferFactoryWrapper(factory);
-		}
+		return new BufferFactoryWrapper(factory);
 	}
 
 	/* (non-Javadoc)

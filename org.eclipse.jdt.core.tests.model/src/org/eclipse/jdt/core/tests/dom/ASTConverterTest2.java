@@ -4341,7 +4341,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  }\n" +
 				"}"
 			);
-			sourceUnit.reconcile(0/*don't create AST*/, false/* don't force pb detection*/, null, null);
+			sourceUnit.reconcile(ICompilationUnit.NO_AST, false/* don't force pb detection*/, null, null);
 			// TODO improve test for AST.LEVEL_3_0
 			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);

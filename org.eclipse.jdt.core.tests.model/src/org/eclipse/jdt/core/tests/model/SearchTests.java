@@ -166,8 +166,8 @@ protected void assertAllTypes(String message, IJavaProject project, int waitingP
 		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
-		PATTERN_MATCH,
-		CASE_INSENSITIVE,
+		SearchPattern.R_PATTERN_MATCH,
+		false, // case insensitive
 		TYPE,
 		scope, 
 		requestor,
@@ -425,7 +425,7 @@ public void testSearchPatternCreation01() {
 			"main(*)", 
 			IJavaSearchConstants.METHOD,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"MethodReferencePattern: main(*), pattern match, case sensitive",
@@ -441,7 +441,7 @@ public void testSearchPatternCreation02() {
 			"main(*) void", 
 			IJavaSearchConstants.METHOD,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"MethodReferencePattern: main(*) --> void, pattern match, case sensitive",
@@ -457,7 +457,7 @@ public void testSearchPatternCreation03() {
 			"main(String*) void", 
 			IJavaSearchConstants.METHOD,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"MethodReferencePattern: main(String*) --> void, pattern match, case sensitive",
@@ -473,7 +473,7 @@ public void testSearchPatternCreation04() {
 			"main(*[])", 
 			IJavaSearchConstants.METHOD,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"MethodReferencePattern: main(*[]), pattern match, case sensitive",
@@ -489,7 +489,7 @@ public void testSearchPatternCreation05() {
 			"java.lang.*.main ", 
 			IJavaSearchConstants.METHOD,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"MethodReferencePattern: java.lang.*.main(...), pattern match, case sensitive",
@@ -505,7 +505,7 @@ public void testSearchPatternCreation06() {
 			"java.lang.* ", 
 			IJavaSearchConstants.CONSTRUCTOR,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"ConstructorReferencePattern: java.lang.*(...), pattern match, case sensitive",
@@ -521,7 +521,7 @@ public void testSearchPatternCreation07() {
 			"X(*,*)", 
 			IJavaSearchConstants.CONSTRUCTOR,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"ConstructorReferencePattern: X(*, *), pattern match, case sensitive",
@@ -537,7 +537,7 @@ public void testSearchPatternCreation08() {
 			"main(String*,*) void", 
 			IJavaSearchConstants.METHOD,
 			IJavaSearchConstants.REFERENCES,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"MethodReferencePattern: main(String*, *) --> void, pattern match, case sensitive",
@@ -553,7 +553,7 @@ public void testSearchPatternCreation10() {
 			"x.y.z.Bar.field Foo", 
 			IJavaSearchConstants.FIELD,
 			IJavaSearchConstants.DECLARATIONS,
-			CASE_SENSITIVE);
+			true); // case sensitive
 	
 	assertPattern(
 		"FieldDeclarationPattern: x.y.z.Bar.field --> Foo, exact match, case sensitive",

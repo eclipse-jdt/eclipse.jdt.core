@@ -90,7 +90,7 @@ public void testChangeContent() throws CoreException {
 		"  }\n" +
 		"}";
 	this.copy.getBuffer().setContents(newContents);
-	this.copy.reconcile(0, false, null, null);
+	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertSourceEquals(
 		"Unexpected working copy contents",
 		newContents,

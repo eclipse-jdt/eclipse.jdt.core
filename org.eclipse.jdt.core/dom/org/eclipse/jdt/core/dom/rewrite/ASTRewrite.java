@@ -12,10 +12,7 @@ package org.eclipse.jdt.core.dom.rewrite;
 
 import java.util.Iterator;
 import java.util.Map;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
-import org.eclipse.jface.text.IDocument;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -29,19 +26,36 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 
+import org.eclipse.jface.text.IDocument;
+
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
+
 /**
- * This API is work in progress, and will be changed for the final 3.0 release.
- * TODO - Work in progress. missing spec
+ * Infrastucture for modifying code by describing changes to AST nodes.
+ * The AST rewriter collects descriptions of modifications to nodes and
+ * translates these descriptions into text edits that can then be applied to
+ * the original source. The key thing is that this is all done without actually
+ * modifying the original AST, which has the virtue of allowing one to entertain
+ * several alternate sets of changes on the same AST (e.g., for calculating
+ * quick fix proposals). The rewrite infrastructure tries to generate minimal
+ * text changes, preserve existing comments and indentation, and follow code
+ * formatter settings. If the freedom to explore multiple alternate changes is
+ * not required, consider using the AST's built-in rewriter 
+ * (see {@link org.eclipse.jdt.core.dom.CompilationUnit#rewrite(IDocument, Map)}).
  * <p>
+ * The following code snippet illustrated usage of this class:
+ * </p>
  * <pre>
  * Document doc = new Document("import java.util.List;\nclass X {}\n");
- * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
  * parser.setSource(doc.get().toCharArray());
  * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
  * AST ast = cu.getAST();
  * ImportDeclaration id = ast.newImportDeclaration();
  * id.setName(ast.newName(new String[] {"java", "util", "Set"});
- * ASTRewrite rewriter = new ASTRewrite(ast);
+ * ASTRewrite rewriter = ASTRewrite.create(ast);
  * TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
  * ITrackedNodePosition tdLocation = rewriter.track(td);
  * ListRewriter lrw = rewriter.getListRewrite(cu,
@@ -54,7 +68,6 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  * // tdLocation.getStartPosition() and tdLocation.getLength()
  * // are new source range for "class X {}" in doc.get()
  * </pre>
- * </p>
  * <p>
  * This class is not intended to be subclassed.
  * </p>
@@ -68,16 +81,23 @@ public class ASTRewrite {
 	private final RewriteEventStore eventStore;
 	private final NodeInfoStore nodeStore;
 	
-	/* TODO (martin/david) - You get more flexibility to evolve an API class
-	 * by declaring a public static factory method as API and keeping
-	 * the constructor private or package-private.
-	 */
 	/**
-	 * Creates a new AST rewrite for the given AST.
+	 * Creates a new instance for describing manipulations of
+	 * the given AST.
+	 * 
+	 * @param ast the AST whose nodes will be rewritten
+	 */
+	public static ASTRewrite create(AST ast) {
+		return new ASTRewrite(ast);
+	}
+
+	/**
+	 * Creates a new instance for the given AST.
 	 * 
 	 * @param ast the AST being rewritten
+	 * @see #create(AST)
 	 */
-	public ASTRewrite(AST ast) {
+	private ASTRewrite(AST ast) {
 		this.ast= ast;
 		this.eventStore= new RewriteEventStore();
 		this.nodeStore= new NodeInfoStore(ast);

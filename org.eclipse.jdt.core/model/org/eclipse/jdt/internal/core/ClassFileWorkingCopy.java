@@ -518,20 +518,6 @@ public IType findPrimaryType() {
 	}
 
 	/**
-	 * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
-	 * @since 3.0
-	 * @deprecated TODO (jeem) remove after the ICompilationUnit API method is removed
-	 */
-	public CompilationUnit reconcile(
-		boolean createAST,
-		boolean forceProblemDetection,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
-	}
-	
-	/**
 	 * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
 	 * @since 3.0
 	 */

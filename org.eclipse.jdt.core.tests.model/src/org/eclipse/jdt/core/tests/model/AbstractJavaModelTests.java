@@ -1172,8 +1172,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				ResourcesPlugin.getWorkspace(),
 				null,
 				"!@$#!@".toCharArray(),
-				IJavaSearchConstants.PATTERN_MATCH,
-				IJavaSearchConstants.CASE_SENSITIVE,
+				SearchPattern.R_PATTERN_MATCH,
+				true, // case sensitive
 				IJavaSearchConstants.CLASS,
 				scope, 
 				new ITypeNameRequestor() {

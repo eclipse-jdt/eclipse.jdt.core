@@ -13,9 +13,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.List;
 
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-
 /**
  * Simple or qualified "this" AST node type.
  *
@@ -185,48 +182,4 @@ public class ThisExpression extends Expression {
 			memSize()
 			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize());
 	}
-
-	/**
-	 * Internal method used by ASTConverter.
-	 * 
-	 * @return the block scope
-	 */
-	BlockScope lookupScope() {
-		// TODO (olivier) - this method should be moved to ASTConverter
-		ASTNode currentNode = this;
-		while(currentNode != null
-			&&!(currentNode instanceof MethodDeclaration)
-			&& !(currentNode instanceof Initializer)
-			&& !(currentNode instanceof FieldDeclaration)) {
-			currentNode = currentNode.getParent();
-		}
-		if (currentNode == null) {
-			return null;
-		}
-		if (currentNode instanceof Initializer) {
-			Initializer initializer = (Initializer) currentNode;
-			while(!(currentNode instanceof TypeDeclaration)) {
-				currentNode = currentNode.getParent();
-			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
-				return typeDecl.staticInitializerScope;
-			} else {
-				return typeDecl.initializerScope;
-			}
-		} else if (currentNode instanceof FieldDeclaration) {
-			FieldDeclaration fieldDeclaration = (FieldDeclaration) currentNode;
-			while(!(currentNode instanceof TypeDeclaration)) {
-				currentNode = currentNode.getParent();
-			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
-				return typeDecl.staticInitializerScope;
-			} else {
-				return typeDecl.initializerScope;
-			}
-		}
-		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-		return abstractMethodDeclaration.scope;
-	}	
 }

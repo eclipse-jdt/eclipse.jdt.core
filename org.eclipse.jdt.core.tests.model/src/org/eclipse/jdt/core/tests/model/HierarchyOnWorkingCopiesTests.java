@@ -41,7 +41,7 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 		"public class A extends B {\n" +
 		"}";
 	this.copy.getBuffer().setContents(newContents);
-	this.copy.reconcile(0, false, null, null);
+	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	
 	IFile file = null;
 	try {
@@ -77,7 +77,7 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 		"class B {\n" +
 		"}";
 	this.copy.getBuffer().setContents(newContents);
-	this.copy.reconcile(0, false, null, null);
+	this.copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	
 	IFile file = null;
 	try {

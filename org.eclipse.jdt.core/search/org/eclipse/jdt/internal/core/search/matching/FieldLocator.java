@@ -38,14 +38,14 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 		// must be a write only access with an initializer
 		if (this.pattern.writeAccess && !this.pattern.readAccess && node.initialization != null)
 			if (matchesName(this.pattern.name, node.name))
-				referencesLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				referencesLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	int declarationsLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findDeclarations)
 		if (node.isField()) // ignore field initializers
 			if (matchesName(this.pattern.name, node.name))
 				if (matchesTypeReference(((FieldPattern)this.pattern).typeSimpleName, node.type))
-					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+					declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
@@ -90,7 +90,7 @@ protected int matchField(FieldBinding field, boolean matchName) {
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
 	if (node instanceof FieldReference) {
 		if (matchesName(this.pattern.name, ((FieldReference) node).token))
-			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		return IMPOSSIBLE_MATCH;
 	}
 	return super.matchReference(node, nodeSet, writeOnlyAccess);
@@ -122,10 +122,13 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	} else if (reference instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) reference;
 		long position = fieldReference.nameSourcePosition;
-		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, ((int) (position >>> 32)), ((int) position)+1, fieldReference);
+		int start = (int) (position >>> 32);
+		int end = (int) position;
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, start, end-start+1, fieldReference);
 		locator.report(match);
 	} else if (reference instanceof SingleNameReference) {
-		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+		int offset = reference.sourceStart;
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
@@ -215,7 +218,8 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 				}
 			} 
 			if (fieldDecl != null) {
-				SearchMatch match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, fieldDecl.sourceStart, fieldDecl.sourceEnd+1, locator.getParticipant(), resource);
+				int offset = fieldDecl.sourceStart;
+				SearchMatch match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, offset, fieldDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 				locator.report(match);
 
 			}

@@ -38,7 +38,7 @@ public static final int ALL_CONTAINER =
 	COMPILATION_UNIT_CONTAINER | CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
 
 public static PatternLocator patternLocator(SearchPattern pattern) {
-	switch (pattern.kind) {
+	switch (((InternalSearchPattern)pattern).kind) {
 		case IIndexConstants.PKG_REF_PATTERN :
 			return new PackageReferenceLocator((PackageReferencePattern) pattern);
 		case IIndexConstants.PKG_DECL_PATTERN :
@@ -86,8 +86,8 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 
 
 public PatternLocator(SearchPattern pattern) {
-	this.matchMode = pattern.matchMode;
-	this.isCaseSensitive = pattern.isCaseSensitive;
+	this.matchMode = pattern.getMatchMode();
+	this.isCaseSensitive = pattern.isCaseSensitive();
 }
 /**
  * Initializes this search pattern so that polymorphic search can be performed.
@@ -228,21 +228,22 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	SearchMatch match = null;
 	int referenceType = referenceType();
+	int offset = reference.sourceStart;
 	switch (referenceType) {
 		case IJavaElement.PACKAGE_FRAGMENT:
-			match = locator.newPackageReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			match = locator.newPackageReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.TYPE:
-			match = locator.newTypeReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			match = locator.newTypeReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.FIELD:
-			match = locator.newFieldReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.METHOD:
-			match = locator.newMethodReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.LOCAL_VARIABLE:
-			match = locator.newLocalVariableReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 	}
 	if (match != null) {

@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.*;
-import org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern;
 
 /**
  * A search pattern defines how search results are found. Use <code>SearchPattern.createPattern</code>
@@ -28,7 +27,7 @@ import org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern;
  * @see #createPattern(String, int, int, int, boolean)
  * @since 3.0
  */
-public abstract class SearchPattern extends InternalSearchPattern implements IIndexConstants, IJavaSearchConstants {
+public abstract class SearchPattern extends InternalSearchPattern {
 
 	/**
 	 * Rules for pattern matching: (exact, prefix, pattern) [ | case sensitive]
@@ -37,16 +36,16 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	 * Match rule: The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
 	 */
-	public static final int R_EXACT_MATCH = EXACT_MATCH;
+	public static final int R_EXACT_MATCH = 0;
 	/**
 	 * Match rule: The search pattern is a prefix of the search result.
 	 */
-	public static final int R_PREFIX_MATCH = PREFIX_MATCH;
+	public static final int R_PREFIX_MATCH = 1;
 	/**
 	 * Match rule: The search pattern contains one or more wild cards ('*') where a 
 	 * wild-card can replace 0 or more characters in the search result.
 	 */
-	public static final int R_PATTERN_MATCH = PATTERN_MATCH;
+	public static final int R_PATTERN_MATCH = 2;
 	/**
 	 * Match rule: The search pattern contains a regular expression.
 	 */
@@ -60,17 +59,12 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	/**
 	 * Whether this pattern is case sensitive.
 	 */
-	public final boolean isCaseSensitive;
+	private final boolean isCaseSensitive;
 	
 	/**
 	 * One of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
 	 */
-	public final int matchMode;
-
-	/**
-	 *  The focus element (used for reference patterns)
-	 */
-	public IJavaElement focus;
+	private final int matchMode;
 
 	protected SearchPattern(int patternKind, int matchRule) {
 		super(patternKind);
@@ -86,23 +80,8 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	 * @param rightPattern the right pattern
 	 * @return a "and" pattern
 	 */
-	public static SearchPattern createAndPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
-		return new AndPattern(0/*no kind*/, 0/*no rule*/) {
-			SearchPattern current = leftPattern;
-			public SearchPattern currentPattern() {
-				return current;
-			}
-			protected boolean hasNextQuery() {
-				if (current == leftPattern) {
-					current = rightPattern;
-					return true;
-				}
-				return false; 
-			}
-			protected void resetQuery() {
-				current = leftPattern;
-			}
-		};
+	public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
+		return MatchLocator.createAndPattern(leftPattern, rightPattern);
 	}
 	
 	/**
@@ -217,7 +196,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 						parameterTypeQualifications[i] = null;
 					} else {
 						// prefix with a '*' as the full qualification could be bigger (because of an import)
-						parameterTypeQualifications[i] = CharOperation.concat(ONE_STAR, parameterTypeQualifications[i]);
+						parameterTypeQualifications[i] = CharOperation.concat(IIndexConstants.ONE_STAR, parameterTypeQualifications[i]);
 					}
 					parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
 				} else {
@@ -363,7 +342,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 					typeQualification = null;
 				} else {
 					// prefix with a '*' as the full qualification could be bigger (because of an import)
-					typeQualification = CharOperation.concat(ONE_STAR, typeQualification);
+					typeQualification = CharOperation.concat(IIndexConstants.ONE_STAR, typeQualification);
 				}
 				typeSimpleName = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
 			} else {
@@ -581,7 +560,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 						parameterTypeQualifications[i] = null;
 					} else {
 						// prefix with a '*' as the full qualification could be bigger (because of an import)
-						parameterTypeQualifications[i] = CharOperation.concat(ONE_STAR, parameterTypeQualifications[i]);
+						parameterTypeQualifications[i] = CharOperation.concat(IIndexConstants.ONE_STAR, parameterTypeQualifications[i]);
 					}
 					parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
 				} else {
@@ -602,7 +581,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 					returnTypeQualification = null;
 				} else {
 					// because of an import
-					returnTypeQualification = CharOperation.concat(ONE_STAR, returnTypeQualification);
+					returnTypeQualification = CharOperation.concat(IIndexConstants.ONE_STAR, returnTypeQualification);
 				}			
 				returnTypeSimpleName = CharOperation.subarray(returnTypePart, lastDotPosition+1, returnTypePart.length);
 			} else {
@@ -785,7 +764,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 						typeQualification = field.isBinary()
 							? typeSignature.substring(0, lastDot).toCharArray()
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							: CharOperation.concat(ONE_STAR, typeSignature.substring(0, lastDot).toCharArray());
+							: CharOperation.concat(IIndexConstants.ONE_STAR, typeSignature.substring(0, lastDot).toCharArray());
 					}
 				} catch (JavaModelException e) {
 					return null;
@@ -951,7 +930,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 						returnQualification = method.isBinary()
 							? returnType.substring(0, lastDot).toCharArray()
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							: CharOperation.concat(ONE_STAR, returnType.substring(0, lastDot).toCharArray());
+							: CharOperation.concat(IIndexConstants.ONE_STAR, returnType.substring(0, lastDot).toCharArray());
 					}
 				} catch (JavaModelException e) {
 					return null;
@@ -970,7 +949,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 						parameterQualifications[i] = method.isBinary()
 							? signature.substring(0, lastDot).toCharArray()
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							: CharOperation.concat(ONE_STAR, signature.substring(0, lastDot).toCharArray());
+							: CharOperation.concat(IIndexConstants.ONE_STAR, signature.substring(0, lastDot).toCharArray());
 				}
 				}
 				switch (limitTo) {
@@ -1072,7 +1051,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 				break;
 		}
 		if (searchPattern != null)
-			searchPattern.focus = element;
+			MatchLocator.setFocus(searchPattern, element);
 		return searchPattern;
 	}
 	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, int limitTo) {
@@ -1082,7 +1061,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 					packageName, 
 					enclosingTypeNames, 
 					simpleName, 
-					TYPE_SUFFIX,
+					IIndexConstants.TYPE_SUFFIX,
 					R_EXACT_MATCH | R_CASE_SENSITIVE);
 			case IJavaSearchConstants.REFERENCES :
 				return new TypeReferencePattern(
@@ -1101,7 +1080,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 						packageName, 
 						enclosingTypeNames, 
 						simpleName, 
-						TYPE_SUFFIX,
+						IIndexConstants.TYPE_SUFFIX,
 						R_EXACT_MATCH | R_CASE_SENSITIVE), 
 					new TypeReferencePattern(
 						CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
@@ -1167,14 +1146,14 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 		}
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types
-				return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, TYPE_SUFFIX, matchRule);
+				return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, IIndexConstants.TYPE_SUFFIX, matchRule);
 			case IJavaSearchConstants.REFERENCES :
 				return new TypeReferencePattern(qualificationChars, typeChars, matchRule);
 			case IJavaSearchConstants.IMPLEMENTORS : 
 				return new SuperTypeReferencePattern(qualificationChars, typeChars, true, matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
 				return new OrPattern(
-					new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, TYPE_SUFFIX, matchRule),// cannot search for explicit member types
+					new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, IIndexConstants.TYPE_SUFFIX, matchRule),// cannot search for explicit member types
 					new TypeReferencePattern(qualificationChars, typeChars, matchRule));
 		}
 		return null;
@@ -1201,7 +1180,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 				IType declaringClass = ((IMember) parent).getDeclaringType();
 				return CharOperation.arrayConcat(
 					enclosingTypeNames(declaringClass),
-					new char[][] {declaringClass.getElementName().toCharArray(), ONE_STAR});
+					new char[][] {declaringClass.getElementName().toCharArray(), IIndexConstants.ONE_STAR});
 			case IJavaElement.TYPE:
 				return CharOperation.arrayConcat(
 					enclosingTypeNames((IType)parent), 
@@ -1260,6 +1239,17 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 		return CharOperation.NO_CHAR_CHAR; // called from queryIn(), override as necessary
 	}
 	/**
+	 * Returns the match mode.
+	 * 
+	 * @return one of {@link IJavaSearchConstants#EXACT_MATCH},
+	 * {@link IJavaSearchConstants#PREFIX_MATCH},
+	 * {@link IJavaSearchConstants#PATTERN_MATCH},
+	 * {@link IJavaSearchConstants#REGEXP_MATCH}}
+	 */
+	public final int getMatchMode() {
+		return this.matchMode;
+	}
+	/**
 	 * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
 	 * 
@@ -1267,6 +1257,15 @@ public abstract class SearchPattern extends InternalSearchPattern implements IIn
 	 */	
 	public int getMatchRule() {
 		return this.matchMode + (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
+	}
+	/**
+	 * Returns whether this pattern is case-sensitive.
+	 * 
+	 * @return <code>true</code> if this pattern is case-sensitive, and
+	 * <code>false</code> otherwise
+	 */
+	public final boolean isCaseSensitive () {
+		return this.isCaseSensitive;
 	}
 	/**
 	 * Returns whether this pattern matches the given pattern (representing a decoded index key).

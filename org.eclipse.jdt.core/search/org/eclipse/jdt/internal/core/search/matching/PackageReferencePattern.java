@@ -12,8 +12,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class PackageReferencePattern extends AndPattern {
+public class PackageReferencePattern extends AndPattern implements IIndexConstants {
 
 protected char[] pkgName;
 
@@ -28,11 +29,11 @@ public PackageReferencePattern(char[] pkgName, int matchRule) {
 	if (pkgName == null || pkgName.length == 0) {
 		this.pkgName = null;
 		this.segments = new char[][] {CharOperation.NO_CHAR};
-		this.mustResolve = false;
+		((InternalSearchPattern)this).mustResolve = false;
 	} else {
-		this.pkgName = this.isCaseSensitive ? pkgName : CharOperation.toLowerCase(pkgName);
+		this.pkgName = isCaseSensitive() ? pkgName : CharOperation.toLowerCase(pkgName);
 		this.segments = CharOperation.splitOn('.', this.pkgName);
-		this.mustResolve = true;
+		((InternalSearchPattern)this).mustResolve = true;
 	}
 }
 PackageReferencePattern(int matchRule) {
@@ -48,7 +49,7 @@ public SearchPattern getBlankPattern() {
 public char[] getIndexKey() {
 	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
 	if (this.currentSegment >= 0) 
-		return encodeIndexKey(this.segments[this.currentSegment], this.matchMode);
+		return encodeIndexKey(this.segments[this.currentSegment], getMatchMode());
 	return null;
 }
 public char[][] getMatchCategories() {
@@ -74,7 +75,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -87,7 +88,7 @@ public String toString() {
 		case R_REGEXP_MATCH :
 			buffer.append("regexp match, "); //$NON-NLS-1$
 	}
-	if (this.isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

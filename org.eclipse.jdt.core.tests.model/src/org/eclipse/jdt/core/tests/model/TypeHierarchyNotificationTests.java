@@ -138,7 +138,7 @@ public void testAddAnonymousInRegion() throws CoreException {
 			"  B field = new B() {};\n" +
 			"}";
 		copy.getBuffer().setContents(newSource);
-		copy.reconcile(0, false, null, null);
+		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		copy.commitWorkingCopy(true, null);
 
 		this.assertOneChange(h);
@@ -669,7 +669,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 			newSuper +
 			source.substring(superIndex);
 		copy.getBuffer().setContents(newSource);
-		copy.reconcile(0, false, null, null);
+		copy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		copy.commitWorkingCopy(true, null);
 
 		this.assertOneChange(h);

@@ -12,8 +12,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class FieldPattern extends VariablePattern {
+public class FieldPattern extends VariablePattern implements IIndexConstants {
 
 // declaring type
 protected char[] declaringQualification;
@@ -44,12 +45,12 @@ public FieldPattern(
 
 	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchRule);
 
-	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
-	this.typeQualification = this.isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
-	this.typeSimpleName = this.isCaseSensitive ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
+	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.typeQualification = isCaseSensitive() ? typeQualification : CharOperation.toLowerCase(typeQualification);
+	this.typeSimpleName = isCaseSensitive() ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
 
-	this.mustResolve = mustResolve();
+	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;
@@ -58,7 +59,7 @@ public SearchPattern getBlankPattern() {
 	return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[] getIndexKey() {
-	return encodeIndexKey(this.name, this.matchMode);
+	return encodeIndexKey(this.name, getMatchMode());
 }
 public char[][] getMatchCategories() {
 	if (this.findReferences)
@@ -101,7 +102,7 @@ public String toString() {
 		buffer.append(typeSimpleName);
 	else if (typeQualification != null) buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
-	switch(this.matchMode) {
+	switch(getMatchMode()) {
 		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -112,7 +113,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(this.isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

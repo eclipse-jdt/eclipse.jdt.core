@@ -67,6 +67,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -122,6 +123,11 @@ public final class JavaCore extends Plugin {
 	protected static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
+	/**
+	 * Name of the User Library Container id.
+	 */
+	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
+	
 	// *************** Possible IDs for configurable options. ********************
 
 	/**
@@ -987,21 +993,7 @@ public final class JavaCore extends Plugin {
 		if (handleIdentifier == null) {
 			return null;
 		}
-		String delimiters = new String(new char[] {
-			JavaElement.JEM_COUNT,
-			JavaElement.JEM_JAVAPROJECT,
-			JavaElement.JEM_PACKAGEFRAGMENTROOT,
-			JavaElement.JEM_PACKAGEFRAGMENT,
-			JavaElement.JEM_FIELD,
-			JavaElement.JEM_METHOD,
-			JavaElement.JEM_INITIALIZER,
-			JavaElement.JEM_COMPILATIONUNIT,
-			JavaElement.JEM_CLASSFILE,
-			JavaElement.JEM_TYPE,
-			JavaElement.JEM_PACKAGEDECLARATION,
-			JavaElement.JEM_IMPORTDECLARATION,
-			JavaElement.JEM_LOCALVARIABLE});
-		StringTokenizer memento = new StringTokenizer(handleIdentifier, delimiters, true);
+		MementoTokenizer memento = new MementoTokenizer(handleIdentifier);
 		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		return model.getHandleFromMemento(memento, owner);
 	}
@@ -2381,6 +2373,17 @@ public final class JavaCore extends Plugin {
 	}
 	
 	/**
+	 * Returns the names of all defined user libraries. The corresponding classpath container path
+	 * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
+	 * @return Return an array containing the names of all known user defined.
+	 */
+	public static String[] getUserLibraryNames() {
+		return new String[0];
+	 	// TODO (frederic) to be finalized in coordination with jdt-ui
+		// return UserLibraryManager.getUserLibraryNames();
+	}
+
+	/**
 	 * Returns the working copies that have the given owner. 
 	 * Only compilation units in working copy mode are returned.
 	 * If the owner is <code>null</code>, primary working copies are returned.
@@ -3626,7 +3629,7 @@ public final class JavaCore extends Plugin {
 		// persist options
 		getPlugin().savePluginPreferences();
 	}
-	
+
 	/**
 	 * Shutdown the JavaCore plug-in.
 	 * <p>

@@ -120,16 +120,65 @@ Incorrect highlighting for type problem in qualified type name
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M9 Build - ?th April 2004
+Eclipse SDK 3.0M9 Build - 20th April 2004
 <br>Project org.eclipse.jdt.core v_422
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_422">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API for User Library Container support in JavaCore:
+<pre>
+
+	/**
+	 * Name of the User Library Container id.
+	 */
+	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
+	
+	/**
+	 * Returns the names of all defined user libraries. The corresponding classpath container path
+	 * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
+	 * @return Return an array containing the names of all known user defined.
+	 */
+	public static String[] getUserLibraryNames();
+</pre>
+</li>
+<li>Added API to get classpath container comparison ID in ClasspathContainerInitializer:
+<pre>
+	/**
+	 * Returns an object which identifies a container for comparison purpose. This allows
+	 * to eliminate redundant containers when accumulating classpath entries (e.g. 
+	 * runtime classpath computation). When requesting a container comparison ID, one
+	 * should ensure using its corresponding container initializer. Indeed, a random container
+	 * initializer cannot be held responsible for determining comparison IDs for arbitrary 
+	 * containers.
+	 * <p>
+	 * @param containerPath the path of the container which is being checked
+	 * @param project the project for which the container is to being checked
+	 * @return returns an Object identifying the container for comparison
+	 * @since 3.0
+	 */
+	public Object getComparisonID(IPath containerPath, IJavaProject project);
+</pre>
+By default, containers are identical if they have same container path first segment
+but this may be refined by other container initializer implementations.
+<br>
+For example, the User Library classpath container initializer added for User Library Container API
+implementation (UserLibraryClasspathContainerInitializer) refines the comparison ID to the entire container path.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=37657">37657</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52747">52747</a>
+formatter - please special case empty array init
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59000">59000</a>
+Code formatter struggles with end-of-line comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52679">52679</a>
+Code formatter formats braces in case and default statements, but no settings exist
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52940">52940</a>
+Formatter: Separate control of new lines in control statements by statement type
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47815">47815</a>
+Refactoring doesn't work with some project names [refactoring] 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=37657">37657</a>
 [plan item] Improve code formatter
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50989">50989</a>
 Non-externalized strings wrap lines incorrectly

@@ -11,9 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-
 /**
  * Abstract base class for all AST nodes that represent names.
  * There are exactly two kinds of name: simple ones 
@@ -117,44 +114,5 @@ public abstract class Name extends Expression implements IDocElement {
 	 * @param buffer the buffer
 	 * @since 3.0
 	 */
-	abstract void appendName(StringBuffer buffer);
-
-	BlockScope lookupScope() {
-		ASTNode currentNode = this;
-		while(currentNode != null
-			&&!(currentNode instanceof MethodDeclaration)
-			&& !(currentNode instanceof Initializer)
-			&& !(currentNode instanceof FieldDeclaration)) {
-			currentNode = currentNode.getParent();
-		}
-		if (currentNode == null) {
-			return null;
-		}
-		if (currentNode instanceof Initializer) {
-			Initializer initializer = (Initializer) currentNode;
-			while(!(currentNode instanceof TypeDeclaration)) {
-				currentNode = currentNode.getParent();
-			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
-				return typeDecl.staticInitializerScope;
-			} else {
-				return typeDecl.initializerScope;
-			}
-		} else if (currentNode instanceof FieldDeclaration) {
-			FieldDeclaration fieldDeclaration = (FieldDeclaration) currentNode;
-			while(!(currentNode instanceof TypeDeclaration)) {
-				currentNode = currentNode.getParent();
-			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
-				return typeDecl.staticInitializerScope;
-			} else {
-				return typeDecl.initializerScope;
-			}
-		}
-		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-		return abstractMethodDeclaration.scope;
-	}	
-	
+	abstract void appendName(StringBuffer buffer);	
 }

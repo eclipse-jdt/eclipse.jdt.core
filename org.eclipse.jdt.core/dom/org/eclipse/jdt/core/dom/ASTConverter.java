@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.JavaCore;
@@ -30,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -2498,22 +2498,60 @@ class ASTConverter {
 		return false;
 	}
 	
-	protected void lookupForScopes() {
+	private void lookupForScopes() {
 		if (this.pendingNameScopeResolution != null) {
 			for (Iterator iterator = this.pendingNameScopeResolution.iterator(); iterator.hasNext(); ) {
 				Name name = (Name) iterator.next();
-				this.ast.getBindingResolver().recordScope(name, name.lookupScope());
+				this.ast.getBindingResolver().recordScope(name, lookupScope(name));
 			}
 		}
 		if (this.pendingThisExpressionScopeResolution != null) {
 			for (Iterator iterator = this.pendingThisExpressionScopeResolution.iterator(); iterator.hasNext(); ) {
 				ThisExpression thisExpression = (ThisExpression) iterator.next();
-				this.ast.getBindingResolver().recordScope(thisExpression, thisExpression.lookupScope());
+				this.ast.getBindingResolver().recordScope(thisExpression, lookupScope(thisExpression));
 			}
 		}
 		
 	}
 	
+	private BlockScope lookupScope(ASTNode node) {
+		ASTNode currentNode = node;
+		while(currentNode != null
+			&&!(currentNode instanceof MethodDeclaration)
+			&& !(currentNode instanceof Initializer)
+			&& !(currentNode instanceof FieldDeclaration)) {
+			currentNode = currentNode.getParent();
+		}
+		if (currentNode == null) {
+			return null;
+		}
+		if (currentNode instanceof Initializer) {
+			Initializer initializer = (Initializer) currentNode;
+			while(!(currentNode instanceof TypeDeclaration)) {
+				currentNode = currentNode.getParent();
+			}
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
+				return typeDecl.staticInitializerScope;
+			} else {
+				return typeDecl.initializerScope;
+			}
+		} else if (currentNode instanceof FieldDeclaration) {
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) currentNode;
+			while(!(currentNode instanceof TypeDeclaration)) {
+				currentNode = currentNode.getParent();
+			}
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
+				return typeDecl.staticInitializerScope;
+			} else {
+				return typeDecl.initializerScope;
+			}
+		}
+		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+		return abstractMethodDeclaration.scope;
+	}
+
 	protected void recordName(Name name, org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode) {
 		if (compilerNode != null) {
 			recordNodes(name, compilerNode);

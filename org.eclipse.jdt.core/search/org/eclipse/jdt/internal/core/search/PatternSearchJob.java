@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
+import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -103,7 +104,7 @@ public boolean search(Index index, IProgressMonitor progressMonitor) {
 	try {
 		monitor.enterRead(); // ask permission to read
 		long start = System.currentTimeMillis();
-		pattern.findIndexMatches(index, requestor, this.participant, this.scope, progressMonitor);
+		MatchLocator.findIndexMatches(this.pattern, index, requestor, this.participant, this.scope, progressMonitor);
 		executionTime += System.currentTimeMillis() - start;
 		return COMPLETE;
 	} catch (IOException e) {
