@@ -14990,4 +14990,33 @@ public void test500(){
 			"The method foo(ArrayList) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86646
+	public void test531() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	public T f1(T l) {\n" + 
+				"		Vector<T> v = new Vector<T>();\n" + 
+				"		v.add(l);\n" + 
+				"		return (T) v.get(0); // Expect warning here\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	return (T) v.get(0); // Expect warning here\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from T to T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
 }
