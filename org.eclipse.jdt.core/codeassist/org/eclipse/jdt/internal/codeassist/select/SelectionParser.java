@@ -144,11 +144,11 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		super.classInstanceCreation(alwaysQualified);
 	}
 }
-protected void consumeArrayCreationExpressionWithoutInitializer() {
+protected void consumePrimitiveTypeArrayCreationExpressionWithoutInitializer() {
 	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
 	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 
-	super.consumeArrayCreationExpressionWithoutInitializer();
+	super.consumePrimitiveTypeArrayCreationExpressionWithoutInitializer();
 
 	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
 	if (alloc.type == assistNode){
@@ -159,12 +159,39 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 		this.isOrphanCompletionNode = true;
 	}
 }
+protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer() {
+	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
+	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 
-protected void consumeArrayCreationExpressionWithInitializer() {
-	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer();
+
+	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
+	if (alloc.type == assistNode){
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
+		this.isOrphanCompletionNode = true;
+	}
+}
+protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer() {
 	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
 
-	super.consumeArrayCreationExpressionWithInitializer();
+	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer();
+
+	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
+	if (alloc.type == assistNode){
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
+		this.isOrphanCompletionNode = true;
+	}
+}
+protected void consumePrimitiveTypeArrayCreationExpressionWithInitializer() {
+	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+
+	super.consumePrimitiveTypeArrayCreationExpressionWithInitializer();
 
 	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
 	if (alloc.type == assistNode){

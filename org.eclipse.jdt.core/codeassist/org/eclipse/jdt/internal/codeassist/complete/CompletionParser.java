@@ -990,12 +990,20 @@ public void completionIdentifierCheck(){
 
 	if (checkNameCompletion()) return;
 }
-protected void consumeArrayCreationExpressionWithInitializer() {
-	super.consumeArrayCreationExpressionWithInitializer();
+protected void consumePrimitiveTypeArrayCreationExpressionWithInitializer() {
+	super.consumePrimitiveTypeArrayCreationExpressionWithInitializer();
 	popElement(K_ARRAY_CREATION);
 }
-protected void consumeArrayCreationExpressionWithoutInitializer() {
-	super.consumeArrayCreationExpressionWithoutInitializer();
+protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer() {
+	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer();
+	popElement(K_ARRAY_CREATION);
+}
+protected void consumePrimitiveTypeArrayCreationExpressionWithoutInitializer() {
+	super.consumePrimitiveTypeArrayCreationExpressionWithoutInitializer();
+	popElement(K_ARRAY_CREATION);
+}
+protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer() {
+	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer();
 	popElement(K_ARRAY_CREATION);
 }
 protected void consumeArrayCreationHeader() {
