@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -20,6 +20,9 @@
  *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
  *                                 CLEAN
  *     IBM Corporation - added getClasspathContainerInitializer(String)
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD
+ *                                 COMPILER_PB_UNUSED_PRIVATE_MEMBER
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -197,7 +200,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD = PLUGIN_ID + ".compiler.problem.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
-
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_UNUSED_PRIVATE_MEMBER = PLUGIN_ID + ".compiler.problem.unusedPrivateMember"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1155,6 +1163,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
+	 * COMPILER / Reporting Unused Private Members
+	 *    When enabled, the compiler will issue an error or a warning whenever a private 
+	 *    method or field is declared but never used within the same unit.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedPrivateMember"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
 	 * COMPILER / Reporting Synthetic Access Emulation
 	 *    When enabled, the compiler will issue an error or a warning whenever it emulates 
 	 *    access to a non-accessible member of an enclosing type. Such access can have
@@ -1194,7 +1209,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * COMPILER / Reporting Interface Method not Compatible with non-Inherited Methods
 	 *    When enabled, the compiler will issue an error or a warning whenever an interface
 	 *    defines a method incompatible with a non-inherited Object one.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.incompatibleNonInheritedInterfaceMethod"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
@@ -1762,6 +1777,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, WARNING); 
 		optionNames.add(COMPILER_PB_UNUSED_IMPORT);
+
+		preferences.setDefault(COMPILER_PB_UNUSED_PRIVATE_MEMBER, IGNORE); 
+		optionNames.add(COMPILER_PB_UNUSED_PRIVATE_MEMBER);
 
 		preferences.setDefault(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, IGNORE); 
 		optionNames.add(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION);

@@ -38,6 +38,12 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 		if (ignoreFurtherInvestigation)
 			return;
+
+		if (!isDefaultConstructor && this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
+			if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+				scope.problemReporter().unusedPrivateConstructor(this);
+			}
+		}
 			
 		// check constructor recursion, once all constructor got resolved
 		if (isRecursive(null /*lazy initialized visited list*/)) {				

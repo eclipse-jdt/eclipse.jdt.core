@@ -586,6 +586,18 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
+		case IProblem.UnusedPrivateConstructor:
+		case IProblem.UnusedPrivateMethod:
+		case IProblem.UnusedPrivateField:
+		case IProblem.UnusedPrivateType:
+			if ((errorThreshold & CompilerOptions.UnusedPrivateMember) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.UnusedPrivateMember) != 0){
+				return Warning;
+			}
+			return Ignore;		
+		
 		case IProblem.Task :
 			return Warning;			
 		default:
@@ -1539,8 +1551,9 @@ public void invalidContinue(AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void invalidEnclosingType(Expression expression, TypeBinding type, TypeBinding enclosingType) {
+public void invalidEnclosingType(Expression expression, TypeBinding type, ReferenceBinding enclosingType) {
 
+	if (enclosingType.isAnonymousType()) enclosingType = enclosingType.superclass();
 	int flag = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case NotFound : // 1
@@ -2939,7 +2952,70 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
-
+public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
+	
+	MethodBinding constructor = constructorDecl.binding;
+	this.handle(
+			IProblem.UnusedPrivateConstructor,
+		new String[] {
+			new String(constructor.declaringClass.readableName()),
+			parametersAsString(constructor)
+		 }, 
+		new String[] {
+			new String(constructor.declaringClass.shortReadableName()),
+			parametersAsShortString(constructor)
+		 }, 
+		constructorDecl.sourceStart,
+		constructorDecl.sourceEnd);
+}
+public void unusedPrivateField(FieldDeclaration fieldDecl) {
+	
+	FieldBinding field = fieldDecl.binding;
+	this.handle(
+			IProblem.UnusedPrivateField,
+		new String[] {
+			new String(field.declaringClass.readableName()),
+			new String(field.name),
+		 }, 
+		new String[] {
+			new String(field.declaringClass.shortReadableName()),
+			new String(field.name),
+		 }, 
+		fieldDecl.sourceStart,
+		fieldDecl.sourceEnd);
+}
+public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
+	
+	MethodBinding method = methodDecl.binding;
+	this.handle(
+			IProblem.UnusedPrivateMethod,
+		new String[] {
+			new String(method.declaringClass.readableName()),
+			new String(method.selector),
+			parametersAsString(method)
+		 }, 
+		new String[] {
+			new String(method.declaringClass.shortReadableName()),
+			new String(method.selector),
+			parametersAsShortString(method)
+		 }, 
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void unusedPrivateType(TypeDeclaration typeDecl) {
+	
+	ReferenceBinding type = typeDecl.binding;
+	this.handle(
+			IProblem.UnusedPrivateType,
+		new String[] {
+			new String(type.readableName()),
+		 }, 
+		new String[] {
+			new String(type.shortReadableName()),
+		 }, 
+		typeDecl.sourceStart,
+		typeDecl.sourceEnd);
+}
 public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 	this.handle(
 		IProblem.UseAssertAsAnIdentifier,

@@ -77,7 +77,12 @@ public void test02() {
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in p1\\A.java (at line 6)\n" + 
+		"1. WARNING in p1\\A.java (at line 3)\n" + 
+		"	private int value;								\n" + 
+		"	            ^^^^^\n" + 
+		"The private field A.value is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\A.java (at line 6)\n" + 
 		"	value = 2;								\n" + 
 		"	^^^^^\n" + 
 		"Cannot make a static reference to the non-static field value\n" + 
@@ -202,11 +207,17 @@ public void test06() {
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in p1\\A.java (at line 7)\n" + 
+		"1. WARNING in p1\\A.java (at line 3)\n" + 
+		"	private static String success = \"SUCCESS\";	\n" + 
+		"	                      ^^^^^^^\n" + 
+		"The private field A.success is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
 		"	                                        ^^^^^^^^^^^^\n" + 
 		"The field success is not visible\n" + 
 		"----------\n"
+
 	);
 }
 /**
@@ -290,11 +301,17 @@ public void test09() {
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in p1\\A.java (at line 7)\n" + 
+		"1. WARNING in p1\\A.java (at line 3)\n" + 
+		"	private String success = \"SUCCESS\";			\n" + 
+		"	               ^^^^^^^\n" + 
+		"The private field A.success is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
 		"	                                        ^^^^^^^^^^^^\n" + 
 		"The field success is not visible\n" + 
 		"----------\n"
+
 	);
 }
 /**
@@ -320,7 +337,12 @@ public void test10() {
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in p1\\A.java (at line 7)\n" + 
+		"1. WARNING in p1\\A.java (at line 3)\n" + 
+		"	private String success = \"SUCCESS\";			\n" + 
+		"	               ^^^^^^^\n" + 
+		"The private field A.success is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(A.success);}\n" + 
 		"	                                        ^^^^^^^^^\n" + 
 		"Cannot make a static reference to the non-static field A.success\n" + 

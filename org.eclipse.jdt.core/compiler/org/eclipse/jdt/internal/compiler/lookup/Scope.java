@@ -542,7 +542,7 @@ public abstract class Scope
 			MethodBinding interfaceMethod =
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (interfaceMethod != null) return interfaceMethod;
-			return new ProblemMethodBinding(candidates[0].selector, candidates[0].parameters, candidates[0].declaringClass, NotVisible);
+			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, NotVisible);
 		}	
 		if (candidates[0].declaringClass.isClass()) {
 			return mostSpecificClassMethodBinding(candidates, visiblesCount);
@@ -697,9 +697,9 @@ public abstract class Scope
 					NotFound);
 			if (!methodBinding.canBeSeenBy(receiverType, invocationSite, this))
 				return new ProblemMethodBinding(
+					methodBinding,
 					selector,
 					methodBinding.parameters,
-					methodBinding.declaringClass,
 					NotVisible);
 		}
 		return methodBinding;

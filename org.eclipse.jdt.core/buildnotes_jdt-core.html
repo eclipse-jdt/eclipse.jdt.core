@@ -36,11 +36,40 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.1 Build - ?th January 2003
+Eclipse SDK 2.1 Build - 21th January 2003
 <br>Project org.eclipse.jdt.core v_292
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> New compiler setting got added to control severity of incompatible interface method with Object non public method.
+This used to be reported incorrectly as an error by our compiler (e.g. <code>interface I { int clone(); }</code>), and
+is now an optional problem (default severity is WARNING). Corresponding problem ID is: <code>IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod</code>.
+<pre>
+* COMPILER / Reporting Interface Method not Compatible with non-Inherited Methods
+*    When enabled, the compiler will issue an error or a warning whenever an interface
+*    defines a method incompatible with a non-inherited Object one.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
+<li> New compiler problems got added to report declarations of unused private members (field/method/type). A JavaCore setting
+got added to control the severity of these new problems (default severity is IGNORE). Note that currently only a valid local usage 
+is considered as a true usage (e.g. if a message send targets this method, but cannot see it, then the target method will still be 
+reported as unused). Corresponding problem IDs are: <code>IProblem.UnusedPrivateMethod</code>, <code>IProblem.UnusedPrivateField</code>, 
+<code>IProblem.UnusedPrivateType</code>.
+<pre>
+* COMPILER / Reporting Unused Private Members
+*    When enabled, the compiler will issue an error or a warning whenever a private 
+*    method or field is declared but never used within the same unit.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedPrivateMember"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
+<li>CodeAssist now answers keyword completions. Note that there was already an API for these: <code>ICompletionRequestor#acceptKeyword(char[] keywordName, int completionStart, int completionEnd, int relevance)</code>
+which wasn't invoked until now. There is currently no way to distinguish in between a 'synchronized' keyword used as a modifier or as a statement.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

@@ -816,6 +816,7 @@ public class BlockScope extends Scope {
 			return visible[0];
 		if (visibleIndex == 0)
 			return new ProblemMethodBinding(
+				compatible[0],
 				ConstructorDeclaration.ConstantPoolName,
 				compatible[0].parameters,
 				NotVisible);
@@ -1095,9 +1096,9 @@ public class BlockScope extends Scope {
 									// using <classScope> instead of <this> for visibility check does grant all access to innerclass
 									fuzzyProblem =
 										new ProblemMethodBinding(
+											methodBinding,
 											selector,
 											methodBinding.parameters,
-											methodBinding.declaringClass,
 											NotVisible);
 								}
 							}
@@ -1236,9 +1237,9 @@ public class BlockScope extends Scope {
 					NotFound);
 			if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
 				return new ProblemMethodBinding(
+					methodBinding,
 					selector,
 					methodBinding.parameters,
-					methodBinding.declaringClass,
 					NotVisible);
 		}
 		return methodBinding;

@@ -89,6 +89,7 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);

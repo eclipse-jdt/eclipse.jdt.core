@@ -25,6 +25,10 @@
  *								   EnclosingInstanceInConstructorCall
  *								   BytecodeExceeds64KLimitForConstructor
  *								   IncompatibleReturnTypeForNonInheritedInterfaceMethod
+ *								   UnusedPrivateMethod
+ *								   UnusedPrivateConstructor
+ *								   UnusedPrivateType
+ *								   UnusedPrivateField
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -179,7 +183,9 @@ public interface IProblem {
 	int AmbiguousType = TypeRelated + 4;
 	int UsingDeprecatedType = TypeRelated + 5;
 	int InternalTypeNameProvided = TypeRelated + 6;
-
+	/** @since 2.1 */
+	int UnusedPrivateType = Internal + TypeRelated + 7;
+	
 	int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
 	int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
 	int TypeMismatch = TypeRelated + 17;
@@ -235,6 +241,8 @@ public interface IProblem {
 	int ReferenceToForwardField = FieldRelated + Internal + 75;
 	/** @since 2.1 */
 	int NonStaticAccessToStaticField = Internal + FieldRelated + 76;
+	/** @since 2.1 */
+	int UnusedPrivateField = Internal + FieldRelated + 77;
 	
 	// blank final fields
 	int FinalFieldAssignment = FieldRelated + 80;
@@ -260,12 +268,16 @@ public interface IProblem {
 	int NoMessageSendOnArrayType = MethodRelated + 116;
 	/** @since 2.1 */
     int NonStaticAccessToStaticMethod = Internal + MethodRelated + 117;
-    
+	/** @since 2.1 */
+	int UnusedPrivateMethod = Internal + MethodRelated + 118;
+	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;
 	int NotVisibleConstructor = ConstructorRelated + 131;
 	int AmbiguousConstructor = ConstructorRelated + 132;
 	int UsingDeprecatedConstructor = ConstructorRelated + 133;
+	/** @since 2.1 */
+	int UnusedPrivateConstructor = Internal + MethodRelated + 134;
 	// explicit constructor calls
 	int InstanceFieldDuringConstructorInvocation = ConstructorRelated + 135;
 	int InstanceMethodDuringConstructorInvocation = ConstructorRelated + 136;

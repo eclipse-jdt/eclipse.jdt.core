@@ -115,6 +115,10 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	*/
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope) {
 
+		if (field.isPrivate()) {
+			field.modifiers |= AccPrivateUsed;
+		}
+
 		if (!field.isViewedAsDeprecated()) return false;
 
 		// inside same unit - no report
@@ -135,6 +139,10 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	*/
 	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope) {
 
+		if (method.isPrivate()) {
+			method.modifiers |= AccPrivateUsed;
+		}
+		
 		if (!method.isViewedAsDeprecated()) return false;
 
 		// inside same unit - no report
@@ -166,6 +174,11 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 			return false;
 
 		ReferenceBinding refType = (ReferenceBinding) type;
+
+		if (refType.isPrivate()) {
+			refType.modifiers |= AccPrivateUsed;
+		}
+
 		if (!refType.isViewedAsDeprecated()) return false;
 		
 		// inside same unit - no report

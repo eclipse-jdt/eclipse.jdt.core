@@ -154,6 +154,9 @@ public class Main implements ProblemSeverities {
 		options.put(
 			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 			CompilerOptions.WARNING);
+		options.put(
+			CompilerOptions.OPTION_ReportUnusedPrivateMember,
+			CompilerOptions.IGNORE);
 	}
 
 	/*
@@ -740,6 +743,9 @@ public class Main implements ProblemSeverities {
 					CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 					CompilerOptions.IGNORE);				
 				options.put(
+					CompilerOptions.OPTION_ReportUnusedPrivateMember,
+					CompilerOptions.IGNORE);
+				options.put(
 					CompilerOptions.OPTION_TaskTags,
 					""); //$NON-NLS-1$
 
@@ -754,7 +760,7 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
 							CompilerOptions.WARNING);
-					} else if (token.equals("maskedCatchBlocks")) { //$NON-NLS-1$
+					} else if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportHiddenCatchBlock,
 							CompilerOptions.WARNING);
@@ -772,17 +778,21 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							CompilerOptions.ENABLED);
-					} else if (token.equals("unusedLocals")) { //$NON-NLS-1$
+					} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportUnusedLocal, 
 							CompilerOptions.WARNING);
-					} else if (token.equals("unusedArguments")) { //$NON-NLS-1$
+					} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportUnusedParameter,
 							CompilerOptions.WARNING);
-					} else if (token.equals("unusedImports")) { //$NON-NLS-1$
+					} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportUnusedImport,
+							CompilerOptions.WARNING);
+					} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportUnusedPrivateMember,
 							CompilerOptions.WARNING);
 					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
 						options.put(

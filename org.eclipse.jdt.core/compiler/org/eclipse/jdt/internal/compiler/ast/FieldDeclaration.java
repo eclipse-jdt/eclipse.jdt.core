@@ -55,6 +55,11 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
+		if (this.binding != null && this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
+			if (!initializationScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+				initializationScope.problemReporter().unusedPrivateField(this);
+			}
+		}
 		// cannot define static non-constant field inside nested class
 		if (binding != null
 			&& binding.isValidBinding()

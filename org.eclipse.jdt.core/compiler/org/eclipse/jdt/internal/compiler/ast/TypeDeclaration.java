@@ -127,53 +127,54 @@ public class TypeDeclaration
 			
 			// remember local types binding for innerclass emulation propagation
 			currentScope.referenceCompilationUnit().record(localType);
-
 			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
 			manageEnclosingInstanceAccessIfNecessary(currentScope);
 			
-			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
-			InitializationFlowContext initializerContext =
-				new InitializationFlowContext(null, this, initializerScope);
-			
 			updateMaxFieldCount(); // propagate down the max field count
-			FlowInfo fieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-			
-			if (fields != null) {
-				for (int i = 0, count = fields.length; i < count; i++) {
-					FieldDeclaration field = fields[i];
-					/*if (field.isField() && !this.binding.isAnonymousType()){
-						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2, except for anonymous
-					} else {*/
-					initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
-					/*}*/
-					fieldInfo = field.analyseCode(initializerScope, initializerContext, fieldInfo);
-					if (fieldInfo == FlowInfo.DEAD_END) {
-						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-						// branch, since the previous initializer already got the blame.
-						initializerScope.problemReporter().initializerMustCompleteNormally(field);
-						fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-					}
-				}
-			}
-			if (memberTypes != null) {
-				for (int i = 0, count = memberTypes.length; i < count; i++) {
-					memberTypes[i].analyseCode(scope, flowContext, fieldInfo.copy());
-				}
-			}
-			if (methods != null) {
-				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-				FlowInfo constructorInfo = fieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
-				for (int i = 0, count = methods.length; i < count; i++) {
-					AbstractMethodDeclaration method = methods[i];
-					if (method.ignoreFurtherInvestigation)
-						continue;
-					if (method.isConstructor()) { // constructor
-						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
-					} else { // regular method
-						method.analyseCode(scope, null, flowInfo.copy());
-					}
-				}
-			}
+			internalAnalyseCode(flowContext, flowInfo); 
+
+//			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
+//			InitializationFlowContext initializerContext =
+//				new InitializationFlowContext(null, this, initializerScope);
+//			
+//			FlowInfo fieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//			
+//			if (fields != null) {
+//				for (int i = 0, count = fields.length; i < count; i++) {
+//					FieldDeclaration field = fields[i];
+//					/*if (field.isField() && !this.binding.isAnonymousType()){
+//						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2, except for anonymous
+//					} else {*/
+//					initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+//					/*}*/
+//					fieldInfo = field.analyseCode(initializerScope, initializerContext, fieldInfo);
+//					if (fieldInfo == FlowInfo.DEAD_END) {
+//						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+//						// branch, since the previous initializer already got the blame.
+//						initializerScope.problemReporter().initializerMustCompleteNormally(field);
+//						fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+//					}
+//				}
+//			}
+//			if (memberTypes != null) {
+//				for (int i = 0, count = memberTypes.length; i < count; i++) {
+//					memberTypes[i].analyseCode(scope, flowContext, fieldInfo.copy());
+//				}
+//			}
+//			if (methods != null) {
+//				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//				FlowInfo constructorInfo = fieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
+//				for (int i = 0, count = methods.length; i < count; i++) {
+//					AbstractMethodDeclaration method = methods[i];
+//					if (method.ignoreFurtherInvestigation)
+//						continue;
+//					if (method.isConstructor()) { // constructor
+//						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
+//					} else { // regular method
+//						method.analyseCode(scope, null, flowInfo.copy());
+//					}
+//				}
+//			}
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 		}
@@ -184,86 +185,87 @@ public class TypeDeclaration
 	 *	Flow analysis for a member innertype
 	 *
 	 */
-	public void analyseCode(ClassScope classScope1) {
+	public void analyseCode(ClassScope enclosingClassScope) {
 
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
 			// propagate down the max field count
 			updateMaxFieldCount();
-			FlowInfo flowInfo = FlowInfo.initial(maxFieldCount); // start fresh init info
-
-			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
-			InitializationFlowContext initializerContext =
-				new InitializationFlowContext(null, this, initializerScope);
-			InitializationFlowContext staticInitializerContext =
-				new InitializationFlowContext(null, this, staticInitializerScope);
-
-			FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-			FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-
-			if (fields != null) {
-				for (int i = 0, count = fields.length; i < count; i++) {
-					FieldDeclaration field = fields[i];
-					if (field.isStatic()) {
-						/*if (field.isField()){
-							staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-						} else {*/
-						staticInitializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
-						/*}*/
-						staticFieldInfo =
-							field.analyseCode(
-								staticInitializerScope,
-								staticInitializerContext,
-								staticFieldInfo);
-						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-						// branch, since the previous initializer already got the blame.
-						if (staticFieldInfo == FlowInfo.DEAD_END) {
-							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-						}
-					} else {
-						/*if (field.isField()){
-							initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-						} else {*/
-							initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
-						/*}*/
-						nonStaticFieldInfo = field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
-						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-						// branch, since the previous initializer already got the blame.
-						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
-							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-						}
-					}
-				}
-			}
-			if (memberTypes != null) {
-				for (int i = 0, count = memberTypes.length; i < count; i++) {
-					memberTypes[i].analyseCode(scope);
-				}
-			}
-			if (methods != null) {
-				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-				FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
-				for (int i = 0, count = methods.length; i < count; i++) {
-					AbstractMethodDeclaration method = methods[i];
-					if (method.ignoreFurtherInvestigation)
-						continue;
-					if (method.isInitializationMethod()) {
-						if (method.isStatic()) { // <clinit>
-							((Clinit)method).analyseCode(
-								scope, 
-								staticInitializerContext, 
-								staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
-						} else { // constructor
-							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
-						}
-					} else { // regular method
-						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
-					}
-				}
-			}
+			internalAnalyseCode(null, FlowInfo.initial(maxFieldCount));
+//			FlowInfo flowInfo = FlowInfo.initial(maxFieldCount); // start fresh init info
+//
+//			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
+//			InitializationFlowContext initializerContext =
+//				new InitializationFlowContext(null, this, initializerScope);
+//			InitializationFlowContext staticInitializerContext =
+//				new InitializationFlowContext(null, this, staticInitializerScope);
+//
+//			FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//			FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//
+//			if (fields != null) {
+//				for (int i = 0, count = fields.length; i < count; i++) {
+//					FieldDeclaration field = fields[i];
+//					if (field.isStatic()) {
+//						/*if (field.isField()){
+//							staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+//						} else {*/
+//						staticInitializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+//						/*}*/
+//						staticFieldInfo =
+//							field.analyseCode(
+//								staticInitializerScope,
+//								staticInitializerContext,
+//								staticFieldInfo);
+//						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+//						// branch, since the previous initializer already got the blame.
+//						if (staticFieldInfo == FlowInfo.DEAD_END) {
+//							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
+//							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+//						}
+//					} else {
+//						/*if (field.isField()){
+//							initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+//						} else {*/
+//							initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+//						/*}*/
+//						nonStaticFieldInfo = field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
+//						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+//						// branch, since the previous initializer already got the blame.
+//						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
+//							initializerScope.problemReporter().initializerMustCompleteNormally(field);
+//							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+//						}
+//					}
+//				}
+//			}
+//			if (memberTypes != null) {
+//				for (int i = 0, count = memberTypes.length; i < count; i++) {
+//					memberTypes[i].analyseCode(scope);
+//				}
+//			}
+//			if (methods != null) {
+//				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//				FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
+//				for (int i = 0, count = methods.length; i < count; i++) {
+//					AbstractMethodDeclaration method = methods[i];
+//					if (method.ignoreFurtherInvestigation)
+//						continue;
+//					if (method.isInitializationMethod()) {
+//						if (method.isStatic()) { // <clinit>
+//							((Clinit)method).analyseCode(
+//								scope, 
+//								staticInitializerContext, 
+//								staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
+//						} else { // constructor
+//							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
+//						}
+//					} else { // regular method
+//						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
+//					}
+//				}
+//			}
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 		};
@@ -285,56 +287,57 @@ public class TypeDeclaration
 
 			// remember local types binding for innerclass emulation propagation
 			currentScope.referenceCompilationUnit().record(localType);
-
 			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
 			manageEnclosingInstanceAccessIfNecessary(currentScope);
 			
-			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
-			InitializationFlowContext initializerContext =
-				new InitializationFlowContext(null, this, initializerScope);
-
 			updateMaxFieldCount(); // propagate down the max field count
-			FlowInfo fieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-			if (fields != null) {
-				for (int i = 0, count = fields.length; i < count; i++) {
-					FieldDeclaration field = fields[i];
-					/*if (field.isField()){
-						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-					} else {*/
-					initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
-					/*}*/
-					if (!fields[i].isStatic()) {
-						fieldInfo =
-							field.analyseCode(initializerScope, initializerContext, fieldInfo);
-						if (fieldInfo == FlowInfo.DEAD_END) {
-							// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-							// branch, since the previous initializer already got the blame.
-							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-						}
-					}
-				}
-			}
-			if (memberTypes != null) {
-				for (int i = 0, count = memberTypes.length; i < count; i++) {
-					memberTypes[i].analyseCode(scope, flowContext, fieldInfo.copy());
-				}
-			}
-			if (methods != null) {
-				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-				FlowInfo constructorInfo = fieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
-				for (int i = 0, count = methods.length; i < count; i++) {
-					AbstractMethodDeclaration method = methods[i];
-					if (method.ignoreFurtherInvestigation)
-						continue;
+			internalAnalyseCode(flowContext, flowInfo);
 
-					if (method.isConstructor()) { // constructor
-						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
-					} else { // regular method
-						method.analyseCode(scope, null, flowInfo.copy());
-					}
-				}
-			}
+//			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
+//			InitializationFlowContext initializerContext =
+//				new InitializationFlowContext(null, this, initializerScope);
+//
+//			FlowInfo fieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//			if (fields != null) {
+//				for (int i = 0, count = fields.length; i < count; i++) {
+//					FieldDeclaration field = fields[i];
+//					/*if (field.isField()){
+//						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+//					} else {*/
+//					initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+//					/*}*/
+//					if (!fields[i].isStatic()) {
+//						fieldInfo =
+//							field.analyseCode(initializerScope, initializerContext, fieldInfo);
+//						if (fieldInfo == FlowInfo.DEAD_END) {
+//							// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+//							// branch, since the previous initializer already got the blame.
+//							initializerScope.problemReporter().initializerMustCompleteNormally(field);
+//							fieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+//						}
+//					}
+//				}
+//			}
+//			if (memberTypes != null) {
+//				for (int i = 0, count = memberTypes.length; i < count; i++) {
+//					memberTypes[i].analyseCode(scope, flowContext, fieldInfo.copy());
+//				}
+//			}
+//			if (methods != null) {
+//				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//				FlowInfo constructorInfo = fieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
+//				for (int i = 0, count = methods.length; i < count; i++) {
+//					AbstractMethodDeclaration method = methods[i];
+//					if (method.ignoreFurtherInvestigation)
+//						continue;
+//
+//					if (method.isConstructor()) { // constructor
+//						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
+//					} else { // regular method
+//						method.analyseCode(scope, null, flowInfo.copy());
+//					}
+//				}
+//			}
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 		}
@@ -349,77 +352,79 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
-			FlowInfo flowInfo = FlowInfo.initial(maxFieldCount); // start fresh init info
-			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
-			InitializationFlowContext initializerContext =
-				new InitializationFlowContext(null, this, initializerScope);
-			InitializationFlowContext staticInitializerContext =
-				new InitializationFlowContext(null, this, staticInitializerScope);
-			FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-			FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-			if (fields != null) {
-				for (int i = 0, count = fields.length; i < count; i++) {
-					FieldDeclaration field = fields[i];
-					if (field.isStatic()) {
-						/*if (field.isField()){
-							staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-						} else {*/
-						staticInitializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
-						/*}*/
-						staticFieldInfo =
-							field.analyseCode(
-								staticInitializerScope,
-								staticInitializerContext,
-								staticFieldInfo);
-						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-						// branch, since the previous initializer already got the blame.
-						if (staticFieldInfo == FlowInfo.DEAD_END) {
-							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-						}
-					} else {
-						/*if (field.isField()){
-							initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
-						} else {*/
-							initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
-						/*}*/
-						nonStaticFieldInfo =
-							field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
-						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
-						// branch, since the previous initializer already got the blame.
-						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
-							initializerScope.problemReporter().initializerMustCompleteNormally(field);
-							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-						}
-					}
-				}
-			}
-			if (memberTypes != null) {
-				for (int i = 0, count = memberTypes.length; i < count; i++) {
-					memberTypes[i].analyseCode(scope);
-				}
-			}
-			if (methods != null) {
-				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
-				FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
-				for (int i = 0, count = methods.length; i < count; i++) {
-					AbstractMethodDeclaration method = methods[i];
-					if (method.ignoreFurtherInvestigation)
-						continue;
-					if (method.isInitializationMethod()) {
-						if (method.isStatic()) { // <clinit>
-							((Clinit)method).analyseCode(
-								scope, 
-								staticInitializerContext, 
-								staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
-						} else { // constructor
-							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
-						}
-					} else { // regular method
-						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
-					}
-				}
-			}
+			internalAnalyseCode(null, FlowInfo.initial(maxFieldCount));
+
+//			FlowInfo flowInfo = FlowInfo.initial(maxFieldCount); // start fresh init info
+//			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
+//			InitializationFlowContext initializerContext =
+//				new InitializationFlowContext(null, this, initializerScope);
+//			InitializationFlowContext staticInitializerContext =
+//				new InitializationFlowContext(null, this, staticInitializerScope);
+//			FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//			FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//			if (fields != null) {
+//				for (int i = 0, count = fields.length; i < count; i++) {
+//					FieldDeclaration field = fields[i];
+//					if (field.isStatic()) {
+//						/*if (field.isField()){
+//							staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+//						} else {*/
+//						staticInitializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+//						/*}*/
+//						staticFieldInfo =
+//							field.analyseCode(
+//								staticInitializerScope,
+//								staticInitializerContext,
+//								staticFieldInfo);
+//						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+//						// branch, since the previous initializer already got the blame.
+//						if (staticFieldInfo == FlowInfo.DEAD_END) {
+//							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
+//							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+//						}
+//					} else {
+//						/*if (field.isField()){
+//							initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+//						} else {*/
+//							initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+//						/*}*/
+//						nonStaticFieldInfo =
+//							field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
+//						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+//						// branch, since the previous initializer already got the blame.
+//						if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
+//							initializerScope.problemReporter().initializerMustCompleteNormally(field);
+//							nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+//						}
+//					}
+//				}
+//			}
+//			if (memberTypes != null) {
+//				for (int i = 0, count = memberTypes.length; i < count; i++) {
+//					memberTypes[i].analyseCode(scope);
+//				}
+//			}
+//			if (methods != null) {
+//				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+//				FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
+//				for (int i = 0, count = methods.length; i < count; i++) {
+//					AbstractMethodDeclaration method = methods[i];
+//					if (method.ignoreFurtherInvestigation)
+//						continue;
+//					if (method.isInitializationMethod()) {
+//						if (method.isStatic()) { // <clinit>
+//							((Clinit)method).analyseCode(
+//								scope, 
+//								staticInitializerContext, 
+//								staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
+//						} else { // constructor
+//							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
+//						}
+//					} else { // regular method
+//						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
+//					}
+//				}
+//			}
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 		};
@@ -770,13 +775,99 @@ public class TypeDeclaration
 		generateCode((ClassFile) null);
 	}
 
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
+	/**
+	 *	Common flow analysis for all types
+	 *
+	 */
+	public void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
+
+		if (this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
+			if (!scope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+				scope.problemReporter().unusedPrivateType(this);
+			}
+		}
+
+		ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
+		InitializationFlowContext initializerContext = new InitializationFlowContext(null, this, initializerScope);
+		InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, staticInitializerScope);
+		FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+		FlowInfo staticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+		if (fields != null) {
+			for (int i = 0, count = fields.length; i < count; i++) {
+				FieldDeclaration field = fields[i];
+				if (field.isStatic()) {
+					/*if (field.isField()){
+						staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+					} else {*/
+					staticInitializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+					/*}*/
+					staticFieldInfo =
+						field.analyseCode(
+							staticInitializerScope,
+							staticInitializerContext,
+							staticFieldInfo);
+					// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+					// branch, since the previous initializer already got the blame.
+					if (staticFieldInfo == FlowInfo.DEAD_END) {
+						staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
+						staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+					}
+				} else {
+					/*if (field.isField()){
+						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
+					} else {*/
+						initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+					/*}*/
+					nonStaticFieldInfo =
+						field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);
+					// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
+					// branch, since the previous initializer already got the blame.
+					if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
+						initializerScope.problemReporter().initializerMustCompleteNormally(field);
+						nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+					}
+				}
+			}
+		}
+		if (memberTypes != null) {
+			for (int i = 0, count = memberTypes.length; i < count; i++) {
+				if (flowContext != null){ // local type
+					memberTypes[i].analyseCode(scope, flowContext, nonStaticFieldInfo.copy());
+				} else {
+					memberTypes[i].analyseCode(scope);
+				}
+			}
+		}
+		if (methods != null) {
+			UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+			FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
+			for (int i = 0, count = methods.length; i < count; i++) {
+				AbstractMethodDeclaration method = methods[i];
+				if (method.ignoreFurtherInvestigation)
+					continue;
+				if (method.isInitializationMethod()) {
+					if (method.isStatic()) { // <clinit>
+						((Clinit)method).analyseCode(
+							scope, 
+							staticInitializerContext, 
+							staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
+					} else { // constructor
+						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
+					}
+				} else { // regular method
+					((MethodDeclaration)method).analyseCode(scope, null, flowInfo.copy());
+				}
+			}
+		}
+	}
+
 	public boolean isInterface() {
 
 		return (modifiers & AccInterface) != 0;
-	}
-
-	public boolean hasErrors() {
-		return this.ignoreFurtherInvestigation;
 	}
 
 	/* 

@@ -268,6 +268,12 @@ public final boolean isNative() {
 public final boolean isPrivate() {
 	return (modifiers & AccPrivate) != 0;
 }
+/* Answer true if the receiver has private visibility and is used locally
+*/
+
+public final boolean isPrivateUsed() {
+	return (modifiers & AccPrivateUsed) != 0;
+}
 /* Answer true if the receiver has protected visibility
 */
 

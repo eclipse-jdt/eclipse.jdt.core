@@ -13,8 +13,12 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 public class MethodDeclaration extends AbstractMethodDeclaration {
 	
@@ -27,6 +31,61 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		super(compilationResult);
 	}
 
+	public void analyseCode(
+		ClassScope classScope,
+		FlowContext flowContext,
+		FlowInfo flowInfo) {
+
+		// starting of the code analysis for methods
+		if (ignoreFurtherInvestigation)
+			return;
+		try {
+			if (binding == null)
+				return;
+				
+			if (this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
+				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+					scope.problemReporter().unusedPrivateMethod(this);
+				}
+			}
+				
+			// may be in a non necessary <clinit> for innerclass with static final constant fields
+			if (binding.isAbstract() || binding.isNative())
+				return;
+
+			ExceptionHandlingFlowContext methodContext =
+				new ExceptionHandlingFlowContext(
+					flowContext,
+					this,
+					binding.thrownExceptions,
+					scope,
+					FlowInfo.DEAD_END);
+
+			// propagate to statements
+			if (statements != null) {
+				boolean didAlreadyComplain = false;
+				for (int i = 0, count = statements.length; i < count; i++) {
+					Statement stat;
+					if (!flowInfo.complainIfUnreachable((stat = statements[i]), scope, didAlreadyComplain)) {
+						flowInfo = stat.analyseCode(scope, methodContext, flowInfo);
+					} else {
+						didAlreadyComplain = true;
+					}
+				}
+			}
+			// check for missing returning path
+			TypeBinding returnType = binding.returnType;
+			if ((returnType == VoidBinding) || isAbstract()) {
+				this.needFreeReturn = flowInfo.isReachable();
+			} else {
+				if (flowInfo != FlowInfo.DEAD_END) { 
+					scope.problemReporter().shouldReturn(returnType, this);
+				}
+			}
+		} catch (AbortMethod e) {
+			this.ignoreFurtherInvestigation = true;
+		}
+	}
 
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 

@@ -148,7 +148,7 @@ class ASTConverter {
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built nodes with invalid modifiers.
 		 */
-		try {
+		try {//TODO: (olivier) how could this ever fail since illegal modifiers are flushed above?
 			typeDecl.setModifiers(modifiers);
 		} catch(IllegalArgumentException e) {
 			int legalModifiers =
@@ -496,7 +496,7 @@ class ASTConverter {
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built nodes with invalid modifiers.
 		 */
-		try {
+		try {//TODO: (olivier) how can this fail given unexpected modifiers are flushed above ?
 			typeDecl.setModifiers(modifiers);
 		} catch(IllegalArgumentException e) {
 			int legalModifiers =
@@ -641,7 +641,7 @@ class ASTConverter {
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built nodes with invalid modifiers.
 		 */
-		try {
+		try {//TODO: (olivier) how can this fail given illegal modifiers are flushed?
 			methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
 		} catch(IllegalArgumentException e) {
 			int legalModifiers =

@@ -210,24 +210,24 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (binding.declaringClass == null) {
 			if (this.receiverType instanceof ReferenceBinding) {
 				binding.declaringClass = (ReferenceBinding) this.receiverType;
-			} else { // really bad error ....
+			} else { 
 				scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
 				return null;
 			}
 		}
 		scope.problemReporter().invalidMethod(this, binding);
 		// record the closest match, for clients who may still need hint about possible method match
-		if (binding.problemId() == ProblemReasons.NotFound){
-			this.codegenBinding = this.binding = ((ProblemMethodBinding)binding).closestMatch;
+		if (binding instanceof ProblemMethodBinding){
+			MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
+			if (closestMatch != null) this.codegenBinding = this.binding = closestMatch;
 		}
-		return null;
+		return binding == null ? null : binding.returnType;
 	}
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, i.e. a NameReference that the TC has bound to a Type
 		if (receiver instanceof NameReference 
 				&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
-			return this.resolvedType = binding.returnType;
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
@@ -246,7 +246,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (binding.isAbstract()) {
 		if (receiver.isSuper()) {
 			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, binding);
-			return this.resolvedType = binding.returnType;
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}

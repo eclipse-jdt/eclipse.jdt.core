@@ -259,6 +259,9 @@ public class ExplicitConstructorCall
 					for (int i = 0; i < length; i++)
 						arguments[i].implicitWidening(paramTypes[i], argTypes[i]);
 				}
+				if (binding.isPrivate()) {
+					binding.modifiers |= AccPrivateUsed;
+				}				
 			} else {
 				if (binding.declaringClass == null)
 					binding.declaringClass = receiverType;
