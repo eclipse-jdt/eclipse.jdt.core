@@ -244,16 +244,12 @@ public abstract class Scope
 				lastIndex = paramLength - 1;
 				if (paramLength == argLength) { // accept both X and X[] but not X[][]
 					TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
-					int varArgDimension = varArgType.dimensions();
 					TypeBinding lastArgument = arguments[lastIndex];
-					int lastArgDimensions = lastArgument.dimensions();
-					if (varArgDimension == lastArgDimensions || varArgDimension - 1 == lastArgDimensions) {
-						varArgType = varArgType.leafComponentType();
-						lastArgument = lastArgument.leafComponentType();
-						if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType))
+					if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType)) {
+						// expect X[], called with X
+						varArgType = ((ArrayBinding) varArgType).elementsType();
+						if (!lastArgument.isCompatibleWith(varArgType))
 							break argumentCompatibility;
-					} else { // dimensions are not compatible
-						break argumentCompatibility;
 					}
 				} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
 					TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();

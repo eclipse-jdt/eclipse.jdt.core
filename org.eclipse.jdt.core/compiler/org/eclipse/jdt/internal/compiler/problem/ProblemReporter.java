@@ -529,9 +529,9 @@ public int computeSeverity(int problemId){
 		case IProblem.ForbiddenReference:
 			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
 
-		case IProblem.NullParameterToVarargsConstructor :
-		case IProblem.NullParameterToVarargsMethod :
-			return Warning; // TODO (philippe) need this to default to a warning this.options.getSeverity(CompilerOptions.NullParameterToVarargs);
+		case IProblem.InexactParameterToVarargsConstructor :
+		case IProblem.InexactParameterToVarargsMethod :
+			return Warning; // TODO (philippe) need this to default to a warning this.options.getSeverity(CompilerOptions.InexactParameterToVarargs);
 
 		/*
 		 * Javadoc syntax errors
@@ -1652,6 +1652,23 @@ public void indirectAccessToStaticType(ASTNode location, ReferenceBinding type) 
 		new String[] {new String(type.enclosingType().shortReadableName()), new String(type.sourceName) },
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void inexactParameterToVarargsMethod(MethodBinding method, ASTNode location) {
+	if (method.isConstructor()) {
+		this.handle(
+			IProblem.InexactParameterToVarargsConstructor,
+			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
+			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
+			location.sourceStart,
+			location.sourceEnd);
+	} else {
+		this.handle(
+			IProblem.InexactParameterToVarargsMethod,
+			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
+			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+			location.sourceStart,
+			location.sourceEnd);
+	}
 }
 public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	StringBuffer concreteSignature = new StringBuffer();
@@ -3406,23 +3423,6 @@ public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding 
 		new String[] {leftShortName, rightShortName },
 		expression.sourceStart,
 		expression.sourceEnd);
-}
-public void nullParameterToVarargsMethod(MethodBinding method, ASTNode location) {
-	if (method.isConstructor()) {
-		this.handle(
-			IProblem.NullParameterToVarargsConstructor,
-			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
-			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
-			location.sourceStart,
-			location.sourceEnd);
-	} else {
-		this.handle(
-			IProblem.NullParameterToVarargsMethod,
-			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
-			location.sourceStart,
-			location.sourceEnd);
-	}
 }
 public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 	this.handle(

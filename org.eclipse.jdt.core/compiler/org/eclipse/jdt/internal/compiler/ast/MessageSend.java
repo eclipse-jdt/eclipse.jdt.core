@@ -389,6 +389,23 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
+	if (binding.isVarargs() && binding.parameters.length == argumentTypes.length) { // 70056
+		int varargIndex = binding.parameters.length - 1;
+		ArrayBinding varargType = (ArrayBinding) binding.parameters[varargIndex];
+		TypeBinding lastArgType = argumentTypes[varargIndex];
+		if (lastArgType == NullBinding) {
+			if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
+				scope.problemReporter().inexactParameterToVarargsMethod(binding, this);
+		} else if (varargType.dimensions <= lastArgType.dimensions()) {
+			int dimensions = lastArgType.dimensions();
+			if (lastArgType.leafComponentType().isBaseType())
+				dimensions--;
+			if (varargType.dimensions < dimensions)
+				scope.problemReporter().inexactParameterToVarargsMethod(binding, this);
+			else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
+				scope.problemReporter().inexactParameterToVarargsMethod(binding, this);
+		}
+	}
 
 	return this.resolvedType = this.binding.returnType;
 }
