@@ -49,7 +49,7 @@ STREAM: 2.0
   PM
   ================================================================================
   * JCK1.4 compliance flow analysis
-
+  1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
   1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - DASG - assigned variable before catch block after return statement
   
   JCK1.4 remaining defects:
@@ -111,6 +111,7 @@ STREAM: 2.0
   1GK7M25: ITPJCORE:WIN2000 - JCK 1.4 - INTF - The field of protected interface is used in other package
   1GK7F4S: ITPJCORE:WIN2000 - JCK 1.4 - ICLS - static class from outer and class from superclass in nested class
         
+
 **********************************************************************************
 *** HEAD CONTENT *****************************************************************
 **********************************************************************************
@@ -123,6 +124,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+
 
 **********************************************************************************
 *** BUILD ??? (2.0 STREAM, v_201_02) *********************************************
@@ -196,6 +198,7 @@ STREAM: 2.0
   1GAJBOU: ITPJUI:WINNT - Code Assist shows matches after ()
   1FW8NV6: ITPJCORE:ALL - DCR - JM - Need API for compiler options
   
+
 **********************************************************************************
 *** BUILD 200 (2.0 STREAM, v_200) ************************************************
 **********************************************************************************
