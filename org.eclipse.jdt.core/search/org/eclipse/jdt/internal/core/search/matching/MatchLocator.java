@@ -1027,8 +1027,6 @@ public SearchMatch newDeclarationMatch(
 			return new MethodDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.LOCAL_VARIABLE:
 			return new LocalVariableDeclarationMatch(element, accuracy, offset, length, participant, resource);
-		case IJavaElement.PACKAGE_DECLARATION:
-			return new PackageDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		default:
 			return null;
 	}
@@ -1409,6 +1407,32 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 					? unit.scope.getTypeOrPackage(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length))
 					: unit.scope.getTypeOrPackage(importRef.tokens);
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
+			} else {
+				if (node instanceof JavadocSingleTypeReference) {
+					// special case for javadoc single type reference
+					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) node;
+					if (singleRef.packageBinding != null) {
+						char[][] tokens = new char[][] { singleRef.token };
+						long[] positions = new long[] { (((long) singleRef.sourceStart) << 32) + singleRef.sourceEnd };
+						int tagStart = singleRef.tagSourceStart;
+						int tagEnd = singleRef.tagSourceEnd;
+						JavadocImportReference importRef = new JavadocImportReference(tokens, positions, tagStart, tagEnd);
+						this.patternLocator.matchLevelAndReportImportRef(importRef, singleRef.packageBinding, this);
+						continue;
+					}
+				} else if (node instanceof JavadocQualifiedTypeReference) {
+					// special case for javadoc qualified type reference
+					JavadocQualifiedTypeReference qualifRef = (JavadocQualifiedTypeReference) node;
+					if (qualifRef.packageBinding != null) {
+						char[][] tokens = qualifRef.tokens;
+						long[] positions = qualifRef.sourcePositions;
+						int tagStart = qualifRef.tagSourceStart;
+						int tagEnd = qualifRef.tagSourceEnd;
+						JavadocImportReference importRef = new JavadocImportReference(tokens, positions, tagStart, tagEnd);
+						this.patternLocator.matchLevelAndReportImportRef(importRef, qualifRef.packageBinding, this);
+						continue;
+					}
+				}
 			}
 			nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 		}
@@ -1474,9 +1498,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	}
 
 	if (typeInHierarchy) {
-		// limit scan to end part position for multiple fields declaration (see bug 73112)
-		int end = field.endPart2Position==0 ? field.declarationSourceEnd : field.endPart2Position;
-		ASTNode[] nodes = nodeSet.matchingNodes(field.declarationSourceStart, end);
+		ASTNode[] nodes = nodeSet.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
 		if (nodes != null) {
 			if ((this.matchContainer & PatternLocator.FIELD_CONTAINER) == 0) {
 				for (int i = 0, l = nodes.length; i < l; i++)

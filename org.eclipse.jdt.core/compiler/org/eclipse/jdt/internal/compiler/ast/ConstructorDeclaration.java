@@ -326,8 +326,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 * Given most constructors aren't, we only allocate the visited list
 	 * lazily.
 	 * 
-	 * @param visited ArrayList
-	 * @return String
+	 * @param visited
+	 * @return
 	 */
 	public boolean isRecursive(ArrayList visited) {
 

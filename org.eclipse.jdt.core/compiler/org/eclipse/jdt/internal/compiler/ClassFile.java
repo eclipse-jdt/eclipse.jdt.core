@@ -67,6 +67,7 @@ public class ClassFile
 	public boolean ownSharedArrays = false; // flag set when header/contents are set to shared arrays
 	public static final int INNER_CLASSES_SIZE = 5;
 	public CodeStream codeStream;
+	protected int problemLine;	// used to create line number attributes for problem methods
 	public long targetJDK;
 	
 	/**
@@ -558,7 +559,6 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.resetForProblemClinit(this);
 		String problemString = "" ; //$NON-NLS-1$
-		int problemLine = 0;
 		if (problems != null) {
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
@@ -591,8 +591,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
-			problemLine);
+				.lineSeparatorPositions);
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
 	}
@@ -621,7 +620,6 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.reset(method, this);
 		String problemString = "" ; //$NON-NLS-1$
-		int problemLine = 0;
 		if (problems != null) {
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
@@ -654,8 +652,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
-			problemLine);
+				.lineSeparatorPositions);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
 
@@ -707,7 +704,6 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.reset(method, this);
 		String problemString = "" ; //$NON-NLS-1$
-		int problemLine = 0;
 		if (problems != null) {
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
@@ -744,8 +740,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
-			problemLine);
+				.lineSeparatorPositions);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
 
@@ -863,7 +858,7 @@ public class ClassFile
 		buffer.append("\t"  + problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
 		String problemString = buffer.toString();
-		int problemLine = problem.getSourceLineNumber();
+		this.problemLine = problem.getSourceLineNumber();
 		
 		codeStream.init(this);
 		codeStream.preserveUnusedLocals = true;
@@ -875,8 +870,7 @@ public class ClassFile
 		completeCodeAttributeForMissingAbstractProblemMethod(
 			methodBinding,
 			codeAttributeOffset,
-			compilationResult.lineSeparatorPositions,
-			problemLine);
+			compilationResult.lineSeparatorPositions);
 			
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
@@ -887,8 +881,7 @@ public class ClassFile
 	public void completeCodeAttributeForMissingAbstractProblemMethod(
 		MethodBinding binding,
 		int codeAttributeOffset,
-		int[] startLineIndexes,
-		int problemLine) {
+		int[] startLineIndexes) {
 		// reinitialize the localContents with the byte modified by the code stream
 		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
@@ -1619,8 +1612,7 @@ public class ClassFile
 	 */
 	public void completeCodeAttributeForClinit(
 		int codeAttributeOffset,
-		int[] startLineIndexes,
-		int problemLine) {
+		int[] startLineIndexes) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
@@ -1734,8 +1726,7 @@ public class ClassFile
 		AbstractMethodDeclaration method,
 		MethodBinding binding,
 		int codeAttributeOffset,
-		int[] startLineIndexes,
-		int problemLine) {
+		int[] startLineIndexes) {
 		// reinitialize the localContents with the byte modified by the code stream
 		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;

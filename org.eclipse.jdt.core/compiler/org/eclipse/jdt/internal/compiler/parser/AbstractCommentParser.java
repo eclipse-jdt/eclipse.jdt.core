@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.ast.JavadocReturnStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
@@ -61,9 +60,6 @@ public abstract class AbstractCommentParser {
 	protected boolean lineStarted = false, inlineTagStarted = false;
 	protected int kind;
 	protected int[] lineEnds;
-
-	// Store when return tag is parsed
-	protected int returnTagPtr= -2;
 	
 	// Private fields
 	private int currentTokenType = -1;
@@ -113,7 +109,7 @@ public abstract class AbstractCommentParser {
 			readChar(); // first '*'
 			char nextCharacter= readChar(); // second '*'
 			
-			// Init variables
+			// Init local variables
 			this.astLengthPtr = -1;
 			this.astPtr = -1;
 			this.currentTokenType = -1;
@@ -123,7 +119,6 @@ public abstract class AbstractCommentParser {
 			this.returnStatement = null;
 			this.inherited = false;
 			this.deprecated = false;
-			this.returnTagPtr = -2;
 			this.linePtr = getLineNumber(javadocStart);
 			this.lastLinePtr = getLineNumber(javadocEnd);
 			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.endComment : this.scanner.getLineEnd(this.linePtr);
@@ -196,14 +191,6 @@ public abstract class AbstractCommentParser {
 							this.scanner.resetTo(this.index, this.endComment);
 							this.currentTokenType = -1; // flush token cache at line begin
 							try {
-								// In case of previous return tag, set it to not empty if parsing an inline tag
-								if (this.kind == COMPIL_PARSER && this.returnTagPtr != -2 && this.returnStatement != null) {
-									this.returnTagPtr = -2;
-									JavadocReturnStatement javadocReturn = (JavadocReturnStatement) this.returnStatement;
-									javadocReturn.empty = javadocReturn.empty && !this.inlineTagStarted;
-								}
-
-								// Read tag name
 								int token = readTokenAndConsume();
 								this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 								this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
@@ -302,14 +289,13 @@ public abstract class AbstractCommentParser {
 										break;
 									case TerminalTokens.TokenNamereturn :
 										valid = parseReturn();
-										/* verify characters after return tag (we're expecting text description)
+										// verify characters after return tag (we're expecting text description)
 										if(!verifyCharsAfterReturnTag(this.index)) {
 											if (this.sourceParser != null) {
 												int end = this.starPosition == -1 || this.lineEnd<this.starPosition ? this.lineEnd : this.starPosition;
 												this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, end);
 											}
 										}
-										*/
 										break;
 									case TerminalTokens.TokenNamethrows :
 										valid = parseThrows(true);
@@ -1332,28 +1318,40 @@ public abstract class AbstractCommentParser {
 	/*
 	 * Verify that some text exists after a @return tag. Text must be different than
 	 * end of comment which may be preceeding by several '*' chars.
-	 *
+	 */
 	private boolean verifyCharsAfterReturnTag(int startPosition) {
 		// Whitespace or inline tag closing brace
 		int previousPosition = this.index;
 		char ch = readChar();
-		this.starPosition = -1;
-		while (Character.isWhitespace(ch) || ch == '*') {
+		boolean malformed = true;
+		while (Character.isWhitespace(ch)) {
+			malformed = false;
 			previousPosition = this.index;
-			if (ch == '*') {
-				// valid whatever the number of star before last '/'
-				this.starPosition = previousPosition;
-			}
 			ch = readChar();	
 		}
-		// Look at possible end of comment
-		if (this.starPosition >= startPosition) { // valid only if a star was previous character
-			return ch == '/';
+		// End of comment
+		this.starPosition = -1;
+		nextChar: while (this.index<this.source.length) {
+			switch (ch) {
+				case '*':
+					// valid whatever the number of star before last '/'
+					this.starPosition = previousPosition;
+					break;
+				case '/':
+					if (this.starPosition >= startPosition) { // valid only if a star was previous character
+						return false;
+					}
+				default :
+					// valid if any other character is encountered, even white spaces
+					this.index = startPosition;
+					return !malformed;
+				
+			}
+			previousPosition = this.index;
+			ch = readChar();
 		}
-
-		// valid if next encountered is not, even white spaces
 		this.index = startPosition;
-		return ch != '@';
+		return false;
 	}
 
 	/*

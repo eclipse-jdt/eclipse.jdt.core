@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocReturnStatement extends ReturnStatement {
 	public char[] description;
-	public boolean empty = true;
 
 	public JavadocReturnStatement(int s, int e, char[] descr) {
 		super(null, s, e);
@@ -35,8 +34,6 @@ public class JavadocReturnStatement extends ReturnStatement {
 				: VoidBinding;
 		if (methodType == null || methodType == VoidBinding) {
 			scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
-		} else if (this.empty) {
-			scope.problemReporter().javadocInvalidTag(this.sourceStart, this.sourceEnd);
 		}
 	}
 

@@ -179,11 +179,6 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			QualifiedTypeReference qTypeRef = (QualifiedTypeReference) reference;
 			positions = qTypeRef.sourcePositions;
 			typeBinding = qTypeRef.resolvedType;
-		} else if (reference instanceof JavadocSingleTypeReference) {
-			JavadocSingleTypeReference jsTypeRef = (JavadocSingleTypeReference) reference;
-			positions = new long[1];
-			positions[0] = (((long)jsTypeRef.sourceStart) << 32) + jsTypeRef.sourceEnd;
-			typeBinding = jsTypeRef.resolvedType;
 		}
 		if (typeBinding instanceof ArrayBinding)
 			typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
@@ -209,18 +204,6 @@ protected int referenceType() {
 	return IJavaElement.PACKAGE_FRAGMENT;
 }
 public int resolveLevel(ASTNode node) {
-	if (node instanceof JavadocQualifiedTypeReference) {
-		JavadocQualifiedTypeReference qualifRef = (JavadocQualifiedTypeReference) node;
-		if (qualifRef.packageBinding != null)
-			return resolveLevel(qualifRef.packageBinding);
-		return resolveLevel(qualifRef.resolvedType);
-	}
-	if (node instanceof JavadocSingleTypeReference) {
-		JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) node;
-		if (singleRef.packageBinding != null)
-			return resolveLevel(singleRef.packageBinding);
-		return IMPOSSIBLE_MATCH;
-	}
 	if (node instanceof QualifiedTypeReference)
 		return resolveLevel(((QualifiedTypeReference) node).resolvedType);
 	if (node instanceof QualifiedNameReference)

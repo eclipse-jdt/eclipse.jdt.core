@@ -374,9 +374,9 @@ public final class RewriteEventStore {
 	
 	/**
 	 * Kind is either ORIGINAL, NEW, or BOTH
-	 * @param value Object
-	 * @param kind int
-	 * @return RewriteEvent
+	 * @param value
+	 * @param kind
+	 * @return
 	 */
 	public RewriteEvent findEvent(Object value, int kind) {
 		for (int i= 0; i < this.events.size(); i++) {

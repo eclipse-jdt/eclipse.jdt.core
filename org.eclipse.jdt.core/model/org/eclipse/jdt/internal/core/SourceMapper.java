@@ -387,15 +387,14 @@ public class SourceMapper
 				zip = manager.getZipFile(this.sourcePath);
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
-					String entryName;
-					if (!entry.isDirectory() && Util.isJavaFileName(entryName = entry.getName())) {
-						IPath path = new Path(entryName);
+					if (!entry.isDirectory()) {
+						IPath path = new Path(entry.getName());
 						int segmentCount = path.segmentCount();
 						if (segmentCount > 1) {
 							loop: for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
 								if (firstLevelPackageNames.contains(path.segment(i))) {
 									this.rootPaths.add(path.uptoSegment(i).toString());
-									// don't break here as this path could contain other first level package names (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74014)
+									break loop;
 								}
 								if (i == max - 1 && containsADefaultPackage) {
 									this.rootPaths.add(path.uptoSegment(max).toString());
