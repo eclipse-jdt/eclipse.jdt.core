@@ -334,7 +334,9 @@ public char[] genericSignature() {
 	for (int i = 0, length = this.parameters.length; i < length; i++) {
 		sig.append(this.parameters[i].genericTypeSignature());
 	}
-	sig.append(')').append(this.returnType.genericTypeSignature());
+	sig.append(')');
+	if (this.returnType != null)
+		sig.append(this.returnType.genericTypeSignature());
 	
 	// only append thrown exceptions if any is generic/parameterized
 	boolean needExceptionSignatures = false;
@@ -627,7 +629,8 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 		}
 	}
 	buffer.append(')');
-	buffer.append(returnType.signature());
+	if (this.returnType != null)
+		buffer.append(this.returnType.signature());
 	int nameLength = buffer.length();
 	signature = new char[nameLength];
 	buffer.getChars(0, nameLength, signature, 0);	    
