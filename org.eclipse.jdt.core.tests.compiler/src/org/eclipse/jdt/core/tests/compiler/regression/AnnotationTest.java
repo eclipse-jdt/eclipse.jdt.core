@@ -3394,4 +3394,109 @@ public class AnnotationTest extends AbstractComparableTest {
 			"The value for annotation attribute Bar.foo must be some @Foo annotation \n" + 
 			"----------\n");
     }        
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791
+    public void test110() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"@interface Ann {\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Iface extends Ann {\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Klass implements Ann {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class SubKlass extends Klass {\n" + 
+				"	public Class<? extends Annotation> annotationType() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = SubKlass.class;\n" + 
+				"		System.out.print(\"Classes:\");\n" + 
+				"		while (c != Object.class) {\n" + 
+				"			System.out.print(\"-> \" + c.getName());\n" + 
+				"			c = c.getSuperclass();\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		System.out.print(\", Interfaces:\");\n" + 
+				"		c = SubKlass.class;\n" + 
+				"		while (c != Object.class) {\n" + 
+				"			Class[] i = c.getInterfaces();\n" + 
+				"			System.out.print(\"-> \" + Arrays.asList(i));\n" + 
+				"			c = c.getSuperclass();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"Classes:-> SubKlass-> Klass, Interfaces:-> []-> [interface Ann]");
+    }            
+
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84791 - variation
+    public void test111() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"import java.util.Arrays;\n" + 
+				"\n" + 
+				"@interface Ann {\n" + 
+				"	int foo();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Iface extends Ann {\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Klass implements Ann {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class SubKlass extends Klass {\n" + 
+				"	public Class<? extends Annotation> annotationType() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AnnImpl implements Ann {\n" + 
+				"    public boolean equals(Object obj) { return false; }\n" + 
+				"    public int hashCode() { return 0; }\n" + 
+				"    public String toString() { return null; }\n" + 
+				"    public Class<? extends Annotation> annotationType() { return null; }\n" + 
+				"    public int foo() { return 0; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = SubKlass.class;\n" + 
+				"		System.out.println(\"Classes:\");\n" + 
+				"		while (c != Object.class) {\n" + 
+				"			System.out.println(\"-> \" + c.getName());\n" + 
+				"			c = c.getSuperclass();\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		System.out.println();\n" + 
+				"		System.out.println(\"Interfaces:\");\n" + 
+				"		c = SubKlass.class;\n" + 
+				"		while (c != Object.class) {\n" + 
+				"			Class[] i = c.getInterfaces();\n" + 
+				"			System.out.println(\"-> \" + Arrays.asList(i));\n" + 
+				"			c = c.getSuperclass();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
+			"	class SubKlass extends Klass {\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The type SubKlass must implement the inherited abstract method Ann.foo()\n" + 
+			"----------\n");
+    }            
 }

@@ -816,7 +816,7 @@ public class ClassScope extends Scope {
 					continue nextInterface;
 				}
 			}
-			if (!superInterface.isInterface()) {
+			if ((superInterface.modifiers & AccInterface) == 0) {
 				problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;
