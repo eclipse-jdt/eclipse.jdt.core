@@ -107,13 +107,12 @@
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         &lt;p&gt;
-&lt;a href=&quot;hglegal.htm&quot;&gt;
- &lt;img SRC=&quot;ngibmcpy.gif&quot;
-   ALT=&quot;Copyright IBM Corp. 2000, 2004. All Rights Reserved.&quot;
-   BORDER=0 height=14 width=324&gt;&lt;/a&gt;
-&lt;/p&gt;
+         Copyright (c) 2000, 2004 IBM Corporation and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Common Public License v1.0 which accompanies 
+this distribution, and is available at &lt;a 
+href=&quot;http://www.eclipse.org/legal/cpl-v10.html&quot;&gt;http://www.eclipse.org/legal/cpl-v10.html&lt;/a&gt;
       </documentation>
    </annotation>
-
+   
 </schema>
