@@ -109,7 +109,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P1");
 		assertSortedElementsEqual(
 			"Unexpected children",
-			"",
+			"[default] [in [project root] [in P1]]",
 			root.getChildren());
 		
 		assertResourcesEqual(
@@ -143,7 +143,7 @@ public void testAddExclusionOnPackage() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"",
+		"[default] [in src [in P]]",
 		root.getChildren());
 		
 	assertResourcesEqual(
@@ -235,7 +235,7 @@ public void testCreateExcludedPackage() throws CoreException {
 	
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"",
+		"[default] [in src [in P]]",
 		root.getChildren());
 		
 	assertResourcesEqual(
@@ -298,7 +298,7 @@ public void testCreateResourceExcludedPackage() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"",
+		"[default] [in src [in P]]",
 		root.getChildren());
 		
 	assertResourcesEqual(
@@ -499,7 +499,7 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"B.java",
+		"B.java [in p [in src [in P]]]",
 		pkg.getChildren());
 		
 	assertResourcesEqual(
@@ -530,8 +530,8 @@ public void testRenameExcludedPackage() throws CoreException {
 	
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"\n" + // default package
-		"q",
+		"[default] [in src [in P]]\n" + 
+		"q [in src [in P]]",
 		root.getChildren());
 		
 	assertResourcesEqual(
@@ -568,7 +568,7 @@ public void testRenameResourceExcludedCompilationUnit() throws CoreException {
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"B.java",
+		"B.java [in p [in src [in P]]]",
 		pkg.getChildren());
 		
 	assertResourcesEqual(
@@ -653,8 +653,8 @@ public void testRenameResourceExcludedPackage() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"\n" + // default package
-		"q",
+		"[default] [in src [in P]]\n" + 
+		"q [in src [in P]]",
 		root.getChildren());
 		
 	assertResourcesEqual(
@@ -721,7 +721,7 @@ public void testRemoveExclusionOnCompilationUnit() throws CoreException {
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"A.java",
+		"A.java [in p [in src [in P]]]",
 		pkg.getChildren());
 		
 	assertResourcesEqual(
@@ -751,8 +751,8 @@ public void testRemoveExclusionOnPackage() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	assertSortedElementsEqual(
 		"Unexpected children",
-		"\n" + // default package
-		"p",
+		"[default] [in src [in P]]\n" + 
+		"p [in src [in P]]",
 		root.getChildren());
 		
 	assertResourcesEqual(

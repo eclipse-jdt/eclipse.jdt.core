@@ -18,6 +18,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -83,7 +84,7 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	StringBuffer buffer = new StringBuffer();
 	if (elements != null) {
 		for (int i = 0, length = elements.length; i < length; i++){
-			buffer.append(elements[i].getElementName());
+			buffer.append(((JavaElement)elements[i]).toStringWithAncestors());
 			if (i != length-1) buffer.append("\n");
 		}
 	} else {

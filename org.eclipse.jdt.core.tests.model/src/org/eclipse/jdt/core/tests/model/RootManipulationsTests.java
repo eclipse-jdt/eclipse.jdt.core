@@ -255,9 +255,9 @@ public void testCopySourceFolder4() throws CoreException {
 		);
 		assertElementsEqual(
 			"Unexpected roots of P2 after insertion first",
-			"src\n" + 
-			"src1\n" + 
-			"src2",
+			"src [in P2]\n" + 
+			"src1 [in P2]\n" + 
+			"src2 [in P2]",
 			p2.getPackageFragmentRoots());
 
 		// insert in the middle
@@ -273,10 +273,10 @@ public void testCopySourceFolder4() throws CoreException {
 		);
 		assertElementsEqual(
 			"Unexpected roots of P2 after insertion in the middle",
-			"src\n" + 
-			"src1\n" + 
-			"src3\n" + 
-			"src2",
+			"src [in P2]\n" + 
+			"src1 [in P2]\n" + 
+			"src3 [in P2]\n" + 
+			"src2 [in P2]",
 			p2.getPackageFragmentRoots());
 			
 		// insert last
@@ -290,11 +290,11 @@ public void testCopySourceFolder4() throws CoreException {
 		);
 		assertElementsEqual(
 			"Unexpected roots of P2 after insertion last",
-			"src\n" + 
-			"src1\n" + 
-			"src3\n" + 
-			"src2\n" +
-			"src4",
+			"src [in P2]\n" + 
+			"src1 [in P2]\n" + 
+			"src3 [in P2]\n" + 
+			"src2 [in P2]\n" + 
+			"src4 [in P2]",
 			p2.getPackageFragmentRoots());
 	} finally {
 		this.stopDeltas();

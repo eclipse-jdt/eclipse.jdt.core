@@ -908,7 +908,7 @@ public void testRootGetPackageFragments2() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot("/P");
 		assertElementsEqual(
 			"Unexpected packages",
-			"",
+			"[default] [in [project root] [in P]]",
 			root.getChildren());
 	} finally {
 		this.deleteProject("P");

@@ -107,7 +107,7 @@ public void testAddPackageFragment2() throws CoreException {
 		IPackageFragment[] pkgs = project.getNameLookup().findPackageFragments("p1", false);
 		assertElementsEqual(
 			"Didn't find p1",
-			"p1",
+			"p1 [in src [in P]]",
 			pkgs);
 		
 		this.createFolder("/P/src/p2");
@@ -115,7 +115,7 @@ public void testAddPackageFragment2() throws CoreException {
 		pkgs = project.getNameLookup().findPackageFragments("p2", false);
 		assertElementsEqual(
 			"Didn't find p2",
-			"p2",
+			"p2 [in src [in P]]",
 			pkgs);
 	} finally {
 		this.deleteProject("P");

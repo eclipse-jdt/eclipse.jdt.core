@@ -310,6 +310,80 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		IPackageFragment pkg = getPackage("P");
 		assertEquals("Unexpected element", pkg, pkg.getPrimaryElement());
 	}
+	
+	/*
+	 * Ensures that the correct working copies are returned by JavaCore.getWorkingCopies(WorkingCopyOwner)
+	 */
+	public void testGetWorkingCopies() throws CoreException {
+		ICompilationUnit workingCopy11 = null;
+		ICompilationUnit workingCopy12 = null;
+		ICompilationUnit workingCopy21 = null;
+		try {
+			// initialiy no working copies for this owner
+			TestWorkingCopyOwner owner1 = new TestWorkingCopyOwner();
+			assertSortedElementsEqual(
+				"Unexpected working copies (1)",
+				"",
+				JavaCore.getWorkingCopies(owner1)
+			);
+			
+			// create working copy on existing cu
+			ICompilationUnit cu1 = getCompilationUnit("P/X.java");
+			workingCopy11 = cu1.getWorkingCopy(owner1, null, null);
+			assertSortedElementsEqual(
+				"Unexpected working copies (2)",
+				"[Working copy] X.java [in [default] [in [project root] [in P]]]",
+				JavaCore.getWorkingCopies(owner1)
+			);
+			
+			// create working copy on non-existing cu
+			ICompilationUnit cu2 = getCompilationUnit("P/Y.java");
+			workingCopy12 = cu2.getWorkingCopy(owner1, null, null);
+			assertSortedElementsEqual(
+				"Unexpected working copies (3)",
+				"[Working copy] X.java [in [default] [in [project root] [in P]]]\n" +
+				"[Working copy] Y.java [in [default] [in [project root] [in P]]]",
+				JavaCore.getWorkingCopies(owner1)
+			);
+
+			// create working copy for another owner
+			TestWorkingCopyOwner owner2 = new TestWorkingCopyOwner();
+			workingCopy21 = cu1.getWorkingCopy(owner2, null, null);
+			
+			// owner2 should have the new working copy
+			assertSortedElementsEqual(
+				"Unexpected working copies (4)",
+				"[Working copy] X.java [in [default] [in [project root] [in P]]]",
+				JavaCore.getWorkingCopies(owner2)
+			);
+			
+			// owner1 should still have the same working copies
+			assertSortedElementsEqual(
+				"Unexpected working copies (5)",
+				"[Working copy] X.java [in [default] [in [project root] [in P]]]\n" +
+				"[Working copy] Y.java [in [default] [in [project root] [in P]]]",
+				JavaCore.getWorkingCopies(owner1)
+			);
+			
+			// discard first working copy
+			workingCopy11.discardWorkingCopy();
+			assertSortedElementsEqual(
+				"Unexpected working copies (6)",
+				"[Working copy] Y.java [in [default] [in [project root] [in P]]]",
+				JavaCore.getWorkingCopies(owner1)
+			);
+		} finally {
+			if (workingCopy11 != null) {
+				workingCopy11.discardWorkingCopy();
+			}
+			if (workingCopy12 != null) {
+				workingCopy12.discardWorkingCopy();
+			}
+			if (workingCopy21 != null) {
+				workingCopy21.discardWorkingCopy();
+			}
+		}
+	}
 
 	/*
 	 * Ensures that getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
