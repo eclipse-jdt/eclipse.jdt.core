@@ -315,6 +315,97 @@ public void testIsOnClasspath4() throws CoreException {
 	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
 }
 /*
+ * Ensures that an excluded nested source folder doesn't appear as a non-java resource of the outer folder.
+ * (regression test for bug 28115 Ubiquitous resource in the JavaModel)
+ * 
+ */
+public void testNestedSourceFolder1() throws CoreException {
+	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	this.createFolder("/P/src1/src2");
+	IPackageFragmentRoot root1 = getPackageFragmentRoot("/P/src1");
+	assertResourcesEqual(
+		"Unexpected non-java resources for /P/src1",
+		"",
+		root1.getNonJavaResources());
+}
+/*
+ * Ensures that adding a .java file in a nested source folder reports 
+ * a delta on the nested source folder and not on the outer one.
+ */
+public void testNestedSourceFolder2() throws CoreException {
+	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	this.createFolder("/P/src1/src2");
+	
+	this.clearDeltas();
+	this.createFile(
+		"/P/src1/src2/A.java",
+		"public class A {\n" +
+		"}"
+	);
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src1/src2[*]: {CHILDREN}\n" + 
+		"		[default][*]: {CHILDREN}\n" + 
+		"			A.java[+]: {}"
+	);
+}
+/*
+ * Ensures that adding a .txt file in a nested source folder reports 
+ * a resource delta on the nested source folder and not on the outer one.
+ */
+public void testNestedSourceFolder3() throws CoreException {
+	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	this.createFolder("/P/src1/src2");
+	
+	this.clearDeltas();
+	this.createFile("/P/src1/src2/readme.txt", "");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src1/src2[*]: {CONTENT}\n" + 
+		"		ResourceDelta(/P/src1/src2/readme.txt)[+]"
+	);
+}
+/*
+ * Ensures that adding a folder in a nested source folder reports 
+ * a delta on the nested source folder and not on the outer one.
+ */
+public void testNestedSourceFolder4() throws CoreException {
+	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	this.createFolder("/P/src1/src2");
+	
+	this.clearDeltas();
+	this.createFolder("/P/src1/src2/p");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src1/src2[*]: {CHILDREN}\n" + 
+		"		p[+]: {}"
+	);
+}
+/*
+ * Ensures that adding a folder in a outer source folder reports 
+ * a delta on the outer source folder and not on the nested one.
+ */
+public void testNestedSourceFolder5() throws CoreException {
+	this.setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});
+	this.createFolder("/P/src1/src2");
+	
+	this.clearDeltas();
+	this.createFolder("/P/src1/p");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src1[*]: {CHILDREN}\n" + 
+		"		p[+]: {}"
+	);
+}
+/*
  * Ensure that renaming an excluded compilation unit so that it is not excluded any longer
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */

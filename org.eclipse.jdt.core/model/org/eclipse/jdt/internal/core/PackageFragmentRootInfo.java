@@ -79,8 +79,10 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 					break;
 
 				case IResource.FOLDER :
-					// ignore valid packages that are not excluded
-					if (Util.isValidFolderNameForPackage(member.getName()) && !Util.isExcluded(member, exclusionPatterns)) 
+					// ignore valid packages or excluded folders that correspond to a nested pkg fragment root
+					if (Util.isValidFolderNameForPackage(member.getName())
+							&& (!Util.isExcluded(member, exclusionPatterns) 
+								|| isClasspathEntry(member.getFullPath(), classpath)))
 						continue nextResource;
 					break;
 			}
