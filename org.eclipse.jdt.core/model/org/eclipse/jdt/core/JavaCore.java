@@ -1330,6 +1330,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	"<n>", where n is a positive integer
 	 *     - default:           "4"
 	 * 
+	 *	FORMATTER / Inserting space in cast expression
+	 *    When Insert, a space is added between the type and the expression in a cast expression.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.space.castexpression"
+	 *     - possible values:   { "insert", "do not insert" }
+	 *     - default:           "insert"
+	 * 
 	 *	CODEASSIST / Activate Visibility Sensitive Completion
 	 *    When active, completion doesn't show that you can not see
 	 *    (e.g. you can not see private methods of a super class).
