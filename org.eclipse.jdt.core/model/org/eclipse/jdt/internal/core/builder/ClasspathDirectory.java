@@ -33,7 +33,7 @@ ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder) {
 	this.directoryCache = new SimpleLookupTable(5);
 }
 
-void cleanup() {
+public void cleanup() {
 	this.directoryCache = null;
 }
 
@@ -82,7 +82,7 @@ public boolean equals(Object o) {
 	return binaryFolder.equals(((ClasspathDirectory) o).binaryFolder);
 } 
 
-NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
 
 	try {
@@ -92,19 +92,19 @@ NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageNa
 	return null;
 }
 
-IPath getProjectRelativePath() {
+public IPath getProjectRelativePath() {
 	return binaryFolder.getProjectRelativePath();
 }
 
-boolean isOutputFolder() {
+public boolean isOutputFolder() {
 	return isOutputFolder;
 }
 
-boolean isPackage(String qualifiedPackageName) {
+public boolean isPackage(String qualifiedPackageName) {
 	return directoryList(qualifiedPackageName) != null;
 }
 
-void reset() {
+public void reset() {
 	this.directoryCache = new SimpleLookupTable(5);
 }
 

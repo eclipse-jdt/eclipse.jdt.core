@@ -2010,6 +2010,7 @@ public void testSimplePackageReference() throws JavaModelException, CoreExceptio
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
+		"src/Test.java Test.main(String[]) -> void [p]\n" +
 		"src/TypeReferenceInImport/X.java [p]", 
 		resultCollector.toString());
 }

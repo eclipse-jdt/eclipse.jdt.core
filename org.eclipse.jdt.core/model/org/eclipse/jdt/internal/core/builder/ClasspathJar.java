@@ -20,11 +20,12 @@ import java.io.*;
 import java.util.*;
 import java.util.zip.*;
 
-class ClasspathJar extends ClasspathLocation {
+public class ClasspathJar extends ClasspathLocation {
 
 String zipFilename; // keep for equals
 IFile resource;
 ZipFile zipFile;
+boolean closeZipFileAtEnd;
 SimpleLookupTable packageCache;
 
 ClasspathJar(String zipFilename) {
@@ -41,8 +42,15 @@ ClasspathJar(IFile resource) {
 	this.packageCache = null;
 }
 
-void cleanup() {
-	if (zipFile != null) {
+public ClasspathJar(ZipFile zipFile) {
+	this.zipFilename = zipFile.getName();
+	this.zipFile = zipFile;
+	this.closeZipFileAtEnd = false;
+	this.packageCache = null;
+}
+
+public void cleanup() {
+	if (zipFile != null && this.closeZipFileAtEnd) {
 		try { zipFile.close(); } catch(IOException e) {}
 		this.zipFile = null;
 	}
@@ -56,7 +64,7 @@ public boolean equals(Object o) {
 	return zipFilename.equals(((ClasspathJar) o).zipFilename);
 } 
 
-NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	try {
@@ -66,19 +74,22 @@ NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageNa
 	return null;
 }
 
-IPath getProjectRelativePath() {
+public IPath getProjectRelativePath() {
 	if (resource == null) return null;
 	return	resource.getProjectRelativePath();
 }
 
-boolean isPackage(String qualifiedPackageName) {
+public boolean isPackage(String qualifiedPackageName) {
 	if (packageCache != null)
 		return packageCache.containsKey(qualifiedPackageName);
 
 	this.packageCache = new SimpleLookupTable(41);
 	packageCache.put("", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	try {
-		this.zipFile = new ZipFile(zipFilename);
+		if (this.zipFile == null) {
+			this.zipFile = new ZipFile(zipFilename);
+			this.closeZipFileAtEnd = true;
+		}
 
 		nextEntry : for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = ((ZipEntry) e.nextElement()).getName();

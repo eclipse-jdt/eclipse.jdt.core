@@ -11,7 +11,7 @@ static {
 public static void main(String[] args) {
 	p.Y y = new p.Y();
 	y.foo(1, "a", y);
-	y.bar();
+	p.Y.bar();
 	
 	p.Z z = new p.Z();
 	z.foo(1, "a", z);

@@ -15,13 +15,13 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
-abstract class ClasspathLocation {
+public abstract class ClasspathLocation {
 
 static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder, char[][] exclusionPatterns) {
 	return new ClasspathMultiDirectory(sourceFolder, outputFolder, exclusionPatterns);
 }
 
-static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder) {
+public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder) {
 	return new ClasspathDirectory(binaryFolder, isOutputFolder);
 }
 
@@ -33,20 +33,20 @@ static ClasspathLocation forLibrary(IFile library) {
 	return new ClasspathJar(library);
 }
 
-abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);
+public abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);
 
-abstract IPath getProjectRelativePath();
+public abstract IPath getProjectRelativePath();
 
-boolean isOutputFolder() {
+public boolean isOutputFolder() {
 	return false;
 }
 
-abstract boolean isPackage(String qualifiedPackageName);
+public abstract boolean isPackage(String qualifiedPackageName);
 
 // free anything which is not required when the state is saved
-void cleanup() {
+public void cleanup() {
 }
 // reset any internal caches before another compile loop starts
-void reset() {
+public void reset() {
 }
 }

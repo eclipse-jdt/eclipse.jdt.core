@@ -1097,8 +1097,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 				}
 			}
 		}
-		String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
-		return new FileNameEnvironment(classpathNames, encoding, rootModes);
+		return new JavaSearchNameEnvironment(project);
 		
 	}
 

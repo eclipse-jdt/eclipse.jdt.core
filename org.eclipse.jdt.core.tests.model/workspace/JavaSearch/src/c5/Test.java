@@ -3,5 +3,3 @@ package c5;
 public class Test {
 	public String class_path;
 }
-
-/* Test case for bug 
