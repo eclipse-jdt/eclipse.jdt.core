@@ -168,7 +168,6 @@ Goal ::= '>>' Initializer
 -- error recovery
 Goal ::= '>>>' Headers
 Goal ::= '*' BlockStatements
-Goal ::= '*' MethodPushModifiersHeader
 Goal ::= '*' CatchHeader
 -- JDOM
 Goal ::= '&&' FieldDeclaration
@@ -509,17 +508,6 @@ AbstractMethodDeclaration ::= MethodHeader ';'
 MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
 /.$putCase consumeMethodHeader(); $break ./
 /:$readableName MethodHeader:/
-
-MethodPushModifiersHeader ::= MethodPushModifiersHeaderName MethodHeaderParameters MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
-/.$putCase consumeMethodHeader(); $break ./
-/:$readableName MethodHeader:/
-
-MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers 'Identifier' '(' 
-/.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-
-MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '(' 
-/.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-/:$readableName MethodHeaderName:/
 
 MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
