@@ -73,6 +73,8 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
+		if (this.annotations != null) printAnnotations(this.annotations, output);
+		
 		if (type != null) {
 			type.print(0, output).append(' ');
 		}

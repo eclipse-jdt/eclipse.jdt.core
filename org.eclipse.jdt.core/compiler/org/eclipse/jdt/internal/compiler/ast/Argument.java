@@ -79,6 +79,8 @@ public class Argument extends LocalDeclaration {
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
+		if (this.annotations != null) printAnnotations(this.annotations, output);
+		
 		if (type == null) {
 			output.append("<no type> "); //$NON-NLS-1$
 		} else {

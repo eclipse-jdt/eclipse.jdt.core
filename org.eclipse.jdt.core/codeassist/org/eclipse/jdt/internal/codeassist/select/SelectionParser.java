@@ -564,6 +564,80 @@ protected void consumeLocalVariableDeclarationStatement() {
 		}
 	}
 }
+protected void consumeMarkerAnnotation() {
+	int index;
+	
+	if ((index = this.indexOfAssistIdentifier()) < 0) {
+		super.consumeMarkerAnnotation();
+		return;
+	} 
+	
+	MarkerAnnotation markerAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	TypeReference typeReference;
+
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	
+	char[][] subset = identifierSubSet(index);
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist on type reference */
+	
+	if (index == 0) {
+		/* assist inside first identifier */
+		typeReference = this.createSingleAssistTypeReference(
+						assistIdentifier(), 
+						positions[0]);
+	} else {
+		/* assist inside subsequent identifier */
+		typeReference =	this.createQualifiedAssistTypeReference(
+						subset,  
+						assistIdentifier(), 
+						positions);
+	}
+	assistNode = typeReference;
+	this.lastCheckPoint = typeReference.sourceEnd + 1;
+
+	markerAnnotation = new MarkerAnnotation(typeReference, this.intStack[this.intPtr--]);
+	int sourceStart = markerAnnotation.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
+	pushOnExpressionStack(markerAnnotation);
+}
+protected void consumeMemberValuePair() {
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeMemberValuePair();
+		return;
+	} 
+	
+	char[] simpleName = this.identifierStack[this.identifierPtr];
+	long position = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	int end = (int) position;
+	int start = (int) (position >>> 32);
+	Expression value = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	MemberValuePair memberValuePair = new SelectionOnNameOfMemberValuePair(simpleName, start, end, value);
+	pushOnAstStack(memberValuePair);
+	
+	assistNode = memberValuePair;
+	this.lastCheckPoint = memberValuePair.sourceEnd + 1;
+	
+	
+}
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
 
@@ -662,6 +736,122 @@ protected void consumeMethodInvocationPrimary() {
 	this.assistNode = constructorCall;
 	this.lastCheckPoint = constructorCall.sourceEnd + 1;
 	this.isOrphanCompletionNode = true;
+}
+protected void consumeNormalAnnotation() {
+	int index;
+	
+	if ((index = this.indexOfAssistIdentifier()) < 0) {
+		super.consumeNormalAnnotation();
+		return;
+	} 
+	
+	NormalAnnotation normalAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	TypeReference typeReference;
+	
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	
+	char[][] subset = identifierSubSet(index);
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist on type reference */
+	
+	if (index == 0) {
+		/* assist inside first identifier */
+		typeReference = this.createSingleAssistTypeReference(
+						assistIdentifier(), 
+						positions[0]);
+	} else {
+		/* assist inside subsequent identifier */
+		typeReference =	this.createQualifiedAssistTypeReference(
+						subset,  
+						assistIdentifier(), 
+						positions);
+	}
+	assistNode = typeReference;
+	this.lastCheckPoint = typeReference.sourceEnd + 1;
+		
+	normalAnnotation = new NormalAnnotation(typeReference, this.intStack[this.intPtr--]);
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.astStack, 
+			(this.astPtr -= length) + 1, 
+			normalAnnotation.memberValuePairs = new MemberValuePair[length], 
+			0, 
+			length); 
+	}
+	int sourceStart = normalAnnotation.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	normalAnnotation.declarationSourceEnd = this.rParenPos;
+	pushOnExpressionStack(normalAnnotation);
+}
+protected void consumeSingleMemberAnnotation() {
+	int index;
+	
+	if ((index = this.indexOfAssistIdentifier()) < 0) {
+		super.consumeSingleMemberAnnotation();
+		return;
+	} 
+	
+	SingleMemberAnnotation singleMemberAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	TypeReference typeReference;
+	
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	
+	char[][] subset = identifierSubSet(index);
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist on type reference */
+	
+	if (index == 0) {
+		/* assist inside first identifier */
+		typeReference = this.createSingleAssistTypeReference(
+						assistIdentifier(), 
+						positions[0]);
+	} else {
+		/* assist inside subsequent identifier */
+		typeReference =	this.createQualifiedAssistTypeReference(
+						subset,  
+						assistIdentifier(), 
+						positions);
+	}
+	assistNode = typeReference;
+	this.lastCheckPoint = typeReference.sourceEnd + 1;
+
+	singleMemberAnnotation = new SingleMemberAnnotation(typeReference, this.intStack[this.intPtr--]);
+	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	int sourceStart = singleMemberAnnotation.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	singleMemberAnnotation.declarationSourceEnd = this.rParenPos;
+	pushOnExpressionStack(singleMemberAnnotation);
 }
 protected void consumeStaticImportOnDemandDeclarationName() {
 	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'

@@ -169,7 +169,12 @@ public abstract class Engine implements ITypeRequestor {
 				AbstractMethodDeclaration method = methods[i];
 				if (method.bodyStart > position)
 					continue;
+				
+				if(method.isDefaultConstructor())
+					continue;
+				
 				if (method.declarationSourceEnd >= position) {
+					
 					getParser().parseBlockStatements(method, unit);
 					return method;
 				}

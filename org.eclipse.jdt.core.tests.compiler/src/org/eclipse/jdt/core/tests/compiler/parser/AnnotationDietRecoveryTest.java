@@ -350,19 +350,19 @@ public void test0005() {
 			+ "}													\n";
 
 	String expectedDietUnitToString = 
-		"@interface MyAnn {\n" + 
+		"@Documented @Rentention(RententionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface MyAnn {\n" + 
 		"  String value() default \"Default Message\" {\n" + 
 		"  }\n" + 
 		"}\n" + 
 		"public class X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
-		"  public void something() {\n" + 
+		"  public @MyAnn void something() {\n" + 
 		"  }\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = 
-		"@interface MyAnn {\n" + 
+		"@Documented @Rentention(RententionPolicy.RUNTIME) @Target(ElementType.TYPE) @interface MyAnn {\n" + 
 		"  String value() default \"Default Message\" {\n" + 
 		"  }\n" + 
 		"}\n" + 
@@ -370,7 +370,7 @@ public void test0005() {
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public void something() {\n" + 
+		"  public @MyAnn void something() {\n" + 
 		"  }\n" + 
 		"}\n";
 

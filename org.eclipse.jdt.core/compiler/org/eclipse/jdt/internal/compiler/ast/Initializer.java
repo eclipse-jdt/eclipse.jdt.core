@@ -82,7 +82,9 @@ public class Initializer extends FieldDeclaration {
 
 		if (modifiers != 0) {
 			printIndent(indent, output);
-			printModifiers(modifiers, output).append("{\n"); //$NON-NLS-1$
+			printModifiers(modifiers, output);
+			if (this.annotations != null) printAnnotations(this.annotations, output);
+			output.append("{\n"); //$NON-NLS-1$
 			block.printBody(indent, output);
 			printIndent(indent, output).append('}'); 
 			return output;

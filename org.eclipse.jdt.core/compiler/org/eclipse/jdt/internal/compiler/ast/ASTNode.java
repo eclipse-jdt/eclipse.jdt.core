@@ -314,6 +314,15 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	public abstract StringBuffer print(int indent, StringBuffer output);
 
+	public static StringBuffer printAnnotations(Annotation[] annotations, StringBuffer output) {
+		int length = annotations.length;
+		for (int i = 0; i < length; i++) {
+			annotations[i].print(0, output);
+			output.append(" "); //$NON-NLS-1$
+		}
+		return output;
+	}
+	
 	public static StringBuffer printIndent(int indent, StringBuffer output) {
 
 		for (int i = indent; i > 0; i--) output.append("  "); //$NON-NLS-1$

@@ -1691,4 +1691,115 @@ public void test0076() throws JavaModelException {
 		elements
 	);
 }
+public void test0077() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0077/Test.java",
+			"package test0077;\n" +
+			"@interface MyAnn {\n" +
+			"}\n" +
+			"public @MyAnn class Test {\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "MyAnn";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"MyAnn [in [Working copy] Test.java [in test0077 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+public void test0078() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0078/Test.java",
+			"package test0078;\n" +
+			"@interface MyAnn {\n" +
+			"  String value();\n" +
+			"}\n" +
+			"public @MyAnn(\"\") class Test {\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "MyAnn";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"MyAnn [in [Working copy] Test.java [in test0078 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+public void test0079() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0079/Test.java",
+			"package test0079;\n" +
+			"@interface MyAnn {\n" +
+			"  String value();\n" +
+			"}\n" +
+			"public @MyAnn class Test {\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "MyAnn";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"MyAnn [in [Working copy] Test.java [in test0079 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+public void test0080() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0080/Test.java",
+			"package test0080;\n" +
+			"@interface MyAnn {\n" +
+			"  String value1();\n" +
+			"  String value2();\n" +
+			"}\n" +
+			"public @MyAnn(value1 = \"\", value2 = \"\") class Test {\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "MyAnn";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"MyAnn [in [Working copy] Test.java [in test0080 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+public void test0081() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0081/Test.java",
+			"package test0080;\n" +
+			"@interface MyAnn {\n" +
+			"  String value1();\n" +
+			"  String value2();\n" +
+			"}\n" +
+			"public @MyAnn(value1 = \"\", value2 = \"\") class Test {\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "value1";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"value1() [in MyAnn [in [Working copy] Test.java [in test0081 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
 }

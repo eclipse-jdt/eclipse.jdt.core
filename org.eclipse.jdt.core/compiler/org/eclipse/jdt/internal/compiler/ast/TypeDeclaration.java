@@ -864,6 +864,8 @@ public class TypeDeclaration
 	public StringBuffer printHeader(int indent, StringBuffer output) {
 
 		printModifiers(this.modifiers, output);
+		if (this.annotations != null) printAnnotations(this.annotations, output);
+		
 		switch (kind()) {
 			case IGenericType.CLASS_DECL :
 				output.append("class "); //$NON-NLS-1$
