@@ -191,7 +191,7 @@ public class CompilationUnit extends ASTNode {
 	}
 
 	/**
-	 * Returns the live list of nodes for the import declaration of this 
+	 * Returns the live list of nodes for the import declarations of this 
 	 * compilation unit, in order of appearance.
 	 * 
 	 * @return the live list of import declaration nodes
@@ -202,7 +202,7 @@ public class CompilationUnit extends ASTNode {
 	}
 	
 	/**
-	 * Returns the live list of nodes for the top-level type declaration of this 
+	 * Returns the live list of nodes for the top-level type declarations of this 
 	 * compilation unit, in order of appearance.
 	 * 
 	 * @return the live list of top-level type declaration
