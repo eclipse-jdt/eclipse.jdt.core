@@ -278,10 +278,13 @@ void write(DataOutputStream out) throws IOException {
 		valueTable = structuralBuildNumbers.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
+				length--;
 				out.writeUTF((String) keyTable[i]);
 				out.writeInt(((Integer) valueTable[i]).intValue());
 			}
 		}
+		if (JavaBuilder.DEBUG && length != 0)
+			System.out.println("structuralBuildNumbers table is inconsistent"); //$NON-NLS-1$
 	}
 
 /*
@@ -289,13 +292,18 @@ void write(DataOutputStream out) throws IOException {
  */
 	out.writeInt(length = references.elementSize);
 	ArrayList internedLocations = new ArrayList(length);
-	keyTable = references.keyTable;
-	for (int i = 0, l = keyTable.length; i < l; i++) {
-		if (keyTable[i] != null) {
-			String key = (String) keyTable[i];
-			out.writeUTF(key);
-			internedLocations.add(key);
+	if (length > 0) {
+		keyTable = references.keyTable;
+		for (int i = 0, l = keyTable.length; i < l; i++) {
+			if (keyTable[i] != null) {
+				length--;
+				String key = (String) keyTable[i];
+				out.writeUTF(key);
+				internedLocations.add(key);
+			}
 		}
+		if (JavaBuilder.DEBUG && length != 0)
+			System.out.println("references table is inconsistent"); //$NON-NLS-1$
 	}
 
 /*
@@ -309,10 +317,13 @@ void write(DataOutputStream out) throws IOException {
 		valueTable = typeLocations.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
+				length--;
 				out.writeUTF((String) keyTable[i]);
 				out.writeInt(internedLocations.indexOf((String) valueTable[i]));
 			}
 		}
+		if (JavaBuilder.DEBUG && length != 0)
+			System.out.println("typeLocations table is inconsistent"); //$NON-NLS-1$
 	}
 
 /*
@@ -364,29 +375,34 @@ void write(DataOutputStream out) throws IOException {
  * ReferenceCollection
 */
 	out.writeInt(length = references.elementSize);
-	keyTable = references.keyTable;
-	for (int i = 0, l = keyTable.length; i < l; i++) {
-		if (keyTable[i] != null) {
-			out.writeInt(internedLocations.indexOf((String) keyTable[i]));
-			ReferenceCollection collection = (ReferenceCollection) valueTable[i];
-			if (collection instanceof AdditionalTypeCollection) {
-				out.writeByte(1);
-				AdditionalTypeCollection atc = (AdditionalTypeCollection) collection;
-				writeNames(atc.definedTypeNames, out);
-			} else {
-				out.writeByte(2);
+	if (length > 0) {
+		keyTable = references.keyTable;
+		for (int i = 0, l = keyTable.length; i < l; i++) {
+			if (keyTable[i] != null) {
+				length--;
+				out.writeInt(internedLocations.indexOf((String) keyTable[i]));
+				ReferenceCollection collection = (ReferenceCollection) valueTable[i];
+				if (collection instanceof AdditionalTypeCollection) {
+					out.writeByte(1);
+					AdditionalTypeCollection atc = (AdditionalTypeCollection) collection;
+					writeNames(atc.definedTypeNames, out);
+				} else {
+					out.writeByte(2);
+				}
+				char[][][] qNames = collection.qualifiedNameReferences;
+				int qLength = qNames.length;
+				out.writeInt(qLength);
+				for (int j = 0; j < qLength; j++)
+					out.writeInt(internedQualifiedNames.indexOf(qNames[j]));
+				char[][] sNames = collection.simpleNameReferences;
+				int sLength = sNames.length;
+				out.writeInt(sLength);
+				for (int j = 0; j < sLength; j++)
+					out.writeInt(internedSimpleNames.indexOf(sNames[j]));
 			}
-			char[][][] qNames = collection.qualifiedNameReferences;
-			int qLength = qNames.length;
-			out.writeInt(qLength);
-			for (int j = 0; j < qLength; j++)
-				out.writeInt(internedQualifiedNames.indexOf(qNames[j]));
-			char[][] sNames = collection.simpleNameReferences;
-			int sLength = sNames.length;
-			out.writeInt(sLength);
-			for (int j = 0; j < sLength; j++)
-				out.writeInt(internedSimpleNames.indexOf(sNames[j]));
 		}
+		if (JavaBuilder.DEBUG && length != 0)
+			System.out.println("references table is inconsistent"); //$NON-NLS-1$
 	}
 }
 
