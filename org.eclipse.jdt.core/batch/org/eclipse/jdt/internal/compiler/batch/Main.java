@@ -1481,7 +1481,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		// set the non-externally configurable options.
 		compilerOptions.setVerboseMode(this.verbose);
-		compilerOptions.produceReferenceInfo(this.produceRefInfo);
+		compilerOptions.produceReferenceInfo = this.produceRefInfo;
 		batchCompiler.compile(getCompilationUnits());
 
 		printStats();

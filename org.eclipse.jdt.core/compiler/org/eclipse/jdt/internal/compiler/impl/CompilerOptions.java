@@ -183,7 +183,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public boolean verbose = Compiler.DEBUG;
 
 	// indicates if reference info is desired
-	public boolean produceReferenceInfo = true;
+	public boolean produceReferenceInfo = false;
 
 	// indicates if unused/optimizable local variables need to be preserved (debugging purpose)
 	public boolean preserveAllLocalVariables = false;
@@ -327,10 +327,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 	}
 	
-	public void produceReferenceInfo(boolean flag) {
-		this.produceReferenceInfo = flag;
-	}
-
 	public void set(Map optionsMap) {
 
 		Object optionValue;
