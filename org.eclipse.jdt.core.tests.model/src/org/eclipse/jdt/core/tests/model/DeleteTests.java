@@ -92,7 +92,7 @@ public void testDeleteBinaryMethod() throws CoreException {
 			109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 3, 102, 111, 111, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 6, 88, 46, 106, 97, 118, 97, 0, 33, 0, 2, 0, 4, 0, 0, 0, 0, 0, 2, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 1, 
 			0, 10, 0, 0, 0, 6, 0, 1, 0, 0, 0, 1, 0, 1, 0, 11, 0, 6, 0, 1, 0, 7, 0, 0, 0, 25, 0, 0, 0, 1, 0, 0, 0, 1, -79, 0, 0, 0, 1, 0, 10, 0, 0, 0, 6, 0, 1, 0, 0, 0, 3, 0, 1, 0, 12, 0, 0, 0, 2, 0, 13, 
 		};
-		this.createFile("P1/lib/X.class", new String(bytes));
+		this.createFile("P1/lib/X.class", bytes);
 		
 		IClassFile cf = getClassFile("P1/lib/X.class");
 		IMethod method = cf.getType().getMethod("foo", new String[] {});
@@ -126,7 +126,7 @@ public void testDeleteBinaryType() throws CoreException {
 			109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 6, 88, 46, 106, 97, 118, 97, 0, 33, 0, 2, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 1, 0, 10, 0, 0, 0, 6, 
 			0, 1, 0, 0, 0, 1, 0, 1, 0, 11, 0, 0, 0, 2, 0, 12, 
 		};
-		this.createFile("P1/lib/X.class", new String(bytes));
+		this.createFile("P1/lib/X.class", bytes);
 		
 		IClassFile cf = getClassFile("P1/lib/X.class");
 		IType binaryType = cf.getType();

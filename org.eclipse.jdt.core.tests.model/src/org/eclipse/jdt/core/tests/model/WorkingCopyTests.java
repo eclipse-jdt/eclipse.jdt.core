@@ -360,7 +360,7 @@ public void testGetOriginalBinaryElement() throws CoreException {
 		-54, -2, -70, -66, 0, 3, 0, 45, 0, 10, 1, 0, 1, 65, 7, 0, 1, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 7, 0, 3, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100, 101, 12, 0, 5, 0, 6, 10, 0, 4, 0, 8, 0, 33, 0, 2, 0, 4, 0, 0, 0, 
 		0, 0, 1, 0, 1, 0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 17, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 9, -79, 0, 0, 0, 0, 0, 0, 
 	};
-	this.createFile("P/lib/A.class", new String(bytes));
+	this.createFile("P/lib/A.class", bytes);
 	IClassFile cf = this.getClassFile("P/lib/A.class");
 	IJavaElement original= this.copy.getOriginal(cf);
 	assertTrue("Element should not be found", original == null);
