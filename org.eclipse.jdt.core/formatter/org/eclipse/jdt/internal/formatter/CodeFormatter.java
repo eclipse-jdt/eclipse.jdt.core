@@ -258,23 +258,19 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 		String currentString = currentLineBuffer.toString();
 		splitDelta = 0;
 		beginningOfLineIndex = formattedSource.length();
-		if (options.maxLineLength != 0) {
-			if (containsOpenCloseBraces) {
-				containsOpenCloseBraces = false;
-				outputLine(
-					currentString,
-					false,
-					indentationLevelForOpenCloseBraces,
-					0,
-					-1,
-					null,
-					0);
-				indentationLevelForOpenCloseBraces = currentLineIndentationLevel;
-			} else {
-				outputLine(currentString, false, currentLineIndentationLevel, 0, -1, null, 0);
-			}
+		if (containsOpenCloseBraces) {
+			containsOpenCloseBraces = false;
+			outputLine(
+				currentString,
+				false,
+				indentationLevelForOpenCloseBraces,
+				0,
+				-1,
+				null,
+				0);
+			indentationLevelForOpenCloseBraces = currentLineIndentationLevel;
 		} else {
-			formattedSource.append(currentString);
+			outputLine(currentString, false, currentLineIndentationLevel, 0, -1, null, 0);
 		}
 		updateMappedPositions(scanner.startPosition);	
 	}
