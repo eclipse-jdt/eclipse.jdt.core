@@ -34,7 +34,7 @@ String[] directoryList(String qualifiedPackageName) {
 		// must protect against a case insensitive File call
 		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
 		int index = qualifiedPackageName.length();
-		int last = qualifiedPackageName.lastIndexOf('/');
+		int last = qualifiedPackageName.lastIndexOf(File.separatorChar);
 		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index))) {}
 		if (index > last) {
 			if (last == -1) {
