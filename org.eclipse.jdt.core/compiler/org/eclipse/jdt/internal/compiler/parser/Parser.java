@@ -1109,14 +1109,10 @@ protected void consumeAnnotationTypeDeclarationHeader() {
 	this.javadoc = null;	
 	pushOnAstStack(annotationTypeDeclaration);
 }
-protected void consumeAnnotationTypeMemberDeclaration() {
-	// AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' DefaultValueopt ';'
+protected void consumeAnnotationTypeMemberDeclarationHeader() {
+	// AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' ')'
 	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = new AnnotationTypeMemberDeclaration(this.compilationUnit.compilationResult);
 
-	int length = this.expressionLengthStack[this.expressionLengthPtr--];
-	if (length == 1) {
-		annotationTypeMemberDeclaration.memberValue = this.expressionStack[this.expressionPtr--];
-	}
 	//name
 	annotationTypeMemberDeclaration.selector = this.identifierStack[this.identifierPtr];
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
@@ -1130,6 +1126,7 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 	annotationTypeMemberDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;
 	// consume annotations
+	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 		System.arraycopy(
 			this.expressionStack, 
@@ -1142,18 +1139,51 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 	//highlight starts at selector start
 	annotationTypeMemberDeclaration.sourceStart = (int) (selectorSource >>> 32);
 	annotationTypeMemberDeclaration.sourceEnd = (int) selectorSource;
-	annotationTypeMemberDeclaration.bodyStart = this.lParenPos+1;
 	
-	// cannot be done in consumeMethodHeader because we have no idea whether or not there
-	// is a body when we reduce the method header
-	annotationTypeMemberDeclaration.modifiers |= AccSemicolonBody;
-	
+	annotationTypeMemberDeclaration.bodyStart = this.rParenPos + 1;	
+	pushOnAstStack(annotationTypeMemberDeclaration);
+}
+protected void consumeAnnotationTypeMemberHeaderExtendedDims() {
+	// AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt
+	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) this.astStack[this.astPtr];
+	int extendedDims = this.intStack[this.intPtr--];
+	annotationTypeMemberDeclaration.extendedDimensions = extendedDims;
+	if (extendedDims != 0) {
+		TypeReference returnType = annotationTypeMemberDeclaration.returnType;
+		annotationTypeMemberDeclaration.sourceEnd = this.endPosition;
+		int dims = returnType.dimensions() + extendedDims;
+		int baseType;
+		if ((baseType = this.identifierLengthStack[this.identifierLengthPtr + 1]) < 0) {
+			//it was a baseType
+			int sourceStart = returnType.sourceStart;
+			int sourceEnd =  returnType.sourceEnd;
+			returnType = TypeReference.baseTypeReference(-baseType, dims);
+			returnType.sourceStart = sourceStart;
+			returnType.sourceEnd = sourceEnd;
+			annotationTypeMemberDeclaration.returnType = returnType;
+		} else {
+			annotationTypeMemberDeclaration.returnType = this.copyDims(annotationTypeMemberDeclaration.returnType, dims);
+		}
+		if (this.currentToken == TokenNameSEMICOLON){ 
+			annotationTypeMemberDeclaration.bodyStart = this.endPosition + 1;
+		}	
+	}	
+}
+protected void consumeAnnotationTypeMemberDeclaration() {
+	// AnnotationTypeMemberDeclaration ::= AnnotationTypeMemberDeclarationHeader AnnotationTypeMemberHeaderExtendedDims DefaultValueopt ';'
+	AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) this.astStack[this.astPtr];
+
+	int length = this.expressionLengthStack[this.expressionLengthPtr--];
+	if (length == 1) {
+		annotationTypeMemberDeclaration.memberValue = this.expressionStack[this.expressionPtr--];
+	}
+
 	// store the this.endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
 	int declarationEndPosition = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	annotationTypeMemberDeclaration.bodyStart = this.endStatementPosition;
 	annotationTypeMemberDeclaration.bodyEnd = declarationEndPosition;
 	annotationTypeMemberDeclaration.declarationSourceEnd = declarationEndPosition;
-	pushOnAstStack(annotationTypeMemberDeclaration);
 }
 protected void consumeAnnotationTypeMemberDeclarations() {
 	// AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations AnnotationTypeMemberDeclaration
@@ -5735,55 +5765,63 @@ protected void consumeRule(int act) {
 		    consumeAnnotationTypeMemberDeclarations() ;  
 			break;
  
-    case 631 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::= Modifiersopt Type..."); }  //$NON-NLS-1$
+    case 631 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationHeader ::= Modifiersopt"); }  //$NON-NLS-1$
+		    consumeAnnotationTypeMemberDeclarationHeader() ;  
+			break;
+ 
+    case 632 : if (DEBUG) { System.out.println("AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt"); }  //$NON-NLS-1$
+		    consumeAnnotationTypeMemberHeaderExtendedDims() ;  
+			break;
+ 
+    case 633 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::=..."); }  //$NON-NLS-1$
 		    consumeAnnotationTypeMemberDeclaration() ;  
 			break;
  
-    case 634 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
+    case 636 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyDefaultValue() ;  
 			break;
  
-    case 640 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
+    case 642 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
 		    consumeNormalAnnotation() ;  
 			break;
  
-    case 641 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
+    case 643 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyMemberValuePairsopt() ;  
 			break;
  
-    case 644 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
+    case 646 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
 		    consumeMemberValuePairs() ;  
 			break;
  
-    case 645 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
+    case 647 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValuePair() ;  
 			break;
  
-    case 649 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+    case 651 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
 		    consumeMemberValueArrayInitializer() ;  
 			break;
  
-    case 650 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
+    case 652 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE MemberValues..."); }  //$NON-NLS-1$
 		    consumeMemberValueArrayInitializer() ;  
 			break;
  
-    case 651 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
+    case 653 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE COMMA RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 652 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
+    case 654 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 654 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
+    case 656 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValues() ;  
 			break;
  
-    case 655 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
+    case 657 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
 		    consumeMarkerAnnotation() ;  
 			break;
  
-    case 656 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
+    case 658 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
 		    consumeSingleMemberAnnotation() ;  
 			break;
  

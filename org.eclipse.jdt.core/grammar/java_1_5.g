@@ -1995,7 +1995,17 @@ AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations Annotation
 /:$readableName AnnotationTypeMemberDeclarations:/
 /:$compliance 1.5:/
 
-AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' DefaultValueopt ';'
+AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' ')'
+/.$putCase consumeAnnotationTypeMemberDeclarationHeader() ; $break ./
+/:$readableName AnnotationTypeMemberDeclarationHeader:/
+/:$compliance 1.5:/
+
+AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt
+/.$putCase consumeAnnotationTypeMemberHeaderExtendedDims() ; $break ./
+/:$readableName AnnotationTypeMemberHeaderExtendedDims:/
+/:$compliance 1.5:/
+
+AnnotationTypeMemberDeclaration ::= AnnotationTypeMemberDeclarationHeader AnnotationTypeMemberHeaderExtendedDims DefaultValueopt ';'
 /.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> ConstantDeclaration

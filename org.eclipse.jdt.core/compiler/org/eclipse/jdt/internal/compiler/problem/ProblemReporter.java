@@ -119,6 +119,14 @@ public void alreadyDefinedLabel(char[] labelName, ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void annotationTypeMemberDeclarationWithConstructorName(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	this.handle(
+		IProblem.AnnotationButConstructorName,
+		NoArgument,
+		NoArgument,
+		annotationTypeMemberDeclaration.sourceStart,
+		annotationTypeMemberDeclaration.sourceEnd);
+}
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
 		IProblem.AnonymousClassCannotExtendFinalClass,
@@ -1134,6 +1142,14 @@ public void illegalModifierCombinationFinalAbstractForClass(SourceTypeBinding ty
 		arguments,
 		type.sourceStart(),
 		type.sourceEnd());
+}
+public void illegalExtendedDimensions(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	this.handle(
+		IProblem.IllegalExtendedDimensions,
+		NoArgument, 
+		NoArgument, 
+		annotationTypeMemberDeclaration.sourceStart,
+		annotationTypeMemberDeclaration.sourceEnd);
 }
 public void illegalModifierCombinationFinalVolatileForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
@@ -2451,14 +2467,6 @@ public void methodNeedingNoBody(MethodDeclaration methodDecl) {
 		NoArgument,
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
-}
-public void methodWithConstructorName(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
-	this.handle(
-		IProblem.AnnotationButConstructorName,
-		NoArgument,
-		NoArgument,
-		annotationTypeMemberDeclaration.sourceStart,
-		annotationTypeMemberDeclaration.sourceEnd);
 }
 public void methodWithConstructorName(MethodDeclaration methodDecl) {
 	this.handle(

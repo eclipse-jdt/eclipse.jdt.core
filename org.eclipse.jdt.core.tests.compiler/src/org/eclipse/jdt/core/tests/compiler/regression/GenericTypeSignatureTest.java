@@ -148,7 +148,8 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				for (int i = 0, length2 = fileNames.length; i < length2; i++) {
 					cmdLine.append(fileNames[i] + " ");
 				}
-				// System.out.println(testName+": "+cmdLine.toString());
+//				System.out.println(testName+": "+cmdLine.toString());
+//				System.out.println(GenericTypeTest.this.dirPath.toFile().getAbsolutePath());
 				// Launch process
 				process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeSignatureTest.this.dirPath.toFile());
 	            // Log errors
@@ -160,9 +161,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	            // start the threads to run outputs (standard/error)
 	            errorLogger.start();
 	            outputLogger.start();
-				process.waitFor();
-				int exitValue = process.exitValue();
-				if (exitValue != 0) {
+
+	            // Wait for end of process
+				if (process.waitFor() != 0) {
 					System.out.println(testName+": javac has found error(s)!");
 				}
 			} catch (IOException ioe) {

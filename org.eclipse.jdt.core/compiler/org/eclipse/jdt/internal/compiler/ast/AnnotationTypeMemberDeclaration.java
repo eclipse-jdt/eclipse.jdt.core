@@ -25,6 +25,7 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 	
 	public TypeReference returnType;
 	public Expression memberValue;
+	public int extendedDimensions;
 
 	/**
 	 * MethodDeclaration constructor comment.
@@ -39,11 +40,16 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 		FlowInfo flowInfo) {
 
 		// starting of the code analysis for methods
-		if (ignoreFurtherInvestigation)
+		if (ignoreFurtherInvestigation) {
 			return;
+		}
+		if (this.extendedDimensions != 0) {
+			scope.problemReporter().illegalExtendedDimensions(this);		
+		}
 		try {
-			if (binding == null)
+			if (binding == null) {
 				return;
+			}
 				
 			if (this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
 				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
@@ -101,6 +107,19 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 		return returnType.printExpression(0, output).append(' ');
 	}
 
+	public void resolve(ClassScope upperScope) {
+		if (this.binding == null) {
+			this.ignoreFurtherInvestigation = true;
+		}
+
+		try {
+			resolveStatements();
+			resolveJavadoc();
+		} catch (AbortMethod e) {	// ========= abort on fatal error =============
+			this.ignoreFurtherInvestigation = true;
+		} 
+	}
+	
 	public void resolveStatements() {
 
 		// ========= abort on fatal error =============
@@ -110,7 +129,7 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 		}
 		// check if method with constructor name
 		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector)) {
-			scope.problemReporter().methodWithConstructorName(this);
+			scope.problemReporter().annotationTypeMemberDeclarationWithConstructorName(this);
 		}
 		super.resolveStatements(); 
 	}

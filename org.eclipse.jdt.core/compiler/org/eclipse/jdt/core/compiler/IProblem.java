@@ -872,4 +872,6 @@ public interface IProblem {
      */
     /** @since 3.0 */
     int AnnotationButConstructorName = MethodRelated + 600;
+    /** @since 3.0 */
+    int IllegalExtendedDimensions = MethodRelated + 601;
 }
