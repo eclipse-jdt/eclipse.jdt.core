@@ -94,8 +94,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
 		// cannot infer anything from a null type
 		if (otherType == NullBinding) return;
-		// only collect for method type parameters
-		if (!(this.declaringElement instanceof MethodBinding)) return;
 		
 	    TypeBinding[] variableSubstitutes = (TypeBinding[])substitutes.get(this);
 	    if (variableSubstitutes != null) {
@@ -114,14 +112,14 @@ public class TypeVariableBinding extends ReferenceBinding {
 		        variableSubstitutes[length] = otherType;
 		        substitutes.put(this, variableSubstitutes);
 		    }
+            // recurse in variable bounds (82187)
+            if (this.superclass != null && this.firstBound == this.superclass) {
+                this.superclass.collectSubstitutes(otherType, substitutes);
+            }
+            for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+                this.superInterfaces[i].collectSubstitutes(otherType, substitutes);
+            }
 	    }
-	    // recurse in variable bounds (82187)
-	    if (this.superclass != null && this.firstBound == this.superclass) {
-	    	this.superclass.collectSubstitutes(otherType, substitutes);
-	    }
-	   	for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	   		this.superInterfaces[i].collectSubstitutes(otherType, substitutes);
-	   	}
 	}
 	
 	public char[] constantPoolName() { /* java/lang/Object */ 
