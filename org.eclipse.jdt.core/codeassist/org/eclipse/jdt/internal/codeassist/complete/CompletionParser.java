@@ -1706,7 +1706,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		final int typeDimensions = firstDimensions + extendedDimensions;
 		TypeReference type = getTypeReference(typeDimensions);
 		if (isVarArgs) {
-			type = type.copyDims(typeDimensions + 1);
+			type = copyDims(type, typeDimensions + 1);
 			if (extendedDimensions == 0) {
 				type.sourceEnd = endOfEllipsis;
 			}
