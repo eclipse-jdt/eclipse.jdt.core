@@ -18,6 +18,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.BufferChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
@@ -250,11 +252,19 @@ protected void moveAndResizeGap(int position, int size) {
  * Notify the listeners that this buffer has changed.
  * To avoid deadlock, this should not be called in a synchronized block.
  */
-protected void notifyChanged(BufferChangedEvent event) {
+protected void notifyChanged(final BufferChangedEvent event) {
 	if (this.changeListeners != null) {
 		for (int i = 0, size = this.changeListeners.size(); i < size; ++i) {
-			IBufferChangedListener listener = (IBufferChangedListener) this.changeListeners.get(i);
-			listener.bufferChanged(event);
+			final IBufferChangedListener listener = (IBufferChangedListener) this.changeListeners.get(i);
+			Platform.run(new ISafeRunnable() {
+				public void handleException(Throwable exception) {
+					Util.log(exception, "Exception occurred in listener of buffer change notification"); //$NON-NLS-1$
+				}
+				public void run() throws Exception {
+					listener.bufferChanged(event);
+				}
+			});
+			
 		}
 	}
 }

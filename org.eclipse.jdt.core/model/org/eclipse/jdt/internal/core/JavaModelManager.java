@@ -625,10 +625,19 @@ public class JavaModelManager implements ISaveParticipant {
 				if (DeltaProcessor.VERBOSE){
 					System.out.println("FIRING PRE_AUTO_BUILD Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$
 				}
-				ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD);
+				final ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD);
 				for (int i= 0; i < listenerCount; i++) {
 					if ((listenerMask[i] & ElementChangedEvent.PRE_AUTO_BUILD) != 0){
-						listeners[i].elementChanged(extraEvent);
+						final IElementChangedListener listener = listeners[i];
+						// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
+						Platform.run(new ISafeRunnable() {
+							public void handleException(Throwable exception) {
+								Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
+							}
+							public void run() throws Exception {
+								listener.elementChanged(extraEvent);
+							}
+						});
 					}
 				}
 			}
@@ -649,10 +658,19 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 				System.out.println("FIRING " + type + " Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			}
-			ElementChangedEvent event = new ElementChangedEvent(deltaToNotify, eventType);
+			final ElementChangedEvent event = new ElementChangedEvent(deltaToNotify, eventType);
 			for (int i= 0; i < listenerCount; i++) {
 				if ((listenerMask[i] & eventType) != 0){
-					listeners[i].elementChanged(event);
+					// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
+					final IElementChangedListener listener = listeners[i];
+					Platform.run(new ISafeRunnable() {
+						public void handleException(Throwable exception) {
+							Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
+						}
+						public void run() throws Exception {
+							listener.elementChanged(event);
+						}
+					});
 				}
 			}
 		}

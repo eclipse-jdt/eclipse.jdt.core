@@ -18,7 +18,9 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -366,10 +368,17 @@ protected void fireChange() {
 	}
 	ArrayList listeners= (ArrayList)this.changeListeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {
-		ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.get(i);
+		final ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.get(i);
 		// ensure the listener is still a listener
 		if (this.changeListeners != null  && this.changeListeners.indexOf(listener) >= 0) {
-			listener.typeHierarchyChanged(this);
+			Platform.run(new ISafeRunnable() {
+				public void handleException(Throwable exception) {
+					Util.log(exception, "Exception occurred in listener of Type hierarchy change notification"); //$NON-NLS-1$
+				}
+				public void run() throws Exception {
+					listener.typeHierarchyChanged(TypeHierarchy.this);
+				}
+			});
 		}
 	}
 }
