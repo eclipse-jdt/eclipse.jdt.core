@@ -546,6 +546,9 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	// Do NOT forget that tests must start with "testPerf"
+	/**
+	 * @deprecated To reduce deprecated warnings
+	 */
 	public void testPerfDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("AST Creation", Dimension.CPU_TIME);
 		runAstCreation(AST.JLS2);
