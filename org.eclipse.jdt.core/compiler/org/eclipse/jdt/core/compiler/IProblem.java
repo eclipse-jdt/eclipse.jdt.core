@@ -836,7 +836,7 @@ public interface IProblem {
 	int InvalidTypeForCollection = Internal + 551;
 	
 	/**
-	 * 1.5 source level errors
+	 * 1.5 Syntax errors (when source level < 1.5)
 	 */
 	/** @since 3.0 */
     int InvalidUsageOfTypeParameters = Syntax + Internal + 560;
