@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
@@ -423,6 +425,106 @@ public void testPackageDeclaration() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+/**
+ * Package reference with fragments in 2 different source projects.
+ * (regression test for bug 47415 [Search] package references confused with multiple fragments)
+ */
+public void testPackageReference1() throws CoreException {
+	try {
+		// setup project P1
+		IJavaProject p1 = createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		
+		// setup project P2
+		IJavaProject p2 = createJavaProject(
+			"P2", 
+			new String[] {""}, 
+			new String[] {"JCL_LIB"}, 
+			new String[] {"/P1"}, 
+			"");
+		createFolder("/P2/p");
+		createFile(
+			"/P2/p/Y.java",
+			"package p;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		
+		// create package references
+		createFolder("/P2/q");
+		createFile(
+			"/P2/q/Z.java",
+			"package q;\n" +
+			"import p.X;\n" +
+			"import p.Y;\n" +
+			"public class Z {\n" +
+			"  X onlyHereForTheImport = null;\n" +
+			"  Y alsoOnlyHereForTheImport = null;\n" +
+			"  void foo(){\n" +
+			"    p.X x = (p.X)null;\n" +
+			"    p.Y y = (p.Y)null;\n" +
+			"  }\n" +
+			"}"
+		);
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		IPackageFragment pkg = getPackage("/P1/p");
+		new SearchEngine().search(
+			getWorkspace(), 
+			pkg,
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertSearchResults(
+			"Unexpected package references",
+			"q/Z.java [p]\n" + 
+			"q/Z.java void q.Z.foo() [p]\n" + 
+			"q/Z.java void q.Z.foo() [p]",
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
+ * Package reference with fragments in 2 different binary projects.
+ * (regression test for bug 47415 [Search] package references confused with multiple fragments)
+ */
+public void testPackageReference2() throws CoreException, IOException {
+	try {
+		// setup project JavaSearchMultipleProjects1
+		IJavaProject p1 = setUpJavaProject("JavaSearchMultipleProjects1");
+		
+		// setup project JavaSearchMultipleProjects2
+		IJavaProject p2 = setUpJavaProject("JavaSearchMultipleProjects2");
+				
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		IPackageFragment pkg = getPackage("/JavaSearchMultipleProjects1/lib/p");
+		new SearchEngine().search(
+			getWorkspace(), 
+			pkg,
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertSearchResults(
+			"Unexpected package references",
+			"src/q/Z.java [p]\n" + 
+			"src/q/Z.java void q.Z.foo() [p]\n" + 
+			"src/q/Z.java void q.Z.foo() [p]",
+			resultCollector);
+	} finally {
+		deleteProject("JavaSearchMultipleProjects1");
+		deleteProject("JavaSearchMultipleProjects2");
 	}
 }
 /**
