@@ -273,7 +273,7 @@ public abstract class Scope
 			}
 			if (superType.isTypeVariable()) {
 				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
-				if (varSuperType.rank >= typeVariable.rank) {
+				if (varSuperType.rank >= typeVariable.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
 					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
 					typeVariable.tagBits |= HierarchyHasProblems;
 					noProblems = false;
