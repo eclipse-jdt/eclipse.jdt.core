@@ -10056,7 +10056,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
+			"The type X must implement the inherited abstract method I.foo(Class<T>)\n" + 
 			"----------\n");
 			/*
 			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
