@@ -190,6 +190,7 @@ void initialize() {
 	getName();
 	getConstant();
 	getTypeName();
+	getGenericSignature();
 	reset();
 }
 /**
