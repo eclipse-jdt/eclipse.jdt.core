@@ -715,7 +715,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-version") //$NON-NLS-1$
 				|| currentArg.equals("-v")) { //$NON-NLS-1$
-				printVersionRequired = true;
+				printVersion();
 				proceed = false;
 				return;
 			}
@@ -1189,7 +1189,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		} else {
 			if (printVersionRequired) {
 				printVersion();
-				if (!proceed) return;
 			}
 		}
 
