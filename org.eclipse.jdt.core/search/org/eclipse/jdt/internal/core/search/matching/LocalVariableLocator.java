@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -43,21 +42,24 @@ private LocalVariable getLocalVariable() {
 	return ((LocalVariablePattern) this.pattern).localVariable;
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	int offset = -1;
+	int length = -1;
 	if (reference instanceof SingleNameReference) {
-		int offset = reference.sourceStart;
-		SearchMatch match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
-		locator.report(match);
+		offset = reference.sourceStart;
+		length = reference.sourceEnd-offset+1;
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		long sourcePosition = qNameRef.sourcePositions[0];
-		int start = (int) (sourcePosition >>> 32);
-		int end = (int) sourcePosition;
-		SearchMatch match = locator.newLocalVariableReferenceMatch(element, accuracy, start, end-start+1, reference);
-		locator.report(match);
+		offset = (int) (sourcePosition >>> 32);
+		length = ((int) sourcePosition) - offset +1;
 	} else if (reference instanceof LocalDeclaration) {
 		LocalVariable localVariable = getLocalVariable();
-		int offset = localVariable.nameStart;
-		SearchMatch match = locator.newLocalVariableReferenceMatch(localVariable, accuracy, offset, localVariable.nameEnd-offset+1, reference);
+		offset = localVariable.nameStart;
+		length = localVariable.nameEnd-offset+1;
+		element = localVariable;
+	}
+	if (offset >= 0) {
+		match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, length, reference);
 		locator.report(match);
 	}
 }

@@ -25,7 +25,12 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 	/*
 	 * Whether this pattern is erasure match.
 	 */
-	boolean isErasureMatch;
+//	boolean isErasureMatch;
+
+	/**
+	 * One of {@link #R_ERASURE_MATCH}, {@link #R_EQUIVALENT_MATCH}, {@link #R_FULL_MATCH}.
+	 */
+	int matchCompatibility;
 
 	public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		super(Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
@@ -48,8 +53,9 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 			System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 
 		// Store erasure match
-		for (int i = 0, length = this.patterns.length; i < length && !isErasureMatch; i++) {
-			if (((JavaSearchPattern) this.patterns[i]).isErasureMatch) isErasureMatch = true;
+		matchCompatibility = 0;
+		for (int i = 0, length = this.patterns.length; i < length; i++) {
+			matchCompatibility |= ((JavaSearchPattern) this.patterns[i]).matchCompatibility;
 		}
 	}
 	void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
@@ -62,9 +68,15 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 			index.stopQuery();
 		}
 	}
+
 	public SearchPattern getBlankPattern() {
 		return null;
 	}
+
+	boolean isErasureMatch() {
+		return (this.matchCompatibility & R_ERASURE_MATCH) != 0;
+	}
+
 	boolean isPolymorphicSearch() {
 		for (int i = 0, length = this.patterns.length; i < length; i++)
 			if (((InternalSearchPattern) this.patterns[i]).isPolymorphicSearch()) return true;
@@ -76,11 +88,13 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 	 * @return true if one at least of the stored pattern has signatures.
 	 */
 	public final boolean hasSignatures() {
+		boolean isErasureMatch = isErasureMatch();
 		for (int i = 0, length = this.patterns.length; i < length && !isErasureMatch; i++) {
 			if (((JavaSearchPattern) this.patterns[i]).hasSignatures()) return true;
 		}
 		return false;
 	}
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(this.patterns[0].toString());

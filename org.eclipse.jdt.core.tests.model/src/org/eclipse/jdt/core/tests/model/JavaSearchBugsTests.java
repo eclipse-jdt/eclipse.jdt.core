@@ -47,24 +47,12 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug84724";
+//		TESTS_PREFIX =  "testBug73112";
 //		TESTS_NAMES = new String[] { "testBug83304" };
-//		TESTS_NUMBERS = new int[] { 85810 };
-	//	TESTS_RANGE = new int[] { 16, -1 };
+//		TESTS_NUMBERS = new int[] { 84727 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
-	protected void assertSearchResults(String message, String expected, Object collector) {
-		String actual = collector.toString();
-		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
-			System.out.println(displayString(actual, this.tabs));
-		}
-		assertEquals(
-			message,
-			expected,
-			actual
-		);
-	}
 	IJavaSearchScope getJavaSearchScopeBugs() {
 		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 	}
@@ -1111,7 +1099,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
 			"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
 			"src/b83304/Test.java void b83304.Test.foo() [Class] EXACT_MATCH\n" + 
-			getExternalJCLPathString("1.5") + " java.lang.Class java.lang.Object.getClass() EQUIVALENT_ERASURE_MATCH"
+			getExternalJCLPathString("1.5") + " java.lang.Class java.lang.Object.getClass() EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testBug83304_TypeParameterizedElementPattern() throws CoreException {
@@ -1133,8 +1121,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(type, REFERENCES, ERASURE_RULE);
 		discard = false; // use working copy for next test
 		assertSearchResults(
-			"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_exc [Generic] EXACT_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
@@ -1151,8 +1139,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(type, REFERENCES, ERASURE_RULE);
 		discard = false; // use working copy for next test
 		assertSearchResults(
-			"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_wld [Generic] ERASURE_MATCH\n" + 
@@ -1167,8 +1155,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertEquals("Problem in tests processing", 1, workingCopies.length);
 		search("Generic<? super Exception>", TYPE, REFERENCES, ERASURE_RULE);
 		assertSearchResults(
-			"src/b83304/Types.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
 			"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
@@ -1220,7 +1208,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		resultCollector.showRule = true;
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		search("generic%<Exception>", METHOD, REFERENCES, ERASURE_RULE);
+		search("<Exception>generic", METHOD, REFERENCES, ERASURE_RULE);
 		assertSearchResults(
 			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
 			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" + 
@@ -1269,7 +1257,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		resultCollector.showRule = true;
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		search("Single%<Exception>", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
+		search("<Exception>Single", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
 		assertSearchResults(
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
@@ -1429,6 +1417,56 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(method, REFERENCES);
 		assertSearchResults(
 			"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", 3, \"\", \"\")] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 84727: [1.5][search] String pattern search does not work with multiply nested types
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84727"
+	 */
+	public void testBug84727() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84727/A.java",
+			"package b84727;\n" + 
+			"public interface A {\n" + 
+			"	Set<Set<Exception>> getXYZ(List<Set<Exception>> arg);\n" + 
+			"	void getXYZ(String s);\n" + 
+			"}\n"
+			);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b84727/X.java",
+			"package b84727;\n" + 
+			"public class X {\n" + 
+			"	A a;\n" + 
+			"	void foo() {\n" + 
+			"		a.getXYZ(new ArrayList());\n" + 
+			"		a.getXYZ(\"\");\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b84727/List.java",
+			"package b84727;\n" + 
+			"public interface List<E> {}\n" + 
+			"interface Set<E> {}\n" + 
+			"class ArrayList<E> implements List<E> {}"
+			);
+		IMethod[] methods = workingCopies[0].getType("A").getMethods();
+		assertEquals("Invalid number of methods", 2, methods.length);
+		search(methods[0], REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84727/X.java void b84727.X.foo() [getXYZ(new ArrayList())] EXACT_MATCH"
+		);
+	}
+	public void testBug84727b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 3, workingCopies.length);
+		IMethod[] methods = workingCopies[0].getType("A").getMethods();
+		assertEquals("Invalid number of methods", 2, methods.length);
+		search(methods[1], REFERENCES);
+		assertSearchResults(
+			"src/b84727/X.java void b84727.X.foo() [getXYZ(\"\")] EXACT_MATCH"
 		);
 	}
 

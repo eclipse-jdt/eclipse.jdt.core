@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -155,7 +154,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 				last = ((PackageBinding) binding).compoundName.length;
 			int start = (int) (positions[0] >>> 32);
 			int end = (int) positions[last - 1];
-			SearchMatch match = locator.newPackageReferenceMatch(element, accuracy, start, end-start+1, importRef);
+			match = locator.newPackageReferenceMatch(element, accuracy, start, end-start+1, importRef);
 			locator.report(match);
 		}
 	}
@@ -222,7 +221,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	if (last > positions.length) last = positions.length;
 	int sourceStart = (int) (positions[0] >>> 32);
 	int sourceEnd = ((int) positions[last - 1]);
-	SearchMatch match = locator.newPackageReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, reference);
+	match = locator.newPackageReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, reference);
 	locator.report(match);
 }
 protected int referenceType() {

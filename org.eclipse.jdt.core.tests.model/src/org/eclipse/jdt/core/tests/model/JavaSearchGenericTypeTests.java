@@ -37,7 +37,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	static {
 //		org.eclipse.jdt.internal.core.search.matching.MatchLocator.PRINT_BUFFER = false;
 //		TESTS_PREFIX =  "testArray";
-//		TESTS_NAMES = new String[] { "testParameterizedType_Bug83713" };
+//		TESTS_NAMES = new String[] { "testStringNoArgument03" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}
@@ -124,40 +124,40 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R1.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [g1.t.s.def.Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [g1.t.s.def.Generic] ERASURE_MATCH\n" + 
@@ -170,13 +170,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>.Member] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic.Member] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [g1.t.s.def.Generic<Object>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [g1.t.s.def.Generic<Exception>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [g1.t.s.def.Generic<?>.Member] ERASURE_MATCH\n" + 
@@ -189,13 +189,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>.MemberGeneric] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [g1.t.s.def.Generic<Object>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [g1.t.s.def.Generic<Exception>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [g1.t.s.def.Generic<?>.MemberGeneric] ERASURE_MATCH\n" + 
@@ -208,13 +208,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [g1.t.s.def.NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [g1.t.s.def.NonGeneric.GenericMember] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [g1.t.s.def.NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [g1.t.s.def.NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [g1.t.s.def.NonGeneric.GenericMember] ERASURE_MATCH\n" + 
@@ -229,40 +229,40 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R1.java [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [g1.t.m.def.Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [g1.t.m.def.Generic] ERASURE_MATCH\n" + 
@@ -275,13 +275,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic.Member] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [g1.t.m.def.Generic<?, ?, ?>.Member] ERASURE_MATCH\n" + 
@@ -294,13 +294,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic.MemberGeneric] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>.MemberGeneric] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [g1.t.m.def.Generic<?, ?, ?>.MemberGeneric] ERASURE_MATCH\n" + 
@@ -313,13 +313,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [NonGeneric.GenericMember] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [g1.t.m.def.NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [g1.t.m.def.NonGeneric.GenericMember] ERASURE_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [g1.t.m.def.NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [g1.t.m.def.NonGeneric.GenericMember] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [g1.t.m.def.NonGeneric.GenericMember] ERASURE_MATCH\n" + 
@@ -335,7 +335,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new ICompilationUnit[] {ref});
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g3/t/ref/R1.java [g3.t.def.GS] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g3/t/ref/R1.java [g3.t.def.GS] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [GS] ERASURE_MATCH\n" + 
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [GS] ERASURE_MATCH\n" + 
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_obj [GS] ERASURE_MATCH\n" + 
@@ -487,7 +487,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new ICompilationUnit[] {ref});
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g3/t/ref/R1.java [g3.t.def.GM] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g3/t/ref/R1.java [g3.t.def.GM] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [GM] ERASURE_MATCH\n" + 
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [GM] ERASURE_MATCH\n" + 
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [GM] ERASURE_MATCH\n" + 
@@ -589,115 +589,115 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", false /* only this package */);
 		search("Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R1.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R1.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
 		search("Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R1.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R1.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
@@ -709,150 +709,150 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [GenericMember] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [GenericMember] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic.Member] EXACT_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic<Object, Exception, RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic<Exception, Exception, RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic.Member] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic<Exception>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic<? extends Throwable>.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic<? super RuntimeException>.Member] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic.Member] EXACT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic<Object, Exception, RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic<Exception, Exception, RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EXACT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic.Member] EXACT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic<Exception>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic<? extends Throwable>.Member] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic<? super RuntimeException>.Member] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic.MemberGeneric] EXACT_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic<?, ?, ?>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic.MemberGeneric] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic<Exception>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic<? extends Throwable>.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>.MemberGeneric] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic.MemberGeneric] EXACT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic<?, ?, ?>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic.MemberGeneric] EXACT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic<Exception>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic<? extends Throwable>.MemberGeneric] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>.MemberGeneric] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument08() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("NonGeneric.GenericMember", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] EXACT_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [NonGeneric.GenericMember] EXACT_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [NonGeneric.GenericMember] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] EXACT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [NonGeneric.GenericMember] EXACT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] EXACT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [NonGeneric.GenericMember] EXACT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [NonGeneric.GenericMember] EQUIVALENT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [NonGeneric.GenericMember] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 
@@ -863,40 +863,40 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R1.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [g1.t.s.def.Generic<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [g1.t.s.def.Generic<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [g1.t.s.def.Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [g1.t.s.def.Generic<? extends Throwable>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [g1.t.s.def.Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [g1.t.s.def.Generic<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [g1.t.s.def.Generic<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [g1.t.s.def.Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [g1.t.s.def.Generic<? extends Throwable>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [g1.t.s.def.Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [g1.t.s.def.Generic<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [g1.t.s.def.Generic<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [g1.t.s.def.Generic<?>] EQUIVALENT_MATCH\n" + 
@@ -910,13 +910,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>.Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>.Member] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>.Member] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>.Member] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [g1.t.s.def.Generic.Member] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [g1.t.s.def.Generic<Object>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [g1.t.s.def.Generic<Exception>.Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [g1.t.s.def.Generic<?>.Member] EQUIVALENT_MATCH\n" + 
@@ -930,13 +930,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [NonGeneric.GenericMember<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [NonGeneric.GenericMember<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [NonGeneric.GenericMember<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [NonGeneric.GenericMember<? extends Throwable>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [NonGeneric.GenericMember<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [g1.t.s.def.NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [g1.t.s.def.NonGeneric.GenericMember] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [g1.t.s.def.NonGeneric.GenericMember<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [g1.t.s.def.NonGeneric.GenericMember<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [g1.t.s.def.NonGeneric.GenericMember<?>] EQUIVALENT_MATCH\n" + 
@@ -950,13 +950,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>.MemberGeneric<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>.MemberGeneric<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>.MemberGeneric<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>.MemberGeneric<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>.MemberGeneric<? extends Throwable>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [g1.t.s.def.Generic<Object>.MemberGeneric<Object>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [g1.t.s.def.Generic<Exception>.MemberGeneric<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [g1.t.s.def.Generic<?>.MemberGeneric<?>] EQUIVALENT_MATCH\n" + 
@@ -972,40 +972,40 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R1.java [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [g1.t.m.def.Generic<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [g1.t.m.def.Generic<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [g1.t.m.def.Generic<?, ?, ?>] EQUIVALENT_MATCH\n" + 
@@ -1019,13 +1019,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>.Member] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic.Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [g1.t.m.def.Generic.Member] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>.Member] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>.Member] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [g1.t.m.def.Generic<?, ?, ?>.Member] EQUIVALENT_MATCH\n" + 
@@ -1039,13 +1039,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [NonGeneric.GenericMember<Object, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [NonGeneric.GenericMember<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [NonGeneric.GenericMember<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [NonGeneric.GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [g1.t.m.def.NonGeneric.GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [g1.t.m.def.NonGeneric.GenericMember] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [g1.t.m.def.NonGeneric.GenericMember<Object, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [g1.t.m.def.NonGeneric.GenericMember<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [g1.t.m.def.NonGeneric.GenericMember<?, ?, ?>] EQUIVALENT_MATCH\n" + 
@@ -1059,13 +1059,13 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>.MemberGeneric<?, ?, ?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [g1.t.m.def.Generic<Object, Exception, RuntimeException>.MemberGeneric<Object, Exception, RuntimeException>] ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [g1.t.m.def.Generic<Exception, Exception, RuntimeException>.MemberGeneric<Exception, Exception, RuntimeException>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [g1.t.m.def.Generic<?, ?, ?>.MemberGeneric<?, ?, ?>] EQUIVALENT_MATCH\n" + 
@@ -1079,49 +1079,49 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R1.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R1.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>] EXACT_MATCH\n" +
@@ -1133,15 +1133,15 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>.Member] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>.Member] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic<Exception>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>.Member] EXACT_MATCH\n" +
@@ -1153,15 +1153,15 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [GenericMember<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [GenericMember<? extends Throwable>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember<? super RuntimeException>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [GenericMember<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember<?>] EXACT_MATCH\n" +
@@ -1173,15 +1173,15 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric<? super RuntimeException>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric<? extends Throwable>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric<?>] EXACT_MATCH\n" +
@@ -1193,15 +1193,15 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>.MemberGeneric<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>.MemberGeneric<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>.MemberGeneric<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>.MemberGeneric<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>.MemberGeneric<? super RuntimeException>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>.MemberGeneric<? extends Throwable>] EQUIVALENT_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>.MemberGeneric<Object>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic<Exception>.MemberGeneric<Exception>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>.MemberGeneric<?>] EXACT_MATCH\n" +
@@ -1215,134 +1215,134 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Unresolved1, Unresolved2, Unresolved3>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R1.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R1.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [Generic<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R4.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_RAW_MATCH",
 			resultCollector);
 	}
 	public void testStringParameterizedMultipleArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Unresolved1, Unresolved2, Unresolved3>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic<Object, Exception, RuntimeException>.Member] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic<Exception, Exception, RuntimeException>.Member] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic<Object, Exception, RuntimeException>.Member] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic<Exception, Exception, RuntimeException>.Member] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic<?, ?, ?>.Member] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member] ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic.Member] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic.Member] EQUIVALENT_RAW_MATCH",
 			resultCollector);
 	}
 	public void testStringParameterizedMultipleArguments03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<Unresolved1, Unresolved2, Unresolved3>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [GenericMember<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [GenericMember<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [GenericMember<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [GenericMember<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [GenericMember<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [GenericMember<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EQUIVALENT_RAW_MATCH",
 			resultCollector);
 	}
 	public void testStringParameterizedMultipleArguments04() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<Unresolved1, Unresolved2, Unresolved3>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [MemberGeneric<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EQUIVALENT_RAW_MATCH",
 			resultCollector);
 	}
 	public void testStringParameterizedMultipleArguments05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Unresolved1, Unresolved2, Unresolved3>.MemberGeneric<Unresolved1, Unresolved2, Unresolved3>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic<?, ?, ?>.MemberGeneric<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic<Object, Exception, RuntimeException>.MemberGeneric<Object, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic<Exception, Exception, RuntimeException>.MemberGeneric<Exception, Exception, RuntimeException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic<?, ?, ?>.MemberGeneric<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] ERASURE_MATCH\n" +
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH\n" +
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic.MemberGeneric] EQUIVALENT_RAW_MATCH",
 			resultCollector);
 	}
 
@@ -1351,20 +1351,20 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", false /* only this package */);
 		search("*Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R1.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java [NonGeneric] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java [NonGeneric] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [NonGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [NonGeneric] EXACT_MATCH\n" + 
@@ -1377,114 +1377,114 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [NonGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [NonGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R3.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringAnyStrings02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
 		search("G?ner?c", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R1.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R1.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Generic] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Generic] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testStringAnyStrings03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", false /* only this package */);
 		search("*Member*", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [GenericMember] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
@@ -1496,25 +1496,25 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
 		search("Member*", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EXACT_RAW_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Member] EXACT_RAW_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
@@ -1526,52 +1526,52 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", true);
 		search("Generic*<Object>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_exc [GenericMember<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [GenericMember<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [GenericMember<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [GenericMember<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [GenericMember<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>] EQUIVALENT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
@@ -1583,40 +1583,40 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", true);
 		search("Generic<Obj*>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic<? super RuntimeException>] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic<? super RuntimeException>] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>] ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Generic<Exception>] ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>] EQUIVALENT_MATCH\n" + 
@@ -1630,7 +1630,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchCUScope("JavaSearch15", "g3/t/ref", "R1.java");
 		search("GS<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g3/t/ref/R1.java [GS] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g3/t/ref/R1.java [GS] EQUIVALENT_RAW_MATCH\n" +
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [GS<GM<?, ?, ?>>] ERASURE_MATCH\n" +
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [GS<GM<GM<?, ?, ?>,GM<?, ?, ?>,GM<?, ?, ?>>>] ERASURE_MATCH\n" +
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_obj [GS<GM<Object, Exception, RuntimeException>>] ERASURE_MATCH\n" +
@@ -1777,7 +1777,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchCUScope("JavaSearch15", "g3/t/ref", "R1.java");
 		search("GM<Object, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g3/t/ref/R1.java [GM] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g3/t/ref/R1.java [GM] EQUIVALENT_RAW_MATCH\n" +
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [GM<?, ?, ?>] EQUIVALENT_MATCH\n" +
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [GM<GM<?, ?, ?>,GM<?, ?, ?>,GM<?, ?, ?>>] ERASURE_MATCH\n" +
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [GM<?, ?, ?>] EQUIVALENT_MATCH\n" +
@@ -1902,16 +1902,16 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionList [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArray [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java [g6.t.def.List] EXACT_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EXACT_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionList [List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArray [List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List] EQUIVALENT_ERASURE_MATCH",
+			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionList [g6.t.def.List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArray [g6.t.def.List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Single.java [g6.t.def.List] EXACT_RAW_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EXACT_RAW_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionList [List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArray [List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testParameterizedArrayTypeSingleArgument02() throws CoreException {
@@ -1924,8 +1924,8 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArray [g6.t.def.List<Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List<g6.t.def.List<Exception>[]>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List<Exception>] EXACT_MATCH\n" +
-			"src/g6/t/ref/Single.java [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g6/t/ref/Single.java [g6.t.def.List] EQUIVALENT_RAW_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EQUIVALENT_RAW_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionList [List<Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArray [List<Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List<List<Exception>[]>] ERASURE_MATCH\n" +
@@ -1943,8 +1943,8 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArray [g6.t.def.List<Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List<g6.t.def.List<Exception>[]>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List<Exception>] EXACT_MATCH\n" +
-			"src/g6/t/ref/Single.java [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g6/t/ref/Single.java [g6.t.def.List] EQUIVALENT_RAW_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EQUIVALENT_RAW_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionList [List<Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArray [List<Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List<List<Exception>[]>] ERASURE_MATCH\n" +
@@ -1961,8 +1961,8 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArray [g6.t.def.List<Exception>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List<g6.t.def.List<Exception>[]>] EXACT_MATCH\n" +
 			"src/g6/t/ref/QualifSingle.java g6.t.ref.QualifSingle.exceptionListArrayList [g6.t.def.List<Exception>] ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java [g6.t.def.List] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g6/t/ref/Single.java [g6.t.def.List] EQUIVALENT_RAW_MATCH\n" +
+			"src/g6/t/ref/Single.java g6.t.ref.Single.list [List] EQUIVALENT_RAW_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionList [List<Exception>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArray [List<Exception>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/Single.java g6.t.ref.Single.exceptionListArrayList [List<List<Exception>[]>] EXACT_MATCH\n" +
@@ -1977,17 +1977,17 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EXACT_MATCH\n" +
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryException [Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryExceptionArray [Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryException [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryExceptionArray [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, g6.t.def.Table<String, Exception>.Entry<String, Exception>[]>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH\n" +
-			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_ERASURE_MATCH",
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EXACT_RAW_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryException [Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryExceptionArray [Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryException [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryExceptionArray [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, g6.t.def.Table<String, Exception>.Entry<String, Exception>[]>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_MATCH\n" +
+			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, Exception>.Entry] EQUIVALENT_MATCH",
 			resultCollector);
 	}
 	public void testParameterizedArrayTypeMultipleArguments02() throws CoreException {
@@ -1996,7 +1996,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EQUIVALENT_RAW_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryException [Table<String, Exception>.Entry<String, Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryExceptionArray [Table<String, Exception>.Entry<String, Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry<String, Table<String, Exception>.Entry<String, Exception>[]>] ERASURE_MATCH\n" +
@@ -2015,7 +2015,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EQUIVALENT_RAW_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryException [Table<String, Exception>.Entry<String, Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryExceptionArray [Table<String, Exception>.Entry<String, Exception>] EXACT_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry<String, Table<String, Exception>.Entry<String, Exception>[]>] ERASURE_MATCH\n" +
@@ -2034,7 +2034,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EQUIVALENT_ERASURE_MATCH\n" +
+			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entry [Table.Entry] EQUIVALENT_RAW_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryException [Table<String, Exception>.Entry<String, Exception>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.entryExceptionArray [Table<String, Exception>.Entry<String, Exception>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/Multiple.java g6.t.ref.Multiple.tableOfEntryExceptionArray [Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry<String, Table<String, Exception>.Entry<String, Exception>[]>] EXACT_MATCH\n" +

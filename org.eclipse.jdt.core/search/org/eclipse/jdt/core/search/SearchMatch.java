@@ -45,7 +45,7 @@ public class SearchMatch {
 	 * @see #getAccuracy()
 	 */
 	public static final int A_INACCURATE = 1;
-	
+
 	private Object element;
 	private int length;
 	private int offset;
@@ -57,7 +57,12 @@ public class SearchMatch {
 	private boolean insideDocComment = false;
 	
 	// store the rule used while reporting the match
-	private int matchRule = SearchPattern.R_EXACT_MATCH;
+	private int rule = SearchPattern.R_FULL_MATCH |
+								SearchPattern.R_EQUIVALENT_MATCH |
+								SearchPattern.R_ERASURE_MATCH;
+	
+	// store other necessary information
+	private boolean raw = false;
 
 	/**
 	 * Creates a new search match.
@@ -83,7 +88,10 @@ public class SearchMatch {
 		this.element = element;
 		this.offset = offset;
 		this.length = length;
-		this.accuracy = accuracy;
+		this.accuracy = accuracy & A_INACCURATE;
+		if (accuracy > A_INACCURATE) {
+			this.rule = accuracy & ~A_INACCURATE; // accuracy may have also some rule information
+		}
 		this.participant = participant;
 		this.resource = resource;
 	}
@@ -147,16 +155,59 @@ public class SearchMatch {
 	/**
 	 * Returns the rule used while creating the match.
 	 * 
-	 * @return the rule of the match. Legal values are combination of following
-	 * {@link SearchPattern} constants:
-	 * <ul>
-	 * 	<li>{@link SearchPattern#R_ERASURE_MATCH}</li>
-	 * 	<li>{@link SearchPattern#R_EQUIVALENT_MATCH}</li>
-	 * </ul>
+	 * @return one of {@link SearchPattern#R_FULL_MATCH}, {@link SearchPattern#R_EQUIVALENT_MATCH}
+	 * 	or {@link SearchPattern#R_ERASURE_MATCH}
 	 * @since 3.1
 	 */
-	public final int getMatchRule() {
-		return this.matchRule;
+	public final int getRule() {
+		return this.rule;
+	}
+
+	/**
+	 * Returns whether match element is compatible with searched pattern or not.
+	 * 
+	 * @return <code>true</code> if match element is compatible 
+	 * 				<code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final boolean isEquivalent() {
+		return isErasure() && (this.rule & SearchPattern.R_EQUIVALENT_MATCH) != 0;
+	}
+
+	/**
+	 * Returns whether match element only has same erasure than searched pattern or not.
+	 * Note that this is always true for both generic and non-generic element as soon
+	 * as the accuracy is accurate.
+	 * 
+	 * @return <code>true</code> if match element has same erasure
+	 * 				<code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final boolean isErasure() {
+//		return this.accuracy == A_ACCURATE && (this.rule & SearchPattern.R_ERASURE_MATCH) != 0;
+		return (this.rule & SearchPattern.R_ERASURE_MATCH) != 0;
+	}
+
+	/**
+	 * Returns whether element matches exactly searched pattern or not.
+	 * 
+	 * @return <code>true</code> if match is exact
+	 * 				<code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final boolean isExact() {
+		return isEquivalent() && (this.rule & SearchPattern.R_FULL_MATCH) != 0;
+	}
+
+	/**
+	 * Returns whether the associated element is a raw type/method or not.
+	 * 
+	 * @return <code>true</code> if this match is associated to a raw
+	 * type or method and <code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final boolean isRaw() {
+		return this.raw;
 	}
 
 	/**
@@ -240,16 +291,23 @@ public class SearchMatch {
 	/**
 	 * Returns the rule used while creating the match.
 	 * 
-	 * @param rule the rule to set. Legal values are combination of following
-	 * {@link SearchPattern} constants:
-	 * <ul>
-	 * 	<li>{@link SearchPattern#R_ERASURE_MATCH}</li>
-	 * 	<li>{@link SearchPattern#R_EQUIVALENT_MATCH}</li>
-	 * </ul>
+	 * @param rule one of {@link SearchPattern#R_FULL_MATCH}, {@link SearchPattern#R_EQUIVALENT_MATCH}
+	 * 	or {@link SearchPattern#R_ERASURE_MATCH}
 	 * @since 3.1
 	 */
-	public final void setMatchRule(int rule) {
-		this.matchRule = rule;
+	public final void setRule(int rule) {
+		this.rule = rule;
+	}
+
+	/**
+	 * Returns whether the associated element is a raw type/method or not.
+	 * 
+	 * @param raw <code>true</code> if this search match is associated to a raw
+	 * type or method and <code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final void setRaw(boolean raw) {
+		this.raw = raw;
 	}
 
 	/* (non-javadoc)
@@ -261,15 +319,15 @@ public class SearchMatch {
 		buffer.append("\n  accuracy="); //$NON-NLS-1$
 		buffer.append(this.accuracy == A_ACCURATE ? "ACCURATE" : "INACCURATE"); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append("\n  rule="); //$NON-NLS-1$
-		if ((this.matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
-			buffer.append("EQUIVALENT"); //$NON-NLS-1$
-			if ((this.matchRule & SearchPattern.R_ERASURE_MATCH) != 0)
-				buffer.append("+ERASURE"); //$NON-NLS-1$
-		} else if ((this.matchRule & SearchPattern.R_ERASURE_MATCH) != 0) {
-			buffer.append("ERASURE"); //$NON-NLS-1$
-		} else {
+		if ((this.rule & SearchPattern.R_FULL_MATCH) != 0) {
 			buffer.append("EXACT"); //$NON-NLS-1$
+		} else if ((this.rule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
+			buffer.append("EQUIVALENT"); //$NON-NLS-1$
+		} else if ((this.rule & SearchPattern.R_ERASURE_MATCH) != 0) {
+			buffer.append("ERASURE"); //$NON-NLS-1$
 		}
+		buffer.append("\n  raw="); //$NON-NLS-1$
+		buffer.append(this.raw);
 		buffer.append("\n  offset="); //$NON-NLS-1$
 		buffer.append(this.offset);
 		buffer.append("\n  length="); //$NON-NLS-1$

@@ -139,27 +139,26 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 				}
 				if (this.showAccuracy) {
 					line.append(" ");
-					switch (match.getAccuracy()) {
-						case SearchMatch.A_ACCURATE:
-							if (this.showRule) {
-								int rule = match.getMatchRule();
-								if ((rule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
-									line.append("EQUIVALENT_");
-									if ((rule & SearchPattern.R_ERASURE_MATCH) != 0)
-										line.append("ERASURE_");
-								} else if ((rule & SearchPattern.R_ERASURE_MATCH) != 0) {
-									line.append("ERASURE_");
-								} else {
-									line.append("EXACT_");
-								}
-								line.append("MATCH");
+					if (match.getAccuracy() == SearchMatch.A_ACCURATE) {
+						if (this.showRule) {
+							if (match.isExact()) {
+								line.append("EXACT_");
+							} else if (match.isEquivalent()) {
+								line.append("EQUIVALENT_");
+							} else if (match.isErasure()) {
+								line.append("ERASURE_");
 							} else {
-								line.append("EXACT_MATCH");
+								line.append("INVALID_RULE_");
 							}
-							break;
-						case SearchMatch.A_INACCURATE:
-							line.append("POTENTIAL_MATCH");
-							break;
+							if (match.isRaw()) {
+								line.append("RAW_");
+							}
+						} else {
+							line.append("EXACT_");
+						}
+						line.append("MATCH");
+					} else {
+						line.append("POTENTIAL_MATCH");
 					}
 				}
 				if (this.showInsideDoc) {
@@ -477,8 +476,9 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		search(patternString, searchFor, limitTo, matchRule, scope, resultCollector);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
+		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1) {
 			matchRule |= SearchPattern.R_PATTERN_MATCH;
+		}
 		SearchPattern pattern = SearchPattern.createPattern(
 			patternString, 
 			searchFor,

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ConstructorLocator extends PatternLocator {
 
@@ -112,9 +113,16 @@ protected int matchConstructor(MethodBinding constructor) {
 		if (constructor.parameters == null) return INACCURATE_MATCH;
 		if (parameterCount != constructor.parameters.length) return IMPOSSIBLE_MATCH;
 		for (int i = 0; i < parameterCount; i++) {
-			int newLevel = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], /*this.pattern.parametersTypeArguments[i], 0,*/ constructor.parameters[i]);
+			// TODO (frederic) use this call to refine accuracy on parameter types
+//			int newLevel = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], this.pattern.parametersTypeArguments[i], 0, constructor.parameters[i]);
+			int newLevel = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], constructor.parameters[i]);
 			if (level > newLevel) {
-				if (newLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+				if (newLevel == IMPOSSIBLE_MATCH) {
+//					if (isErasureMatch) {
+//						return ERASURE_MATCH;
+//					}
+					return IMPOSSIBLE_MATCH;
+				}
 				level = newLevel; // can only be downgraded
 			}
 		}
@@ -154,12 +162,6 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 		Argument[] args = constructor.arguments;
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
-
-		/* Remove as we need to resolve to be really sure that method matches or not...
-		for (int i = 0; i < length; i++)
-			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], args[i].type))
-				return IMPOSSIBLE_MATCH;
-		*/
 	}
 
 	// Verify type arguments (do not reject if pattern has no argument as it can be an erasure match)
@@ -174,21 +176,29 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	MethodBinding constructorBinding = null;
 	boolean isSynthetic = false;
 	if (reference instanceof ExplicitConstructorCall) {
-		isSynthetic = ((ExplicitConstructorCall) reference).isImplicitSuper();
-		constructorBinding = ((ExplicitConstructorCall) reference).binding;
+		ExplicitConstructorCall call = (ExplicitConstructorCall) reference;
+		isSynthetic = call.isImplicitSuper();
+		constructorBinding = call.binding;
 	} else if (reference instanceof AllocationExpression) {
-		constructorBinding = ((AllocationExpression) reference).binding;
+		AllocationExpression alloc = (AllocationExpression) reference;
+		constructorBinding = alloc.binding;
 	} else if (reference instanceof TypeDeclaration || reference instanceof FieldDeclaration) {
 		super.matchReportReference(reference, element, accuracy, locator);
+		if (match != null) return;
 	}
 
+	// Create search match
+	match = locator.newMethodReferenceMatch(element, accuracy, -1, -1, true, isSynthetic, reference);
+
 	// Look to refine accuracy
-	int rule = SearchPattern.R_EXACT_MATCH;
-	int refinedAccuracy = accuracy;
 	if (constructorBinding instanceof ParameterizedGenericMethodBinding) { // parameterized generic method
+		// Update match regarding constructor type arguments
 		ParameterizedGenericMethodBinding parameterizedMethodBinding = (ParameterizedGenericMethodBinding) constructorBinding;
-		refinedAccuracy = refineAccuracy(accuracy, parameterizedMethodBinding.typeArguments, locator, this.pattern.constructorArguments, this.pattern.hasConstructorParameters());
-		
+		match.setRaw(parameterizedMethodBinding.isRaw);
+		TypeBinding[] typeBindings = parameterizedMethodBinding.isRaw ? null : parameterizedMethodBinding.typeArguments;
+		updateMatch(typeBindings, locator, this.pattern.constructorArguments, this.pattern.hasConstructorParameters());
+
+		// Update match regarding declaring class type arguments
 		if (constructorBinding.declaringClass.isParameterizedType() || constructorBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)constructorBinding.declaringClass;
 			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments()) {
@@ -197,65 +207,49 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			} else if (this.pattern.hasTypeArguments() && !this.pattern.hasConstructorArguments()) {
 				// special case for constructor pattern which defines no constructor arguments but has type ones
 				// in this case, we do not use refined accuracy
-				refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			} else {
-				refinedAccuracy = refineAccuracy(refinedAccuracy, parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			}
-			if (refinedAccuracy == -1) return;
 		} else if (this.pattern.hasTypeArguments()) {
-			rule = SearchPattern.R_ERASURE_MATCH;
+			match.setRule(SearchPattern.R_ERASURE_MATCH);
 		}
+
+		// Update match regarding constructor parameters
+		// TODO ? (frederic)
 	} else if (constructorBinding instanceof ParameterizedMethodBinding) {
+		// Update match regarding declaring class type arguments
 		if (constructorBinding.declaringClass.isParameterizedType() || constructorBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)constructorBinding.declaringClass;
 			if (!this.pattern.hasTypeArguments() && this.pattern.hasConstructorArguments()) {
 				// special case for constructor pattern which defines arguments but no type
-				refinedAccuracy = refineAccuracy(refinedAccuracy, parameterizedBinding, new char[][][] {this.pattern.constructorArguments}, this.pattern.hasTypeParameters(), 0, locator);
+				updateMatch(parameterizedBinding, new char[][][] {this.pattern.constructorArguments}, this.pattern.hasTypeParameters(), 0, locator);
 			} else {
-				refinedAccuracy = refineAccuracy(refinedAccuracy, parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 			}
-			if (refinedAccuracy == -1) return;
 		} else if (this.pattern.hasTypeArguments()) {
-			rule = SearchPattern.R_ERASURE_MATCH;
+			match.setRule(SearchPattern.R_ERASURE_MATCH);
 		}
+
+		// Update match regarding constructor parameters
+		// TODO ? (frederic)
 	} else if (this.pattern.hasConstructorArguments()) { // binding has no type params, compatible erasure if pattern does
-		rule = SearchPattern.R_ERASURE_MATCH;
+		match.setRule(SearchPattern.R_ERASURE_MATCH);
 	}
 
 	// See whether it is necessary to report or not
-	boolean report = refinedAccuracy != -1; // impossible match
-	if (report && (refinedAccuracy & SearchPattern.R_ERASURE_MATCH) != 0) { // erasure match
-		if ((refinedAccuracy & SearchPattern.R_EQUIVALENT_MATCH) != 0) { // raw match
-			report = this.isEquivalentMatch || this.isErasureMatch; // report only if pattern is equivalent or erasure
-		} else {
-			report = this.isErasureMatch; // report only if pattern is erasure
-		}
-	}
-	else if (report && (refinedAccuracy & SearchPattern.R_EQUIVALENT_MATCH) != 0) { // equivalent match
-		report  = this.isEquivalentMatch || this.isErasureMatch; // report only if pattern is equivalent or erasure
-	}
+	if (match.getRule() == 0) return; // impossible match
+	boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
 	if (!report) return;
-
-	// Set rule
-	if (rule != SearchPattern.R_ERASURE_MATCH) {
-		rule |= refinedAccuracy & RULE_MASK;
-	}
-	refinedAccuracy = refinedAccuracy & (~RULE_MASK);
 
 	// Report match
 	int offset = reference.sourceStart;
-	SearchMatch match = locator.newMethodReferenceMatch(element,
-			accuracy,
-			offset,
-			reference.sourceEnd - offset + 1,
-			true, //isConstructor,
-			isSynthetic,
-			reference);
-	match.setMatchRule(rule);
+	match.setOffset(offset);
+	match.setLength(reference.sourceEnd - offset + 1);
 	locator.report(match);
 }
 public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
-	SearchMatch match = null;
+	match = null;
 	int offset = reference.sourceStart;
 	if (this.pattern.findReferences) {
 		if (reference instanceof TypeDeclaration) {

@@ -46,4 +46,11 @@ public class JavaSearchGenericConstructorEquivalentTests extends JavaSearchGener
 			super.addResultLine(buffer, line);
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.JavaSearchGenericTypeTests#removeFirstTypeArgument(char[])
+	 */
+	long removeFirstTypeArgument(char[] line) {
+		return -1;
+	}
 }

@@ -32,17 +32,27 @@ public class JavaSearchPattern extends SearchPattern {
 	/*
 	 * Whether this pattern is erasure match.
 	 */
-	boolean isErasureMatch;
+//	boolean isErasureMatch;
 
-	/*
-	 * One of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
+	/**
+	 * One of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH}, {@link #R_REGEXP_MATCH}.
 	 */
 	int matchMode;
+
+	/**
+	 * One of {@link #R_ERASURE_MATCH}, {@link #R_EQUIVALENT_MATCH}, {@link #R_FULL_MATCH}.
+	 */
+	int matchCompatibility;
 
 	/**
 	 * Mask used on match rule for match mode.
 	 */
 	public static final int MATCH_MODE_MASK = R_EXACT_MATCH + R_PREFIX_MATCH + R_PATTERN_MATCH + R_REGEXP_MATCH;
+
+	/**
+	 * Mask used on match rule for generic relevance.
+	 */
+	public static final int MATCH_COMPATIBILITY_MASK = R_ERASURE_MATCH + R_EQUIVALENT_MATCH + R_FULL_MATCH;
 
 	/**
 	 * Mask used on match rule for indexing.
@@ -58,9 +68,13 @@ public class JavaSearchPattern extends SearchPattern {
 	protected JavaSearchPattern(int patternKind, int matchRule) {
 		super(matchRule);
 		((InternalSearchPattern)this).kind = patternKind;
-		this.isCaseSensitive = (matchRule & R_CASE_SENSITIVE) != 0;
-		this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
-		this.matchMode = matchRule & MATCH_MODE_MASK;
+		// Use getMatchRule() instead of matchRule as super constructor may modify its value
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
+		int rule = getMatchRule();
+		this.isCaseSensitive = (rule & R_CASE_SENSITIVE) != 0;
+//		this.isErasureMatch = (rule & R_ERASURE_MATCH) != 0;
+		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
+		this.matchMode = rule & MATCH_MODE_MASK;
 	}
 	
 	public SearchPattern getBlankPattern() {
@@ -76,7 +90,11 @@ public class JavaSearchPattern extends SearchPattern {
 	}
 
 	boolean isErasureMatch() {
-		return this.isErasureMatch;
+		return (this.matchCompatibility & R_ERASURE_MATCH) != 0;
+	}
+
+	boolean isEquivalentMatch() {
+		return (this.matchCompatibility & R_EQUIVALENT_MATCH) != 0;
 	}
 
 	/*
@@ -197,8 +215,12 @@ public class JavaSearchPattern extends SearchPattern {
 			output.append(" case sensitive"); //$NON-NLS-1$
 		else
 			output.append(" case insensitive"); //$NON-NLS-1$
-		if (isErasureMatch())
+		if ((this.matchCompatibility & R_ERASURE_MATCH) != 0) {
 			output.append(", erasure only"); //$NON-NLS-1$
+		}
+		if ((this.matchCompatibility & R_EQUIVALENT_MATCH) != 0) {
+			output.append(", equivalent oronly"); //$NON-NLS-1$
+		}
 		return output;
 	}
 	/**

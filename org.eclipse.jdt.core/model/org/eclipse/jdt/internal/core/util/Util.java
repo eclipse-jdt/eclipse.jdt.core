@@ -2633,9 +2633,7 @@ public class Util {
 					if (paramOpening == 0)  {
 						if (signaturesCount == signatures.length) {
 							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
-//							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
 						}
-//						lengthes[signaturesCount] = typeArgsCount;
 						typeArgsCount = 0;
 					}
 					break;
@@ -2653,7 +2651,6 @@ public class Util {
 					if (paramOpening == 0)  {
 						if (signaturesCount == signatures.length) {
 							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
-//							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
 						}
 						signatures[signaturesCount] = new char[idx+1];
 						System.arraycopy(source, 0, signatures[signaturesCount], 0, idx);
@@ -2674,30 +2671,5 @@ public class Util {
 			typeSignatures[i] = signatures[j];
 		}
 		return typeSignatures;
-	}
-
-	/**
-	 * Extract method arguments from its unique key.
-	 * 
-	 * For generic methods, type arguments are at the end of the unique key
-	 * after '%' separator.
-	 * 
-	 * Use {@link Signature#getTypeArguments(char[])} to extract these type arguments.
-	 * As this method works only on types, create a pseudo-type "Type" and add unique
-	 * key substring after '%' separator.
-	 * 
-	 * @param uniqueKey ParameterizedSourceMethod unique key
-	 * @throws IllegalArgumentException If type arguments of unique key are malformed
-	 * @return char[][] Array of type arguments or null if method has no type argument
-	 */
-	public final static char[][] extractMethodArguments(String uniqueKey) {
-		int pos = uniqueKey.indexOf('%');
-		if (pos < 0) return null;
-		String typeArguments = uniqueKey.replace('$','.').substring(+1);
-		typeArguments = "Type"+typeArguments.trim().replace('/', '.'); //$NON-NLS-1$
-		if (typeArguments.charAt(typeArguments.length()-1) != Signature.C_SEMICOLON) {
-			typeArguments += Signature.C_SEMICOLON;
-		}
-		return Signature.getTypeArguments(typeArguments.toCharArray());
 	}
 }

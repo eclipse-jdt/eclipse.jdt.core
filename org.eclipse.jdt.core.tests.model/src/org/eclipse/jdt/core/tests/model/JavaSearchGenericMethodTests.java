@@ -34,10 +34,49 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "testConstructor";
-//		TESTS_NAMES = new String[] { "testConstructorStringPatternSingleParamArguments06" };
+//		TESTS_PREFIX = "testMethodReferencesElementPatternSingleParamArguments";
+//		TESTS_NAMES = new String[] { "testMethodReferencesElementPatternMultipleParamArguments02" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { -1, -1 };
+	}
+
+	/*
+	 * Remove last type arguments from a line of an expected result.
+	 * This line contains one search match print out.
+	 */
+	long removeFirstTypeArgument(char[] line) {
+		int idx=0;
+		int length = line.length;
+		while (line[idx++] != '[') {
+			if (idx == length) return -1;
+		}
+		if (line[idx++] != '<') return -1;
+		int start = idx;
+		int n = 1;
+		while(idx < length && n!= 0) {
+			switch (line[idx++]) {
+				case '<': n++; break;
+				case '>': n--; break;
+			}
+		}
+		if (n!= 0) {
+			// something wrong here...
+			return -1;
+		}
+		return ((long)start<<32) + idx;
+	}
+
+	void addResultLine(StringBuffer buffer, char[] line) {
+		long positions = removeFirstTypeArgument(line);
+		if (buffer.length() > 0) buffer.append('\n');
+		if (positions != -1) {
+			int stop = (int) (positions >>> 32) - 1;
+			int restart = (int) positions;
+			buffer.append(line, 0, stop);
+			buffer.append(line, restart, line.length-restart);
+		} else {
+			buffer.append(line);
+		}
 	}
 
 	/**
@@ -55,7 +94,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [standard(new Exception())] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [standard(new Exception())] ERASURE_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [standard(new Object())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [standard(new Exception())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [standard(new RuntimeException())] ERASURE_MATCH"
@@ -68,7 +107,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] ERASURE_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] ERASURE_MATCH"
@@ -82,7 +121,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [returnParamType()] EXACT_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [returnParamType()] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [returnParamType()] ERASURE_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [returnParamType()] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [returnParamType()] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [returnParamType()] ERASURE_MATCH\n" + 
@@ -98,7 +137,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [paramTypesArgs(gs)] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [paramTypesArgs(gs)] ERASURE_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [paramTypesArgs(gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [paramTypesArgs(gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [paramTypesArgs(gs)] ERASURE_MATCH\n" + 
@@ -114,7 +153,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] ERASURE_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] ERASURE_MATCH\n" + 
@@ -132,7 +171,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [standard(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH\n" +
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [standard(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [standard(new Object(), new Exception(), new RuntimeException())] ERASURE_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleTypeParameter02() throws CoreException {
@@ -144,7 +183,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleTypeParameter03() throws CoreException {
@@ -158,7 +197,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testUnbound() [returnParamType()] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [returnParamType()] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [returnParamType()] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [returnParamType()] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [returnParamType()] ERASURE_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleTypeParameter04() throws CoreException {
@@ -171,7 +210,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testUnbound() [paramTypesArgs(new Single<Object>(), new Single<Object>(), new Single<Object>(), gm)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [paramTypesArgs(new Single<Object>(), new Single<Throwable>(), new Single<Exception>(), gm)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [paramTypesArgs(new Single<Object>(), new Single<RuntimeException>(), new Single<RuntimeException>(), gm)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [paramTypesArgs(new Single<Object>(), new Single<Exception>(), new Single<RuntimeException>(), gm)] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [paramTypesArgs(new Single<Object>(), new Single<Exception>(), new Single<RuntimeException>(), gm)] ERASURE_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleTypeParameter05() throws CoreException {
@@ -183,7 +222,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] ERASURE_RAW_MATCH"
 		);
 	}
 
@@ -194,8 +233,8 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EXACT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [<Object>generic(new Object())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] ERASURE_MATCH"
 		);
@@ -206,9 +245,9 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>generic(new Exception())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] ERASURE_MATCH"
 		);
 	}
@@ -218,8 +257,8 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EXACT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [<Object>complete(new Object(), gs)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] ERASURE_MATCH\n" + 
@@ -233,9 +272,9 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>complete(new Exception(), gs)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [complete(new Throwable(), gs)] ERASURE_MATCH\n" + 
@@ -248,10 +287,10 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EXACT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] EQUIVALENT_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternSingleParamArguments06() throws CoreException {
@@ -260,13 +299,13 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [complete(new Throwable(), gs)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [complete(new RuntimeException(), gs)] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EXACT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [complete(new Throwable(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [complete(new RuntimeException(), gs)] EQUIVALENT_MATCH"
 		);
 	}
 
@@ -277,22 +316,21 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [<Object, Exception, RuntimeException>generic(new Object(), new Exception(), new RuntimeException())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleParamArguments02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g5/m/ref/RefMultiple.java");
 		IMethod method = selectMethod(unit, "generic", 6);
-		IJavaSearchScope scope = getJavaSearchScope15();
-		search(method, REFERENCES, scope, resultCollector);
+		search(method, REFERENCES);
 		assertSearchResults(
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [<Object, RuntimeException, RuntimeException>generic(new Object(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleParamArguments03() throws CoreException {
@@ -301,10 +339,10 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [<Object, Exception, RuntimeException>complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleParamArguments04() throws CoreException {
@@ -314,9 +352,9 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [<Object, RuntimeException, RuntimeException>complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleParamArguments05() throws CoreException {
@@ -325,10 +363,10 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EXACT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesElementPatternMultipleParamArguments06() throws CoreException {
@@ -337,51 +375,50 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search(method, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_RAW_MATCH"
 		);
 	}
 
 	// Search string pattern references to single parameterized methods
 	public void testMethodReferencesStringPatternSingleParamArguments01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic % <Exception>", METHOD, REFERENCES, scope, resultCollector);
+		search("<Exception>generic", METHOD, REFERENCES);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>generic(new Exception())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] ERASURE_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete % <? extends Exception>", METHOD, REFERENCES, scope, resultCollector);
+		search("<? extends Exception> complete ", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] ERASURE_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EQUIVALENT_RAW_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>complete(new Exception(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [<RuntimeException>complete(new RuntimeException(), gs)] EQUIVALENT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [complete(new Throwable(), gs)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [complete(new RuntimeException(), gs)] EQUIVALENT_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [<RuntimeException>complete(new RuntimeException(), gs)] EQUIVALENT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("*e?e* % <? super Exception>", METHOD, REFERENCES, scope, resultCollector);
+		search("<? super Exception>*e?e*", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [<Object>generic(new Object())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [<Object>complete(new Object(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>generic(new Exception())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>complete(new Exception(), gs)] EQUIVALENT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [generic(new RuntimeException())] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [complete(new RuntimeException(), gs)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [complete(new String(), gs)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [complete(new Throwable(), gs)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [<Throwable>complete(new Throwable(), gs)] EQUIVALENT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [complete(new RuntimeException(), gs)] ERASURE_MATCH"
 		);
 	}
@@ -404,8 +441,8 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search("generic(Object)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EQUIVALENT_RAW_MATCH\n" + 
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EQUIVALENT_RAW_MATCH"
 			*/
 			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [generic(new Exception())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [generic(new Object())] EXACT_MATCH\n" + 
@@ -418,7 +455,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search("complete(Exception, Single<Exception>)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_RAW_MATCH"
 			*/
 			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testSingle() [complete(new Exception(), gs)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [complete(new Object(), gs)] EXACT_MATCH\n" + 
@@ -431,59 +468,59 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic(Exception) % <Exception>", METHOD, REFERENCES, scope, resultCollector);
+		search("<Exception> generic ( Exception ) ", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EXACT_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>generic(new Exception())] EXACT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments08() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete(Exception, Single<? super Exception>) % <? extends Exception>", METHOD, REFERENCES, scope, resultCollector);
+		search("<? extends Exception>complete(Exception, Single<? super Exception>)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [complete(new Exception(), gs)] EQUIVALENT_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>complete(new Exception(), gs)] EQUIVALENT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments09() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("Single.generic(Exception)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments10() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("g5.m.def.Single<Exception>.generic(Exception)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternSingleParamArguments11() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("g5.m.def.Single<? extends Exception>.generic(Exception) % <? extends Exception>", METHOD, REFERENCES, scope, resultCollector);
+		search("g5.m.def.Single<? extends Exception>.<? extends Exception>generic(Exception)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [generic(new Exception())] EQUIVALENT_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [<Exception>generic(new Exception())] EQUIVALENT_MATCH"
 		);
 	}
 
 	// Search string pattern references to multiple parameterized methods
 	public void testMethodReferencesStringPatternMultipleParamArguments01() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic % <?, ? extends Exception, ? super RuntimeException>", METHOD, REFERENCES, scope, resultCollector);
+		search("<?, ? extends Exception, ? super RuntimeException>generic", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [<Object, Exception, RuntimeException>generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [<Object, RuntimeException, RuntimeException>generic(new Object(), new RuntimeException(), new RuntimeException())] EQUIVALENT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete % <Object, Exception, RuntimeException>", METHOD, REFERENCES, scope, resultCollector);
+		search("<Object, Exception, RuntimeException>complete", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [<Object, Exception, RuntimeException>complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] ERASURE_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments04() throws CoreException {
@@ -491,7 +528,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search("generic(Object,Exception,RuntimeException)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_RAW_MATCH"
 			*/
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" + 
@@ -504,7 +541,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 		search("complete(Object,RuntimeException,RuntimeException,Multiple<Object, RuntimeException, RuntimeException>)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			/* Results while resolving string pattern with no qualification (currently disabled as it is not comaptible with previous results):
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_RAW_MATCH"
 			*/
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EXACT_MATCH\n" + 
@@ -514,29 +551,29 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic(*,*,*) % <Object, RuntimeException, RuntimeException>", METHOD, REFERENCES, scope, resultCollector);
+		search("<Object, RuntimeException, RuntimeException>generic(*,*,*)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [generic(new Object(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [<Object, RuntimeException, RuntimeException>generic(new Object(), new RuntimeException(), new RuntimeException())] EXACT_MATCH\n" + 
 			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [generic(new Object(), new RuntimeException(), new IllegalMonitorStateException())] ERASURE_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] ERASURE_MATCH"
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete % <?,? extends Throwable,? extends RuntimeException>", METHOD, REFERENCES, scope, resultCollector);
+		search("<?,? extends Throwable,? extends RuntimeException>complete", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] EQUIVALENT_MATCH\n" + 
-			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [<Object, Exception, RuntimeException>complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testExtends() [<Object, RuntimeException, RuntimeException>complete(new Object(), new RuntimeException(), new RuntimeException(), gm)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.testSuper() [<Object, RuntimeException, IllegalMonitorStateException>complete(new Object(), new RuntimeException(), new IllegalMonitorStateException(), gm)] EQUIVALENT_MATCH\n" + 
+			"src/g5/m/ref/RefRaw.java void g5.m.ref.RefRaw.testMultiple() [complete(new Object(), new Exception(), new RuntimeException(), gm)] EQUIVALENT_RAW_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments08() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
 		search("Multiple.generic(Object,Exception,RuntimeException)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_ERASURE_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_MATCH"
 		);
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments09() throws CoreException {
@@ -548,9 +585,9 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	}
 	public void testMethodReferencesStringPatternMultipleParamArguments10() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("g5.m.def.Multiple<?,? extends Throwable,? extends RuntimeException>.generic(Object,Exception,RuntimeException) % <?,? extends Throwable,? extends RuntimeException>", METHOD, REFERENCES, scope, resultCollector);
+		search("g5.m.def.Multiple<?,? extends Throwable,? extends RuntimeException>.<?,? extends Throwable,? extends RuntimeException>generic(Object,Exception,RuntimeException)", METHOD, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_MATCH"
+			"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [<Object, Exception, RuntimeException>generic(new Object(), new Exception(), new RuntimeException())] EQUIVALENT_MATCH"
 		);
 	}
 
@@ -672,21 +709,21 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	// Search string pattern references to single parameterized methods
 	public void testMethodDeclarationsStringPatternSingleParamArguments01() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic % <Exception>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<Exception>generic", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [generic] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternSingleParamArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete % <U>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<U>complete", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [complete] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternSingleParamArguments03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("*e?e* % <T>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<T> *e?e*", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [generic] EXACT_MATCH\n" + 
 			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [complete] EXACT_MATCH"
@@ -701,28 +738,28 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	}
 	public void testMethodDeclarationsStringPatternSingleParamArguments05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic(*) % <Exception>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<Exception>generic(*)", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [generic] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternSingleParamArguments06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("Single.generic % <Object>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("Single.<Object>generic", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [generic] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternSingleParamArguments07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("g5.m.def.Single<Object>.generic % <U>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("g5.m.def.Single<Object>.<U>generic", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [generic] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternSingleParamArguments08() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("g5.m.def.Single<?>.generic % <?>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("g5.m.def.Single<?>.<?>generic", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [generic] EXACT_MATCH"
 		);
@@ -731,14 +768,14 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	// Search string pattern references to multiple parameterized methods
 	public void testMethodDeclarationsStringPatternMultipleParamArguments01() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("generic % <?, ? extends Exception, ? super RuntimeException>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<?, ? extends Exception, ? super RuntimeException>generic", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Multiple.java T1 g5.m.def.Multiple.generic(U1, U2, U3) [generic] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternMultipleParamArguments02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete % <Object, Exception, RuntimeException>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<Object, Exception, RuntimeException>complete", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [complete] EXACT_MATCH"
 		);
@@ -752,28 +789,28 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	}
 	public void testMethodDeclarationsStringPatternMultipleParamArguments04() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("complete(*,*,*,*) % <Object, Exception, RuntimeException>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("<Object, Exception, RuntimeException>complete(*,*,*,*)", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [complete] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternMultipleParamArguments05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("Multiple.complete % <Object, Exception, RuntimeException>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("Multiple.<Object, Exception, RuntimeException>complete", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [complete] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternMultipleParamArguments06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("g5.m.def.Multiple<Object, Exception, RuntimeException>.complete % <U1,U2,U3>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("g5.m.def.Multiple<Object, Exception, RuntimeException>.<U1,U2,U3>complete", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [complete] EXACT_MATCH"
 		);
 	}
 	public void testMethodDeclarationsStringPatternMultipleParamArguments07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15();
-		search("g5.m.def.Multiple<?,?,?>.complete % <?,?,?>", METHOD, DECLARATIONS, scope, resultCollector);
+		search("g5.m.def.Multiple<?,?,?>.<?,?,?>complete", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [complete] EXACT_MATCH"
 		);

@@ -640,6 +640,42 @@ protected IType createTypeHandle(String simpleTypeName) {
 protected boolean encloses(IJavaElement element) {
 	return element != null && this.scope.encloses(element);
 }
+/* (non-Javadoc)
+ * Return info about last type argument of a parameterized type reference.
+ * These info are made of concatenation of 2 int values which are respectively
+ *  depth and end position of the last type argument.
+ * For example, this method will return 0x300000020 for type ref List<List<List<String>>>
+ * if end position of type reference "String" equals 32.
+ */
+private long findLastTypeArgumentInfo(TypeReference typeRef) {
+	// Get last list of type arguments for parameterized qualified type reference
+	TypeReference lastTypeArgument = typeRef;
+	int depth = 0;
+	while (true) {
+		TypeReference[] lastTypeArguments = null;
+		if (lastTypeArgument instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference pqtRef = (ParameterizedQualifiedTypeReference) lastTypeArgument;
+			for (int i=pqtRef.typeArguments.length-1; i>=0 && lastTypeArguments==null; i--) {
+				lastTypeArguments = pqtRef.typeArguments[i];
+			}
+		}
+		// Get last type argument for single type reference of last list of argument of parameterized qualified type reference
+		TypeReference last = null;
+		if (lastTypeArgument instanceof ParameterizedSingleTypeReference || lastTypeArguments != null) {
+			if (lastTypeArguments == null) {
+				lastTypeArguments = ((ParameterizedSingleTypeReference)lastTypeArgument).typeArguments;
+			}
+			for (int i=lastTypeArguments.length-1; i>=0 && last==null; i++) {
+				last = lastTypeArguments[i];
+			}
+		}
+		if (last == null) break;
+		depth++;
+		lastTypeArgument = last;
+	}
+	// Current type reference is not parameterized. So, it is the last type argument
+	return (((long) depth) << 32) + lastTypeArgument.sourceEnd;
+}
 protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) throws CoreException {
 	BinaryType binaryType = (BinaryType) classFile.getType();
 	if (classFile.isOpen())
@@ -1293,13 +1329,8 @@ public SearchMatch newTypeReferenceMatch(
 public SearchMatch newTypeReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
-		int offset,  
-		int length,
-		int rule,
 		ASTNode reference) {
-	SearchMatch match = newTypeReferenceMatch(enclosingElement, accuracy, offset, length, reference);
-	match.setMatchRule(rule);
-	return match;
+	return newTypeReferenceMatch(enclosingElement, accuracy, reference.sourceStart, reference.sourceEnd-reference.sourceStart+1, reference);
 }
 
 /*
@@ -1405,18 +1436,17 @@ protected void report(SearchMatch match) throws CoreException {
 		System.out.println(match.getAccuracy() == SearchMatch.A_ACCURATE
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
-		System.out.print("\tMatch rule: "); //$NON-NLS-1$
-		if ((match.getMatchRule() & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
-			if ((match.getMatchRule() & SearchPattern.R_ERASURE_MATCH) != 0) {
-				System.out.println("EQUIVALENT + ERASURE"); //$NON-NLS-1$
-			} else {
-				System.out.println("EQUIVALENT"); //$NON-NLS-1$
-			}
-		} else if ((match.getMatchRule() & SearchPattern.R_ERASURE_MATCH) != 0) {
+		System.out.print("\tRule: "); //$NON-NLS-1$
+		if (match.isExact()) {
+			System.out.println("EXACT"); //$NON-NLS-1$
+		} else if (match.isEquivalent()) {
+			System.out.println("EQUIVALENT"); //$NON-NLS-1$
+		} else if (match.isErasure()) {
 			System.out.println("ERASURE"); //$NON-NLS-1$
 		} else {
-			System.out.println("PERFECT"); //$NON-NLS-1$
+			System.out.println("INVALID RULE"); //$NON-NLS-1$
 		}
+		System.out.println("\tRaw: "+match.isRaw()); //$NON-NLS-1$
 	}
 	this.requestor.acceptSearchMatch(match);
 	if (BasicSearchEngine.VERBOSE)
@@ -1427,17 +1457,13 @@ protected void report(SearchMatch match) throws CoreException {
  * in the source and reports a reference to this this qualified name
  * to the search requestor.
  */
-protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaElement element, int accuracy) throws CoreException {
-	reportAccurateTypeReference(typeRef, name, element, accuracy, SearchPattern.R_EXACT_MATCH);
-}
-protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaElement element, int accuracy, int rule) throws CoreException {
-	if (accuracy == -1) return;
-	if (!encloses(element)) return;
-
+protected void reportAccurateTypeReference(SearchMatch match, ASTNode typeRef, char[] name) throws CoreException {
+	if (match.getRule() == 0) return;
+	if (!encloses((IJavaElement)match.getElement())) return;
+	
+	// Compute source positions of the qualified reference 
 	int sourceStart = typeRef.sourceStart;
 	int sourceEnd = typeRef.sourceEnd;
-	
-	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
 	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(sourceStart, sourceEnd);
@@ -1453,24 +1479,84 @@ protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaEl
 		}
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
 			int length = scanner.currentPosition-currentPosition;
-			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, length, rule, typeRef);
+			match.setOffset(currentPosition);
+			match.setLength(length);
 			report(match);
 			return;
 		}
 	} while (token != TerminalTokens.TokenNameEOF);
-	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, rule, typeRef);
+
+	//	Report match
+	match.setOffset(sourceStart);
+	match.setLength(sourceEnd-sourceStart+1);
 	report(match);
 }
 
 /**
- * @since 3.1
  * Finds the accurate positions of the sequence of tokens given by qualifiedName
  * in the source and reports a reference to this parameterized type name
  * to the search requestor.
+ * @since 3.1
  */
-protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, int start, int index, TypeReference[] typeArguments, IJavaElement element, int accuracy, int rule) throws CoreException {
-	if (accuracy == -1) return;
-	if (!encloses(element)) return;
+protected void reportAccurateParameterizedMethodReference(SearchMatch match, ASTNode statement, TypeReference[] typeArguments) throws CoreException {
+	if (match.getRule() == 0) return;
+	if (!encloses((IJavaElement)match.getElement())) return;
+
+	// If there's type arguments, look for end (ie. char '>') of last one.
+	int start = match.getOffset();
+	if (typeArguments != null && typeArguments.length > 0) {
+		boolean isErasureMatch= (pattern instanceof OrPattern) ? ((OrPattern)pattern).isErasureMatch() : ((JavaSearchPattern)pattern).isErasureMatch();
+		if (!isErasureMatch) {
+			
+			// Initialize scanner
+			Scanner scanner = this.parser.scanner;
+			char[] source = this.currentPossibleMatch.getContents();
+			scanner.setSource(source);
+
+			// Search previous opening '<'
+			start = typeArguments[0].sourceStart;
+			int end = statement.sourceEnd;
+			scanner.resetTo(start, end);
+			int lineStart = start;
+			try {
+				linesUp: while (true) {
+					while (scanner.source[scanner.currentPosition] != '\n') {
+						scanner.currentPosition--;
+						if (scanner.currentPosition == 0) break linesUp;
+					}
+					lineStart = scanner.currentPosition+1;
+					scanner.resetTo(lineStart, end);
+					while (!scanner.atEnd()) {
+						if (scanner.getNextToken() == TerminalTokens.TokenNameLESS) {
+							start = scanner.getCurrentTokenStartPosition();
+							break linesUp;
+						}
+					}
+					end = lineStart - 2;
+					scanner.currentPosition = end;
+				}
+			}
+			catch (InvalidInputException ex) {
+				// give up
+			}
+	 	}
+	}
+	
+	// Report match
+	match.setOffset(start);
+	match.setLength(statement.sourceEnd-start+1);
+	report(match);
+}
+
+/**
+ * Finds the accurate positions of the sequence of tokens given by qualifiedName
+ * in the source and reports a reference to this parameterized type name
+ * to the search requestor.
+ * @since 3.1
+ */
+protected void reportAccurateParameterizedTypeReference(SearchMatch match, TypeReference typeRef, int index, TypeReference[] typeArguments) throws CoreException {
+	if (match.getRule() == 0) return;
+	if (!encloses((IJavaElement)match.getElement())) return;
 
 	// If there's type arguments, look for end (ie. char '>') of last one.
 	int end = typeRef.sourceEnd;
@@ -1480,9 +1566,9 @@ protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, i
 		char[] source = this.currentPossibleMatch.getContents();
 		scanner.setSource(source);
 
-		boolean isErasureMatch = (pattern instanceof OrPattern) ? ((OrPattern)pattern).isErasureMatch : ((JavaSearchPattern)pattern).isErasureMatch;
+		boolean shouldMatchErasure= (pattern instanceof OrPattern) ? ((OrPattern)pattern).isErasureMatch() : ((JavaSearchPattern)pattern).isErasureMatch();
 		boolean hasSignatures = (pattern instanceof OrPattern) ? ((OrPattern)pattern).hasSignatures() : ((JavaSearchPattern)pattern).hasSignatures();
-		if (isErasureMatch || !hasSignatures) {
+		if (shouldMatchErasure || !hasSignatures) {
 			// if pattern is erasure only, then select the end of the reference
 			if (typeRef instanceof QualifiedTypeReference && index >= 0) {
 				long[] positions = ((QualifiedTypeReference) typeRef).sourcePositions;
@@ -1516,54 +1602,17 @@ protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, i
 	}
 	
 	// Report match
-	SearchMatch match = newTypeReferenceMatch(element, accuracy, start, end-start+1, rule, typeRef);
+	match.setLength(end-match.getOffset()+1);
 	report(match);
-}
-/* (non-Javadoc)
- * Return info about last type argument of a parameterized type reference.
- * These info are made of concatenation of 2 int values which are respectively
- *  depth and end position of the last type argument.
- * For example, this method will return 0x300000020 for type ref List<List<List<String>>>
- * if end position of type reference "String" equals 32.
- */
-private long findLastTypeArgumentInfo(TypeReference typeRef) {
-	// Get last list of type arguments for parameterized qualified type reference
-	TypeReference lastTypeArgument = typeRef;
-	int depth = 0;
-	while (true) {
-		TypeReference[] lastTypeArguments = null;
-		if (lastTypeArgument instanceof ParameterizedQualifiedTypeReference) {
-			ParameterizedQualifiedTypeReference pqtRef = (ParameterizedQualifiedTypeReference) lastTypeArgument;
-			for (int i=pqtRef.typeArguments.length-1; i>=0 && lastTypeArguments==null; i--) {
-				lastTypeArguments = pqtRef.typeArguments[i];
-			}
-		}
-		// Get last type argument for single type reference of last list of argument of parameterized qualified type reference
-		TypeReference last = null;
-		if (lastTypeArgument instanceof ParameterizedSingleTypeReference || lastTypeArguments != null) {
-			if (lastTypeArguments == null) {
-				lastTypeArguments = ((ParameterizedSingleTypeReference)lastTypeArgument).typeArguments;
-			}
-			for (int i=lastTypeArguments.length-1; i>=0 && last==null; i++) {
-				last = lastTypeArguments[i];
-			}
-		}
-		if (last == null) break;
-		depth++;
-		lastTypeArgument = last;
-	}
-	// Current type reference is not parameterized. So, it is the last type argument
-//	if (depth == 0) return 0;
-	return (((long) depth) << 32) + lastTypeArgument.sourceEnd;
 }
 /**
  * Finds the accurate positions of each valid token in the source and
  * reports a reference to this token to the search requestor.
  * A token is valid if it has an accuracy which is not -1.
  */
-protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJavaElement element, int[] accuracies) throws CoreException {
-	if (!encloses(element)) return;
-	
+protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedNameReference qNameRef) throws CoreException {
+	int matchesLength = matches == null ? 0 : matches.length;
+
 	int sourceStart = qNameRef.sourceStart;
 	int sourceEnd = qNameRef.sourceEnd;
 	char[][] tokens = qNameRef.tokens;
@@ -1572,13 +1621,14 @@ protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJa
 	Scanner scanner = this.parser.scanner;
 	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(sourceStart, sourceEnd);
+	int sourceLength = sourceEnd-sourceStart+1;
 
 	int refSourceStart = -1, refSourceEnd = -1;
 	int length = tokens.length;
 	int token = -1;
 	int previousValid = -1;
 	int i = 0;
-	int accuracyIndex = 0;
+	int index = 0;
 	do {
 		int currentPosition = scanner.currentPosition;
 		// read token
@@ -1608,21 +1658,26 @@ protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJa
 				// ignore
 			}
 		}
-		if (accuracies[accuracyIndex] != -1) {
+		SearchMatch match = matches[index];
+		if (match != null && match.getRule() != 0) {
+			if (!encloses((IJavaElement)match.getElement())) return;
 			// accept reference
 			if (refSourceStart != -1) {
-				SearchMatch match = newFieldReferenceMatch(element, accuracies[accuracyIndex], refSourceStart, refSourceEnd-refSourceStart+1, qNameRef);
+				match.setOffset(refSourceStart);
+				match.setLength(refSourceEnd-refSourceStart+1);
 				report(match);
 			} else {
-				SearchMatch match = newFieldReferenceMatch(element, accuracies[accuracyIndex], sourceStart, sourceEnd-sourceStart+1, qNameRef);
+				match.setOffset(sourceStart);
+				match.setLength(sourceLength);
 				report(match);
 			}
 			i = 0;
 		}
 		refSourceStart = -1;
 		previousValid = -1;
-		if (accuracyIndex < accuracies.length - 1)
-			accuracyIndex++;
+		if (index < matchesLength - 1) {
+			index++;
+		}
 	} while (token != TerminalTokens.TokenNameEOF);
 
 }
