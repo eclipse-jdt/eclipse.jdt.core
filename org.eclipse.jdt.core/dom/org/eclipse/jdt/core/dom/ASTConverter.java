@@ -2582,6 +2582,7 @@ class ASTConverter {
 		end = retrieveClosingAngleBracketPosition(end);
 		typeParameter2.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
+			recordName(simpleName, typeParameter);
 			recordNodes(typeParameter2, typeParameter);
 		}
 		return typeParameter2;

@@ -358,6 +358,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof ImplicitDocTypeReference) {
 			ImplicitDocTypeReference implicitRef = (ImplicitDocTypeReference) node;
 			return getTypeBinding(implicitRef.resolvedType);
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
+			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
+			return this.getTypeBinding(typeParameter.binding);
 		}
 		return null;
 	}

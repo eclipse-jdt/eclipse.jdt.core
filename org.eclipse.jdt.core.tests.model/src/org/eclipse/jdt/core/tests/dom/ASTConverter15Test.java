@@ -1100,6 +1100,17 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "Y", typeBinding.getName());
+		SimpleName simpleName = typeParameter.getName();
+		assertEquals("Wrong name", "Y", simpleName.getIdentifier());
+		IBinding binding2 = simpleName.resolveBinding();
+		assertNotNull("No binding", binding2);
+		assertEquals("Wrong type", IBinding.TYPE, binding2.getKind());
+		ITypeBinding typeBinding2 = (ITypeBinding) binding2;
+		assertEquals("Wrong name", "Y", typeBinding2.getName());
+		ITypeBinding typeBinding3 = simpleName.resolveTypeBinding();
+		assertNotNull("No binding", typeBinding3);
+		assertEquals("Wrong type", IBinding.TYPE, typeBinding3.getKind());
+		assertEquals("Wrong name", "Y", typeBinding3.getName());
 	}	
 }
 
