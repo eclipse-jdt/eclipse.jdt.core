@@ -12,10 +12,7 @@ package org.eclipse.jdt.core.dom.rewrite;
 
 import java.util.Iterator;
 import java.util.Map;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
-import org.eclipse.jface.text.IDocument;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -29,31 +26,25 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 
+import org.eclipse.jface.text.IDocument;
+
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
+
 /**
- * This API is work in progress, and will be changed for the final 3.0 release.
- * TODO - Work in progress. missing spec
+ * Infrastucture for modifying code in terms of AST nodes. The AST rewriter
+ * collects descriptions of modifications to nodes and translates these description
+ * into text edits that can then be applied to the source.
+ * The rewrite infrastructure takes care of generating minimal text changes that
+ * follow code formatter settings and existing code style and indentation.
+ * <p>When using the {@link ASTRewrite} class, the modifications are only described. The
+ * AST must is and must not be changed. This allows to calculate a set of changes on the
+ * same AST, e.g. for calculating several quick fix proposals where finally only one is executed.
+ * </p>
  * <p>
- * <pre>
- * Document doc = new Document("import java.util.List;\nclass X {}\n");
- * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);
- * parser.setSource(doc.get().toCharArray());
- * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
- * AST ast = cu.getAST();
- * ImportDeclaration id = ast.newImportDeclaration();
- * id.setName(ast.newName(new String[] {"java", "util", "Set"});
- * ASTRewrite rewriter = new ASTRewrite(ast);
- * TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
- * ITrackedNodePosition tdLocation = rewriter.track(td);
- * ListRewriter lrw = rewriter.getListRewrite(cu,
- *                       CompilationUnit.IMPORTS_PROPERTY);
- * lrw.insertLast(id, null);
- * TextEdit edits = rewriter.rewriteAST(document, null);
- * UndoEdit undo = edits.apply(document);
- * assert "import java.util.List;\nimport java.util.Set;\nclass X {}"
- *   .equals(doc.get().toCharArray());
- * // tdLocation.getStartPosition() and tdLocation.getLength()
- * // are new source range for "class X {}" in doc.get()
- * </pre>
+ * To rewrite code by changing nodes use the 'modifying AST rewriter', initiated with
+ * {@link org.eclipse.jdt.core.dom.CompilationUnit#recordModifications()}
  * </p>
  * <p>
  * This class is not intended to be subclassed.
@@ -68,10 +59,6 @@ public class ASTRewrite {
 	private final RewriteEventStore eventStore;
 	private final NodeInfoStore nodeStore;
 	
-	/* TODO (martin/david) - You get more flexibility to evolve an API class
-	 * by declaring a public static factory method as API and keeping
-	 * the constructor private or package-private.
-	 */
 	/**
 	 * Creates a new AST rewrite for the given AST.
 	 * 
