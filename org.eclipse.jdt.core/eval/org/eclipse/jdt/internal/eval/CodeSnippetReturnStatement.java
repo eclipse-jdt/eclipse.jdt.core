@@ -21,6 +21,13 @@ public class CodeSnippetReturnStatement extends ReturnStatement implements Invoc
 public CodeSnippetReturnStatement(Expression expr, int s, int e, EvaluationContext evaluationContext) {
 	super(expr, s, e);
 }
+
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
+	// clear the optimization bit which could have been positionned in super call
+	expression.bits &= ~ValueForReturnMASK;
+	return flowInfo;
+}
 /**
  * Dump the suitable return bytecode for a return statement
  *
