@@ -24,16 +24,26 @@ package org.eclipse.jdt.core;
  * @since 3.0
  */
 public interface ILocalVariable extends IJavaElement, ISourceReference {
+
 	/**
 	 * Returns the name of this local variable.
 	 * 
 	 * @return the name of this local variable.
 	 */
 	String getElementName();
+	
 	/**
 	 * Returns the source range of this local variable's name.
 	 *
 	 * @return the source range of this local variable's name
 	 */
 	ISourceRange getNameRange();
+	
+	/**
+	 * Returns the type signature of this local variable.
+	 *
+	 * @return the type signature of this local variable.
+	 * @see Signature
+	 */
+	String getTypeSignature();
 }

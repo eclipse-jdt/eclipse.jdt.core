@@ -181,7 +181,8 @@ public class HandleFactory {
 							node.declarationSourceStart,
 							node.declarationSourceEnd,
 							node.sourceStart,
-							node.sourceEnd);
+							node.sourceEnd,
+							Util.typeSignature(node.type));
 					// NB: no need to update occurence count as the variable is defined by its positions
 					throw new EndVisit();
 				}
@@ -227,7 +228,8 @@ public class HandleFactory {
 							node.declarationSourceStart,
 							node.declarationSourceEnd,
 							node.sourceStart,
-							node.sourceEnd);
+							node.sourceEnd,
+							Util.typeSignature(node.type));
 					// NB: no need to update occurence count as the variable is defined by its positions
 					throw new EndVisit();
 				}

@@ -352,9 +352,9 @@ public void testLocalVariableMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[]{});
 
-	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4);
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z");
 	assertMemento(
-		"=P/src<p{X.java[X~foo@var!1!2!3!4",
+		"=P/src<p{X.java[X~foo@var!1!2!3!4!Z",
 		localVar);
 }
 /**
@@ -364,9 +364,9 @@ public void testLocalVariableMemento3() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	IInitializer initializer = type.getInitializer(1);
 
-	ILocalVariable localVar = new LocalVariable((JavaElement)initializer, "var", 1, 2, 3, 4);
+	ILocalVariable localVar = new LocalVariable((JavaElement)initializer, "var", 1, 2, 3, 4, "Z");
 	assertMemento(
-		"=P/src<p{X.java[X|1@var!1!2!3!4",
+		"=P/src<p{X.java[X|1@var!1!2!3!4!Z",
 		localVar);
 }
 /**
@@ -376,9 +376,9 @@ public void testLocalVariableMemento2() throws JavaModelException {
 	IType type = getClassFile("/P/src/p/X.class").getType();
 	IMethod method = type.getMethod("foo", new String[]{"I"});
 
-	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4);
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z");
 	assertMemento(
-		"=P/src<p(X.class[X~foo~I@var!1!2!3!4",
+		"=P/src<p(X.class[X~foo~I@var!1!2!3!4!Z",
 		localVar);
 }
 /**

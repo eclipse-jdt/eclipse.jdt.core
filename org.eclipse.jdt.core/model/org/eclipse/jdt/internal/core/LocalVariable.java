@@ -26,6 +26,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 
 	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
+	String typeSignature;
 	
 	public LocalVariable(
 			JavaElement parent, 
@@ -33,13 +34,15 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 			int declarationSourceStart, 
 			int declarationSourceEnd,
 			int nameStart, 
-			int nameEnd) {
+			int nameEnd,
+			String typeSignature) {
 		
 		super(parent, name);
 		this.declarationSourceStart = declarationSourceStart;
 		this.declarationSourceEnd = declarationSourceEnd;
 		this.nameStart = nameStart;
 		this.nameEnd = nameEnd;
+		this.typeSignature = typeSignature;
 	}
 
 	protected void closing(Object info) {
@@ -89,6 +92,8 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 		buff.append(this.nameStart);
 		buff.append(JEM_COUNT);
 		buff.append(this.nameEnd);
+		buff.append(JEM_COUNT);
+		buff.append(this.typeSignature);
 		if (this.occurrenceCount > 1) {
 			buff.append(JEM_COUNT);
 			buff.append(this.occurrenceCount);
@@ -148,6 +153,10 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 	public ISourceRange getSourceRange() {
 		return new SourceRange(this.declarationSourceStart, this.declarationSourceEnd-this.declarationSourceStart+1);
 	}
+	
+	public String getTypeSignature() {
+		return this.typeSignature;
+	}
 
 	public IResource getUnderlyingResource() throws JavaModelException {
 		return this.parent.getUnderlyingResource();
@@ -155,5 +164,14 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 
 	public int hashCode() {
 		return Util.combineHashCodes(this.parent.hashCode(), this.nameStart);
+	}
+	
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+		buffer.append(this.tabString(tab));
+		if (info != NO_INFO) {
+			buffer.append(Signature.toString(this.getTypeSignature()));
+			buffer.append(" "); //$NON-NLS-1$
+		}
+		buffer.append(this.getElementName());
 	}
 }

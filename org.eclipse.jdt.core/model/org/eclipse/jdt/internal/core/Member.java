@@ -190,7 +190,9 @@ public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, 
 			int nameStart = Integer.parseInt(memento.nextToken());
 			memento.nextToken(); // JEM_COUNT
 			int nameEnd = Integer.parseInt(memento.nextToken());
-			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd);
+			memento.nextToken(); // JEM_COUNT
+			String typeSignature = memento.nextToken();
+			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature);
 	}
 	return null;
 }

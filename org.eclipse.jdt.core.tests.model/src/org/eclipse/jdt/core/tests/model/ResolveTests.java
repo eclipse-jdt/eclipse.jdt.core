@@ -667,6 +667,26 @@ public void testLocalName7() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * Resolve a local reference and ensure its type signature is correct.
+ */
+public void testLocalVarTypeSignature1() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/Resolve/src/ResolveLocalName.java", "var1 = new Object();", "var1");
+	assertEquals(
+		"Unexpected type signature",
+		"QObject;",
+		localVar.getTypeSignature());
+}
+/*
+ * Resolve a local reference and ensure its type signature is correct.
+ */
+public void testLocalVarTypeSignature2() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/Resolve/src/ResolveLocalName.java", "var2 = 1;", "var2");
+	assertEquals(
+		"Unexpected type signature",
+		"I",
+		localVar.getTypeSignature());
+}
 /**
  * Resolve member type declaration
  */
