@@ -1676,5 +1676,31 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"10");
-	}			
+	}
+	
+	// TODO (philippe) enable when fixed
+	public void _test065() { // generic type case
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		List<Integer> list = new ArrayList<Integer>();\n" +
+				"		for (int i = 0; i < 5; i++) {\n" +
+				"			list.add(i);\n" +
+				"	    }\n" +
+				"	    int sum = 0;\n" +
+				"	    for (int i : list) {\n" +
+				"	    	sum += i;\n" +
+				"	    }\n" +
+				"        System.out.print(sum);\n" +
+				"    }\n" +
+				"}",
+			},
+			"10"
+		);
+	}	
 }
