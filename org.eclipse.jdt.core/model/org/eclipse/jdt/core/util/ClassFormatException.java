@@ -23,6 +23,7 @@ public class ClassFormatException extends Exception {
 	public static final int TOO_MANY_BYTES = 4;
 	public static final int INVALID_ARGUMENTS_FOR_INVOKEINTERFACE = 5;
 	public static final int INVALID_BYTECODE = 6;
+	public static final int INVALID_TAG_CONSTANT = 7;
 	
 	/**
 	 * Constructor for ClassFormatException.

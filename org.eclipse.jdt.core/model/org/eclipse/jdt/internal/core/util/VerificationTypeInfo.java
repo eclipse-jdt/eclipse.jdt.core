@@ -39,6 +39,20 @@ public class VerificationTypeInfo extends ClassFileStruct implements IVerificati
 	
 	VerificationTypeInfo(byte[] classFileBytes,	IConstantPool constantPool,	int offset) throws ClassFormatException {
 		final int tagValue = u1At(classFileBytes, 0, offset);
+		switch(tagValue) {
+			case ITEM_Top :
+			case ITEM_Integer :
+			case ITEM_Float :
+			case ITEM_Double :
+			case ITEM_Long :
+			case ITEM_Null :
+			case ITEM_UninitializedThis :
+			case ITEM_Object :
+			case ITEM_Uninitialized :
+				break;
+			default:
+				throw new ClassFormatException(ClassFormatException.INVALID_TAG_CONSTANT);
+		}
 		this.tag = tagValue;
 		int currentSize = 1;
 		switch(tagValue) {

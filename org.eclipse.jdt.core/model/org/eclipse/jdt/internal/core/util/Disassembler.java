@@ -806,13 +806,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(Util.bind("disassembler.genericattributelength")) //$NON-NLS-1$
 			.append(classFileAttribute.getAttributeLength());
 	}
-
-	private void disassemble(ISignatureAttribute signatureAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer
-			.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-			.append(signatureAttribute.getSignature());
-	}
 	
 	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		writeNewLine(buffer, lineSeparator, tabNumber - 1);
