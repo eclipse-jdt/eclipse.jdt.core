@@ -296,9 +296,10 @@ public void testCopyCURename() throws CoreException {
  * Ensures that a read-only CU can be copied to a different package.
  */
 public void testCopyCUReadOnly() throws CoreException {
+	IFile file = null;
 	try {
 		this.createFolder("/P/src/p1");
-		IFile file = this.createFile(
+		file = this.createFile(
 			"/P/src/p1/X.java",
 			"package p1;\n" +
 			"public class X {\n" +
@@ -314,6 +315,9 @@ public void testCopyCUReadOnly() throws CoreException {
 		
 		assertTrue("Destination cu should be read-only", getFile("/P/src/p2/X.java").isReadOnly());
 	} finally {
+		if (file != null) {
+			file.setReadOnly(false);
+		}
 		deleteFolder("/P/src/p1");
 	}
 }
@@ -453,6 +457,8 @@ public void testCopyPackageFragment() throws CoreException {
  * Ensures that a package fragment can be copied to a different package fragment root.
  */
 public void testCopyReadOnlyPackageFragment() throws CoreException {
+	IPackageFragment pkgSource = null;
+	IPackageFragment pkg2 = null;
 	try {
 		this.createFolder("/P/src/p1/p2/p3");
 		this.createFile(
@@ -462,9 +468,9 @@ public void testCopyReadOnlyPackageFragment() throws CoreException {
 			"}"
 		);
 		getFile("/P/src/p1/p2/p3/X.java").setReadOnly(true);
-		IPackageFragment pkgSource = getPackage("/P/src/p1");
+		pkgSource = getPackage("/P/src/p1");
 		pkgSource.getResource().setReadOnly(true);
-		IPackageFragment pkg2 = getPackage("/P/src/p1/p2/p3");
+		pkg2 = getPackage("/P/src/p1/p2/p3");
 		pkg2.getResource().setReadOnly(true);
 	
 		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
@@ -476,6 +482,12 @@ public void testCopyReadOnlyPackageFragment() throws CoreException {
 		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
 		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
 	} finally {
+		if (pkgSource != null) {
+			pkgSource.getResource().setReadOnly(false);
+		}
+		if (pkg2 != null) {
+			pkg2.getResource().setReadOnly(false);
+		}
 		deleteFolder("/P/src/p1");
 	}
 }
@@ -833,6 +845,8 @@ public void testMovePackageFragment() throws CoreException {
  * Ensures that a package fragment can be copied to a different package fragment root.
  */
 public void testMoveReadOnlyPackageFragment() throws CoreException {
+	IPackageFragment pkgSource = null;
+	IPackageFragment pkg2 = null;
 	try {
 		this.createFolder("/P/src/p1/p2/p3");
 		this.createFile(
@@ -842,9 +856,9 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 			"}"
 		);
 		getFile("/P/src/p1/p2/p3/X.java").setReadOnly(true);
-		IPackageFragment pkgSource = getPackage("/P/src/p1");
+		pkgSource = getPackage("/P/src/p1");
 		pkgSource.getResource().setReadOnly(true);
-		IPackageFragment pkg2 = getPackage("/P/src/p1/p2/p3");
+		pkg2 = getPackage("/P/src/p1/p2/p3");
 		pkg2.getResource().setReadOnly(true);
 	
 		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
@@ -856,6 +870,12 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
 		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
 	} finally {
+		if (pkgSource != null) {
+			pkgSource.getResource().setReadOnly(false);
+		}
+		if (pkg2 != null) {
+			pkg2.getResource().setReadOnly(false);
+		}
 		deleteFolder("/P/src/p1");
 	}
 }
