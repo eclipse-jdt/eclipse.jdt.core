@@ -6337,7 +6337,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}	
 	// conversion from raw to X<?> is safe (no unsafe warning)
 	public void test228() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				" import java.util.*;\n" + 
