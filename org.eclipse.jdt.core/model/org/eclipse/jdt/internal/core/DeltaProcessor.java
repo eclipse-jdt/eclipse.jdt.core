@@ -224,21 +224,30 @@ public class DeltaProcessor {
 	 * to update.
 	 */
 	private void addDependentProjects(IPath projectPath, HashSet result) {
+		IJavaProject[] projects = null;
 		try {
-			IJavaProject[] projects = this.manager.getJavaModel().getJavaProjects();
-			for (int i = 0, length = projects.length; i < length; i++) {
-				IJavaProject project = projects[i];
-				IClasspathEntry[] classpath = ((JavaProject)project).getExpandedClasspath(true);
-				for (int j = 0, length2 = classpath.length; j < length2; j++) {
-					IClasspathEntry entry = classpath[j];
-						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
-								&& entry.getPath().equals(projectPath)) {
-							result.add(project);
-						}
+			projects = this.manager.getJavaModel().getJavaProjects();
+		} catch (JavaModelException e) {
+			// java model doesn't exist
+			return;
+		}
+		for (int i = 0, length = projects.length; i < length; i++) {
+			IJavaProject project = projects[i];
+			IClasspathEntry[] classpath = null;
+			try {
+				classpath = ((JavaProject)project).getExpandedClasspath(true);
+			} catch (JavaModelException e) {
+				// project doesn't exist: continue with next project
+				continue;
+			}
+			for (int j = 0, length2 = classpath.length; j < length2; j++) {
+				IClasspathEntry entry = classpath[j];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
+							&& entry.getPath().equals(projectPath)) {
+						result.add(project);
 					}
 				}
-		} catch (JavaModelException e) {
-		}
+			}
 	}
 	/*
 	 * Adds the given element to the list of elements used as a scope for external jars refresh.
@@ -316,6 +325,7 @@ public class DeltaProcessor {
 					try {
 						this.manager.javaProjectsCache = this.manager.getJavaModel().getJavaProjects();
 					} catch (JavaModelException e) {
+						// java model doesn't exist: never happens
 					}
 				}
 				
@@ -358,6 +368,7 @@ public class DeltaProcessor {
 								try {
 									javaProject.close();
 								} catch (JavaModelException e) {
+									// java project doesn't exist: ignore
 								}
 								this.removeFromParentInfo(javaProject);
 							}
@@ -388,6 +399,7 @@ public class DeltaProcessor {
 								try {
 									javaProject.close();
 								} catch (JavaModelException e) {
+									// java project doesn't exist: ignore
 								}
 								this.removeFromParentInfo(javaProject);
 							}
@@ -422,6 +434,7 @@ public class DeltaProcessor {
 						root.close();
 					}
 				} catch (JavaModelException e) {
+					// root doesn't exist: ignore
 				}
 				if (root == null) return;
 				switch (delta.getKind()) {
@@ -814,6 +827,7 @@ public class DeltaProcessor {
 			this.removeFromParentInfo(javaProject);
 
 		} catch (JavaModelException e) {
+			// java project doesn't exist: ignore
 		}
 		
 		this.addDependentProjects(project.getFullPath(), this.rootsToRefresh);
@@ -1229,7 +1243,9 @@ public class DeltaProcessor {
 		//long start = System.currentTimeMillis();
 		if (rootDelta != null) {
 			// use local exception to quickly escape from delta traversal
-			class FoundRelevantDeltaException extends RuntimeException {}
+			class FoundRelevantDeltaException extends RuntimeException {
+				// only the class name is used (to differenciate from other RuntimeExceptions)
+			}
 			try {
 				rootDelta.accept(new IResourceDeltaVisitor() {
 					public boolean visit(IResourceDelta delta) throws CoreException {
@@ -1453,6 +1469,7 @@ public class DeltaProcessor {
 				}
 			}
 		} catch (JavaModelException e) {
+			// java project doesn't exist: ignore
 		}
 		return null;
 	}
@@ -1613,6 +1630,7 @@ public class DeltaProcessor {
 						// add child as non java resource
 						nonJavaResourcesChanged((JavaModel)model, delta);
 					} catch (JavaModelException e) {
+						// java model could not be opened
 					}
 				}
 
@@ -1649,15 +1667,21 @@ public class DeltaProcessor {
 				break;
 			case IResourceDelta.CHANGED :
 				if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
-						&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {// and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
+					&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {// and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
 					break;
 				}
-				// fall through
+			// fall through
 			case IResourceDelta.ADDED :
 				try {
 					project.forceClasspathReload(null);
-				} catch (RuntimeException e) { 		// ignore
-				} catch (JavaModelException e) {	// ignore
+				} catch (RuntimeException e) {
+					if (VERBOSE) {
+						e.printStackTrace();
+					}
+				} catch (JavaModelException e) {	
+					if (VERBOSE) {
+						e.printStackTrace();
+					}
 				}
 		}
 	}
@@ -1797,6 +1821,7 @@ public class DeltaProcessor {
 							deleting((IProject)resource);
 						}
 					} catch(CoreException e){
+						// project doesn't exist or is not open: ignore
 					}
 					return;
 					
@@ -1948,37 +1973,38 @@ public class DeltaProcessor {
 					this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo); // traverse delta for child in the same project
 
 					if (childType == NON_JAVA_RESOURCE) {
-						try {
-							if (rootInfo != null) { // if inside a package fragment root
-								if (!isValidParent) continue; 
-								if (parent == null) {
-									// find the parent of the non-java resource to attach to
-									if (this.currentElement == null 
-											|| !this.currentElement.getJavaProject().equals(rootInfo.project)) {
-										// force the currentProject to be used
-										this.currentElement = (Openable)rootInfo.project;
-									}
-									if (elementType == IJavaElement.JAVA_PROJECT
-										|| (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT 
-											&& res instanceof IProject)) { 
-										// NB: attach non-java resource to project (not to its package fragment root)
-										parent = (Openable)rootInfo.project;
-									} else {
-										parent = this.createElement(res, elementType, rootInfo);
-									}
-									if (parent == null) {
-										isValidParent = false;
-										continue;
-									}
+						if (rootInfo != null) { // if inside a package fragment root
+							if (!isValidParent) continue; 
+							if (parent == null) {
+								// find the parent of the non-java resource to attach to
+								if (this.currentElement == null 
+										|| !this.currentElement.getJavaProject().equals(rootInfo.project)) {
+									// force the currentProject to be used
+									this.currentElement = (Openable)rootInfo.project;
 								}
-								// add child as non java resource
-								nonJavaResourcesChanged(parent, child);
-							} else {
-								// the non-java resource (or its parent folder) will be attached to the java project
-								if (orphanChildren == null) orphanChildren = new IResourceDelta[length];
-								orphanChildren[i] = child;
+								if (elementType == IJavaElement.JAVA_PROJECT
+									|| (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT 
+										&& res instanceof IProject)) { 
+									// NB: attach non-java resource to project (not to its package fragment root)
+									parent = (Openable)rootInfo.project;
+								} else {
+									parent = this.createElement(res, elementType, rootInfo);
+								}
+								if (parent == null) {
+									isValidParent = false;
+									continue;
+								}
 							}
-						} catch (JavaModelException e) {
+							// add child as non java resource
+							try {
+								nonJavaResourcesChanged(parent, child);
+							} catch (JavaModelException e) {
+								// ignore
+							}
+						} else {
+							// the non-java resource (or its parent folder) will be attached to the java project
+							if (orphanChildren == null) orphanChildren = new IResourceDelta[length];
+							orphanChildren[i] = child;
 						}
 					} else {
 						oneChildOnClasspath = true;
@@ -2019,6 +2045,7 @@ public class DeltaProcessor {
 							try {
 								nonJavaResourcesChanged(adoptiveProject, orphanChildren[i]);
 							} catch (JavaModelException e) {
+								// ignore
 							}
 						}
 					}
@@ -2043,6 +2070,7 @@ public class DeltaProcessor {
 							true); // generateMarkerOnError
 						
 					} catch (JavaModelException e) {
+						// project doesn't exist: ignore
 					}
 				}
 			}
@@ -2051,6 +2079,7 @@ public class DeltaProcessor {
 					// update all cycle markers
 					JavaProject.updateAllCycleMarkers();
 				} catch (JavaModelException e) {
+					// one of the projects doesn't exist: ignore
 				}
 			}				
 		} finally {
@@ -2246,6 +2275,7 @@ public class DeltaProcessor {
 						break;
 					}
 				} catch (JavaModelException e) {
+					// project doesn't exist: ignore
 				}
 				switch (delta.getKind()) {
 					case IResourceDelta.CHANGED :
