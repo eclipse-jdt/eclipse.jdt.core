@@ -23,7 +23,7 @@
   <!-- This target defines the tests that need to be run. -->
   <target name="suite">
     <property name="jdt-core-performance-folder" 
-              value="${eclipse-home}/../../../../perfs"/>
+              value="${eclipse-home}/jdt-core-performance-folder"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <property name="data-dir" value="${jdt-core-performance-folder}"/>
       <property name="plugin-name" value="${plugin-name}"/>
@@ -51,7 +51,7 @@
 
   <!-- This target defines the performance tests that need to be run. -->
   <target name="performance-suite">
-    <property name="jdt-core-performance-folder" value="${eclipse-home}/../../../../perfs"/>
+    <property name="jdt-core-performance-folder" value="${eclipse-home}/jdt-core-performance-folder"/>
     <delete dir="${jdt-core-performance-folder}" quiet="true"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <property name="data-dir" value="${jdt-core-performance-folder}"/>
