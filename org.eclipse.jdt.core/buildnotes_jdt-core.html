@@ -52,6 +52,8 @@ This extended position takes into account node leading comments.</li>
 This extended length takes into account node trailing comments.</li>
 </li>
 </ul>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53445">53445</a> for more details on heuristic to find leading and trailing comments.
+</li>
 <li>Added API <code>FieldReferenceMatch.isReadAccess()</code> and <code>isWriteAccess()</code>.
 <li>Added API <code>JavaCore.run(IWorkspaceRunnable action, ISchedulingRule rule, IProgressMonitor monitor)</code> 
 	 to control the scheduling rule during a Java batch operation.
@@ -68,7 +70,9 @@ This extended length takes into account node trailing comments.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53276">53276</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53445">53445</a>
+[DCR] [DOM Comments] Provide extended ranges including leading/trailing comments for AST nodes
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53276">53276</a>
 [DOM Comments] Wrong text element length when containing '\' character
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52908">52908</a>
 [DOM Comments] Wrong text element positions when starting/ending with { or }
