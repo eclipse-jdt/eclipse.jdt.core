@@ -2195,23 +2195,4 @@ public class JavaProject
 				}
 			}
 	}
-	/*
-	 * Returns the cycle marker associated with this project or null if none.
-	 */
-	public IMarker getCycleMarker(){
-		try {
-			IProject project = getProject();
-			if (project.exists()) {
-				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
-				for (int i = 0, length = markers.length; i < length; i++) {
-					IMarker marker = markers[i];
-					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
-					if (cycleAttr != null && cycleAttr.equals("true")){ //$NON-NLS-1$
-						return marker;
-					}
-				}
-			}
-		} catch (CoreException e) {
-		}
-		return null;
-	}}
+}
