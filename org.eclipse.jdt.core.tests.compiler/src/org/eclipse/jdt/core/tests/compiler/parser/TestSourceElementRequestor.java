@@ -33,10 +33,6 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {}
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {}
 /**
- * acceptInitializer method comment.
- */
-public void acceptInitializer(int modifiers, int declarationSourceStart, int declarationSourceEnd) {}
-/**
  * acceptLineSeparatorPositions method comment.
  */
 public void acceptLineSeparatorPositions(int[] positions) {}

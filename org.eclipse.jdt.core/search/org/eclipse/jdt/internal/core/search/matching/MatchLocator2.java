@@ -569,16 +569,14 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 		if (this.nameEnvironment != null) { // cleanup
 			this.nameEnvironment.cleanup();
 		}
-		INameEnvironment wrappedEnvironment;
 		if (potentialMatches.length == 1) {
 			// if only one potential match, a file name environment costs too much,
 			// so use the existing searchable  environment which will populate the java model
 			// only for this potential match and its required types.
-			wrappedEnvironment = project.getSearchableNameEnvironment();
+			this.nameEnvironment = project.getSearchableNameEnvironment();
 		} else {
-			wrappedEnvironment = new ClasspathNameEnvironment(project);
+			this.nameEnvironment = new JavaSearchNameEnvironment2(project);
 		}
-		this.nameEnvironment = new JavaSearchNameEnvironment2(wrappedEnvironment, potentialMatches);
 
 		// create lookup environment
 		this.options = new CompilerOptions(project.getOptions(true));

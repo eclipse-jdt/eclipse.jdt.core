@@ -291,54 +291,6 @@ private void insertPositions(IJavaElement[] elements, boolean isNew) {
 	}
 }
 /**
- * Returns true if the given elements represent the an equivalent declaration.
- *
- * <p>NOTE: Since this comparison can be done with handle info only,
- * none of the internal calls need to use the locally cached contents
- * of the old compilation unit.
- */
-private boolean isIdentical(JavaElement e1, JavaElement e2) {
-	if (e1 == null ^ e2 == null)
-		return false;
-	if (e1 == null)
-		return true;
-		
-	if (e1.fLEType == e2.fLEType) {
-		if (e1.getOccurrenceCount() != e2.getOccurrenceCount())
-			return false;
-		switch (e1.fLEType) {
-			case IJavaElement.FIELD:
-			case IJavaElement.IMPORT_DECLARATION:
-			case IJavaElement.PACKAGE_DECLARATION:
-			case IJavaElement.COMPILATION_UNIT:
-				return e1.getElementName().equals(e2.getElementName());
-			case IJavaElement.TYPE:
-				IType t1= (IType)e1;
-				IType t2= (IType)e2;
-				try {
-					return (!(t1.isClass() ^ t2.isClass()) && t1.getElementName().equals(t2.getElementName()));
-				} catch (JavaModelException e) {
-					return false;
-				}
-			case IJavaElement.METHOD:
-				IMethod m1= (IMethod)e1;
-				IMethod m2= (IMethod)e2;
-				try {
-					return m1.getElementName().equals(m2.getElementName()) && m1.getSignature().equals(m2.getSignature());
-				} catch (JavaModelException e) {
-					return false;
-				}
-			case IJavaElement.INITIALIZER:
-			case IJavaElement.IMPORT_CONTAINER:
-				return true;
-			default:
-				return false;
-		}
-	} else {
-		return false;
-	}
-}
-/**
  * Returns whether the elements position has not changed.
  */
 private boolean isPositionedCorrectly(IJavaElement element) {
