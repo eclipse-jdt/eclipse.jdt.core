@@ -14667,5 +14667,67 @@ public void test500(){
 			null,
 			false, // do not flush output directory
 			null);
-	}		
+	}
+	public void test521(){
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static public <T extends Collection> void addAll(T a, T b) {\n" + 
+				"		a.addAll(b);\n" + 
+				"	}\n" + 
+				"	static public void main(String[] args) {\n" + 
+				"		Collection<Integer> a = new ArrayList<Integer>();\n" + 
+				"		Collection<String> b = new ArrayList<String>();\n" + 
+				"		b.add(\"string\");\n" + 
+				"		addAll(a, b);\n" + 
+				"		try {\n" + 
+				"			System.out.println(a.iterator().next().intValue()); // ClassCastException\n" + 
+				"		} catch(ClassCastException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}			
+	// variation on test521, check issuing of unchecked warning (javac misses it)
+	public void test522(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static public <T extends Collection> void addAll(T a, T b) {\n" + 
+				"		a.addAll(b);\n" + 
+				"	}\n" + 
+				"	static public void main(String[] args) {\n" + 
+				"		Collection<Integer> a = new ArrayList<Integer>();\n" + 
+				"		Collection<String> b = new ArrayList<String>();\n" + 
+				"		b.add(\"string\");\n" + 
+				"		addAll(a, b);\n" + 
+				"		try {\n" + 
+				"			System.out.println(a.iterator().next().intValue()); // ClassCastException\n" + 
+				"		} catch(ClassCastException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	a.addAll(b);\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Type safety: The method addAll(Collection) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
 }
