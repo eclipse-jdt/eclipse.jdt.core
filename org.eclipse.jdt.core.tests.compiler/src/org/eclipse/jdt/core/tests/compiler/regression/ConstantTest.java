@@ -82,7 +82,6 @@ public void test003() {
 		"    System.out.println();\n" + 
 		"    System.out.println(\"â?°\");\n" + 
 		"    System.out.println(Integer.toHexString(\"â?°\".charAt(0)));\n" + 
-		"    System.exit(0);\n" + 
 		"  }\n" + 
 		"}\n",
 	});
