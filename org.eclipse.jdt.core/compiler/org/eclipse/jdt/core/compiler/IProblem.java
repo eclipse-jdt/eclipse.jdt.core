@@ -570,6 +570,8 @@ public interface IProblem {
 	int PackageIsNotExpectedPackage = 328;
 	/** @since 2.1 */
 	int ObjectCannotHaveSuperTypes = 329;
+	/** @since 3.1 */
+	int ObjectMustBeClass = 330;
 
 	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330

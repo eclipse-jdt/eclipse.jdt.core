@@ -652,6 +652,8 @@ public class ClassScope extends Scope {
 		if (sourceType.id == T_Object) { // handle the case of redefining java.lang.Object up front
 			sourceType.superclass = null;
 			sourceType.superInterfaces = NoSuperInterfaces;
+			if (sourceType.isInterface())
+				problemReporter().objectMustBeClass(sourceType);
 			if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
 				problemReporter().objectCannotHaveSuperTypes(sourceType);
 			return true; // do not propagate Object's hierarchy problems down to every subtype

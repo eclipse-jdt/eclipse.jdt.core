@@ -3404,6 +3404,14 @@ public void objectCannotHaveSuperTypes(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void objectMustBeClass(SourceTypeBinding type) {
+	this.handle(
+		IProblem.ObjectMustBeClass,
+		NoArgument,
+		NoArgument,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 public void operatorOnlyValidOnNumericType(CompoundAssignment  assignment, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());
