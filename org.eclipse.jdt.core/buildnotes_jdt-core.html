@@ -15,7 +15,10 @@ Eclipse SDK Build 20020522 - 22nd May 2002
 <br>Project org.eclipse.jdt.core v_249
 <h2>
 What's new in this drop</h2>
-<ul><li>The setting allowing for filtering resource copy now also supports folder filtering. Folder names are
+<ul>
+<li>'.classpath' file is now written using platform line delimiters (used to be only using LFs). It is recommanded to convert it to 'text' format
+so as to avoid surfacing delimiter differences in between incompatible platforms. </li>
+<li>The setting allowing for filtering resource copy now also supports folder filtering. Folder names are
 recognized by their '/' suffix, e.g. "META-INF/" specifies filtering out all folder named 'META-INF' (and their contents)</li>
 </ul>
 
