@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
-public class ResetSateForCodeGenerationVisitor
+public class ResetStateForCodeGenerationVisitor
 	extends AbstractSyntaxTreeVisitorAdapter {
 
 	public boolean visit(SwitchStatement statement, BlockScope scope) {

@@ -151,7 +151,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
 			// a branch target required a goto_w, restart code gen in wide mode.
 			try {
-				this.traverse(new ResetSateForCodeGenerationVisitor(), classScope);
+				this.traverse(new ResetStateForCodeGenerationVisitor(), classScope);
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
 				classFile.codeStream.wideMode = true; // request wide mode 
