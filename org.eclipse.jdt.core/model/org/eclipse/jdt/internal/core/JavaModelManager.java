@@ -33,6 +33,11 @@ import org.xml.sax.*;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
+
+	/**
+	 * Variable pool
+	 */
+	public static Map Variables = new HashMap(5);
 /**
  * Returns whether the given full path (for a package) conflicts with the output location
  * of the given project.
@@ -895,20 +900,11 @@ public void mergeDeltas() {
 			if (type == Node.ELEMENT_NODE) {
 				Element element= (Element) node;
 				if (element.getNodeName().equalsIgnoreCase("variable")) { //$NON-NLS-1$
-					variableNamesList.add(element.getAttribute("name")); //$NON-NLS-1$
-					variablePathsList.add(new Path(element.getAttribute("path"))); //$NON-NLS-1$
+					Variables.put( 
+						element.getAttribute("name"), //$NON-NLS-1$
+						new Path(element.getAttribute("path"))); //$NON-NLS-1$
 				}
 			}
-		}
-		// set all variables at once
-		try {
-			String[] variableNames = new String[variableNamesList.size()];
-			variableNamesList.toArray(variableNames);
-			IPath[] variablePaths = new IPath[variablePathsList.size()];
-			variablePathsList.toArray(variablePaths);
-			JavaCore.setClasspathVariables(variableNames, variablePaths, null);
-		} catch(JavaModelException e){
-		} catch(RuntimeException e){
 		}
 	}
 	

@@ -109,9 +109,16 @@ public class ToolFactory {
 	 * (<code>ITerminalSymbols#TokenNameIdentifier</code>), whereas if set to <code>true</code>, it
 	 * would report assert keywords (<code>ITerminalSymbols#TokenNameassert</code>). Java 1.4 has introduced
 	 * a new 'assert' keyword.
+	 * @param recordLineSeparator - if set to <code>true</code>, the scanner will record positions of encountered line 
+	 * separator ends. In case of multi-character line separators, the last character position is considered. These positions
+	 * can then be extracted using <code>IScanner#getLineEnds</code>
+	 * 
+	 * @see IScanner
 	 */
-	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode){
+	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
 
-		return new Scanner(tokenizeComments, tokenizeWhiteSpace, false, assertMode);
+		Scanner scanner = new Scanner(tokenizeComments, tokenizeWhiteSpace, false, assertMode);
+		scanner.recordLineSeparator = recordLineSeparator;
+		return scanner;
 	}
 }
