@@ -3505,7 +3505,7 @@ public void test42() {
 	assertEquals(" contains one field", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for field x", 20, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 29, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 24, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods == null);
@@ -3549,7 +3549,7 @@ public void test43() {
 	assertEquals(" contains one field", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for field x", 20, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 29, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 24, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods == null);
@@ -3598,7 +3598,7 @@ public void test44() {
 	assertEquals("Invalid declaration source end for field x", 25, fields[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field y", 20, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field y", 31, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field y", 27, fields[1].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods == null);
@@ -3646,7 +3646,7 @@ public void test45() {
 	assertEquals("Invalid declaration source end for field x", 25, fields[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field y", 20, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field y", 31, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field y", 27, fields[1].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods == null);
@@ -3862,7 +3862,7 @@ public void test50() {
 	assertEquals("has one field ", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for field x", 29, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 41, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 33, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods == null);
@@ -3907,7 +3907,7 @@ public void test51() {
 	assertEquals("has one field ", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for field x", 29, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 41, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 33, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods == null);
@@ -4067,7 +4067,7 @@ public void test54() {
 	assertEquals("Invalid declaration source end for field s", 70, fields[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field x", 72, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 78, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 76, fields[1].getDeclarationSourceEnd());
 	
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4130,7 +4130,7 @@ public void test55() {
 	assertEquals("Invalid declaration source end for field s", 70, fields[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field x", 72, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 78, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 76, fields[1].getDeclarationSourceEnd());
 	
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4196,7 +4196,7 @@ public void test56() {
 	assertEquals("Invalid declaration source end for field s", 24, fields[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field x", 60, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 74, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 71, fields[1].getDeclarationSourceEnd());
 	
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4256,7 +4256,7 @@ public void test57() {
 	assertEquals("Invalid declaration source end for field s", 24, fields[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for field x", 60, fields[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for field x", 74, fields[1].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for field x", 71, fields[1].getDeclarationSourceEnd());
 	
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -5146,9 +5146,8 @@ public void test75() {
 		"public class P {\n" +
 		"	{}\n" +
 		"	public void setP;\n" +
-		"	String P;\n" +
-		"	{}\n" +
 		"	java.lang.Object(0)\n" +
+		"	A(String P, ) {}\n" +
 		"}";
 			
 	String testName = "test75: full parse";

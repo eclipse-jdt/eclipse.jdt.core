@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.parser;
  */
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 
@@ -26,6 +27,21 @@ public RecoveredLocalVariable(LocalDeclaration localDeclaration, RecoveredElemen
 	super(localDeclaration, parent, bracketBalance);
 	this.localDeclaration = localDeclaration;
 	this.alreadyCompletedLocalInitialization = localDeclaration.initialization != null;
+}
+/*
+ * Record an expression statement if local variable is expecting an initialization expression. 
+ */
+public RecoveredElement add(Statement statement, int bracketBalance) {
+
+	if (this.alreadyCompletedLocalInitialization || !(statement instanceof Expression)) {
+		return super.add(statement, bracketBalance);
+	} else {
+		this.alreadyCompletedLocalInitialization = true;
+		this.localDeclaration.initialization = (Expression)statement;
+		this.localDeclaration.declarationSourceEnd = statement.sourceEnd;
+		this.localDeclaration.declarationEnd = statement.sourceEnd;
+		return this;
+	}
 }
 /* 
  * Answer the associated parsed structure

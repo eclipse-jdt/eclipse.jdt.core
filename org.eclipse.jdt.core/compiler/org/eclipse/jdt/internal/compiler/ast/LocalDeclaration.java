@@ -32,10 +32,10 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		this.sourceEnd = sourceEnd;
 		if (initialization != null) {
 			this.declarationSourceEnd = initialization.sourceEnd;
+			this.declarationEnd = initialization.sourceEnd;
 		} else {
-			this.declarationSourceEnd = sourceEnd;
+			this.declarationEnd = sourceEnd;
 		}
-		this.declarationEnd = this.declarationSourceEnd;
 	}
 
 	public FlowInfo analyseCode(

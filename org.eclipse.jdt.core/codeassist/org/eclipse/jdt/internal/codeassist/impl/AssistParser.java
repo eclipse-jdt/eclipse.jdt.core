@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredMethod;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
@@ -926,6 +927,34 @@ protected void pushOnElementStack(int kind, int info){
 		System.arraycopy(oldElementInfoStack, 0, this.elementInfoStack, 0, oldStackLength);
 		this.elementKindStack[this.elementPtr] = kind;
 		this.elementInfoStack[this.elementPtr] = info;
+	}
+}
+public void recoveryTokenCheck() {
+	RecoveredElement oldElement = currentElement;
+	switch (currentToken) {
+		case TokenNameLBRACE :
+			super.recoveryTokenCheck();
+			if(currentElement instanceof RecoveredInitializer) {
+				if(oldElement instanceof RecoveredField) {
+					popUntilElement(K_FIELD_INITIALIZER_DELIMITER);
+					popElement(K_FIELD_INITIALIZER_DELIMITER);
+				}
+				if(currentElement != oldElement
+					&& topKnownElementKind(ASSIST_PARSER) != K_METHOD_DELIMITER) {
+					pushOnElementStack(K_METHOD_DELIMITER);
+				}
+			}
+			break;
+		case TokenNameRBRACE :
+			super.recoveryTokenCheck();
+			if(oldElement instanceof RecoveredInitializer && currentElement != oldElement) {
+				popUntilElement(K_METHOD_DELIMITER);
+				popElement(K_METHOD_DELIMITER);
+			}
+			break;
+		default :
+			super.recoveryTokenCheck();
+			break;
 	}
 }
 public void reset(){

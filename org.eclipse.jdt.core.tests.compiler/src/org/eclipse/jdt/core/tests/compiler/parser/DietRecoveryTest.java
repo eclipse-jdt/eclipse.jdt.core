@@ -4324,7 +4324,18 @@ public void test75() {
 		
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
-	String expectedCompletionDietUnitToString = expectedDietUnitToString;
+	String expectedCompletionDietUnitToString = 
+		"package ZKentTest;\n" + 
+		"import java.awt.color.*;\n" + 
+		"public class A {\n" + 
+		"  int[] ii;\n" + 
+		"  public A() {\n" + 
+		"  }\n" + 
+		"  A foo(int i) {\n" + 
+		"  }\n" +		"  clone() {\n" +		"  }\n" + 
+		"  int bar() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String testName = "<bunch of syntax errors>";
 	checkParse(
@@ -5788,11 +5799,8 @@ public void test104() {
 		"  {\n" +
 		"  }\n" +
 		"  public void setP;\n" +
-		"  String P;\n" +
-		"  {\n" +
-		"  }\n" +
 		"  public P() {\n" +
-		"  }\n" +
+		"  }\n" +		"  A(String P) {\n" +		"  }\n" +
 		"}\n";
 
 	String expectedDietPlusBodyUnitToString = 
@@ -5800,11 +5808,10 @@ public void test104() {
 		"  {\n" +
 		"  }\n" +
 		"  public void setP;\n" +
-		"  String P;\n" +
-		"  {\n" +
-		"  }\n" +
 		"  public P() {\n" +
 		"    super();\n" +
+		"  }\n" +
+		"  A(String P) {\n" +
 		"  }\n" +
 		"}\n";
 	

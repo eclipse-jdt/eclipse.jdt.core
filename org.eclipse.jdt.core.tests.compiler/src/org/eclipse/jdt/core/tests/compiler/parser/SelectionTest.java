@@ -309,8 +309,7 @@ public void test08() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    int j;\n" + 
-		"    <SelectionOnFieldReference:this.num>;\n" + 
+		"    int j = <SelectionOnFieldReference:this.num>;\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "this.num";
@@ -352,8 +351,7 @@ public void test09() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    int j;\n" + 
-		"    <SelectionOnFieldReference:this.num>;\n" + 
+		"    int j = <SelectionOnFieldReference:this.num>;\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "this.num";
@@ -395,8 +393,7 @@ public void test10() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    int j;\n" + 
-		"    <SelectionOnFieldReference:this.x>;\n" + 
+		"    int j = <SelectionOnFieldReference:this.x>;\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "this.x";
@@ -440,8 +437,7 @@ public void test11() {
 		"  }\n" + 
 		"  int foo() {\n" + 
 		"    int j;\n" + 
-		"    X x;\n" + 
-		"    <SelectOnAllocationExpression:new X(j)>;\n" + 
+		"    X x = <SelectOnAllocationExpression:new X(j)>;\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "new X(j)";
@@ -576,8 +572,7 @@ public void test14() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    System sys;\n" + 
-		"    <SelectOnName:java.lang.System>;\n" + 
+		"    System sys = <SelectOnName:java.lang.System>;\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "java.lang.System";
@@ -960,8 +955,7 @@ public void test23() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    String[] p;\n" + 
-		"    <SelectOnType:String>;\n" + 
+		"    String[] p = <SelectOnType:String>;\n" + 
 		"  }\n" + 
 		"}\n";
 		
@@ -1399,8 +1393,7 @@ public void test32() {
 		"  }\n" + 
 		"  public boolean containsPhrase() {\n" + 
 		"    {\n" + 
-		"      char currentChar;\n" + 
-		"      <SelectOnMessageSend:\"hello\".toLowerCase()>;\n" + 
+		"      char currentChar = <SelectOnMessageSend:\"hello\".toLowerCase()>;\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2058,8 +2051,7 @@ public void test47() {
 		"  public X() {\n"+
 		"  }\n"+
 		"  void foo() {\n"+
-		"    boolean y;\n"+
-		"    <SelectOnType:Object>;\n"+
+		"    boolean y = <SelectOnType:Object>;\n"+
 		"  }\n"+
 		"}\n";
 	String expectedReplacedSource = "Object";

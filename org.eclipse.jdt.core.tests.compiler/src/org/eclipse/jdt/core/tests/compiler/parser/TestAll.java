@@ -58,6 +58,7 @@ public static Test suite() {
 	addTest(suite, MethodInvocationCompletionTest.class);
 	addTest(suite, NameReferenceCompletionTest.class);
 	addTest(suite, ReferenceTypeCompletionTest.class);
+	addTest(suite, CompletionParserTest2.class);
 
 	/* selection tests */
 	addTest(suite, ExplicitConstructorInvocationSelectionTest.class);

@@ -1986,10 +1986,17 @@ protected void consumeExitVariableWithInitialization() {
 	// source end position of the initialization expression
 	variableDecl.declarationSourceEnd = variableDecl.initialization.sourceEnd;
 	variableDecl.declarationEnd = variableDecl.initialization.sourceEnd;
+	
+	this.recoveryExitFromVariable();
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
 	// do nothing by default
+	
+	AbstractVariableDeclaration variableDecl = (AbstractVariableDeclaration) astStack[astPtr];
+	variableDecl.declarationSourceEnd = variableDecl.declarationEnd;
+	
+	this.recoveryExitFromVariable();
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 
@@ -7282,6 +7289,22 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 			break;
 	}
 	return chars;
+}
+public void recoveryExitFromVariable() {
+	if(currentElement != null && currentElement.parent != null) {
+		if(currentElement instanceof RecoveredLocalVariable) {
+			
+			int end = ((RecoveredLocalVariable)currentElement).localDeclaration.sourceEnd;
+			currentElement.updateSourceEndIfNecessary(end);
+			currentElement = currentElement.parent;
+		} else if(currentElement instanceof RecoveredField
+			&& !(currentElement instanceof RecoveredInitializer)) {
+				
+			int end = ((RecoveredField)currentElement).fieldDeclaration.sourceEnd;
+			currentElement.updateSourceEndIfNecessary(end);
+			currentElement = currentElement.parent;
+		}
+	}
 }
 /* Token check performed on every token shift once having entered
  * recovery mode.

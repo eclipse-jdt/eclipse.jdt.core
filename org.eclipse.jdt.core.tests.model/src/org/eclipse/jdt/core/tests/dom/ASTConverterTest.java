@@ -3340,7 +3340,10 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The type is malformed", !isMalformed(node)); //$NON-NLS-1$
 		node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
-		assertTrue("The field is not malformed", isMalformed(node)); //$NON-NLS-1$
+		assertTrue("The field is malformed", !isMalformed(node)); //$NON-NLS-1$
+		node = getASTNode((CompilationUnit) result, 0, 1);
+		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
+		assertTrue("The method is not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 
 	/**

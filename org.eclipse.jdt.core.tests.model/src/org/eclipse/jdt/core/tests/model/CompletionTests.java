@@ -126,12 +126,29 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent3"));
 	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent4"));
 	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent5"));
+	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent6"));
 	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent1"));
 	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent2"));
 	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent3"));
 	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent4"));
 	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent5"));
 	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent6"));
+	suite.addTest(new CompletionTests("testCompletionFieldInitializer1"));
+	suite.addTest(new CompletionTests("testCompletionFieldInitializer2"));
+	suite.addTest(new CompletionTests("testCompletionFieldInitializer3"));
+	suite.addTest(new CompletionTests("testCompletionFieldInitializer4"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer1"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer2"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer3"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer4"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod1"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod2"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod3"));
+	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod4"));
+	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod1"));
+	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod2"));
+	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod3"));
+	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod4"));
 	
 	return suite;
 }
@@ -1653,6 +1670,24 @@ public void testCompletionMessageSendIsParent5() throws JavaModelException {
 		requestor.getResults());
 }
 
+public void testCompletionMessageSendIsParent6() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMessageSendIsParent6.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
 public void testCompletionAllocationExpressionIsParent1() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAllocationExpressionIsParent1.java");
@@ -1758,6 +1793,259 @@ public void testCompletionAllocationExpressionIsParent6() throws JavaModelExcept
 		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionFieldInitializer1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFieldInitializer1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionFieldInitializer2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFieldInitializer2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionFieldInitializer3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFieldInitializer3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionFieldInitializer4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFieldInitializer4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+public void testCompletionVariableInitializerInInitializer1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInInitializer1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionVariableInitializerInInitializer2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInInitializer2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionVariableInitializerInInitializer3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInInitializer3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionVariableInitializerInInitializer4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInInitializer4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+public void testCompletionVariableInitializerInMethod1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInMethod1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionVariableInitializerInMethod2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInMethod2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionVariableInitializerInMethod3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInMethod3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionVariableInitializerInMethod4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVariableInitializerInMethod4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+public void testCompletionAssignmentInMethod1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAssignmentInMethod1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionAssignmentInMethod2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAssignmentInMethod2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzObject    completion:zzObject    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE)+"\n" +
+		"element:zzboolean    completion:zzboolean    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzdouble    completion:zzdouble    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzint    completion:zzint    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
+		"element:zzlong    completion:zzlong    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+
+public void testCompletionAssignmentInMethod3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAssignmentInMethod3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
+		requestor.getResults());
+}
+
+public void testCompletionAssignmentInMethod4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAssignmentInMethod4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_CASE + R_EXPECTED_TYPE),
 		requestor.getResults());
 }
 }

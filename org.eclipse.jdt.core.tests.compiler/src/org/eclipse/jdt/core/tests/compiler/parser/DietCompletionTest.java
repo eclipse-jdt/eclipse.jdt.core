@@ -1596,7 +1596,7 @@ public void test47() {
 	String expectedUnitDisplayString = 
 		"class X {\n" + 
 		"  class Y {\n" + 
-		"    Object[] f = <CompleteOnMemberAccess:this.foo>;\n" + 
+		"    Object[] f = {<CompleteOnMemberAccess:this.foo>,};\n" + 
 		"    Y() {\n" + 
 		"    }\n" + 
 		"    Object foo() {\n" + 

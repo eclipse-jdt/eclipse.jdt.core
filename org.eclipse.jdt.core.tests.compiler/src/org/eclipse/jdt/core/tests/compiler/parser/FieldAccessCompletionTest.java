@@ -223,8 +223,7 @@ public void testArrayInitializer() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    int[] i;\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    int[] i = new int[]{<CompleteOnMemberAccess:fred().x>,};\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -255,8 +254,7 @@ public void testArrayInitializerComma() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    int[] i;\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    int[] i = new int[]{<CompleteOnMemberAccess:fred().x>,};\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -804,8 +802,7 @@ public void testDimWithOrWithOutExpr() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    int[] v;\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    int[] v = new int[<CompleteOnMemberAccess:fred().x>];\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

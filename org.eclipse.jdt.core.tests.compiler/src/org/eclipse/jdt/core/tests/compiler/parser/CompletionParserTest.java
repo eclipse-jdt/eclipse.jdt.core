@@ -146,7 +146,7 @@ public void testAA_2() {
 		"    int maxUnits;\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      CompilationUnitResult unitResult;\n" +		"      new CompilationUnitResult(<CompleteOnName:n>);\n" + 
+		"      CompilationUnitResult unitResult = new CompilationUnitResult(<CompleteOnName:n>);\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -196,7 +196,7 @@ public void testAA_3() {
 		"    int maxUnits;\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      CompilationUnitResult unitResult;\n" +		"      new CompilationUnitResult(null, <CompleteOnName:i>);\n" + 
+		"      CompilationUnitResult unitResult = new CompilationUnitResult(null, <CompleteOnName:i>);\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -246,7 +246,7 @@ public void testAA_4() {
 		"    int maxUnits;\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      CompilationUnitResult unitResult;\n" +		"      new CompilationUnitResult(null, i, <CompleteOnName:max>);\n" + 
+		"      CompilationUnitResult unitResult = new CompilationUnitResult(null, i, <CompleteOnName:max>);\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -642,7 +642,7 @@ public void testBC_1FJ4GSG_1() {
 		"  public BC() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Vector v;\n" +		"    new Vector(Value1, <CompleteOnName:BC.>);\n" + 
+		"    Vector v = new Vector(Value1, <CompleteOnName:BC.>);\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -698,8 +698,7 @@ public void testBC_1FJ4GSG_2() {
 		"  public BC() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Vector v;\n" + 
-		"    (BC.Constants.OK | <CompleteOnName:BC.Constants.>);\n" + 
+		"    Vector v = (BC.Constants.OK | <CompleteOnName:BC.Constants.>);\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2058,7 +2057,7 @@ public void testGC_1FSHLHV_1() {
 		"  public GC() {\n" + 
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
-		"    Object l;\n" +		"    new <CompleteOnType:O>();\n" + 
+		"    Object l = new <CompleteOnType:O>();\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2464,7 +2463,7 @@ public void testHC_1FMPYO3_2() {
 		"  HC(Object o) {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    A a;\n" +		"    new A(new <CompleteOnType:O>());\n" + 
+		"    A a = new A(new <CompleteOnType:O>());\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -3597,7 +3596,7 @@ public void testMA_2() {
 		"      MemberMember() {\n" + 
 		"      }\n" + 
 		"      void fooMemberMember() {\n" + 
-		"        MemberOfCUMA m;\n" +		"        new <CompleteOnType:MemberOfCU>();\n" + 
+		"        MemberOfCUMA m = new <CompleteOnType:MemberOfCU>();\n" + 
 		"      }\n" + 
 		"    }\n" + 
 		"    class MemberMember2 {\n" + 
@@ -5736,8 +5735,7 @@ public void testTA_1FHISJJ_1() {
 		"  public TA() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] items;\n" + 
-		"    <CompleteOnName:n>;\n" + 
+		"    Object[] items = {<CompleteOnName:n>,};\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -6540,8 +6538,7 @@ public void testWA_1() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    int value;\n" + 
-		"    int[] tab;\n" + 
-		"    <CompleteOnName:v>;\n" + 
+		"    int[] tab = new int[<CompleteOnName:v>];\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -6959,7 +6956,7 @@ public void testX_1FGGV8C_3() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    new <CompleteOnType:Y>();\n" + 
+		"    new YZA[]{new <CompleteOnType:Y>(),};\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -7060,7 +7057,7 @@ public void testX_1FGGV8C_4() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    <CompleteOnName:n>;\n" + 
+		"    new Y[]{<CompleteOnName:n>,};\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -8242,7 +8239,7 @@ public void test006(){
 		"public class X {\n" +
 		"  <CompleteOnType:clon>;\n" + 
 		"  public X() {\n" +
-		"  }\n" +
+		"  }\n" +		"  foo() {\n" +		"  }\n" +
 		"}\n";
 
 	checkDietParse(

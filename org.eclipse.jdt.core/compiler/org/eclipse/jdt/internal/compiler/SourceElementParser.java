@@ -202,6 +202,7 @@ protected void consumeExitVariableWithInitialization() {
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
 	// do nothing by default
+	super.consumeExitVariableWithoutInitialization();
 	if (isLocalDeclaration() || ((currentToken != TokenNameCOMMA) && (currentToken != TokenNameSEMICOLON)))
 		return;
 	((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;

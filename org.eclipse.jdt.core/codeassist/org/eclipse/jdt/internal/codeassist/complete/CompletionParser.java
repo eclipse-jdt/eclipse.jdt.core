@@ -45,6 +45,10 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_RETURN_STATEMENT = COMPLETION_PARSER + 10; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = COMPLETION_PARSER + 11; // whether we are between ')' and the end of a cast statement
 	protected static final int K_OPERATOR = COMPLETION_PARSER + 12;
+	protected static final int K_LOCAL_INITIALIZER_DELIMITER = COMPLETION_PARSER + 13;
+	protected static final int K_ARRAY_INITIALIZER = COMPLETION_PARSER + 14;
+	protected static final int K_ARRAY_CREATION = COMPLETION_PARSER + 15;
+	protected static final int K_ASSISGNMENT_OPERATOR = COMPLETION_PARSER + 16;
 
 	/* public fields */
 
@@ -316,6 +320,78 @@ private void buildMoreCompletionContext(Expression expression) {
 //					assistNodeParent = operatorExpression;
 //				}
 				break nextElement;
+			case K_ARRAY_INITIALIZER :
+				ArrayInitializer arrayInitializer = new ArrayInitializer();
+				arrayInitializer.expressions = new Expression[]{expression};
+				expressionPtr -= expressionLengthStack[expressionLengthPtr--];
+				
+				if(expressionLengthPtr > -1
+					&& expressionPtr > -1
+					&& this.expressionStack[expressionPtr] != null
+					&& this.expressionStack[expressionPtr].sourceStart > info) {
+					expressionLengthPtr--;	
+				}
+					
+				lastCheckPoint = scanner.currentPosition;
+				
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_ARRAY_CREATION) {
+					ArrayAllocationExpression allocationExpression = new ArrayAllocationExpression();
+					allocationExpression.type = getTypeReference(0);
+					int length = expressionLengthStack[expressionLengthPtr];
+					allocationExpression.dimensions = new Expression[length];
+
+					allocationExpression.initializer = arrayInitializer;
+					assistNodeParent = allocationExpression;
+				} else if(currentElement instanceof RecoveredField) {
+					RecoveredField recoveredField = (RecoveredField) currentElement;
+					if(recoveredField.fieldDeclaration.type.dimensions() == 0) {
+						Block block = new Block(0);
+						block.sourceStart = info;
+						currentElement = currentElement.add(block, 1);
+					} else {
+						statement = arrayInitializer;
+					}
+				} else if(currentElement instanceof RecoveredLocalVariable) {
+					RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) currentElement;
+					if(recoveredLocalVariable.localDeclaration.type.dimensions() == 0) {
+						Block block = new Block(0);
+						block.sourceStart = info;
+						currentElement = currentElement.add(block, 1);
+					} else {
+						statement = arrayInitializer;
+					}
+				} else {
+					statement = arrayInitializer;
+				}
+				break nextElement;
+			case K_ARRAY_CREATION :
+				ArrayAllocationExpression allocationExpression = new ArrayAllocationExpression();
+				allocationExpression.type = getTypeReference(0);
+				allocationExpression.dimensions = new Expression[]{expression};
+				
+				assistNodeParent = allocationExpression;
+				break nextElement;
+			case K_ASSISGNMENT_OPERATOR :
+				if(expressionPtr > 0 && expressionStack[expressionPtr - 1] != null) {
+					Assignment assignment;
+					if(info == EQUAL) {
+						assignment = new Assignment(
+							expressionStack[expressionPtr - 1],
+							expression,
+							expression.sourceEnd
+						);
+					} else {
+						assignment = new CompoundAssignment(
+							expressionStack[expressionPtr - 1],
+							expression,
+							info,
+							expression.sourceEnd
+						);
+					}
+					assistNodeParent = assignment;
+				}
+				break nextElement;
+				
 		}
 	}
 	if(assistNodeParent != null) {
@@ -738,6 +814,18 @@ public void completionIdentifierCheck(){
 	} finally {
 	}
 }
+protected void consumeArrayCreationExpression() {
+	super.consumeArrayCreationExpression();
+	popElement(K_ARRAY_CREATION);
+}
+protected void consumeAssignment() {
+	popElement(K_ASSISGNMENT_OPERATOR);
+	super.consumeAssignment();
+}
+protected void consumeAssignmentOperator(int pos) {
+	super.consumeAssignmentOperator(pos);
+	pushOnElementStack(K_ASSISGNMENT_OPERATOR, pos);
+}
 protected void consumeBinaryExpression(int op) {
 	super.consumeBinaryExpression(op);
 	popElement(K_OPERATOR);
@@ -873,7 +961,12 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		this.pushCompletionOnMemberAccessOnExpressionStack(isSuperAccess);
 	}
 }
-
+protected void consumeForceNoDiet() {
+	super.consumeForceNoDiet();
+	if (isInsideMethod()) {
+		pushOnElementStack(K_LOCAL_INITIALIZER_DELIMITER);
+	}
+}
 protected void consumeFormalParameter() {
 	if (this.indexOfAssistIdentifier() < 0) {
 		super.consumeFormalParameter();
@@ -1032,6 +1125,12 @@ protected void consumeModifiers() {
 	this.lastModifiersStart = intStack[intPtr];
 	this.lastModifiers = 	intStack[intPtr-1];
 }
+protected void consumeRestoreDiet() {
+	super.consumeRestoreDiet();
+	if (isInsideMethod()) {
+		popElement(K_LOCAL_INITIALIZER_DELIMITER);
+	}
+}
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
 	if(!isInsideBlock()) pushOnElementStack(K_BLOCK_DELIMITER);
@@ -1049,10 +1148,17 @@ protected void consumeToken(int token) {
 				popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
 				break;
 			case TokenNameLBRACKET:
-				popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_NEW_AND_LEFT_BRACKET) {
+					popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
+					pushOnElementStack(K_ARRAY_CREATION);
+				}
 				break;
 			case TokenNameRBRACE:
-				popElement(K_BLOCK_DELIMITER);
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER) {
+					popElement(K_BLOCK_DELIMITER);
+				} else {
+					popElement(K_ARRAY_INITIALIZER);	
+				}
 				break;
 		}
 	}
@@ -1156,7 +1262,14 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACE:
 				this.bracketDepth++;
-				pushOnElementStack(K_BLOCK_DELIMITER);
+				int kind;
+				if((kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) == K_FIELD_INITIALIZER_DELIMITER
+					|| kind == K_LOCAL_INITIALIZER_DELIMITER
+					|| kind == K_ARRAY_CREATION) {
+					pushOnElementStack(K_ARRAY_INITIALIZER, endPosition);
+				} else {
+					pushOnElementStack(K_BLOCK_DELIMITER);
+				}
 				break;
 			case TokenNameLBRACKET:
 				this.bracketDepth++;
@@ -1530,8 +1643,12 @@ protected boolean resumeAfterRecovery() {
 			}
 			*/			
 			/* restart in diet mode for finding sibling constructs */
-			if (currentElement.enclosingType() != null){
-				lastCheckPoint = this.assistNode.sourceEnd+1;
+			if (currentElement instanceof RecoveredType
+				|| currentElement.enclosingType() != null){
+					
+				if(lastCheckPoint <= this.assistNode.sourceEnd) {
+					lastCheckPoint = this.assistNode.sourceEnd+1;
+				}
 				int end = currentElement.topElement().sourceEnd();
 				scanner.eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 			} else {
@@ -1568,6 +1685,8 @@ protected void updateRecoveryState() {
 		got activated once. 
 	*/
 	this.recoveryTokenCheck();
+	
+	this.recoveryExitFromVariable();
 }
 
 protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
