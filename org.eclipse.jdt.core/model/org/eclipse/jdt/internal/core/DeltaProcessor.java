@@ -1453,7 +1453,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 				}
 				
 				// traverse delta
-				if (!this.traverseDelta(delta, elementType, rootInfo, null) 
+				this.traverseDelta(delta, elementType, rootInfo, null);
+				
+				if (elementType == NON_JAVA_RESOURCE
 						|| (wasJavaProject != isJavaProject && (delta.getKind()) == IResourceDelta.CHANGED)) { // project has changed nature (description or open/closed)
 					try {
 						// add child as non java resource
@@ -1769,11 +1771,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	/**
 	 * Converts an <code>IResourceDelta</code> and its children into
 	 * the corresponding <code>IJavaElementDelta</code>s.
-	 * Return whether the delta corresponds to a java element.
-	 * If it is not a java element, it will be added as a non-java
-	 * resource by the sender of this method.
 	 */
-	protected boolean traverseDelta(
+	protected void traverseDelta(
 		IResourceDelta delta, 
 		int elementType, 
 		RootInfo rootInfo,
@@ -1845,8 +1844,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 				boolean isNestedRoot = rootInfo != null && childRootInfo != null;
 				if (!isResFilteredFromOutput 
 						&& !isNestedRoot) { // do not treat as non-java rsc if nested root
-					if (!this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
-						// it is a non-java resource
+
+					this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo); // traverse delta for child in the same project
+
+					if (childType == NON_JAVA_RESOURCE) {
 						try {
 							if (rootInfo != null) { // if inside a package fragment root
 								if (!isValidParent) continue; 
@@ -1892,7 +1893,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 				if (isNestedRoot 
 						|| (childRootInfo == null && (childRootInfo = this.rootInfo(childPath, childKind)) != null)) {
 					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, childRootInfo, null); // binary output of childRootInfo.project cannot be this root
-					// NB: No need to check the return value as the child can only be on the classpath
 				}
 	
 				// if the child is a package fragment root of one or several other projects
@@ -1924,10 +1924,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 				}
 			} // else resource delta will be added by parent
-			return elementType != NON_JAVA_RESOURCE; // TODO: (jerome) do we still need to return? (check could be done by caller)
-		} else {
-			return elementType != NON_JAVA_RESOURCE;
-		}
+		} // else resource delta will be added by parent
 	}
 
 	/**
