@@ -1042,4 +1042,16 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				bindings);
 	}
 	
+	/*
+	 * Ensures that a parameterized type binding with a wildcard that extends an array the can be created using its key in batch creation.
+	 */
+	public void test050() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {"Ljava/lang/Class<+[Ljava/lang/Object;>;"});
+		assertBindingsEqual(
+				"Ljava/lang/Class<+[Ljava/lang/Object;>;", 
+				bindings);
+	}
+	
 }
