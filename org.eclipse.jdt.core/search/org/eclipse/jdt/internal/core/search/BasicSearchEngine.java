@@ -566,14 +566,14 @@ public class BasicSearchEngine {
 							}
 							char[] simpleName = type.getElementName().toCharArray();
 							int kind;
-							if (type.isClass()) {
-								kind = IGenericType.CLASS_DECL;
-							} else if (type.isInterface()) {
-								kind = IGenericType.INTERFACE_DECL;
-							} else if (type.isEnum()) {
+							if (type.isEnum()) {
 								kind = IGenericType.ENUM_DECL;
-							} else /*if (type.isAnnotation())*/ {
+							} else if (type.isAnnotation()) {
 								kind = IGenericType.ANNOTATION_TYPE_DECL;
+							}	else if (type.isClass()) {
+								kind = IGenericType.CLASS_DECL;
+							} else /*if (type.isInterface())*/ {
+								kind = IGenericType.INTERFACE_DECL;
 							}
 							if (match(typeSuffix, packageName, typeName, matchRule, kind, packageDeclaration, simpleName)) {
 								switch(kind) {

@@ -660,9 +660,13 @@ public boolean isEnum() throws JavaModelException {
  */
 public boolean isInterface() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	return info.getKind() == IGenericType.INTERFACE_DECL;
+	switch (info.getKind()) {
+		case IGenericType.INTERFACE_DECL:
+		case IGenericType.ANNOTATION_TYPE_DECL: // annotation is interface too
+			return true;
+	}
+	return false;
 }
-
 /**
  * @see IType#isAnnotation()
  * @since 3.0
@@ -911,7 +915,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		toStringName(buffer);
 	} else {
 		try {
-			if (this.isInterface()) {
+			if (this.isAnnotation()) {
+				buffer.append("@interface "); //$NON-NLS-1$
+			} else if (this.isEnum()) {
+				buffer.append("enum "); //$NON-NLS-1$
+			} else if (this.isInterface()) {
 				buffer.append("interface "); //$NON-NLS-1$
 			} else {
 				buffer.append("class "); //$NON-NLS-1$

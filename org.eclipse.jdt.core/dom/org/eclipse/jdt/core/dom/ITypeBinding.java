@@ -154,6 +154,9 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns whether this type binding represents an interface type.
+	 * <p>
+	 * Note that an interface can also be an annotation type.
+	 * </p>
 	 *
 	 * @return <code>true</code> if this object represents an interface,
 	 *    and <code>false</code> otherwise
@@ -175,6 +178,9 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns whether this type binding represents an annotation type.
+	 * <p>
+	 * Note that an annotation type is always an interface.
+	 * </p>
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
 	 * release of J2SE is tentative and subject to change.

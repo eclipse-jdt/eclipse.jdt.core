@@ -192,7 +192,6 @@ public class BinaryTypeConverter {
 			}
 		}
 		boolean isInterface = type.isInterface();
-		boolean isAnnotation = type.isAnnotation();
 		neededCount = isInterface ? 0 : neededCount;
 		typeDeclaration.methods = new AbstractMethodDeclaration[methodCount + neededCount];
 		if (neededCount != 0) { // add default constructor in first position
@@ -202,7 +201,7 @@ public class BinaryTypeConverter {
 		for (int i = 0; i < methodCount; i++) {
 			AbstractMethodDeclaration method =convert(methods[i], type, compilationResult);
 			boolean isAbstract;
-			if ((isAbstract = method.isAbstract()) || isInterface || isAnnotation) { // fix-up flag 
+			if ((isAbstract = method.isAbstract()) || isInterface) { // fix-up flag 
 				method.modifiers |= CompilerModifiers.AccSemicolonBody;
 			}
 			if (isAbstract) {

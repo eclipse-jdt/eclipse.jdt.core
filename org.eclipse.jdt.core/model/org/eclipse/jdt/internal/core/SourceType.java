@@ -515,8 +515,8 @@ public boolean isAnonymous() {
  * @see IType
  */
 public boolean isClass() throws JavaModelException {
-	// TODO (jerome) - isClass should only return true for classes other than enum classes
-	return !isInterface();
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	return info.getKind() == IGenericType.CLASS_DECL;
 }
 
 /**
@@ -533,7 +533,12 @@ public boolean isEnum() throws JavaModelException {
  */
 public boolean isInterface() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	return info.getKind() == IGenericType.INTERFACE_DECL;
+	switch (info.getKind()) {
+		case IGenericType.INTERFACE_DECL:
+		case IGenericType.ANNOTATION_TYPE_DECL: // annotation is interface too
+			return true;
+	}
+	return false;
 }
 
 /**
@@ -847,7 +852,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		}
 	} else {
 		try {
-			if (this.isInterface()) {
+			if (this.isEnum()) {
+				buffer.append("enum "); //$NON-NLS-1$
+			} else if (this.isAnnotation()) {
+				buffer.append("@interface "); //$NON-NLS-1$
+			} else if (this.isInterface()) {
 				buffer.append("interface "); //$NON-NLS-1$
 			} else {
 				buffer.append("class "); //$NON-NLS-1$

@@ -706,9 +706,7 @@ public interface IType extends IMember {
 	/**
 	 * Returns whether this type represents a class.
 	 * <p>
-	 * Note that <code>isClass</code>, <code>isInterface</code>,
-	 * <code>isEnum</code>, and <code>isAnnotation</code> are
-	 * mutually exclusive.
+	 * Note that a class can neither be an interface, an enumeration class, nor an annotation type.
 	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
@@ -720,9 +718,7 @@ public interface IType extends IMember {
 	/**
 	 * Returns whether this type represents an enumeration class.
 	 * <p>
-	 * Note that <code>isClass</code>, <code>isInterface</code>,
-	 * <code>isEnum</code>, and <code>isAnnotation</code> are
-	 * mutually exclusive.
+	 * Note that an enumeration class can neither be a class, an interface, nor an annotation type.
 	 * </p>
 	 * 
 	 * @exception JavaModelException if this element does not exist or if an
@@ -736,9 +732,7 @@ public interface IType extends IMember {
 	/**
 	 * Returns whether this type represents an interface.
 	 * <p>
-	 * Note that <code>isClass</code>, <code>isInterface</code>,
-	 * <code>isEnum</code>, and <code>isAnnotation</code> are
-	 * mutually exclusive.
+	 * Note that an interface can also be an annotation type, but it can neither be a class nor an enumeration class.
 	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
@@ -750,9 +744,7 @@ public interface IType extends IMember {
 	/**
 	 * Returns whether this type represents an annotation type.
 	 * <p>
-	 * Note that <code>isClass</code>, <code>isInterface</code>,
-	 * <code>isEnum</code>, and <code>isAnnotation</code> are
-	 * mutually exclusive.
+	 * Note that an annotation type is also an interface, but it can neither be a class nor an enumeration class. 
 	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
