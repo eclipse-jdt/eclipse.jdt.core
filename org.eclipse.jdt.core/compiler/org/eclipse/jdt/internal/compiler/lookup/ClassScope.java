@@ -368,6 +368,11 @@ public class ClassScope extends Scope {
 					modifiers |= AccStatic;
 			}
 		} else if (sourceType.isLocalType()) {
+			if (sourceType.isEnum()) {
+				problemReporter().illegalLocalTypeDeclaration(referenceContext);
+				sourceType.modifiers = 0;
+				return;
+			}
 			if (sourceType.isAnonymousType()) {
 			    modifiers |= AccFinal;
 			    // set AccEnum flag for anonymous body of enum constants
@@ -451,7 +456,7 @@ public class ClassScope extends Scope {
 				int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccStatic | AccStrictfp | AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberEnum(sourceType);
-			} else if (sourceType.isLocalType()) {
+			} else if (sourceType.isLocalType()) { // each enum constant is an anonymous local type
 				int unexpectedModifiers = ~(AccStrictfp | AccFinal | AccEnum); // add final since implicitly set for anonymous type
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForLocalEnum(sourceType);
