@@ -151,7 +151,7 @@ public final class CompletionEngine
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 		} else
 			if (!insideQualifiedReference) {
-				if (mustQualifyType(CharOperation.splitOn('.', packageName), completionName)) {
+				if (mustQualifyType(packageName, className)) {
 					if (packageName == null || packageName.length == 0)
 						if (unitScope != null && unitScope.fPackage.compoundName != NoCharChar)
 							return; // ignore types from the default package from outside it
@@ -192,7 +192,7 @@ public final class CompletionEngine
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 		} else
 			if (!insideQualifiedReference) {
-				if (mustQualifyType(CharOperation.splitOn('.', packageName), completionName)) {
+				if (mustQualifyType(packageName, interfaceName)) {
 					if (packageName == null || packageName.length == 0)
 						if (unitScope != null && unitScope.fPackage.compoundName != NoCharChar)
 							return; // ignore types from the default package from outside it
@@ -252,7 +252,7 @@ public final class CompletionEngine
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 		} else
 			if (!insideQualifiedReference) {
-				if (mustQualifyType(CharOperation.splitOn('.', packageName), completionName)) {
+				if (mustQualifyType(packageName, typeName)) {
 					if (packageName == null || packageName.length == 0)
 						if (unitScope != null && unitScope.fPackage.compoundName != NoCharChar)
 							return; // ignore types from the default package from outside it
@@ -1447,9 +1447,9 @@ public final class CompletionEngine
 					completion.append(AstNode.modifiersString(insertedModifiers));
 				}
 				char[] returnPackageName = method.returnType.qualifiedPackageName();
-				char[] returnTypeName = CharOperation.concat(returnPackageName,method.returnType.qualifiedSourceName(),'.') ;
-				if(mustQualifyType(CharOperation.splitOn('.', returnPackageName), returnTypeName)) {
-					completion.append(returnTypeName);
+				char[] returnTypeName = method.returnType.qualifiedSourceName();
+				if(mustQualifyType(returnPackageName, returnTypeName)) {
+					completion.append(CharOperation.concat(returnPackageName, returnTypeName,'.'));
 				} else {
 					completion.append(method.returnType.sourceName());
 				}
@@ -1458,9 +1458,8 @@ public final class CompletionEngine
 				completion.append('(');
 
 				for(int i = 0; i < length ; i++){
-					char[] completeParameterTypeName = CharOperation.concat(parameterPackageNames[i], parameterTypeNames[i], '.');
-					if(mustQualifyType(CharOperation.splitOn('.',parameterPackageNames[i]), completeParameterTypeName)){
-						completion.append(completeParameterTypeName);
+					if(mustQualifyType(parameterPackageNames[i], parameterTypeNames[i])){
+						completion.append(CharOperation.concat(parameterPackageNames[i], parameterTypeNames[i], '.'));
 					} else {
 						completion.append(parameterTypeNames[i]);
 					}
@@ -1485,15 +1484,15 @@ public final class CompletionEngine
 						ReferenceBinding exception = exceptions[i];
 
 						char[] exceptionPackageName = exception.qualifiedPackageName();
-						char[] exceptionTypeName = CharOperation.concat(exceptionPackageName, exception.qualifiedSourceName());
+						char[] exceptionTypeName = exception.qualifiedSourceName();
 						
 						if(i != 0){
 							completion.append(',');
 							completion.append(' ');
 						}
 						
-						if(mustQualifyType(CharOperation.splitOn('.',exceptionPackageName), exceptionTypeName)){
-							completion.append(exceptionTypeName);
+						if(mustQualifyType(exceptionPackageName, exceptionTypeName)){
+							completion.append(CharOperation.concat(exceptionPackageName, exceptionTypeName));
 						} else {
 							completion.append(exception.sourceName());
 						}
@@ -2039,14 +2038,17 @@ public final class CompletionEngine
 	}
 
 	private boolean mustQualifyType(
-		char[][] packageName,
-		char[] readableTypeName) {
+		char[] packageName,
+		char[] typeName) {
 
 		// If there are no types defined into the current CU yet.
 		if (unitScope == null)
 			return true;
+			
+		char[][] compoundPackageName = CharOperation.splitOn('.', packageName);
+		char[] readableTypeName = CharOperation.concat(packageName, typeName, '.');
 
-		if (CharOperation.equals(unitScope.fPackage.compoundName, packageName))
+		if (CharOperation.equals(unitScope.fPackage.compoundName, compoundPackageName))
 			return false;
 
 		ImportBinding[] imports = unitScope.imports;
@@ -2054,9 +2056,22 @@ public final class CompletionEngine
 		for (int i = 0, length = imports.length; i < length; i++) {
 
 			if (imports[i].onDemand) {
-
-				if (CharOperation.equals(imports[i].compoundName, packageName))
+				if (CharOperation.equals(imports[i].compoundName, compoundPackageName)) {
+					for (int j = 0; j < imports.length; j++) {
+						if(i != j){
+							if(imports[j].onDemand) {
+								if(nameEnvironment.findType(typeName, imports[j].compoundName) != null){
+									return true;
+								}
+							} else {
+								if(CharOperation.endsWith(imports[j].readableName(), typeName)) {
+									return true;	
+								}
+							}
+						}
+					}
 					return false; // how do you match p1.p2.A.* ?
+				}
 
 			} else
 

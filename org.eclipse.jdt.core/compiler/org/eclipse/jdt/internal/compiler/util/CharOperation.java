@@ -230,6 +230,19 @@ public static final char[][] deepCopy(char[][] toCopy) {
 	}
 	return result;
 }
+
+public static final boolean endsWith(char[] array, char[] toBeFound) {
+	int i = toBeFound.length;
+	int j = array.length - i;
+	
+	if (j < 0)
+		return false;
+	while (--i >= 0)
+		if (toBeFound[i] != array[i + j])
+			return false;
+	return true;
+}
+
 public static final boolean equals(char[][] first, char[][] second) {
 	if (first == second)
 		return true;
