@@ -525,10 +525,10 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS = PLUGIN_ID + ".classpath.multipleOutputLocations"; //$NON-NLS-1$
 	/**
-	 * Default task tag
+	 * Default task tags
 	 * @since 2.1
 	 */
-	public static final String DEFAULT_TASK_TAG = "TODO"; //$NON-NLS-1$
+	public static final String DEFAULT_TASK_TAG = "TODO,FIXME,XXX"; //$NON-NLS-1$
 	/**
 	 * Default task priority
 	 * @since 2.1
@@ -1754,7 +1754,7 @@ public final class JavaCore extends Plugin {
 	 *    be detected either for tag "ToDo" or "ToDo:").
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskTags"
 	 *     - possible values:   { "&lt;tag&gt;[,&lt;tag&gt;]*" } where &lt;tag&gt; is a String without any wild-card or leading/trailing spaces 
-	 *     - default:           ""
+	 *     - default:           "TODO,FIXME,XXX"
 	 * 
 	 * COMPILER / Define the Automatic Task Priorities
 	 *    In parallel with the Automatic Task Tags, this list defines the priorities (high, normal or low)
