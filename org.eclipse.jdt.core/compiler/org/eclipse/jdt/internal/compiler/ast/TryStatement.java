@@ -355,13 +355,12 @@ public void resolve(BlockScope upperScope) {
 		finallyScope.addLocalVariable(this.anyExceptionVariable);
 		this.anyExceptionVariable.constant = NotAConstant; // not inlinable
 
-		this.secretReturnValue = new LocalVariableBinding(
-			SecretLocalDeclarationName, 
-			((AbstractMethodDeclaration)methodScope.referenceContext).binding.returnType, 
-			AccDefault);
-		finallyScope.addLocalVariable(this.secretReturnValue);
-		this.secretReturnValue.constant = NotAConstant; // not inlinable
-
+		TypeBinding methodReturnType = ((AbstractMethodDeclaration)methodScope.referenceContext).binding.returnType;
+		if (methodReturnType.id != T_void){
+			this.secretReturnValue = new LocalVariableBinding(SecretLocalDeclarationName, methodReturnType, AccDefault);
+			finallyScope.addLocalVariable(this.secretReturnValue);
+			this.secretReturnValue.constant = NotAConstant; // not inlinable
+		}
 		finallyBlock.resolveUsing(finallyScope);
 		// force the finally scope to have variable positions shifted after its try scope.
 		finallyScope.shiftScope = tryScope; 
