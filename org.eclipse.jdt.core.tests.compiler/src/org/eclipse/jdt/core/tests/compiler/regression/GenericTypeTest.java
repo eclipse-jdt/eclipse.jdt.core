@@ -7806,4 +7806,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Bound mismatch: The type Object is not a valid substitute for the bounded parameter <U extends Iterable> of the type X<T>.MX<U>\n" + 
 			"----------\n");
 	}		
+	public void test292() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"	class Y {\n" + 
+				"		class Z<U> {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<Object>.Y.Z<Object> zo;\n" + 
+				"	}\n" + 
+				"}\n"	
+			},
+			"");
+	}		
 }
