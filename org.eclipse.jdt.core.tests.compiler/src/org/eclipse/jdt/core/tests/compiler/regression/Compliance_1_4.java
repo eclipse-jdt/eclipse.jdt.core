@@ -235,7 +235,7 @@ public void test008() {
 		"----------\n" + 
 		"2. ERROR in p1\\Test.java (at line 3)\n" + 
 		"	import Test2.Member;	\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
+		"	       ^^^^^\n" + 
 		"The import Test2 cannot be resolved\n" + 
 		"----------\n"
 	);

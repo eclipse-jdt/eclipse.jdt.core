@@ -1386,14 +1386,11 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 			needImplementation(); // want to fail to see why we were here...
 			return;
 	}
-	String argument;
-	if(expectedImport instanceof ProblemReferenceBinding) {
-		argument = CharOperation.toString(((ProblemReferenceBinding)expectedImport).compoundName);
-	} else {
-		argument = CharOperation.toString(importRef.tokens);
-	}
-	String[] arguments = new String[]{argument};
-	this.handle(id, arguments, arguments, importRef.sourceStart, importRef.sourceEnd);
+	char[][] tokens = expectedImport instanceof ProblemReferenceBinding
+		? ((ProblemReferenceBinding) expectedImport).compoundName
+		: importRef.tokens;
+	String[] arguments = new String[]{CharOperation.toString(tokens)};
+	this.handle(id, arguments, arguments, importRef.sourceStart, (int) importRef.sourcePositions[tokens.length - 1]);
 }
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
 	if (type == currentMethod.declaringClass) {
@@ -1503,9 +1500,8 @@ public void indirectAccessToStaticField(QualifiedNameReference qualifiedNameRefe
 	int sourceStart = qualifiedNameReference.sourceStart;
 	int sourceEnd = qualifiedNameReference.sourceEnd;
 	final int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding;
-	if (indexOfFirstFieldBinding >= 1) {
+	if (indexOfFirstFieldBinding >= 1)
 		sourceEnd = (int) qualifiedNameReference.sourcePositions[indexOfFirstFieldBinding - 1];
-	}
 	this.handle(
 		IProblem.IndirectAccessToStaticField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
@@ -1854,7 +1850,7 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 				CharOperation.toString(CharOperation.subarray(nameRef.tokens, 0, index)),
 				new String(nameRef.tokens[index])},
 			nameRef.sourceStart,
-			nameRef.sourceEnd);
+			(int) nameRef.sourcePositions[index]);
 		return;
 	}
 
@@ -1901,7 +1897,7 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 		arguments,
 		arguments,
 		nameRef.sourceStart, 
-		nameRef.sourceEnd); 
+		(int) nameRef.sourcePositions[index]);
 }
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 	// CODE should be UPDATED according to error coding in the different method binding errors
