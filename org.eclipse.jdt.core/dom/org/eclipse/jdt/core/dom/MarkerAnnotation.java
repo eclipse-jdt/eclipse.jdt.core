@@ -121,9 +121,9 @@ public final class MarkerAnnotation extends Annotation {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		MarkerAnnotation result = new MarkerAnnotation(target);
-		result.setSourceRange(getStartPosition(), getLength());
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setTypeName((Name) ASTNode.copySubtree(target, getTypeName()));
 		return result;
 	}

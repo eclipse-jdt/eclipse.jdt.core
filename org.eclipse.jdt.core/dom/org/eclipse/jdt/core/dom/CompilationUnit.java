@@ -15,9 +15,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.core.dom.rewrite.RewriteException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Java compilation unit AST node type. This is the type of the root of an AST.
@@ -256,7 +260,7 @@ public class CompilationUnit extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		CompilationUnit result = new CompilationUnit(target);
 		// n.b do not copy line number table or messages
 		result.setSourceRange(this.getStartPosition(), this.getLength());
@@ -786,6 +790,34 @@ public class CompilationUnit extends ASTNode {
 			}
 		}
 		return size;
+	}
+	
+	/**
+	 * Enable the record of AST modifications for this compilation unit.
+	 * Recording can not be disabled.
+	 *
+	 * @throws RewriteException if AST is already modified
+	 * @throws RewriteException if record is already enabled
+	 * @throws RewriteException if the compilation unit is unmodifiable.
+	 * 
+	 * @since 3.0
+	 */
+	public void recordModifications() throws RewriteException {
+		getAST().recordModifications(this);
+	}
+	
+	/**
+	 * Performs the rewrite: The ast modifications are translated to the corresponding
+	 * in text changes. 
+	 * @param document original document
+	 * @param options options
+	 * @return edit describing the text changes
+	 * @throws RewriteException if modifications record is not enabled.
+	 * 
+	 * @since 3.0
+	 */
+	public TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+		return getAST().rewrite(document, options);
 	}
 }
 

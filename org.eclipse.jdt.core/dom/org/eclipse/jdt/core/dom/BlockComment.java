@@ -89,7 +89,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		BlockComment result = new BlockComment(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		return result;

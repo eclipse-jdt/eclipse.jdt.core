@@ -145,9 +145,9 @@ public final class SingleMemberAnnotation extends Annotation {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		SingleMemberAnnotation result = new SingleMemberAnnotation(target);
-		result.setSourceRange(getStartPosition(), getLength());
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setTypeName((Name) ASTNode.copySubtree(target, getTypeName()));
 		result.setValue((Expression) ASTNode.copySubtree(target, getValue()));
 		return result;

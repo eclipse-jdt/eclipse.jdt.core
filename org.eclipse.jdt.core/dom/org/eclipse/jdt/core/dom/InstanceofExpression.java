@@ -131,7 +131,7 @@ public class InstanceofExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		InstanceofExpression result = new InstanceofExpression(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));

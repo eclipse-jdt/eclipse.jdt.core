@@ -135,7 +135,7 @@ public class ArrayAccess extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		ArrayAccess result = new ArrayAccess(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setArray((Expression) getArray().clone(target));

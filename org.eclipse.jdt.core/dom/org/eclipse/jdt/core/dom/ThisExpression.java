@@ -115,7 +115,7 @@ public class ThisExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		ThisExpression result = new ThisExpression(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));

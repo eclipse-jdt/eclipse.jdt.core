@@ -1068,7 +1068,7 @@ public abstract class ASTNode {
 	 * information is recorded for this node; <code>0</code> by default.
 	 */
 	private int length = 0;
-
+	
 	/**
 	 * Flag constant (bit mask, value 1) indicating that there is something
 	 * not quite right with this AST node.
@@ -1295,6 +1295,7 @@ public abstract class ASTNode {
 			}
 			ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk, this.propertyDescriptor.elementType);
 			ASTNode.this.ast.preReplaceChildEvent(ASTNode.this, oldChild, newChild, this.propertyDescriptor);
+			
 			Object result = this.store.set(index, newChild);
 			// n.b. setParent will call ast.modifying()
 			oldChild.setParent(null, null);
@@ -1318,6 +1319,8 @@ public abstract class ASTNode {
 			ASTNode newChild = (ASTNode) element;
 			ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk, this.propertyDescriptor.elementType);
 			ASTNode.this.ast.preAddChildEvent(ASTNode.this, newChild, this.propertyDescriptor);
+			
+			
 			this.store.add(index, element);
 			updateCursors(index, +1);
 			// n.b. setParent will call ast.modifying()
@@ -1339,6 +1342,7 @@ public abstract class ASTNode {
 				// old child is protected => cannot be unparented
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
+			
 			ASTNode.this.ast.preRemoveChildEvent(ASTNode.this, oldChild, this.propertyDescriptor);
 			// n.b. setParent will call ast.modifying()
 			oldChild.setParent(null, null);
@@ -1454,7 +1458,9 @@ public abstract class ASTNode {
 		if (ast == null) {
 			throw new IllegalArgumentException();
 		}
+		
 		this.ast = ast;
+		this.flags = ast.getDefaultNodeFlag();
 		this.ast.modifying();
 	}
 	
@@ -1878,7 +1884,7 @@ public abstract class ASTNode {
 			l.remove(this);
 		}
 	}
-	
+
 	/**
 	 * Checks whether the given new child node is a node 
 	 * in a different AST from its parent-to-be, whether it is
@@ -1987,7 +1993,9 @@ public abstract class ASTNode {
 			}
 			oldChild.setParent(null, null);
 		} else {
-			this.ast.preAddChildEvent(this, newChild, property);
+			if(newChild != null) {
+				this.ast.preAddChildEvent(this, newChild, property);
+			}
 		}
 		// link new child to parent
 		if (newChild != null) {
@@ -2012,7 +2020,9 @@ public abstract class ASTNode {
 				this.ast.postAddChildEvent(this, newChild, property);
 			}
 		} else {
-			this.ast.postRemoveChildEvent(this, oldChild, property);
+			if(newChild != null) {
+				this.ast.postRemoveChildEvent(this, oldChild, property);
+			}
 		}
 	}
 	
@@ -2405,7 +2415,14 @@ public abstract class ASTNode {
 	 * @param target the AST that is to own the nodes in the result
 	 * @return the root node of the copies subtree
 	 */
-	abstract ASTNode clone(AST target);
+	abstract ASTNode clone0(AST target);
+	
+	ASTNode clone(AST target) {
+		this.ast.preCloneNodeEvent(this);
+		ASTNode c = this.clone0(target);
+		this.ast.postCloneNodeEvent(this, c);
+		return c;
+	}
 
 	/**
 	 * Accepts the given visitor on a visit of the current node.

@@ -171,7 +171,7 @@ public class ArrayCreation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		ArrayCreation result = new ArrayCreation(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setType((ArrayType) getType().clone(target));

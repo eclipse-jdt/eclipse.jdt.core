@@ -22,8 +22,11 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Umbrella owner and abstract syntax tree node factory.
@@ -149,6 +152,14 @@ public final class AST {
 	 * <b>by one or more</b> as the AST is successively modified.
 	 */
 	private long modificationCount = 0;
+	
+	/**
+	 * Internal original modification count; value is equals to <code>
+	 * modificationCount</code> at the end of the parse (<code>ASTParser
+	 * </code>). If this ast is not created with a parser then value is 0.
+	 * @since 3.0
+	 */
+	private long originalModificationCount = 0;
 
 	/**
 	 * When disableEvents > 0, events are not reported and
@@ -167,7 +178,17 @@ public final class AST {
 	 * like CharacterLiteral, NumberLiteral, StringLiteral or SimpleName.
 	 */
 	Scanner scanner;
-
+	
+	/**
+	 * Internal ast rewriter used to record ast modification when record mode is enabled.
+	 */
+	InternalASTRewrite rewriter;
+	
+	/**
+	 * Default value of <code>flag<code> when a new node is created.
+	 */
+	private int defaultNodeFlag = 0;
+	
 	/**
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules. 
@@ -549,6 +570,18 @@ public final class AST {
 			// corrupted since node has already been changed
 		} finally {
 			this.disableEvents--;
+		}
+	}
+	
+	void preCloneNodeEvent(ASTNode node) {
+		if(this.rewriter != null) {
+			this.rewriter.preCloneNodeEvent(node);
+		}
+	}
+	
+	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
+		if(this.rewriter != null) {
+			this.rewriter.postCloneNodeEvent(node, clone);
 		}
 	}
 	
@@ -1473,6 +1506,35 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		this.eventHandler = eventHandler;
+	}
+	
+	/**
+	 * Returns default node flags of new nodes of this AST.
+	 * 
+	 * @return the default node flags of new nodes of this AST
+	 * @since 3.0
+	 */
+	int getDefaultNodeFlag() {
+		return this.defaultNodeFlag;
+	}
+	
+	/**
+	 * Sets default node flags of new nodes of this AST.
+	 * 
+	 * @param default node flags of new nodes of this AST
+	 * @since 3.0
+	 */
+	void setDefaultNodeFlag(int flag) {
+		this.defaultNodeFlag = flag;
+	}
+	
+	/**
+	 * Set <code>originalModificationCount</code> to the current modification count
+	 * 
+	 * @since 3.0
+	 */
+	void setOriginalModificationCount(long count) {
+		this.originalModificationCount = count;
 	}
 
 	/** 
@@ -3086,6 +3148,48 @@ public final class AST {
 	public MemberValuePair newMemberValuePair() {
 		MemberValuePair result = new MemberValuePair(this);
 		return result;
+	}
+	
+	/**
+	 * Enable the record of AST modifications. Recording can not be disabled.
+	 * @param root top level node of the recording.
+	 * @throws RewriteException if AST is already modified
+	 * @throws RewriteException if record is already enabled
+	 * @throws RewriteException if <code>root</code> is unmodifiable
+	 * @throws RewriteException if <code>root</code> is not owned by this AST
+	 * 
+	 * @see org.eclipse.jdt.core.dom.rewrite.NewASTRewrite
+	 * @see CompilationUnit#recordModifications()
+	 * @since 3.0
+	 */
+	void recordModifications(CompilationUnit root) throws RewriteException {
+		if(this.modificationCount != this.originalModificationCount) {
+			throw new RewriteException("AST is already modified"); //$NON-NLS-1$
+		} else if(this.rewriter  != null) {
+			throw new RewriteException("AST modifications are already recorded"); //$NON-NLS-1$
+		} else if((root.getFlags() & ASTNode.PROTECT) != 0) {
+			throw new RewriteException("Root node is unmodifiable"); //$NON-NLS-1$
+		} else if(root.getAST() != this) {
+			throw new RewriteException("Root node is not owned by this ast"); //$NON-NLS-1$
+		}
+		
+		this.rewriter = new InternalASTRewrite(root);
+		this.setEventHandler(this.rewriter);
+	}
+	
+	/**
+	 * Create edits
+	 * @param document original document
+	 * @return edits
+	 * @throws RewriteException if modifications record is not enabled.
+	 * 
+	 * @since 3.0
+	 */
+	TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+		if(this.rewriter  == null) {
+			throw new RewriteException("Modifications record is not enabled"); //$NON-NLS-1$
+		}
+		return this.rewriter.rewriteAST(document, options);
 	}
 }
 

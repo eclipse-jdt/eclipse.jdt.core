@@ -43,6 +43,47 @@ Eclipse SDK 3.0M8 Build - 23rd March 2004
 <h2>
 What's new in this drop</h2>
 <ul> 
+<li> Added rewriting support to DOM AST.
+There are two set of API to perform rewriting.
+<ul> 
+<li>An AST-modifying rewrite API<br>
+To use the AST-modifying rewrite the client must create an AST from an existing
+compilation unit (ASTParser#createAST(...)).
+Then the client need to start the record process of the AST changes (CompilationUnit#recordModifications())
+and modify the AST after. When modifications are done, the client can call a method to
+compute a text edit tree containing all the text changes (CompilationUnit#rewrite()).
+
+<pre>
+CompilationUnit
+	public void recordModifications()
+	public TextEdit rewrite(IDocument document, Map options) throws RewriteException
+</pre>
+</li>
+<li>A describing rewrite API<br>
+To use the describing AST rewrite, the client starts with creating an instance of NewASTRewrite. Then the client
+must not modify the AST directly but use NewASTRewrite instead. When modifications are done, the client can call
+a method to compute a text edit tree containing all the text changes (NewASTRewrite#rewrite()).
+<pre>
+NewASTRewrite
+	public final void markAsRemoved(ASTNode node, TextEditGroup editGroup)
+	public final void markAsReplaced(ASTNode node, ASTNode replacingNode, TextEditGroup editGroup)
+	public ListRewriter getListRewrite(ASTNode parent, ChildListPropertyDescriptor childProperty)
+	public TextEdit rewriteAST(IDocument document, Map options) throws RewriteException
+	...
+	
+ListRewriter
+	remove(ASTNode, TextEditGroup)
+	public void replace(ASTNode, ASTNode, TextEditGroup)
+	public void insertAfter(ASTNode, ASTNode, TextEditGroup)
+	public void insertBefore(ASTNode, ASTNode, TextEditGroup)
+	public void insertFirst(ASTNode, TextEditGroup)
+	public void insertLast(ASTNode, TextEditGroup)
+	public void insertAt(ASTNode, int, TextEditGroup)
+	...
+</pre>
+</li>
+</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

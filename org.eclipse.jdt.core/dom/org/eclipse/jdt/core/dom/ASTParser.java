@@ -683,6 +683,7 @@ public class ASTParser {
 	private ASTNode convert(IProgressMonitor monitor, CompilationUnitDeclaration compilationUnitDeclaration, char[] source, boolean needToResolveBindings) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(this.apiLevel);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit compilationUnit = null;
 		if (AST.LEVEL_2_0 == this.apiLevel) {
 			ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
@@ -698,6 +699,8 @@ public class ASTParser {
 		} else {
 			throw new RuntimeException("J2SE 1.5 parser not implemented yet"); //$NON-NLS-1$
 		}
+		ast.setDefaultNodeFlag(0);
+		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
 	}
 
@@ -777,6 +780,7 @@ public class ASTParser {
 		converter.scanner.setSource(this.rawSource);
 		
 		AST ast = AST.newAST(this.apiLevel);
+		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
@@ -800,12 +804,16 @@ public class ASTParser {
 						}
 					}
 					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return block;
 				} else {
 					IProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return compilationUnit;
 				}
 			case K_EXPRESSION :
@@ -819,12 +827,16 @@ public class ASTParser {
 				if (expression != null) {
 					Expression expression2 = converter.convert(expression);
 					rootNodeToCompilationUnit(expression2.getAST(), compilationUnit, expression2, codeSnippetParsingUtil.recordedParsingInformation);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return expression2;
 				} else {
 					IProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return compilationUnit;
 				}
 			case K_CLASS_BODY_DECLARATIONS :
@@ -838,12 +850,16 @@ public class ASTParser {
 				if (nodes != null) {
 					TypeDeclaration typeDeclaration = converter.convert(nodes);
 					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation);
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return typeDeclaration;
 				} else {
 					IProblem[] problems = recordedParsingInformation.problems;
 					if (problems != null) {
 						compilationUnit.setProblems(problems);
 					}
+					ast.setDefaultNodeFlag(0);
+					ast.setOriginalModificationCount(ast.modificationCount());
 					return compilationUnit;
 				}
 		}

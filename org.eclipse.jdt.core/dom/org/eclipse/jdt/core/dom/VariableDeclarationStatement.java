@@ -225,7 +225,7 @@ public class VariableDeclarationStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		VariableDeclarationStatement result = 
 			new VariableDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());

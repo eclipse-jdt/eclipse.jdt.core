@@ -146,9 +146,9 @@ public final class NormalAnnotation extends Annotation {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		NormalAnnotation result = new NormalAnnotation(target);
-		result.setSourceRange(getStartPosition(), getLength());
+		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setTypeName((Name) ASTNode.copySubtree(target, getTypeName()));
 		result.values().addAll(ASTNode.copySubtrees(target, values()));
 		return result;

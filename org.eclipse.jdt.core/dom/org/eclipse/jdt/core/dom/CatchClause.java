@@ -134,7 +134,7 @@ public class CatchClause extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	ASTNode clone(AST target) {
+	ASTNode clone0(AST target) {
 		CatchClause result = new CatchClause(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setBody((Block) getBody().clone(target));
