@@ -148,146 +148,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 
-
-
-	/**
-	 * Check whether the updated file is affecting some of the properties of a given project (like
-	 * its classpath persisted as a file).
-	 * Also force classpath problems to be refresh if not running in autobuild mode.
-	 * NOTE: It can induce resource changes, and cannot be called during POST_CHANGE notification.
-	 *
-	 */
-	public void performPreBuildCheck(
-		IResourceDelta delta,
-		IJavaElement parent) {
-	
-		IResource resource = delta.getResource();
-		IJavaElement element = JavaCore.create(resource);
-		boolean processChildren = false;
-	
-		switch (resource.getType()) {
-	
-			case IResource.ROOT :
-			case IResource.PROJECT :
-				if (delta.getKind() == IResourceDelta.CHANGED) {
-					processChildren = true;
-				}
-				break;
-			case IResource.FILE :
-				if (parent.getElementType() == IJavaElement.JAVA_PROJECT) {
-					IFile file = (IFile) resource;
-					JavaProject project = (JavaProject) parent;
-	
-					/* check classpath property file change */
-					QualifiedName classpathProp;
-					if (file.getName().equals(
-							project.computeSharedPropertyFileName(
-								classpathProp = project.getClasspathPropertyName()))) {
-	
-						switch (delta.getKind()) {
-							case IResourceDelta.REMOVED : // recreate one based on in-memory path
-								try {
-									project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
-								} catch (JavaModelException e) {
-									if (project.getProject().isAccessible()) {
-										Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
-									}
-								}
-								break;
-							case IResourceDelta.CHANGED :
-								if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
-									break; // only consider content change
-							case IResourceDelta.ADDED :
-								// check if any actual difference
-								project.flushClasspathProblemMarkers(false, true);
-								try {
-									// force to (re)read the property file
-									IClasspathEntry[] fileEntries = null;
-									try {
-										String fileClasspathString = project.loadClasspath();
-										if (fileClasspathString != null) {
-											fileEntries = project.readPaths(fileClasspathString);
-										}
-									} catch(JavaModelException e) {
-										if (project.getProject().isAccessible()) {
-											Util.log(e, 
-												"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
-												+"/.classpath, ignore change"); //$NON-NLS-1$
-										}
-										project.createClasspathProblemMarker(
-											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-											IMarker.SEVERITY_ERROR,
-											false,	//  cycle error
-											true);	//	file format error
-									} catch (IOException e) {
-										if (project.getProject().isAccessible()) {
-											Util.log(e, 
-												"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
-												+"/.classpath, ignore change"); //$NON-NLS-1$
-										}
-										project.createClasspathProblemMarker(
-											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-											IMarker.SEVERITY_ERROR,
-											false,	//  cycle error
-											true);	//	file format error
-									}
-									if (fileEntries == null)
-										break; // could not read, ignore 
-									if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries))
-										break;
-	
-									// will force an update of the classpath/output location based on the file information
-									// extract out the output location
-									IPath outputLocation = null;
-									if (fileEntries != null && fileEntries.length > 0) {
-										IClasspathEntry entry = fileEntries[fileEntries.length - 1];
-										if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-											outputLocation = entry.getPath();
-											IClasspathEntry[] copy = new IClasspathEntry[fileEntries.length - 1];
-											System.arraycopy(fileEntries, 0, copy, 0, copy.length);
-											fileEntries = copy;
-										}
-									}
-									// restore output location				
-									if (outputLocation == null) {
-										outputLocation = SetClasspathOperation.ReuseOutputLocation;
-									}
-									project.setRawClasspath(
-										fileEntries, 
-										outputLocation, 
-										null, // monitor
-										true, // canChangeResource
-										false, // forceSave
-										project.getResolvedClasspath(true), // ignoreUnresolvedVariable
-										true, // needCycleCheck
-										true); // needValidation
-								} catch (RuntimeException e) {
-									// setRawClasspath might fire a delta, and a listener may throw an exception
-									if (project.getProject().isAccessible()) {
-										Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
-									}
-									break;
-								} catch (CoreException e) {
-									// happens if the .classpath could not be written to disk
-									if (project.getProject().isAccessible()) {
-										Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
-									}
-									break;
-								}
-	
-						}
-					}
-				}
-				break;
-		}
-		if (processChildren) {
-			IResourceDelta[] children = delta.getAffectedChildren();
-			for (int i = 0; i < children.length; i++) {
-				performPreBuildCheck(children[i], element);
-			}
-		}
-	}
-
 	/**
 	 * Closes the given element, which removes it from the cache of open elements.
 	 */
@@ -1037,6 +897,145 @@ private JavaModelException newInvalidElementType() {
 		}
 		elementDelta.addResourceDelta(delta);
 	}
+	
+	/**
+	 * Check whether the updated file is affecting some of the properties of a given project (like
+	 * its classpath persisted as a file).
+	 * Also force classpath problems to be refresh if not running in autobuild mode.
+	 * NOTE: It can induce resource changes, and cannot be called during POST_CHANGE notification.
+	 *
+	 */
+	public void performPreBuildCheck(
+		IResourceDelta delta,
+		IJavaElement parent) {
+	
+		IResource resource = delta.getResource();
+		IJavaElement element = JavaCore.create(resource);
+		boolean processChildren = false;
+	
+		switch (resource.getType()) {
+	
+			case IResource.ROOT :
+			case IResource.PROJECT :
+				if (delta.getKind() == IResourceDelta.CHANGED) {
+					processChildren = true;
+				}
+				break;
+			case IResource.FILE :
+				if (parent.getElementType() == IJavaElement.JAVA_PROJECT) {
+					IFile file = (IFile) resource;
+					JavaProject project = (JavaProject) parent;
+	
+					/* check classpath property file change */
+					QualifiedName classpathProp;
+					if (file.getName().equals(
+							project.computeSharedPropertyFileName(
+								classpathProp = project.getClasspathPropertyName()))) {
+	
+						switch (delta.getKind()) {
+							case IResourceDelta.REMOVED : // recreate one based on in-memory path
+								try {
+									project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
+								} catch (JavaModelException e) {
+									if (project.getProject().isAccessible()) {
+										Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
+									}
+								}
+								break;
+							case IResourceDelta.CHANGED :
+								if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
+									break; // only consider content change
+							case IResourceDelta.ADDED :
+								// check if any actual difference
+								project.flushClasspathProblemMarkers(false, true);
+								try {
+									// force to (re)read the property file
+									IClasspathEntry[] fileEntries = null;
+									try {
+										String fileClasspathString = project.loadClasspath();
+										if (fileClasspathString != null) {
+											fileEntries = project.readPaths(fileClasspathString);
+										}
+									} catch(JavaModelException e) {
+										if (project.getProject().isAccessible()) {
+											Util.log(e, 
+												"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
+												+"/.classpath, ignore change"); //$NON-NLS-1$
+										}
+										project.createClasspathProblemMarker(
+											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+											IMarker.SEVERITY_ERROR,
+											false,	//  cycle error
+											true);	//	file format error
+									} catch (IOException e) {
+										if (project.getProject().isAccessible()) {
+											Util.log(e, 
+												"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
+												+"/.classpath, ignore change"); //$NON-NLS-1$
+										}
+										project.createClasspathProblemMarker(
+											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+											IMarker.SEVERITY_ERROR,
+											false,	//  cycle error
+											true);	//	file format error
+									}
+									if (fileEntries == null)
+										break; // could not read, ignore 
+									if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries))
+										break;
+	
+									// will force an update of the classpath/output location based on the file information
+									// extract out the output location
+									IPath outputLocation = null;
+									if (fileEntries != null && fileEntries.length > 0) {
+										IClasspathEntry entry = fileEntries[fileEntries.length - 1];
+										if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+											outputLocation = entry.getPath();
+											IClasspathEntry[] copy = new IClasspathEntry[fileEntries.length - 1];
+											System.arraycopy(fileEntries, 0, copy, 0, copy.length);
+											fileEntries = copy;
+										}
+									}
+									// restore output location				
+									if (outputLocation == null) {
+										outputLocation = SetClasspathOperation.ReuseOutputLocation;
+									}
+									project.setRawClasspath(
+										fileEntries, 
+										outputLocation, 
+										null, // monitor
+										true, // canChangeResource
+										false, // forceSave
+										project.getResolvedClasspath(true), // ignoreUnresolvedVariable
+										true, // needCycleCheck
+										true); // needValidation
+								} catch (RuntimeException e) {
+									// setRawClasspath might fire a delta, and a listener may throw an exception
+									if (project.getProject().isAccessible()) {
+										Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+									}
+									break;
+								} catch (CoreException e) {
+									// happens if the .classpath could not be written to disk
+									if (project.getProject().isAccessible()) {
+										Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+									}
+									break;
+								}
+	
+						}
+					}
+				}
+				break;
+		}
+		if (processChildren) {
+			IResourceDelta[] children = delta.getAffectedChildren();
+			for (int i = 0; i < children.length; i++) {
+				performPreBuildCheck(children[i], element);
+			}
+		}
+	}
+	
 	private void popUntilPrefixOf(IPath path) {
 		while (this.currentElement != null) {
 			IPath currentElementPath = null;
