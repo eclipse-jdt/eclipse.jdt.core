@@ -16,7 +16,8 @@ public abstract class NameReference extends Reference implements InvocationSite,
 
 	public Binding binding, codegenBinding; //may be aTypeBinding-aFieldBinding-aLocalVariableBinding
 	
-	public TypeBinding receiverType, actualReceiverType;
+	public TypeBinding receiverType;		// raw receiver type
+	public TypeBinding actualReceiverType;	// modified receiver type - actual one according to namelookup
 
 	//the error printing
 	//some name reference are build as name reference but
