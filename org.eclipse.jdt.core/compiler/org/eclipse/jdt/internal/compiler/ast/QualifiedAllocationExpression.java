@@ -315,10 +315,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return this.resolvedType = anonymousType.binding;
 		}
-		// TODO (philippe) no deprecation check?
 		if (enclosingInstance != null) {
-			if (!enclosingInstanceType.isCompatibleWith(inheritedBinding.declaringClass.enclosingType())) {
-				scope.problemReporter().typeMismatchError(enclosingInstanceType, inheritedBinding.declaringClass.enclosingType(), enclosingInstance);
+			ReferenceBinding targetEnclosing = inheritedBinding.declaringClass.enclosingType();
+			if (targetEnclosing == null) {
+				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, (ReferenceBinding)receiverType);
+				return this.resolvedType = anonymousType.binding;
+			} else 	if (!enclosingInstanceType.isCompatibleWith(targetEnclosing)) {
+				scope.problemReporter().typeMismatchError(enclosingInstanceType, targetEnclosing, enclosingInstance);
 				return this.resolvedType = anonymousType.binding;
 			}
 		}
