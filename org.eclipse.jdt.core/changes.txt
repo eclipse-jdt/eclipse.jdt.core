@@ -12,6 +12,7 @@ What's new in this drop (since 0.9)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GHU6O5: ITPJCORE:WINNT - RMIC test fail
 1GHH6O7: ITPJCORE:ALL - Need to tune the exception analysis for AssertStatement
 1GHUW7T: ITPJCORE:WIN2000 - Build Problem
 1GHU4PK: ITPJCORE:WINNT - NoSuchMethodError when running program
