@@ -40,7 +40,7 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 
 	protected int matchMode;
 	protected boolean isCaseSensitive;
-	protected boolean needsResolve;
+	protected boolean needsResolve = true;
 
 	/* match level */
 	public static final int IMPOSSIBLE_MATCH = 0;

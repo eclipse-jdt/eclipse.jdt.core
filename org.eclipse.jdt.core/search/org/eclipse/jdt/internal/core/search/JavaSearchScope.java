@@ -93,6 +93,15 @@ public void add(IJavaElement element) throws JavaModelException {
 		IResource resource = element.getUnderlyingResource();
 		if (resource != null && resource.isAccessible()) {
 			this.add(resource.getFullPath(), true);
+			
+			// find package fragment root including this java element
+			IJavaElement parent = element.getParent();
+			while (parent != null && !(parent instanceof IPackageFragmentRoot)) {
+				parent = parent.getParent();
+			}
+			if (parent instanceof IPackageFragmentRoot) {
+				root = (IPackageFragmentRoot)parent;
+			}
 		}	
 	}
 	

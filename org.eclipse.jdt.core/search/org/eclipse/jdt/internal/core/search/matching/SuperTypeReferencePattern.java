@@ -202,7 +202,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 		}
 	} else {
 		if (this.superSimpleName == null) {
-			return POSSIBLE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			char[] typeRefSimpleName = null;
 			if (typeRef instanceof SingleTypeReference) {
@@ -212,7 +212,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 				typeRefSimpleName = tokens[tokens.length-1];
 			}				
 			if (this.matchesName(this.superSimpleName, typeRefSimpleName))
-				return POSSIBLE_MATCH;
+				return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 			else
 				return IMPOSSIBLE_MATCH;
 		}

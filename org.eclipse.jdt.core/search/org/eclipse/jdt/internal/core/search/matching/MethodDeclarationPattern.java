@@ -173,7 +173,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 				return IMPOSSIBLE_MATCH;
 		}
 
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 

@@ -305,7 +305,7 @@ private int matchLevel(FieldReference fieldRef, boolean resolve) {
 		// receiver type and field type
 		return this.matchLevel(fieldRef.binding);
 	} else {
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 
@@ -330,7 +330,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 			}				
 		} 
 		if (nameMatch) {
-			return POSSIBLE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			return IMPOSSIBLE_MATCH;
 		}

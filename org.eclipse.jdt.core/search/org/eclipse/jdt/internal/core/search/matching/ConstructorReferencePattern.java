@@ -146,7 +146,7 @@ private int matchLevel(AllocationExpression allocation, boolean resolve) {
 			if (parameterCount != argumentCount)
 				return IMPOSSIBLE_MATCH;
 		}
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 
@@ -179,7 +179,7 @@ private int matchLevel(ExplicitConstructorCall call, boolean resolve) {
 			if (parameterCount != argumentCount)
 				return IMPOSSIBLE_MATCH;
 		}
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 

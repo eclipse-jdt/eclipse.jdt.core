@@ -1029,36 +1029,7 @@ protected boolean packageRegionContainsSamePackageFragment(IJavaElement element)
 	}
 	return false;
 }
-/**
- * Prunes this type hierarchy to only contain the branch to the given type,
- * and its subtree. Pruning is only done for classes.
- */
-protected void pruneTypeHierarchy(IType type, IProgressMonitor monitor) throws JavaModelException {
-	if (type.isClass()) {
-		IType[] supers= getAllSuperclasses(type);
-		
-		if (supers.length == 0) {
-			// nothing to prune if this is a root - unless there are other roots
-			return;
-		}
-		
-		IType[] branch= new IType[supers.length + 1];
-		System.arraycopy(supers, 0, branch, 1, supers.length);
-		branch[0]= type;
-		// Branch is a list from the root to our type
-		// Walk the branch pruning all other subtrees
-		for (int i= branch.length - 1; i > 0; i--) {
-			IType[] subtrees= getSubtypes(branch[i]);
-			for (int j= 0; j < subtrees.length; j++) {
-				if (!subtrees[j].equals(branch[i - 1])) {
-					removeType(subtrees[j]);
-				}
-				this.worked(1);
-			}
-			fTypeToSubtypes.put(branch[i], new TypeVector(branch[i - 1]));
-		}
-	}
-}
+
 /**
  * @see ITypeHierarchy
  */
@@ -1073,11 +1044,11 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		if (monitor != null) {
 			monitor.beginTask(Util.bind("hierarchy.creating"), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
 		}
-		compute();
-		if (fType != null) {
-			//prune the hierarchy tree to only include branch and subtree for the type
-			pruneTypeHierarchy(fType, monitor);
+		long start = -1;
+		if (DEBUG) {
+			start = System.currentTimeMillis();
 		}
+		compute();
 		if (reactivate) {
 			activate();
 			fChangeListeners = listeners;
@@ -1087,7 +1058,7 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		fProgressMonitor = null;
 		if (DEBUG) {
-			System.out.println("CREATED TYPE HIERARCHY in " + Thread.currentThread());
+			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms [" + Thread.currentThread() + "]");
 			System.out.println(this.toString());
 		}
 	} catch (JavaModelException e) {

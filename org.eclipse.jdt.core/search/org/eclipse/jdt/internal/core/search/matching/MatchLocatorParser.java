@@ -151,8 +151,12 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 }
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	TypeReference result = super.copyDims(typeRef, dim);
-	if (this.matchSet != null && this.matchSet.removePossibleMatch(typeRef) != null) {
-		this.matchSet.addPossibleMatch(result);
+	if (this.matchSet != null) {
+		 if (this.matchSet.removePossibleMatch(typeRef) != null) {
+			this.matchSet.addPossibleMatch(result);
+		 } else if (this.matchSet.removeTrustedMatch(typeRef) != null) {
+			this.matchSet.addTrustedMatch(result);
+		 }
 	}
 	return result;
 }

@@ -114,6 +114,8 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  5217      java search scope: missing enclosing project  
+  5527      Unexpected inaccurate matches for #close() declarations  
   5522      Type hierarchy - missing subtypes of JavaElement  
   5508      JDT cannot support periods in the folders above the package name
   5541      No refresh when adding a compilation unit inside a dot named source folder 
@@ -140,6 +142,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ================================================================================
+  5526      NullPointerException searching declarations of #close()  
   5498      Java Compile - code does not compile correctly in JDT, but does with javac
   5493      Adding project references doesn't update the classpath  
   5426      CodeAssist returns empty completion

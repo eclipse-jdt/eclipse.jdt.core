@@ -206,7 +206,8 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
 	}
-	if (info == null) return; // unable to go further
+	if (info == null) 
+		return; // unable to go further
 
 	// check class definition
 	if (this.locator.pattern.matchesBinary(info, null)) {

@@ -557,7 +557,7 @@ protected void toString(int tab, StringBuffer buffer) {
  */
 public void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
-	if (parent != null) {
+	if (parent != null && parent.getParent() != null) {
 		buffer.append(" [in "); //$NON-NLS-1$
 		Object parentInfo = fgJavaModelManager.getInfo(parent);
 		parent.toStringInfo(0, buffer, parentInfo);

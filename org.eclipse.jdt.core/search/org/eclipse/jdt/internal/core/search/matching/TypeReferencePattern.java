@@ -358,11 +358,11 @@ private int matchLevel(ImportReference importRef, boolean resolve) {
 private int matchLevel(NameReference nameRef, boolean resolve) {
 	if (!resolve) {
 		if (this.simpleName == null) {
-			return POSSIBLE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			if (nameRef instanceof SingleNameReference) {
 				if (this.matchesName(this.simpleName, ((SingleNameReference)nameRef).token)) {
-					return POSSIBLE_MATCH;
+					return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				} else {
 					return IMPOSSIBLE_MATCH;
 				}
@@ -370,7 +370,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				char[][] tokens = ((QualifiedNameReference)nameRef).tokens;
 				for (int i = 0, max = tokens.length; i < max; i++){
 					if (this.matchesName(this.simpleName, tokens[i])) 
-						return POSSIBLE_MATCH;
+						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				}
 				return IMPOSSIBLE_MATCH;
 			}				
@@ -439,11 +439,11 @@ private void matchReportReference(ArrayTypeReference arrayRef, IJavaElement elem
 private int matchLevel(TypeReference typeRef, boolean resolve) {
 	if (!resolve) {
 		if (this.simpleName == null) {
-			return POSSIBLE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			if (typeRef instanceof SingleTypeReference) {
 				if (this.matchesName(this.simpleName, ((SingleTypeReference)typeRef).token)) {
-					return POSSIBLE_MATCH;
+					return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				} else {
 					return IMPOSSIBLE_MATCH;
 				}
@@ -451,7 +451,7 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 				char[][] tokens = ((QualifiedTypeReference)typeRef).tokens;
 				for (int i = 0, max = tokens.length; i < max; i++){
 					if (this.matchesName(this.simpleName, tokens[i])) {
-						return POSSIBLE_MATCH;
+						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					}
 				}
 				return IMPOSSIBLE_MATCH;

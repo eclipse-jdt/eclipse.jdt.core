@@ -251,20 +251,20 @@ private int matchLevel(ImportReference importRef, boolean resolve) {
 private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 	if (!resolve) {
 		if (this.pkgName == null) {
-			return POSSIBLE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			switch (this.matchMode) {
 				case EXACT_MATCH:
 				case PREFIX_MATCH:
 					if (CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
+						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					} else {
 						return IMPOSSIBLE_MATCH;
 					}
 				case PATTERN_MATCH:
 					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray()); //$NON-NLS-1$
 					if (CharOperation.match(pattern, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
+						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					} else {
 						return IMPOSSIBLE_MATCH;
 					}
@@ -323,20 +323,20 @@ private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
 	if (!resolve) {
 		if (this.pkgName == null) {
-			return POSSIBLE_MATCH;
+			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
 			switch (this.matchMode) {
 				case EXACT_MATCH:
 				case PREFIX_MATCH:
 					if (CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
+						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					} else {
 						return IMPOSSIBLE_MATCH;
 					}
 				case PATTERN_MATCH:
 					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray()); //$NON-NLS-1$
 					if (CharOperation.match(pattern, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
+						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					} else {
 						return IMPOSSIBLE_MATCH;
 					}
