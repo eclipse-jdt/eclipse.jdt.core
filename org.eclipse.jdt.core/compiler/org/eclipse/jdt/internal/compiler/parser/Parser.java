@@ -2534,7 +2534,7 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	
 	type = getTypeReference(this.intStack[this.intPtr--]); // type dimension
 
-	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, type.sourceStart, (int) namePosition);
+	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
 	if (hasModifiers) {
 		localDeclaration.declarationSourceStart = declarationSourceStart;
@@ -2549,6 +2549,8 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 				0, 
 				length); 
 		}		
+	} else {
+		localDeclaration.declarationSourceStart = type.sourceStart;
 	}
 	localDeclaration.type = type;
 
