@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.core.search.indexing.*;
  */
 public final class JavaCore extends Plugin implements IExecutableExtension {
 
-	private static Plugin JAVA_CORE_PLUGIN = null;
+	private static Plugin JAVA_CORE_PLUGIN = null; 
 	/**
 	 * The plug-in identifier of the Java core support
 	 * (value <code>"org.eclipse.jdt.core"</code>).
@@ -1226,10 +1226,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (!affectedProjects.isEmpty()) {
 			boolean wasFiring = manager.isFiring();
 			try {
-				// use custom classpath delta merging
-				if (wasFiring) {
+				if (wasFiring)
 					manager.stopDeltas();
-				}
 				// propagate classpath change
 				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
 				while (projectsToUpdate.hasNext()) {
@@ -1238,6 +1236,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 					JavaProject project = (JavaProject) projectsToUpdate.next();
 					
+					if (!projectsToUpdate.hasNext()) {
+						// re-enable firing for the last operation
+						if (wasFiring) {
+							wasFiring = false;
+							manager.startDeltas();
+						}
+					}
 					project
 						.setRawClasspath(
 							project.getRawClasspath(),
@@ -1250,11 +1255,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							mayChangeProjectDependencies);
 				}
 			} finally {
-				// none of the nested classpath setting operation did fire any delta (since disabled and
-				// that deltas got accumulated for each project which got updated).
 				if (wasFiring) {
 					manager.startDeltas();
-					manager.fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
+					// in case of exception traversing, deltas may be fired only in the next #fire() iteration
 				}
 			}
 		}
