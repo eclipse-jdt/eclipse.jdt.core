@@ -354,11 +354,10 @@ private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDec
 public void reportMatching(TypeDeclaration type, IJavaElement parent) throws CoreException {
 	
 	// filter out element not in hierarchy scope
-	if (this.locator.hierarchyResolver != null 
-			&& type.binding != null
-			&& !this.locator.hierarchyResolver.subOrSuperOfFocus(type.binding)) {
-		return;
-	}
+	boolean typeInHierarchy = 
+		this.locator.hierarchyResolver == null 
+			|| type.binding == null
+			|| this.locator.hierarchyResolver.subOrSuperOfFocus(type.binding);
 	
 	// create type handle
 	IJavaElement enclosingElement;
@@ -374,7 +373,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 	
 	// fields
 	FieldDeclaration[] fields = type.fields;
-	if (fields != null) {
+	if (fields != null && typeInHierarchy) {
 		for (int i = 0; i < fields.length; i++) {
 			FieldDeclaration field = fields[i];
 			if ((level = (Integer)this.matchingNodes.remove(field)) != null) {
@@ -393,7 +392,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 
 	// methods
 	AbstractMethodDeclaration[] methods = type.methods;
-	if (methods != null) {
+	if (methods != null && typeInHierarchy) {
 		for (int i = 0; i < methods.length; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			if ((level = (Integer)this.matchingNodes.remove(method)) != null) {
@@ -415,15 +414,15 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 	if (memberTypes != null) {
 		for (int i = 0; i < memberTypes.length; i++) {
 			MemberTypeDeclaration memberType = memberTypes[i];
-			if ((level = (Integer)this.matchingNodes.remove(memberType)) != null) {
-				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
+			if ((level = (Integer)this.matchingNodes.remove(memberType)) != null
+				&& typeInHierarchy
+				&& (this.matchContainer & SearchPattern.CLASS) != 0) {
 					this.locator.reportTypeDeclaration(
 						memberType, 
 						enclosingElement, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
-				}
 			}
 			this.reportMatching(memberType, enclosingElement);
 		}
