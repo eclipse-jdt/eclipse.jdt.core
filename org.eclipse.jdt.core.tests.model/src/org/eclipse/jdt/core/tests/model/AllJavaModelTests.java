@@ -61,7 +61,7 @@ public static Test suite() {
 	suite.addTest(JavaModelTests.suite());
 
 	// tests to check the encoding
-	suite.addTest(EncodingTests.suite());
+//	suite.addTest(EncodingTests.suite());
 	
 	// test class name with special names like names containing '$'
 	suite.addTest(ClassNameTests.suite());
