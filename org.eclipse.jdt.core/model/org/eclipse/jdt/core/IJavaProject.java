@@ -315,7 +315,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *	<li>The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
 	 *	<li>The path is not an absolute path (<code>RELATIVE_PATH</code>)
 	 *  <li>The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
-	 *  <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)	 
+	 *  <li> The output location is being modified during resource change event notification (CORE_EXCEPTION)	 
 	 * </ul>
 	 */
 	void setOutputLocation(IPath path, IProgressMonitor monitor)
@@ -342,15 +342,49 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @exception JavaModelException if the classpath could not be set. Reasons include:
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * <li> Two or more entries specify source roots with the same or overlapping paths (NAME_COLLISION)
-	 * <li> A entry of kind <code>CPE_PROJECT</code> refers to this project (INVALID_PATH)
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
+	 * <li> The classpath failed the validation check as defined by <code>JavaConventions#validateClasspath</code>
 	 * </ul>
 	 * @see IClasspathEntry
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IProgressMonitor monitor)
 		throws JavaModelException;
 		
+	/**
+	 * Sets the both the classpath of this project and its output location at once.
+	 * The classpath is defined using a list of classpath entries. In particular such a classpath may contain
+	 * classpath variable entries. Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
+	 * or the full classpath can be resolved at once using the helper method <code>getResolvedClasspath</code>.
+	 * <p>
+	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
+	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
+	 * can simply refer to some variables defining the proper locations of these external JARs.
+	 * <p>
+	 * Setting the classpath to <code>null</code> specifies a default classpath
+	 * (the project root). Setting the classpath to an empty array specifies an
+	 * empty classpath.
+	 * <p>
+	 * If a cycle is detected while setting this classpath, an error marker will be added
+	 * to the project closing the cycle.
+	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
+	 * before setting the classpath.
+	 *
+	 * @exception JavaModelException if the classpath could not be set. Reasons include:
+	 * <ul>
+	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> Two or more entries specify source roots with the same or overlapping paths (NAME_COLLISION)
+	 * <li> A entry of kind <code>CPE_PROJECT</code> refers to this project (INVALID_PATH)
+	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 *	<li>The output location path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
+	 *	<li>The output location path is not an absolute path (<code>RELATIVE_PATH</code>)
+	 *  <li>The output location path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
+	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
+	 * </ul>
+	 * @see IClasspathEntry
+	 */
+	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor)
+		throws JavaModelException;
+
 	/**
 	 * Returns the classpath for the project, as a list of classpath
 	 * entries.

@@ -336,11 +336,16 @@ public static IStatus validatePackageName(String name) {
 }
 
 /**
- * Validate the given classpath and output location.
- * - Source folders cannot be nested inside the binary output, and reciprocally. They can coincidate.
- * - Source folders cannot be nested in each other.
- * - Output location must be nested inside project.
- *
+ * Validate the given classpath and output location, using the following rules:
+ * <ul>
+ *   <li> No duplicate path amongst classpath entries.
+ *   <li> Output location path is not null, it is absolute and located inside the project.
+ *   <li> A project cannot prerequisite itself directly.
+ *   <li> Source/library folders cannot be nested inside the binary output, and reciprocally. They can coincidate.
+ *   <li> Source/library folders cannot be nested in each other.
+ *   <li> Output location must be nested inside project.
+ * </ul>
+ * 
  *  Note that the classpath entries are not validated automatically. Only bound variables are considered in
  *  the checking process (this allows to perform a consistency check on a classpath which has references to
  *  yet non existing projects, folders, ...).
@@ -350,6 +355,7 @@ public static IStatus validatePackageName(String name) {
  * @return a status object with code <code>IStatus.OK</code> if
  *		the given classpath and output location are compatible, otherwise a status 
  *		object indicating what is wrong with the classpath or output location
+ * @since 2.0
  */
 public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClasspathEntry[] classpath, IPath outputLocation) {
 
@@ -448,6 +454,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 	/**
 	 * Returns a message describing the problem related to this classpath entry if any, or null if entry is fine 
 	 * (i.e. if the given classpath entry denotes a valid element to be referenced onto a classpath).
+	 * @since 2.0
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject javaProject, IClasspathEntry entry, boolean checkSourceAttachment){
 		

@@ -1156,6 +1156,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					project
 						.setRawClasspath(
 							project.getRawClasspath(),
+							SetClasspathOperation.ReuseOutputLocation,
 							monitor,
 							true,
 							project.getWorkspace().isAutoBuilding(),

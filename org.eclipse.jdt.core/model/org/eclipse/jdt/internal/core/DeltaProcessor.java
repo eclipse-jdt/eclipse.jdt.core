@@ -87,26 +87,26 @@ public class DeltaProcessor {
 
 		if (isOpen(delta.getResource())) {
 
-			addToParentInfo(element);
 			switch (element.getElementType()) {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 					// when a root is added, and is on the classpath, the project must be updated
 					JavaProject project = (JavaProject) element.getJavaProject();
 					updateProject(project);
-					//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
 					try {
 						project.getJavaProjectElementInfo().setNameLookup(null);
 					} catch (JavaModelException e) {
 					}
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
-					//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
+					addToParentInfo(element);
 					project = (JavaProject) element.getJavaProject();
 					try {
 						project.getJavaProjectElementInfo().setNameLookup(null);
 					} catch (JavaModelException e) {
 					}
 					break;
+				default:
+					addToParentInfo(element);
 			}
 
 			close(element);
@@ -166,9 +166,7 @@ public class DeltaProcessor {
 									break; // only consider content change
 							case IResourceDelta.ADDED :
 								// check if any actual difference
-								IPath oldOutputLocation = null;
 								try {
-									oldOutputLocation = project.getOutputLocation();
 									// force to (re)read the property file
 									String fileClasspathString = project.getSharedProperty(classpathProp);
 									if (fileClasspathString == null)
@@ -192,13 +190,12 @@ public class DeltaProcessor {
 										}
 									}
 									// restore output location				
-									if (outputLocation != null) {
-										project.setOutputLocation0(outputLocation);
+									if (outputLocation == null) {
+										outputLocation = SetClasspathOperation.ReuseOutputLocation;
 									}
 									try {
-										project.setRawClasspath(fileEntries, null, true, false, project.getExpandedClasspath(true));
-									} catch (JavaModelException e) { // undo output location change
-										project.setOutputLocation0(oldOutputLocation);
+										project.setRawClasspath(fileEntries, outputLocation, null, true, false, project.getExpandedClasspath(true));
+									} catch (JavaModelException e) {
 									}
 								} catch (IOException e) {
 									break;
@@ -795,6 +792,9 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 			while (projects.hasMoreElements()) {
 				JavaProject project = (JavaProject) projects.nextElement();
 				try {
+					if (project.getElementName().equals("Compiler")){
+						System.out.println();
+					}
 					project.updateClassPath(null, canChangeResource);
 					if (canChangeResource)
 						project.saveClasspath(false);
@@ -844,7 +844,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						IPackageFragment pkg = null;
 						if (element instanceof IPackageFragmentRoot) {
 							IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-							pkg = root.getPackageFragment("");//$NON-NLS-1$
+							pkg = root.getPackageFragment("");
 						} else {
 							pkg = (IPackageFragment)element;
 						}

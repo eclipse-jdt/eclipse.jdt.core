@@ -523,7 +523,7 @@ public class JavaProject
 					outputLocation = defaultOutputLocation();
 					needToSaveClasspath = true;
 				}
-				setOutputLocation0(outputLocation);
+				((JavaProjectElementInfo)info).setOutputLocation(outputLocation);
 
 				// restore classpath
 				if (classpath == null) {
@@ -1806,26 +1806,7 @@ public class JavaProject
 		if (outputLocation.equals(getOutputLocation())) {
 			return;
 		}
-		SetOutputLocationOperation op =
-			new SetOutputLocationOperation(this, outputLocation);
-		runOperation(op, monitor);
-	}
-
-	/**
-	 * @private - for use by <code>SetOutputLocationOperation</code> only.<br>
-	 * Set the path to the location where the builder writes .class files
-	 *
-	 * @exception JavaModelException if an error occurs setting the output location
-	 *      or if this project is not present
-	 */
-	protected void setOutputLocation0(IPath outputLocation)
-		throws JavaModelException {
-
-		//getting the element info (if it is generated) has the side effect of setting the
-		//output location to that specified in the classpath file (or the default output location
-		//if none is specified in the classpath file).
-		JavaProjectElementInfo info = getJavaProjectElementInfo();
-		info.setOutputLocation(outputLocation);
+		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, outputLocation, monitor);
 	}
 
 	/**
@@ -1850,15 +1831,24 @@ public class JavaProject
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, monitor, true, true, getExpandedClasspath(true));
+		setRawClasspath(entries, SetClasspathOperation.ReuseOutputLocation, monitor, true, true, getExpandedClasspath(true));
 	}
-
 
 	/**
 	 * @see IJavaProject
 	 */
 	public void setRawClasspath(
+		IClasspathEntry[] entries,
+		IPath outputLocation,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		setRawClasspath(entries, outputLocation, monitor, true, true, getExpandedClasspath(true));
+	}
+
+	public void setRawClasspath(
 		IClasspathEntry[] newEntries,
+		IPath newOutputLocation,
 		IProgressMonitor monitor,
 		boolean canChangeResource,
 		boolean forceSave,
@@ -1868,54 +1858,27 @@ public class JavaProject
 		JavaModelManager manager =
 			(JavaModelManager) JavaModelManager.getJavaModelManager();
 		try {
-			IJavaModelStatus status = verifyClasspath(newEntries); //JavaConventions.validateClasspath(this, newEntries, this.getOutputLocation());
-			if (!status.isOK()) {
-				throw new JavaModelException(status);
-			}
 			JavaProjectElementInfo info = getJavaProjectElementInfo();
 			IClasspathEntry[] newRawPath = newEntries;
 			if (newRawPath == null) { //are we already with the default classpath
 				newRawPath = defaultClasspath();
 			}
 			SetClasspathOperation op =
-				new SetClasspathOperation(this, oldClasspath, newRawPath, canChangeResource, forceSave);
+				new SetClasspathOperation(
+					this, 
+					oldClasspath, 
+					newRawPath, 
+					newOutputLocation,
+					canChangeResource, 
+					forceSave);
 			runOperation(op, monitor);
+			
 		} catch (JavaModelException e) {
 			manager.flush();
 			throw e;
 		}
 	}
 
-		/**
-	 * Possible failures: <ul>
-	 *  <li>NAME_COLLISION - two entries specify the same path.
-	 *  <li>INVALID_PATH - a CPE_PROJECT entry has been specified referring to this project
-	 * </ul>
-	 */
-	protected IJavaModelStatus verifyClasspath(IClasspathEntry[] classpath) {
-
-		if (classpath != null) {
-			int entryCount = classpath.length;
-			for (int i = 0; i < entryCount; i++) {
-				IClasspathEntry entry = classpath[i];
-				inner : for (int j = 0; j < entryCount; j++) {
-					if (i == j) {
-						continue inner;
-					}
-					if (JavaConventions
-						.isOverlappingRoots(entry.getPath(), classpath[j].getPath())) {
-						return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
-					}
-				}
-				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
-					&& entry.getPath().equals(getProject().getFullPath())) {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH);
-				}
-			}
-		}
-		return JavaModelStatus.VERIFIED_OK;
-	}
-	
 	/**
 	 * NOTE: <code>null</code> specifies default classpath, and an empty
 	 * array specifies an empty classpath.
@@ -1938,7 +1901,6 @@ public class JavaProject
 
 			IndexManager indexManager =
 				((JavaModelManager) JavaModelManager.getJavaModelManager()).getIndexManager();
-
 
 			// compute the new roots, and trigger indexing of referenced JARs
 			ObjectVector accumulatedRoots = new ObjectVector();
@@ -1996,7 +1958,7 @@ public class JavaProject
 
 	public void updateClassPath(IProgressMonitor monitor, boolean canChangeResource) throws JavaModelException {
 
-		setRawClasspath(getRawClasspath(), monitor, canChangeResource, false, getExpandedClasspath(true));
+		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getExpandedClasspath(true));
 	}
 
 	/**
