@@ -74,6 +74,13 @@ public class NameLookup {
 	 * is configure within.
 	 */
 	protected IWorkspace workspace;
+	
+	/**
+	 * A map from compilation unit handles to units to look inside (compilation
+	 * units or working copies).
+	 * Allows working copies to take precedence over compilation units.
+	 */
+	protected HashMap unitsToLookInside = null;
 
 	public NameLookup(IJavaProject project) throws JavaModelException {
 		configureFromProject(project);
@@ -631,7 +638,17 @@ public class NameLookup {
 			if (requestor.isCanceled())
 				return;
 			ICompilationUnit compilationUnit= compilationUnits[i];
-			if (nameMatches(unitName, compilationUnit, partialMatch)) {
+			
+			// unit to look inside
+			ICompilationUnit unitToLookInside = null;
+			if (this.unitsToLookInside != null) {
+				unitToLookInside = (ICompilationUnit)this.unitsToLookInside.get(compilationUnit);
+				if (unitToLookInside != null) {
+					compilationUnit = unitToLookInside;
+				}
+			}
+			
+			if (unitToLookInside != null || nameMatches(unitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
 					types= compilationUnit.getTypes();
@@ -647,7 +664,7 @@ public class NameLookup {
 						if (acceptType(type, acceptFlags)) requestor.acceptType(type);
 					}
 				}
-			} else 	if (potentialMemberType && nameMatches(potentialUnitName, compilationUnit, partialMatch)) {
+			} else if (potentialMemberType && nameMatches(potentialUnitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
 					types= compilationUnit.getTypes();
@@ -667,6 +684,28 @@ public class NameLookup {
 
 		}
 	}
+/**
+ * Remembers a set of compilation units that will be looked inside
+ * when looking up a type. If they are working copies, they take
+ * precedence of their compilation units.
+ * <code>null</code> means that no special compilation units should be used.
+ */
+public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {
+	if (unitsToLookInside == null) {
+		this.unitsToLookInside = null;
+	} else {
+		this.unitsToLookInside = new HashMap();
+		for (int i = 0, length = unitsToLookInside.length; i < length; i++) {
+			IWorkingCopy unitToLookInside = unitsToLookInside[i];
+			ICompilationUnit original = (ICompilationUnit)unitToLookInside.getOriginalElement();
+			if (original != null) {
+				this.unitsToLookInside.put(original, unitToLookInside);
+			} else {
+				this.unitsToLookInside.put(unitToLookInside, unitToLookInside);
+			}
+		}
+	}
+}
 
 	/**
 	 * Notifies the given requestor of all types (classes and interfaces) in the

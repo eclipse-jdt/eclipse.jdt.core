@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.*;
  * from.
  */
 
-/* package */ class WorkingCopy extends CompilationUnit {
+public class WorkingCopy extends CompilationUnit {
 
 	
 	/**

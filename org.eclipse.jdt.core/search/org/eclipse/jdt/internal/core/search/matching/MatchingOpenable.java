@@ -109,7 +109,9 @@ private void buildTypeBindings(final char[] source) {
 }
 public char[] getSource() {
 	try {
-		if (this.openable instanceof CompilationUnit) {
+		if (this.openable instanceof WorkingCopy) {
+			return this.openable.getBuffer().getCharacters();
+		} else if (this.openable instanceof CompilationUnit) {
 			return Util.getResourceContentsAsCharArray((IFile)this.resource);
 		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
 			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;

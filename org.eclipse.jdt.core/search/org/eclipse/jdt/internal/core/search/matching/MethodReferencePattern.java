@@ -103,7 +103,7 @@ public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor p
 		this.allSuperDeclaringTypeNames = 
 			new SuperTypeNamesCollector(
 				this, 
-				locator.handleFactory,
+				locator,
 				this.declaringType, 
 				progressMonitor).collect();
 	} catch (JavaModelException e) {

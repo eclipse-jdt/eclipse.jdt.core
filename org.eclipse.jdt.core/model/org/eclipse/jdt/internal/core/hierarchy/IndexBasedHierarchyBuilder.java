@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.search.*;
+
 import java.util.*;
 
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
@@ -21,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.HierarchyType;
 import org.eclipse.jdt.internal.compiler.HierarchyResolver;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 import org.eclipse.jdt.internal.core.*;
@@ -40,6 +42,10 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	 * the region).
 	 */
 	protected Map cuToHandle;
+	/**
+	 * A map from compilation unit handles to working copies.
+	 */
+	protected Map handleToWorkingCopy;
 
 	/**
 	 * The scope this hierarchy builder should restrain results to.
@@ -89,6 +95,12 @@ public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scop
 	this.cuToHandle = new HashMap(5);
 	this.binariesFromIndexMatches = new HashMap(10);
 	this.scope = scope;
+	this.handleToWorkingCopy = new HashMap(1);
+	IType focusType = hierarchy.getType();
+	org.eclipse.jdt.core.ICompilationUnit handle;
+	if (focusType != null && (handle = focusType.getCompilationUnit()) != null && handle.isWorkingCopy()) {
+		this.handleToWorkingCopy.put(handle.getOriginalElement(), handle); 
+	}
 }
 /**
  * Add the type info from the given hierarchy binary type to the given list of infos.
@@ -128,6 +140,24 @@ private void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throws 
 		this.addInfoFromOpenSourceType((SourceType)members[i], infos);
 	}
 }
+/**
+ * Add the type info (and its sibblings type infos) to the given list of infos.
+ */
+private void addInfosFromType(IType type, ArrayList infos) throws JavaModelException {
+	if (type.isBinary()) {
+		// add class file
+		ClassFile classFile = (ClassFile)type.getClassFile();
+		if (classFile != null) {
+			this.addInfoFromOpenClassFile(classFile, infos);
+		}
+	} else {
+		// add whole cu (if it is a working copy, it's types can be potential subtypes)
+		CompilationUnit unit = (CompilationUnit)type.getCompilationUnit();
+		if (unit != null) {
+			this.addInfoFromOpenCU(unit, infos);
+		}
+	}
+}
 public void build(boolean computeSubtypes) throws JavaModelException, CoreException {
 	if (computeSubtypes) {
 		String[] allPossibleSubtypes = this.determinePossibleSubTypes();
@@ -141,18 +171,6 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 	}
 }
 private void buildForProject(JavaProject project, ArrayList infos, ArrayList units) throws JavaModelException {
-	IType focusType = this.getType();
-	if (focusType != null && focusType.getJavaProject().equals(project)) {
-		// add focus type
-		try {
-			infos.add(((JavaElement) focusType).getRawInfo());
-		} catch (JavaModelException e) {
-			// if the focus type is not present, or if cannot get workbench path
-			// we cannot create the hierarchy
-			return;
-		}
-	}
-	
 	// copy vectors into arrays
 	IGenericType[] genericTypes;
 	int infosSize = infos.size();
@@ -174,25 +192,32 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 	// resolve
 	if (infosSize > 0 || unitsSize > 0) {
 		this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
+		IType focusType = this.getType();
+		this.nameLookup = project.getNameLookup();
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
 		if (inProjectOfFocusType) {
-			this.searchableEnvironment.unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
-		}
-		this.nameLookup = project.getNameLookup();
-		this.hierarchyResolver = 
-			new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
-		if (focusType != null) {
-			char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-			ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-			if (focusTypeBinding == null 
-				|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
-				// focus type is not visible in this project: no need to go further
-				return;
+			org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
+			if (unitToLookInside != null) {
+				this.nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
 			}
 		}
-		this.hierarchyResolver.resolve(genericTypes, compilationUnits);
-		if (inProjectOfFocusType) {
-			this.searchableEnvironment.unitToLookInside = null;
+		try {
+			this.hierarchyResolver = 
+				new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
+			if (focusType != null) {
+				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+				ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+				if (focusTypeBinding == null 
+					|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+					// focus type is not visible in this project: no need to go further
+					return;
+				}
+			}
+			this.hierarchyResolver.resolve(genericTypes, compilationUnits);
+		} finally {
+			if (inProjectOfFocusType) {
+				this.nameLookup.setUnitsToLookInside(null);
+			}
 		}
 	}
 }
@@ -223,6 +248,13 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 			String resourcePath = allPotentialSubTypes[i];
 			Openable handle = factory.createOpenable(resourcePath);
 			if (handle == null) continue; // match is outside classpath
+			
+			// working copies take precedence over compilation units
+			Object workingCopy = this.handleToWorkingCopy.get(handle);
+			if (workingCopy != null) {
+				handle = (Openable)workingCopy;
+			}
+			
 			IJavaProject project = handle.getJavaProject();
 			if (currentProject == null) {
 				currentProject = project;
@@ -276,7 +308,11 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 		}
 	}
 	try {
-		if (currentProject == null) currentProject = focusType.getJavaProject(); // case of no potential subtypes
+		if (currentProject == null) {
+			// case of no potential subtypes
+			currentProject = focusType.getJavaProject();
+			this.addInfosFromType(focusType, infos);
+		}
 		this.buildForProject((JavaProject)currentProject, infos, units);
 	} catch (JavaModelException e) {
 	}
@@ -285,7 +321,10 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	if (!this.hierarchy.contains(focusType)) {
 		try {
 			currentProject = focusType.getJavaProject();
-			this.buildForProject((JavaProject)currentProject, new ArrayList(), new ArrayList());
+			infos = new ArrayList();
+			units = new ArrayList();
+			this.addInfosFromType(focusType, infos);
+			this.buildForProject((JavaProject)currentProject, infos, units);
 		} catch (JavaModelException e) {
 		}
 	}

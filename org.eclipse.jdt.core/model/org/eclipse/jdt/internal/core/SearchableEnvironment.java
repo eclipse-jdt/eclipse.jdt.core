@@ -23,7 +23,6 @@ public class SearchableEnvironment
 	implements ISearchableNameEnvironment, IJavaSearchConstants {
 	protected NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
-	public CompilationUnit unitToLookInside;
 
 	protected IJavaProject project;
 	protected IJavaSearchScope searchScope;
@@ -52,24 +51,6 @@ public class SearchableEnvironment
 				packageName,
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-		if (type == null) {
-			// look inside the compilation unit that is being searched currently
-			//for a non-public or inner type.
-			if (this.unitToLookInside != null) {
-				if (this.unitToLookInside.getParent().getElementName().equals(packageName)) {
-					try {
-						IType[] allTypes = this.unitToLookInside.getTypes();
-						for (int i = 0; i < allTypes.length; i++) {
-							if (allTypes[i].getElementName().equals(typeName)) {
-								type = allTypes[i];
-								break;
-							}
-						}
-					} catch (JavaModelException e) {
-					}
-				}
-			}
-		}
 		if (type != null) {
 			if (type instanceof BinaryType) {
 				try {

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -60,6 +61,7 @@ public class MatchLocator implements ITypeRequestor {
 	private MatchingOpenableSet matchingOpenables;
 	private MatchingOpenable currentMatchingOpenable;
 	public HandleFactory handleFactory;
+	public IWorkingCopy[] workingCopies;
 
 	private static char[] EMPTY_FILE_NAME = new char[0];
 
@@ -135,7 +137,10 @@ public class MatchLocator implements ITypeRequestor {
  * Remember the parsed unit.
  */
 public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
-	final IFile file = (IFile)compilationUnit.getUnderlyingResource();
+	final IFile file = 
+		compilationUnit.isWorkingCopy() ?
+			(IFile)compilationUnit.getOriginalElement().getUnderlyingResource() :
+			(IFile)compilationUnit.getUnderlyingResource();
 	CompilationUnitDeclaration unit = null;
 	
 	// get main type name
@@ -149,7 +154,10 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	if (unit != null) return unit;
 
 	// source unit
-	final char[] source = Util.getResourceContentsAsCharArray(file);
+	final char[] source = 
+		compilationUnit.isWorkingCopy() ?
+			compilationUnit.getBuffer().getCharacters() :
+			Util.getResourceContentsAsCharArray(file);
 	ICompilationUnit sourceUnit = new ICompilationUnit() {
 		public char[] getContents() {
 			return source;
@@ -348,30 +356,73 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	protected Scanner getScanner() {
 		return this.parser == null ? null : this.parser.scanner;
 	}
+/*
+ * Creates a new set of matching openables and initializes it with the given
+ * working copies.
+ */
+private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
+	this.matchingOpenables = new MatchingOpenableSet();
+	if (workingCopies != null) {
+		for (int i = 0, length = workingCopies.length; i < length; i++) {
+			IWorkingCopy workingCopy = workingCopies[i];
+			try {
+				IResource res = workingCopy.getOriginalElement().getUnderlyingResource();
+				this.addMatchingOpenable(res, (Openable)workingCopy);
+			} catch (JavaModelException e) {
+				// continue with next working copy
+			}
+		}
+	}
+}
 
 	/**
 	 * Locate the matches in the given files and report them using the search requestor. 
 	 */
-	public void locateMatches(String[] filePaths, IWorkspace workspace)
+	public void locateMatches(String[] filePaths, IWorkspace workspace, IWorkingCopy[] workingCopies)
 		throws JavaModelException {
-		Util.sort(filePaths); // sort by projects
+			
+		// sort file paths projects
+		Util.sort(filePaths); 
+		
+		// initialize handle factory (used as a cache of handles so as to optimize space)
 		if (this.handleFactory == null) {
 			this.handleFactory = new HandleFactory(workspace);
 		}
+		
+		// initialize locator with working copies
+		this.workingCopies = workingCopies;
+		HashSet wcPaths = new HashSet(); // a set of Strings
+		if (workingCopies != null) {
+			for (int i = 0, length = workingCopies.length; i < length; i++) {
+				IWorkingCopy workingCopy = workingCopies[i];
+				try {
+					IResource res = workingCopy.getOriginalElement().getUnderlyingResource();
+					wcPaths.add(res.getFullPath().toString());
+				} catch (JavaModelException e) {
+					// continue with next working copy
+				}
+			}
+		}
+		
+		// initialize pattern for polymorphic search (ie. method reference pattern)
 		this.pattern.initializePolymorphicSearch(this, this.collector.getProgressMonitor());
-
+		
 		JavaProject previousJavaProject = null;
 		int length = filePaths.length;
 		double increment = 100.0 / length;
 		double totalWork = 0;
 		int lastProgress = 0;
-		this.matchingOpenables = new MatchingOpenableSet();
+		this.initializeMatchingOpenables(workingCopies);
 		for (int i = 0; i < length; i++) {
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 			String pathString = filePaths[i];
+			
+			// skip paths that are hidden by a working copy
+			if (wcPaths.contains(pathString)) continue;
+			
 			Openable openable = this.handleFactory.createOpenable(pathString);
 			if (openable == null)
 				continue; // match is outside classpath
@@ -397,7 +448,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 								// problem with classpath in this project -> skip it
 							}
 						}
-						this.matchingOpenables = new MatchingOpenableSet();
+						this.initializeMatchingOpenables(workingCopies);
 					}
 
 					// create parser for this project
@@ -431,7 +482,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 					// problem with classpath in last project -> skip it
 				}
 			}
-			this.matchingOpenables = new MatchingOpenableSet();
+			this.initializeMatchingOpenables(workingCopies);
 		}
 
 	}
@@ -930,6 +981,7 @@ private MatchingOpenable newMatchingOpenable(IResource resource, Openable openab
 	}
 	return matchingOpenable;
 }
+
 private void addMatchingOpenable(IResource resource, Openable openable)
 		throws JavaModelException {
 		
@@ -944,7 +996,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 	 * Create a new parser for the given project, as well as a lookup environment.
 	 * Asks the pattern to initialize itself for polymorphic search.
 	 */
-	private void createParser(JavaProject project) throws JavaModelException {
+	public void createParser(JavaProject project) throws JavaModelException {
 		INameEnvironment nameEnvironment = project.getSearchableNameEnvironment();
 		IProblemFactory problemFactory = new DefaultProblemFactory();
 

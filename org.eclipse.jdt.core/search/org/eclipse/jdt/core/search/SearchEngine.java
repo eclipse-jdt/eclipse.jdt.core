@@ -41,6 +41,13 @@ import java.util.*;
  * </p>
  */
 public class SearchEngine {
+
+	/**
+	 * A list of working copies that take precedence over their original 
+	 * compilation units.
+	 */
+	private IWorkingCopy[] workingCopies = null;	
+
 /**
  * Returns a java search scope limited to the hierarchy of the given type.
  * The java elements resulting from a search with this scope will
@@ -341,7 +348,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 			
 		/* eliminating false matches and locating them */
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-		matchLocator.locateMatches(pathCollector.getPaths(), workspace);
+		matchLocator.locateMatches(pathCollector.getPaths(), workspace, this.workingCopies);
 		
 
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
@@ -499,7 +506,8 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 			scope);
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
-			workspace);
+			workspace,
+			this.workingCopies);
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -552,7 +560,8 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 			scope);
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
-			workspace);
+			workspace,
+			this.workingCopies);
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -608,9 +617,17 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 			scope);
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
-			workspace);
+			workspace,
+			this.workingCopies);
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
+}
+/**
+ * Sets the list of working copies that will take precedence over their original 
+ * compilation units in the subsequent search operations on this search engine.
+ */
+public void setWorkingCopies(IWorkingCopy[] workingCopies) {
+	this.workingCopies = workingCopies;
 }
 }

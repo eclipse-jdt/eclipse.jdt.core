@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -45,10 +46,13 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.HandleFactory;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.IInfoConstants;
@@ -65,11 +69,9 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  */
 public class SuperTypeNamesCollector implements ITypeRequestor {
 	MethodReferencePattern pattern;
-	HandleFactory handleFactory;
+	MatchLocator locator;
 	IType type; 
 	IProgressMonitor progressMonitor;
-	LookupEnvironment lookupEnvironment;
-	Parser parser;
 	char[][][] result;
 	int resultIndex;
 	
@@ -123,12 +125,12 @@ public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 public SuperTypeNamesCollector(
 	MethodReferencePattern pattern,
-	HandleFactory handleFactory,
+	MatchLocator locator,
 	IType type, 
 	IProgressMonitor progressMonitor) {
 		
 	this.pattern = pattern;
-	this.handleFactory = handleFactory;
+	this.locator = locator;
 	this.type = type;
 	this.progressMonitor = progressMonitor;
 }
@@ -138,7 +140,10 @@ public SuperTypeNamesCollector(
  * Don't build methods and fields.
  */
 private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUnit) throws JavaModelException {
-	final IFile file = (IFile)compilationUnit.getUnderlyingResource();
+	final IFile file = 
+		compilationUnit.isWorkingCopy() ?
+			(IFile)compilationUnit.getOriginalElement().getUnderlyingResource() :
+			(IFile)compilationUnit.getUnderlyingResource();
 	
 	// get main type name
 	final String fileName = file.getFullPath().lastSegment();
@@ -146,7 +151,10 @@ private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUni
 		fileName.substring(0, fileName.length() - 5).toCharArray();
 	
 	// source unit
-	final char[] source = Util.getResourceContentsAsCharArray(file);
+	final char[] source = 
+		compilationUnit.isWorkingCopy() ?
+			compilationUnit.getBuffer().getCharacters() :
+			Util.getResourceContentsAsCharArray(file);
 	org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 		new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
@@ -165,10 +173,10 @@ private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUni
 	
 	// diet parse
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
-	CompilationUnitDeclaration unit = this.parser.dietParse(sourceUnit, compilationResult);
+	CompilationUnitDeclaration unit = this.locator.parser.dietParse(sourceUnit, compilationResult);
 	if (unit != null) {
-		this.lookupEnvironment.buildTypeBindings(unit);
-		this.lookupEnvironment.completeTypeBindings(unit, false);
+		this.locator.lookupEnvironment.buildTypeBindings(unit);
+		this.locator.lookupEnvironment.completeTypeBindings(unit, false);
 	}
 	return unit;
 }
@@ -179,24 +187,24 @@ private BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException 
 		this.cacheBinaryType(enclosingType);
 	}
 	IBinaryType binaryType = (IBinaryType)((BinaryType)type).getRawInfo();
-	return this.lookupEnvironment.cacheBinaryType(binaryType);
+	return this.locator.lookupEnvironment.cacheBinaryType(binaryType);
 }
 
 protected char[][][] collect() throws JavaModelException {
 	
 	if (this.type != null) {
+		// Collect the paths of the cus that are in the hierarchy of the given type
 		this.result = new char[1][][];
 		this.resultIndex = 0;
-		this.createParser((JavaProject)this.type.getJavaProject());
+		JavaProject javaProject = (JavaProject)this.type.getJavaProject();
+		this.locator.createParser(javaProject);
+		this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
 		try {
 			if (this.type.isBinary()) {
 				BinaryTypeBinding binding = this.cacheBinaryType(this.type);
 				this.collectSuperTypeNames(binding);
 			} else {
 				ICompilationUnit unit = this.type.getCompilationUnit();
-				if (unit.isWorkingCopy()) {
-					unit = (ICompilationUnit)unit.getOriginalElement();
-				}
 				CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
 				if (parsedUnit != null) {
 					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
@@ -205,6 +213,8 @@ protected char[][][] collect() throws JavaModelException {
 		} catch (AbortCompilation e) {
 			// problem with classpath: report inacurrate matches
 			return null;
+		} finally {
+			this.locator.nameLookup.setUnitsToLookInside(null);
 		}
 		return this.result;
 	} else {	
@@ -219,33 +229,43 @@ protected char[][][] collect() throws JavaModelException {
 			JavaProject previousProject = null;
 			this.result = new char[1][][];
 			this.resultIndex = 0;
-			for (int i = 0, length = paths.length; i < length; i++) {
-				try {
-					Openable openable = this.handleFactory.createOpenable(paths[i]);
-					if (openable == null)
-						continue; // outside classpath
-					IJavaProject project = openable.getJavaProject();
-					if (previousProject == null || !previousProject.equals(project)) {
-						previousProject = (JavaProject)project;
-						this.createParser(previousProject);
-					}
-					if (openable instanceof ICompilationUnit) {
-						ICompilationUnit unit = (ICompilationUnit)openable;
-						CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
-						if (parsedUnit != null) {
-							parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
+			try {
+				for (int i = 0, length = paths.length; i < length; i++) {
+					try {
+						Openable openable = this.locator.handleFactory.createOpenable(paths[i]);
+						if (openable == null)
+							continue; // outside classpath
+						IJavaProject project = openable.getJavaProject();
+						if (!project.equals(previousProject)) {
+							if (previousProject != null) {
+								this.locator.nameLookup.setUnitsToLookInside(null);
+							}
+							previousProject = (JavaProject)project;
+							this.locator.createParser(previousProject);
+							this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
 						}
-					} else if (openable instanceof IClassFile) {
-						IClassFile classFile = (IClassFile)openable;
-						BinaryTypeBinding binding = this.cacheBinaryType(classFile.getType());
-						if (this.matches(binding)) {
-							this.collectSuperTypeNames(binding);
+						if (openable instanceof ICompilationUnit) {
+							ICompilationUnit unit = (ICompilationUnit)openable;
+							CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
+							if (parsedUnit != null) {
+								parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
+							}
+						} else if (openable instanceof IClassFile) {
+							IClassFile classFile = (IClassFile)openable;
+							BinaryTypeBinding binding = this.cacheBinaryType(classFile.getType());
+							if (this.matches(binding)) {
+								this.collectSuperTypeNames(binding);
+							}
 						}
+					} catch (AbortCompilation e) {
+						// ignore: continue with next element
+					} catch (JavaModelException e) {
+						// ignore: continue with next element
 					}
-				} catch (AbortCompilation e) {
-					// ignore: continue with next element
-				} catch (JavaModelException e) {
-					// ignore: continue with next element
+				}
+			} finally {
+				if (previousProject != null) {
+					this.locator.nameLookup.setUnitsToLookInside(null);
 				}
 			}
 			System.arraycopy(this.result, 0, this.result = new char[this.resultIndex][][], 0, this.resultIndex);
@@ -335,23 +355,7 @@ protected void collectSuperTypeNames(ReferenceBinding type) {
 		}
 	}
 }
-/**
- * Create a new parser for the given project, as well as a lookup environment.
- */
-private void createParser(JavaProject project) throws JavaModelException {
-	INameEnvironment nameEnvironment = project.getSearchableNameEnvironment();
-	IProblemFactory problemFactory = new DefaultProblemFactory();
 
-	CompilerOptions options = new CompilerOptions(JavaCore.getOptions());
-	ProblemReporter problemReporter =
-		new ProblemReporter(
-			DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-			options,
-			problemFactory);
-	this.lookupEnvironment =
-		new LookupEnvironment(this, options, problemReporter, nameEnvironment);
-	this.parser = new Parser(problemReporter, true, options.assertMode);
-}
 
 private String[] getPathsOfDeclaringType() {
 	char[] declaringQualification = this.pattern.declaringQualification;
@@ -401,14 +405,14 @@ private String[] getPathsOfDeclaringType() {
  * @see ITypeRequestor#accept(IBinaryType, PackageBinding)
  */
 public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
-	this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+	this.locator.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
 }
 
 /*
  * @see ITypeRequestor#accept(ICompilationUnit)
  */
 public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit) {
-	lookupEnvironment.problemReporter.abortDueToInternalError(
+	this.locator.lookupEnvironment.problemReporter.abortDueToInternalError(
 		new StringBuffer(org.eclipse.jdt.internal.compiler.util.Util.bind("accept.cannot")) //$NON-NLS-1$
 			.append(sourceUnit.getFileName())
 			.toString());
@@ -420,11 +424,11 @@ public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit source
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
 	CompilationUnitDeclaration unit =
-		SourceTypeConverter.buildCompilationUnit(sourceTypes, false, true, this.lookupEnvironment.problemReporter, result);
+		SourceTypeConverter.buildCompilationUnit(sourceTypes, false, true, this.locator.lookupEnvironment.problemReporter, result);
 
 	if (unit != null) {
-		this.lookupEnvironment.buildTypeBindings(unit);
-		this.lookupEnvironment.completeTypeBindings(unit, false);
+		this.locator.lookupEnvironment.buildTypeBindings(unit);
+		this.locator.lookupEnvironment.completeTypeBindings(unit, false);
 	}
 }
 
