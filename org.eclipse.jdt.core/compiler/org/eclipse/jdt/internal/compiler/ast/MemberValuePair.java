@@ -20,11 +20,11 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
  */
 public class MemberValuePair extends ASTNode {
 	
-	public char[] token;
+	public char[] name;
 	public Expression value;
 	
 	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
-		this.token = token;
+		this.name = token;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 		this.value = value;
@@ -35,7 +35,7 @@ public class MemberValuePair extends ASTNode {
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
 		output
-			.append(token)
+			.append(name)
 			.append(" = "); //$NON-NLS-1$
 		value.print(indent, output);
 		return output;

@@ -11,9 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
  * Normal annotation node
@@ -22,20 +20,12 @@ public class NormalAnnotation extends Annotation {
 	
 	public MemberValuePair[] memberValuePairs;
 	
-	public NormalAnnotation(char[][] tokens, long[] sourcePositions, int sourceStart) {
-		this.tokens = tokens;
-		this.sourcePositions = sourcePositions;
+	public NormalAnnotation(TypeReference type, int sourceStart) {
+		this.type = type;
 		this.sourceStart = sourceStart;
-		this.sourceEnd = (int) sourcePositions[sourcePositions.length - 1];
+		this.sourceEnd = type.sourceEnd;
 	}
 
-	public NormalAnnotation(char[] token, long sourcePosition, int sourceStart) {
-		this.tokens = new char[][] { token };
-		this.sourcePositions = new long[] { sourcePosition };
-		this.sourceStart = sourceStart;
-		this.sourceEnd = (int) sourcePosition;
-	}
-	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		super.printExpression(indent, output);
 		output.append('(');
@@ -49,6 +39,15 @@ public class NormalAnnotation extends Annotation {
 		}
 		output.append(')');
 		return output;
+	}
+	
+	TypeBinding internalResolveType(TypeBinding annotationType, Scope scope) {
+		
+		if (super.internalResolveType(annotationType, scope) == null)
+			return null;
+		
+		checkMemberValues(this.memberValuePairs, scope);
+		return this.resolvedType;
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

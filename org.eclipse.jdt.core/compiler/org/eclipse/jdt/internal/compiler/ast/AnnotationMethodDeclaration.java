@@ -60,7 +60,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 					scope.classScope().detectAnnotationCycle(scope.enclosingSourceType(), leafReturnType, this.returnType);
 					break checkAnnotationMethodType;
 				}
-				scope.problemReporter().invalidAnnotationMethodType(this);
+				scope.problemReporter().invalidAnnotationMemberType(this);
 			}
 			
 		}

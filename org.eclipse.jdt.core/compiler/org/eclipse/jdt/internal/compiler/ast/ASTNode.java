@@ -327,6 +327,38 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 			output.append("abstract "); //$NON-NLS-1$
 		return output;
 	}
+	
+	/**
+	 * Resolve annotations, and check duplicates
+	 */
+	public void resolveAnnotations(Annotation[] annotations, Scope scope) {
+		if (annotations == null) 
+			return;
+		int length = annotations.length;
+		TypeBinding[] annotationTypes = new TypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			annotationTypes[i] = scope instanceof ClassScope
+				? annotations[i].resolveType((ClassScope)scope)
+				: annotations[i].resolveType((BlockScope)scope);
+		}
+		// check duplicate annotations
+		for (int i = 0; i < length; i++) {
+			TypeBinding annotationType = annotationTypes[i];
+			if (annotationType == null) continue;
+			boolean foundDuplicate = false;
+			for (int j = i+1; j < length; j++) {
+				if (annotationTypes[j] == annotationType) {
+					foundDuplicate = true;
+					annotationTypes[j] = null; // report it only once
+					scope.problemReporter().duplicateAnnotation(annotations[j]);
+				}
+			}
+			if (foundDuplicate) {
+				scope.problemReporter().duplicateAnnotation(annotations[i]);
+			}
+		}
+	}
+	
 	public int sourceStart() {
 		return this.sourceStart;
 	}

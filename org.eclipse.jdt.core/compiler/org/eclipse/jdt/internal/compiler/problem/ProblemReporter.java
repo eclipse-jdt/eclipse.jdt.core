@@ -784,6 +784,23 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void duplicateAnnotation(Annotation annotation) {
+	this.handle(
+		IProblem.DuplicateAnnotation,
+		new String[] {new String(annotation.resolvedType.readableName())},
+		new String[] {new String(annotation.resolvedType.shortReadableName())},
+		annotation.sourceStart,
+		annotation.sourceEnd);
+}
+public void duplicateAnnotationValue(TypeBinding annotationType, MemberValuePair memberValuePair) {
+	String name = 	new String(memberValuePair.name);
+	this.handle(
+		IProblem.DuplicateAnnotationMember,
+		new String[] { name, new String(annotationType.readableName())},
+		new String[] {	name, new String(annotationType.shortReadableName())},
+		memberValuePair.sourceStart,
+		memberValuePair.sourceEnd);
+}
 public void duplicateCase(CaseStatement caseStatement) {
 	this.handle(
 		IProblem.DuplicateCase,
@@ -1485,12 +1502,10 @@ public void illegalModifierForAnnotationMethod(AbstractMethodDeclaration methodD
 		IProblem.IllegalModifierForAnnotationMethod,
 		new String[] {
 			new String(methodDecl.selector),
-			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
 			new String(methodDecl.binding.declaringClass.readableName()),
 		},		
 		new String[] {
 			new String(methodDecl.selector),
-			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
 			new String(methodDecl.binding.declaringClass.shortReadableName()),
 		},		
 		methodDecl.sourceStart,
@@ -1886,19 +1901,17 @@ public void interfaceCannotHaveInitializers(SourceTypeBinding type, FieldDeclara
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void invalidAnnotationMethodType(MethodDeclaration methodDecl) {
+public void invalidAnnotationMemberType(MethodDeclaration methodDecl) {
 	this.handle(
-		IProblem.InvalidAnnotationMethodType,
+		IProblem.InvalidAnnotationMemberType,
 		new String[] {
 			new String(methodDecl.binding.returnType.readableName()),
 			new String(methodDecl.selector),
-			typesAsString(false, methodDecl.binding.parameters, false),
 			new String(methodDecl.binding.declaringClass.readableName()),
 		},
 		new String[] {
 			new String(methodDecl.binding.returnType.shortReadableName()),
 			new String(methodDecl.selector),
-			typesAsString(false, methodDecl.binding.parameters, true),
 			new String(methodDecl.binding.declaringClass.shortReadableName()),
 		},
 		methodDecl.returnType.sourceStart,
@@ -3323,6 +3336,15 @@ public void missingSerialVersion(TypeDeclaration typeDecl) {
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
+public void missingValueForAnnotationMember(Annotation annotation, char[] memberName) {
+	String memberString = new String(memberName);
+	this.handle(
+		IProblem.MissingValueForAnnotationMember,
+		new String[] {new String(annotation.resolvedType.readableName()), memberString },
+		new String[] {new String(annotation.resolvedType.shortReadableName()), memberString},
+		annotation.sourceStart,
+		annotation.sourceEnd);
+}
 public void mustDefineDimensionsOrInitializer(ArrayAllocationExpression expression) {
 	this.handle(
 		IProblem.MustDefineEitherDimensionExpressionsOrInitializer,
@@ -4363,6 +4385,15 @@ private String typesAsString(boolean isVarargs, TypeBinding[] types, boolean mak
 		if (isVarargType) buffer.append("..."); //$NON-NLS-1$
 	}
 	return buffer.toString();
+}
+public void undefinedAnnotationValue(TypeBinding annotationType, MemberValuePair memberValuePair) {
+	String name = 	new String(memberValuePair.name);
+	this.handle(
+		IProblem.UndefinedAnnotationMember,
+		new String[] { name, new String(annotationType.readableName())},
+		new String[] {	name, new String(annotationType.shortReadableName())},
+		memberValuePair.sourceStart,
+		memberValuePair.sourceEnd);
 }
 public void undefinedLabel(BranchStatement statement) {
 	String[] arguments = new String[] {new String(statement.label)};

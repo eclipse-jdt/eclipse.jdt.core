@@ -991,12 +991,20 @@ public interface IProblem {
     /** @since 3.1 */
 	int IllegalModifierForAnnotationMemberType = TypeRelated + 604;
     /** @since 3.1 */
-	int InvalidAnnotationMethodType = TypeRelated + 605;	
+	int InvalidAnnotationMemberType = TypeRelated + 605;	
     /** @since 3.1 */
 	int AnnotationCircularitySelfReference = TypeRelated + 606;
     /** @since 3.1 */
 	int AnnotationCircularity = TypeRelated + 607;
-	
+	/** @since 3.1 */
+	int DuplicateAnnotation = TypeRelated + 608;
+	/** @since 3.1 */
+	int MissingValueForAnnotationMember = TypeRelated + 609;
+	/** @since 3.1 */
+	int DuplicateAnnotationMember = Internal + 610;
+	/** @since 3.1 */
+	int UndefinedAnnotationMember = MethodRelated + 611;
+
 	/**
 	 * Corrupted binaries
 	 */

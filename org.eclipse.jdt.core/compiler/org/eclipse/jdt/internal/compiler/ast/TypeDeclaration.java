@@ -913,6 +913,8 @@ public class TypeDeclaration
 	public StringBuffer printStatement(int tab, StringBuffer output) {
 		return print(tab, output);
 	}
+	
+
 
 	public void resolve() {
 
@@ -922,6 +924,8 @@ public class TypeDeclaration
 			return;
 		}
 		try {
+			resolveAnnotations(this.annotations, scope);
+			
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}

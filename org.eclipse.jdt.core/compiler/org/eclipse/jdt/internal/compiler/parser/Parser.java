@@ -1186,6 +1186,7 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 		intPtr--; // we get rid of the position of the default keyword
 		intPtr--; // we get rid of the position of the default keyword
 		annotationTypeMemberDeclaration.defaultValue = this.expressionStack[this.expressionPtr--];
+		annotationTypeMemberDeclaration.modifiers |=  AccAnnotationMethodWithDefault;
 	}
 
 	// store the this.endPosition (position just before the '}') in case there is
@@ -3658,8 +3659,11 @@ protected void consumeMarkerAnnotation() {
 	// MarkerAnnotation ::= '@' Name
 	MarkerAnnotation markerAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	TypeReference typeReference;
 	if (length == 1) {
-		markerAnnotation = new MarkerAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--], this.intStack[this.intPtr--]);
+		typeReference = new SingleTypeReference(
+				this.identifierStack[this.identifierPtr], 
+				this.identifierPositionStack[this.identifierPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
 		this.identifierPtr -= length;
@@ -3671,8 +3675,9 @@ protected void consumeMarkerAnnotation() {
 			positions, 
 			0, 
 			length);
-		markerAnnotation = new MarkerAnnotation(tokens, positions, this.intStack[this.intPtr--]);			
+		typeReference = new QualifiedTypeReference(tokens, positions);
 	}
+	markerAnnotation = new MarkerAnnotation(typeReference, this.intStack[this.intPtr--]);
 	int sourceStart = markerAnnotation.sourceStart;
 	if (this.modifiersSourceStart < 0) {
 		this.modifiersSourceStart = sourceStart;
@@ -4137,8 +4142,11 @@ protected void consumeNormalAnnotation() {
 	// NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
 	NormalAnnotation normalAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	TypeReference typeReference;
 	if (length == 1) {
-		normalAnnotation = new NormalAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--], this.intStack[this.intPtr--]);
+		typeReference = new SingleTypeReference(
+				this.identifierStack[this.identifierPtr], 
+				this.identifierPositionStack[this.identifierPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
 		this.identifierPtr -= length;
@@ -4150,8 +4158,9 @@ protected void consumeNormalAnnotation() {
 			positions, 
 			0, 
 			length);
-		normalAnnotation = new NormalAnnotation(tokens, positions, this.intStack[this.intPtr--]);			
+		typeReference = new QualifiedTypeReference(tokens, positions);
 	}
+	normalAnnotation = new NormalAnnotation(typeReference, this.intStack[this.intPtr--]);
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		System.arraycopy(
 			this.astStack, 
@@ -6071,8 +6080,11 @@ protected void consumeSingleMemberAnnotation() {
 	// SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 	SingleMemberAnnotation singleMemberAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	TypeReference typeReference;
 	if (length == 1) {
-		singleMemberAnnotation = new SingleMemberAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--], this.intStack[this.intPtr--]);
+		typeReference = new SingleTypeReference(
+				this.identifierStack[this.identifierPtr], 
+				this.identifierPositionStack[this.identifierPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
 		this.identifierPtr -= length;
@@ -6084,8 +6096,9 @@ protected void consumeSingleMemberAnnotation() {
 			positions, 
 			0, 
 			length);
-		singleMemberAnnotation = new SingleMemberAnnotation(tokens, positions, this.intStack[this.intPtr--]);			
+		typeReference = new QualifiedTypeReference(tokens, positions);
 	}
+	singleMemberAnnotation = new SingleMemberAnnotation(typeReference, this.intStack[this.intPtr--]);
 	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
 	int sourceStart = singleMemberAnnotation.sourceStart;

@@ -35,6 +35,8 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -2027,7 +2029,7 @@ class ASTConverter {
 
 	public MemberValuePair convert(org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair) {
 		MemberValuePair pair = this.ast.newMemberValuePair();
-		SimpleName simpleName = this.ast.newSimpleName(new String(memberValuePair.token));
+		SimpleName simpleName = this.ast.newSimpleName(new String(memberValuePair.name));
 		int start = memberValuePair.sourceStart;
 		int end = memberValuePair.sourceEnd;
 		simpleName.setSourceRange(start, end - start + 1);
@@ -3010,6 +3012,12 @@ class ASTConverter {
 						break;
 					case AST.JLS3 :
 						if (typeArguments != null) {
+							int numberOfEnclosingType = 0;
+							for (int i = 0, max = typeArguments.length; i < max; i++) {
+								if (typeArguments[i] != null) {
+									numberOfEnclosingType++;
+								}
+							}
 							int startingIndex = 0;
 							int endingIndex = 0;
 							while (typeArguments[endingIndex] == null) {
@@ -3018,6 +3026,7 @@ class ASTConverter {
 							Name name = null;
 							if (endingIndex - startingIndex == 0) {
 								name = this.ast.newSimpleName(new String(tokens[startingIndex]));
+								recordPendingNameScopeResolution(name);
 								int start = (int)(positions[startingIndex]>>>32);
 								int end = (int) positions[startingIndex];
 								name.setSourceRange(start, end - start + 1);
@@ -3045,6 +3054,7 @@ class ASTConverter {
 								start = (int)(positions[startingIndex]>>>32);
 								end = (int) positions[startingIndex];
 								simpleName.setSourceRange(start, end - start + 1);
+								recordPendingNameScopeResolution(simpleName);
 								QualifiedType qualifiedType = this.ast.newQualifiedType(currentType, simpleName);							
 								start = currentType.getStartPosition();
 								end = simpleName.getStartPosition() + simpleName.getLength() - 1;
@@ -3063,6 +3073,9 @@ class ASTConverter {
 									currentType = qualifiedType;
 								}
 								startingIndex++;
+							}
+							if (this.resolveBindings) {
+								this.recordNodes(currentType, typeReference);
 							}
 							return currentType;
 						}
@@ -4668,17 +4681,19 @@ class ASTConverter {
 	}
 	
 	protected void setTypeNameForAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation compilerAnnotation, Annotation annotation) {
-		char[][] typeName = compilerAnnotation.tokens;
-		int length = typeName.length;
-		Name name = null;
-		if (length > 1) {
+		TypeReference typeReference = compilerAnnotation.type;
+		Name name;
+		if (typeReference instanceof QualifiedTypeReference) {
+			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) typeReference;
+			char[][] tokens = qualifiedTypeReference.tokens;
+			long[] positions = qualifiedTypeReference.sourcePositions;
 			// QualifiedName
-			name = setQualifiedNameNameAndSourceRanges(typeName, compilerAnnotation.sourcePositions, compilerAnnotation);
+			name = setQualifiedNameNameAndSourceRanges(tokens, positions, compilerAnnotation);
 		} else {
-			name = this.ast.newSimpleName(new String(typeName[0]));
-			long position = compilerAnnotation.sourcePositions[0];
-			int start = (int) (position >>> 32);
-			int end = (int) position;
+			SingleTypeReference singleTypeReference = (SingleTypeReference) typeReference;
+			name = this.ast.newSimpleName(new String(singleTypeReference.token));
+			int start = singleTypeReference.sourceStart;
+			int end = singleTypeReference.sourceEnd;
 			name.setSourceRange(start, end - start + 1);
 		}
 		if (this.resolveBindings) {
