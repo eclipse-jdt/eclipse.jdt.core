@@ -280,12 +280,15 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 			/* source type has a constructor ?           */
 			/* by default, we assume that one is needed. */
-			int neededCount = 1;
-			for (int i = 0; i < sourceMethodCount; i++) {
-				if (sourceMethods[i].isConstructor()) {
-					neededCount = 0;
-					// Does not need the extra constructor since one constructor already exists.
-					break;
+			int neededCount = 0;
+			if (!type.isInterface()) {
+				neededCount = 1;
+				for (int i = 0; i < sourceMethodCount; i++) {
+					if (sourceMethods[i].isConstructor()) {
+						neededCount = 0;
+						// Does not need the extra constructor since one constructor already exists.
+						break;
+					}
 				}
 			}
 			type.methods = new AbstractMethodDeclaration[sourceMethodCount + neededCount];

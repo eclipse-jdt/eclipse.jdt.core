@@ -114,7 +114,7 @@ public static Test suite() {
 	suite.addTest(new ReconcilerTests("testMethodWithError2"));
 	suite.addTest(new ReconcilerTests("testMethodWithError3"));
 	suite.addTest(new ReconcilerTests("testMethodWithError4"));
-	//suite.addTest(new ReconcilerTests("testMethodWithError5"));
+	suite.addTest(new ReconcilerTests("testMethodWithError5"));
 	suite.addTest(new ReconcilerTests("testNoChanges1"));
 	suite.addTest(new ReconcilerTests("testNoChanges2"));
 	suite.addTest(new ReconcilerTests("testRenameMethod1"));
@@ -648,9 +648,17 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
 		pbReq.initialize();
 		this.startDeltas();
 		wc.reconcile(true, null);
-		assertProblems(
-			"Unexpected problems",
-			"");
+		String actual = pbReq.problems.toString();
+		String expected = 
+			"----------\n" + 
+			"----------\n";
+		if (!expected.equals(actual)){
+		 	System.out.println(Util.displayString(actual, 2));
+		}
+		assertEquals(
+			"unexpected errors",
+			expected,
+			actual);
 	} finally {
 		this.deleteFile("/Reconciler/src/tests/AbstractSearchableSource.java");
 		this.deleteFile("/Reconciler/src/tests/SearchableSource.java");
