@@ -189,7 +189,7 @@ class VariableBinding implements IVariableBinding {
 	 * @since 3.0
 	 */
 	public Object getConstantValue() {
-		if (!this.binding.isConstantValue()) {
+		if (!this.binding.isConstantValue() || this.binding.constant == null) {
 			return null;
 		}
 		Constant c = this.binding.constant;

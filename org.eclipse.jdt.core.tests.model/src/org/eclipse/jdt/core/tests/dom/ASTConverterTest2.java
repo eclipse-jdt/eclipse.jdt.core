@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0552"));
+		suite.addTest(new ASTConverterTest2("test0554"));
 		return suite;
 	}
 	/**
@@ -4820,5 +4820,56 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(expression, "\"a\"", source);
 		typeBinding = expression.resolveTypeBinding();
 		assertEquals("wrong type", "java.lang.String", typeBinding.getQualifiedName());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61946
+	 */
+	public void test0553() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0553", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		Object constantValue = variableBinding.getConstantValue();
+		assertNull("Got a constant value", constantValue);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61946
+	 */
+	public void test0554() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0554", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		checkSourceRange(expression2, "A", source);
+		ITypeBinding typeBinding = expression2.resolveTypeBinding();
+		assertEquals("wrong type", "test0554.A", typeBinding.getQualifiedName());
+		IVariableBinding[] fields = typeBinding.getDeclaredFields();
+		assertEquals("Wrong size", 1, fields.length);
+		IVariableBinding variableBinding = fields[0];
+		Object constantValue = variableBinding.getConstantValue();
+		assertNull("Got a constant value", constantValue);
 	}
 }
