@@ -1984,7 +1984,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			// dump the package keyword
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
 			if (blankLinesBeforePackage > 0) {
-				this.scribe.printNewLines(blankLinesBeforePackage - 1);
+				this.scribe.printNewLines(blankLinesBeforePackage);
 			}
 			this.scribe.printComment();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamepackage);
