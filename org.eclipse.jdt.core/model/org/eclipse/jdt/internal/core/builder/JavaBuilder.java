@@ -39,6 +39,12 @@ public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.bui
 public static boolean DEBUG = false;
 
 static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
+/**
+ * A list of project names that have been built.
+ * This list is used to reset the JavaModel.existingExternalFiles cache when a build occurs
+ * so that deleted external jars are discovered.
+ */
+static HashSet builtProjects = new HashSet();
 
 public static IMarker[] getProblemsFor(IResource resource) {
 	try {
@@ -297,6 +303,14 @@ private void initializeBuilder() throws CoreException {
 	this.resourceFilters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
+		
+	// Reset the existing external files cache if needed
+	String projectName = this.currentProject.getName();
+	if (builtProjects.isEmpty() || builtProjects.contains(projectName)) {
+		JavaModel.flushExternalFileCache();
+		builtProjects = new HashSet();
+	}
+	builtProjects.add(projectName);
 }
 
 private void recordNewState(State state) {

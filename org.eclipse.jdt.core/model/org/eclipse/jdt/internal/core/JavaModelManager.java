@@ -338,7 +338,8 @@ public static IJavaElement determineIfOnClasspath(
 	};
 	public static boolean VERBOSE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
-
+
+
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
 	 */
@@ -706,7 +707,7 @@ public void doneSaving(ISaveContext context){
 
 		try {
 			if (ZIP_ACCESS_VERBOSE) {
-				System.out.println("Creating ZipFile on " + fileSystemPath + " [JavaModelManager.getZipFile(IPath)]"); //$NON-NLS-1$ //$NON-NLS-2$	
+				System.out.println("[JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + fileSystemPath ); //$NON-NLS-1$
 			}
 			return new ZipFile(fileSystemPath);
 		} catch (IOException e) {

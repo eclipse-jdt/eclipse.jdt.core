@@ -1071,9 +1071,10 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		// expanded path is cached on its info
-//		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastResolvedClasspath;
-//		if (infoPath != null) return infoPath;
+		// resolved path is cached on its info
+		JavaProjectElementInfo projectInfo = getJavaProjectElementInfo();
+		IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
+		if (infoPath != null) return infoPath;
 
 		IClasspathEntry[] classpath = getRawClasspath();
 
@@ -1138,7 +1139,7 @@ public class JavaProject
 				0,
 				index);
 		}
-//		getJavaProjectElementInfo().lastResolvedClasspath = resolvedPath;
+		projectInfo.lastResolvedClasspath = resolvedPath;
 		return resolvedPath;
 	}
 	
@@ -1669,43 +1670,7 @@ public class JavaProject
 			}
 	}
 	
-	/**
-	 * Returns the <code>IResource</code> that correspond to the specified path.
-	 * null if none.
-	 * @deprecated - old builder related
-	 */
-	private IResource retrieveResource(IPath path, IResourceDelta delta)
-		throws JavaModelException {
 
-		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
-		IResource res = workspaceRoot.findMember(path);
-
-		if (delta == null)
-			return res;
-
-		if (res == null) {
-			// the resource has been removed or renamed
-			// look for a possible delta that might help to retrieve the new resource if case of renamed
-			IResourceDelta[] deltas = delta.getAffectedChildren();
-			for (int i = 0, max = deltas.length; i < max; i++) {
-				IResourceDelta currentDelta = deltas[i];
-				if (currentDelta.getKind() == IResourceDelta.REMOVED) {
-					IPath moveToPath = currentDelta.getMovedToPath();
-					if (moveToPath != null) {
-						res = workspaceRoot.findMember(moveToPath);
-						if (res == null) {
-							throw new JavaModelException(
-								new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, moveToPath));
-						}
-						break;
-					} else {
-						break;
-					}
-				}
-			}
-		}
-		return res;
-	}
 
 /*
  * @see JavaElement#rootedAt(IJavaProject)
@@ -1894,8 +1859,11 @@ public IJavaElement rootedAt(IJavaProject project) {
 			if (rawEntries == null) {
 				rawEntries = defaultClasspath();
 			}
+			// clear cache of resolved classpath
+			info.lastResolvedClasspath = null;
+			
 			info.setRawClasspath(rawEntries);
-
+			
 			// compute the new roots
 			updatePackageFragmentRoots();				
 		}

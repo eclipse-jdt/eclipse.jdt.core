@@ -30,7 +30,7 @@ void buildDirectoryStructure() {
 
 	try {
 		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-			System.out.println("Creating ZipFile on " + zipFilename + " [ClasspathJar.buildDirectoryStructure()]"); //$NON-NLS-1$ //$NON-NLS-2$	
+			System.out.println("[ClasspathJar.buildDirectoryStructure()] Creating ZipFile on " + zipFilename); //$NON-NLS-1$
 		}
 		this.zipFile = new ZipFile(zipFilename);
 	} catch(IOException e) {

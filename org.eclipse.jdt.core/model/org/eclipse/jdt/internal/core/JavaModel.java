@@ -27,7 +27,14 @@ public class JavaModel extends Openable implements IJavaModel {
 	 * The workspace this Java Model represents
 	 */
 	protected IWorkspace workspace = null;
-
+	
+	/**
+	 * A set of java.io.Files used as a cache of external jars that 
+	 * are known to be existing.
+	 * Note this cache is kept for the whole session.
+	 */ 
+	public static HashSet existingExternalFiles = new HashSet();
+	
 /**
  * Constructs a new Java Model on the given workspace.
  *
@@ -444,6 +451,13 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	}
 }
 
+
+/**
+ * Flushes the cache of external files known to be existing.
+ */
+public static void flushExternalFileCache() {
+	existingExternalFiles = new HashSet();
+}
 /**
  * Helper method - returns the targeted item (IResource if internal or java.io.File if external), 
  * or null if unbound
@@ -452,13 +466,6 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 public static Object getTarget(IContainer container, IPath path, boolean checkResourceExistence) {
 
 	if (path == null) return null;
-	
-	String extension;
-	if (JavaModelManager.ZIP_ACCESS_VERBOSE && (extension = path.getFileExtension()) != null 
-		&& (extension.toLowerCase().equals("zip") || extension.toLowerCase().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
-			
-		System.out.println("Getting target for " + path.toString() + " checkResourceExistence=" + checkResourceExistence); //$NON-NLS-1$ //$NON-NLS-2$
-	}
 	
 	// lookup - inside the container
 	IResource resource = container.findMember(path);
@@ -469,7 +476,21 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 
 	// lookup - outside the container
 	File externalFile = new File(path.toOSString());
-	if (!checkResourceExistence ||externalFile.exists()) return externalFile;
+	if (!checkResourceExistence) {
+		return externalFile;
+	} else if (existingExternalFiles.contains(externalFile)) {
+		return externalFile;
+	} else {
+		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+			System.out.println("[JavaModel.getTarget(...)] Checking existence of " + path.toString()); //$NON-NLS-1$
+		}
+		if (externalFile.exists()) {
+			// cache external file
+			existingExternalFiles.add(externalFile);
+			return externalFile;
+		}
+	}
+
 	return null;	
 }
 }
