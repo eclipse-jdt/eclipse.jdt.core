@@ -250,6 +250,45 @@ public class SearchEngine {
 	 * @since 2.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
+		int includeMask = IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SYSTEM_LIBRARIES;
+		if (includeReferencedProjects) {
+			includeMask |= IJavaSearchScope.REFERENCED_PROJECTS;
+		}
+		return createJavaSearchScope(elements, includeMask);
+	}
+
+	/**
+	 * Returns a java search scope limited to the given java elements.
+	 * The java elements resulting from a search with this scope will
+	 * be children of the given elements.
+	 * 
+	 * If an element is an IJavaProject, then it includes:
+	 * - its source folders if IJavaSearchScope.SOURCES is specified, 
+	 * - its application libraries (internal and external jars, class folders that are on the raw classpath, 
+	 *   or the ones that are coming from a classpath path variable,
+	 *   or the ones that are coming from a classpath container with the K_APPLICATION kind)
+	 *   if IJavaSearchScope.APPLICATION_LIBRARIES is specified
+	 * - its system libraries (internal and external jars, class folders that are coming from an 
+	 *   IClasspathContainer with the K_SYSTEM kind) 
+	 *   if IJavaSearchScope.APPLICATION_LIBRARIES is specified
+	 * - its referenced projects (with their source folders and jars, recursively) 
+	 *   if IJavaSearchScope.REFERENCED_PROJECTS is specified.
+	 * If an element is an IPackageFragmentRoot, then only the package fragments of 
+	 * this package fragment root will be included.
+	 * If an element is an IPackageFragment, then only the compilation unit and class 
+	 * files of this package fragment will be included. Subpackages will NOT be 
+	 * included.
+	 *
+	 * @param elements the java elements the scope is limited to
+	 * @param includeMask the bit-wise OR of all include types of interest
+	 * @return a new java search scope
+	 * @since 3.0
+	 * @see IJavaSearchScope#SOURCES
+	 * @see IJavaSearchScope#APPLICATION_LIBRARIES
+	 * @see IJavaSearchScope#SYSTEM_LIBRARIES
+	 * @see IJavaSearchScope#REFERENCED_PROJECTS
+	 */
+	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
 		JavaSearchScope scope = new JavaSearchScope();
 		HashSet visitedProjects = new HashSet(2);
 		for (int i = 0, length = elements.length; i < length; i++) {
@@ -257,7 +296,7 @@ public class SearchEngine {
 			if (element != null) {
 				try {
 					if (element instanceof IJavaProject) {
-						scope.add((IJavaProject)element, includeReferencedProjects, visitedProjects);
+						scope.add((IJavaProject)element, includeMask, visitedProjects);
 					} else {
 						scope.add(element);
 					}
@@ -268,7 +307,6 @@ public class SearchEngine {
 		}
 		return scope;
 	}
-
 	/**
 	 * Returns a search pattern that combines the given two patterns into a "and" pattern.
 	 * The search result will match both the left pattern and the right pattern.

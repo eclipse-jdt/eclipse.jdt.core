@@ -810,7 +810,7 @@ public IWorkspace getWorkspace() {
 public IWorkspaceRoot getWorkspaceRoot() {
 	return getWorkspace().getRoot();
 }
-private void printDisplayString(String toPrint, int indent) {
+protected void printDisplayString(String toPrint, int indent) {
 	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(toPrint, indent);
 	char[] toDisplay = 
 		CharOperation.replace(
