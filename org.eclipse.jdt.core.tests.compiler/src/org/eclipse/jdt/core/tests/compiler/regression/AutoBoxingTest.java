@@ -2206,5 +2206,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"SUCCESS");
-	}	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82859
+	public void test082() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		System.out.println(void.class == Void.TYPE);\n" +
+				"	}\n" +
+				"}"
+			},
+			"true"
+		);
+	}
 }

@@ -87,7 +87,16 @@ public class ClassLiteralAccess extends Expression {
 		ReferenceBinding classType = scope.getJavaLangClass();
 		if (classType.isGenericType()) {
 		    // Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
-		    this.resolvedType = scope.createParameterizedType(classType, new TypeBinding[]{ scope.boxing(targetType) }, null/*not a member*/);
+			TypeBinding boxedType = null;
+			if (targetType.id == T_void) {
+				boxedType = scope.environment().getType(JAVA_LANG_VOID);
+				if (boxedType == null) {
+					boxedType = new ProblemReferenceBinding(JAVA_LANG_VOID, ProblemReasons.NotFound);
+				}
+			} else {
+				boxedType = scope.boxing(targetType);
+			}
+		    this.resolvedType = scope.createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
 		} else {
 		    this.resolvedType = classType;
 		}
