@@ -433,11 +433,36 @@ public IPackageFragment getPackageFragment() {
  */
 public String getSuperclassTypeSignature() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	char[] superclassName = info.getSuperclassName();
-	if (superclassName == null) {
-		return null;
+	char[] genericSignature = info.getGenericSignature();
+	if (genericSignature != null) {
+		int signatureLength = genericSignature.length;
+		// skip type parameters
+		int index = 0;
+		if (genericSignature[0] == '<') {
+			int count = 1;
+			while (count > 0 && ++index < signatureLength) {
+				switch (genericSignature[index]) {
+					case '<': 
+						count++;
+						break;
+					case '>':
+						count--;
+						break;
+				}
+			}
+			index++;
+		}
+		int start = index;
+		index = Util.scanClassTypeSignature(genericSignature, start) + 1;
+		char[] superclassSig = CharOperation.subarray(genericSignature, start, index);
+		return new String(ClassFile.translatedName(superclassSig));
+	} else {
+		char[] superclassName = info.getSuperclassName();
+		if (superclassName == null) {
+			return null;
+		}
+		return new String(Signature.createTypeSignature(ClassFile.translatedName(superclassName), true));
 	}
-	return new String(Signature.createTypeSignature(ClassFile.translatedName(superclassName), true));
 }
 
 /*

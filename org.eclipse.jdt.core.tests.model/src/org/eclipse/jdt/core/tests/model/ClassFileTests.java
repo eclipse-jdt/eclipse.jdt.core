@@ -64,7 +64,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"}",
 			"generic/V.java", 
 			"package generic;\n" +
-			"public class V implements I<String> {\n" + 
+			"public class V extends X<Thread> implements I<String> {\n" + 
 			"}",
 			"varargs/X.java", 
 			"package varargs;\n" +
@@ -106,6 +106,18 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"Ljava.lang.RuntimeException;\n" + 
 			"TU;\n",
 			method.getExceptionTypes());
+	}
+
+	/*
+	 * Ensures that IType#getSuperclassTypeSignature() is correct for a binary type.
+	 * (regression test for bug 78520 [model] IType#getSuperInterfaceTypeSignatures() doesn't include type arguments)
+	 */
+	public void testGetSuperclassTypeSignature() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("V.class").getType();
+		assertEquals(
+			"Unexpected signature", 
+			"Lgeneric.X<Ljava.lang.Thread;>;",
+			type.getSuperclassTypeSignature());
 	}
 
 	/*
