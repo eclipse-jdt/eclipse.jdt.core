@@ -37,19 +37,31 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 		this.buildTypeBindings(this.getSource());
 	} else if (openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
 		try {
-			String source = ((org.eclipse.jdt.internal.core.ClassFile)openable).getSource();
+			char[] source = null; 
+			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)openable;
+			SourceMapper sourceMapper = classFile.getSourceMapper();
+			if (sourceMapper != null) {
+				source = sourceMapper.findSource(classFile.getType());
+			}
+			if (source == null) {
+				// default to opening the class file
+				String sourceFromBuffer = classFile.getSource();
+				if (sourceFromBuffer != null) {
+					source = sourceFromBuffer.toCharArray();
+				}
+			}
 			if (source != null) {
-				this.buildTypeBindings(source.toCharArray());
+				this.buildTypeBindings(source);
 				
 				// try to use the main type's class file as the openable
 				TypeDeclaration[] types = this.parsedUnit.types;
 				if (types != null && types.length > 0) {
 					String simpleTypeName = new String(types[0].name);
 					IPackageFragment parent = (IPackageFragment)openable.getParent();
-					org.eclipse.jdt.core.IClassFile classFile = 
+					org.eclipse.jdt.core.IClassFile mainTypeClassFile = 
 						parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
-					if (classFile.exists()) {
-						this.openable = (Openable)classFile;
+					if (mainTypeClassFile.exists()) {
+						this.openable = (Openable)mainTypeClassFile;
 					} 
 				}
 			}

@@ -686,6 +686,9 @@ public class MatchLocator implements ITypeRequestor {
 					i = 0;
 					refSourceStart = -1;
 					previousValid = -1;
+					if (!accuracyStartsOnFirstToken) {
+						accuracyIndex++;
+					}			
 				}
 			}
 			if (accuracyStartsOnFirstToken) {
