@@ -274,9 +274,6 @@ private void buildMoreCompletionContext(Expression expression) {
 			case K_INSIDE_RETURN_STATEMENT :
 				if(info == bracketDepth) {
 					ReturnStatement returnStatement = new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd);
-					if(expression == assistNode) {
-						assistNodeParent = expression;
-					}
 					assistNodeParent = returnStatement;
 				}
 				break nextElement;

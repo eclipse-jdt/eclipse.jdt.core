@@ -2668,10 +2668,12 @@ public final class CompletionEngine
 				addExpectedType(binding);
 			}
 		} else if(parent instanceof ReturnStatement) {
-			MethodBinding methodBinding = ((AbstractMethodDeclaration) scope.methodScope().referenceContext).binding;
-			TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
-			if(binding != null) {
-				addExpectedType(binding);
+			if(scope.methodScope().referenceContext instanceof AbstractMethodDeclaration) {
+				MethodBinding methodBinding = ((AbstractMethodDeclaration) scope.methodScope().referenceContext).binding;
+				TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
+				if(binding != null) {
+					addExpectedType(binding);
+				}
 			}
 		} else if(parent instanceof CastExpression) {
 			Expression e = ((CastExpression)parent).type;

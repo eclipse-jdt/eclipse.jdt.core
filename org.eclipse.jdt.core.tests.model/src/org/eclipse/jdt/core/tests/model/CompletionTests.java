@@ -119,6 +119,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionConstructorForAnonymousType"));
 	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance1"));
 	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance2"));
+	suite.addTest(new CompletionTests("testCompletionReturnInInitializer"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -2166,6 +2167,22 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 	assertEquals(
 		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_CASE + R_ABSTRACT_METHOD)+"\n" +
 		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25591
+*/
+public void testCompletionReturnInInitializer() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionReturnInInitializer.java");
+
+	String str = cu.getSource();
+	String completeBehind = "eq";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 }
