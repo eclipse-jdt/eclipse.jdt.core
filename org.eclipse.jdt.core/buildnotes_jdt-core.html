@@ -3,7 +3,7 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="IBM">
-   <meta name="GENERATOR" content="Mozilla/4.73 [en] (Windows NT 5.0; U) [Netscape]">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
    <title>JDT/Core Release Notes</title>
 </head>
 <body>
@@ -18,26 +18,25 @@ What's new in this drop</h2>
 
 <h3>
 Problem Reports Fixed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6431">6431</a>:  
-   ArrayIndexOutOfBoundsException in the SourceIndexer requestor  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6422">6422</a>:  
-   Resource copy should not occur as soon as one source folder overlap the binary output  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>: CodeFormatter
+mapped positions broken for multi-line comments
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6431">6431</a>:
+ArrayIndexOutOfBoundsException in the SourceIndexer requestor
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6422">6422</a>:
+Resource copy should not occur as soon as one source folder overlap the
+binary output
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6416">6416</a>:
-  Code resolve doesn't work on message send when parameters are not correct
+Code resolve doesn't work on message send when parameters are not correct
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5705">5705</a>:
-  Wrong positions for ClassCastLiteral
-
+Wrong positions for ClassCastLiteral
 <h3>
 Problem Reports Closed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3246">3246</a>:
-  CodeCompletion - No completion on member access on anonymous class (1GD3OGA)
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5454">5454</a>:  
-   Code Assist adds qualified code inside inner classes  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3246">3246</a>: CodeCompletion
+- No completion on member access on anonymous class (1GD3OGA)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5454">5454</a>:
+Code Assist adds qualified code inside inner classes
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5837">5837</a>:
-   ArrayIndexOutOfBoundsException in index merging  
-      
+ArrayIndexOutOfBoundsException in index merging
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -56,71 +55,69 @@ Code assist only qualifies implicit members when necessary</li>
 <li>
 New API for setting both classpath and output location at the same time
 (allowing to avoid classpath validation failures in case there is no way
-to change both independantly):&nbsp;&nbsp;<br>
-<tt>IJavaProject.setRawClasspath(IClasspathEntry[] newClasspath, IPath
-newOutputLocation, IProgressMonitor monitor)</tt></li>
-</ul>
+to change both independantly):</li>
+
+<br><tt>IJavaProject.setRawClasspath(IClasspathEntry[] newClasspath, IPath
+newOutputLocation, IProgressMonitor monitor)</tt></ul>
 
 <h3>
 Problem Reports Fixed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6339">6339</a>
-   Assertion failed in SourceType  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5618">5618</a> 
-  Uncaught CompletionNodeFound exception doing code assist
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6294">6294</a> 
-  Exception during setting the classpath
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6339">6339</a> Assertion
+failed in SourceType
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5618">5618</a>
+Uncaught CompletionNodeFound exception doing code assist
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6294">6294</a>
+Exception during setting the classpath
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6302">6302</a>
-  AssertionFailure in open on selection
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6094">6094</a> 
-  Search - does not find references to JavaProject.setProject(...)
+AssertionFailure in open on selection
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6094">6094</a>
+Search - does not find references to JavaProject.setProject(...)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3320">3320</a>"
-  Search - Match through super type not found if in different project (1GGAOFT)
+Search - Match through super type not found if in different project (1GGAOFT)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6158">6158</a>"
-  Search - Prefix and postfix expression not found as write reference
+Search - Prefix and postfix expression not found as write reference
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4974">4974</a>:
-  Set classpath / output location should be one operation
+Set classpath / output location should be one operation
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6176">6176</a>:
-  Eclipse tools index out of bounds
+Eclipse tools index out of bounds
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6160">6160</a>:
-  Index out of bounds in update references
+Index out of bounds in update references
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6151">6151</a>:
-  ArrayIndexOutOfBoundsException in ObjectSet
+ArrayIndexOutOfBoundsException in ObjectSet
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5943">5943</a>:
-  internal error in setting buildpath (name collsion)
+internal error in setting buildpath (name collsion)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>:
-  CodeFormatter mapped positions broken for multi-line comments
+CodeFormatter mapped positions broken for multi-line comments
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5907">5907</a>:
-  Indexer errors when disk full
+Indexer errors when disk full
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5884">5884</a>:
-  Code assist should only fully qualify if needed
+Code assist should only fully qualify if needed
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5514">5514</a>:
-  Select a declaration does not work in unsaved working copies
+Select a declaration does not work in unsaved working copies
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5414">5414</a>:
-  ArrayIndexOutOfBoundsException in Signature
+ArrayIndexOutOfBoundsException in Signature
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5384">5384</a>:
-  search engine: behavior different than expected
+search engine: behavior different than expected
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6104">6104</a>:
-  Unoptimal debugger highlight for multi-line message expression
+Unoptimal debugger highlight for multi-line message expression
 <h3>
 Problem Reports Closed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6210">6210</a>: 
-   Creation failed error when creating a source folder  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3425">3425</a>: 
-  JavaCore.create(String handle) looses information (1GLA0QG) 
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6127">6127</a>: 
-  Reference by local class not found when searching for interface refs
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6210">6210</a>: Creation
+failed error when creating a source folder
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3425">3425</a>:
+JavaCore.create(String handle) looses information (1GLA0QG)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6127">6127</a>:
+Reference by local class not found when searching for interface refs
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4990">4990</a>:
-  Error starting Eclipse
+Error starting Eclipse
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3471">3471</a>:
-  Leading '/' in src page of Java wizard is misleading (1G842TH)
+Leading '/' in src page of Java wizard is misleading (1G842TH)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3619">3619</a>:
-  inconsistent search for method declarations (1GCZZS1)
+inconsistent search for method declarations (1GCZZS1)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5557">5557</a>:
-  Incorrect hierarchy shown (not rooted at Object)
+Incorrect hierarchy shown (not rooted at Object)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6100">6100</a>:
-  Bug in ObjectSet.Enumeration.nextElement
+Bug in ObjectSet.Enumeration.nextElement
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
