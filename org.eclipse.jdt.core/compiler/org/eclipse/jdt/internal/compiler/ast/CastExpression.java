@@ -271,6 +271,28 @@ public class CastExpression extends Expression {
 		}
 	}
 
+	public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int operatorSignature, Expression left, int leftTypeId, Expression right, int rightTypeId) {
+
+		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+
+		// check need for operand cast
+		boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
+		boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
+		if (unnecessaryLeftCast || unnecessaryRightCast) {
+			int alternateLeftTypeId = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType.id : leftTypeId;
+			int alternateRightTypeId = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType.id : rightTypeId;
+			int alternateOperatorSignature = OperatorExpression.ResolveTypeTables[operator][(alternateLeftTypeId << 4) + alternateRightTypeId];
+			// (cast)  left   Op (cast)  right --> result
+			//  1111   0000       1111   0000     1111
+			//  <<16   <<12       <<8    <<4       <<0
+			final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
+			if ((operatorSignature & CompareMASK) == (alternateOperatorSignature & CompareMASK)) { // same promotions and result
+				if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)left,  TypeBinding.wellKnownType(scope, left.implicitConversion >> 4)); 
+				if (unnecessaryRightCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)right, TypeBinding.wellKnownType(scope,  right.implicitConversion >> 4));
+			}
+		}
+	}
+
 	private static void checkAlternateBinding(BlockScope scope, Expression receiver, ReferenceBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
 
 			InvocationSite fakeInvocationSite = new InvocationSite(){	
