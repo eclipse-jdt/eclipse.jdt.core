@@ -136,7 +136,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	} else {
 	    this.codegenBinding = this.binding;
 	}
-	
+	// TODO (philippe) determine whether code below should use binding or codegenBinding
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
