@@ -74,13 +74,17 @@ static final char[][][] WellKnownQualifiedNames = new char[][][] {
 	TypeConstants.JAVA_LANG_OBJECT,
 	TypeConstants.JAVA_LANG,
 	new char[][] {TypeConstants.JAVA},
+	new char[][] {new char[] {'o', 'r', 'g'}},
+	new char[][] {new char[] {'c', 'o', 'm'}},
 	TypeConstants.NoCharChar}; // default package
 static final char[][] WellKnownSimpleNames = new char[][] {
 	TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION[2],
 	TypeConstants.JAVA_LANG_THROWABLE[2],
 	TypeConstants.JAVA_LANG_OBJECT[2],
 	TypeConstants.JAVA,
-	TypeConstants.LANG};
+	TypeConstants.LANG,
+	new char[] {'o', 'r', 'g'},
+	new char[] {'c', 'o', 'm'}};
 
 static final char[][][] EmptyQualifiedNames = new char[0][][];
 static final char[][] EmptySimpleNames = new char[0][];
@@ -108,19 +112,19 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	next : for (int i = 0; i < length; i++) {
 		char[][] qualifiedName = qualifiedNames[i];
 		int qLength = qualifiedName.length;
+		for (int j = 0, k = WellKnownQualifiedNames.length; j < k; j++) {
+			char[][] wellKnownName = WellKnownQualifiedNames[j];
+			if (qLength > wellKnownName.length)
+				break; // all remaining well known names are shorter
+			if (qLength == wellKnownName.length && CharOperation.equals(qualifiedName, wellKnownName))
+				continue next;
+		}
 		for (int j = 0, k = InternedQualifiedNames.size(); j < k; j++) {
 			char[][] internedName = (char[][]) InternedQualifiedNames.get(j);
 			if (qLength == internedName.length && CharOperation.equals(qualifiedName, internedName)) {
 				keepers[index++] = internedName;
 				continue next;
 			}
-		}
-		for (int j = 0, k = WellKnownQualifiedNames.length; j < k; j++) {
-			char[][] wellKnownName = WellKnownQualifiedNames[j];
-			if (qLength > wellKnownName.length)
-				break; // all other well known names are shorter
-			if (qLength == wellKnownName.length && CharOperation.equals(qualifiedName, wellKnownName))
-				continue next;
 		}
 		qualifiedName = internSimpleNames(qualifiedName, false);
 		InternedQualifiedNames.add(qualifiedName);
@@ -154,20 +158,20 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown)
 	next : for (int i = 0; i < length; i++) {
 		char[] name = simpleNames[i];
 		int sLength = name.length;
+		for (int j = 0, k = WellKnownSimpleNames.length; j < k; j++) {
+			char[] wellKnownName = WellKnownSimpleNames[j];
+			if (sLength > wellKnownName.length)
+				break; // all remaining well known names are shorter
+			if (sLength == wellKnownName.length && CharOperation.equals(name, wellKnownName)) {
+				if (!removeWellKnown)
+					keepers[index++] = WellKnownSimpleNames[j];
+				continue next;
+			}
+		}
 		for (int j = 0, k = InternedSimpleNames.size(); j < k; j++) {
 			char[] internedName = (char[]) InternedSimpleNames.get(j);
 			if (sLength == internedName.length && CharOperation.equals(name, internedName)) {
 				keepers[index++] = internedName;
-				continue next;
-			}
-		}
-		for (int j = 0, k = WellKnownSimpleNames.length; j < k; j++) {
-			char[] wellKnownName = WellKnownSimpleNames[j];
-			if (sLength > wellKnownName.length)
-				break; // all other well known names are shorter
-			if (sLength == wellKnownName.length && CharOperation.equals(name, wellKnownName)) {
-				if (!removeWellKnown)
-					keepers[index++] = WellKnownSimpleNames[j];
 				continue next;
 			}
 		}

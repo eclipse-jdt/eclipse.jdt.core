@@ -11,7 +11,7 @@ char[][] additionalTypeNames;
 
 public AdditionalTypeCollection(char[][] additionalTypeNames, char[][][] qualifiedReferences, char[][] simpleNameReferences) {
 	super(qualifiedReferences, simpleNameReferences);
-	this.additionalTypeNames = internSimpleNames(additionalTypeNames, false);
+	this.additionalTypeNames = additionalTypeNames; // do not bother interning member type names (ie. 'A$M')
 }
 }
 
