@@ -260,8 +260,11 @@ protected  ClassFileReader classFileReader(IType type) {
 			manager.closeZipFile(zipFile);
 		}
 	} catch (ClassFormatException e) {
+		// invalid class file: return null
 	} catch (CoreException e) {
+		// cannot read class file: return null
 	} catch (IOException e) {
+		// cannot read class file: return null
 	}
 	return null;
 }
@@ -285,6 +288,7 @@ protected char[][][] computeSuperTypeNames(IType focusType) {
 	try {
 		this.allSuperTypeNames = superTypeNamesCollector.collect();
 	} catch (JavaModelException e) {
+		// problem collecting super type names: leave it null
 	}
 	return this.allSuperTypeNames;
 }
@@ -890,6 +894,7 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qua
 			try {
 				token = scanner.getNextToken();
 			} catch (InvalidInputException e) {
+				// ignore
 			}
 		} while (token !=  TerminalTokens.TokenNameIdentifier && token !=  TerminalTokens.TokenNameEOF);
 
@@ -911,6 +916,7 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qua
 			try {
 				token = scanner.getNextToken();
 			} catch (InvalidInputException e) {
+				// ignore
 			}
 		}
 		if (i == tokenNumber) {
@@ -948,12 +954,12 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] tok
 		try {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
+			//ignore
 		}
 		if (token != TerminalTokens.TokenNameEOF) {
 			char[] currentTokenSource = scanner.getCurrentTokenSource();
 			boolean equals = false;
-			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource))) {
-			}
+			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource)));
 			if (equals && (previousValid == -1 || previousValid == i - 2)) {
 				previousValid = i - 1;
 				if (refSourceStart == -1)
@@ -968,6 +974,7 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] tok
 			try {
 				token = scanner.getNextToken();
 			} catch (InvalidInputException e) {
+				// ignore
 			}
 		}
 		if (accuracies[accuracyIndex] != -1) {
@@ -1051,6 +1058,7 @@ public void reportMethodDeclaration(AbstractMethodDeclaration methodDeclaration,
 	try {
 		scanner.getNextToken();
 	} catch (InvalidInputException e) {
+		// ignore
 	}
 	int nameSourceEnd = scanner.currentPosition - 1;
 

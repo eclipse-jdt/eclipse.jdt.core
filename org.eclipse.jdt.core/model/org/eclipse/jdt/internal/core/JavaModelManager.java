@@ -568,6 +568,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Constructs a new JavaModelManager
 	 */
 	private JavaModelManager() {
+		// singleton: prevent others from creating a new instance
 	}
 
 	/**
