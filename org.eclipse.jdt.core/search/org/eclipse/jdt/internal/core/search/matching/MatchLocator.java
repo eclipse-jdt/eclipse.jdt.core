@@ -1239,7 +1239,7 @@ protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJa
 		if (token != TerminalTokens.TokenNameEOF) {
 			char[] currentTokenSource = scanner.getCurrentTokenSource();
 			boolean equals = false;
-			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource)));
+			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource))){/*empty*/}
 			if (equals && (previousValid == -1 || previousValid == i - 2)) {
 				previousValid = i - 1;
 				if (refSourceStart == -1)

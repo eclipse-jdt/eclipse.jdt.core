@@ -484,7 +484,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		// remaining tokens in the input.
 		//
 		int i;
-		for (i = BUFF_UBOUND; lexStream.kind(buffer[i]) == EOFT_SYMBOL; i--);
+		for (i = BUFF_UBOUND; lexStream.kind(buffer[i]) == EOFT_SYMBOL; i--){/*empty*/}
 
 		reportError(DELETION_CODE,
 					Parser.terminal_index[prevtokKind],//Parser.terminal_index[lexStream.kind(prevtok)],
@@ -1393,7 +1393,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	                for (j = Parser.scope_state_set[i];
 	                     stck[stack_position] != Parser.scope_state[j] &&
 	                     Parser.scope_state[j] != 0;
-	                     j++);
+	                     j++){/*empty*/}
 	                //
 	                // If the top state is valid for scope recovery,
 	                // the left-hand side of the scope is used as
@@ -1550,7 +1550,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			for (next_last_index = MAX_DISTANCE - 1;
 				 next_last_index >= 1 &&
 				 lexStream.kind(buffer[next_last_index]) == EOFT_SYMBOL;
-				 next_last_index--);
+				 next_last_index--){/*empty*/}
 			next_last_index = next_last_index + 1;
 
 			save_location = locationStack[nextStackTop];
@@ -1592,7 +1592,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 
 		for (last_index = MAX_DISTANCE - 1;
 			 last_index >= 1 && lexStream.kind(buffer[last_index]) == EOFT_SYMBOL;
-			 last_index--);
+			 last_index--){/*empty*/}
 		last_index++;
 
 		misplaced = misplacementRecovery(stack, stateStackTop,

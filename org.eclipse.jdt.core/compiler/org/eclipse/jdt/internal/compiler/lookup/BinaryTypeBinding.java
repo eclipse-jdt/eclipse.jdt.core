@@ -198,7 +198,7 @@ private MethodBinding createMethod(IBinaryMethod method) {
 		if (nextChar != '[') {
 			numOfParams++;
 			if (nextChar == 'L')
-				while ((nextChar = methodSignature[++index]) != ';');
+				while ((nextChar = methodSignature[++index]) != ';'){/*empty*/}
 		}
 	}
 
@@ -210,9 +210,9 @@ private MethodBinding createMethod(IBinaryMethod method) {
 		index = 1;
 		int end = 0;   // first character is always '(' so skip it
 		for (int i = 0; i < numOfParams; i++) {
-			while ((nextChar = methodSignature[++end]) == '[');
+			while ((nextChar = methodSignature[++end]) == '['){/*empty*/}
 			if (nextChar == 'L')
-				while ((nextChar = methodSignature[++end]) != ';');
+				while ((nextChar = methodSignature[++end]) != ';'){/*empty*/}
 
 			if (i >= startIndex)   // skip the synthetic arg if necessary
 				parameters[i - startIndex] = environment.getTypeFromSignature(methodSignature, index, end);

@@ -2439,7 +2439,7 @@ public int scanIdentifierOrKeyword() {
 	//keywors with the same length AND the same first char, then do another
 	//dispatch on the second char 
 	this.useAssertAsAnIndentifier = false;
-	while (getNextCharAsJavaIdentifierPart());
+	while (getNextCharAsJavaIdentifierPart()){/*empty*/}
 
 	int index, length;
 	char[] data;
@@ -3025,7 +3025,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 			if (Character.digit(this.currentCharacter, 16) == -1)
 				throw new InvalidInputException(INVALID_HEXA);
 			//---end forcing--
-			while (getNextCharAsDigit(16));
+			while (getNextCharAsDigit(16)){/*empty*/}
 			if (getNextChar('l', 'L') >= 0)
 				return TokenNameLongLiteral;
 			else
@@ -3035,7 +3035,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 		//there is x or X in the number
 		//potential octal ! ... some one may write 000099.0 ! thus 00100 < 00078.0 is true !!!!! crazy language
 		if (getNextCharAsDigit()) { //-------------potential octal-----------------
-			while (getNextCharAsDigit());
+			while (getNextCharAsDigit()){/*empty*/}
 
 			if (getNextChar('l', 'L') >= 0) {
 				return TokenNameLongLiteral;
@@ -3051,7 +3051,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				boolean isInteger = true;
 				if (getNextChar('.')) { 
 					isInteger = false;
-					while (getNextCharAsDigit());
+					while (getNextCharAsDigit()){/*empty*/}
 				}
 				if (getNextChar('e', 'E') >= 0) { // consume next character
 					isInteger = false;
@@ -3079,7 +3079,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 					}
 					if (!Character.isDigit(this.currentCharacter))
 						throw new InvalidInputException(INVALID_FLOAT);
-					while (getNextCharAsDigit());
+					while (getNextCharAsDigit()){/*empty*/}
 				}
 				if (getNextChar('f', 'F') >= 0)
 					return TokenNameFloatingPointLiteral;
@@ -3092,13 +3092,13 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 		}
 	}
 
-	while (getNextCharAsDigit());
+	while (getNextCharAsDigit()){/*empty*/}
 
 	if ((!dotPrefix) && (getNextChar('l', 'L') >= 0))
 		return TokenNameLongLiteral;
 
 	if ((!dotPrefix) && (getNextChar('.'))) { //decimal part that can be empty
-		while (getNextCharAsDigit());
+		while (getNextCharAsDigit()){/*empty*/}
 		floating = true;
 	}
 
@@ -3131,7 +3131,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 		}
 		if (!Character.isDigit(this.currentCharacter))
 			throw new InvalidInputException(INVALID_FLOAT);
-		while (getNextCharAsDigit());
+		while (getNextCharAsDigit()){/*empty*/}
 	}
 
 	if (getNextChar('d', 'D') >= 0)

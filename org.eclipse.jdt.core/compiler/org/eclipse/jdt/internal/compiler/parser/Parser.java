@@ -205,7 +205,7 @@ public final void arrayInitializer(int length) {
 	int searchPosition = length == 0 ? this.endPosition + 1 : ai.expressions[0].sourceStart;
 	try {
 		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
-		while (this.scanner.source[--searchPosition] != '{');
+		while (this.scanner.source[--searchPosition] != '{'){/*empty*/}
 	} catch (IndexOutOfBoundsException ex) {
 		//should never occur (except for strange cases like whose describe above)
 		searchPosition = (length == 0 ? this.endPosition : ai.expressions[0].sourceStart) - 1;
@@ -227,7 +227,7 @@ private final static void buildFileOfByteFor(String filename, String tag, String
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag));
+	while (!tokens[i++].equals(tag)){/*empty*/}
 	//read upto the }
 	
 	byte[] bytes = new byte[tokens.length]; //can't be bigger
@@ -249,7 +249,7 @@ private final static char[] buildFileOfIntFor(String filename, String tag, Strin
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag));
+	while (!tokens[i++].equals(tag)){/*empty*/}
 	//read upto the }
 	
 	char[] chars = new char[tokens.length]; //can't be bigger
@@ -272,7 +272,7 @@ private final static void buildFileOfShortFor(String filename, String tag, Strin
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag));
+	while (!tokens[i++].equals(tag)){/*empty*/}
 	//read upto the }
 	
 	char[] chars = new char[tokens.length]; //can't be bigger
@@ -649,7 +649,7 @@ protected void checkNonNLSAfterBodyEnd(int declarationEnd){
 	if(this.scanner.currentPosition - 1 <= declarationEnd) {
 		this.scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
 		try {
-			while(this.scanner.getNextToken() != TokenNameEOF);
+			while(this.scanner.getNextToken() != TokenNameEOF){/*empty*/}
 			checkNonExternalizedStringLiteral();
 		} catch (InvalidInputException e) {
 			// Nothing to do

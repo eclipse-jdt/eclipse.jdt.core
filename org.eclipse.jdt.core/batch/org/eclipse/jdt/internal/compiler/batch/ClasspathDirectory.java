@@ -52,7 +52,7 @@ String[] directoryList(String qualifiedPackageName) {
 		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
 		int index = qualifiedPackageName.length();
 		int last = qualifiedPackageName.lastIndexOf(File.separatorChar);
-		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index)));
+		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index))){/*empty*/}
 		if (index > last) {
 			if (last == -1) {
 				if (!doesFileExist(qualifiedPackageName, ""))  //$NON-NLS-1$ 
