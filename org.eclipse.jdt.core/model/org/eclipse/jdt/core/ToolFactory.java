@@ -338,5 +338,53 @@ public class ToolFactory {
 		scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/,level /*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
-	}	
+	}
+
+	/**
+	 * Create a scanner, indicating the level of detail requested for tokenizing. The scanner can then be
+	 * used to tokenize some source in a Java aware way.
+	 * Here is a typical scanning loop:
+	 * 
+	 * <code>
+	 * <pre>
+	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
+	 *   scanner.setSource("int i = 0;".toCharArray());
+	 *   while (true) {
+	 *     int token = scanner.getNextToken();
+	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
+	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
+	 *   }
+	 * </pre>
+	 * </code>
+	 * 
+	 * <p>
+	 * The returned scanner will tolerate unterminated line comments (missing line separator). It can be made stricter
+	 * by using API with extra boolean parameter (<code>strictCommentMode</code>).
+	 * <p>
+	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
+	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,
+	 * @param recordLineSeparator if set to <code>true</code>, the scanner will record positions of encountered line 
+	 * separator ends. In case of multi-character line separators, the last character position is considered. These positions
+	 * can then be extracted using <code>IScanner#getLineEnds</code>. Only non-unicode escape sequences are 
+	 * considered as valid line separators.
+	 * @param sourceLevel if set to <code>&quot;1.3&quot;</code> or <code>null</code>, occurrences of 'assert' will be reported as identifiers
+	 * (<code>ITerminalSymbols#TokenNameIdentifier</code>), whereas if set to <code>&quot;1.4&quot;</code>, it
+	 * would report assert keywords (<code>ITerminalSymbols#TokenNameassert</code>). Java 1.4 has introduced
+	 * a new 'assert' keyword.
+	 * @param complianceLevel This is used to support the Unicode 4.0 character sets. if set to 1.5 or above,
+	 * the Unicode 4.0 is supporte, otherwise Unicode 3.0 is supported.
+  	 * @return a scanner
+	 * @see org.eclipse.jdt.core.compiler.IScanner
+     * @since 3.0
+	 */
+	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean recordLineSeparator, String sourceLevel, String complianceLevel) {
+		PublicScanner scanner = null;
+		long sourceLevelValue = CompilerOptions.versionToJdkLevel(sourceLevel);
+		if (sourceLevelValue == 0) sourceLevelValue = ClassFileConstants.JDK1_3; // fault-tolerance
+		long complianceLevelValue = CompilerOptions.versionToJdkLevel(complianceLevel);
+		if (complianceLevelValue == 0) complianceLevelValue = ClassFileConstants.JDK1_3; // fault-tolerance
+		scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/,sourceLevelValue /*sourceLevel*/, complianceLevelValue, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+		scanner.recordLineSeparator = recordLineSeparator;
+		return scanner;
+	}
 }
