@@ -1042,6 +1042,7 @@ public void parseCompilationUnit(ICompilationUnit unit) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 }
 /*
@@ -1062,6 +1063,7 @@ public void parseConstructor(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 }
 /*
@@ -1082,6 +1084,7 @@ public void parseField(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 
 }
@@ -1103,6 +1106,7 @@ public void parseImport(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 
 }
@@ -1127,6 +1131,7 @@ public void parseInitializer(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 
 }
@@ -1148,6 +1153,7 @@ public void parseMethod(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 
 }
@@ -1169,6 +1175,7 @@ public void parsePackage(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 
 }
@@ -1190,6 +1197,7 @@ public void parseType(char[] regionSource) {
 		scanner.setSource(regionSource);
 		parse();
 	} catch (AbortCompilation ex) {
+		// ignore this exception
 	}
 
 }

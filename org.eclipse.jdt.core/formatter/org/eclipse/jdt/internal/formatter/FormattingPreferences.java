@@ -439,6 +439,7 @@ public class FormattingPreferences {
 	public boolean preserve_user_linebreaks;
 
 	private FormattingPreferences() {
+		// default implementation: make instanciation impossible
 	}
 
 	public FormattingPreferences(Map map) {

@@ -43,11 +43,11 @@ public class EvaluationContext implements EvaluationConstants, SuffixConstants {
 	static int VAR_CLASS_COUNTER = 0;
 	static int CODE_SNIPPET_COUNTER = 0;
 
-	GlobalVariable[] variables = new GlobalVariable[5];
-	int variableCount = 0;
-	char[][] imports = CharOperation.NO_CHAR_CHAR;
-	char[] packageName = CharOperation.NO_CHAR;
-	boolean varsChanged = true;
+	GlobalVariable[] variables;
+	int variableCount;
+	char[][] imports;
+	char[] packageName;
+	boolean varsChanged;
 	VariablesInfo installedVars;
 	IBinaryType codeSnippetBinary;
 
@@ -58,12 +58,19 @@ public class EvaluationContext implements EvaluationConstants, SuffixConstants {
 	char[][] localVariableNames;
 	
 	/* can 'this' be used in this context */
-	boolean isStatic = true;
-	boolean isConstructorCall = false;
+	boolean isStatic;
+	boolean isConstructorCall;
 /**
  * Creates a new evaluation context.
  */
 public EvaluationContext() {
+	this.variables = new GlobalVariable[5];
+	this.variableCount = 0;
+	this.imports = CharOperation.NO_CHAR_CHAR;
+	this.packageName = CharOperation.NO_CHAR;
+	this.varsChanged = true;
+	this.isStatic = true;
+	this.isConstructorCall = false;
 }
 /**
  * Returns the global variables of this evaluation context in the order they were created in.

@@ -249,6 +249,7 @@ public final class Modifier {
 	 * Block instantiation.
 	 */
 	private Modifier() {
+		// default implementation: do nothing
 	}
 	
 }

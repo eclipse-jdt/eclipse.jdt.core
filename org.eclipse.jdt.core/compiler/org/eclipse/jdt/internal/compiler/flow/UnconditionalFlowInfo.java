@@ -28,7 +28,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	public long extraDefiniteInits[];
 	public long extraPotentialInits[];
 	
-	public int reachMode = REACHABLE; // by default
+	public int reachMode; // by default
 
 	public int maxFieldCount;
 	
@@ -36,6 +36,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	public static final int BitCacheSize = 64; // 64 bits in a long.
 
 	UnconditionalFlowInfo() {
+		this.reachMode = REACHABLE;
 	}
 
 	// unions of both sets of initialization - used for try/finally

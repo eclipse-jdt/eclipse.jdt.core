@@ -359,6 +359,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						formattingPreferences.page_width = val;
 					}
 				} catch(NumberFormatException e){
+					// should not happen
 				}
 			}
 			if(optionID.equals(JavaCore.FORMATTER_COMPACT_ASSIGNMENT)){
@@ -384,6 +385,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						formattingPreferences.tab_size = val;
 					}
 				} catch(NumberFormatException e){
+					// should not happen
 				}
 			}
 			if(optionID.equals(JavaCore.FORMATTER_SPACE_CASTEXPRESSION)){
@@ -1274,6 +1276,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return dimensions;
 	}
@@ -1284,6 +1287,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		try {
 			return this.localScanner.getNextToken() == ITerminalSymbols.TokenNameCOMMA;
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return false;
 	}
@@ -1315,6 +1319,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return false;
 	}
@@ -1325,6 +1330,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		try {
 			return this.localScanner.getNextToken() == ITerminalSymbols.TokenNameSEMICOLON;
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return false;
 	}

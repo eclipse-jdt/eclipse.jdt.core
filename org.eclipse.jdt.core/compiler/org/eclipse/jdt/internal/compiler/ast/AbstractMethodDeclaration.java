@@ -375,5 +375,6 @@ public abstract class AbstractMethodDeclaration
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
 		ClassScope classScope) {
+		// default implementation: subclass will define it
 	}
 }

@@ -176,6 +176,7 @@ public class CompilationUnitDeclaration
 					types[i].generateCode(scope);
 			}
 		} catch (AbortCompilationUnit e) {
+			// ignore
 		}
 	}
 
@@ -307,6 +308,7 @@ public class CompilationUnitDeclaration
 			}
 			visitor.endVisit(this, this.scope);
 		} catch (AbortCompilationUnit e) {
+			// ignore
 		}
 	}
 }

@@ -4460,8 +4460,6 @@ final public void multianewarray(TypeBinding typeBinding, int dimensions) {
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 	writeUnsignedByte(dimensions);
 }
-public static void needImplementation() {
-}
 /**
  * We didn't call it new, because there is a conflit with the new keyword
  */

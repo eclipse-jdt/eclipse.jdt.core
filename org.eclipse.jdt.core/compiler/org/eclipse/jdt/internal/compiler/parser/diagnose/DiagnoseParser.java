@@ -484,7 +484,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		// remaining tokens in the input.
 		//
 		int i;
-		for (i = BUFF_UBOUND; lexStream.kind(buffer[i]) == EOFT_SYMBOL; i--){}
+		for (i = BUFF_UBOUND; lexStream.kind(buffer[i]) == EOFT_SYMBOL; i--);
 
 		reportError(DELETION_CODE,
 					Parser.terminal_index[prevtokKind],//Parser.terminal_index[lexStream.kind(prevtok)],

@@ -2279,6 +2279,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 
@@ -2302,6 +2303,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 
@@ -2337,6 +2339,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2368,6 +2371,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return dimensions;
 	}
@@ -2399,6 +2403,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return foundPosition;
 	}
@@ -2418,6 +2423,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2444,6 +2450,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2463,6 +2470,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2482,6 +2490,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2500,6 +2509,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2519,6 +2529,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2538,6 +2549,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}	
@@ -2564,6 +2576,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2596,6 +2609,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2637,6 +2651,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return -1;
 	}
@@ -2960,6 +2975,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 	
@@ -3018,6 +3034,7 @@ class ASTConverter {
 				first = false;
 			}
 		} catch (InvalidInputException e){
+			// ignore
 		}
 	}
 	
@@ -3046,6 +3063,7 @@ class ASTConverter {
 			}
 			expression.sourceEnd = scanner.startPosition - 1;
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 
@@ -3062,6 +3080,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 		return positions;
 	}
@@ -3079,6 +3098,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 	
@@ -3105,6 +3125,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 
@@ -3136,6 +3157,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			// ignore
 		}
 	}
 	

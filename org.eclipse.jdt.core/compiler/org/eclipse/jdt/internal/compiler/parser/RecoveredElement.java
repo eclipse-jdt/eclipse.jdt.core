@@ -285,6 +285,7 @@ public void updateBodyStart(int bodyStart){
  * is about to disappear because of restarting recovery
  */
 public void updateFromParserState(){
+	// default implementation: do nothing
 }
 /*
  * A closing brace got consumed, might have closed the current element,
@@ -314,11 +315,13 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
  * Final update the corresponding parse node
  */
 public void updateParseTree(){
+	// default implementation: do nothing
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
 public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
+	// default implementation: do nothing
 }
 public void updateSourceEndIfNecessary(int sourceEnd){
 	this.updateSourceEndIfNecessary(sourceEnd + 1, sourceEnd);

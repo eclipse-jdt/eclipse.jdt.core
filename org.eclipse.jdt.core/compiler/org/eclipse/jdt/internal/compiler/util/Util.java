@@ -102,6 +102,7 @@ public class Util implements SuffixConstants {
 								output.append(argMessage);
 								done = true;
 							} catch (MissingResourceException e) {
+								// ignore
 							}
 						}
 						if (!done) output.append(message.substring(end + 1, start + 1));
@@ -159,6 +160,7 @@ public class Util implements SuffixConstants {
 				try {
 					stream.close();
 				} catch (IOException e) {
+					// ignore
 				}
 			}
 		}
@@ -178,6 +180,7 @@ public class Util implements SuffixConstants {
 				try {
 					stream.close();
 				} catch (IOException e) {
+					// ignore
 				}
 			}
 		}
@@ -326,6 +329,7 @@ public class Util implements SuffixConstants {
 				try {
 					stream.close();
 				} catch (IOException e) {
+					// ignore
 				}
 			}
 		}

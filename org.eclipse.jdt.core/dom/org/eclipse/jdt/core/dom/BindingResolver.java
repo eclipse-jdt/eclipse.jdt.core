@@ -31,6 +31,7 @@ class BindingResolver {
 	 * Creates a binding resolver.
 	 */
 	BindingResolver() {
+		// default implementation: do nothing
 	}
 
 	/**
@@ -54,6 +55,7 @@ class BindingResolver {
 	 * @param oldNode the old AST node
 	 */
 	void store(ASTNode newNode, AstNode oldASTNode) {
+		// default implementation: do nothing
 	}
 
 	/**
@@ -562,6 +564,7 @@ class BindingResolver {
 	 * @param newNode the new AST node
 	 */
 	void updateKey(ASTNode node, ASTNode newNode) {
+		// default implementation: do nothing
 	}
 	
 	/**
@@ -588,5 +591,6 @@ class BindingResolver {
 	 * @param astNode
 	 */	
 	void recordScope(ASTNode astNode, BlockScope blockScope) {
+		// default implementation: do nothing
 	}
 }

@@ -425,9 +425,11 @@ public class FlowContext implements TypeConstants {
 	}
 
 	public void recordBreakFrom(FlowInfo flowInfo) {
+		// default implementation: do nothing
 	}
 
 	public void recordContinueFrom(FlowInfo flowInfo) {
+		// default implementation: do nothing
 	}
 
 	boolean recordFinalAssignment(
@@ -438,6 +440,7 @@ public class FlowContext implements TypeConstants {
 	}
 
 	public void recordReturnFrom(FlowInfo flowInfo) {
+		// default implementation: do nothing
 	}
 
 	public void recordSettingFinal(
@@ -455,6 +458,7 @@ public class FlowContext implements TypeConstants {
 	}
 
 	void removeFinalAssignmentIfAny(Reference reference) {
+		// default implementation: do nothing
 	}
 
 	public SubRoutineStatement subRoutine() {

@@ -387,6 +387,7 @@ public class Alignment {
 	}		
 
 	public void toFragmentsString(StringBuffer buffer){
+		// default implementation
 	}
 	
 	public String toString() {

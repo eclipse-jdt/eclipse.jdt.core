@@ -107,6 +107,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 */
 	public void preVisit(ASTNode node) {
+		// default implementation: do nothing
 	}
 	
 	/**
@@ -119,6 +120,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 */
 	public void postVisit(ASTNode node) {
+		// default implementation: do nothing
 	}
 
 	public boolean visit(AnonymousClassDeclaration node) {
@@ -309,127 +311,189 @@ public abstract class ASTVisitor {
 	}
 
 	public void endVisit(AnonymousClassDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ArrayAccess node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ArrayCreation node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ArrayInitializer node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ArrayType node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(AssertStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(Assignment node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(Block node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(BooleanLiteral node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(BreakStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(CastExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(CatchClause node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(CharacterLiteral node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ClassInstanceCreation node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(CompilationUnit node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ConditionalExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ConstructorInvocation node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ContinueStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(DoStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(EmptyStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ExpressionStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(FieldAccess node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(FieldDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ForStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(IfStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ImportDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(InfixExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(InstanceofExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(Initializer node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(Javadoc node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(LabeledStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(MethodDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(MethodInvocation node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(NullLiteral node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(NumberLiteral node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(PackageDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ParenthesizedExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(PostfixExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(PrefixExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(PrimitiveType node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(QualifiedName node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ReturnStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SimpleName node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SimpleType node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(StringLiteral node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SuperConstructorInvocation node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SuperFieldAccess node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SuperMethodInvocation node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SwitchCase node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SwitchStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SynchronizedStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ThisExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(ThrowStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(TryStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(TypeDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(TypeDeclarationStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(TypeLiteral node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(SingleVariableDeclaration node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(VariableDeclarationExpression node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(VariableDeclarationStatement node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(VariableDeclarationFragment node) {
+		// default implementation: do nothing
 	}
 	public void endVisit(WhileStatement node) {
+		// default implementation: do nothing
 	}
 }

@@ -112,6 +112,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	// not supported yet
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+	// do nothing
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.

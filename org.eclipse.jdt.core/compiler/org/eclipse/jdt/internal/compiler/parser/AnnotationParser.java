@@ -200,6 +200,7 @@ public class AnnotationParser {
 				identifier = this.scanner.getCurrentIdentifierSource();
 			}
 		} catch (InvalidInputException e) {
+			// ignore
 		}
 		return identifier;
 	}

@@ -189,8 +189,7 @@ public final void arrayInitializer(int length) {
 	int searchPosition = length == 0 ? endPosition + 1 : ai.expressions[0].sourceStart;
 	try {
 		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
-		while (scanner.source[--searchPosition] != '{') {
-		}
+		while (scanner.source[--searchPosition] != '{');
 	} catch (IndexOutOfBoundsException ex) {
 		//should never occur (except for strange cases like whose describe above)
 		searchPosition = (length == 0 ? endPosition : ai.expressions[0].sourceStart) - 1;
@@ -212,7 +211,7 @@ private final static void buildFileOfByteFor(String filename, String tag, String
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag)) {}
+	while (!tokens[i++].equals(tag));
 	//read upto the }
 	
 	byte[] bytes = new byte[tokens.length]; //can't be bigger
@@ -234,7 +233,7 @@ private final static void buildFileOfIntFor(String filename, String tag, String[
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag)) {}
+	while (!tokens[i++].equals(tag));
 	//read upto the }
 	
 	char[] chars = new char[tokens.length]; //can't be bigger
@@ -256,7 +255,7 @@ private final static void buildFileOfShortFor(String filename, String tag, Strin
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag)) {}
+	while (!tokens[i++].equals(tag));
 	//read upto the }
 	
 	char[] chars = new char[tokens.length]; //can't be bigger
@@ -6117,6 +6116,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 		try {
 			stream.close();
 		} catch (IOException e) {
+			// ignore
 		}
 	}
 
@@ -6153,6 +6153,7 @@ protected static byte[] readByteTable(String filename) throws java.io.IOExceptio
 		try {
 			stream.close();
 		} catch (IOException e) {
+			// ignore
 		}
 	}
 	return bytes;

@@ -115,6 +115,7 @@ public final class Flags {
 	 * Not instantiable.
 	 */
 	private Flags() {
+		// Not instantiable
 	}
 	/**
 	 * Returns whether the given integer includes the <code>abstract</code> modifier.

@@ -21,12 +21,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[] typeName,
 		int argCount,
 		int sourcePosition) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#acceptFieldReference(char[], int)
 	 */
 	public void acceptFieldReference(char[] fieldName, int sourcePosition) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -38,12 +40,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[] name,
 		boolean onDemand,
 		int modifiers) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#acceptLineSeparatorPositions(int[])
 	 */
 	public void acceptLineSeparatorPositions(int[] positions) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -53,6 +57,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[] methodName,
 		int argCount,
 		int sourcePosition) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -62,12 +67,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		int declarationStart,
 		int declarationEnd,
 		char[] name) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#acceptProblem(IProblem)
 	 */
 	public void acceptProblem(IProblem problem) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -77,12 +84,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] typeName,
 		int sourceStart,
 		int sourceEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#acceptTypeReference(char[], int)
 	 */
 	public void acceptTypeReference(char[] typeName, int sourcePosition) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -92,12 +101,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] name,
 		int sourceStart,
 		int sourceEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#acceptUnknownReference(char[], int)
 	 */
 	public void acceptUnknownReference(char[] name, int sourcePosition) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -111,12 +122,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		int nameSourceEnd,
 		char[] superclass,
 		char[][] superinterfaces) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#enterCompilationUnit()
 	 */
 	public void enterCompilationUnit() {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -131,6 +144,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] parameterTypes,
 		char[][] parameterNames,
 		char[][] exceptionTypes) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -143,12 +157,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[] name,
 		int nameSourceStart,
 		int nameSourceEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#enterInitializer(int, int)
 	 */
 	public void enterInitializer(int declarationStart, int modifiers) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -161,6 +177,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		int nameSourceStart,
 		int nameSourceEnd,
 		char[][] superinterfaces) {
+		// default implementation: do nothing
 	}
 
 	/*
@@ -176,48 +193,56 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[][] parameterTypes,
 		char[][] parameterNames,
 		char[][] exceptionTypes) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitClass(int)
 	 */
 	public void exitClass(int declarationEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitCompilationUnit(int)
 	 */
 	public void exitCompilationUnit(int declarationEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitConstructor(int)
 	 */
 	public void exitConstructor(int declarationEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitField(int)
 	 */
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitInitializer(int)
 	 */
 	public void exitInitializer(int declarationEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitInterface(int)
 	 */
 	public void exitInterface(int declarationEnd) {
+		// default implementation: do nothing
 	}
 
 	/*
 	 * @see ISourceElementRequestor#exitMethod(int)
 	 */
 	public void exitMethod(int declarationEnd) {
+		// default implementation: do nothing
 	}
 
 }

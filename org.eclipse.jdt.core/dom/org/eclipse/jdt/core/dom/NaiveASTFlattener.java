@@ -39,12 +39,13 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
-	private StringBuffer buffer = new StringBuffer(6000);
+	private StringBuffer buffer;
 	
 	/**
 	 * Creates a new AST printer.
 	 */
 	NaiveASTFlattener() {
+		this.buffer = new StringBuffer(6000);
 	}
 	
 	/**

@@ -1013,6 +1013,7 @@ public void parseCompilationUnit(
 		this.scanner.resetTo(start, end);
 		notifySourceElementRequestor(parsedUnit);
 	} catch (AbortCompilation e) {
+		// ignore this exception
 	} finally {
 		diet = old;
 	}
@@ -1045,6 +1046,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		notifySourceElementRequestor(parsedUnit);
 		return parsedUnit;
 	} catch (AbortCompilation e) {
+		// ignore this exception
 	} finally {
 		diet = old;
 	}
@@ -1098,6 +1100,7 @@ public void parseTypeMemberDeclarations(
 			compilationUnit = null; // reset parser
 		}
 	} catch (AbortCompilation e) {
+		// ignore this exception
 	} finally {
 		if (scanner.recordLineSeparator) {
 			requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
@@ -1135,6 +1138,7 @@ public void parseTypeMemberDeclarations(
 		parse();
 		notifySourceElementRequestor((CompilationUnitDeclaration)null);
 	} catch (AbortCompilation e) {
+		// ignore this exception
 	} finally {
 		diet = old;
 	}

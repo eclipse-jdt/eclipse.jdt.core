@@ -589,7 +589,9 @@ public void constantOutOfFormat(NumberLiteral literal) {
 				literal.sourceStart,
 				literal.sourceEnd);
 			return;
-		} catch (IndexOutOfBoundsException ex) {}
+		} catch (IndexOutOfBoundsException ex) {
+			// should never happen
+		}
 	
 		// just in case .... use a predefined error..
 		// we should never come here...(except if the code changes !)

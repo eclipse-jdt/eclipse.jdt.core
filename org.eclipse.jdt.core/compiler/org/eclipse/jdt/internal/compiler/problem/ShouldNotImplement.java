@@ -17,9 +17,7 @@ package org.eclipse.jdt.internal.compiler.problem;
  *	(internal only)
  */
 public class ShouldNotImplement extends RuntimeException {
-public ShouldNotImplement(){
-}
-public ShouldNotImplement(String message){
-	super(message);
-}
+	public ShouldNotImplement(String message) {
+		super(message);
+	}
 }

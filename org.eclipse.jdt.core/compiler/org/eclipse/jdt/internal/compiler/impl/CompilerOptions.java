@@ -195,6 +195,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	 * Initializing the compiler options with defaults
 	 */
 	public CompilerOptions(){
+		// use default options
 	}
 
 	/** 

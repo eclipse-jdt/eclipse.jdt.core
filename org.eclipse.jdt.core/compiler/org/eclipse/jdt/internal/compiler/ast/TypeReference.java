@@ -26,7 +26,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 
 // allows us to trap completion & selection nodes
-public void aboutToResolve(Scope scope) {}
+public void aboutToResolve(Scope scope) {
+	// default implementation: do nothing
+}
 /*
  * Answer a base type reference (can be an array of base type).
  */

@@ -46,12 +46,6 @@ import java.util.List;
 public class ASTMatcher {
 
 	/**
-	 * Creates a new AST matcher.
-	 */
-	public ASTMatcher() {
-	}
-
-	/**
 	 * Returns whether the given lists of AST nodes match pair wise according
 	 * to <code>ASTNode.subtreeMatch</code>.
 	 * <p>

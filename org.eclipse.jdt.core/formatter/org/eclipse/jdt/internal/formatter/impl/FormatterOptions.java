@@ -67,6 +67,7 @@ public class FormatterOptions {
  * Initializing the formatter options with default settings
  */
 public FormatterOptions(){
+	// empty constructor
 }
 /** 
  * Initializing the formatter options with external settings
@@ -147,6 +148,7 @@ public FormatterOptions(Map settings){
 				int val = Integer.parseInt(optionValue);
 				if (val >= 0) this.maxLineLength = val;
 			} catch(NumberFormatException e){
+				// should not happen
 			}
 		}
 		if(optionID.equals(OPTION_CompactAssignment)){
@@ -170,6 +172,7 @@ public FormatterOptions(Map settings){
 				int val = Integer.parseInt(optionValue);
 				if (val > 0) this.tabSize = val;
 			} catch(NumberFormatException e){
+				// should not happen
 			}
 		}
 		if(optionID.equals(OPTION_InsertSpaceAfterCast)){

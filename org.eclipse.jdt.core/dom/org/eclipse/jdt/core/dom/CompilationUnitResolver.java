@@ -178,6 +178,7 @@ class CompilationUnitResolver extends Compiler {
 	protected static ICompilerRequestor getRequestor() {
 		return new ICompilerRequestor() {
 			public void acceptResult(CompilationResult compilationResult) {
+				// do nothing
 			}
 		};
 	}
