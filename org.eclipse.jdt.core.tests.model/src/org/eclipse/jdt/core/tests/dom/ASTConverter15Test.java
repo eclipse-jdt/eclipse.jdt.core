@@ -16,8 +16,35 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IExtendedModifier;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 
 public class ASTConverter15Test extends ConverterTestSetup {
 	
@@ -30,7 +57,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0014"));
+		suite.addTest(new ASTConverter15Test("test0015"));
 		return suite;
 	}
 		
@@ -459,6 +486,34 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, typeArguments.size());
 		typeArgument = (Type) typeArguments.get(0);
 		checkSourceRange(typeArgument, "A", source);
-	}	
+	}
+	
+	public void test0015() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0015", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		SimpleName name = typeDeclaration.getName();
+		assertEquals("Wrong name", "X", name.getIdentifier());
+		checkSourceRange(name, "X", source);
+		List typeParameters = typeDeclaration.typeParameters();
+		assertEquals("Wrong size", 1, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		checkSourceRange(typeParameter.getName(), "A", source);
+		checkSourceRange(typeParameter, "A extends Object & java.io.Serializable & Comparable", source);
+		List typeBounds = typeParameter.typeBounds();
+		assertEquals("Wrong size", 3, typeBounds.size());
+		Type typeBound = (Type) typeBounds.get(0);
+		checkSourceRange(typeBound, "Object", source);	
+		typeBound = (Type) typeBounds.get(1);
+		checkSourceRange(typeBound, "java.io.Serializable", source);
+		typeBound = (Type) typeBounds.get(2);
+		checkSourceRange(typeBound, "Comparable", source);		
+	}
 }
 
