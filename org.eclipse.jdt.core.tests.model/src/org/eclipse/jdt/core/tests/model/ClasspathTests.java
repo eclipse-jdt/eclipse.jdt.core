@@ -2794,17 +2794,11 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
-					startMeasuring(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-					stopMeasuring();
 				}
-				startMeasuring(); // time spent in delta refresh
 			}
 		}, 
 		null);
-		stopMeasuring();
-		commitMeasurements();
-		assertPerformance();
 		
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
