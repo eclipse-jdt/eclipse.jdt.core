@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -148,8 +149,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 
-
-
 	/**
 	 * Closes the given element, which removes it from the cache of open elements.
 	 */
@@ -247,6 +246,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			boolean hasDelta = false;
 
 			IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
+			IWorkspaceRoot wksRoot = ResourcesPlugin.getWorkspace().getRoot();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				
 				if (monitor != null && monitor.isCanceled()) return; 
@@ -264,7 +264,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 						if (status == null){
 							
 							// compute shared status
-							Object targetLibrary = JavaModel.getTarget(project.getProject(), entryPath, true);
+							Object targetLibrary = JavaModel.getTarget(wksRoot, entryPath, true);
 
 							if (targetLibrary == null){ // missing JAR
 								if (this.externalTimeStamps.containsKey(entryPath)){
@@ -316,20 +316,22 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 						// according to computed status, generate a delta
 						status = (String)externalArchivesStatus.get(entryPath); 
 						if (status != null){
-							PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
 							if (status == EXTERNAL_JAR_ADDED){
+								PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
 								if (VERBOSE){
 									System.out.println("- External JAR ADDED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								} 
 								elementAdded(root, null);
 								hasDelta = true;
 							} else if (status == EXTERNAL_JAR_CHANGED) {
+								PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
 								if (VERBOSE){
 									System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								}
 								contentChanged(root, null);
 								hasDelta = true;
 							} else if (status == EXTERNAL_JAR_REMOVED) {
+								PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
 								if (VERBOSE){
 									System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 								}
@@ -1199,7 +1201,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						} else {
 							this.elementRemoved(element, delta);
 							this.indexManager.discardJobs(element.getElementName());
-							this.indexManager.removeIndexFamily(res.getFullPath());
+							this.indexManager.removeIndex(res.getFullPath());
 						}
 						return false; // when a project's nature is added/removed don't process children
 					}
@@ -1790,5 +1792,32 @@ private void updateRoots(Openable project, IResourceDelta projectDelta) {
 		}
 	}
 }
-
-}
+/*
+ * Update the roots that are affected by the addition or the removal of the given project.
+ */
+private void updateRoots(Openable project, IResourceDelta projectDelta) {
+	IPath projectPath = project.getPath();
+	Iterator iterator = this.roots.keySet().iterator();
+	while (iterator.hasNext()) {
+		IPath path = (IPath)iterator.next();
+		if (projectPath.isPrefixOf(path) && !projectPath.equals(path)) {
+			IResourceDelta rootDelta = projectDelta.findMember(path.removeFirstSegments(1));
+			IJavaProject rootProject = (IJavaProject)this.roots.get(path);
+			try {
+				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
+			} catch (JavaModelException e) {
+			}
+			HashSet set = (HashSet)this.otherRoots.get(path);
+			if (set != null) {
+				Iterator otherProjects = set.iterator();
+				while (otherProjects.hasNext()) {
+					rootProject = (IJavaProject)otherProjects.next();
+					try {
+						this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
+					} catch (JavaModelException e) {
+					}
+				}
+			}
+		}
+	}
+}}
