@@ -2579,12 +2579,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(TerminalTokens.TokenNameelse, true);
 			if (this.preferences.insert_new_line_in_control_statements) {
 				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
+				if (elseStatement instanceof IfStatement) {
+					if (!this.preferences.compact_else_if) {
+						this.scribe.printNewLine();
+					}
+				} else {
+					this.scribe.printNewLine();
+				}
 			}
 			if (elseStatement instanceof Block) {
 				elseStatement.traverse(this, scope);
 			} else if (elseStatement instanceof IfStatement) {
 				if (!this.preferences.compact_else_if) {
+					this.scribe.printNewLine();
 					this.scribe.indent();
 				}
 				this.scribe.space();				

@@ -1212,7 +1212,7 @@ public class DefaultCodeFormatterOptions {
 		if (newLineControl != null) {
 			this.insert_new_line_in_control_statements = JavaCore.INSERT.equals(newLineControl);
 		}
-		final Object newLineElseIf  = settings.get(JavaCore.FORMATTER_NEWLINE_CONTROL);
+		final Object newLineElseIf  = settings.get(JavaCore.FORMATTER_NEWLINE_ELSE_IF);
 		if (newLineElseIf != null) {
 			this.compact_else_if = JavaCore.DO_NOT_INSERT.equals(newLineElseIf);
 		}
