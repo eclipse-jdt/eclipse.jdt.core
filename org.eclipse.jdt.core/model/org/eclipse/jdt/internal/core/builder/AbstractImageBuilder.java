@@ -114,7 +114,7 @@ public void acceptResult(CompilationResult result) {
 				newState.recordLocatorForType(qualifiedTypeName, typeLocator);
 			}
 			try {
-				definedTypeNames.add(writeClassFile(classFile, compilationUnit.sourceLocation.binaryFolder, !isNestedType));
+				definedTypeNames.add(writeClassFile(classFile, compilationUnit, !isNestedType));
 			} catch (CoreException e) {
 				Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 				if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
@@ -431,9 +431,10 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, boolean isSecondaryType) throws CoreException {
+protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isSecondaryType) throws CoreException {
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
 	IPath filePath = new Path(fileName);
+	IContainer outputFolder = compilationUnit.sourceLocation.binaryFolder; 
 	IContainer container = outputFolder;
 	if (filePath.segmentCount() > 1) {
 		container = createFolder(filePath.removeLastSegments(1), outputFolder);
@@ -441,12 +442,12 @@ protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, bo
 	}
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
-	writeClassFileBytes(classFile.getBytes(), file, fileName, isSecondaryType);
+	writeClassFileBytes(classFile.getBytes(), file, fileName, isSecondaryType, compilationUnit.updateClassFile);
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType) throws CoreException {
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType, boolean updateClassFile) throws CoreException {
 	if (file.exists()) {
 		// Deal with shared output folders... last one wins... no collision cases detected
 		if (JavaBuilder.DEBUG)

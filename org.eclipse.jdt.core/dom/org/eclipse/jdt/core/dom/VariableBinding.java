@@ -12,7 +12,13 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 /**
  * Internal implementation of variable bindings.
@@ -24,6 +30,7 @@ class VariableBinding implements IVariableBinding {
 	private String name;
 	private ITypeBinding declaringClass;
 	private ITypeBinding type;
+	private String key;
 
 	VariableBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
 		this.resolver = resolver;
@@ -52,8 +59,8 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public ITypeBinding getDeclaringClass() {
 		if (isField()) {
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (this.declaringClass == null) {
+				FieldBinding fieldBinding = (FieldBinding) this.binding;
 				this.declaringClass = this.resolver.getTypeBinding(fieldBinding.declaringClass);
 			}
 			return this.declaringClass;
@@ -61,7 +68,7 @@ class VariableBinding implements IVariableBinding {
 			return null;
 		}
 	}
-
+	
 	/*
 	 * @see IVariableBinding#getType()
 	 */
@@ -116,15 +123,56 @@ class VariableBinding implements IVariableBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
-		if (isField()) {
-			StringBuffer buffer = new StringBuffer();
-			if (this.getDeclaringClass() != null) {
-				buffer.append(this.getDeclaringClass().getKey());
+		if (this.key == null) {
+			if (isField()) {
+				StringBuffer buffer = new StringBuffer();
+				if (this.getDeclaringClass() != null) {
+					buffer.append(this.getDeclaringClass().getKey());
+				}
+				buffer.append(this.getName());
+				this.key = buffer.toString();
+			} else {
+				StringBuffer buffer = new StringBuffer();
+				
+				// declaring method or type
+				LocalVariableBinding localVarBinding = (LocalVariableBinding) this.binding;
+				BlockScope scope = localVarBinding.declaringScope;
+				MethodScope methodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
+				ReferenceContext referenceContext = methodScope.referenceContext;
+				if (referenceContext instanceof AbstractMethodDeclaration) {
+					org.eclipse.jdt.internal.compiler.lookup.MethodBinding internalBinding = ((AbstractMethodDeclaration) referenceContext).binding;
+					IMethodBinding methodBinding = this.resolver.getMethodBinding(internalBinding);
+					if (methodBinding != null) {
+						buffer.append(methodBinding.getKey());
+					}
+				} else if (referenceContext instanceof TypeDeclaration) {
+					org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = ((TypeDeclaration) referenceContext).binding;
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
+					if (typeBinding != null) {
+						buffer.append(typeBinding.getKey());
+					}
+				}
+	
+				// scope index
+				getKey(scope, buffer);
+	
+				// variable name
+				buffer.append('/');
+				buffer.append(getName());
+				
+				this.key = buffer.toString();
 			}
-			buffer.append(this.getName());
-			return buffer.toString();
-		}			
-		return null;
+		}
+		return this.key;
+	}
+	
+	private void getKey(BlockScope scope, StringBuffer buffer) {
+		int scopeIndex = scope.scopeIndex();
+		if (scopeIndex != -1) {
+			getKey((BlockScope)scope.parent, buffer);
+			buffer.append('/');
+			buffer.append(scopeIndex);
+		}
 	}
 	
 	/*

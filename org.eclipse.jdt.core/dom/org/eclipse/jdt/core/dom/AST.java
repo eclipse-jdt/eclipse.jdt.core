@@ -335,6 +335,7 @@ public final class AST {
 
 		if (resolveBindings) {
 			NameLookup lookup = null;
+			CompilationUnitDeclaration compilationUnitDeclaration = null;
 			try {
 				// set the units to look inside
 				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
@@ -343,7 +344,7 @@ public final class AST {
 				lookup.setUnitsToLookInside(workingCopies);
 				
 				// parse and resolve
-				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(unit);
+				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/);
 				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true);
 				AST ast = new AST();
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -361,6 +362,9 @@ public final class AST {
 				 */
 				return parseCompilationUnit(source);			
 			} finally {
+				if (compilationUnitDeclaration != null) {
+					compilationUnitDeclaration.cleanUp();
+				}
 				if (lookup != null) {
 					lookup.setUnitsToLookInside(null);
 				}
@@ -533,6 +537,7 @@ public final class AST {
 		buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
 		IJavaProject project = classFile.getJavaProject();
 		NameLookup lookup = null;
+		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		try {
 			// set the units to look inside
 			lookup = ((JavaProject)project).getNameLookup();
@@ -541,12 +546,13 @@ public final class AST {
 			lookup.setUnitsToLookInside(workingCopies);
 			
 			// parse and resolve
-			CompilationUnitDeclaration compilationUnitDeclaration =
+			compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
 					source,
 					CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray()),
 					buffer.toString(),
-					project);
+					project,
+					false/*don't cleanup*/);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -564,6 +570,9 @@ public final class AST {
 			 */
 			return parseCompilationUnit(source);			
 		} finally {
+			if (compilationUnitDeclaration != null) {
+				compilationUnitDeclaration.cleanUp();
+			}
 			if (lookup != null) {
 				lookup.setUnitsToLookInside(null);
 			}
@@ -735,6 +744,7 @@ public final class AST {
 		}
 	
 		NameLookup lookup = null;
+		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		try {
 			// set the units to look inside
 			lookup = ((JavaProject)project).getNameLookup();
@@ -743,11 +753,12 @@ public final class AST {
 			lookup.setUnitsToLookInside(workingCopies);
 				
 				// parse and resolve
-			CompilationUnitDeclaration compilationUnitDeclaration =
+			compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
 					source,
 					unitName,
-					project);
+					project,
+					false/*don't cleanup*/);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -765,6 +776,9 @@ public final class AST {
 			 */
 			return parseCompilationUnit(source);			
 		} finally {
+			if (compilationUnitDeclaration != null) {
+				compilationUnitDeclaration.cleanUp();
+			}
 			if (lookup != null) {
 				lookup.setUnitsToLookInside(null);
 			}
@@ -1045,6 +1059,7 @@ public final class AST {
 		final Map options = unit.getJavaProject().getOptions(true);
 		if (resolveBindings) {
 			NameLookup lookup = null;
+			CompilationUnitDeclaration compilationUnitDeclaration = null;
 			try {
 				// set the units to look inside
 				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
@@ -1053,9 +1068,10 @@ public final class AST {
 				lookup.setUnitsToLookInside(workingCopies);
 
 				// parse and resolve
-				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(
+				compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
-					searcher);
+					searcher,
+					false/*don't cleanup*/);
 				
 				ASTConverter converter = new ASTConverter(options, true);
 				AST ast = new AST();
@@ -1072,7 +1088,7 @@ public final class AST {
 				 * then we simply do a parsing without creating bindings.
 				 * Therefore all binding resolution will return null.
 				 */
-				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.parse(
+				CompilationUnitDeclaration compilationUnitDeclaration2 = CompilationUnitResolver.parse(
 					source,
 					searcher,
 					options);
@@ -1083,11 +1099,14 @@ public final class AST {
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
 	
-				CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
-				compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+				CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration2, source);
+				compilationUnit.setLineEndTable(compilationUnitDeclaration2.compilationResult.lineSeparatorPositions);
 				resolver.storeModificationCount(ast.modificationCount());
 				return compilationUnit;
 			} finally {
+				if (compilationUnitDeclaration != null) {
+					compilationUnitDeclaration.cleanUp();
+				}
 				if (lookup != null) {
 					lookup.setUnitsToLookInside(null);
 				}

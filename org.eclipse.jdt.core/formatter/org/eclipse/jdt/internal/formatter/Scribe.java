@@ -642,12 +642,12 @@ public class Scribe {
 			if (this.memberAlignment != null) {
 				// select the last alignment
 				if (this.currentAlignment.location.inputOffset > this.memberAlignment.location.inputOffset) {
-					this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+					this.indentationLevel = Math.max(this.indentationLevel, this.currentAlignment.breakIndentationLevel);
 				} else {
-					this.indentationLevel = this.memberAlignment.breakIndentationLevel;
+					this.indentationLevel = Math.max(this.indentationLevel, this.memberAlignment.breakIndentationLevel);
 				}
 			} else {
-				this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+				this.indentationLevel = Math.max(this.indentationLevel, this.currentAlignment.breakIndentationLevel);
 			}
 		}
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);

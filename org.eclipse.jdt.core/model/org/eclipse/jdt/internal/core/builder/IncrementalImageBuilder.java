@@ -393,7 +393,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 					case IResourceDelta.ADDED :
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this added source file " + typeLocator); //$NON-NLS-1$
-						sourceFiles.add(new SourceFile((IFile) resource, md, encoding));
+						sourceFiles.add(new SourceFile((IFile) resource, md, encoding, true));
 						String typeName = typePath.toString();
 						if (!newState.isDuplicateLocator(typeName, typeLocator)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)
@@ -430,7 +430,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 							return; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this changed source file " + typeLocator); //$NON-NLS-1$
-						sourceFiles.add(new SourceFile((IFile) resource, md, encoding));
+						sourceFiles.add(new SourceFile((IFile) resource, md, encoding, true));
 				}
 				return;
 			} else if (Util.isClassFileName(resourceName)) {
@@ -569,11 +569,11 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType) throws CoreException {
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType, boolean updateClassFile) throws CoreException {
 	// Before writing out the class file, compare it to the previous file
 	// If structural changes occured then add dependent source files
 	if (file.exists()) {
-		if (writeClassFileCheck(file, qualifiedFileName, bytes)) {
+		if (writeClassFileCheck(file, qualifiedFileName, bytes) || updateClassFile) { // see 46093
 			if (JavaBuilder.DEBUG)
 				System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
 			file.setContents(new ByteArrayInputStream(bytes), true, false, null);
@@ -602,12 +602,10 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newBytes) throws CoreException {
 	try {
 		byte[] oldBytes = Util.getResourceContentsAsByteArray(file);
-		if (this.compileLoop > 1) { // only optimize files which were recompiled during the dependent pass, see 33990
-			notEqual : if (newBytes.length == oldBytes.length) {
-				for (int i = newBytes.length; --i >= 0;)
-					if (newBytes[i] != oldBytes[i]) break notEqual;
-				return false; // bytes are identical so skip them
-			}
+		notEqual : if (newBytes.length == oldBytes.length) {
+			for (int i = newBytes.length; --i >= 0;)
+				if (newBytes[i] != oldBytes[i]) break notEqual;
+			return false; // bytes are identical so skip them
 		}
 		IPath location = file.getLocation();
 		if (location == null) return false; // unable to determine location of this class file
