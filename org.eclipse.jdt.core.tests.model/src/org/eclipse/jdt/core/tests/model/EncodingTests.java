@@ -58,7 +58,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			ICompilationUnit cu= pkg.createCompilationUnit("A.java", 
 				("public class A {\r\n" +
 				"	public static main(String[] args) {\r\n" +
-				"		System.out.println(\"é\");\r\n" +
+				"		System.out.println(\"\u00e9\");\r\n" +
 				"	}\r\n" +
 				"}"), false, new NullProgressMonitor());
 			assertCreation(cu);
