@@ -523,7 +523,7 @@ public void testRootPath10() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that is itself
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=35965
  */
 public void testRootPath11() throws JavaModelException {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
