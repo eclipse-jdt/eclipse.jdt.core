@@ -323,6 +323,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				boolean ok = false;
 				try {
 					initializer.initialize(containerPath, project);
+					container = (IClasspathContainer)projectContainers.get(containerPath);
 					if (container != null){
 						IClasspathEntry[] entries = container.getClasspathEntries();
 						// validation - no nested classpath container
