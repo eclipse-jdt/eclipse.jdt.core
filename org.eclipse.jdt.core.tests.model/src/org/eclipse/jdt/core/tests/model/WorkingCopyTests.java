@@ -647,7 +647,7 @@ public void testNonExistingCU() throws JavaModelException {
 		assertTrue("Original cu should exist", nonExistingCU.exists());
 
 		// isBasedOn()
-		assertTrue("Working copy should not be based on original resource", !workingCopy.isBasedOn(nonExistingCU.getResource()));
+		assertTrue("Working copy should now be based on original resource", workingCopy.isBasedOn(nonExistingCU.getResource()));
 		
 	} finally {
 		if (workingCopy != null) {

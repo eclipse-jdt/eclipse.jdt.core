@@ -121,27 +121,29 @@ public void testAppend() throws CoreException {
  * Tests appending to a read-only buffer.
  */
 public void testAppendReadOnly() throws CoreException {
-	IBuffer buffer = this.createBuffer(
-		"P/x/y/A.java",
-		"package x.y;\n" +
-		"public class A {\n" +
-		"}"
-	);
+	IBuffer buffer = null;
 	try {
-		buffer.getUnderlyingResource().setReadOnly(true);
+		createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB,JCL_SRC,JCL_SRCROOT"}, "");
+		IClassFile classFile = getClassFile("P1", getExternalJCLPathString(), "java.lang", "String.class");
+		buffer = classFile.getBuffer();
+		buffer.addBufferChangedListener(this);
+		this.event = null;
 		buffer.append("\nclass B {}");
 		assertTrue("unexpected event", this.event == null);
 		assertSourceEquals(
 			"unexpected buffer contents",
-			"package x.y;\n" +
-			"public class A {\n" +
-			"}",
+			"package java.lang;\n" + 
+			"\n" + 
+			"public class String {\n" + 
+			"}\n",
 			buffer.getContents()
 		);
 		assertTrue("should not have unsaved changes", !buffer.hasUnsavedChanges());
 	} finally {
-		buffer.getUnderlyingResource().setReadOnly(false);
-		this.deleteBuffer(buffer);
+		if (buffer != null) {
+			buffer.removeBufferChangedListener(this);
+		}
+		deleteProject("P1");
 	}
 }
 public void testClose() throws CoreException {

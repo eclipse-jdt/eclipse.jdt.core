@@ -195,11 +195,7 @@ public boolean isClosed() {
  * @see IBuffer
  */
 public boolean isReadOnly() {
-	if (this.file == null) {
-		return (this.flags & F_IS_READ_ONLY) != 0;
-	} else {
-		return this.file.isReadOnly();
-	}
+	return (this.flags & F_IS_READ_ONLY) != 0;
 }
 /**
  * Moves the gap to location and adjust its size to the

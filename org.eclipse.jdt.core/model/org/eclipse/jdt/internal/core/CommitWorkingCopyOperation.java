@@ -10,7 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -59,45 +65,80 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 		try {
 			beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
 			CompilationUnit workingCopy = (CompilationUnit)getCompilationUnit();
+			IFile resource = (IFile)workingCopy.getResource();
 			ICompilationUnit primary = workingCopy.getPrimary();
-		
-			// creates the delta builder (this remembers the content of the cu)	
-			if (!primary.isOpen()) {
+
+			JavaElementDeltaBuilder deltaBuilder = null;
+			
+			PackageFragmentRoot root = (PackageFragmentRoot)workingCopy.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			if (root.isOnClasspath() && resource.isAccessible()) {
+			
 				// force opening so that the delta builder can get the old info
-				primary.open(null);
-			}
-			JavaElementDeltaBuilder deltaBuilder;
-			if (Util.isExcluded(primary)) {
-				deltaBuilder = null;
-			} else {
-				deltaBuilder = new JavaElementDeltaBuilder(primary);
-			}
-		
-			// save the cu
-			IBuffer primaryBuffer = primary.getBuffer();
-			if (primaryBuffer == null) return;
-			char[] primaryContents = primaryBuffer.getCharacters();
-			boolean hasSaved = false;
-			try {
-				IBuffer workingCopyBuffer = workingCopy.getBuffer();
-				if (workingCopyBuffer == null) return;
-				primaryBuffer.setContents(workingCopyBuffer.getCharacters());
-				primary.save(fMonitor, fForce);
-				setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
-				hasSaved = true;
-			} finally {
-				if (!hasSaved){
-					// restore original buffer contents since something went wrong
-					primaryBuffer.setContents(primaryContents);
+				if (!primary.isOpen()) {
+					primary.open(null);
 				}
+
+				// creates the delta builder (this remembers the content of the cu)	
+				if (!Util.isExcluded(primary)) {
+					deltaBuilder = new JavaElementDeltaBuilder(primary);
+				}
+			
+				// save the cu
+				IBuffer primaryBuffer = primary.getBuffer();
+				if (primaryBuffer == null) return;
+				char[] primaryContents = primaryBuffer.getCharacters();
+				boolean hasSaved = false;
+				try {
+					IBuffer workingCopyBuffer = workingCopy.getBuffer();
+					if (workingCopyBuffer == null) return;
+					primaryBuffer.setContents(workingCopyBuffer.getCharacters());
+					primaryBuffer.save(fMonitor, fForce);
+					primary.makeConsistent(this);
+					hasSaved = true;
+				} finally {
+					if (!hasSaved){
+						// restore original buffer contents since something went wrong
+						primaryBuffer.setContents(primaryContents);
+					}
+				}
+			} else {
+				// working copy on cu outside classpath OR resource doesn't exist yet
+				String encoding = workingCopy.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+				String contents = workingCopy.getSource();
+				if (contents == null) return;
+				try {
+					byte[] bytes = encoding == null 
+						? contents.getBytes() 
+						: contents.getBytes(encoding);
+					ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+					if (resource.exists()) {
+						resource.setContents(
+							stream, 
+							fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+							null);
+					} else {
+						resource.create(
+							stream,
+							fForce,
+							fMonitor);
+					}
+				} catch (CoreException e) {
+					throw new JavaModelException(e);
+				} catch (UnsupportedEncodingException e) {
+					throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+				}
+				
 			}
+
+			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+			
 			// make sure working copy is in sync
 			workingCopy.updateTimeStamp((CompilationUnit)primary);
 			workingCopy.makeConsistent(this);
 			worked(1);
 		
+			// build the deltas
 			if (deltaBuilder != null) {
-				// build the deltas
 				deltaBuilder.buildDeltas();
 			
 				// add the deltas to the list of deltas created during this operation

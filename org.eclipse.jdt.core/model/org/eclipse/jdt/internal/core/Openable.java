@@ -445,7 +445,7 @@ protected boolean resourceExists() {
  * @see IOpenable
  */
 public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
-	if (isReadOnly() || this.getResource().isReadOnly()) {
+	if (isReadOnly()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 	}
 	IBuffer buf = getBuffer();

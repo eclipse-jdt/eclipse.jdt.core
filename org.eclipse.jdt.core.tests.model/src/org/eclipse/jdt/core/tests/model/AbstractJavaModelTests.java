@@ -109,7 +109,11 @@ protected void assertSourceEquals(String message, String expected, String actual
 		assertEquals(message, expected, null);
 		return;
 	}
-	assertEquals(message, expected, org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual));
+	actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
+	if (!actual.equals(expected)) {
+		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
+	}
+	assertEquals(message, expected, actual);
 }
 /**
  * Ensures the elements are present after creation.
@@ -352,7 +356,7 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 			}
 			for (int i= 0; i < libLength; i++) {
 				String lib = libraries[i];
-				if (lib.equals("JCL_LIB")) {
+				if (lib.startsWith("JCL_LIB")) {
 					// ensure JCL variables are set
 					if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 						JavaCore.setClasspathVariables(
@@ -622,7 +626,7 @@ protected String getExternalJCLPathString() {
  * Returns the IPath to the root source of the external java class library (e.g. "src")
  */
 protected IPath getExternalJCLRootSourcePath() {
-	return Path.EMPTY;
+	return new Path("src");
 }
 /**
  * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)

@@ -724,9 +724,6 @@ public boolean isExternal() {
  * Returns whether this package fragment root is on the classpath of its project.
  */
 protected boolean isOnClasspath() {
-	if (this.getElementType() == IJavaElement.JAVA_PROJECT){
-		return true;
-	}
 	
 	IPath path = this.getPath();
 	try {

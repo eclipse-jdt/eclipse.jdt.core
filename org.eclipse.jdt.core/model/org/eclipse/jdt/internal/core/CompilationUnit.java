@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import org.eclipse.core.resources.*;
@@ -276,42 +274,8 @@ public void commit(boolean force, IProgressMonitor monitor) throws JavaModelExce
  * @see ICompilationUnit#commitWorkingCopy(boolean, IProgressMonitor)
  */
 public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (!isWorkingCopy()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
-	}
-	ICompilationUnit primary = getPrimary(); 
-	if (primary.exists()) { 
-		// primary cu on the classpath
-		CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
-		runOperation(op, monitor);
-	} else { 
-		// primary resource doesn't exist OR primary not on classpath
-		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
-		String contents = this.getSource();
-		if (contents == null) return;
-		try {
-			byte[] bytes = encoding == null 
-				? contents.getBytes() 
-				: contents.getBytes(encoding);
-			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-			IFile originalRes = (IFile)primary.getResource();
-			if (originalRes.exists()) {
-				originalRes.setContents(
-					stream, 
-					force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
-					null);
-			} else {
-				originalRes.create(
-					stream,
-					force,
-					monitor);
-			}
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
-		} catch (UnsupportedEncodingException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		}
-	}
+	CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
+	runOperation(op, monitor);
 }
 /**
  * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
@@ -1085,18 +1049,14 @@ public void restore() throws JavaModelException {
  * @see IOpenable
  */
 public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
-	// if not a working copy or if primary working copy
-	if (this.owner == DefaultWorkingCopyOwner.PRIMARY || !isWorkingCopy()) {
+	if (isWorkingCopy()) {
+		// no need to save the buffer for a working copy (this is a noop)
+		reconcile();   // not simply makeConsistent, also computes fine-grain deltas
+								// in case the working copy is being reconciled already (if not it would miss
+								// one iteration of deltas).
+	} else {		
 		super.save(pm, force);
-		return;
 	}
-	if (isReadOnly()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-	// no need to save the buffer for a working copy (this is a noop)
-	this.reconcile();   // not simply makeConsistent, also computes fine-grain deltas
-							// in case the working copy is being reconciled already (if not it would miss
-							// one iteration of deltas).
 }
 /**
  * @private Debugging purposes

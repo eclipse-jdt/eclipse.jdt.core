@@ -256,7 +256,12 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				boolean wasReadOnly = destFile.isReadOnly();
 				try {
 					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
-					destFile.setReadOnly(false); // when the file was copied, its read-only flag was preserved -> temporary set it to false
+					
+					// when the file was copied, its read-only flag was preserved -> temporary set it to false
+					// note this doesn't interfer with repository providers as this is a new resource that cannot be under
+					// version control yet
+					destFile.setReadOnly(false);
+					
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 						fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
