@@ -78,34 +78,43 @@ public abstract class JobManager implements Runnable {
 	 * Remove the index from cache for a given project.
 	 * Passing null as a job family discards them all.
 	 */
-	public synchronized void discardJobs(String jobFamily) {
+	public void discardJobs(String jobFamily) {
 		boolean wasEnabled = isEnabled();
 		try {
 			disable();
 
-			// flush and compact awaiting jobs
-			int loc = -1;
-			for (int i = jobStart; i <= jobEnd; i++) {
-				IJob currentJob = awaitingJobs[i];
-				awaitingJobs[i] = null;
-				if (!(jobFamily == null
-					|| currentJob.belongsTo(jobFamily))) { // copy down, compacting
-					awaitingJobs[++loc] = currentJob;
-				} else {
-					currentJob.cancel();
-					if (i == jobStart) {
-						// wait until current active job has accepted the cancel
-						while (thread != null && executing){
-							try {
-								Thread.currentThread().sleep(50);
-							} catch(InterruptedException e){
-							}
-						}
+			// cancel current job if it belongs to the given family
+			IJob currentJob = this.currentJob();
+			if (currentJob != null 
+					&& (jobFamily == null || currentJob.belongsTo(jobFamily))) {
+	
+				currentJob.cancel();
+			
+				// wait until current active job has finished
+				while (thread != null && executing){
+					try {
+						Thread.currentThread().sleep(50);
+					} catch(InterruptedException e){
 					}
 				}
 			}
-			jobStart = 0;
-			jobEnd = loc;
+	
+			// flush and compact awaiting jobs
+			int loc = -1;
+			synchronized(this) {
+				for (int i = jobStart; i <= jobEnd; i++) {
+					currentJob = awaitingJobs[i];
+					awaitingJobs[i] = null;
+					if (!(jobFamily == null
+						|| currentJob.belongsTo(jobFamily))) { // copy down, compacting
+						awaitingJobs[++loc] = currentJob;
+					} else {
+						currentJob.cancel();
+					}
+				}
+				jobStart = 0;
+				jobEnd = loc;
+			}
 		} finally {
 			if (wasEnabled)
 				enable();
