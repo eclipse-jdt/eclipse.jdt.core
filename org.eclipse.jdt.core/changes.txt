@@ -122,6 +122,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  3562		Outliner bug for initializers (1G93CS3) 
   3447      search: could automatically narrow down scope (1GLDJVN)
   3288      CodeAssist - Code assist doesn't work in some methods (1GELEBH)
   5073      delete does not work on default package  
