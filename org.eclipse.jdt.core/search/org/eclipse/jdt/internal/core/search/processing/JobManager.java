@@ -28,8 +28,9 @@ public abstract class JobManager implements Runnable {
 	/* background processing */
 	protected Thread processingThread;
 
-	/* flag indicating whether job execution is enabled or not */
-	private boolean enabled = true;
+	/* counter indicating whether job execution is enabled or not, disabled if <= 0 
+	    it cannot go beyond 1 */
+	private int enableCount = 1;
 
 	public static boolean VERBOSE = false;
 	/* flag indicating that the activation has completed */
@@ -55,12 +56,12 @@ public abstract class JobManager implements Runnable {
 	 * Until the job has completed, the job manager will keep answering the same job.
 	 */
 	public synchronized IJob currentJob() {
-		if (this.enabled && this.jobStart <= this.jobEnd)
+		if (this.enableCount > 0 && this.jobStart <= this.jobEnd)
 			return this.awaitingJobs[this.jobStart];
 		return null;
 	}
 	public void disable() {
-		this.enabled = false;
+		this.enableCount--;
 		if (VERBOSE)
 			Util.verbose("DISABLING background indexing"); //$NON-NLS-1$
 	}
@@ -73,7 +74,6 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			Util.verbose("DISCARD   background job family - " + jobFamily); //$NON-NLS-1$
 
-		boolean wasEnabled = isEnabled();
 		try {
 			IJob currentJob;
 			// cancel current job if it belongs to the given family
@@ -114,20 +114,16 @@ public abstract class JobManager implements Runnable {
 				this.jobEnd = loc;
 			}
 		} finally {
-			if (wasEnabled)
-				enable();
+			enable();
 		}
 		if (VERBOSE)
 			Util.verbose("DISCARD   DONE with background job family - " + jobFamily); //$NON-NLS-1$
 	}
 	public synchronized void enable() {
-		this.enabled = true;
+		this.enableCount++;
 		if (VERBOSE)
 			Util.verbose("ENABLING  background indexing"); //$NON-NLS-1$
 		this.notifyAll(); // wake up the background thread if it is waiting (context must be synchronized)			
-	}
-	public boolean isEnabled() {
-		return this.enabled;
 	}
 	/**
 	 * Advance to the next available job, once the current one has been completed.
@@ -181,13 +177,11 @@ public abstract class JobManager implements Runnable {
 				case IJob.ForceImmediate :
 					if (VERBOSE)
 						Util.verbose("-> NOT READY - forcing immediate - " + searchJob);//$NON-NLS-1$
-					boolean wasEnabled = isEnabled();
 					try {
 						disable(); // pause indexing
 						status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
 					} finally {
-						if (wasEnabled)
-							enable();
+						enable();
 					}
 					if (VERBOSE)
 						Util.verbose("FINISHED  concurrent job - " + searchJob); //$NON-NLS-1$
@@ -427,7 +421,7 @@ public abstract class JobManager implements Runnable {
 	}
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(10);
-		buffer.append("Enabled:").append(this.enabled).append('\n'); //$NON-NLS-1$
+		buffer.append("Enable count:").append(this.enableCount).append('\n'); //$NON-NLS-1$
 		int numJobs = this.jobEnd - this.jobStart + 1;
 		buffer.append("Jobs in queue:").append(numJobs).append('\n'); //$NON-NLS-1$
 		for (int i = 0; i < numJobs && i < 15; i++) {
