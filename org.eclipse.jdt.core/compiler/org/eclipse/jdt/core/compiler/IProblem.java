@@ -38,7 +38,7 @@
  *								   IndirectAccessToStaticField
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
- *								   BooleanMethodThrowingException
+ *								   UncommentedEmptyBlock
  *								   UnnecessaryCast
  *								   UnnecessaryArgumentCast
  *								   UnnecessaryInstanceof
@@ -327,8 +327,6 @@ public interface IProblem {
 	int UnusedPrivateMethod = Internal + MethodRelated + 118;
 	/** @since 3.0 */
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
-	/** @since 3.0 */
-	int BooleanMethodThrowingException = Internal + MethodRelated + 120;
 	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;
@@ -642,4 +640,8 @@ public interface IProblem {
 	// detected task
 	/** @since 2.1 */
 	int Task = Internal + 450;
+	
+	// block
+	/** @since 3.0 */
+	int UncommentedEmptyBlock = Internal + 460;
 }

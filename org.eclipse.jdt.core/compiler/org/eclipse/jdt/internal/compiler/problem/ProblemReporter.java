@@ -211,23 +211,6 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceStart,
 		returnStatement.sourceEnd);
 }
-public void booleanMethodThrowingException(MethodDeclaration methodDecl) {
-	MethodBinding method = methodDecl.binding;
-	this.handle(
-		IProblem.BooleanMethodThrowingException,
-		new String[] {
-			new String(method.declaringClass.readableName()),
-			new String(method.selector),
-			parametersAsString(method)
-		 }, 
-		new String[] {
-			new String(method.declaringClass.shortReadableName()),
-			new String(method.selector),
-			parametersAsShortString(method)
-		 }, 
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
-}
 public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 	String[] arguments = new String[] {new String(location.selector), parametersAsString(location.binding)};
 	if (location.isConstructor()) {
@@ -541,8 +524,8 @@ public int computeSeverity(int problemId){
 		case IProblem.SuperfluousSemicolon:
 			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
 
-		case IProblem.BooleanMethodThrowingException:
-			return this.options.getSeverity(CompilerOptions.BooleanMethodThrowingException);
+		case IProblem.UncommentedEmptyBlock:
+			return this.options.getSeverity(CompilerOptions.UncommentedEmptyBlock);
 			
 		case IProblem.UnnecessaryCast:
 		case IProblem.UnnecessaryArgumentCast:
@@ -2836,6 +2819,15 @@ public void typeMismatchErrorActualTypeExpectedType(Expression expression, TypeB
 		new String[] {constantTypeShortName, expectedTypeShortName},
 		expression.sourceStart,
 		expression.sourceEnd);
+}
+public void uncommentedEmptyBlock(Block block) {
+	String[] arguments = new String[] {};
+	this.handle(
+		IProblem.UncommentedEmptyBlock,
+		arguments,
+		arguments,
+		block.sourceStart,
+		block.sourceEnd);
 }
 public void undefinedLabel(BranchStatement statement) {
 	String[] arguments = new String[] {new String(statement.label)};

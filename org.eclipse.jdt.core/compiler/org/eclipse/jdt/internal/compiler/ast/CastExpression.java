@@ -294,6 +294,15 @@ public class CastExpression extends Expression {
 			}	
 		}
 		if (leftIsCast || rightIsCast) {
+			if (alternateLeftTypeId > 15 || alternateRightTypeId > 15) { // must convert String + Object || Object + String
+				if (alternateLeftTypeId == T_String) {
+					alternateRightTypeId = T_Object;
+				} else if (alternateRightTypeId == T_String) {
+					alternateLeftTypeId = T_Object;
+				} else {
+					return; // invalid operator
+				}
+			}
 			int alternateOperatorSignature = OperatorExpression.OperatorSignatures[operator][(alternateLeftTypeId << 4) + alternateRightTypeId];
 			// (cast)  left   Op (cast)  right --> result
 			//  1111   0000       1111   0000     1111

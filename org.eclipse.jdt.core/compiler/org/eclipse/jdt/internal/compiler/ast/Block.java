@@ -44,16 +44,6 @@ public class Block extends Statement {
 		}
 		return flowInfo;
 	}
-
-	public static final Block EmptyWith(int sourceStart, int sourceEnd) {
-
-		//return an empty block which position is s and e
-		Block bk = new Block(0);
-		bk.sourceStart = sourceStart;
-		bk.sourceEnd = sourceEnd;
-		return bk;
-	}
-
 	/**
 	 * Code generation for a block
 	 */
@@ -99,6 +89,9 @@ public class Block extends Statement {
 
 	public void resolve(BlockScope upperScope) {
 
+		if ((this.bits & UncommentedEmptyBlockMASK) != 0) {
+			upperScope.problemReporter().uncommentedEmptyBlock(this);
+		}
 		if (statements != null) {
 			scope =
 				explicitDeclarations == 0
@@ -112,6 +105,9 @@ public class Block extends Statement {
 
 	public void resolveUsing(BlockScope givenScope) {
 
+		if ((this.bits & UncommentedEmptyBlockMASK) != 0) {
+			givenScope.problemReporter().uncommentedEmptyBlock(this);
+		}
 		// this optimized resolve(...) is sent only on none empty blocks
 		scope = givenScope;
 		if (statements != null) {

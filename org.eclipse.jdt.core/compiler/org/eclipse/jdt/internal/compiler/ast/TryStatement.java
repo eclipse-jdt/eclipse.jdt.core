@@ -100,7 +100,7 @@ public class TryStatement extends SubRoutineStatement {
 				flowInfo.unconditionalInits());
 
 		FlowInfo tryInfo;
-		if (tryBlock.statements == null) {
+		if (tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
 			tryBlockExit = false;
 		} else {
@@ -438,47 +438,51 @@ public class TryStatement extends SubRoutineStatement {
 		BlockScope tryScope = new BlockScope(scope);
 		BlockScope finallyScope = null;
 		
-		if (finallyBlock != null
-			&& finallyBlock.statements != null) {
-
-			finallyScope = new BlockScope(scope, false); // don't add it yet to parent scope
-
-			// provision for returning and forcing the finally block to run
-			MethodScope methodScope = scope.methodScope();
-
-			// the type does not matter as long as it is not a base type
-			this.returnAddressVariable =
-				new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
-			finallyScope.addLocalVariable(returnAddressVariable);
-			this.returnAddressVariable.constant = NotAConstant; // not inlinable
-			this.subRoutineStartLabel = new Label();
-
-			this.anyExceptionVariable =
-				new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
-			finallyScope.addLocalVariable(this.anyExceptionVariable);
-			this.anyExceptionVariable.constant = NotAConstant; // not inlinable
-
-			if (!methodScope.isInsideInitializer()) {
-				MethodBinding methodBinding =
-					((AbstractMethodDeclaration) methodScope.referenceContext).binding;
-				if (methodBinding != null) {
-					TypeBinding methodReturnType = methodBinding.returnType;
-					if (methodReturnType.id != T_void) {
-						this.secretReturnValue =
-							new LocalVariableBinding(
-								SecretLocalDeclarationName,
-								methodReturnType,
-								AccDefault,
-								false);
-						finallyScope.addLocalVariable(this.secretReturnValue);
-						this.secretReturnValue.constant = NotAConstant; // not inlinable
+		if (finallyBlock != null) {
+			if (finallyBlock.isEmptyBlock()) {
+				if ((finallyBlock.bits & UncommentedEmptyBlockMASK) != 0) {
+					scope.problemReporter().uncommentedEmptyBlock(finallyBlock);
+				}
+			} else {
+				finallyScope = new BlockScope(scope, false); // don't add it yet to parent scope
+	
+				// provision for returning and forcing the finally block to run
+				MethodScope methodScope = scope.methodScope();
+	
+				// the type does not matter as long as it is not a base type
+				this.returnAddressVariable =
+					new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
+				finallyScope.addLocalVariable(returnAddressVariable);
+				this.returnAddressVariable.constant = NotAConstant; // not inlinable
+				this.subRoutineStartLabel = new Label();
+	
+				this.anyExceptionVariable =
+					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
+				finallyScope.addLocalVariable(this.anyExceptionVariable);
+				this.anyExceptionVariable.constant = NotAConstant; // not inlinable
+	
+				if (!methodScope.isInsideInitializer()) {
+					MethodBinding methodBinding =
+						((AbstractMethodDeclaration) methodScope.referenceContext).binding;
+					if (methodBinding != null) {
+						TypeBinding methodReturnType = methodBinding.returnType;
+						if (methodReturnType.id != T_void) {
+							this.secretReturnValue =
+								new LocalVariableBinding(
+									SecretLocalDeclarationName,
+									methodReturnType,
+									AccDefault,
+									false);
+							finallyScope.addLocalVariable(this.secretReturnValue);
+							this.secretReturnValue.constant = NotAConstant; // not inlinable
+						}
 					}
 				}
+				finallyBlock.resolveUsing(finallyScope);
+				// force the finally scope to have variable positions shifted after its try scope and catch ones
+				finallyScope.shiftScopes = new BlockScope[catchArguments == null ? 1 : catchArguments.length+1];
+				finallyScope.shiftScopes[0] = tryScope;
 			}
-			finallyBlock.resolveUsing(finallyScope);
-			// force the finally scope to have variable positions shifted after its try scope and catch ones
-			finallyScope.shiftScopes = new BlockScope[catchArguments == null ? 1 : catchArguments.length+1];
-			finallyScope.shiftScopes[0] = tryScope;
 		}
 		this.tryBlock.resolveUsing(tryScope);
 

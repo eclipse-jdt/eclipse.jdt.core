@@ -832,9 +832,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						options.put(
 							CompilerOptions.OPTION_ReportSuperfluousSemicolon,
 							CompilerOptions.WARNING);
-					} else if (token.equals("booleanThrow")) {//$NON-NLS-1$ 
+					} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
 						options.put(
-							CompilerOptions.OPTION_ReportBooleanMethodThrowingException,
+							CompilerOptions.OPTION_ReportUncommentedEmptyBlock,
 							CompilerOptions.WARNING);
 					} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
 						options.put(

@@ -21,39 +21,39 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	//some global provision for the hierarchy
 	public final static Constant NotAConstant = Constant.NotAConstant;
 
-	// storage for internal flags (32 bits)			BIT USAGE
-	public final static int Bit1 = 0x1; 			// return type (operators) | name reference kind (name ref) | add assertion (type decl) | useful empty statement
-	public final static int Bit2 = 0x2; 			// return type (operators) | name reference kind (name ref) | has local type (type, method, field decl)
-	public final static int Bit3 = 0x4; 			// return type (operators) | name reference kind (name ref) | implicit this (this ref)
-	public final static int Bit4 = 0x8; 			// return type (operators) | first assignment to local (local decl)
-	public final static int Bit5 = 0x10; 			// value for return (expression) 
-	public final static int Bit6 = 0x20; 			// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
-	public final static int Bit7 = 0x40; 			// depth (name ref, msg) | operator (operators) 
-	public final static int Bit8 = 0x80; 			// depth (name ref, msg) | operator (operators) 
-	public final static int Bit9 = 0x100; 			// depth (name ref, msg) | operator (operators)
-	public final static int Bit10= 0x200; 			// depth (name ref, msg) | operator (operators)
-	public final static int Bit11 = 0x400; 			// depth (name ref, msg) | operator (operators)
-	public final static int Bit12 = 0x800; 			// depth (name ref, msg) | operator (operators)
-	public final static int Bit13 = 0x1000; 		// depth (name ref, msg) 
-	public final static int Bit14 = 0x2000; 		// assigned (reference lhs)
-	public final static int Bit15 = 0x4000; 		// is unnecessary cast (expression)
-	public final static int Bit16 = 0x8000; 		// need runtime checkcast (cast expression)
+	// storage for internal flags (32 bits)						BIT USAGE
+	public final static int Bit1 = 0x1; 						// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
+	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
+	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
+	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | uncomment empty block (block)
+	public final static int Bit5 = 0x10; 					// value for return (expression) 
+	public final static int Bit6 = 0x20; 					// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
+	public final static int Bit7 = 0x40; 					// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression)
+	public final static int Bit8 = 0x80; 					// depth (name ref, msg) | operator (operator) 
+	public final static int Bit9 = 0x100; 				// depth (name ref, msg) | operator (operator)
+	public final static int Bit10= 0x200; 				// depth (name ref, msg) | operator (operator)
+	public final static int Bit11 = 0x400; 				// depth (name ref, msg) | operator (operator)
+	public final static int Bit12 = 0x800; 				// depth (name ref, msg) | operator (operator)
+	public final static int Bit13 = 0x1000; 			// depth (name ref, msg) 
+	public final static int Bit14 = 0x2000; 			// assigned (reference lhs)
+	public final static int Bit15 = 0x4000; 			// is unnecessary cast (expression)
+	public final static int Bit16 = 0x8000; 			
 	public final static int Bit17 = 0x10000; 
 	public final static int Bit18 = 0x20000; 
 	public final static int Bit19 = 0x40000; 
 	public final static int Bit20 = 0x80000; 
 	public final static int Bit21 = 0x100000; 		
-	public final static int Bit22 = 0x200000; 		// parenthesis count (expression)
-	public final static int Bit23 = 0x400000; 		// parenthesis count (expression)
-	public final static int Bit24 = 0x800000; 		// parenthesis count (expression)
+	public final static int Bit22 = 0x200000; 			// parenthesis count (expression)
+	public final static int Bit23 = 0x400000; 			// parenthesis count (expression)
+	public final static int Bit24 = 0x800000; 			// parenthesis count (expression)
 	public final static int Bit25 = 0x1000000; 		// parenthesis count (expression)
 	public final static int Bit26 = 0x2000000; 		// parenthesis count (expression)
 	public final static int Bit27 = 0x4000000; 		// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000; 		// parenthesis count (expression)
-	public final static int Bit29 = 0x10000000; 	// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000; 	// assignment with no effect (assignment)
-	public final static int Bit31 = 0x40000000; 	// local declaration reachable (local decl)
-	public final static int Bit32 = 0x80000000; 	// reachable (statement)
+	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
+	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment)
+	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl)
+	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
 	public int bits = IsReachableMASK; 				// reachable by default
 
@@ -68,7 +68,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for cast expressions
 	public static final int UnnecessaryCastMask = Bit15;
-	public static final int NeedRuntimeCheckCastMASK = Bit16;
+	public static final int NeedRuntimeCheckCastMASK = Bit7;
 	public static final int IgnoreNeedForCastCheckMASK = Bit6;
 	
 	// for name references 
@@ -104,6 +104,9 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for empty statement
 	public static final int IsUsefulEmptyStatementMASK = Bit1;
+
+	// for block
+	public static final int UncommentedEmptyBlockMASK = Bit4;
 
 	public AstNode() {
 

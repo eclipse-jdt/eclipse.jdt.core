@@ -1268,23 +1268,30 @@ protected void consumeBlock() {
 	// Block ::= OpenBlock '{' BlockStatementsopt '}'
 	// simpler action for empty blocks
 
-	int length;
-	if ((length = astLengthStack[astLengthPtr--]) == 0) { // empty block 
-		pushOnAstStack(Block.EmptyWith(intStack[intPtr--], endStatementPosition));
+	int statementsLength = astLengthStack[astLengthPtr--];
+	Block block;
+	if (statementsLength == 0) { // empty block 
+		block = new Block(0);
+		block.sourceStart = intStack[intPtr--];
+		block.sourceEnd = endStatementPosition;
+		// check whether this block at least contains some comment in it
+		if (!containsComment(block.sourceStart, block.sourceEnd)) {
+			block.bits |= AstNode.UncommentedEmptyBlockMASK;
+		}
 		realBlockPtr--; // still need to pop the block variable counter
 	} else {
-		Block bk = new Block(realBlockStack[realBlockPtr--]);
-		astPtr -= length;
+		block = new Block(realBlockStack[realBlockPtr--]);
+		astPtr -= statementsLength;
 		System.arraycopy(
 			astStack, 
 			astPtr + 1, 
-			bk.statements = new Statement[length], 
+			block.statements = new Statement[statementsLength], 
 			0, 
-			length); 
-		pushOnAstStack(bk);
-		bk.sourceStart = intStack[intPtr--];
-		bk.sourceEnd = endStatementPosition;
+			statementsLength); 
+		block.sourceStart = intStack[intPtr--];
+		block.sourceEnd = endStatementPosition;
 	}
+	pushOnAstStack(block);
 }
 protected void consumeBlockStatements() {
 	// BlockStatements ::= BlockStatements BlockStatement
@@ -1353,7 +1360,9 @@ protected void consumeClassBodyDeclaration() {
 	//push an Initializer
 	//optimize the push/pop
 	nestedMethod[nestedType]--;
-	Initializer initializer = new Initializer((Block) astStack[astPtr], 0);
+	Block block = (Block) astStack[astPtr];
+	block.bits &= ~AstNode.UncommentedEmptyBlockMASK; // clear bit since was diet
+	Initializer initializer = new Initializer(block, 0);
 	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
 	initializer.bodyStart = intStack[intPtr--];
 	realBlockPtr--; // pop the block variable counter left on the stack by consumeNestedMethod
@@ -4092,7 +4101,9 @@ protected void consumeStaticInitializer() {
 	// StaticInitializer ::=  StaticOnly Block
 	//push an Initializer
 	//optimize the push/pop
-	Initializer initializer = new Initializer((Block) astStack[astPtr], AccStatic);
+	Block block = (Block) astStack[astPtr];
+	block.bits &= ~AstNode.UncommentedEmptyBlockMASK; // clear bit set since was diet
+	Initializer initializer = new Initializer(block, AccStatic);
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;	
 	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
@@ -4147,23 +4158,23 @@ protected void consumeToken(int type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
 	checkNonExternalizedStringLiteral();
-	// clear the commentPtr of the scanner in case we read something different from a modifier
-	switch(type) {
-		case TokenNameabstract :
-		case TokenNamestrictfp :
-		case TokenNamefinal :
-		case TokenNamenative :
-		case TokenNameprivate :
-		case TokenNameprotected :
-		case TokenNamepublic :
-		case TokenNametransient :
-		case TokenNamevolatile :
-		case TokenNamestatic :
-		case TokenNamesynchronized :
-			break;
-		default:
-			scanner.commentPtr = -1;
-	}
+//	// clear the commentPtr of the scanner in case we read something different from a modifier
+//	switch(type) {
+//		case TokenNameabstract :
+//		case TokenNamestrictfp :
+//		case TokenNamefinal :
+//		case TokenNamenative :
+//		case TokenNameprivate :
+//		case TokenNameprotected :
+//		case TokenNamepublic :
+//		case TokenNametransient :
+//		case TokenNamevolatile :
+//		case TokenNamestatic :
+//		case TokenNamesynchronized :
+//			break;
+//		default:
+//			scanner.commentPtr = -1;
+//	}
 	//System.out.println(scanner.toStringAction(type));
 	switch (type) {
 		case TokenNameIdentifier :
@@ -4172,14 +4183,14 @@ protected void consumeToken(int type) {
 				long positions = identifierPositionStack[identifierPtr];
 				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
 			}
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
 			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
 			pushOnIntStack(scanner.startPosition);
 			pushOnIntStack(scanner.currentPosition - 1);			
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameabstract :
 			checkAndSetModifiers(AccAbstract);
@@ -4220,7 +4231,7 @@ protected void consumeToken(int type) {
 			pushIdentifier(-T_void);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 			//push a default dimension while void is not part of the primitive
 			//declaration baseType and so takes the place of a type without getting into
@@ -4229,49 +4240,49 @@ protected void consumeToken(int type) {
 			pushIdentifier(-T_boolean);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);		
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNamebyte :
 			pushIdentifier(-T_byte);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNamechar :
 			pushIdentifier(-T_char);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNamedouble :
 			pushIdentifier(-T_double);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNamefloat :
 			pushIdentifier(-T_float);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameint :
 			pushIdentifier(-T_int);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNamelong :
 			pushIdentifier(-T_long);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameshort :
 			pushIdentifier(-T_short);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 			//==============================
 		case TokenNameIntegerLiteral :
@@ -4280,7 +4291,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameLongLiteral :
 			pushOnExpressionStack(
@@ -4288,7 +4299,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameFloatingPointLiteral :
 			pushOnExpressionStack(
@@ -4296,7 +4307,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameDoubleLiteral :
 			pushOnExpressionStack(
@@ -4304,7 +4315,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameCharacterLiteral :
 			pushOnExpressionStack(
@@ -4312,7 +4323,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral = new StringLiteral(
@@ -4320,12 +4331,12 @@ protected void consumeToken(int type) {
 					scanner.startPosition, 
 					scanner.currentPosition - 1); 
 			pushOnExpressionStack(stringLiteral); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNamefalse :
 			pushOnExpressionStack(
 				new FalseLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
-			scanner.commentPtr = -1;
+//			scanner.commentPtr = -1;
 			break;
 		case TokenNametrue :
 			pushOnExpressionStack(
@@ -4573,6 +4584,21 @@ protected void consumeVariableDeclarators() {
 protected void consumeVariableInitializers() {
 	// VariableInitializers ::= VariableInitializers ',' VariableInitializer
 	concatExpressionLists();
+}
+/**
+ * Given the current comment stack, answer whether some comment is available in a certain exclusive range
+ */
+public boolean containsComment(int sourceStart, int sourceEnd) {
+	int iComment = this.scanner.commentPtr;
+	for (; iComment >= 0; iComment--) {
+		int commentStart = this.scanner.commentStarts[iComment];
+		// ignore comments before start
+		if (commentStart < sourceStart) continue;
+		// ignore comments after end
+		if (commentStart > sourceEnd) continue;
+		return true;
+	}
+	return false;
 }
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return typeRef.copyDims(dim);
@@ -5718,7 +5744,7 @@ public void parse(
 // A P I
 
 public void parse(
-	Initializer ini, 
+	Initializer initializer, 
 	TypeDeclaration type, 
 	CompilationUnitDeclaration unit) {
 	//only parse the method body of md
@@ -5734,7 +5760,7 @@ public void parse(
 	referenceContext = type;
 	compilationUnit = unit;
 
-	scanner.resetTo(ini.bodyStart, ini.bodyEnd); // just on the beginning {
+	scanner.resetTo(initializer.bodyStart, initializer.bodyEnd); // just on the beginning {
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
@@ -5743,26 +5769,27 @@ public void parse(
 		nestedMethod[nestedType]--;
 	}
 
-	checkNonNLSAfterBodyEnd(ini.declarationSourceEnd);
+	checkNonNLSAfterBodyEnd(initializer.declarationSourceEnd);
 	
 	if (lastAct == ERROR_ACTION) {
 		return;
 	}
 	
 	//refill statements
-	ini.block.explicitDeclarations = realBlockStack[realBlockPtr--];
+	initializer.block.explicitDeclarations = realBlockStack[realBlockPtr--];
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0)
-		System.arraycopy(
-			astStack, 
-			(astPtr -= length) + 1, 
-			ini.block.statements = new Statement[length], 
-			0, 
-			length); 
+	if ((length = astLengthStack[astLengthPtr--]) > 0) {
+		System.arraycopy(astStack, (astPtr -= length) + 1, initializer.block.statements = new Statement[length], 0, length); 
+	} else {
+		// check whether this block at least contains some comment in it
+		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
+			initializer.block.bits |= AstNode.UncommentedEmptyBlockMASK;
+		}
+	}
 	
 	// mark initializer with local type if one was found during parsing
 	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
-		ini.bits |= AstNode.HasLocalTypeMASK;
+		initializer.bits |= AstNode.HasLocalTypeMASK;
 	}	
 }
 // A P I
