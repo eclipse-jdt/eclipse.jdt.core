@@ -55,7 +55,7 @@ protected void commitChanges(IDOMCompilationUnit cuDOM, ICompilationUnit cu) thr
 	}
 	((Buffer)cu.getBuffer()).setContents(newContents, true);
 	cu.save(getSubProgressMonitor(1), fForce);
-	this.hasModifiedResource = true;
+	this.hasModifiedResource = !cu.isWorkingCopy();
 }
 /**
  * @see MultiOperation
@@ -126,7 +126,9 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	}
 	if (delta.getAffectedChildren().length > 0) {
 		commitChanges(cuDOM, cu);
-		addDelta(delta);
+		if (!cu.isWorkingCopy()) { // if unit is working copy, then commit will have already fired the delta
+			addDelta(delta);
+		}
 	}
 }
 /**

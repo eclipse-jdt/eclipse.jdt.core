@@ -339,6 +339,7 @@ public static IStatus validatePackageName(String name) {
 	}
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	StringTokenizer st = new StringTokenizer(name, new String(new char[] {fgDot}));
+	boolean firstToken = true;
 	while (st.hasMoreTokens()) {
 		String typeName = st.nextToken();
 		typeName = typeName.trim(); // grammar allows spaces
@@ -350,6 +351,10 @@ public static IStatus validatePackageName(String name) {
 		if (!status.isOK()) {
 			return status;
 		}
+		if (firstToken && scannedID.length > 0 && Character.isUpperCase(scannedID[0])) {
+			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.uppercaseName"), null); //$NON-NLS-1$
+		}
+		firstToken = false;
 	}
 	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 }

@@ -184,12 +184,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return JavaModelManager.create(folder, null);
 	}
 	/**
-	 * Returns the Java project corresponding to the given project, or
-	 * <code>null</code> if unable to associate the given project
-	 * with a Java project.
+	 * Returns the Java project corresponding to the given project.
 	 * <p>
 	 * Creating a Java Project has the side effect of creating and opening all of the
 	 * project's parents if they are not yet open.
+	 * <p>
+	 * Note that no check is done at this time on the existence or the java nature of this project.
 	 */
 	public static IJavaProject create(IProject project) {
 		if (project == null) {

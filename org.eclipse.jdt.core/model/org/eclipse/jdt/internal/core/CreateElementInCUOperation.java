@@ -139,17 +139,20 @@ protected void executeOperation() throws JavaModelException {
 				buffer.replace(fInsertionPosition, fReplacementLength, fCreatedElement.getCharacters(), true);
 		}
 		unit.save(null, false);
-		this.hasModifiedResource = true;
+		boolean isWorkingCopy = unit.isWorkingCopy();
+		this.hasModifiedResource = !isWorkingCopy;
 		worked(1);
 		fResultElements = generateResultHandles();
-		if (unit.getParent().exists()) {
-			for (int i = 0; i < fResultElements.length; i++) {
-				delta.added(fResultElements[i]);
-			}
-			addDelta(delta);
-		} // else unit is created outside classpath
-		  // non-java resource delta will be notified by delta processor
+		if (!isWorkingCopy) { // if unit is working copy, then save will have already fired the delta
+			if (unit.getParent().exists()) {
+				for (int i = 0; i < fResultElements.length; i++) {
+					delta.added(fResultElements[i]);
+				}
+				addDelta(delta);
+			} // else unit is created outside classpath
+			  // non-java resource delta will be notified by delta processor
 		}
+	}
 	done();
 }
 /**

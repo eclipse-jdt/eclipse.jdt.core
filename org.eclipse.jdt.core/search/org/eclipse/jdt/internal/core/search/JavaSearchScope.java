@@ -19,6 +19,8 @@ import java.util.*;
  * A Java-specific scope for searching relative to one or more java elements.
  */
 public class JavaSearchScope implements IJavaSearchScope {
+	
+	private ArrayList elements;
 
 	/* The paths of the resources in this search scope 
 	   (or the classpath entries' paths 
@@ -72,35 +74,49 @@ public void add(IJavaProject javaProject, boolean includesPrereqProjects, HashSe
 }
 public void add(IJavaElement element) throws JavaModelException {
 	IPackageFragmentRoot root = null;
-	if (element instanceof IJavaProject) {
-		this.add((IJavaProject)element, true, new HashSet(2));
-	} else if (element instanceof IPackageFragmentRoot) {
-		root = (IPackageFragmentRoot)element;
-		this.add(root.getPath(), true);
-	} else if (element instanceof IPackageFragment) {
-		root = (IPackageFragmentRoot)element.getParent();
-		if (root.isArchive()) {
-			this.add(root.getPath().append(new Path(element.getElementName().replace('.', '/'))), false);
-		} else {
+	switch (element.getElementType()) {
+		case IJavaElement.JAVA_MODEL:
+			// a workspace sope should be used
+			break; 
+		case IJavaElement.JAVA_PROJECT:
+			this.add((IJavaProject)element, true, new HashSet(2));
+			break;
+		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+			root = (IPackageFragmentRoot)element;
+			this.add(root.getPath(), true);
+			break;
+		case IJavaElement.PACKAGE_FRAGMENT:
+			root = (IPackageFragmentRoot)element.getParent();
+			if (root.isArchive()) {
+				this.add(root.getPath().append(new Path(element.getElementName().replace('.', '/'))), false);
+			} else {
+				IResource resource = element.getUnderlyingResource();
+				if (resource != null && resource.isAccessible()) {
+					this.add(resource.getFullPath(), false);
+				}
+			}
+			break;
+		default:
 			IResource resource = element.getUnderlyingResource();
 			if (resource != null && resource.isAccessible()) {
-				this.add(resource.getFullPath(), false);
-			}
-		}
-	} else {
-		IResource resource = element.getUnderlyingResource();
-		if (resource != null && resource.isAccessible()) {
-			this.add(resource.getFullPath(), true);
-			
-			// find package fragment root including this java element
-			IJavaElement parent = element.getParent();
-			while (parent != null && !(parent instanceof IPackageFragmentRoot)) {
-				parent = parent.getParent();
-			}
-			if (parent instanceof IPackageFragmentRoot) {
-				root = (IPackageFragmentRoot)parent;
-			}
-		}	
+				// remember sub-cu (or sub-class file) java elements
+				if (element instanceof IMember) {
+					if (this.elements == null) {
+						this.elements = new ArrayList();
+					}
+					this.elements.add(element);
+				}
+				this.add(resource.getFullPath(), true);
+				
+				// find package fragment root including this java element
+				IJavaElement parent = element.getParent();
+				while (parent != null && !(parent instanceof IPackageFragmentRoot)) {
+					parent = parent.getParent();
+				}
+				if (parent instanceof IPackageFragmentRoot) {
+					root = (IPackageFragmentRoot)parent;
+				}
+			}	
 	}
 	
 	if (root != null) {
@@ -174,7 +190,22 @@ private boolean encloses(IPath path) {
  * @see IJavaSearchScope#encloses(IJavaElement)
  */
 public boolean encloses(IJavaElement element) {
-	return this.encloses(this.fullPath(element));
+	if (this.elements != null) {
+		for (int i = 0, length = this.elements.size(); i < length; i++) {
+			IJavaElement scopeElement = (IJavaElement)this.elements.get(i);
+			IJavaElement searchedElement = element;
+			while (searchedElement != null) {
+				if (searchedElement.equals(scopeElement)) {
+					return true;
+				} else {
+					searchedElement = searchedElement.getParent();
+				}
+			}
+		}
+		return false;
+	} else {
+		return this.encloses(this.fullPath(element));
+	}
 }
 
 /* (non-Javadoc)
