@@ -56,6 +56,6 @@ public void setNewTypeStructureEntry(TypeStructureEntry newEntry) {
  * For debugging only
  */
 public String toString() {
-	return "OldBuilderType(" + fOldTSEntry.getType().getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+	return "OldBuilderType("/*nonNLS*/ + fOldTSEntry.getType().getName() + ")"/*nonNLS*/;
 }
 }

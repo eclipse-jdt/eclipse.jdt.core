@@ -36,13 +36,13 @@ public String stringValue() {
 	
 	String s = new Integer(value).toString() ;
 	if (s == null)
-		return "null"; //$NON-NLS-1$
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(byte)" + value ; } //$NON-NLS-1$
+	return "(byte)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_byte;
 }

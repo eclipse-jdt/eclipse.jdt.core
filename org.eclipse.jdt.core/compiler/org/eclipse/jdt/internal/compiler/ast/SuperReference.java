@@ -46,7 +46,7 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression(){
 
-	return "super"; //$NON-NLS-1$
+	return "super"/*nonNLS*/;
 	
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {

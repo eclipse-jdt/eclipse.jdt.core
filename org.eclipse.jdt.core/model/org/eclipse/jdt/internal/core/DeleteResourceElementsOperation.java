@@ -87,7 +87,7 @@ private void deletePackageFragment(IPackageFragment frag)
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.deleteResourceProgress"); //$NON-NLS-1$
+	return Util.bind("operation.deleteResourceProgress"/*nonNLS*/);
 }
 /**
  * @see MultiOperation. This method delegate to <code>deleteResource</code> or

@@ -62,30 +62,30 @@ public void dump(int[] val, int maxPerLine) {
 	if (!oneLine) {
 		++fTabLevel;
 	}
-	fWriter.print("["); //$NON-NLS-1$
+	fWriter.print("["/*nonNLS*/);
 	for (int i = 0; i < len; ++i) {
 		if (!oneLine) {
 			if ((i % maxPerLine) == 0) {
 				fWriter.println();
 				tabIfNeeded();
 				fWriter.print(i);
-				fWriter.print(": "); //$NON-NLS-1$
+				fWriter.print(": "/*nonNLS*/);
 			}
 		}
 		fWriter.print(val[i]);
 		if (i + 1 < len) {
-			fWriter.print(", "); //$NON-NLS-1$
+			fWriter.print(", "/*nonNLS*/);
 		}
 	}
 	if (oneLine) {
-		fWriter.print("]"); //$NON-NLS-1$
+		fWriter.print("]"/*nonNLS*/);
 		fWriter.println();
 	}
 	else {
 		fWriter.println();
 		--fTabLevel;
 		tabIfNeeded();
-		fWriter.print("]"); //$NON-NLS-1$
+		fWriter.print("]"/*nonNLS*/);
 		fWriter.println();
 	}
 }
@@ -94,7 +94,7 @@ public void dump(int[] val, int maxPerLine) {
  */
 public void dump(Object[] val) {
 	int len = val.length;
-	fWriter.print("["); //$NON-NLS-1$
+	fWriter.print("["/*nonNLS*/);
 	if (len > 0) {
 		fWriter.println();
 		++fTabLevel;
@@ -104,7 +104,7 @@ public void dump(Object[] val) {
 		--fTabLevel;
 		tabIfNeeded();
 	}
-	fWriter.println("]"); //$NON-NLS-1$
+	fWriter.println("]"/*nonNLS*/);
 }
 /**
  * Dumps the given array.
@@ -116,20 +116,20 @@ public void dump(String[] val, int maxPerLine) {
 	if (!oneLine) {
 		++fTabLevel;
 	}
-	fWriter.print("["); //$NON-NLS-1$
+	fWriter.print("["/*nonNLS*/);
 	boolean newLine = !oneLine;
 	for (int i = 0; i < len; ++i) {
 		if (newLine) {
 			fWriter.println();
 			tabIfNeeded();
 		}
-		fWriter.print("\"" + val[i] + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+		fWriter.print("\""/*nonNLS*/ + val[i] + "\""/*nonNLS*/);
 		if (i + 1 < len) {
-			fWriter.print(", "); //$NON-NLS-1$
+			fWriter.print(", "/*nonNLS*/);
 		}
 		newLine = (i != 0 && (i % maxPerLine) == 0);
 	}
-	fWriter.print("]"); //$NON-NLS-1$
+	fWriter.print("]"/*nonNLS*/);
 	if (oneLine || newLine) {
 		fWriter.println();
 	}
@@ -144,18 +144,18 @@ public void dump(Object val) {
 	tabIfNeeded();
 	if (val instanceof IDumpable) {
 		IDumpable dumpable = (IDumpable) val;
-		fWriter.println(classNameFor(val) + " {"); //$NON-NLS-1$
+		fWriter.println(classNameFor(val) + " {"/*nonNLS*/);
 		int originalLevel = fTabLevel;
 		++fTabLevel;
 		try {
 			dumpable.dump(this);
 		}
 		catch (Throwable t) {
-			fWriter.println("*ERR*"); //$NON-NLS-1$
+			fWriter.println("*ERR*"/*nonNLS*/);
 		}
 		fTabLevel = originalLevel;
 		tabIfNeeded();
-		fWriter.println("}"); //$NON-NLS-1$
+		fWriter.println("}"/*nonNLS*/);
 	}
 	else {
 		fWriter.println(val);
@@ -211,7 +211,7 @@ public void dump(String name, Object val) {
  */
 public void dump(String name, String val) {
 	prefix(name);
-	fWriter.println(val == null ? "null" : "\"" + val + "\""); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+	fWriter.println(val == null ? "null"/*nonNLS*/ : "\""/*nonNLS*/ + val + "\""/*nonNLS*/);
 }
 /**
  * Dumps the given value, with the given name as a prefix.
@@ -264,7 +264,7 @@ public void outdent() {
 void prefix(String name) {
 	tabIfNeeded();
 	fWriter.print(name);
-	fWriter.print(": "); //$NON-NLS-1$
+	fWriter.print(": "/*nonNLS*/);
 }
 /**
  * Print an object directly, without a newline.
@@ -289,7 +289,7 @@ public void println(Object obj) {
  */
 void tabIfNeeded() {
 	for (int i = 0; i < fTabLevel; ++i) {
-		fWriter.print("  "); //$NON-NLS-1$
+		fWriter.print("  "/*nonNLS*/);
 	}
 }
 }

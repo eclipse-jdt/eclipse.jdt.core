@@ -80,7 +80,7 @@ public class LRUCache implements Cloneable {
 		 */
 		public String toString() {
 
-			return "LRUCacheEntry [" + _fKey + "-->" + _fValue + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
+			return "LRUCacheEntry ["/*nonNLS*/ + _fKey + "-->"/*nonNLS*/ + _fValue + "]"/*nonNLS*/;
 		}
 	}	
 
@@ -444,7 +444,7 @@ public class LRUCache implements Cloneable {
  */
 public String toString() {
 	return 
-		"LRUCache " + (fCurrentSpace * 100.0 / fSpaceLimit) + "% full\n" + //$NON-NLS-1$ //$NON-NLS-2$
+		"LRUCache "/*nonNLS*/ + (fCurrentSpace * 100.0 / fSpaceLimit) + "% full\n"/*nonNLS*/ +
 		this.toStringContents();
 }
 /**
@@ -471,9 +471,9 @@ protected String toStringContents() {
 		String toString = sorter.sortedStrings[i];
 		Object value = this.get(sorter.sortedObjects[i]);
 		result.append(toString);		
-		result.append(" -> "); //$NON-NLS-1$
+		result.append(" -> "/*nonNLS*/);
 		result.append(value);
-		result.append("\n"); //$NON-NLS-1$
+		result.append("\n"/*nonNLS*/);
 	}
 	return result.toString();
 }

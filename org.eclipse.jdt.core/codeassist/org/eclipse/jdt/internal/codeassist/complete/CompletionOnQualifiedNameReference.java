@@ -61,12 +61,12 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression() {
 
-	StringBuffer buffer = new StringBuffer("<CompleteOnName:"); //$NON-NLS-1$
+	StringBuffer buffer = new StringBuffer("<CompleteOnName:"/*nonNLS*/);
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
-		buffer.append("."); //$NON-NLS-1$
+		buffer.append("."/*nonNLS*/);
 	}
-	buffer.append(completionIdentifier).append(">"); //$NON-NLS-1$
+	buffer.append(completionIdentifier).append(">"/*nonNLS*/);
 	return buffer.toString();
 }
 }

@@ -331,23 +331,23 @@ protected abstract void appendFragmentedContents(CharArrayBuffer buffer);
 void basicAddChild(IDOMNode child) throws IllegalArgumentException, DOMException {
 	// verify child may be added
 	if (!canHaveChildren()) {
-		throw new DOMException(Util.bind("dom.unableAddChild")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.unableAddChild"/*nonNLS*/));
 	}
 	if (child == null) {
-		throw new IllegalArgumentException(Util.bind("dom.addNullChild")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.addNullChild"/*nonNLS*/));
 	}
 	if (!isAllowableChild(child)) {
-		throw new DOMException(Util.bind("dom.addIncompatibleChild")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addIncompatibleChild"/*nonNLS*/));
 	}
 	if (child.getParent() != null) {
-		throw new DOMException(Util.bind("dom.addChildWithParent")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addChildWithParent"/*nonNLS*/));
 	}
 	/* NOTE: To test if the child is an ancestor of this node, we
 	 * need only test if the root of this node is the child (the child
 	 * is already a root since we have just guarenteed it has no parent).
 	 */
 	if (child == getRoot()) {
-		throw new DOMException(Util.bind("dom.addAncestorAsChild")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addAncestorAsChild"/*nonNLS*/));
 	}
 
 	DOMNode node= (DOMNode)child;
@@ -379,7 +379,7 @@ protected void becomeDetailed() throws DOMException {
 	if (!isDetailed()) {
 		DOMNode detailed= getDetailedNode();
 		if (detailed == null) {
-			throw new DOMException(Util.bind("dom.cannotDetail")); //$NON-NLS-1$
+			throw new DOMException(Util.bind("dom.cannotDetail"/*nonNLS*/));
 		}
 		if (detailed != this) {
 			shareContents(detailed);
@@ -652,23 +652,23 @@ public int getStartPosition() {
 public void insertSibling(IDOMNode sibling) throws IllegalArgumentException, DOMException {
 	// verify sibling may be added
 	if (sibling == null) {
-		throw new IllegalArgumentException(Util.bind("dom.addNullSibling")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.addNullSibling"/*nonNLS*/));
 	}
 	if (fParent == null) {
-		throw new DOMException(Util.bind("dom.addSiblingBeforeRoot")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addSiblingBeforeRoot"/*nonNLS*/));
 	}
 	if (!fParent.isAllowableChild(sibling)) {
-		throw new DOMException(Util.bind("dom.addIncompatibleSibling")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addIncompatibleSibling"/*nonNLS*/));
 	}
 	if (sibling.getParent() != null) {
-		throw new DOMException(Util.bind("dom.addSiblingWithParent")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addSiblingWithParent"/*nonNLS*/));
 	}
 	/* NOTE: To test if the sibling is an ancestor of this node, we
 	 * need only test if the root of this node is the child (the sibling
 	 * is already a root since we have just guaranteed it has no parent).
 	 */
 	if (sibling == getRoot()) {
-		throw new DOMException(Util.bind("dom.addAncestorAsSibling")); //$NON-NLS-1$
+		throw new DOMException(Util.bind("dom.addAncestorAsSibling"/*nonNLS*/));
 	}
 
 	DOMNode node= (DOMNode)sibling;

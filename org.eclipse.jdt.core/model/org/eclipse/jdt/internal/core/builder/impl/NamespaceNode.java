@@ -62,6 +62,6 @@ public class NamespaceNode extends AbstractNode {
 	 * purposes only.
 	 */
 	public String toString() {
-		return "NamespaceNode(" + fPackage.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "NamespaceNode("/*nonNLS*/ + fPackage.getName() + ")"/*nonNLS*/;
 	}
 }

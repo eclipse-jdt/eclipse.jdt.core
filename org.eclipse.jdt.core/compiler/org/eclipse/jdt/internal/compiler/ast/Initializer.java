@@ -72,19 +72,17 @@ public String toString(int tab){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(tabString(tab));
 		buffer.append(modifiersString(modifiers));
-		buffer.append("{\n"); //$NON-NLS-1$
+		buffer.append("{\n"/*nonNLS*/);
 		buffer.append(block.toStringStatements(tab));
 		buffer.append(tabString(tab));
-		buffer.append("}"); //$NON-NLS-1$
+		buffer.append("}"/*nonNLS*/);
 		return buffer.toString();
 	} else {
 		return block.toString(tab);
 	}
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {
-	if (visitor.visit(this, scope)) {
-		block.traverse(visitor, scope);
-	}
 	visitor.visit(this, scope);
+	block.traverse(visitor, scope);
 }
 }

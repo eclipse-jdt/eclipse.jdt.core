@@ -226,7 +226,7 @@ DOMMethod(char[] document, int[] sourceRange, String name, int[] nameRange, int 
  */
 public void addException(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullExceptionType")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.nullExceptionType"/*nonNLS*/));
 	}
 	if (fExceptions == null) {
 		fExceptions= new String[1];
@@ -241,10 +241,10 @@ public void addException(String name) throws IllegalArgumentException {
  */
 public void addParameter(String type, String name) throws IllegalArgumentException {
 	if (type == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullTypeParameter")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.nullTypeParameter"/*nonNLS*/));
 	}
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullNameParameter")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.nullNameParameter"/*nonNLS*/));
 	}
 	if (fParameterNames == null) {
 		fParameterNames= new String[1];
@@ -306,7 +306,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
 		if (fExceptionRange[0] >= 0) {
 			buffer.append(fDocument, start, fExceptionRange[0] - start);
 		} else {
-			buffer.append(" throws "); //$NON-NLS-1$
+			buffer.append(" throws "/*nonNLS*/);
 		}
 		// add exception list
 		if (fExceptionList != null) {
@@ -414,7 +414,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 		}
 		return ((IType)parent).getMethod(name, sigs);
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
 	}
 }
 /**
@@ -573,7 +573,7 @@ public void setBody(String body) {
 	fBody= body;
 	setHasBody(body != null);
 	if (!hasBody()) {
-		fBody= ";"+JavaModelManager.LINE_SEPARATOR; //$NON-NLS-1$
+		fBody= ";"/*nonNLS*/+JavaModelManager.LINE_SEPARATOR;
 	}
 }
 /**
@@ -615,7 +615,7 @@ public void setExceptions(String[] names) {
  */
 public void setName(String name) {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
 	} else {
 		super.setName(name);
 	}
@@ -631,17 +631,17 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
 			fParameterNames= null;
 			fParameterList= new char[] {'(',')'};
 		} else {
-			throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes"/*nonNLS*/));
 		}
 	} else if (names.length != types.length) {
-		throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes"/*nonNLS*/));
 	} else if (names.length == 0) {
 		setParameters(null, null);
 	} else {
 		fParameterNames= names;
 		fParameterTypes= types;
 		CharArrayBuffer parametersBuffer = new CharArrayBuffer();
-		parametersBuffer.append("("); //$NON-NLS-1$
+		parametersBuffer.append("("/*nonNLS*/);
 		char[] comma = new char[] {',', ' '};
 		for (int i = 0; i < names.length; i++) {
 			if (i > 0) {
@@ -662,7 +662,7 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
  */
 public void setReturnType(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullReturnType")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("dom.nullReturnType"/*nonNLS*/));
 	}
 	becomeDetailed();
 	fragment();
@@ -705,9 +705,9 @@ protected void shareContents(DOMNode node) {
  */
 public String toString() {
 	if (isConstructor()) {
-		return "CONSTRUCTOR"; //$NON-NLS-1$
+		return "CONSTRUCTOR"/*nonNLS*/;
 	} else {
-		return "METHOD: " + getName(); //$NON-NLS-1$
+		return "METHOD: "/*nonNLS*/ + getName();
 	}
 }
 }

@@ -169,20 +169,20 @@ private Flags() {}
 	public static String toString(int flags) {
 		StringBuffer sb = new StringBuffer();
 
-		if (isPublic(flags))	sb.append("public "); //$NON-NLS-1$
-		if (isProtected(flags)) sb.append("protected "); //$NON-NLS-1$
-		if (isPrivate(flags))	sb.append("private "); //$NON-NLS-1$
-		if (isStatic(flags)) sb.append("static "); //$NON-NLS-1$
-		if (isAbstract(flags)) sb.append("abstract "); //$NON-NLS-1$
-		if (isFinal(flags)) sb.append("final "); //$NON-NLS-1$
-		if (isNative(flags)) sb.append("native "); //$NON-NLS-1$
-		if (isSynchronized(flags)) sb.append("synchronized "); //$NON-NLS-1$
-		if (isTransient(flags)) sb.append("transient "); //$NON-NLS-1$
-		if (isVolatile(flags)) sb.append("volatile "); //$NON-NLS-1$
-		if (isStrictfp(flags)) sb.append("strictfp "); //$NON-NLS-1$
+		if (isPublic(flags))	sb.append("public "/*nonNLS*/);
+		if (isProtected(flags)) sb.append("protected "/*nonNLS*/);
+		if (isPrivate(flags))	sb.append("private "/*nonNLS*/);
+		if (isStatic(flags)) sb.append("static "/*nonNLS*/);
+		if (isAbstract(flags)) sb.append("abstract "/*nonNLS*/);
+		if (isFinal(flags)) sb.append("final "/*nonNLS*/);
+		if (isNative(flags)) sb.append("native "/*nonNLS*/);
+		if (isSynchronized(flags)) sb.append("synchronized "/*nonNLS*/);
+		if (isTransient(flags)) sb.append("transient "/*nonNLS*/);
+		if (isVolatile(flags)) sb.append("volatile "/*nonNLS*/);
+		if (isStrictfp(flags)) sb.append("strictfp "/*nonNLS*/);
 
 		int len = sb.length();
-		if (len == 0) return ""; //$NON-NLS-1$
+		if (len == 0) return ""/*nonNLS*/;
 		sb.setLength(len-1);
 		return sb.toString();
 	}

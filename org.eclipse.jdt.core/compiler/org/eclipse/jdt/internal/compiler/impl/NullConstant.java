@@ -17,7 +17,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(null)" + null ; } //$NON-NLS-1$
+	return "(null)"/*nonNLS*/ + null ; }
 public int typeID() {
 	return T_null;
 }

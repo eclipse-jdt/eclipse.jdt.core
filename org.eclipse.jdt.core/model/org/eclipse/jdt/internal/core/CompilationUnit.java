@@ -34,7 +34,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 protected CompilationUnit(IPackageFragment parent, String name) {
 	super(COMPILATION_UNIT, parent, name);
 	if (!Util.isJavaFileName(name)) {
-		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName"/*nonNLS*/));
 	}
 }
 /**
@@ -77,7 +77,7 @@ public void commit(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("operation.nullContainer"/*nonNLS*/));
 	}
 	IJavaElement[] elements = new IJavaElement[] {this};
 	IJavaElement[] containers = new IJavaElement[] {container};
@@ -120,10 +120,10 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 	if (!exists()) {
 		//autogenerate this compilation unit
 		IPackageFragment pkg = (IPackageFragment) getParent();
-		String source = ""; //$NON-NLS-1$
+		String source = ""/*nonNLS*/;
 		if (pkg.getElementName().length() > 0) {
 			//not the default package...add the package declaration
-			source = "package " + pkg.getElementName() + ";"  + JavaModelManager.LINE_SEPARATOR + JavaModelManager.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
+			source = "package "/*nonNLS*/ + pkg.getElementName() + ";"/*nonNLS*/ + JavaModelManager.LINE_SEPARATOR;
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, fName, source, force);
 		runOperation(op, monitor);
@@ -173,7 +173,7 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 		} else {
 			// iterate through all the types inside the receiver and see if one of them can fit
 			IType[] types = getTypes();
-			String typeNodeName = nodeName.substring(0, nodeName.indexOf(".java")); //$NON-NLS-1$
+			String typeNodeName = nodeName.substring(0, nodeName.indexOf(".java"/*nonNLS*/));
 			for (int i = 0, max = types.length; i < max; i++) {
 				if (types[i].getElementName().equals(typeNodeName)) {
 					return true;
@@ -378,7 +378,7 @@ public ReferenceInfo getReferenceInfo() throws JavaModelException {
  */
 public String getSource() throws JavaModelException {
 	IBuffer buffer = getBuffer();
-	if (buffer == null) return ""; //$NON-NLS-1$
+	if (buffer == null) return ""/*nonNLS*/;
 	return buffer.getContents();
 }
 /**
@@ -470,7 +470,7 @@ public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("operation.nullContainer"/*nonNLS*/));
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -540,7 +540,7 @@ public IMarker[] reconcile() throws JavaModelException {
  */
 public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("operation.nullName"/*nonNLS*/));
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};

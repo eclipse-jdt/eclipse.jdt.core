@@ -68,6 +68,6 @@ public void initializeContents() {
 	}
 }
 public String toString(){
-	return "indexing " + resource.getName(); //$NON-NLS-1$
+	return "indexing "/*nonNLS*/ + resource.getName();
 }
 }

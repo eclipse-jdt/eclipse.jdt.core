@@ -38,7 +38,7 @@ public RenameElementsOperation(IJavaElement[] elements, IJavaElement[] destinati
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.renameElementProgress"); //$NON-NLS-1$
+	return Util.bind("operation.renameElementProgress"/*nonNLS*/);
 }
 /**
  * @see CopyElementsOperation#isRename()

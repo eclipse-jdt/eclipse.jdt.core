@@ -16,10 +16,10 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	public static final IntConstant Two = new IntConstant(2);
 	public static final IntConstant One = new IntConstant(1);
 public boolean booleanValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"boolean")); //$NON-NLS-1$ //$NON-NLS-2$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"boolean"/*nonNLS*/));
 }
 public byte byteValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"byte")); //$NON-NLS-1$ //$NON-NLS-2$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"byte"/*nonNLS*/));
 }
 public final Constant castTo(int conversionToTargetType){
 	//the cast is an int of the form
@@ -218,7 +218,7 @@ public final Constant castTo(int conversionToTargetType){
 	return NotAConstant ;
 }
 public char charValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"char")); //$NON-NLS-1$ //$NON-NLS-2$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"char"/*nonNLS*/));
 }
 public static final Constant computeConstantOperation(Constant cst, int id, int operator) {
 	//this method  assumes that the TC has been done . 
@@ -1416,10 +1416,10 @@ public static final Constant computeConstantOperationXOR(Constant left, int left
 
 	return NotAConstant ;}  // should not get here 
 public double doubleValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"double")); //$NON-NLS-2$ //$NON-NLS-1$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"double"/*nonNLS*/));
 }
 public float floatValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"float")); //$NON-NLS-2$ //$NON-NLS-1$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"float"/*nonNLS*/));
 }
 public static Constant fromValue(byte value) {
 	return new ByteConstant(value);
@@ -1450,36 +1450,36 @@ public static Constant fromValue(boolean value) {
 	return new BooleanConstant(value);
 }
 public int intValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"int")); //$NON-NLS-2$ //$NON-NLS-1$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"int"/*nonNLS*/));
 }
 public long longValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto",typeName(),"long")); //$NON-NLS-2$ //$NON-NLS-1$
+	throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto"/*nonNLS*/,typeName(),"long"/*nonNLS*/));
 }
 public short shortValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo",typeName(),"short")); //$NON-NLS-2$ //$NON-NLS-1$
+	throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo"/*nonNLS*/,typeName(),"short"/*nonNLS*/));
 }
 /** Deprecated
 */
 public String stringValue() {
-	throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo",typeName(),"String")); //$NON-NLS-1$ //$NON-NLS-2$
+	throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo"/*nonNLS*/,typeName(),"String"/*nonNLS*/));
 }
 public String toString(){
 
-	if (this == NotAConstant) return "(Constant) NotAConstant" ; //$NON-NLS-1$
+	if (this == NotAConstant) return "(Constant) NotAConstant"/*nonNLS*/ ;
 	return super.toString(); }
 public abstract int typeID();
 public String typeName() {
 	switch (typeID()) {
-		case T_int : return "int"; //$NON-NLS-1$
-		case T_byte : return "byte"; //$NON-NLS-1$
-		case T_short : return "short"; //$NON-NLS-1$
-		case T_char : return "char"; //$NON-NLS-1$
-		case T_float : return "float"; //$NON-NLS-1$
-		case T_double : return "double"; //$NON-NLS-1$
-		case T_boolean : return "boolean"; //$NON-NLS-1$
-		case T_String : return "java.lang.String"; //$NON-NLS-1$
-		case T_null : return "null";	 //$NON-NLS-1$
-		default: return "unknown"; //$NON-NLS-1$
+		case T_int : return "int"/*nonNLS*/;
+		case T_byte : return "byte"/*nonNLS*/;
+		case T_short : return "short"/*nonNLS*/;
+		case T_char : return "char"/*nonNLS*/;
+		case T_float : return "float"/*nonNLS*/;
+		case T_double : return "double"/*nonNLS*/;
+		case T_boolean : return "boolean"/*nonNLS*/;
+		case T_String : return "java.lang.String"/*nonNLS*/;
+		case T_null : return "null"/*nonNLS*/;	
+		default: return "unknown"/*nonNLS*/;
 	}
 }
 }

@@ -117,9 +117,9 @@ public String toString() {
 		String key = this.keyTable[i];
 		if (key != null) {
 			buffer.append(key);
-			buffer.append(" -> "); //$NON-NLS-1$
+			buffer.append(" -> "/*nonNLS*/);
 			buffer.append(this.valueTable[i]);
-			buffer.append("\n"); //$NON-NLS-1$
+			buffer.append("\n"/*nonNLS*/);
 		}
 	}
 	return buffer.toString();

@@ -41,6 +41,6 @@ protected AbstractMethodCollaboratorIndictment(IType type) {
  */
 public String toString() {
 	// don't use + with char[]
-	return new StringBuffer("AbstractMethodCollaboratorIndictment(").append(fName).append(")").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+	return new StringBuffer("AbstractMethodCollaboratorIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
 }
 }

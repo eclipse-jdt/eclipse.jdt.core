@@ -27,8 +27,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		currentScope.referenceType().recordReferenceTo(binding);
 	}
 	*/
-	if (constantExpression.constant == NotAConstant) 
-		currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
+	
 	return flowInfo;
 }
 /**
@@ -54,6 +53,8 @@ public Constant resolveCase(BlockScope scope, TypeBinding testTb, SwitchStatemen
 	// add into the collection of cases of the associated switch statement
 	switchStatement.cases[switchStatement.caseCount++] = this;
 	TypeBinding caseTb = constantExpression.resolveType(scope);
+	if (constantExpression.constant == NotAConstant) 
+		scope.problemReporter().caseExpressionMustBeConstant(constantExpression);
 	if (caseTb == null || testTb == null)
 		return null;
 	if (constantExpression.isConstantValueOfTypeAssignableToType(caseTb, testTb))
@@ -67,7 +68,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab);
-	s = s + "case " + constantExpression.toStringExpression() + " : " ; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "case "/*nonNLS*/ + constantExpression.toStringExpression() + " : "/*nonNLS*/ ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
