@@ -424,6 +424,34 @@ public abstract class Scope
 		while (currentType != null) {
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
+			
+			/*
+			 * if 1.4 compliant, must filter out redundant protected methods from superclasses
+			 */
+			if (compilationUnitScope().environment.options.complianceLevel >= CompilerOptions.JDK1_4){			 
+				nextMethod: for (int i = 0; i < currentLength; i++){
+					MethodBinding currentMethod = currentMethods[i];
+					// protected method need to be checked only - default access is already dealt with in #canBeSeen implementation
+					// when checking that p.C -> q.B -> p.A cannot see default access members from A through B.
+					if ((currentMethod.modifiers & AccProtected) == 0) continue nextMethod;
+					if (matchingMethod != null){
+						if (currentMethod.areParametersEqual(matchingMethod)){
+							currentLength--;
+							currentMethods[i] = null; // discard this match
+							continue nextMethod;
+						}
+					} else {
+						for (int j = 0, max = found.size; j < max; j++) {
+							if (((MethodBinding)found.elementAt(j)).areParametersEqual(currentMethod)){
+								currentLength--;
+								currentMethods[i] = null;
+								continue nextMethod;
+							}
+						}
+					}
+				}
+			}
+			
 			if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 				matchingMethod = currentMethods[0];
 			} else if (currentLength > 0) {
@@ -431,7 +459,16 @@ public abstract class Scope
 					found.add(matchingMethod);
 					matchingMethod = null;
 				}
-				found.addAll(currentMethods);
+				// append currentMethods, filtering out null entries
+				int maxMethod = currentMethods.length;
+				if (maxMethod == currentLength) { // no method was eliminated for 1.4 compliance (see above)
+					found.addAll(currentMethods);
+				} else {
+					for (int i = 0, max = currentMethods.length; i < max; i++) {
+						MethodBinding currentMethod = currentMethods[i];
+						if (currentMethod != null) found.add(currentMethod);
+					}
+				}
 			}
 			currentType = currentType.superclass();
 		}
