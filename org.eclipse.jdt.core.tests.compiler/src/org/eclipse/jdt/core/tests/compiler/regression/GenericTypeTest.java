@@ -8925,4 +8925,107 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");
 	}
-}
+	//74594
+	// TODO (kent) reenable once addressed
+	public void _test345() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"       X1<Integer> o1 = new X1<Integer>();\n" + 
+				"        System.out.print(((J<Integer>)o1).get());\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X1<T> implements I<T> {\n" + 
+				"    public X1 get() {\n" + 
+				"    	System.out.println(\"SUCCESS\");\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface I<T> extends J<T> {\n" + 
+				"    I get();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface J<T>  {\n" + 
+				"    J get();\n" + 
+				"}",
+			},
+			"SUCCESS");
+	}	
+	//74594
+	// TODO (kent) reenable once addressed
+	public void _test346() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"       X1<Integer> o1 = new X1<Integer>(new Integer(4));\n" + 
+				"        System.out.println(o1.get().t);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X1<T> implements I<T> {\n" + 
+				"    T t;\n" + 
+				"    X1(T arg) {\n" + 
+				"        t = arg;\n" + 
+				"    }\n" + 
+				"    public X1 get() {\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface I<T> extends J<T> {\n" + 
+				"    I get();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface J<T>  {\n" + 
+				"    J get();\n" + 
+				"}"
+	,
+			},
+			"4");
+	}	
+	//74594
+	// TODO (kent) reenable once addressed
+	public void _test347() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"        X1<Integer> o = new X1<Integer>(new Integer(4));\n" + 
+				"        System.out.println(o.get().t);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X1<T> implements I<T> {\n" + 
+				"    T t;\n" + 
+				"    X1(T arg) {\n" + 
+				"        t = arg;\n" + 
+				"    }\n" + 
+				"    public X1 get() {\n" + 
+				"        return this;\n" + 
+				"    }\n" + 
+				"}    \n" + 
+				"\n" + 
+				"interface I<T> extends K<T>, L<T> {\n" + 
+				"    I get();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface J<T>  {\n" + 
+				"    J get();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface K<T> extends J<T> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface L<T>  {\n" + 
+				"    K get();\n" + 
+				"}",
+			},
+			"4");
+	}	}
