@@ -6665,7 +6665,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}		
-	// 69776 - variation: no unsafe type operation warning
+	// 69776 - variation: TODO (philippe) no unsafe type operation warning ?
 	public void test242() {
 		this.runNegativeTest(
 			new String[] {
@@ -6686,6 +6686,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
 		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast to type Class<? extends Object> for expression of type Class\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: The cast from Class to parameterized type Class<? extends Object> will not check conformance of type arguments at runtime\n" + 
 		"----------\n");
 	}		
 }
