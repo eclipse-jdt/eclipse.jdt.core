@@ -413,8 +413,16 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 				}
 				break;
 			case ClassFileStruct.ClassTag :
+				// add a type reference 
 				name = replace('/', '.', extractClassReference(constantPoolOffsets, reader, i)); // so that it looks like java.lang.String
 				addTypeReference(name);
+				
+				// also add a simple reference on each segment of the qualification (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24741)
+				char[][] qualification = CharOperation.splitOn('.', name);
+				for (int j = 0, length = qualification.length; j < length; j++) {
+					addNameReference(qualification[j]);
+				}
+				break;
 		}
 	}
 }

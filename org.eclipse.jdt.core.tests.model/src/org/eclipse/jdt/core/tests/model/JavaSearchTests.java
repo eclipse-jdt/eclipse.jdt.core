@@ -227,6 +227,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference2"));
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference3"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInCast"));
+	suite.addTest(new JavaSearchTests("testPatternMatchTypeReference"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -1623,6 +1624,23 @@ public void testPatternMatchTypeDeclaration() throws CoreException {
 		getJavaSearchScope(), 
 		resultCollector);
 	assertEquals("src/r5/XYZ.java r5.XYZ [XYZ]", resultCollector.toString());
+}
+/**
+ * Test pattern match type reference in binary
+ * (regression test for bug 24741 Search does not find patterned type reference in binary project  )
+ */
+public void testPatternMatchTypeReference() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"p24741.*",
+		TYPE,
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"test24741.jar q24741.B", 
+		resultCollector.toString());
 }
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire
