@@ -344,120 +344,116 @@ public MethodBinding findMethod(
 	TypeBinding[] argumentTypes,
 	InvocationSite invocationSite) {
 
-	ReferenceBinding currentType = receiverType;
-	MethodBinding matchingMethod = null;
-	ObjectVector found = new ObjectVector();
+		ReferenceBinding currentType = receiverType;
+		MethodBinding matchingMethod = null;
+		ObjectVector found = new ObjectVector();
 
-	//compilationUnitScope().recordTypeReference(receiverType);
-	//compilationUnitScope().recordTypeReferences(argumentTypes);
+		//compilationUnitScope().recordTypeReference(receiverType);
+		//compilationUnitScope().recordTypeReferences(argumentTypes);
 
-	if (currentType.isInterface()) {
-		MethodBinding[] currentMethods = currentType.getMethods(selector);
-		int currentLength = currentMethods.length;
-		if (currentLength == 1) {
-			matchingMethod = currentMethods[0];
-		} else if (currentLength > 1) {
-			for (int f = 0; f < currentLength; f++)
-				found.add(currentMethods[f]);
-		}
-		matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
-		currentType = getJavaLangObject();
-	}
-
-	// superclass lookup
-	boolean hierarchyContainsAbstractClasses = false;
-	ReferenceBinding classHierarchyStart = currentType;
-	
-	while (currentType != null) {
-		MethodBinding[] currentMethods = currentType.getMethods(selector);
-		int currentLength = currentMethods.length;
-		if (currentLength == 1 && matchingMethod == null && found.size == 0) {
-			matchingMethod = currentMethods[0];
-		} else if (currentLength > 0) {
-			if (found.size == 0 && matchingMethod != null)
-				found.add(matchingMethod);
-			for (int f = 0; f < currentLength; f++)
-				found.add(currentMethods[f]);
-		}
-		if (currentType.isAbstract()) hierarchyContainsAbstractClasses = true;
-		currentType = currentType.superclass();
-	}
-
-	// abstract superclass superinterface lookup (since maybe missing default
-	// abstract methods)
-	if (hierarchyContainsAbstractClasses){
-		currentType = classHierarchyStart;
-		while (currentType != null){
-			if (currentType.isAbstract()){
-				matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+		if (currentType.isInterface()) {
+			MethodBinding[] currentMethods = currentType.getMethods(selector);
+			int currentLength = currentMethods.length;
+			if (currentLength == 1) {
+				matchingMethod = currentMethods[0];
+			} else if (currentLength > 1) {
+				for (int f = 0; f < currentLength; f++)
+					found.add(currentMethods[f]);
 			}
+			matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+			currentType = getJavaLangObject();
+		}
+
+		// superclass lookup
+		boolean hierarchyContainsAbstractClasses = false;
+		ReferenceBinding classHierarchyStart = currentType;
+		
+		while (currentType != null) {
+			MethodBinding[] currentMethods = currentType.getMethods(selector);
+			int currentLength = currentMethods.length;
+			if (currentLength == 1 && matchingMethod == null && found.size == 0) {
+				matchingMethod = currentMethods[0];
+			} else if (currentLength > 0) {
+				if (found.size == 0 && matchingMethod != null)
+					found.add(matchingMethod);
+				for (int f = 0; f < currentLength; f++)
+					found.add(currentMethods[f]);
+			}
+			if (currentType.isAbstract()) hierarchyContainsAbstractClasses = true;
 			currentType = currentType.superclass();
 		}
-	}
 
-	int foundSize = found.size;
-	if (foundSize == 0)
-		return matchingMethod; // may be null - have not checked arg types or visibility
+		int foundSize = found.size;
+		if (foundSize == 0) {
+			if (matchingMethod == null && hierarchyContainsAbstractClasses){
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			}
+			return matchingMethod; // may be null - have not checked arg types or visibility
+		}
+		MethodBinding[] candidates = new MethodBinding[foundSize];
+		int candidatesCount = 0;
 
-	MethodBinding[] candidates = new MethodBinding[foundSize];
-	int candidatesCount = 0;
-
-	// argument type compatibility check
-	for (int i = 0; i < foundSize; i++) {
-		MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-		if (areParametersAssignable(methodBinding.parameters, argumentTypes))
-			candidates[candidatesCount++] = methodBinding;
-	}
-	if (candidatesCount == 1)
-		return candidates[0]; // have not checked visibility
-	if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
-		int argLength = argumentTypes.length;
-		nextMethod : for (int i = 0; i < foundSize; i++) {
+		// argument type compatibility check
+		for (int i = 0; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			TypeBinding[] params = methodBinding.parameters;
-			int paramLength = params.length;
-			nextArg: for (int a = 0; a < argLength; a++) {
-				TypeBinding arg = argumentTypes[a];
-				for (int p = 0; p < paramLength; p++)
-					if (params[p] == arg)
-						continue nextArg;
-				continue nextMethod;
-			}
-			return methodBinding;
+			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
+				candidates[candidatesCount++] = methodBinding;
 		}
-		return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
-	}
+		if (candidatesCount == 1)
+			return candidates[0]; // have not checked visibility
+		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
+			if (hierarchyContainsAbstractClasses){
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			}
+			int argLength = argumentTypes.length;
+			nextMethod : for (int i = 0; i < foundSize; i++) {
+				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+				TypeBinding[] params = methodBinding.parameters;
+				int paramLength = params.length;
+				nextArg: for (int a = 0; a < argLength; a++) {
+					TypeBinding arg = argumentTypes[a];
+					for (int p = 0; p < paramLength; p++)
+						if (params[p] == arg)
+							continue nextArg;
+					continue nextMethod;
+				}
+				return methodBinding;
+			}
+			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
+		}
 
-	// visibility check
-	int visiblesCount = 0;
-	for (int i = 0; i < candidatesCount; i++) {
-		MethodBinding methodBinding = candidates[i];
-		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)){
-			if (visiblesCount != i) {
-				candidates[i] = null;
-				candidates[visiblesCount] = methodBinding;
+		// visibility check
+		int visiblesCount = 0;
+		for (int i = 0; i < candidatesCount; i++) {
+			MethodBinding methodBinding = candidates[i];
+			if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)) {
+				if (visiblesCount != i) {
+					candidates[i] = null;
+					candidates[visiblesCount] = methodBinding;
+				}
+				visiblesCount++;
 			}
-			visiblesCount++;
 		}
-	}
-	if (visiblesCount == 1) {
-		//compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
-		return candidates[0];
-	}
-	if (visiblesCount == 0){
-		return new ProblemMethodBinding(
-			candidates[0].selector,
-			argumentTypes,
-			candidates[0].declaringClass,
-			NotVisible);
-	}
-	if (candidates[0].declaringClass.isClass()) {
-		return mostSpecificClassMethodBinding(candidates, visiblesCount);
-	} else {
-		return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
-	}
+		if (visiblesCount == 1) {
+			//compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+			return candidates[0];
+		}
+		if (visiblesCount == 0) {
+			if (hierarchyContainsAbstractClasses){
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			}
+			return new ProblemMethodBinding(
+				candidates[0].selector,
+				argumentTypes,
+				candidates[0].declaringClass,
+				NotVisible);
+		}	
+		if (candidates[0].declaringClass.isClass()) {
+			return mostSpecificClassMethodBinding(candidates, visiblesCount);
+		} else {
+			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+		}
 }
-
 
 // Internal use only
 public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {

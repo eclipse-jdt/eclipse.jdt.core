@@ -449,8 +449,10 @@ public abstract class Scope
 			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
 				candidates[candidatesCount++] = methodBinding;
 		}
-		if (candidatesCount == 1)
+		if (candidatesCount == 1) {
+			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
 			return candidates[0]; // have not checked visibility
+		}
 		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
 			if (hierarchyContainsAbstractClasses){
 				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
@@ -524,6 +526,7 @@ public abstract class Scope
 			}
 		int foundSize = found.size;
 		if (foundSize == 0) {
+			if (matchingMethod != null) compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
 			return matchingMethod; // may be null - have not checked arg types or visibility
 		}		
 		MethodBinding[] candidates = new MethodBinding[foundSize];
@@ -535,8 +538,10 @@ public abstract class Scope
 			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
 				candidates[candidatesCount++] = methodBinding;
 		}
-		if (candidatesCount == 1)
-			return candidates[0]; // have not checked visibility
+		if (candidatesCount == 1){
+			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+			return candidates[0]; 
+		}
 		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
 			int argLength = argumentTypes.length;
 			nextMethod : for (int i = 0; i < foundSize; i++) {
@@ -554,31 +559,8 @@ public abstract class Scope
 			}
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
-
-		// visibility check
-		int visiblesCount = 0;
-		for (int i = 0; i < candidatesCount; i++) {
-			MethodBinding methodBinding = candidates[i];
-			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
-				if (visiblesCount != i) {
-					candidates[i] = null;
-					candidates[visiblesCount] = methodBinding;
-				}
-				visiblesCount++;
-			}
-		}
-		if (visiblesCount == 1) {
-			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
-			return candidates[0];
-		}
-		if (visiblesCount == 0)
-			return new ProblemMethodBinding(
-				candidates[0].selector,
-				argumentTypes,
-				candidates[0].declaringClass,
-				NotVisible);
-				
-		return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+		// no need to check for visibility - interface methods are public
+		return mostSpecificInterfaceMethodBinding(candidates, candidatesCount);
 	}
 
 	public MethodBinding findMethodInSuperInterfaces(
