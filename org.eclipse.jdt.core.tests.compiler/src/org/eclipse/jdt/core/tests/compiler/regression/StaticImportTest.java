@@ -345,4 +345,34 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"The method arraycopy(Object, int, Object, int, int) in the type System is not applicable for the arguments ()\n" + 
 			"----------\n");
 	}
+
+	public void test011() { // 76360
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.Y.*;\n" +
+				"public class X extends p.Z {}\n" +
+				"class XX extends M.N {}\n" +
+				"class XXX extends M.Missing {}\n",
+				"p/YY.java",
+				"package p;\n" +
+				"public class YY {\n" +
+				"	public static class M {\n" +
+				"		public static class N {}\n" +
+				"	}\n" +
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends YY {}\n",
+				"p/Z.java",
+				"package p;\n" +
+				"public class Z {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	class XXX extends M.Missing {}\n" + 
+			"	                  ^^^^^^^^^\n" + 
+			"M.Missing cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
