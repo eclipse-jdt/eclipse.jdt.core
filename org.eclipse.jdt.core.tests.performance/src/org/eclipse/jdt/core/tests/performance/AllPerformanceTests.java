@@ -24,7 +24,6 @@ public class AllPerformanceTests extends TestCase {
 			FullSourceWorkspaceBuildTests.class,
 			FullSourceWorkspaceASTTests.class,
 			FullSourceWorkspaceTypeHierarchyTests.class,
-			BuildBatchCompilerTest.class,
 			NameLookupTests2.class
 		};
 	}
