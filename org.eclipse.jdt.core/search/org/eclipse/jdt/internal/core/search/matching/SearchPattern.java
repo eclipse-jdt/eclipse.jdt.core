@@ -1099,7 +1099,7 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 	return searchPattern;
 }
 /**
- * Type pattern are formed by [package.]type
+ * Type pattern are formed by [qualification.]type
  * e.g. java.lang.Object
  *		Runnable
  *
@@ -1150,18 +1150,18 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	}
 	if (type == null) return null;
 
-	char[] packageChars = null, typeChars = null;
+	char[] qualificationChars = null, typeChars = null;
 
 	// extract declaring type infos
 	if (type != null){
 		char[] typePart = type.toCharArray();
 		int lastDotPosition = CharOperation.lastIndexOf('.', typePart);
 		if (lastDotPosition >= 0){
-			packageChars = CharOperation.subarray(typePart, 0, lastDotPosition);
-			if (packageChars.length == 1 && packageChars[0] == '*') packageChars = null;
+			qualificationChars = CharOperation.subarray(typePart, 0, lastDotPosition);
+			if (qualificationChars.length == 1 && qualificationChars[0] == '*') qualificationChars = null;
 			typeChars = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
 		} else {
-			packageChars = null;
+			qualificationChars = null;
 			typeChars = typePart;
 		}
 		if (typeChars.length == 1 && typeChars[0] == '*') typeChars = null;
@@ -1169,18 +1169,18 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	SearchPattern searchPattern = null;
 	switch (limitTo){
 		case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types
-			searchPattern = new TypeDeclarationPattern(packageChars, null, typeChars, TYPE_SUFFIX, matchMode, isCaseSensitive);
+			searchPattern = new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, TYPE_SUFFIX, matchMode, isCaseSensitive);
 			break;
 		case IJavaSearchConstants.REFERENCES :
-			searchPattern = new TypeReferencePattern(packageChars, typeChars, matchMode, isCaseSensitive);
+			searchPattern = new TypeReferencePattern(qualificationChars, typeChars, matchMode, isCaseSensitive);
 			break;
 		case IJavaSearchConstants.IMPLEMENTORS : 
-			searchPattern = new SuperInterfaceReferencePattern(packageChars, typeChars, matchMode, isCaseSensitive);
+			searchPattern = new SuperInterfaceReferencePattern(qualificationChars, typeChars, matchMode, isCaseSensitive);
 			break;
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			searchPattern = new OrPattern(
-				new TypeDeclarationPattern(packageChars, null, typeChars, TYPE_SUFFIX, matchMode, isCaseSensitive),// cannot search for explicit member types
-				new TypeReferencePattern(packageChars, typeChars, matchMode, isCaseSensitive));
+				new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, TYPE_SUFFIX, matchMode, isCaseSensitive),// cannot search for explicit member types
+				new TypeReferencePattern(qualificationChars, typeChars, matchMode, isCaseSensitive));
 			break;
 	}
 	return searchPattern;

@@ -21,21 +21,25 @@ import java.io.*;
 
 public class TypeDeclarationPattern extends SearchPattern {
 
-	private char[] qualification;
+	private char[] pkg;
 	private char[][] enclosingTypeNames;
-	private char[] simpleName;
+	protected char[] simpleName;
 
 	// set to CLASS_SUFFIX for only matching classes 
 	// set to INTERFACE_SUFFIX for only matching interfaces
 	// set to TYPE_SUFFIX for matching both classes and interfaces
-	private char classOrInterface; 
+	protected char classOrInterface; 
 
-	private char[] decodedQualification;
-	private char[] decodedSimpleName;
+	private char[] decodedPackage;
 	private char[][] decodedEnclosingTypeNames;
-	private char decodedClassOrInterface;
+	protected char[] decodedSimpleName;
+	protected char decodedClassOrInterface;
+	
+public TypeDeclarationPattern(int matchMode, boolean isCaseSensitive) {
+	super(matchMode, isCaseSensitive);
+}
 public TypeDeclarationPattern(
-	char[] qualification,
+	char[] pkg,
 	char[][] enclosingTypeNames,
 	char[] simpleName,
 	char classOrInterface,
@@ -44,7 +48,7 @@ public TypeDeclarationPattern(
 
 	super(matchMode, isCaseSensitive);
 
-	this.qualification = isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
+	this.pkg = isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
 	if (isCaseSensitive || enclosingTypeNames == null) {
 		this.enclosingTypeNames = enclosingTypeNames;
 	} else {
@@ -57,31 +61,31 @@ public TypeDeclarationPattern(
 	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 	
-	this.needsResolve = qualification != null;
+	this.needsResolve = pkg != null && enclosingTypeNames != null;
 }
 public void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
 	int size = word.length;
 
-	decodedClassOrInterface = word[TYPE_DECL_LENGTH];
+	this.decodedClassOrInterface = word[TYPE_DECL_LENGTH];
 	int oldSlash = TYPE_DECL_LENGTH+1;
 	int slash = CharOperation.indexOf(SEPARATOR, word, oldSlash+1);
 	if (slash == oldSlash+1){ 
-		decodedQualification = NO_CHAR;
+		this.decodedPackage = NO_CHAR;
 	} else {
-		decodedQualification = CharOperation.subarray(word, oldSlash+1, slash);
+		this.decodedPackage = CharOperation.subarray(word, oldSlash+1, slash);
 	}
-	decodedSimpleName = CharOperation.subarray(word, slash+1, slash = CharOperation.indexOf(SEPARATOR, word, slash+1));
+	this.decodedSimpleName = CharOperation.subarray(word, slash+1, slash = CharOperation.indexOf(SEPARATOR, word, slash+1));
 
 	if (slash+1 < size){
 		if (slash+3 == size && word[slash+1] == ONE_ZERO[0]) {
-			decodedEnclosingTypeNames = ONE_ZERO_CHAR;
+			this.decodedEnclosingTypeNames = ONE_ZERO_CHAR;
 		} else {
-			decodedEnclosingTypeNames = CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
+			this.decodedEnclosingTypeNames = CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
 		}
 	} else {
-		decodedEnclosingTypeNames = NO_CHAR_CHAR;
+		this.decodedEnclosingTypeNames = NO_CHAR_CHAR;
 	}
 }
 /**
@@ -94,9 +98,9 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 		String path;
 		if (file != null && scope.encloses(path =IndexedFile.convertPath(file.getPath()))) {
 			if (isClass) {
-				requestor.acceptClassDeclaration(path, decodedSimpleName, decodedEnclosingTypeNames, decodedQualification);
+				requestor.acceptClassDeclaration(path, decodedSimpleName, decodedEnclosingTypeNames, decodedPackage);
 			} else {
-				requestor.acceptInterfaceDeclaration(path, decodedSimpleName, decodedEnclosingTypeNames, decodedQualification);
+				requestor.acceptInterfaceDeclaration(path, decodedSimpleName, decodedEnclosingTypeNames, decodedPackage);
 			}
 		}
 	}
@@ -107,7 +111,7 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 public char[] indexEntryPrefix(){
 
 	return AbstractIndexer.bestTypeDeclarationPrefix(
-			qualification,
+			pkg,
 			simpleName,
 			classOrInterface,
 			matchMode, 
@@ -131,7 +135,7 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 	char[] typeName = (char[])type.getName().clone();
 	CharOperation.replace(typeName, '/', '.');
 	char[] enclosingTypeName = this.enclosingTypeNames == null ? null : CharOperation.concatWith(this.enclosingTypeNames, '.');
-	if (!this.matchesType(this.simpleName, this.qualification, enclosingTypeName, typeName)) {
+	if (!this.matchesType(this.simpleName, this.pkg, enclosingTypeName, typeName)) {
 		return false;
 	}
 
@@ -151,21 +155,22 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 }
 /**
  * Returns whether the given type binding matches the given simple name pattern 
- * qualification pattern and enclosing name pattern.
+ * package pattern and enclosing name pattern.
  */
-protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPattern, char[] enclosingNamePattern, char[] fullyQualifiedTypeName) {
+protected boolean matchesType(char[] simpleNamePattern, char[] pkgPattern, char[] enclosingNamePattern, char[] fullyQualifiedTypeName) {
 	if (enclosingNamePattern == null) {
-		return this.matchesType(simpleNamePattern, qualificationPattern, fullyQualifiedTypeName);
+		return this.matchesType(simpleNamePattern, pkgPattern, fullyQualifiedTypeName);
 	} else {
 		char[] pattern;
-		if (qualificationPattern == null) {
+		if (pkgPattern == null) {
 			pattern = enclosingNamePattern;
 		} else {
-			pattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
+			pattern = CharOperation.concat(pkgPattern, enclosingNamePattern, '.');
 		}
 		return this.matchesType(simpleNamePattern, pattern, fullyQualifiedTypeName);
 	}
 }
+
 /**
  * see SearchPattern.matchIndexEntry
  */
@@ -179,7 +184,7 @@ protected boolean matchIndexEntry(){
 		default :
 	}
 	/* check qualification - exact match only */
-	if (qualification != null && !CharOperation.equals(qualification, decodedQualification, isCaseSensitive))
+	if (pkg != null && !CharOperation.equals(pkg, decodedPackage, isCaseSensitive))
 		return false;
 	/* check enclosingTypeName - exact match only */
 	if (enclosingTypeNames != null){
@@ -190,7 +195,6 @@ protected boolean matchIndexEntry(){
 			if (!CharOperation.equals(enclosingTypeNames, decodedEnclosingTypeNames, isCaseSensitive)) return false;
 		}
 	}
-
 	/* check simple name matches */
 	if (simpleName != null){
 		switch(matchMode){
@@ -225,7 +229,7 @@ public String toString(){
 			buffer.append("TypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 	}
-	if (qualification != null) buffer.append(qualification);
+	if (pkg != null) buffer.append(pkg);
 	buffer.append(">, enclosing<"); //$NON-NLS-1$
 	if (enclosingTypeNames != null) {
 		for (int i = 0; i < enclosingTypeNames.length; i++){
@@ -297,7 +301,7 @@ public int matchLevel(Binding binding) {
 
 	// fully qualified name
 	char[] enclosingTypeName = this.enclosingTypeNames == null ? null : CharOperation.concatWith(this.enclosingTypeNames, '.');
-	return this.matchLevelForType(this.simpleName, this.qualification, enclosingTypeName, type);
+	return this.matchLevelForType(this.simpleName, this.pkg, enclosingTypeName, type);
 }
 
 /**
@@ -313,7 +317,7 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 		} else {
 			// pattern was created from a Java element: qualification is the package name.
 			char[] fullQualificationPattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
-			if ( CharOperation.equals(qualification, CharOperation.concatWith(type.getPackage().compoundName, '.'))) {
+			if ( CharOperation.equals(pkg, CharOperation.concatWith(type.getPackage().compoundName, '.'))) {
 				return this.matchLevelForType(simpleNamePattern, fullQualificationPattern, type);
 			} else {
 				return IMPOSSIBLE_MATCH;
