@@ -26,7 +26,7 @@ public class HandleFactory {
 	/**
 	 * Cache package handles to optimize memory.
 	 */
-	private Hashtable packageHandles;
+	private Map packageHandles;
 
 	private IWorkspace workspace;
 	private JavaModel javaModel;
@@ -55,7 +55,7 @@ public class HandleFactory {
 			if (!jarPath.equals(this.lastPkgFragmentRootPath)) {
 				this.lastPkgFragmentRootPath= jarPath;
 				this.lastPkgFragmentRoot= this.getJarPkgFragmentRoot(jarPath);
-				this.packageHandles= new Hashtable(5);
+				this.packageHandles= new HashMap(5);
 			}
 
 			// create handle
@@ -84,7 +84,7 @@ public class HandleFactory {
 					return null; // match is outside classpath
 				this.lastPkgFragmentRoot= root;
 				this.lastPkgFragmentRootPath= this.lastPkgFragmentRoot.getPath().toString();
-				this.packageHandles= new Hashtable(5);
+				this.packageHandles= new HashMap(5);
 			}
 
 			// create handle

@@ -755,9 +755,9 @@ protected void initialize(int size) {
 		size = 10;
 	}
 	int smallSize = (size / 2);
-	fClassToSuperclass = new Hashtable(size);
-	fTypeToSubtypes = new Hashtable(smallSize);
-	fTypeToSuperInterfaces = new Hashtable(smallSize);
+	fClassToSuperclass = new HashMap(size);
+	fTypeToSubtypes = new HashMap(smallSize);
+	fTypeToSuperInterfaces = new HashMap(smallSize);
 }
 /**
  * Returns true if this hierarchy is actively tracking changes

@@ -37,7 +37,7 @@ Evaluator(EvaluationContext context, INameEnvironment environment, Map options, 
  * are computed so that they correspond to the given problem. If it is found to be an internal problem,
  * then the evaluation id of the result is the given compilation unit source.
  */
-abstract protected void addEvaluationResultForCompilationProblem(Hashtable resultsByIDs,IProblem problem, char[] cuSource);
+abstract protected void addEvaluationResultForCompilationProblem(Map resultsByIDs,IProblem problem, char[] cuSource);
 /**
  * Returns the evaluation results that converts the given compilation result that has problems.
  * If the compilation result has more than one problem, then the problems are broken down so that
@@ -46,7 +46,7 @@ abstract protected void addEvaluationResultForCompilationProblem(Hashtable resul
 protected EvaluationResult[] evaluationResultsForCompilationProblems(CompilationResult result, char[] cuSource) {
 	// Break down the problems and group them by ids in evaluation results
 	IProblem[] problems = result.getProblems();
-	Hashtable resultsByIDs = new Hashtable(5);
+	HashMap resultsByIDs = new HashMap(5);
 	for (int i = 0; i < problems.length; i++) {
 		addEvaluationResultForCompilationProblem(resultsByIDs, problems[i], cuSource);
 	}
@@ -54,9 +54,9 @@ protected EvaluationResult[] evaluationResultsForCompilationProblems(Compilation
 	// Copy results
 	int size = resultsByIDs.size();
 	EvaluationResult[] evalResults = new EvaluationResult[size];
-	Enumeration results = resultsByIDs.elements();
+	Iterator results = resultsByIDs.values().iterator();
 	for (int i = 0; i < size; i++) {
-		evalResults[i] = (EvaluationResult)results.nextElement();
+		evalResults[i] = (EvaluationResult)results.next();
 	}
 
 	return evalResults;

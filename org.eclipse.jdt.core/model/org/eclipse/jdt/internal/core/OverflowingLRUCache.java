@@ -6,7 +6,7 @@ package org.eclipse.jdt.internal.core;
  */
 import org.eclipse.jdt.internal.core.util.*;
 
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  *	The <code>OverflowingLRUCache</code> is an LRUCache which attempts
@@ -223,7 +223,7 @@ public void printStats() {
 	System.out.println("Backward length: " + backwardListLength); //$NON-NLS-1$
 
 	Enumeration keys = fEntryTable.keys();
-	java.util.Vector v = new java.util.Vector();
+	ArrayList v = new ArrayList();
 	class Temp {
 		public Class fClass;
 		public int fCount;
@@ -235,7 +235,7 @@ public void printStats() {
 			return "Class: " + fClass + " has " + fCount + " entries."; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
 		}
 	}
-	java.util.Hashtable h = new java.util.Hashtable();
+	java.util.HashMap h = new java.util.HashMap();
 	while(keys.hasMoreElements()) {
 		entry = (LRUCacheEntry)fEntryTable.get(keys.nextElement());
 		Class key = entry._fValue.getClass();
@@ -247,9 +247,8 @@ public void printStats() {
 		}
 	}
 
-	keys = h.keys();
-	while(keys.hasMoreElements()) {
-		System.out.println(h.get(keys.nextElement()));
+	for (Iterator iter = h.keySet().iterator(); iter.hasNext();){
+		System.out.println(h.get(iter.next()));
 	}
 }
 	/**

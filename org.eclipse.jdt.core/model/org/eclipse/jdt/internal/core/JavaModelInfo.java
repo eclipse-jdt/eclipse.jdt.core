@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IJavaModel;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.zip.ZipFile;
 

@@ -12,9 +12,9 @@ import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.*;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Stack;
-import java.util.Vector;
 
 /**
  * The DOMBuilder constructs each type of JDOM document fragment,
@@ -41,7 +41,7 @@ public class DOMBuilder extends AbstractDOMBuilder implements IDocumentElementRe
 	/**
 	 * Collection of multiple fields in one declaration
 	 */
-	protected Vector fFields;
+	protected ArrayList fFields;
 
 
 /**
@@ -127,7 +127,7 @@ public void acceptProblem(IProblem problem){
 protected void addChild(IDOMNode child) {
 	super.addChild(child);
 	if (fStack.isEmpty() && fFields != null) {
-		fFields.addElement(child);
+		fFields.add(child);
 	}
 }
 /**
@@ -167,14 +167,14 @@ public IDOMField createField(char[] sourceCode) {
  */
 public IDOMField[] createFields(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, false);
-	fFields= new Vector();
+	fFields= new ArrayList();
 	getParser().parseField(sourceCode);
 	if (fAbort) {
 		return null;
 	}
 
 	IDOMField[] fields= new IDOMField[fFields.size()];
-	fFields.copyInto(fields);
+	fFields.toArray(fields);
 	for (int i= 0; i < fields.length; i++) {
 		DOMNode node= (DOMNode)fields[i];
 		if (i < (fields.length - 1)) {

@@ -49,7 +49,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	/**
 	 * Cache used to record binaries recreated from index matches
 	 */
-	protected Hashtable binariesFromIndexMatches;
+	protected Map binariesFromIndexMatches;
 	
 	/**
 	 * Collection used to queue subtype index queries
@@ -86,8 +86,8 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	}
 public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scope) throws JavaModelException {
 	super(hierarchy);
-	this.cuToHandle = new Hashtable(5);
-	this.binariesFromIndexMatches = new Hashtable(10);
+	this.cuToHandle = new HashMap(5);
+	this.binariesFromIndexMatches = new HashMap(10);
 	this.scope = scope;
 }
 /**
@@ -366,9 +366,9 @@ private void createInfoFromClassFileInJar(Openable classFile, ArrayList infos) t
 private String[] determinePossibleSubTypes() throws JavaModelException, CoreException {
 
 	class PathCollector implements IPathRequestor {
-		Hashtable paths = new Hashtable(10);
+		HashSet paths = new HashSet(10);
 		public void acceptPath(String path) {
-			paths.put(path, path);
+			paths.add(path);
 		}
 	}
 	PathCollector collector = new PathCollector();
@@ -383,12 +383,12 @@ private String[] determinePossibleSubTypes() throws JavaModelException, CoreExce
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		this.hierarchy.fProgressMonitor);
 
-	Hashtable paths = collector.paths;
+	HashSet paths = collector.paths;
 	int length = paths.size();
 	String[] result = new String[length];
 	int count = 0;
-	for (Enumeration elements = paths.elements(); elements.hasMoreElements(); ) {
-		result[count++] = (String) elements.nextElement();
+	for (Iterator iter = paths.iterator(); iter.hasNext();) {
+		result[count++] = (String) iter.next();
 	} 
 	return result;
 }
@@ -438,7 +438,7 @@ public static void searchAllPossibleSubTypes(
 	IWorkspace workbench,
 	IType type,
 	IJavaSearchScope scope,
-	final Hashtable binariesFromIndexMatches,
+	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
 	IProgressMonitor progressMonitor)  throws JavaModelException, CoreException {

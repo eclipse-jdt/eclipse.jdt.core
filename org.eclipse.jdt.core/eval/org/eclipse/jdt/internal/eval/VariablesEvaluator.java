@@ -28,7 +28,7 @@ VariablesEvaluator(EvaluationContext context, INameEnvironment environment, Map 
 /**
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
-protected void addEvaluationResultForCompilationProblem(Hashtable resultsByIDs, IProblem problem, char[] cuSource) {
+protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProblem problem, char[] cuSource) {
 	// set evaluation id and type to an internal problem by default
 	char[] evaluationID = cuSource;
 	int evaluationType = EvaluationResult.T_INTERNAL;

@@ -28,7 +28,7 @@ public class DeleteElementsOperation extends MultiOperation {
 	 * values are <code>IRegion</code>s of elements to be processed in each
 	 * compilation unit.
 	 */ 
-	protected Hashtable fChildrenToRemove;
+	protected Map fChildrenToRemove;
 	/**
 	 * The <code>DOMFactory</code> used to manipulate the source code of
 	 * <code>ICompilationUnit</code>s.
@@ -69,7 +69,7 @@ protected String getMainTaskName() {
  * duplicates specified in elements to be processed.
  */
 protected void groupElements() throws JavaModelException {
-	fChildrenToRemove = new Hashtable(1);
+	fChildrenToRemove = new HashMap(1);
 	int uniqueCUs = 0;
 	for (int i = 0, length = fElementsToProcess.length; i < length; i++) {
 		IJavaElement e = fElementsToProcess[i];
@@ -87,10 +87,10 @@ protected void groupElements() throws JavaModelException {
 		}
 	}
 	fElementsToProcess = new IJavaElement[uniqueCUs];
-	Enumeration enum = fChildrenToRemove.keys();
+	Iterator iter = fChildrenToRemove.keySet().iterator();
 	int i = 0;
-	while (enum.hasMoreElements()) {
-		fElementsToProcess[i++] = (IJavaElement) enum.nextElement();
+	while (iter.hasNext()) {
+		fElementsToProcess[i++] = (IJavaElement) iter.next();
 	}
 }
 /**

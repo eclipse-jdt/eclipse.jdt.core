@@ -86,7 +86,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String BUILDER_DEBUG = PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
 	
 	
-	private static Hashtable Variables = new Hashtable(5);
+	private static Map Variables = new HashMap(5);
 	private static Hashtable Options = getDefaultOptions();
 
 	/**
@@ -396,10 +396,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static String[] getClasspathVariableNames() {
 		int length = Variables.size();
 		String[] result = new String[length];
-		Enumeration vars = Variables.keys();
+		Iterator vars = Variables.keySet().iterator();
 		int index = 0;
-		while (vars.hasMoreElements()) {
-			result[index++] = (String) vars.nextElement();
+		while (vars.hasNext()) {
+			result[index++] = (String) vars.next();
 		}
 		return result;
 	}
@@ -1088,7 +1088,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		throws JavaModelException {
 
 		// gather classpath information for updating
-		Hashtable affectedProjects = new Hashtable(5);
+		HashMap affectedProjects = new HashMap(5);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IJavaModel model = manager.getJavaModel();
@@ -1126,9 +1126,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				if (wasFiring)
 					manager.stopDeltas();
 				// propagate classpath change
-				Enumeration projectsToUpdate = affectedProjects.keys();
-				while (projectsToUpdate.hasMoreElements()) {
-					JavaProject project = (JavaProject) projectsToUpdate.nextElement();
+				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
+				while (projectsToUpdate.hasNext()) {
+					JavaProject project = (JavaProject) projectsToUpdate.next();
 					project
 						.setRawClasspath(
 							project.getRawClasspath(),

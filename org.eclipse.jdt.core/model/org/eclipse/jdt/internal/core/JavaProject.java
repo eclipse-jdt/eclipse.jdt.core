@@ -21,12 +21,12 @@ import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import java.util.Vector;
 import javax.xml.parsers.*;
 import org.apache.xerces.dom.*;
 import org.apache.xml.serialize.*;
@@ -550,7 +550,7 @@ public class JavaProject
 	public IPackageFragmentRoot[] getBuilderRoots(IResourceDelta delta)
 		throws JavaModelException {
 
-		Vector builderRoots = new Vector();
+		ArrayList builderRoots = new ArrayList();
 		IClasspathEntry[] classpath;
 		classpath = getExpandedClasspath(true);
 		IResource res;
@@ -563,7 +563,7 @@ public class JavaProject
 				case IClasspathEntry.CPE_LIBRARY :
 					IPackageFragmentRoot[] roots = this.getPackageFragmentRoots(entry);
 					if (roots.length > 0)
-						builderRoots.addElement(roots[0]);
+						builderRoots.add(roots[0]);
 					break;
 
 				case IClasspathEntry.CPE_PROJECT :
@@ -580,7 +580,7 @@ public class JavaProject
 								((PackageFragmentRootInfo) root.getElementInfo()).setRootKind(
 									IPackageFragmentRoot.K_BINARY);
 								root.refreshChildren();
-								builderRoots.addElement(root);
+								builderRoots.add(root);
 							}
 						}
 					}
@@ -590,7 +590,7 @@ public class JavaProject
 					if (getCorrespondingResource().getFullPath().isPrefixOf(entry.getPath())) {
 						res = retrieveResource(entry.getPath(), delta);
 						if (res != null)
-							builderRoots.addElement(getPackageFragmentRoot(res));
+							builderRoots.add(getPackageFragmentRoot(res));
 					} else {
 						IProject proj = (IProject) getWorkspace().getRoot().findMember(entry.getPath());
 						project = (IJavaProject) JavaCore.create(proj);
@@ -602,14 +602,14 @@ public class JavaProject
 							((PackageFragmentRootInfo) root.getElementInfo()).setRootKind(
 								IPackageFragmentRoot.K_BINARY);
 							root.refreshChildren();
-							builderRoots.addElement(root);
+							builderRoots.add(root);
 						}
 					}
 					break;
 			}
 		}
 		IPackageFragmentRoot[] result = new IPackageFragmentRoot[builderRoots.size()];
-		builderRoots.copyInto(result);
+		builderRoots.toArray(result);
 		return result;
 	}
 
@@ -887,15 +887,15 @@ public class JavaProject
 
 		throws JavaModelException {
 		IPackageFragmentRoot[] roots = getAllPackageFragmentRoots();
-		Vector matches = new Vector();
+		ArrayList matches = new ArrayList();
 
 		for (int i = 0; i < roots.length; ++i) {
 			if (path.isPrefixOf(roots[i].getPath())) {
-				matches.addElement(roots[i]);
+				matches.add(roots[i]);
 			}
 		}
 		IPackageFragmentRoot[] copy = new IPackageFragmentRoot[matches.size()];
-		matches.copyInto(copy);
+		matches.toArray(copy);
 		return copy;
 	}
 
@@ -964,7 +964,7 @@ public class JavaProject
 			} else {
 				String project = path.segment(0);
 				IJavaProject javaProject = getJavaModel().getJavaProject(project);
-				Vector sourceRoots = new Vector();
+				ArrayList sourceRoots = new ArrayList();
 				IPackageFragmentRoot[] roots = null;
 				try {
 					roots = javaProject.getPackageFragmentRoots();
@@ -974,14 +974,14 @@ public class JavaProject
 				for (int i = 0; i < roots.length; i++) {
 					try {
 						if (roots[i].getKind() == IPackageFragmentRoot.K_SOURCE) {
-							sourceRoots.addElement(roots[i]);
+							sourceRoots.add(roots[i]);
 						}
 					} catch (JavaModelException e) {
 						// do nothing if the root does not exist
 					}
 				}
 				IPackageFragmentRoot[] copy = new IPackageFragmentRoot[sourceRoots.size()];
-				sourceRoots.copyInto(copy);
+				sourceRoots.toArray(copy);
 				return copy;
 			}
 		}
@@ -1002,20 +1002,20 @@ public class JavaProject
 	 */
 	public IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots) {
 
-		Vector frags = new Vector();
+		ArrayList frags = new ArrayList();
 		for (int i = 0; i < roots.length; i++) {
 			IPackageFragmentRoot root = roots[i];
 			try {
 				IJavaElement[] rootFragments = root.getChildren();
 				for (int j = 0; j < rootFragments.length; j++) {
-					frags.addElement(rootFragments[j]);
+					frags.add(rootFragments[j]);
 				}
 			} catch (JavaModelException e) {
 				// do nothing
 			}
 		}
 		IPackageFragment[] fragments = new IPackageFragment[frags.size()];
-		frags.copyInto(fragments);
+		frags.toArray(fragments);
 		return fragments;
 	}
 
@@ -1480,7 +1480,7 @@ public class JavaProject
 
 	private String[] projectPrerequisites(IClasspathEntry[] entries)
 		throws JavaModelException {
-		Vector prerequisites = new Vector();
+		ArrayList prerequisites = new ArrayList();
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			entry = JavaCore.getResolvedClasspathEntry(entry);
@@ -1495,7 +1495,7 @@ public class JavaProject
 			return NO_PREREQUISITES;
 		} else {
 			String[] result = new String[size];
-			prerequisites.copyInto(result);
+			prerequisites.toArray(result);
 			return result;
 		}
 	}
@@ -1529,7 +1529,7 @@ public class JavaProject
 			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 		}
 		NodeList list = cpElement.getChildNodes();
-		Vector paths = new Vector();
+		ArrayList paths = new ArrayList();
 		int length = list.getLength();
 
 		for (int i = 0; i < length; ++i) {
@@ -1565,12 +1565,12 @@ public class JavaProject
 			
 						case IClasspathEntry.CPE_PROJECT :
 							if (!path.isAbsolute()) return null;
-							paths.addElement(JavaCore.newProjectEntry(path, isExported));
+							paths.add(JavaCore.newProjectEntry(path, isExported));
 							break;
 							
 						case IClasspathEntry.CPE_LIBRARY :
 							if (!path.isAbsolute()) return null;
-							paths.addElement(JavaCore.newLibraryEntry(
+							paths.add(JavaCore.newLibraryEntry(
 															path,
 															sourceAttachmentPath,
 															sourceAttachmentRootPath,
@@ -1583,15 +1583,15 @@ public class JavaProject
 							String projSegment = path.segment(0);
 							if (projSegment != null && projSegment.equals(getElementName())) {
 								// this project
-								paths.addElement(JavaCore.newSourceEntry(path));
+								paths.add(JavaCore.newSourceEntry(path));
 							} else {
 								// another project
-								paths.addElement(JavaCore.newProjectEntry(path, isExported));
+								paths.add(JavaCore.newProjectEntry(path, isExported));
 							}
 							break;
 			
 						case IClasspathEntry.CPE_VARIABLE :
-							paths.addElement(JavaCore.newVariableEntry(
+							paths.add(JavaCore.newVariableEntry(
 									path,
 									sourceAttachmentPath,
 									sourceAttachmentRootPath, 
@@ -1600,7 +1600,7 @@ public class JavaProject
 							
 						case ClasspathEntry.K_OUTPUT :
 							if (!path.isAbsolute()) return null;
-							paths.addElement(new ClasspathEntry(
+							paths.add(new ClasspathEntry(
 									ClasspathEntry.K_OUTPUT,
 									IClasspathEntry.CPE_LIBRARY,
 									path,
@@ -1614,7 +1614,7 @@ public class JavaProject
 		}
 		if (paths.size() > 0) {
 			IClasspathEntry[] ips = new IClasspathEntry[paths.size()];
-			paths.copyInto(ips);
+			paths.toArray(ips);
 			return ips;
 		} else {
 			return null;

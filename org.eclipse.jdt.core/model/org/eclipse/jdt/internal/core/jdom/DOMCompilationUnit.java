@@ -13,8 +13,6 @@ import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.*;
 
-import java.util.Vector;
-
 /**
  * DOMCompilation unit provides an implementation of IDOMCompilationUnit.
  *
