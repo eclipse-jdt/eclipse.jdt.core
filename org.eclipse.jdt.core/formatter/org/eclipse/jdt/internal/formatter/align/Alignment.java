@@ -247,7 +247,21 @@ public class Alignment {
 				do {
 					if (this.fragmentBreaks[i] == NONE) {
 						this.fragmentBreaks[i] = BREAK;
-						this.fragmentIndentations[i] = this.breakIndentationLevel;
+						/* Experiments
+						if (this.scribe.useTab) {
+							if ((this.breakIndentationLevel * this.scribe.tabSize) >= this.scribe.pageWidth) {
+								this.fragmentIndentations[i] = 2;
+							} else {
+								this.fragmentIndentations[i] = this.breakIndentationLevel;
+							}
+						} else {
+							if (this.breakIndentationLevel >= this.scribe.pageWidth) {
+								this.fragmentIndentations[i] = 8;
+							} else {
+								this.fragmentIndentations[i] = this.breakIndentationLevel;
+							}
+						}*/
+						this.fragmentIndentations[i] = this.breakIndentationLevel;						
 						return wasSplit = true;
 					}
 				} while (--i >= 0);
