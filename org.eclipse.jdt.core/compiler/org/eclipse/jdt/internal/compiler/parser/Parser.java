@@ -2707,9 +2707,10 @@ protected void consumeEnumConstantHeaderName() {
 		}
 	}
    long namePosition = this.identifierPositionStack[this.identifierPtr];
-   char[] constantName = this.identifierStack[this.identifierPtr--];
+   char[] constantName = this.identifierStack[this.identifierPtr];
    final int sourceEnd = (int) namePosition;
    FieldDeclaration enumConstant = createFieldDeclaration(constantName, (int) (namePosition >>> 32), sourceEnd);
+   this.identifierPtr--;
    this.identifierLengthPtr--;
    enumConstant.modifiersSourceStart = this.intStack[this.intPtr--];
    enumConstant.modifiers = this.intStack[this.intPtr--];
