@@ -324,20 +324,20 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the (possibly empty) list of field declarations
 	 */ 
-	public SingleVariableDeclaration[] getFields() {
+	public FieldDeclaration[] getFields() {
 		List bd = bodyDeclarations();
 		int fieldCount = 0;
 		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			if (it.next() instanceof SingleVariableDeclaration) {
+			if (it.next() instanceof FieldDeclaration) {
 				fieldCount++;
 			}
 		}
-		SingleVariableDeclaration[] fields = new SingleVariableDeclaration[fieldCount];
+		FieldDeclaration[] fields = new FieldDeclaration[fieldCount];
 		int next = 0;
 		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
 			Object decl = it.next();
-			if (decl instanceof SingleVariableDeclaration) {
-				fields[next++] = (SingleVariableDeclaration) decl;
+			if (decl instanceof FieldDeclaration) {
+				fields[next++] = (FieldDeclaration) decl;
 			}
 		}
 		return fields;
