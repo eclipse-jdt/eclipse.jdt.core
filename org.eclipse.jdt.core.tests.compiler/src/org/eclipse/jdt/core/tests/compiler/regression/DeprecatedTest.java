@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 
 public class DeprecatedTest extends AbstractRegressionTest {
@@ -334,6 +338,52 @@ public void test009() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=88187
+public void _test010() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"I1.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public interface I1 {\n" + 
+			"		 // empty block\n" + 
+			"}\n",
+			"I2.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public interface I2 {\n" + 
+			"		 I1 foo(); // unexpected warning here\n" + 
+			"}\n",
+			"X.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"		 /**\n" + 
+			"		  * @see I2#foo()\n" + 
+			"		  */\n" + 
+			"		 I1 foo() {\n" + 
+			"		 		 return null;\n" + 
+			"		 }\n" + 
+			"		Zork z;\n" +
+			"}\n",				
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+	
 }
 public static Class testClass() {
 	return DeprecatedTest.class;
