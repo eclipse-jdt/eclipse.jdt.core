@@ -274,9 +274,10 @@ public class TestingEnvironment {
 
 			ByteArrayInputStream is = new ByteArrayInputStream(contents);
 			if (file.exists()) {
-				file.delete(true, null);
+				file.setContents(is, true, false, null);
+			} else {
+				file.create(is, true, null);
 			}
-			file.create(is, true, null);
 			return file;
 		} catch (CoreException e) {
 			handle(e);

@@ -15,6 +15,8 @@ import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 /**
  * Basic tests of the image builder.
@@ -83,6 +85,50 @@ public class OutputFolderTests extends Tests {
 			bin.append("Test.class"), //$NON-NLS-1$
 			bin.append("Test.txt") //$NON-NLS-1$
 		});
+	}
+	/*
+	 * Ensures that changing the output to be the project (when the project has a source folder src)
+	 * doesn't scrub the project on exit/restart.
+	 * (regression test for bug 32588 Error saving changed source files; all files in project deleted)
+	 */
+	public void testInvalidOutput() throws JavaModelException {
+		// setup project with 1 src folder and 1 output folder
+		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+	
+		// add cu and build
+		env.addClass(projectPath, "src", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A {}" //$NON-NLS-1$
+			);
+		fullBuild();
+		expectingNoProblems();
+
+		// set invalid  output foder by editing the .classpath file
+		env.addFile(
+			projectPath, 
+			".classpath",  //$NON-NLS-1$
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
+			"<classpath>\n" + //$NON-NLS-1$
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" + //$NON-NLS-1$
+			"    <classpathentry kind=\"var\" path=\"" + Util.getJavaClassLib() + "\"/>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+			"    <classpathentry kind=\"output\" path=\"\"/>\n" + //$NON-NLS-1$
+			"</classpath>"
+		);
+		
+		// simulate exit/restart
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		JavaProject project = (JavaProject)manager.getJavaModel().getJavaProject("P"); //$NON-NLS-1$
+		manager.removePerProjectInfo(project);
+		
+		// change cu and build
+		IPath cuPath = env.addClass(projectPath, "src", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A { String s;}" //$NON-NLS-1$
+			);		
+		incrementalBuild();
+
+		expectingPresenceOf(new IPath[] {cuPath});
 	}
 
 	public void testSimpleProject() throws JavaModelException {
