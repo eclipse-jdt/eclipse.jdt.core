@@ -155,4 +155,34 @@ class NodeEventHandler {
 		// do nothing
 		// System.out.println("MOD2 " + property); //$NON-NLS-1$
 	}
+	
+	/**
+	 * Reports that the given node is about to be cloned. 
+	 * The first half of an event pair.
+	 * The default implementation does nothing.
+	 * 
+	 * @param node the node to be modified
+	 * @see #postCloneNodeEvent(ASTNode, ASTNode)
+	 * @since 3.0
+	 */
+	void preCloneNodeEvent(ASTNode node) {
+		// do nothing
+		// System.out.println("CLONE1"); //$NON-NLS-1$
+	}
+
+	/**
+	 * Reports that the given node has just been cloned.
+	 * The second half of an event pair.
+	 * The default implementation does nothing.
+	 * 
+	 * @param node the node that was modified
+	 * @param clone the clone of <code>node</code>
+	 * @see #preCloneNodeEvent(ASTNode)
+	 * @since 3.0
+	 */
+	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
+		// do nothing
+		// System.out.println("CLONE2"); //$NON-NLS-1$
+	}
+	
 }

@@ -573,15 +573,48 @@ public final class AST {
 		}
 	}
 	
+	/**
+	 * Reports that the given node is about to be cloned.
+	 * 
+	 * @param node the node to be cloned
+	 * @since 3.0
+	 */
 	void preCloneNodeEvent(ASTNode node) {
-		if(this.rewriter != null) {
-			this.rewriter.preCloneNodeEvent(node);
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preCloneNodeEvent(node);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
 		}
 	}
 	
+	/**
+	 * Reports that the given node has just been cloned.
+	 * 
+	 * @param node the node that was cloned
+	 * @param clone the clone of <code>node</code>
+	 * @since 3.0
+	 */
 	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
-		if(this.rewriter != null) {
-			this.rewriter.postCloneNodeEvent(node, clone);
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postCloneNodeEvent(node, clone);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
 		}
 	}
 	
