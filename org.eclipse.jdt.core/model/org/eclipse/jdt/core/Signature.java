@@ -241,20 +241,7 @@ public final class Signature {
  * Not instantiable.
  */
 private Signature() {}
-/**
- * Internal - Adds array brackets to a readable type name.
- */
-private static String arrayIfy(String typeName, int arrayCount) {
-	if (arrayCount == 0) {
-		return typeName;
-	}
-	StringBuffer sb = new StringBuffer(typeName.length() + arrayCount * 2);
-	sb.append(typeName);
-	for (int i = 0; i < arrayCount; ++i) {
-		sb.append("[]"); //$NON-NLS-1$
-	}
-	return sb.toString();
-}
+
 private static long copyType(char[] signature, int sigPos, char[] dest, int index, boolean fullyQualifyTypeNames) {
 	int arrayCount = 0;
 	loop: while (true) {
@@ -1076,16 +1063,26 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 				case C_PARAM_END :
 					lastParen = i;
 					if (includeReturnType) {
-						// remove space for ", " that was added with last parameter and remove space that is going to be added for ", " after return type 
-						// and add space for ") "
-						resultLength -= 2;
+						if (paramCount > 0) {
+							// remove space for ", " that was added with last parameter and remove space that is going to be added for ", " after return type 
+							// and add space for ") "
+							resultLength -= 2;
+						} //else
+							// remove space that is going to be added for ", " after return type 
+							// and add space for ") "
+							// -> noop
 						
 						// decrement param count because it is going to be added for return type
 						paramCount--;
 						continue signature;
 					} else {
-						// remove space for ", " that was added with last parameter and add space for ")"
-						resultLength--;
+						if (paramCount > 0) {
+							// remove space for ", " that was added with last parameter and add space for ")"
+							resultLength--;
+						} else {
+							// add space for ")"
+							resultLength++;
+						}
 						break signature;
 					}
 				default :
@@ -1159,8 +1156,8 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
  * For example:
  * <pre>
  * <code>
- * toString("[Ljava.lang.String;") -> "java.lang.String[]"
- * toString("I") -> "int"
+ * toString({'[', 'L', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', ';'}) -> {'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', '[', ']'}
+ * toString({'I'}) -> {'i', 'n', 't'}
  * </code>
  * </pre>
  * </p>
@@ -1180,7 +1177,74 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
  * @since 2.0
  */
 public static char[] toCharArray(char[] signature) throws IllegalArgumentException {
-	return toString(new String(signature)).toCharArray();
+	try {
+		int sigLength = signature.length;
+
+		if (sigLength == 0 || signature[0] == C_PARAM_START) {
+			return toCharArray(signature, NO_CHAR, null, true, true);
+		}
+		
+		// compute result length
+		int resultLength = 0;
+		int index = -1;
+		while (signature[++index] == C_ARRAY) {
+			resultLength += 2; // []
+		}
+		switch (signature[index]) {
+			case C_BOOLEAN :
+				resultLength += BOOLEAN.length;
+				break;
+			case C_BYTE :
+				resultLength += BYTE.length;
+				break;
+			case C_CHAR :
+				resultLength += CHAR.length;
+				break;
+			case C_DOUBLE :
+				resultLength += DOUBLE.length;
+				break;
+			case C_FLOAT :
+				resultLength += FLOAT.length;
+				break;
+			case C_INT :
+				resultLength += INT.length;
+				break;
+			case C_LONG :
+				resultLength += LONG.length;
+				break;
+			case C_SHORT :
+				resultLength += SHORT.length;
+				break;
+			case C_VOID :
+				resultLength += VOID.length;
+				break;
+			case C_RESOLVED :
+			case C_UNRESOLVED :
+				int end = CharOperation.indexOf(C_SEMICOLON, signature, index);
+				if (end == -1) throw new IllegalArgumentException();
+				int start = index + 1;
+				resultLength += end-start;
+				break;
+			default :
+				throw new IllegalArgumentException();
+		}
+		
+		char[] result = new char[resultLength];
+		copyType(signature, 0, result, 0, true);
+
+		/**
+		 * Converts '$' separated type signatures into '.' separated type signature.
+		 * NOTE: This assumes that the type signature is an inner type signature.
+		 *       This is true in most cases, but someone can define a non-inner type 
+		 *       name containing a '$'. However to tell the difference, we would have
+		 *       to resolve the signature, which cannot be done at this point.
+		 */
+		CharOperation.replace(result, C_DOLLAR, C_DOT);
+
+		return result;
+	} catch (ArrayIndexOutOfBoundsException e) {
+		throw new IllegalArgumentException();
+	}	
 }
 /**
  * Converts the given array of qualified name segments to a qualified name.
@@ -1274,52 +1338,7 @@ public static String toQualifiedName(String[] segments) {
  *   correct
  */
 public static String toString(String signature) throws IllegalArgumentException {
-	try {
-		if (signature.charAt(0) == C_PARAM_START) {
-			return toString(signature, "", null, true, true); //$NON-NLS-1$
-		}
-		int arrayCount = getArrayCount(signature);
-		switch (signature.charAt(arrayCount)) {
-			case C_BOOLEAN :
-				return arrayIfy("boolean", arrayCount); //$NON-NLS-1$
-			case C_BYTE :
-				return arrayIfy("byte", arrayCount); //$NON-NLS-1$
-			case C_CHAR :
-				return arrayIfy("char", arrayCount); //$NON-NLS-1$
-			case C_DOUBLE :
-				return arrayIfy("double", arrayCount); //$NON-NLS-1$
-			case C_FLOAT :
-				return arrayIfy("float", arrayCount); //$NON-NLS-1$
-			case C_INT :
-				return arrayIfy("int", arrayCount); //$NON-NLS-1$
-			case C_LONG :
-				return arrayIfy("long", arrayCount); //$NON-NLS-1$
-			case C_SHORT :
-				return arrayIfy("short", arrayCount); //$NON-NLS-1$
-			case C_VOID :
-				return arrayIfy("void", arrayCount); //$NON-NLS-1$
-			case C_RESOLVED :
-			case C_UNRESOLVED :
-				int semi = signature.indexOf(C_SEMICOLON, arrayCount + 1);
-				if (semi == -1)
-					throw new IllegalArgumentException();
-					
-				/**
-				 * Converts '$' separated type signatures into '.' separated type signature.
-				 * NOTE: This assumes that the type signature is an inner type signature.
-				 *       This is true in most cases, but someone can define a non-inner type 
-				 *       name containing a '$'. However to tell the difference, we would have
-				 *       to resolve the signature, which cannot be done at this point.
-				 */
-				String qualifiedTypeName = signature.substring(arrayCount+1, semi).replace(C_DOLLAR, C_DOT);
-				
-				return arrayIfy(qualifiedTypeName, arrayCount);
-			default :
-				throw new IllegalArgumentException();
-		}
-	} catch (StringIndexOutOfBoundsException e) {
-		throw new IllegalArgumentException();
-	}
+	return new String(toCharArray(signature.toCharArray()));
 }
 /**
  * Converts the given method signature to a readable string. The method signature is expected to
