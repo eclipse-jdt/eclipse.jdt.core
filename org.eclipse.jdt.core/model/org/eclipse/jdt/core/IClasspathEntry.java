@@ -96,9 +96,9 @@ import org.eclipse.core.runtime.IPath;
  * <p>
  * Any classpath entry other than a source folder (kind <code>CPE_SOURCE</code>) can
  * be marked as being exported. Exported entries are automatically contributed to
- * dependent projects, along with the project's output folder(s), which is
- * implicitly exported. The project's output folder(s) is always listed first,
- * followed by the any exported entries.
+ * dependent projects, along with the project's output folder, which is implicitly
+ * exported. The project's output folder is always listed first, followed by the
+ * any exported entries.
  * <p>
  * This interface is not intended to be implemented by clients.
  * Classpath entries can be created via methods on <code>JavaCore</code>.
@@ -331,17 +331,6 @@ public interface IClasspathEntry {
 	 */
 	IPath getSourceAttachmentRootPath();
 	
-	/**
-	 * Returns whether the Java builder is allowed to clean the specific
-	 * output location for this source entry (entry kind <code>CPE_SOURCE</code>).
-	 *
-	 *TODO: This method will be deleted soon. Becomes a new per-project option
-	 *
-	 * @return <code>true</code> if the output location can be cleaned by the Java builder
-	 * @since 2.1
-	 */
-	boolean isCleaningOutputLocation();
-
 	/**
 	 * Returns whether this entry is exported to dependent projects.
 	 * Always returns <code>false</code> for source entries (kind

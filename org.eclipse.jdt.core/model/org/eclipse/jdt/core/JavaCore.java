@@ -15,6 +15,8 @@
  *                                 CORE_INCOMPLETE_CLASSPATH
  *     IBM Corporation - added run(IWorkspaceRunnable, IProgressMonitor)
  *     IBM Corporation - added exclusion patterns to source classpath entries
+ *     IBM Corporation - added the following constants:
+ * 								CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -250,6 +252,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
+	public static final String CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER = PLUGIN_ID + ".builder.cleanOutputFolder"; //$NON-NLS-1$	 	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
 	public static final String CORE_INCOMPLETE_CLASSPATH = PLUGIN_ID + ".incompleteClasspath"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -466,6 +474,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CLEAN = "clean"; //$NON-NLS-1$
 	
 	/**
 	 * Creates the Java core plug-in.
@@ -1088,6 +1102,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:			"org.eclipse.jdt.core.builder.invalidClasspath"
 	 *     - possible values:	{ "abort", "ignore" }
 	 *     - default:			"ignore"
+	 * 
+	 * BUILDER / Cleaning Output Folder(s)
+	 *    Indicate whether the JavaBuilder is allowed to clean the output folders
+	 *    when performing full build operations.
+	 *     - option id:			"org.eclipse.jdt.core.builder.cleanOutputFolder"
+	 *     - possible values:	{ "clean", "ignore" }
+	 *     - default:			"clean"
 	 * 
 	 *	JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
@@ -1817,7 +1838,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			null, // source attachment
 			null, // source attachment root
 			null, // specific output folder
-			false, // clean
 			isExported);
 	}
 
@@ -1905,7 +1925,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
 			null, // specific output folder
-			false, // clean
 			isExported);
 	}
 
@@ -1967,7 +1986,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			null, // source attachment
 			null, // source attachment root
 			null, // specific output folder
-			false, // clean
 			isExported);
 	}
 
@@ -2011,7 +2029,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 
-		return newSourceEntry(path, ClasspathEntry.NO_EXCLUSION_PATTERNS, null /*output location*/, false /*clean*/);
+		return newSourceEntry(path, ClasspathEntry.NO_EXCLUSION_PATTERNS, null /*output location*/);
 	}
 	
 	/**
@@ -2067,7 +2085,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns) {
 //TODO: determine whether we need this intermediate API (would say we don't) ?		
-		return newSourceEntry(path, exclusionPatterns, null /*output location*/, false /*clean*/); 
+		return newSourceEntry(path, exclusionPatterns, null /*output location*/); 
 	}
 
 	/**
@@ -2135,7 +2153,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * @since 2.1
 	 */
-	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns, IPath specificOutputLocation, boolean isCleaning) {
+	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns, IPath specificOutputLocation) {
 		
 		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
 		Assert.isTrue(exclusionPatterns != null, Util.bind("classpath.nullExclusionPattern" )); //$NON-NLS-1$
@@ -2150,7 +2168,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			null, // source attachment
 			null, // source attachment root
 			specificOutputLocation, // custom output location
-			isCleaning, // cleaning
 			false);
 	}
 		
@@ -2258,7 +2275,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			variableSourceAttachmentPath, // source attachment
 			variableSourceAttachmentRootPath, // source attachment root			
 			null, // specific output folder
-			false, // clean
 			isExported);
 	}
 
@@ -2453,7 +2469,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						affectedProject.setRawClasspath(
 								affectedProject.getRawClasspath(),
 								SetClasspathOperation.ReuseOutputLocation,
-								true, // dummy value since ReuseOutputLocation is used
 								monitor,
 								!JavaModelManager.isResourceTreeLocked(), // can save resources
 								oldResolvedPaths[i],
@@ -2764,7 +2779,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 									.setRawClasspath(
 										project.getRawClasspath(),
 										SetClasspathOperation.ReuseOutputLocation,
-										false, // dummy flag since reusing output location
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
 										!JavaModelManager.isResourceTreeLocked(), // can change resources
 										(IClasspathEntry[]) affectedProjects.get(project),
