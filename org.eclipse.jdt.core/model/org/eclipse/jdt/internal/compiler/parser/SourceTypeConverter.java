@@ -384,7 +384,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		TypeReference type = decodeType(typeName, length, start, end);
 		return type;
 	}
-	
+	// TODO (philippe) add support to decode wildcards
 	private TypeReference decodeType(char[] typeName, int length, int start, int end) {
 		int identCount = 1;
 		int dim = 0;
