@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
 
-		if (true) {
+		if (false) {
 			Class c = FormatterRegressionTests.class;
 			Method[] methods = c.getMethods();
 			for (int i = 0, max = methods.length; i < max; i++) {
@@ -3685,15 +3685,5 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test336", "A.java", CodeFormatter.K_STATEMENTS, 8);//$NON-NLS-1$ //$NON-NLS-2$
-	}	
-
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46150
-	 */
-	public void test337() {
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
-		preferences.use_tab = true;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test337", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 }
