@@ -118,6 +118,21 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
+	/*
+	 * declaringUniqueKey : genericTypeSignature
+	 * p.X<T> { ... } --> Lp/X<TT;>;:TT;
+	 */
+	public char[] computeUniqueKey() {
+		char[] declaringKey = this.declaringElement.computeUniqueKey();
+		int declaringLength = declaringKey.length;
+		char[] sig = genericTypeSignature();
+		int sigLength = sig.length;
+		char[] uniqueKey = new char[declaringLength + 1 + sigLength];
+		System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
+		uniqueKey[declaringLength] = ':';
+		System.arraycopy(sig, 0, uniqueKey, declaringLength+1, sigLength);
+		return uniqueKey;
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */

@@ -14,14 +14,8 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
@@ -143,60 +137,9 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public String getKey() {
 		if (this.key == null) {
-			if (false) {
-				this.key = new String(this.binding.computeUniqueKey());
-				return this.key;
-			}
-			if (isField()) {
-				StringBuffer buffer = new StringBuffer();
-				if (this.getDeclaringClass() != null) {
-					buffer.append(this.getDeclaringClass().getKey());
-					buffer.append('/');
-				}
-				buffer.append(this.getName());
-				this.key = buffer.toString();
-			} else {
-				StringBuffer buffer = new StringBuffer();
-				
-				// declaring method or type
-				LocalVariableBinding localVarBinding = (LocalVariableBinding) this.binding;
-				BlockScope scope = localVarBinding.declaringScope;
-				MethodScope methodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
-				ReferenceContext referenceContext = methodScope.referenceContext;
-				if (referenceContext instanceof AbstractMethodDeclaration) {
-					org.eclipse.jdt.internal.compiler.lookup.MethodBinding internalBinding = ((AbstractMethodDeclaration) referenceContext).binding;
-					IMethodBinding methodBinding = this.resolver.getMethodBinding(internalBinding);
-					if (methodBinding != null) {
-						buffer.append(methodBinding.getKey());
-					}
-				} else if (referenceContext instanceof TypeDeclaration) {
-					org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = ((TypeDeclaration) referenceContext).binding;
-					ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
-					if (typeBinding != null) {
-						buffer.append(typeBinding.getKey());
-					}
-				}
-	
-				// scope index
-				getKey(scope, buffer);
-	
-				// variable name
-				buffer.append('/');
-				buffer.append(getName());
-				
-				this.key = buffer.toString();
-			}
+			this.key = new String(this.binding.computeUniqueKey());
 		}
 		return this.key;
-	}
-	
-	private void getKey(BlockScope scope, StringBuffer buffer) {
-		int scopeIndex = scope.scopeIndex();
-		if (scopeIndex != -1) {
-			getKey((BlockScope)scope.parent, buffer);
-			buffer.append('/');
-			buffer.append(scopeIndex);
-		}
 	}
 	
 	/*

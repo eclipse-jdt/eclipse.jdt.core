@@ -256,34 +256,7 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public String getKey() {
 		if (this.key == null) {
-			if (false) {
-				this.key = new String(this.binding.computeUniqueKey());
-				return this.key;
-			}
-			
-			StringBuffer buffer = new StringBuffer();
-			TypeBinding typeBinding = (TypeBinding) getDeclaringClass();
-			typeBinding.appendKey(buffer);
-			buffer.append('/');
-			if (!isConstructor()) {
-				buffer.append(getName());
-			}
-			ITypeBinding[] parameters = getParameterTypes();
-			buffer.append('(');
-			for (int i = 0, max = parameters.length; i < max; i++) {
-				TypeBinding parameter = (TypeBinding) parameters[i];
-				if (parameter != null) {
-					parameter.appendParameterKey(buffer);
-					buffer.append(',');
-				}
-			}
-			buffer.append(')');
-			
-			// only one of the type parameters or type arguments is non-empty at the same time
-			typeBinding.appendTypeParameters(buffer, getTypeParameters());
-			typeBinding.appendTypeArguments(buffer, getTypeArguments());
-			
-			this.key = buffer.toString();
+			this.key = new String(this.binding.computeUniqueKey());
 		}
 		return this.key;
 	}

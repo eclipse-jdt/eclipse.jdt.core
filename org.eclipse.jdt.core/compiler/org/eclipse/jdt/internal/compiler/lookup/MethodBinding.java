@@ -243,8 +243,8 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	return false;
 }
 /*
- * declaringUniqueKey selector genericSignature
- * p.X { <T> void bar(X<T> t) } --> Lp/X;bar<T:Ljava/lang/Object;>(LX<TT;>;)V
+ * declaringUniqueKey dot selector genericSignature
+ * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
  */
 public char[] computeUniqueKey() {
 	char[] declaringKey = this.declaringClass.computeUniqueKey();
@@ -252,11 +252,12 @@ public char[] computeUniqueKey() {
 	char[] sig = genericSignature();
 	if (sig == null) sig = signature();
 	int signatureLength = sig.length;
-	int selectorLength = this.selector.length;
-	char[] uniqueKey = new char[declaringLength + selectorLength + signatureLength];
+	int selectorLength = this.selector == TypeConstants.INIT ? 0 : this.selector.length;
+	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
 	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-	System.arraycopy(this.selector, 0, uniqueKey, declaringLength, selectorLength);
-	System.arraycopy(sig, 0, uniqueKey, declaringLength + selectorLength, signatureLength);
+	uniqueKey[declaringLength] = '.';
+	System.arraycopy(this.selector, 0, uniqueKey, declaringLength+1, selectorLength);
+	System.arraycopy(sig, 0, uniqueKey, declaringLength + 1 + selectorLength, signatureLength);
 	return uniqueKey;
 }
 /* 

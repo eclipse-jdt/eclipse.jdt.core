@@ -1119,7 +1119,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "T", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "T:test0037/X<T:java.lang/Object,U:java.lang/Object,>", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0037/X<TT;TU;>;:TT;", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "T", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
@@ -1139,7 +1139,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "U", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "U:test0037/X<T:java.lang/Object,U:java.lang/Object,>", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0037/X<TT;TU;>;:TU;", typeBinding.getKey());
 		simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "U", simpleName.getIdentifier());
 		binding2 = simpleName.resolveBinding();
@@ -1253,12 +1253,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = parameter.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong key", "T:test0040/X/Tfoo()", binding.getKey());
+		assertEquals("wrong key", "Ltest0040/X;.foo<T:Ljava/lang/Object;>()TT;:TT;", binding.getKey());
 		Type returnType = methodDeclaration.getReturnType2();
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "T:test0040/X/Tfoo()", binding2.getKey());		
+		assertEquals("wrong key", "Ltest0040/X;.foo<T:Ljava/lang/Object;>()TT;:TT;", binding2.getKey());		
 	}
 	
 	/**
@@ -1292,12 +1292,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = parameter.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong key", "T:test0042/X/T[][]foo()", binding.getKey());
+		assertEquals("wrong key", "Ltest0042/X;.foo<T:Ljava/lang/Object;>()[TT;:TT;", binding.getKey());
 		Type returnType = methodDeclaration.getReturnType2();
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "T:test0042/X/T[][]foo()[]", binding2.getKey());		
+		assertEquals("wrong key", "[Ltest0042/X;.foo<T:Ljava/lang/Object;>()[TT;:TT;", binding2.getKey());		
 	}
 	
 	/**
@@ -1342,7 +1342,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = parameter.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong key", "Z:test0044/X/voidfoo(Z)", binding.getKey());
+		assertEquals("wrong key", "Ltest0044/X;.foo<Z:Ljava/lang/Object;>(TZ;)V:TZ;", binding.getKey());
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 		assertNotNull("no binding", methodBinding);
 		assertEquals("Wrong isConstructor", false, methodBinding.isConstructor());
@@ -1674,10 +1674,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			for (int i = 0; i < length; i++)
 				keys[i] = methods[i].resolveBinding().getKey();
 			assertBindingKeysEqual(
-				"p/X/foo(T,)<T:java.lang/Object,>\n" + 
-				"p/X/foo(T,)<T:p/X,>\n" + 
-				"p/X/foo(T,)<T:java.lang/Class,>\n" + 
-				"p/X/foo(T,)<T:java.lang/Exception&java.lang/Runnable,>",
+				"Lp/X;.foo<T:Ljava/lang/Object;>(TT;)V\n" + 
+				"Lp/X;.foo<T:Lp/X;>(TT;)V\n" + 
+				"Lp/X;.foo<T:Ljava/lang/Class;>(TT;)V\n" + 
+				"Lp/X;.foo<T:Ljava/lang/Exception;:Ljava/lang/Runnable;>(TT;)V",
 				keys);
 		} finally {
 			if (workingCopy != null)
@@ -1700,7 +1700,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			IBinding binding = ((TypeDeclaration) node).resolveBinding();
 			assertBindingKeyEquals(
-				"p/X<T:java.lang/Object,>",
+				"Lp/X<TT;>;",
 				binding.getKey());
 		} finally {
 			if (workingCopy != null)
@@ -1709,7 +1709,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	/*
-	 * Ensures that the type parameters of a parameterized type are included in its binding key.
+	 * Ensures that the type arguments of a parameterized type are included in its binding key.
 	 */
 	public void test0062() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -1723,7 +1723,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			IBinding binding = ((Type) node).resolveBinding();
 			assertBindingKeyEquals(
-				"p/X<java.lang/Class,>",
+				"Lp/X<Ljava/lang/Class;>;",
 				binding.getKey());
 		} finally {
 			if (workingCopy != null)
@@ -1840,7 +1840,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 	
 	/*
-	 * Ensures that a raw type doesn't include the type paramters in its binding key.
+	 * Ensures that a raw type doesn't include the type parameters in its binding key.
 	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
 	 */
 	public void test0066() throws JavaModelException {
@@ -1855,7 +1855,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy);
 			IBinding binding = ((Type) node).resolveBinding();
 			assertBindingKeyEquals(
-				"p/X",
+				"Lp/X;",
 				binding.getKey());
 		} finally {
 			if (workingCopy != null)

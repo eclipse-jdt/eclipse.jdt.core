@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
@@ -150,21 +151,22 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	return false;
 }
 /*
- * declaringUniqueKey fieldName space genericSignature
- * p.X { X<T> x} --> Lp/X;x LX<TT;>;
+ * declaringUniqueKey dot fieldName space genericSignature
+ * p.X { X<T> x} --> Lp/X;.x LX<TT;>;
  */
 public char[] computeUniqueKey() {
-	char[] declaringKey = this.declaringClass.computeUniqueKey();
+	char[] declaringKey = this.declaringClass == null /*case of length field for an array*/ ? CharOperation.NO_CHAR : this.declaringClass.computeUniqueKey();
 	int declaringLength = declaringKey.length;
 	char[] signature = genericSignature();
 	int signatureLength = signature == null ? 0 : signature.length;
 	int nameLength = this.name.length;
-	char[] uniqueKey = new char[declaringLength + nameLength + (signature == null ? 0 : 1) + signatureLength];
+	char[] uniqueKey = new char[declaringLength + 1 + nameLength + (signature == null ? 0 : 1) + signatureLength];
 	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-	System.arraycopy(this.name, 0, uniqueKey, declaringLength, nameLength);
+	uniqueKey[declaringLength] = '.';
+	System.arraycopy(this.name, 0, uniqueKey, declaringLength + 1, nameLength);
 	if (signature != null) {
-		uniqueKey[declaringLength+nameLength] = ' ';
-		System.arraycopy(signature, 0, uniqueKey, declaringLength + nameLength + 1, signatureLength);
+		uniqueKey[declaringLength + 1 + nameLength] = ' ';
+		System.arraycopy(signature, 0, uniqueKey, declaringLength + 1 + nameLength + 1, signatureLength);
 	}
 	return uniqueKey;
 }

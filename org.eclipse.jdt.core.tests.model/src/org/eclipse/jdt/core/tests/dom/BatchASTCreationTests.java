@@ -47,7 +47,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test031"));
+			suite.addTest(new BatchASTCreationTests("test029"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -341,7 +341,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class Y {\n" +
 				"}",
 			}, 
-			"p1/X");
+			"Lp1/X;");
 	}
 
 	/*
@@ -359,7 +359,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"/*start*/public class Y {\n" +
 				"}/*end*/",
 			}, 
-			"p1/Y");
+			"Lp1/Y;");
 	}
 	
 	/*
@@ -375,7 +375,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }/*end*/" +
 				"}",
 			}, 
-			"p1/X$Member");
+			"Lp1/X$Member;");
 	}
 
 	/*
@@ -393,7 +393,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			}, 
-			"p1/X$Member1$Member2");
+			"Lp1/X$Member1$Member2;");
 	}
 	/*
 	 * Ensure that an anonymous type binding can be retrieved using its key.
@@ -410,7 +410,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			}, 
-			"p1/X$1");
+			"Lp1/X$1;");
 	}
 	/*
 	 * Ensure that a local type binding can be retrieved using its key.
@@ -427,7 +427,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			}, 
-			"p1/X$1$Y");
+			"Lp1/X$1$Y;");
 	}
 
 	/*
@@ -459,7 +459,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class Y {\n" +
 				"}",
 			},
-			"p1/X");
+			"Lp1/X;");
 	}
 
 	/*
@@ -477,7 +477,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class Y {\n" +
 				"}",
 			},
-			"p1/Y");
+			"Lp1/Y;");
 	}
 	
 	/*
@@ -493,7 +493,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }" +
 				"}",
 			},
-			"p1/X$Member");
+			"Lp1/X$Member;");
 	}
 
 	/*
@@ -511,7 +511,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X$Member1$Member2");
+			"Lp1/X$Member1$Member2;");
 	}
 	
 	/*
@@ -529,7 +529,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X$1");
+			"Lp1/X$1;");
 	}
 	
 	/*
@@ -547,7 +547,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X$1$Y");
+			"Lp1/X$1$Y;");
 	}
 	
 	/*
@@ -563,7 +563,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X/foo()");
+			"Lp1/X;.foo()V");
 	}
 	
 	/*
@@ -579,7 +579,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X/foo(java.lang/Object,)");
+			"Lp1/X;.foo(Ljava/lang/Object;)V");
 	}
 	
 	/*
@@ -595,7 +595,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X/(java.lang/Object,)");
+			"Lp1/X;.(Ljava/lang/Object;)V");
 	}
 
 	/*
@@ -610,14 +610,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  int field;\n" +
 				"}",
 			},
-			"p1/X/field");
+			"Lp1/X;.field");
 	}
 
 	/*
 	 * Ensure that a base type binding can be created using its key.
 	 */
 	public void test022() throws CoreException {
-		assertBindingCreated(new String[0],"int");
+		assertBindingCreated(new String[0],"I");
 	}
 	
 	/*
@@ -631,14 +631,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class X {\n" +
 				"}",
 			},
-			"p1/X[]");
+			"[Lp1/X;");
 	}
 	
 	/*
 	 * Ensure that an array binding can be created using its key.
 	 */
 	public void test024() throws CoreException {
-		assertBindingCreated(new String[0],"int[][]");
+		assertBindingCreated(new String[0],"[[I");
 	}
 	
 	/* 
@@ -654,13 +654,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"  void foo() {\n" +
 				"    new X() {\n" +
-				"      void bar(int i, X x, String[][] s, Y[] args) {\n" +
+				"      void bar(int i, X x, String[][] s, Y[] args, boolean b, Object o) {\n" +
 				"      }\n" +
 				"    };\n" +
 				"  }\n" +
 				"}",
 			},
-			"p1/X$1/bar(int,p1/X,java.lang/String[][],p1/X$Y[],)");
+			"Lp1/X$1;.bar(ILp1/X;[[Ljava/lang/String;[Lp1/X$Y;ZLjava/lang/Object;)V");
 	}
 	
 	/*
@@ -674,7 +674,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class X<T> {\n" +
 				"}",
 			},
-			"p1/X<T:java.lang/Object,>");
+			"Lp1/X<TT;>;");
 	}
 
 	/*
@@ -696,7 +696,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public interface I {\n" +
 				"}",
 			},
-			"p1/X<T:p1/Y&p1/I,U:p1/Y,>");
+			"Lp1/X<TT;TU;>;");
 	}
 
 	/*
@@ -711,7 +711,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  X<String> field;\n" +
 				"}",
 			},
-			"p1/X<java.lang/String,>");
+			"Lp1/X<Ljava/lang/String;>;");
 	}
 
 	/*
@@ -728,7 +728,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X<java.lang/Error,java.lang/Exception,>$Y<java.lang/String,>");
+			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y<Ljava/lang/String;>;");
 	}
 
 	/*
@@ -743,7 +743,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"   X field;\n" +
 				"}",
 			},
-			"p1/X");
+			"Lp1/X;");
 	}
 
 	/*
@@ -760,6 +760,6 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"p1/X<java.lang/Error,java.lang/Exception,>$Y");
+			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y;");
 	}
 }

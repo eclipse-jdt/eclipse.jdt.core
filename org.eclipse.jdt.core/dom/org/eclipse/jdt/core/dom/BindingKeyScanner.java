@@ -17,15 +17,15 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  * @since 3.1
  */
 class BindingKeyScanner {
-	
-	static final int START = -1;
-	static final int PACKAGE = 0;
-	static final int TYPE = 1;
+	static final int ARRAY = 4;
+	static final int END = 6;
 	static final int FIELD = 2;
 	static final int METHOD = 3;
-	static final int ARRAY = 4;
+	static final int PACKAGE = 0;
+	
+	static final int START = -1;
+	static final int TYPE = 1;
 	static final int TYPE_PARAMETER = 5;
-	static final int END = 6;
 	
 	int index = -1, start;
 	char[] source;
@@ -35,93 +35,6 @@ class BindingKeyScanner {
 		this.source = source;
 	}
 	
-	int nextToken() {
-		this.start = ++this.index;
-		int length = this.source.length;
-		while (this.index <= length) {
-			char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
-			switch (currentChar) {
-				case '/':
-				case ',':
-				case Character.MIN_VALUE:
-					switch (this.token) {
-						case START:
-						case METHOD: // parameter
-						case ARRAY:
-							this.token = PACKAGE;
-							break;
-						case PACKAGE:
-							if (this.source[this.start-1] == ',')
-								this.token = PACKAGE;
-							else
-								this.token = TYPE;
-							break;
-						case TYPE:
-							switch (this.source[this.start-1]) {
-								case '$':
-									this.token = TYPE;
-									break;
-								case ',':
-								case '<':
-								case '&':
-									this.token = PACKAGE;
-									break;
-								default:
-									this.token = FIELD;
-							}
-							break;
-						case TYPE_PARAMETER:
-							this.token = PACKAGE;
-							break;
-					}
-					return this.token;
-				case '$':
-				case '[':
-				case '<':
-				case '&':
-					switch (this.token) {
-						case START: // case of base type with array dimension
-							this.token = PACKAGE;
-							break;
-						case PACKAGE:
-							this.token = TYPE;
-							break;
-						case TYPE:
-							this.token = TYPE;
-							break;
-					}
-					return this.token;
-				case '(':
-					this.token = METHOD;
-					return this.token;
-				case ')':
-				case '>':
-					this.start = ++this.index;
-					if (this.index == length || this.source[this.index] != '$') {
-						this.token = END;
-						return this.token;
-					} else {
-						this.start = ++this.index;
-					}
-					break;
-				case ']':
-					this.start--;
-					this.index++;
-					while (this.index < length && this.source[this.index] == '[') {
-						this.index +=2;
-					}
-					this.token = ARRAY;
-					return this.token;
-				case ':':
-					this.token = TYPE_PARAMETER;
-					return this.token;
-			}
-			this.index++;
-		}
-		this.token = END;
-		return this.token;
-	}
-	
 	char[] getTokenSource() {
 		int length = this.index-this.start;
 		char[] result = new char[length];
@@ -129,29 +42,111 @@ class BindingKeyScanner {
 		return result;
 	}
 	
-	boolean isAtMemberTypeStart() {
+	boolean isAtFieldOrMethodStart() {
 		return 
-			this.start > 0
-			&& this.start < this.source.length
-			&& this.source[this.start-1] == '$';
+			this.index+1 < this.source.length
+			&& this.source[this.index+1] == '.';
 	}
 	
-	boolean isAtTypeEnd() {
-		char currentChar;
+	boolean isAtMemberTypeStart() {
 		return 
-			this.index == -1
-			|| this.index >= this.source.length-1 
-			|| (currentChar = this.source[this.index]) == ',' 
-			|| currentChar == '(' 
-			|| currentChar == '<' 
-			|| currentChar == ':';
+			this.index < this.source.length
+			&& (this.source[this.index] == '$'
+				|| (this.source[this.index] == '.' && this.source[this.index-1] == '>'));
+	}
+	
+	boolean isAtParametersStart() {
+		return 
+			this.index > 0
+			&& this.index < this.source.length
+			&& this.source[this.index] == '<';
 	}
 	
 	boolean isAtTypeParameterStart() {
 		return 
-			this.start > 0
-			&& this.start < this.source.length
-			&& this.source[this.start-1] == '<';
+			this.index+1 < this.source.length
+			&& this.source[this.index+1] == 'T';
+	}
+	
+	boolean isAtTypeStart() {
+		return this.index+1 < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
+	}
+	
+	int nextToken() {
+		this.start = this.token == ARRAY ? this.index : ++this.index;
+		int previousTokenEnd = this.index-1;
+		int length = this.source.length;
+		while (this.index <= length) {
+			char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
+			switch (currentChar) {
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'F':
+				case 'I':
+				case 'J':
+				case 'S':
+				case 'V':
+				case 'Z':
+					// base type
+					if (this.start == previousTokenEnd+1) {
+						this.index++;
+						this.token = TYPE;
+						return this.token;
+					}
+					break;
+				case 'L':
+				case 'T':
+					if (this.start == previousTokenEnd+1) {
+						this.start = ++this.index;
+					}
+					break;
+				case ';':
+				case '$':
+					this.token = TYPE;
+					return this.token;
+				case '.':
+					this.start = this.index+1;
+					break;
+				case '[':
+					while (this.index < length && this.source[this.index] == '[')
+						this.index++;
+					this.token = ARRAY;
+					return this.token;
+				case '<':
+					this.token = TYPE;
+					return this.token;
+				case '(':
+					this.token = METHOD;
+					return this.token;
+				case ')':
+					this.start = ++this.index;
+					this.token = END;
+					return this.token;
+				case ':':
+					this.token = TYPE_PARAMETER;
+					return this.token;
+				case Character.MIN_VALUE:
+					switch (this.token) {
+						case START:
+							this.token = PACKAGE;
+							break;
+						case TYPE:
+							if (this.index > this.start && this.source[this.start-1] == '.')
+								this.token = FIELD;
+							else
+								this.token = END;
+							break;
+						default:
+							this.token = END;
+							break;
+					}
+					return this.token;
+			}
+			this.index++;
+		}
+		this.token = END;
+		return this.token;
 	}
 	
 	public String toString() {
@@ -188,9 +183,14 @@ class BindingKeyScanner {
 		} else if (this.index <= this.source.length) {
 			buffer.append(CharOperation.subarray(this.source, 0, this.start));
 			buffer.append('#');
-			buffer.append(CharOperation.subarray(this.source, this.start, this.index));
-			buffer.append('#');
-			buffer.append(CharOperation.subarray(this.source, this.index, this.source.length));
+			if (this.start <= this.index) {
+				buffer.append(CharOperation.subarray(this.source, this.start, this.index));
+				buffer.append('#');
+				buffer.append(CharOperation.subarray(this.source, this.index, this.source.length));
+			} else {
+				buffer.append('#');
+				buffer.append(CharOperation.subarray(this.source, this.start, this.source.length));
+			}
 		} else {
 			buffer.append(this.source);
 			buffer.append("##"); //$NON-NLS-1$

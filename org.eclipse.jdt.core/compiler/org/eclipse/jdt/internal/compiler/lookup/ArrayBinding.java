@@ -55,6 +55,16 @@ public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
         }
     } 
 }
+
+/*
+ * brakets leafUniqueKey
+ * p.X[][] --> [[Lp/X;
+ */
+public char[] computeUniqueKey() {
+	char[] brackets = new char[dimensions];
+	for (int i = dimensions - 1; i >= 0; i--) brackets[i] = '[';
+	return CharOperation.concat(brackets, this.leafComponentType.computeUniqueKey());
+ }
 	
 /**
  * Answer the receiver's constant pool name.
