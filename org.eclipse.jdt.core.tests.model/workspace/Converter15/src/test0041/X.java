@@ -1,14 +1,11 @@
 package main;
 
-import org.apache.beehive.netui.pageflow.Forward;
-import org.apache.beehive.netui.pageflow.PageFlowController;
-
 /**
  * This is the default controller for a blank web application.
  */
 @Jpf.Controller
 @Jpf.ViewProperties(
-        value = { 
+        val = { 
             "<!-- This data is auto-generated. Hand-editing this section is not recommended. -->", 
             "<view-properties>", 
             "<pageflow-object id='action:begin.do'>", 
@@ -33,7 +30,7 @@ import org.apache.beehive.netui.pageflow.PageFlowController;
             "</view-properties>"
         }
     )
-public class Controller 
+public class X 
     extends PageFlowController
 {
     @Jpf.Action(

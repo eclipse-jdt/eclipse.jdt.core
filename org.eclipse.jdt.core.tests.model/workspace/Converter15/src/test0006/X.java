@@ -7,7 +7,7 @@
 }
 
 @interface Author {
-	Name value();
+	Name name();
 }
 
 @interface Retention {

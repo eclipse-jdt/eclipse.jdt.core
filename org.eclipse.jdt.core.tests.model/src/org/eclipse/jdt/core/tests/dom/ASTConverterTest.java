@@ -38,7 +38,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			return new Suite(ASTConverterTest.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest.class.getName());
-		suite.addTest(new ASTConverterTest("test0104"));
+		suite.addTest(new ASTConverterTest("test0172"));
 		return suite;
 	}
 		

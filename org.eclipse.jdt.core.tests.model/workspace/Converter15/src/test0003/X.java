@@ -6,7 +6,7 @@ package test0003;
 }
 
 @interface Author {
-	Name value();
+	Name name();
 }
 
 @Author(@Name(first="Joe", last="Hacker"))

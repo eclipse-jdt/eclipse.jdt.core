@@ -1,4 +1,4 @@
-package test0003;
+package test0005;
 
 @interface Name {
 	String first() default "Joe";
@@ -7,7 +7,7 @@ package test0003;
 }
 
 @interface Author {
-	Name value();
+	Name name();
 }
 
 @interface Retention {

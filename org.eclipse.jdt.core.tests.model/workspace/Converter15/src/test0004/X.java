@@ -1,4 +1,4 @@
-package test0003;
+package test0004;
 
 @interface Name {
 	String first();
@@ -6,7 +6,7 @@ package test0003;
 }
 
 @interface Author {
-	Name value();
+	Name name();
 }
 
 public @Author(@Name(first="Joe", last="Hacker"))

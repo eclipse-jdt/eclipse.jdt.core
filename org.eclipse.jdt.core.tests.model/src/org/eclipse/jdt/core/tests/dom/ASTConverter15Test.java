@@ -287,6 +287,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, compilationUnit.getProblems().length);
 		PackageDeclaration packageDeclaration = compilationUnit.getPackage();
 		assertNotNull("No package declaration", packageDeclaration);
 		checkSourceRange(packageDeclaration, "@Retention package test0006;", source);
@@ -1167,8 +1168,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isArray", false, typeBinding.isArray());
 		assertEquals("Wrong isAnnotation", false, typeBinding.isAnnotation());
 		assertEquals("Wrong isAnonymous", false, typeBinding.isAnonymous());
-// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=78310 
-//		assertEquals("Wrong isClass", false, typeBinding.isClass());
+		assertEquals("Wrong isClass", false, typeBinding.isClass());
 		assertEquals("Wrong isEnum", false, typeBinding.isEnum());
 		assertEquals("Wrong isInterface", false, typeBinding.isInterface());
 		assertEquals("Wrong isGenericType", false, typeBinding.isGenericType());
@@ -1179,8 +1179,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isParameterizedType", false, typeBinding.isParameterizedType());
 		assertEquals("Wrong isPrimitive", false, typeBinding.isPrimitive());
 		assertEquals("Wrong isRawType", false, typeBinding.isRawType());
-//		 see https://bugs.eclipse.org/bugs/show_bug.cgi?id=78310 
-//		assertEquals("Wrong isTopLevel", false, typeBinding.isTopLevel());
+		assertEquals("Wrong isTopLevel", false, typeBinding.isTopLevel());
 		assertEquals("Wrong isUpperbound", false, typeBinding.isUpperbound());
 		assertEquals("Wrong isTypeVariable", true, typeBinding.isTypeVariable());
 		assertEquals("Wrong isWildcardType", false, typeBinding.isWildcardType());
@@ -1337,8 +1336,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isDeprecated", false, methodBinding.isDeprecated());
 		assertEquals("Wrong isGenericMethod", true, methodBinding.isGenericMethod());
 		assertEquals("Wrong isParameterizedMethod", false, methodBinding.isParameterizedMethod());
-//		see https://bugs.eclipse.org/bugs/show_bug.cgi?id=78310 
-//		assertEquals("Wrong isRawMethod", false, methodBinding.isRawMethod());
+		assertEquals("Wrong isRawMethod", false, methodBinding.isRawMethod());
 		assertEquals("Wrong isSynthetic", false, methodBinding.isSynthetic());
 		assertEquals("Wrong isVarargs", false, methodBinding.isVarargs());
 		ITypeBinding[] typeParametersBindings = methodBinding.getTypeParameters();

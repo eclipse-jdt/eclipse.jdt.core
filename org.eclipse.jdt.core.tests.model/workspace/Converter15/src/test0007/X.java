@@ -8,7 +8,7 @@ public class X {
 		return null;
 	}
 	
-	String bar() {
+	char bar() {
 		return separatorChar;
 	}
 }
