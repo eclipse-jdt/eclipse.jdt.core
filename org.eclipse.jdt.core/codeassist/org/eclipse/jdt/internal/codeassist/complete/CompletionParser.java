@@ -35,7 +35,6 @@ public class CompletionParser extends AssistParser {
 	boolean betweenNewAndLeftBraket; // whether we are between the keyword 'new' and the following left braket, ie. '[', '(' or '{'
 	boolean betweenCatchAndRightParen; // whether we are between the keyword 'catch' and the following ')'
 	boolean completionBehindDot; // true when completion identifier immediately follows a dot
-	boolean inMethodHeader;
 
 	// the stacks of types and qualifiers for invocations (ie. method invocations, allocation expressions and
 	// explicit constructor invocations). They use the same stack pointer as the selector stack (ie. invocationPtr)
@@ -576,11 +575,6 @@ protected void consumeConstructorBody() {
 	super.consumeConstructorBody();
 	this.labelCounterPtr--;
 }
-protected void consumeConstructorHeader() {
-	super.consumeConstructorHeader();
-	inMethodHeader = true;
-	pushBlockInvocationPtr();
-}
 protected void consumeConstructorHeaderName() {
 
 	int index;
@@ -642,13 +636,6 @@ protected void consumeFormalParameter() {
 			indicating that some arguments are available on the stack */
 		listLength++;
 	} 	
-}
-
-protected void consumeMethodHeader() {
-	super.consumeMethodHeader();
-	inMethodHeader = true;
-	pushBlockInvocationPtr();
-	
 }
 
 protected void consumeMethodHeaderName() {
@@ -817,12 +804,11 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACE:
 				this.betweenNewAndLeftBraket = false;
-				if(!inMethodHeader)
-					this.pushBlockInvocationPtr();
+				this.pushBlockInvocationPtr();
 				break;
 			case TokenNameLBRACKET:
 				this.betweenNewAndLeftBraket = false;
-				break;
+				break; 
 			case TokenNameRBRACE:
 				if (this.blockInvocationPtr >= 0) this.blockInvocationPtr--;
 				break;
@@ -974,7 +960,6 @@ private void initializeForBlockStatements() {
 	this.completionBehindDot = false;
 	this.betweenNewAndLeftBraket = false;
 	this.betweenCatchAndRightParen = false;
-	this.inMethodHeader = false;
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
 	this.blockInvocationPtr = -1;
