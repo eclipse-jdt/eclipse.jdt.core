@@ -476,7 +476,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
 		buf.append("\n\t- unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
 		buf.append("\n\t- invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
-		buf.append("\n\t- report missing annotation: ").append(reportMissingAnnotation ? "ENABLED" : "DISABLED"); //$NON-NLS-1$
+		buf.append("\n\t- report missing annotation: ").append(reportMissingAnnotation ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
 		buf.append("\n\t- unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
 		buf.append("\n\t- JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
