@@ -27,8 +27,6 @@ public ExistenceTests(String name) {
 	super(name);
 }
 
-
-
 public static Test suite() {
 	return new Suite(ExistenceTests.class);
 }
@@ -129,6 +127,21 @@ public void testNonExistingPackageFragment() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		IPackageFragment pkg = this.getPackage("/P/src/x");
 		assertOpenFails(pkg);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a non-Java project doesn't exist.
+ * (regression test for bug 28545 JavaProject.exists() returns true if project doesn't have Java nature)
+ */
+public void testNonJavaProject() throws CoreException {
+	try {
+		this.createProject("P");
+		IProject project = this.getProject("P");
+		IJavaProject javaProject = JavaCore.create(project);
+		
+		assertTrue("Simple project should not exist", !javaProject.exists());
 	} finally {
 		this.deleteProject("P");
 	}

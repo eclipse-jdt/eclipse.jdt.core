@@ -713,6 +713,11 @@ public class JavaProject
 			&& fOccurrenceCount == other.fOccurrenceCount;
 	}
 
+	public boolean exists() {
+		if (!hasJavaNature(fProject)) return false;
+		return super.exists();
+	}	
+
 	/**
 	 * @see IJavaProject
 	 */
