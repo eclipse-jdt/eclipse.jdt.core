@@ -2170,8 +2170,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 	
 	/*
-	 * Ensures that a raw type doesn't include the type parameters in its binding key.
-	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79271
 	 */
 	public void test0075() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
