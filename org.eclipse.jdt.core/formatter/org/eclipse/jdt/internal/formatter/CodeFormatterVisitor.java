@@ -465,7 +465,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final Statement[] statements = block.statements;
 		statements[0].traverse(this, scope);
 		this.scribe.space();
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, false, true);
 		this.scribe.printTrailingComment();
 	}	
 	
@@ -856,6 +856,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 
 		formatTypeMembers(typeDeclaration);
+
+		this.scribe.printComment(true);
 		
 		if (this.preferences.indent_body_declarations_compare_to_type_header) {
 			this.scribe.unIndent();
@@ -1434,6 +1436,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		formatTypeMembers(anonymousTypeDeclaration);
 		
+		this.scribe.printComment(true);
 		this.scribe.unIndent();
 		if (this.preferences.insert_new_line_in_empty_anonymous_type_declaration) {
 			this.scribe.printNewLine();
@@ -1576,9 +1579,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (isComma()) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 			}
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer); 
+			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer);
+			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer, true);
 		}
 
 		if (numberOfParens > 0) {
@@ -1820,7 +1823,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		} else if (this.preferences.insert_new_line_in_empty_block) {
 			this.scribe.printNewLine();
 		}
-	
+		this.scribe.printComment(true);
+
 		this.scribe.unIndent();
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 	
@@ -2176,7 +2180,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
 			}
-
+			this.scribe.printComment(true);
 			this.scribe.unIndent();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
@@ -2883,6 +2887,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
 			}
+			this.scribe.printComment(true);
 			this.scribe.unIndent();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 			this.scribe.printTrailingComment();

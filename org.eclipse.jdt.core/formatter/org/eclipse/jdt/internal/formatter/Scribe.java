@@ -235,7 +235,7 @@ public class Scribe {
 		column += s.length;
 		needSpace = true;
 	}
-	public void printBlockComment(char[] s) {
+	public void printBlockComment(char[] s, int commentStart) {
 		String commentSource = new String(s);
 		StringTokenizer tokenizer = new StringTokenizer(commentSource, "\r\n");	//$NON-NLS-1$
 		printIndentationIfNecessary();
@@ -254,7 +254,7 @@ public class Scribe {
 				final int reduceLineLength = reduceLine.length();
 				if (this.positionsToMap != null) {
 					int start = commentSource.indexOf(reduceLine, startSearchIndex);
-					mapPositions(start, this.buffer.length(), reduceLineLength);
+					mapPositions(start + commentStart, this.buffer.length(), reduceLineLength);
 					startSearchIndex = start + reduceLineLength + 1;
 				}
 				buffer.append(reduceLine);
@@ -307,7 +307,7 @@ public class Scribe {
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getRawTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						if (insertNewLineAfterComment) {
 							this.printNewLine();
@@ -389,7 +389,7 @@ public class Scribe {
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getRawTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						if (firstComment) {
 							this.printNewLine();
@@ -593,7 +593,7 @@ public class Scribe {
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getRawTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
@@ -652,7 +652,7 @@ public class Scribe {
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getRawTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
@@ -703,7 +703,7 @@ public class Scribe {
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getRawTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
