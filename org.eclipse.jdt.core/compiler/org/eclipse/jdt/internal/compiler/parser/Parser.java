@@ -6959,6 +6959,7 @@ protected void consumeWildcardBoundsExtends() {
 protected void consumeWildcardBoundsSuper() {
 	Wildcard wildcard = new Wildcard(Wildcard.SUPER);
 	wildcard.bound = getTypeReference(this.intStack[this.intPtr--]);
+	this.intPtr--; // remove the starting position of the super keyword
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
 	this.intPtr--; // remove end position of the '?'
 	wildcard.sourceStart = this.intStack[this.intPtr--];

@@ -5768,5 +5768,22 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"class X3<B, A,C extends java.util.List<A>> {}\n", 			
 			},
 			"");
-	}			
+	}	
+	// 68006 - Invalid modifier after parse
+	public void test210() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Map<? super Object, ? extends String> m){\n" + 
+				"	}\n" + 
+				"}\n", 			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(Map<? super Object, ? extends String> m){\n" + 
+			"	         ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
