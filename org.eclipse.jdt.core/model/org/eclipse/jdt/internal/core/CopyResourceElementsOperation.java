@@ -252,18 +252,22 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 	
 			// update new resource content
-			try {
-				if (newContent != null){
+			if (newContent != null){
+				boolean wasReadOnly = destFile.isReadOnly();
+				try {
 					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+					destFile.setReadOnly(false); // when the file was copied, its read-only flag was preserved -> temporary set it to false
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 						fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
 						getSubProgressMonitor(1));
+				} catch(IOException e) {
+					throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+				} catch (CoreException e) {
+					throw new JavaModelException(e);
+				} finally {
+					destFile.setReadOnly(wasReadOnly);
 				}
-			} catch(IOException e) {
-				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-			} catch (CoreException e) {
-				throw new JavaModelException(e);
 			}
 		
 			// register the correct change deltas

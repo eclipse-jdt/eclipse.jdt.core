@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
@@ -293,6 +294,27 @@ public void testCopyCURename() throws CoreException {
 	IPackageFragment pkgDest = getPackage("/P/src/p2");
 
 	copyPositive(cuSource, pkgDest, null, "Y.java", false);
+}
+/**
+ * Ensures that a read-only CU can be copied to a different package.
+ */
+public void testCopyCUReadOnly() throws CoreException {
+	this.createFolder("/P/src/p1");
+	IFile file = this.createFile(
+		"/P/src/p1/X.java",
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	file.setReadOnly(true);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+
+	this.createFolder("/P/src/p2");
+	IPackageFragment pkgDest = getPackage("/P/src/p2");
+
+	copyPositive(cuSource, pkgDest, null, null, false);
+	
+	assertTrue("Destination cu should be read-only", getFile("/P/src/p2/X.java").isReadOnly());
 }
 /**
  * Ensures that a CU can be copied to a different package,
