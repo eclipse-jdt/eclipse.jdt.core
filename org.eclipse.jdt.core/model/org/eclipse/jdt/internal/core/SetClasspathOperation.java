@@ -521,8 +521,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		 
 		try {
 			JavaProject project = getProject();
-			if (!project.hasClasspathCycle(project.getResolvedClasspath(true))
-					&& !project.hasCycleMarker()){
+			if (!project.hasCycleMarker() && !project.hasClasspathCycle(project.getResolvedClasspath(true))){
 				return;
 			}
 		
