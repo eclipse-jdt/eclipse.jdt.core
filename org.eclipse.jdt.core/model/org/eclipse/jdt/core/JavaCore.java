@@ -250,13 +250,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
-	public static final String CORE_INCOMPLETE_CLASSPATH = PLUGIN_ID + ".incompleteClasspath";	
+	public static final String CORE_INCOMPLETE_CLASSPATH = PLUGIN_ID + ".incompleteClasspath"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
-	public static final String CORE_CIRCULAR_CLASSPATH = PLUGIN_ID + ".circularClasspath";
+	public static final String CORE_CIRCULAR_CLASSPATH = PLUGIN_ID + ".circularClasspath"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
