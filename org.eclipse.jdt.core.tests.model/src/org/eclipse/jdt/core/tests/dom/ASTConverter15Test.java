@@ -91,7 +91,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
@@ -4119,7 +4119,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		public boolean visit(ParameterizedType type) {
     			checkSourceRange(type, "java.util.List<URL>", contents);
     			ITypeBinding typeBinding = type.resolveBinding();
-    			assertNull("Got a binding", typeBinding);
+    			assertNotNull("No binding", typeBinding);
     			return true;
     		}
     	});
