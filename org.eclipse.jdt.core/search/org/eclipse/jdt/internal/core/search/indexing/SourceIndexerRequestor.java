@@ -285,9 +285,9 @@ public void exitInterface(int declarationEnd) {
 	popTypeName();	
 }
 /**
- * @see ISourceElementRequestor#exitMethod(int)
+ * @see ISourceElementRequestor#exitMethod(int, int, int)
  */
-public void exitMethod(int declarationEnd) {
+public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 	this.methodDepth--;
 }
 public void popTypeName() {

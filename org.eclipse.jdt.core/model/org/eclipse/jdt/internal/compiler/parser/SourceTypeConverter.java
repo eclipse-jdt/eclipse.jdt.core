@@ -258,7 +258,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	/*
 	 * Convert a method source element into a parsed method/constructor declaration 
 	 */
-	private AbstractMethodDeclaration convert(ISourceMethod sourceMethod, CompilationResult compilationResult) {
+	private AbstractMethodDeclaration convert(SourceMethodElementInfo sourceMethod, CompilationResult compilationResult) {
 
 		AbstractMethodDeclaration method;
 
@@ -280,21 +280,46 @@ public class SourceTypeConverter implements CompilerModifiers {
 			}
 		}
 		
+		int modifiers = sourceMethod.getModifiers();
 		if (sourceMethod.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
 			decl.isDefaultConstructor = false;
 			method = decl;
 			decl.typeParameters = typeParams;
 		} else {
-			MethodDeclaration decl = new MethodDeclaration(compilationResult);
-			/* convert return type */
-			decl.returnType =
-				createTypeReference(sourceMethod.getReturnTypeName(), start, end);
-			method = decl;
+			MethodDeclaration decl;
+			if (sourceMethod.isAnnotationMethod()) {
+				AnnotationMethodDeclaration annotationMethodDeclaration = new AnnotationMethodDeclaration(compilationResult);
+
+				/* conversion of default value */
+				if ((this.flags & FIELD_INITIALIZATION) != 0) {
+					char[] defaultValueSource = sourceMethod.getDefaultValueSource();
+					if (defaultValueSource != null) {
+						if (this.parser == null) {
+							this.parser = new Parser(this.problemReporter, true);
+						}
+						// TODO (jerome) handle Annotation and MemberValusArrayInitializer)
+						Expression expression =  this.parser.parseExpression(defaultValueSource, 0, defaultValueSource.length, this.unit);
+						if (expression != null) {
+							annotationMethodDeclaration.defaultValue = expression;
+							modifiers |= AccAnnotationDefault;
+						}
+					}
+				}
+				decl = annotationMethodDeclaration;
+			} else {
+				decl = new MethodDeclaration(compilationResult);
+			}
+			
+			// convert return type
+			decl.returnType = createTypeReference(sourceMethod.getReturnTypeName(), start, end);
+			
+			// type parameters
 			decl.typeParameters = typeParams;
+			
+			method = decl;
 		}
 		method.selector = sourceMethod.getSelector();
-		int modifiers = sourceMethod.getModifiers();
 		boolean isVarargs = (modifiers & AccVarargs) != 0;
 		method.modifiers = modifiers & ~AccVarargs;
 		method.sourceStart = start;
@@ -332,8 +357,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 		}
 		
 		/* convert local and anonymous types */
-		if ((this.flags & LOCAL_TYPE) != 0 && sourceMethod instanceof SourceMethodElementInfo) {
-			IJavaElement[] children = ((SourceMethodElementInfo)sourceMethod).getChildren();
+		if ((this.flags & LOCAL_TYPE) != 0) {
+			IJavaElement[] children = sourceMethod.getChildren();
 			int typesLength = children.length;
 			if (typesLength != 0) {
 				Statement[] statements = new Statement[typesLength];
@@ -468,8 +493,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 			/* by default, we assume that one is needed. */
 			int extraConstructor = 0;
 			int methodCount = 0;
-			boolean isInterface = type.getKind() == IGenericType.INTERFACE;
-			if (!isInterface) {
+			int kind = type.getKind();
+			boolean isAbstract = kind == IGenericType.INTERFACE || kind == IGenericType.ANNOTATION_TYPE;
+			if (!isAbstract) {
 				extraConstructor = needConstructor ? 1 : 0;
 				for (int i = 0; i < sourceMethodCount; i++) {
 					if (sourceMethods[i].isConstructor()) {
@@ -497,8 +523,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 					hasAbstractMethods = true;
 				}
 				if ((isConstructor && needConstructor) || (!isConstructor && needMethod)) {
-					AbstractMethodDeclaration method =convert(sourceMethod, compilationResult);
-					if (isInterface || method.isAbstract()) { // fix-up flag 
+					AbstractMethodDeclaration method = convert((SourceMethodElementInfo) sourceMethod, compilationResult);
+					if (isAbstract || method.isAbstract()) { // fix-up flag 
 						method.modifiers |= AccSemicolonBody;
 					}
 					type.methods[extraConstructor + index++] = method;

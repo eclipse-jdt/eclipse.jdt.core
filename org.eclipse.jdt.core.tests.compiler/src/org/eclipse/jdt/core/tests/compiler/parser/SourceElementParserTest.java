@@ -302,7 +302,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 public void exitInterface(int declarationEnd) {
 	exitType(declarationEnd);
 }
-public void exitMethod(int declarationEnd) {
+public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 	exitAbstractMethod(declarationEnd);
 }
 protected void exitAbstractMethod(int declarationEnd) {

@@ -205,9 +205,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see ISourceElementRequestor#exitMethod(int)
+	 * @see ISourceElementRequestor#exitMethod(int, int, int)
 	 */
-	public void exitMethod(int declarationEnd) {
+	public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 		// default implementation: do nothing
 	}
 	

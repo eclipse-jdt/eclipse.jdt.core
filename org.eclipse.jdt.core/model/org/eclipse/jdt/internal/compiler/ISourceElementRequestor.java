@@ -59,6 +59,7 @@ public interface ISourceElementRequestor {
 	
 	public static class MethodInfo {
 		public boolean isConstructor;
+		public boolean isAnnotation;
 		public int declarationStart;
 		public int modifiers;
 		public char[] returnType;
@@ -158,5 +159,5 @@ public interface ISourceElementRequestor {
 	
 	void exitInterface(int declarationEnd);
 	
-	void exitMethod(int declarationEnd);
+	void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd);
 }

@@ -206,7 +206,7 @@ protected void exitMember(int declarationEnd) {
 }
 /**
  */
-public void exitMethod(int declarationEnd) {
+public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 	exitMember(declarationEnd);
 }
 /**

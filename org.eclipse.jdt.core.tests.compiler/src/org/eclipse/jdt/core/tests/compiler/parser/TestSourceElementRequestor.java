@@ -119,7 +119,7 @@ public void exitInterface(int declarationEnd) {}
 /**
  * exitMethod method comment.
  */
-public void exitMethod(int declarationEnd) {}
+public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {}
 
 /**
  * enterInitializer method comment.

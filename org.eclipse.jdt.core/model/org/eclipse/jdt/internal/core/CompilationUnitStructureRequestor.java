@@ -335,6 +335,7 @@ public void enterMethod(MethodInfo methodInfo) {
 	resolveDuplicates(handle);
 	
 	SourceMethodElementInfo info = new SourceMethodElementInfo();
+	info.defaultAnnotationValue = methodInfo.isAnnotation ? CharOperation.NO_CHAR : null;
 	info.setSourceRangeStart(methodInfo.declarationStart);
 	int flags = methodInfo.modifiers;
 	info.selector = methodInfo.name;
@@ -499,8 +500,20 @@ protected void exitMember(int declarationEnd) {
 /**
  * @see ISourceElementRequestor
  */
-public void exitMethod(int declarationEnd) {
-	exitMember(declarationEnd);
+public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+	SourceMethodElementInfo info = (SourceMethodElementInfo) this.infoStack.pop();
+	info.setSourceRangeEnd(declarationEnd);
+	
+	// remember default value of annotation method
+	if (defaultValueStart != -1) {
+		int length = defaultValueEnd - defaultValueStart + 1;
+		if (length > 0) {
+			char[] defaultValue = new char[length];
+			System.arraycopy(this.parser.scanner.source, defaultValueStart, defaultValue, 0, length);
+			info.defaultAnnotationValue = defaultValue;
+		}
+	}
+	this.handleStack.pop();
 }
 /**
  * Resolves duplicate handles by incrementing the occurrence count

@@ -66,6 +66,14 @@ public class SourceMethodElementInfo extends MemberElementInfo implements ISourc
 	 * The type parameters of this source type. Empty if none.
 	 */
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
+	
+	/*
+	 * The default member value of an annotation member.
+	 * This is null if the method is not an annotation method.
+	 * This is an empty char[] if the method is an annotation method with no default value.
+	 * This is the source of the expression representing the default value.
+	 */
+	protected char[] defaultAnnotationValue;
 
 
 public char[][] getArgumentNames() {
@@ -73,6 +81,11 @@ public char[][] getArgumentNames() {
 }
 public char[][] getArgumentTypeNames() {
 	return this.argumentTypeNames;
+}
+public char[] getDefaultValueSource() {
+	if (this.defaultAnnotationValue == CharOperation.NO_CHAR) 
+		return null;
+	return this.defaultAnnotationValue;
 }
 public char[][] getExceptionTypeNames() {
 	return this.exceptionTypes;
@@ -115,6 +128,9 @@ public char[][] getTypeParameterNames() {
 }
 public boolean isConstructor() {
 	return this.isConstructor;
+}
+public boolean isAnnotationMethod() {
+	return this.defaultAnnotationValue != null;
 }
 protected void setArgumentNames(char[][] names) {
 	this.argumentNames = names;

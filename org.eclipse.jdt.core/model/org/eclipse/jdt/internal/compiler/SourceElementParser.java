@@ -1094,6 +1094,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			? ((MethodDeclaration) methodDeclaration).returnType
 			: null;
 		ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
+		methodInfo.isAnnotation = methodDeclaration instanceof AnnotationMethodDeclaration;
 		methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
 		methodInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
 		methodInfo.returnType = returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.');
@@ -1109,8 +1110,16 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		
 	this.visitIfNeeded(methodDeclaration);
 
-	if (isInRange){	
-		requestor.exitMethod(methodDeclaration.declarationSourceEnd);
+	if (isInRange) {
+		if (methodDeclaration instanceof AnnotationMethodDeclaration) {
+			AnnotationMethodDeclaration annotationMethodDeclaration = (AnnotationMethodDeclaration) methodDeclaration;
+			Expression expression = annotationMethodDeclaration.defaultValue;
+			if (expression != null) {
+				requestor.exitMethod(methodDeclaration.declarationSourceEnd, expression.sourceStart, expression.sourceEnd);
+				return;
+			}
+		} 
+		requestor.exitMethod(methodDeclaration.declarationSourceEnd, -1, -1);
 	}
 }
 private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypeParameter[] typeParameters) {

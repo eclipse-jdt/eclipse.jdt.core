@@ -706,7 +706,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void exitMethod(int declarationEnd) {
+	public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 		exitAbstractMethod(declarationEnd);
 	}
 	private void exitAbstractMethod(int declarationEnd) {

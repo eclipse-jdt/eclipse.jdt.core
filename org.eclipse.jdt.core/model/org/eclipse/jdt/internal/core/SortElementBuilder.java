@@ -1149,9 +1149,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#exitMethod(int)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#exitMethod(int, int, int)
 	 */
-	public void exitMethod(int declarationEnd) {
+	public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 		pop(declarationEnd);
 	}
 
