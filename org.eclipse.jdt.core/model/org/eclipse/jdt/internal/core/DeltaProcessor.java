@@ -121,6 +121,8 @@ public class DeltaProcessor {
 	/**
 	 * Check whether the updated file is affecting some of the properties of a given project (like
 	 * its classpath persisted as a file).
+	 * 
+	 * NOTE: It can induce resource changes, and cannot be called during POST_CHANGE notification.
 	 *
 	 */
 	public static void checkProjectPropertyFileUpdate(
