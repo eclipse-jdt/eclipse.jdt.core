@@ -50,6 +50,9 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 	protected boolean isCaseSensitive;
 	public boolean needsResolve = true;
 
+	/* focus element (used for reference patterns*/
+	public IJavaElement focus;
+
 	/* match level */
 	public static final int IMPOSSIBLE_MATCH = 0;
 	public static final int POSSIBLE_MATCH = 1;
@@ -62,8 +65,6 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 	public static final int FIELD = 4;
 	public static final int METHOD = 8;
 	
-
-
 public SearchPattern(int matchMode, boolean isCaseSensitive) {
 	this.matchMode = matchMode;
 	this.isCaseSensitive = isCaseSensitive;
@@ -983,6 +984,9 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			searchPattern = createPackagePattern(element.getElementName(), limitTo, EXACT_MATCH, CASE_SENSITIVE);
 			break;
 	}
+	if (searchPattern != null && limitTo == IJavaSearchConstants.REFERENCES) {
+		searchPattern.focus = element;
+	}
 	return searchPattern;
 }
 private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, int limitTo) {
@@ -1307,7 +1311,6 @@ public String toString(){
 public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
 	// default is to do nothing
 }
-
 /**
  * Finds out whether the given ast node matches this search pattern.
  * Returns IMPOSSIBLE_MATCH if it doesn't.

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
 import org.eclipse.jdt.internal.core.search.IndexSearchAdapter;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
@@ -71,6 +72,39 @@ public SearchEngine() {
  */
 public SearchEngine(IWorkingCopy[] workingCopies) {
 	this.workingCopies = workingCopies;
+}
+/*
+ * Removes from the given list of working copies the ones that cannot see the given focus.
+ */
+private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] workingCopies, IJavaElement focus) {
+	if (focus == null || workingCopies == null) return workingCopies;
+	while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
+		focus = focus.getParent();
+	}
+	int length = workingCopies.length;
+	IWorkingCopy[] result = null;
+	int index = -1;
+	for (int i=0; i<length; i++) {
+		IWorkingCopy workingCopy = workingCopies[i];
+		IPath projectOrJar = IndexSelector.getProjectOrJar((IJavaElement)workingCopy).getPath();
+		if (!IndexSelector.canSeeFocus(focus, projectOrJar)) {
+			if (result == null) {
+				result = new IWorkingCopy[length-1];
+				System.arraycopy(workingCopies, 0, result, 0, i);
+				index = i;
+			}
+		} else if (result != null) {
+			result[index++] = workingCopy;
+		}
+	}
+	if (result != null) {
+		if (result.length != index) {
+			System.arraycopy(result, 0, result = new IWorkingCopy[index], 0, index);
+		}
+		return result;
+	} else {
+		return workingCopies;
+	}
 }
 /**
  * Returns a java search scope limited to the hierarchy of the given type.
@@ -398,9 +432,10 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		
 		// In the case of a hierarchy scope make sure that the hierarchy is not computed.
 		// MatchLocator will filter out elements not in the hierarchy
-		if (scope instanceof HierarchyScope && searchPattern instanceof SearchPattern) {
+		SearchPattern pattern = (SearchPattern)searchPattern;
+		if (scope instanceof HierarchyScope) {
 			((HierarchyScope)scope).needsRefresh = false;
-			((SearchPattern)searchPattern).needsResolve = true; // force resolve to compute type bindings
+			pattern.needsResolve = true; // force resolve to compute type bindings
 		}
 
 		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
@@ -408,7 +443,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		MatchLocator matchLocator = 
 			new MatchLocator(
-				(SearchPattern)searchPattern, 
+				pattern, 
 				detailLevel, 
 				resultCollector, 
 				scope,
@@ -417,8 +452,9 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 
 		indexManager.performConcurrentJob(
 			new PatternSearchJob(
-				(SearchPattern)searchPattern, 
+				pattern, 
 				scope, 
+				pattern.focus,
 				detailLevel, 
 				pathCollector, 
 				indexManager),
@@ -430,7 +466,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		matchLocator.locateMatches(
 			pathCollector.getPaths(), 
 			workspace,
-			this.workingCopies
+			filterWorkingCopies(this.workingCopies, pattern.focus)
 		);
 		
 
