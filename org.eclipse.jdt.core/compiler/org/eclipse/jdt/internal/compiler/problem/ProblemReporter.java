@@ -1834,6 +1834,14 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 		nameRef.sourceStart, 
 		(int) nameRef.sourcePositions[index]);
 }
+public void invalidFileNameForPackageAnnotations(Annotation annotation) {
+	this.handle(
+			IProblem.InvalidFileNameForPackageAnnotations,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);	
+}
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 	int id = IProblem.UndefinedMethod; //default...
     MethodBinding shownMethod = method;

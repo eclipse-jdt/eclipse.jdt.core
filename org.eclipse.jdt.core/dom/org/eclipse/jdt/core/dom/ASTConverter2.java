@@ -131,6 +131,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public MarkerAnnotation convert(org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation annotation) {
+		checkCanceled();
 		MarkerAnnotation markerAnnotation = this.ast.newMarkerAnnotation();
 		setTypeNameForAnnotation(annotation, markerAnnotation);
 		int start = annotation.sourceStart;
@@ -140,6 +141,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 	
 	public NormalAnnotation convert(org.eclipse.jdt.internal.compiler.ast.NormalAnnotation annotation) {
+		checkCanceled();
 		NormalAnnotation normalAnnotation = this.ast.newNormalAnnotation();
 		setTypeNameForAnnotation(annotation, normalAnnotation);
 		org.eclipse.jdt.internal.compiler.ast.MemberValuePair[] memberValuePairs = annotation.memberValuePairs;
@@ -155,6 +157,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public SingleMemberAnnotation convert(org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation annotation) {
+		checkCanceled();
 		SingleMemberAnnotation singleMemberAnnotation = this.ast.newSingleMemberAnnotation();
 		setTypeNameForAnnotation(annotation, singleMemberAnnotation);
 		singleMemberAnnotation.setValue(convert(annotation.memberValue));
@@ -165,6 +168,7 @@ class ASTConverter2 extends ASTConverter {
 	}
 	
 	public MemberValuePair convert(org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair) {
+		checkCanceled();
 		MemberValuePair pair = this.ast.newMemberValuePair();
 		SimpleName simpleName = this.ast.newSimpleName(new String(memberValuePair.token));
 		int start = memberValuePair.sourceStart;
@@ -182,6 +186,7 @@ class ASTConverter2 extends ASTConverter {
 	 * @param singleMemberAnnotation
 	 */
 	protected void setTypeNameForAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation compilerAnnotation, Annotation annotation) {
+		checkCanceled();
 		char[][] typeName = compilerAnnotation.tokens;
 		int length = typeName.length;
 		Name name = null;

@@ -289,22 +289,26 @@ CompilationUnit ::= EnterCompilationUnit InternalCompilationUnit
 /:$readableName CompilationUnit:/
 
 InternalCompilationUnit ::= PackageDeclaration
-/.$putCase consumeInternalCompilationUnitWithPackage(); $break ./
-InternalCompilationUnit ::= PackageDeclaration ImportDeclarations
-/.$putCase consumeInternalCompilationUnitWithPackageAndImports(); $break ./
-InternalCompilationUnit ::= PackageDeclaration ImportDeclarations TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithPackageImportsTypes(); $break ./
+/.$putCase consumeInternalCompilationUnit(); $break ./
+InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
+/.$putCase consumeInternalCompilationUnit(); $break ./
+InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports TypeDeclarations
+/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
 InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithPackageTypes(); $break ./
-InternalCompilationUnit ::= ImportDeclarations
-/.$putCase consumeInternalCompilationUnitWithImports(); $break ./
+/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
+InternalCompilationUnit ::= ImportDeclarations ReduceImports
+/.$putCase consumeInternalCompilationUnit(); $break ./
 InternalCompilationUnit ::= TypeDeclarations
 /.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
-InternalCompilationUnit ::= ImportDeclarations TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithImportsTypes(); $break ./
+InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
+/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
 InternalCompilationUnit ::= $empty
 /.$putCase consumeEmptyInternalCompilationUnit(); $break ./
 /:$readableName CompilationUnit:/
+
+ReduceImports ::= $empty
+/.$putCase consumeReduceImports(); $break ./
+/:$readableName ReduceImports:/
 
 EnterCompilationUnit ::= $empty
 /.$putCase consumeEnterCompilationUnit(); $break ./
@@ -340,7 +344,12 @@ PackageDeclaration ::= PackageDeclarationName ';'
 /.$putCase  consumePackageDeclaration(); $break ./
 /:$readableName PackageDeclaration:/
 
-PackageDeclarationName ::= Modifiersopt 'package' Name
+PackageDeclarationName ::= Modifiers 'package' Name
+/.$putCase  consumePackageDeclarationNameWithModifiers(); $break ./
+/:$readableName PackageDeclarationName:/
+/:$compliance 1.5:/
+
+PackageDeclarationName ::= 'package' Name
 /.$putCase  consumePackageDeclarationName(); $break ./
 /:$readableName PackageDeclarationName:/
 

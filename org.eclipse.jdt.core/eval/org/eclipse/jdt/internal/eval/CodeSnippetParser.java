@@ -504,7 +504,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 				}
 				consumeClassBodyDeclarationsopt();
 				consumeClassDeclaration();
-				consumeTypeDeclarationsopt();
+				consumeInternalCompilationUnitWithTypes();
 				consumeCompilationUnit();
 			}
 			this.lastAct = ACCEPT_ACTION;

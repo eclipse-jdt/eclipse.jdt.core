@@ -23,6 +23,7 @@ public class ImportReference extends ASTNode {
 	public int declarationSourceEnd;
 	public boolean used;
 	public int modifiers; // 1.5 addition for static imports
+	public Annotation[] annotations;
 
 	public ImportReference(
 			char[][] tokens,

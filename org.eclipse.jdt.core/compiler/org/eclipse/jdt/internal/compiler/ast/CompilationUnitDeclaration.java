@@ -19,6 +19,8 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 public class CompilationUnitDeclaration
 	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
+	
+	private static final char[] PACKAGE_INFO_FILE_NAME = "package-info.java".toCharArray(); //$NON-NLS-1$
 		
 	public ImportReference currentPackage;
 	public ImportReference[] imports;
@@ -266,7 +268,12 @@ public class CompilationUnitDeclaration
 	}
 
 	public void resolve() {
-
+		if (this.currentPackage != null) {
+			if (this.currentPackage.annotations != null
+					&& !CharOperation.endsWith(getFileName(), PACKAGE_INFO_FILE_NAME)) {
+				scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
+			}
+		}
 		try {
 			if (types != null) {
 				for (int i = 0, count = types.length; i < count; i++) {

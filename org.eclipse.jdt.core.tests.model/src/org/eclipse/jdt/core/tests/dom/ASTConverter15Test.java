@@ -167,7 +167,69 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(memberValuePair.getValue(), "\"Hacker\"", source);
 		modifier = (ASTNode) modifiers.get(0);
 		checkSourceRange(modifier, "public", source);
-	}	
+	}
 	
+	public void test0005() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0005", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		List types = compilationUnit.types();
+		assertEquals("Wrong number of types", 4, types.size());
+		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(3);
+		assertEquals("wrong type", ASTNode.TYPE_DECLARATION, typeDeclaration.getNodeType());
+		TypeDeclaration typeDeclaration2 = (TypeDeclaration) typeDeclaration;
+		List modifiers = typeDeclaration2.modifiers();
+		assertEquals("Wrong number of modifiers", 3, modifiers.size());
+		ASTNode modifier = (ASTNode) modifiers.get(0);
+		checkSourceRange(modifier, "@Retention", source);
+		assertEquals("wrong type", ASTNode.MARKER_ANNOTATION, modifier.getNodeType());
+		MarkerAnnotation markerAnnotation = (MarkerAnnotation) modifier;
+		checkSourceRange(markerAnnotation.getTypeName(), "Retention", source);
+		modifier = (ASTNode) modifiers.get(2);
+		checkSourceRange(modifier, "@Author(@Name(first=\"Joe\", last=\"Hacker\", age=32))", source);
+		assertEquals("wrong type", ASTNode.SINGLE_MEMBER_ANNOTATION, modifier.getNodeType());
+		SingleMemberAnnotation annotation = (SingleMemberAnnotation) modifier;
+		checkSourceRange(annotation.getTypeName(), "Author", source);
+		Expression value = annotation.getValue();
+		assertEquals("wrong type", ASTNode.NORMAL_ANNOTATION, value.getNodeType());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) value;
+		checkSourceRange(normalAnnotation.getTypeName(), "Name", source);
+		List values = normalAnnotation.values();
+		assertEquals("wrong size", 3, values.size());
+		MemberValuePair memberValuePair = (MemberValuePair) values.get(0);
+		checkSourceRange(memberValuePair, "first=\"Joe\"", source);
+		checkSourceRange(memberValuePair.getName(), "first", source);
+		checkSourceRange(memberValuePair.getValue(), "\"Joe\"", source);
+		memberValuePair = (MemberValuePair) values.get(1);
+		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);		
+		checkSourceRange(memberValuePair.getName(), "last", source);
+		checkSourceRange(memberValuePair.getValue(), "\"Hacker\"", source);
+		memberValuePair = (MemberValuePair) values.get(2);
+		checkSourceRange(memberValuePair, "age=32", source);		
+		checkSourceRange(memberValuePair.getName(), "age", source);
+		checkSourceRange(memberValuePair.getValue(), "32", source);
+		modifier = (ASTNode) modifiers.get(1);
+		checkSourceRange(modifier, "public", source);
+		
+		typeDeclaration = (AbstractTypeDeclaration) types.get(0);
+		assertEquals("wrong type", ASTNode.ANNOTATION_TYPE_DECLARATION, typeDeclaration.getNodeType());
+		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) typeDeclaration;
+		List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 3, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("wrong type", ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION, bodyDeclaration.getNodeType());
+		AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) bodyDeclaration;
+		checkSourceRange(annotationTypeMemberDeclaration, "String first() default \"Joe\";", source);
+		Expression expression = annotationTypeMemberDeclaration.getDefault();
+		checkSourceRange(expression, "\"Joe\"", source);
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(2);
+		assertEquals("wrong type", ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION, bodyDeclaration.getNodeType());
+		annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) bodyDeclaration;
+		checkSourceRange(annotationTypeMemberDeclaration, "int age();", source);
+		expression = annotationTypeMemberDeclaration.getDefault();
+		assertNull("Got a default", expression);
+	}
 }
 
