@@ -403,11 +403,12 @@ protected void invokeJavaLangReflectMethodInvoke() {
 	this.stackDepth-=2;
 }
 private final void resizeByteArray() {
-	int actualLength = bCodeStream.length;
-	int requiredSize = actualLength + GROW_FACTOR;
+	int length = bCodeStream.length;
+	int requiredSize = length + length;
 	if (classFileOffset > requiredSize) {
-		requiredSize = classFileOffset + GROW_FACTOR;
+		// must be sure to grow by enough
+		requiredSize = classFileOffset + length;
 	}
-	System.arraycopy(bCodeStream, 0, (bCodeStream = new byte[requiredSize]), 0, actualLength);
+	System.arraycopy(bCodeStream, 0, bCodeStream = new byte[requiredSize], 0, length);
 }
 }

@@ -3051,8 +3051,11 @@ public void resetForClinit(int constantPoolIndex, int constantPoolOffset) {
  * Resize the pool contents
  */
 private final void resizePoolContents(int minimalSize) {
-	final int length = poolContent.length;
-	System.arraycopy(poolContent, 0, (poolContent = new byte[length + Math.max(minimalSize, CONSTANTPOOL_GROW_SIZE)]), 0, length);
+	int length = poolContent.length;
+	int toAdd = length;
+	if (toAdd < minimalSize)
+		toAdd = minimalSize;
+	System.arraycopy(poolContent, 0, poolContent = new byte[length + toAdd], 0, length);
 }
 /**
  * Write a unsigned byte into the byte array

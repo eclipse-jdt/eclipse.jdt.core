@@ -28,7 +28,6 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public int stackMax; // Use Ints to keep from using extra bc when adding
 	public int stackDepth; // Use Ints to keep from using extra bc when adding
 	public int maxLocals;
-	public static final int GROW_FACTOR = 400;
 	public static final int LABELS_INCREMENT = 5;
 	public byte[] bCodeStream;
 	public int pcToSourceMapSize;
@@ -142,16 +141,15 @@ public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex
 }
 public void addLabel(Label aLabel) {
 	if (countLabels == labels.length)
-		System.arraycopy(labels, 0, (labels = new Label[countLabels + LABELS_INCREMENT]), 0, countLabels);
+		System.arraycopy(labels, 0, labels = new Label[countLabels + LABELS_INCREMENT], 0, countLabels);
 	labels[countLabels++] = aLabel;
 }
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 	if (!generateLocalVariableTableAttributes)
 		return;
 
-	if (visibleLocalsCount >= visibleLocals.length) {
-		System.arraycopy(visibleLocals, 0, (visibleLocals = new LocalVariableBinding[visibleLocalsCount * 2]), 0, visibleLocalsCount);
-	}
+	if (visibleLocalsCount >= visibleLocals.length)
+		System.arraycopy(visibleLocals, 0, visibleLocals = new LocalVariableBinding[visibleLocalsCount * 2], 0, visibleLocalsCount);
 	visibleLocals[visibleLocalsCount++] = localBinding;
 }
 final public void aload(int iArg) {
@@ -3534,7 +3532,7 @@ final public void ldc(String constant) {
 			char current = constantChars[i];
 			// we resize the byte array immediately if necessary
 			if (length + 3 > (utf8encodingLength = utf8encoding.length)) {
-				System.arraycopy(utf8encoding, 0, (utf8encoding = new byte[Math.min(utf8encodingLength + 100, 65535)]), 0, length);
+				System.arraycopy(utf8encoding, 0, utf8encoding = new byte[Math.min(utf8encodingLength + 100, 65535)], 0, length);
 			}
 			if ((current >= 0x0001) && (current <= 0x007F)) {
 				// we only need one byte: ASCII table
@@ -3561,7 +3559,7 @@ final public void ldc(String constant) {
 		// write the first part
 		char[] subChars = new char[i];
 		System.arraycopy(constantChars, 0, subChars, 0, i);
-		System.arraycopy(utf8encoding, 0, (utf8encoding = new byte[length]), 0, length);
+		System.arraycopy(utf8encoding, 0, utf8encoding = new byte[length], 0, length);
 		index = constantPool.literalIndex(subChars, utf8encoding);
 		stackDepth++;
 		if (stackDepth > stackMax)
@@ -3593,7 +3591,7 @@ final public void ldc(String constant) {
 				char current = constantChars[i];
 				// we resize the byte array immediately if necessary
 				if (constantLength + 2 > (utf8encodingLength = utf8encoding.length)) {
-					System.arraycopy(utf8encoding, 0, (utf8encoding = new byte[Math.min(utf8encodingLength + 100, 65535)]), 0, length);
+					System.arraycopy(utf8encoding, 0, utf8encoding = new byte[Math.min(utf8encodingLength + 100, 65535)], 0, length);
 				}
 				if ((current >= 0x0001) && (current <= 0x007F)) {
 					// we only need one byte: ASCII table
@@ -3616,7 +3614,7 @@ final public void ldc(String constant) {
 			// the next part is done
 			subChars = new char[i - startIndex];
 			System.arraycopy(constantChars, startIndex, subChars, 0, i - startIndex);
-			System.arraycopy(utf8encoding, 0, (utf8encoding = new byte[length]), 0, length);
+			System.arraycopy(utf8encoding, 0, utf8encoding = new byte[length], 0, length);
 			index = constantPool.literalIndex(subChars, utf8encoding);
 			stackDepth++;
 			if (stackDepth > stackMax)
@@ -4523,7 +4521,7 @@ public void record(LocalVariableBinding local) {
 		return;
 	if (allLocalsCounter == locals.length) {
 		// resize the collection
-		System.arraycopy(locals, 0, (locals = new LocalVariableBinding[allLocalsCounter + LOCALS_INCREMENT]), 0, allLocalsCounter);
+		System.arraycopy(locals, 0, locals = new LocalVariableBinding[allLocalsCounter + LOCALS_INCREMENT], 0, allLocalsCounter);
 	}
 	locals[allLocalsCounter++] = local;
 	local.initializationPCs = new int[4];
@@ -4549,7 +4547,7 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 	// Widening an existing entry that already has the same source positions
 	if (pcToSourceMapSize + 4 > pcToSourceMap.length) {
 		// resize the array pcToSourceMap
-		System.arraycopy(pcToSourceMap, 0, (pcToSourceMap = new int[pcToSourceMapSize << 1]), 0, pcToSourceMapSize);
+		System.arraycopy(pcToSourceMap, 0, pcToSourceMap = new int[pcToSourceMapSize << 1], 0, pcToSourceMapSize);
 	}
 	int newLine = ClassFile.searchLineNumber(lineSeparatorPositions, sourcePos);
 	// lastEntryPC represents the endPC of the lastEntry.
@@ -4682,12 +4680,13 @@ public void resetForProblemClinit(ClassFile targetClassFile) {
 	maxLocals = 0;
 }
 private final void resizeByteArray() {
-	int actualLength = bCodeStream.length;
-	int requiredSize = actualLength + GROW_FACTOR;
+	int length = bCodeStream.length;
+	int requiredSize = length + length;
 	if (classFileOffset > requiredSize) {
-		requiredSize = classFileOffset + GROW_FACTOR;
+		// must be sure to grow by enough
+		requiredSize = classFileOffset + length;
 	}
-	System.arraycopy(bCodeStream, 0, (bCodeStream = new byte[requiredSize]), 0, actualLength);
+	System.arraycopy(bCodeStream, 0, bCodeStream = new byte[requiredSize], 0, length);
 }
 final public void ret(int index) {
 	if (DEBUG) System.out.println(position + "\t\tret:"+index); //$NON-NLS-1$
