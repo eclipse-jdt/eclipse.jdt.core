@@ -25,8 +25,10 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -41,6 +43,41 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public static String[] testsNames = null; // list of test names to perform
 	public static int[] testsNumbers = null; // list of test numbers to perform
 	public static int[] testsRange = null; // range of test numbers to perform
+	
+	public static class ProblemRequestor implements IProblemRequestor {
+		public StringBuffer problems;
+		public int problemCount;
+		private char[] unitSource;
+		public ProblemRequestor() {
+			initialize(null);
+		}
+		public void acceptProblem(IProblem problem) {
+			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+			problems.append(" in " + new String(problem.getOriginatingFileName()));
+			if (this.unitSource != null) {
+				problems.append(((DefaultProblem)problem).errorReportSource(this.unitSource));
+			}
+			problems.append("\n");
+			problems.append(problem.getMessage());
+			problems.append("\n");
+		}
+		public void beginReporting() {
+			this.problems.append("----------\n");
+		}
+		public void endReporting() {
+			problems.append("----------\n");
+		}
+		public boolean isActive() {
+			return true;
+		}
+		public void initialize(char[] source) {
+			this.problems = new StringBuffer();
+			this.problemCount = 0;
+			this.unitSource = source;
+		}
+	}
+	
+
 
 	/**
 	 * Delta listener
@@ -259,6 +296,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);
 	}
+	protected void assertProblems(String message, String expected, ProblemRequestor problemRequestor) {
+		String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
+		String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
+		if (!independantExpectedString.equals(actual)){
+		 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		}
+		assertEquals(
+			message,
+			independantExpectedString,
+			actual);
+	}
 	/*
 	 * Asserts that the given actual source (usually coming from a file content) is equal to the expected one.
 	 * Note that 'expected' is assumed to have the '\n' line separator. 
@@ -325,6 +373,29 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			System.out.println(displayString(actual, 2) + ",");
 		}
 		assertEquals(message, expected, actual);
+	}
+	protected void assertTypeParametersEqual(String expected, ITypeParameter[] typeParameters) throws JavaModelException {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < typeParameters.length; i++) {
+			ITypeParameter typeParameter = typeParameters[i];
+			buffer.append(typeParameter.getElementName());
+			String[] bounds = typeParameter.getBounds();
+			int length = bounds.length;
+			if (length > 0)
+				buffer.append(" extends ");
+			for (int j = 0; j < length; j++) {
+				buffer.append(bounds[j]);
+				if (j != length -1) {
+					buffer.append(" & ");
+				}
+			}
+			buffer.append("\n");
+		}
+		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 3) + ",");
+		}
+		assertEquals("Unepexeted type parameters", expected, actual);
 	}
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
 		StringBuffer buffer = new StringBuffer();

@@ -25,9 +25,9 @@ public CompilationUnitTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
-	this.createFolder("/P/src/p");
-	this.createFile(
+	createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
+	createFolder("/P/src/p");
+	createFile(
 		"/P/src/p/X.java",
 		"/* some comment */" +
 		"package p;\n" +
@@ -56,14 +56,14 @@ public void setUpSuite() throws Exception {
 		"interface I {\n" +
 		"  int run();\n" +
 		"}");
-	this.cu = this.getCompilationUnit("/P/src/p/X.java");
+	this.cu = getCompilationUnit("/P/src/p/X.java");
 }
 
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	testsNames = new String[] { "Bug73884" };
+//	testsNames = new String[] { "Bug73884" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -481,9 +481,128 @@ public void testBug73884() throws CoreException {
 			"}";
 		createFile("/P/src/p/I.java", cuSource);
 		ITypeParameter[] typeParameters = getCompilationUnit("/P/src/p/I.java").getType("I").getTypeParameters();
-		assertEquals("Invalid number of type parameters!", 1, typeParameters.length);
+		assertTypeParametersEqual(
+			"T\n",
+			typeParameters);
 	} finally {
 		deleteFile("/P/src/p/I.java");
 	}
+}
+
+/*
+ * Ensure that the type parameters for a type are correct.
+ */
+public void testTypeParameter1() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = workingCopy(
+			"package p;\n" +
+			"public class Y<T> {\n" +
+			"}"
+		);
+		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+		assertTypeParametersEqual(
+			"T\n",
+			typeParameters);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensure that the type parameters for a type are correct.
+ */
+public void testTypeParameter2() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = workingCopy(
+			"package p;\n" +
+			"public class Y<T, U> {\n" +
+			"}"
+		);
+		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+		assertTypeParametersEqual(
+			"T\n" +
+			"U\n",
+			typeParameters);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensure that the type parameters for a type are correct.
+ */
+public void testTypeParameter3() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = workingCopy(
+			"package p;\n" +
+			"public class Y<T extends List> {\n" +
+			"}"
+		);
+		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+		assertTypeParametersEqual(
+			"T extends List\n",
+			typeParameters);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensure that the type parameters for a type are correct.
+ */
+public void testTypeParameter4() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = workingCopy(
+			"package p;\n" +
+			"public class Y<T extends List & Runnable & Comparable> {\n" +
+			"}"
+		);
+		ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+		assertTypeParametersEqual(
+			"T extends List & Runnable & Comparable\n",
+			typeParameters);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensure that the type parameters for a method are correct.
+ * (regression test for bug 75658 [1.5] SourceElementParser do not compute correctly bounds of type parameter)
+ */
+public void testTypeParameter5() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = workingCopy(
+			"package p;\n" +
+			"public class Y {\n" +
+			"  <T extends List, U extends X & Runnable> void foo() {\n" +
+			"  }\n" +
+			"}"
+		);
+		ITypeParameter[] typeParameters = workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
+		assertTypeParametersEqual(
+			"T extends List\n" + 
+			"U extends X & Runnable\n",
+			typeParameters);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
+private ICompilationUnit workingCopy(String source) throws JavaModelException {
+	ICompilationUnit workingCopy = getCompilationUnit("/P/src/p/Y.java").getWorkingCopy(new WorkingCopyOwner(){}, null, null);
+	workingCopy.getBuffer().setContents(source);
+	workingCopy.makeConsistent(null);
+	return workingCopy;
 }
 }

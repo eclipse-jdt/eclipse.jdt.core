@@ -1059,16 +1059,22 @@ private void notifySourceElementRequestor(TypeParameter[] typeParameters) {
 		int typeParametersLength = typeParameters.length;
 		for (int i = 0; i < typeParametersLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
-			TypeReference[] bounds = typeParameter.bounds;
+			TypeReference firstBound = typeParameter.type;
+			TypeReference[] otherBounds = typeParameter.bounds;
 			char[][] typeParameterBounds = null;
-			if (bounds != null) {
-				int boundLength = bounds.length;
-				char[][] boundNames = new char[boundLength][];
-				for (int j = 0; j < boundLength; j++) {
-					boundNames[j] = 
-						CharOperation.concatWith(bounds[j].getParameterizedTypeName(), '.'); 
+			if (firstBound != null) {
+				if (otherBounds != null) {
+					int otherBoundsLength = otherBounds.length;
+					char[][] boundNames = new char[otherBoundsLength+1][];
+					boundNames[0] = CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.');
+					for (int j = 0; j < otherBoundsLength; j++) {
+						boundNames[j+1] = 
+							CharOperation.concatWith(otherBounds[j].getParameterizedTypeName(), '.'); 
+					}
+					typeParameterBounds = boundNames;
+				} else {
+					typeParameterBounds = new char[][] { CharOperation.concatWith(firstBound.getParameterizedTypeName(), '.')};
 				}
-				typeParameterBounds = boundNames;
 			}
 			requestor.enterTypeParameter(
 				typeParameter.declarationSourceStart, 

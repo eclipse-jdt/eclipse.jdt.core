@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -27,39 +26,6 @@ public class ReconcilerTests extends ModifyingResourceTests {
 	
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
-	
-	public static class ProblemRequestor implements IProblemRequestor {
-		public StringBuffer problems;
-		public int problemCount;
-		private char[] unitSource;
-		public ProblemRequestor() {
-			initialize(null);
-		}
-		public void acceptProblem(IProblem problem) {
-			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
-			problems.append(" in " + new String(problem.getOriginatingFileName()));
-			if (this.unitSource != null) {
-				problems.append(((DefaultProblem)problem).errorReportSource(this.unitSource));
-			}
-			problems.append("\n");
-			problems.append(problem.getMessage());
-			problems.append("\n");
-		}
-		public void beginReporting() {
-			this.problems.append("----------\n");
-		}
-		public void endReporting() {
-			problems.append("----------\n");
-		}
-		public boolean isActive() {
-			return true;
-		}
-		public void initialize(char[] source) {
-			this.problems = new StringBuffer();
-			this.problemCount = 0;
-			this.unitSource = source;
-		}
-	}
 	
 	/* A problem requestor that auto-cancels on first problem */
 	class CancelingProblemRequestor extends ProblemRequestor {
@@ -105,15 +71,7 @@ public static Test suite() {
 	return buildTestSuite(ReconcilerTests.class);
 }
 protected void assertProblems(String message, String expected) {
-	String actual = Util.convertToIndependantLineDelimiter(this.problemRequestor.problems.toString());
-	String independantExpectedString = Util.convertToIndependantLineDelimiter(expected);
-	if (!independantExpectedString.equals(actual)){
-	 	System.out.println(Util.displayString(actual, 2));
-	}
-	assertEquals(
-		message,
-		independantExpectedString,
-		actual);
+	assertProblems(message, expected, this.problemRequestor);
 }
 /**
  * Setup for the next test.
