@@ -294,6 +294,16 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 	ClassFileWorkingCopy workingCopy = new ClassFileWorkingCopy();
 	IBuffer buffer = factory == null ? this.getBuffer() : factory.createBuffer(workingCopy);
 	workingCopy.buffer = buffer;
+
+	// set the source if possible
+	SourceMapper mapper = this.getSourceMapper();
+	if (mapper != null) {
+		char[] contents = mapper.findSource(getType());
+		if (contents != null) {
+			buffer.setContents(contents);
+		}
+	}
+
 	return workingCopy;
 }
 /**
