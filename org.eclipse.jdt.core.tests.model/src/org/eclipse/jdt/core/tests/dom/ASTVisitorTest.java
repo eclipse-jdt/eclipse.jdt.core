@@ -956,7 +956,7 @@ public class ASTVisitorTest extends TestCase {
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(sDO"+E1S+S1S+"sDO)]"));
+		assertTrue(result.equals("[(sDO"+S1S+E1S+"sDO)]"));
 	}
 	public void testEmptyStatement() {
 		EmptyStatement x1 = ast.newEmptyStatement();

@@ -68,11 +68,7 @@ public class ExecutionTests extends Tests {
 		expectingOnlyProblemsFor(helloPath);
 		executeClass(projectPath, "p1.Hello", "",
 			"java.lang.Error: Unresolved compilation problem: \n" + 
-			"	Syntax error on token \"}\", \"++\", \"--\" expected\n" + 
-			"\r\n"+
-			"	at java.lang.reflect.Constructor.newInstance(Native Method)\r\n" + 
-			"	at p1.Hello.main(Hello.java:5)\r\n" + 
-			"Exception in thread \"main\" "	
+			"	Syntax error on token \"}\", \"++\", \"--\" expected\n"
 		);
 	}
 }
