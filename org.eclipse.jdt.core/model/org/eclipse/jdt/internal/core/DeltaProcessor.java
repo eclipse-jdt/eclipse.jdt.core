@@ -429,7 +429,7 @@ public class DeltaProcessor {
 	 * </ul>
 	 */
 	protected void elementRemoved(Openable element, IResourceDelta delta) {
-
+		
 		close(element);
 		removeFromParentInfo(element);
 		fCurrentDelta.removed(element);
@@ -440,8 +440,17 @@ public class DeltaProcessor {
 					(JavaProject) element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+				if (isOnClasspath(element)) {
+					updateProject(element.getJavaProject()); // to trigger deltas
+					JavaProject project = (JavaProject) element.getJavaProject();
+					try {
+						project.getJavaProjectElementInfo().setNameLookup(null);
+					} catch (JavaModelException e) {
+					}
+				}
+				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
-				// get rid of namelookup since it holds onto obsolete cached info 
+				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
 				if (isOnClasspath(element)) {
 					JavaProject project = (JavaProject) element.getJavaProject();
 					try {
