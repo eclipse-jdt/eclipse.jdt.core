@@ -592,6 +592,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-non externalized string: IGNORE"); //$NON-NLS-1$
 			}
 		}
+		if ((errorThreshold & StaticAccessReceiver) != 0){
+			buf.append("\n-static access receiver: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & StaticAccessReceiver) != 0){
+				buf.append("\n-static access receiver: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-static access receiver: IGNORE"); //$NON-NLS-1$
+			}
+		}
 		switch(targetJDK){
 			case JDK1_1 :
 				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
