@@ -42,11 +42,48 @@ public char[] assistIdentifier(){
 }
 protected void attachOrphanCompletionNode(){
 	if (isOrphanCompletionNode){
+		AstNode orphan = this.assistNode;
 		isOrphanCompletionNode = false;
-		Statement statement = (Statement)wrapWithExplicitConstructorCallIfNeeded(this.assistNode);
+		
+		
+		/* if in context of a type, then persists the identifier into a fake field return type */
+		if (currentElement instanceof RecoveredType){
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (recoveredType.foundOpeningBrace) {
+				/* generate a pseudo field with a completion on type reference */	
+				if (orphan instanceof TypeReference){
+					currentElement = currentElement.add(new SelectionOnFieldType((TypeReference)orphan), 0);
+					return;
+				}
+			}
+		}
+		
+		Statement statement = (Statement)wrapWithExplicitConstructorCallIfNeeded(orphan);
 		currentElement = currentElement.add(statement, 0);
 		currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
 	}
+}
+
+private boolean checkRecoveredType() {
+	if (currentElement instanceof RecoveredType){
+		/* check if current awaiting identifier is the completion identifier */
+		if (this.indexOfAssistIdentifier() < 0) return false;
+
+		if ((lastErrorEndPosition >= selectionStart)
+			&& (lastErrorEndPosition <= selectionEnd+1)){
+			return false;
+		}
+		RecoveredType recoveredType = (RecoveredType)currentElement;
+		/* filter out cases where scanner is still inside type header */
+		if (recoveredType.foundOpeningBrace) {
+			this.assistNode = this.getTypeReference(0);
+			this.lastCheckPoint = this.assistNode.sourceEnd + 1;
+			this.isOrphanCompletionNode = true;
+			return true;
+		}
+	}
+	return false;
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	
@@ -545,6 +582,10 @@ protected boolean resumeAfterRecovery() {
 	}
 	return super.resumeAfterRecovery();			
 }
+
+public void selectionIdentifierCheck(){
+	if (checkRecoveredType()) return;
+}
 public void setAssistIdentifier(char[] assistIdent){
 	((SelectionScanner)scanner).selectionIdentifier = assistIdent;
 }
@@ -557,6 +598,7 @@ protected void updateRecoveryState() {
 	currentElement.updateFromParserState();
 
 	/* may be able to retrieve completionNode as an orphan, and then attach it */
+	this.selectionIdentifierCheck();
 	this.attachOrphanCompletionNode();
 	
 	/* check and update recovered state based on current token,
