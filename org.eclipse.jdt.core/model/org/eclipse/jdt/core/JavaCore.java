@@ -2028,12 +2028,11 @@ public final class JavaCore extends Plugin {
 		String propertyName = optionName;
 		if (JavaModelManager.OptionNames.contains(propertyName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
-			String value = preferences.getString(propertyName).trim();
-			if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-				return getConvertedValue(preferences, propertyName);
-			} else {
-				return value;
-			}
+			return preferences.getString(propertyName).trim();
+		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
+			// TODO remove after M7
+			Preferences preferences = getPlugin().getPluginPreferences();
+			return getConvertedValue(preferences, propertyName);
 		}
 		return null;
 	}
