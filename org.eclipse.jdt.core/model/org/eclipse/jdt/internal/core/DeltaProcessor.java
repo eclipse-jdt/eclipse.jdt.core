@@ -281,7 +281,6 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		
 		IPath path = resource.getFullPath();
 		IJavaElement element = null;
-		/* TEMPORARY DISABLED
 		if (this.currentElement != null) {
 			switch (elementType) {
 				case IJavaElement.JAVA_PROJECT:
@@ -306,6 +305,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					}
 					break;
 				case IJavaElement.COMPILATION_UNIT:
+				case IJavaElement.CLASS_FILE:
 					// find the element that encloses the resource
 					this.popUntilPrefixOf(path);
 					if (this.currentElement == null) break;
@@ -313,6 +313,15 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					// find the package
 					IPackageFragment pkgFragment = null;
 					switch (this.currentElement.getElementType()) {
+						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+							root = (IPackageFragmentRoot)this.currentElement;
+							IPath rootPath = root.getPath();
+							IPath pkgPath = path.removeLastSegments(1);
+							String pkgName = Util.packageName(pkgPath.removeFirstSegments(rootPath.segmentCount()));
+							if (pkgName != null) {
+								pkgFragment = root.getPackageFragment(pkgName);
+							}
+							break;
 						case IJavaElement.PACKAGE_FRAGMENT:
 							pkgFragment = (IPackageFragment)this.currentElement;
 							break;
@@ -322,38 +331,21 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 							break;
 					}
 					if (pkgFragment != null) {
-						// create compilation unit handle 
-						String fileName = path.lastSegment();
-						if (!Util.isValidCompilationUnitName(fileName)) return null;
-						element = pkgFragment.getCompilationUnit(fileName);
-					}
-					break;
-				case IJavaElement.CLASS_FILE:
-					// find the element that encloses the resource
-					this.popUntilPrefixOf(path);
-					if (this.currentElement == null) break;
-					
-					// find the package
-					pkgFragment = null;
-					switch (this.currentElement.getElementType()) {
-						case IJavaElement.PACKAGE_FRAGMENT:
-							pkgFragment = (IPackageFragment)this.currentElement;
-							break;
-						case IJavaElement.COMPILATION_UNIT:
-						case IJavaElement.CLASS_FILE:
-							pkgFragment = (IPackageFragment)this.currentElement.getParent();
-							break;
-					}
-					if (pkgFragment != null) {
-						// create class file handle
-						String fileName = path.lastSegment();
-						if (!Util.isValidClassFileName(fileName)) return null;
-						element = pkgFragment.getClassFile(fileName);
+						if (elementType == IJavaElement.COMPILATION_UNIT) {
+							// create compilation unit handle 
+							String fileName = path.lastSegment();
+							if (!Util.isValidCompilationUnitName(fileName)) return null;
+							element = pkgFragment.getCompilationUnit(fileName);
+						} else {
+							// create class file handle
+							String fileName = path.lastSegment();
+							if (!Util.isValidClassFileName(fileName)) return null;
+							element = pkgFragment.getClassFile(fileName);
+						}
 					}
 					break;
 			}
 		}
-		*/
 		if (element == null) {
 			element = JavaModelManager.create(resource, project);
 		}
@@ -658,7 +650,7 @@ private void initializeRoots() {
 		}
 		elementDelta.addResourceDelta(delta);
 	}
-	private void popUntilPrefixOf(IPath path) {
+		private void popUntilPrefixOf(IPath path) {
 		while (this.currentElement != null) {
 			IPath currentElementPath = null;
 			if (this.currentElement instanceof IPackageFragmentRoot) {
@@ -673,12 +665,18 @@ private void initializeRoots() {
 					currentElementPath = currentElementResource.getFullPath();
 				}
 			}
-			if (currentElementPath != null 
-				&& currentElementPath.isPrefixOf(path)) {
+			if (currentElementPath != null) {
+				if (this.currentElement instanceof IPackageFragment 
+					&& this.currentElement.getElementName().length() == 0
+					&& currentElementPath.segmentCount() != path.segmentCount()-1) {
+						// default package and path is not a direct child
+						this.currentElement = (Openable)this.currentElement.getParent();
+				}
+				if (currentElementPath.isPrefixOf(path)) {
 					return;
-			} else {
-				this.currentElement = (Openable)this.currentElement.getParent();
+				}
 			}
+			this.currentElement = (Openable)this.currentElement.getParent();
 		}
 	}
 
