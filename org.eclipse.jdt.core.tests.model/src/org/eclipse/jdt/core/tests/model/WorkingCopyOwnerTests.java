@@ -40,18 +40,25 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		super(name);
 	}
 
+	public void setUpSuite() throws Exception {
+		createJavaProject("P");
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"}"
+		);
+	}
+
+	public void tearDownSuite() throws Exception {
+		deleteProject("P");
+	}
+
 	/*
 	 * Tests that a primary compilation unit can become a working copy.
 	 */
 	public void testBecomeWorkingCopy1() throws CoreException {
 		ICompilationUnit cu = null;
 		try {
-			createJavaProject("P");
-			createFile(
-				"P/x.java",
-				"public class X {\n" +
-				"}"
-			);
 			cu = getCompilationUnit("P/X.java");
 			assertTrue("should not be in working copy mode", !cu.isWorkingCopy());
 			
@@ -59,11 +66,27 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertTrue("should be in working copy mode", cu.isWorkingCopy());
 		} finally {
 			if (cu != null) {
-				while (cu.isWorkingCopy()) {
-					cu.discardWorkingCopy();
-				}
+				cu.discardWorkingCopy();
 			}
-			deleteProject("P");
 		}
 	}
+	
+	/*
+	 * Tests that a working copy remains a working copy when becomeWorkingCopy is called.
+	 */
+	public void testBecomeWorkingCopy2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/X.java").getWorkingCopy(new TestWorkingCopyOwner(), null, null);
+			assertTrue("should be in working copy mode", workingCopy.isWorkingCopy());
+			
+			workingCopy.becomeWorkingCopy(null, null);
+			assertTrue("should still be in working copy mode", workingCopy.isWorkingCopy());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
 }

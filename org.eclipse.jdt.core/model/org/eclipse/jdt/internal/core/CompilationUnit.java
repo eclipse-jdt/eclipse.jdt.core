@@ -34,16 +34,6 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
-	// TODO: Removed when IWorkingCopy#destroy is removed
-	private static final WorkingCopyOwner DESTROYED_WC_OWNER = new WorkingCopyOwner() {
-			public IBuffer createBuffer(ICompilationUnit compilationUnit) {
-				return null;
-			}
-			public String toString() {
-				return "Destroyed working copy owner"; //$NON-NLS-1$
-			}
-		};
-	
 	protected WorkingCopyOwner owner;
 
 /**
@@ -102,7 +92,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			throw newNotPresentException();
 		}
 	}
-	if (this.owner == DESTROYED_WC_OWNER) {
+	
+	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
+	if (this.owner != DefaultWorkingCopyOwner.PRIMARY && !isWorkingCopy()) {
 		throw newNotPresentException();
 	}
 
@@ -400,15 +392,7 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 public void destroy() {
 	try {
-		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
-		
 		discardWorkingCopy();
-		
-		if (perWorkingCopyInfo != null && perWorkingCopyInfo.useCount == 0) {
-			// mark as destroyed
-			this.owner = DESTROYED_WC_OWNER;
-		}
-		
 	} catch (JavaModelException e) {
 		e.printStackTrace();
 	}
@@ -926,8 +910,9 @@ protected boolean isValidCompilationUnit() {
  * @see ICompilationUnit#isWorkingCopy()
  */
 public boolean isWorkingCopy() {
-	// if owner is not primary, it cannot be in compilation unit mode
-	if (this.owner != DefaultWorkingCopyOwner.PRIMARY) return true;
+	// NB: we could optimize by checking if (this.owner != DefaultWorkingCopyOwner.PRIMARY),
+	//       but this would return true for discarded working copies
+
 	return getPerWorkingCopyInfo() != null;
 }
 /**
@@ -1110,7 +1095,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	if (this.owner == DESTROYED_WC_OWNER) {
+	if (this.owner != DefaultWorkingCopyOwner.PRIMARY) {
 		buffer.append(this.tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$
 		buffer.append(getElementName());
