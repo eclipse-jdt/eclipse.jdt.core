@@ -26,13 +26,6 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 
-
-protected void setUp() throws Exception {
-	super.setUp();
-	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");
-}
-
-
 	private IPackageFragmentRoot root;
 	
 public AttachSourceTests(String name) {
@@ -40,6 +33,10 @@ public AttachSourceTests(String name) {
 }
 public static Test suite() {
 	return new Suite(AttachSourceTests.class);
+}
+protected void setUp() throws Exception {
+	super.setUp();
+	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");
 }
 /**
  * Create project and set the jar placeholder.

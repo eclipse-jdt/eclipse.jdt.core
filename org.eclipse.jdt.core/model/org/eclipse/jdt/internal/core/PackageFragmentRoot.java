@@ -35,6 +35,10 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 	 * attachment server property.
 	 */
 	protected final static char ATTACHMENT_PROPERTY_DELIMITER= '*';
+	/*
+	 * No source mapper singleton
+	 */
+	protected final static SourceMapper NO_SOURCE_MAPPER = new SourceMapper();
 
 	/**
 	 * The resource associated with this root.
@@ -69,7 +73,6 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 		if (monitor != null) {
 			monitor.beginTask(Util.bind("element.attachingSource"), 2); //$NON-NLS-1$
 		}
-		SourceMapper mapper= null;
 		SourceMapper oldMapper= getSourceMapper();
 		IWorkspace workspace= getJavaModel().getWorkspace();
 		boolean rootNeedsToBeClosed= false;
@@ -77,6 +80,7 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 		if (sourcePath == null) {
 			//source being detached
 			rootNeedsToBeClosed= true;
+			setSourceMapper(null);
 		/* Disable deltas (see 1GDTUSD)
 			// fire a delta to notify the UI about the source detachement.
 			JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
@@ -116,16 +120,13 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 				}
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, sourcePath));
 			}
-			mapper= new SourceMapper(
-				sourcePath, 
-				rootPath == null ? null : rootPath.toOSString(), 
-				this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true)); // only project options if associated with resource
+			SourceMapper mapper = createSourceMapper(sourcePath, rootPath);
 			if (rootPath == null && mapper.rootPath != null) {
 				// as a side effect of calling the SourceMapper constructor, the root path was computed
 				rootPath = new Path(mapper.rootPath);
 			}
+			setSourceMapper(mapper);
 		}
-		setSourceMapper(mapper);
 		if (sourcePath == null) {
 			setSourceAttachmentProperty(null); //remove the property
 		} else {
@@ -159,6 +160,14 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 			monitor.done();
 		}
 	}
+}
+
+SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
+	SourceMapper mapper = new SourceMapper(
+		sourcePath, 
+		rootPath == null ? null : rootPath.toOSString(), 
+		this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true)); // only project options if associated with resource
+	return mapper;
 }
 /**
  * This root is being closed.  If this root has an associated source attachment, 
@@ -617,11 +626,41 @@ public IPath getSourceAttachmentRootPath() throws JavaModelException {
  * @see JavaElement
  */
 public SourceMapper getSourceMapper() {
+	SourceMapper mapper;
 	try {
-		return ((PackageFragmentRootInfo) getElementInfo()).getSourceMapper();
+		PackageFragmentRootInfo rootInfo = (PackageFragmentRootInfo) getElementInfo();
+		mapper = rootInfo.getSourceMapper();
+		if (mapper == null) {
+			// first call to this method
+			IPath sourcePath= getSourceAttachmentPath();
+			if (sourcePath != null) {
+				IPath rootPath= getSourceAttachmentRootPath();
+				mapper = this.createSourceMapper(sourcePath, rootPath);
+				if (rootPath == null && mapper.rootPath != null) {
+					// as a side effect of calling the SourceMapper constructor, the root path was computed
+					rootPath = new Path(mapper.rootPath);
+					
+					//set the property to the path of the mapped source
+					this.setSourceAttachmentProperty(
+						sourcePath.toString() 
+						+ ATTACHMENT_PROPERTY_DELIMITER 
+						+ rootPath.toString());
+				}
+				rootInfo.setSourceMapper(mapper);
+			} else {
+				// remember that no source is attached
+				rootInfo.setSourceMapper(NO_SOURCE_MAPPER);
+				mapper = null;
+			}
+		} else if (mapper == NO_SOURCE_MAPPER) {
+			// a previous call to this method found out that no source was attached
+			mapper = null;
+		}
 	} catch (JavaModelException e) {
-		return null;
+		// no source can be attached
+		mapper = null;
 	}
+	return mapper;
 }
 
 /**
@@ -681,15 +720,6 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 		throw newNotPresentException();
 	}
 	super.openWhenClosed(pm);
-	try {
-		//restore any stored attached source
-		IPath sourcePath= getSourceAttachmentPath();
-		if (sourcePath != null) {
-			IPath rootPath= getSourceAttachmentRootPath();
-			attachSource(sourcePath, rootPath, pm);
-		}
-	} catch(JavaModelException e){ // no attached source
-	}
 }
 
 /**

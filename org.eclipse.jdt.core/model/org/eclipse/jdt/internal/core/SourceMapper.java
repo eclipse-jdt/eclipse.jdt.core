@@ -151,6 +151,9 @@ public class SourceMapper
 	String encoding;
 	Map options;
 		
+	public SourceMapper() {
+	}
+	
 	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
