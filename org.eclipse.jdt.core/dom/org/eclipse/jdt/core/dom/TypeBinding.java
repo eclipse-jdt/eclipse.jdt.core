@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
@@ -135,7 +136,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IVariableBinding[] getDeclaredFields() {
 		try {
-			if (isClass() || isInterface() || isEnum()) {
+			if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				FieldBinding[] fields = referenceBinding.fields();
 				int length = fields.length;
@@ -199,7 +200,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding[] getDeclaredTypes() {
 		try {
-			if (isClass() || isInterface() || isEnum()) {
+			if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				ReferenceBinding[] members = referenceBinding.memberTypes();
 				int length = members.length;
@@ -223,19 +224,18 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaringClass()
 	 */
 	public ITypeBinding getDeclaringClass() {
-		if (this.binding.isArrayType() || this.binding.isBaseType()) {
-			return null;
-		}
-		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-		if (referenceBinding.isNestedType()) {
-			try {
-				return this.resolver.getTypeBinding(referenceBinding.enclosingType());
-			} catch (RuntimeException e) {
-				/* in case a method cannot be resolvable due to missing jars on the classpath
-				 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
-				 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
-				 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
-				 */
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
+			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+			if (referenceBinding.isNestedType()) {
+				try {
+					return this.resolver.getTypeBinding(referenceBinding.enclosingType());
+				} catch (RuntimeException e) {
+					/* in case a method cannot be resolvable due to missing jars on the classpath
+					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+					 */
+				}
 			}
 		}
 		return null;
@@ -287,9 +287,6 @@ class TypeBinding implements ITypeBinding {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
 
-	/*
-	 * @see ITypeBinding#getInterfaces()
-	 */
 	public ITypeBinding[] getInterfaces() {
 		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) {
 			return NO_TYPE_BINDINGS;
@@ -320,9 +317,6 @@ class TypeBinding implements ITypeBinding {
 		}
 	}
 	
-	/*
-	 * @see IBinding#getJavaElement()
-	 */
 	public IJavaElement getJavaElement() {
 		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) return null;
 		ReferenceBinding referenceBinding;
@@ -414,12 +408,17 @@ class TypeBinding implements ITypeBinding {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			// clear the AccAbstract and the AccInterface bits
-			return accessFlags & ~(Modifier.ABSTRACT | 0x200);
+			return accessFlags & ~(IConstants.AccAbstract | IConstants.AccInterface);
 		} else if (isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			// clear the AccEnum bits
-			return accessFlags & ~0x4000;
+			return accessFlags & ~IConstants.AccEnum;
+		} else if (isAnnotation()) {
+			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
+			// clear the AccAbstract, AccAnnotation and the AccInterface bits
+			return accessFlags & ~(IConstants.AccAbstract | IConstants.AccInterface | IConstants.AccAnnotation);			
 		} else {
 			return 0;
 		}
@@ -738,7 +737,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isAnonymous()
 	 */
 	public boolean isAnonymous() {
-		if (isClass() || binding.isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isAnonymousType();
 		}
@@ -788,7 +787,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#isDeprecated()
 	 */
 	public boolean isDeprecated() {
-		if (isClass() || isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isDeprecated();
 		}
@@ -827,7 +826,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isFromSource()
 	 */
 	public boolean isFromSource() {
-		if (isClass() || isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isRawType()) {
 				return !((RawTypeBinding) referenceBinding).type.isBinaryBinding();
@@ -856,7 +855,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isLocal()
 	 */
 	public boolean isLocal() {
-		if (isClass() || isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isLocalType() && !referenceBinding.isMemberType();
 		}
@@ -867,7 +866,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isMember()
 	 */
 	public boolean isMember() {
-		if (isClass() || isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isMemberType();
 		}
@@ -878,7 +877,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isNested()
 	 */
 	public boolean isNested() {
-		if (isClass() || isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isNestedType();
 		}
@@ -935,7 +934,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isTopLevel()
 	 */
 	public boolean isTopLevel() {
-		if (isClass() || isInterface() || isEnum()) {
+		if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return !referenceBinding.isNestedType();
 		}

@@ -4166,4 +4166,45 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IPackageBinding packageBinding = (IPackageBinding) binding;
 		assertEquals("wrong name", "test0139a", packageBinding.getName());
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85115
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85215
+	 */
+	public void test0140() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0140", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		List modifiers = enumDeclaration.modifiers();
+		assertEquals("Wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Wrong type", modifier instanceof MarkerAnnotation);
+		MarkerAnnotation markerAnnotation = (MarkerAnnotation) modifier;
+		ITypeBinding typeBinding = markerAnnotation.resolveTypeBinding();
+		assertTrue("Not an annotation", typeBinding.isAnnotation());
+		assertTrue("Not a top level type", typeBinding.isTopLevel());
+		
+		sourceUnit = getCompilationUnit("Converter15" , "src", "test0140", "Annot.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not an annotation declaration", ASTNode.ANNOTATION_TYPE_DECLARATION, node.getNodeType());
+		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
+		modifiers = annotationTypeDeclaration.modifiers();
+		assertEquals("Wrong size", 1, modifiers.size());
+		typeBinding = annotationTypeDeclaration.resolveBinding();
+		int modifierValue = typeBinding.getModifiers();
+		assertEquals("Type is not public", Modifier.PUBLIC, modifierValue);
+	}
 }

@@ -593,7 +593,8 @@ public interface ITypeBinding extends IBinding {
 	 * original source, since the compiler may change them (in particular, 
 	 * for inner class emulation). The <code>getDeclaredModifiers</code> method
 	 * should be used if the original modifiers are needed. 
-	 * Returns 0 if this type does not represent a class or interface.
+	 * Returns 0 if this type does not represent a class, interface, enum, or annotation
+	 * type.
 	 * 
 	 * @return the compiled modifiers for this type binding or 0
 	 * if this type does not represent a class, interface, enum, or annotation
