@@ -1207,6 +1207,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "1.3", "1.4" }
 	 *     - default:				"1.3"
 	 * 
+	 * BUILDER / Specifying Filters for Resource Copying Control
+	 *    Allow to specify some filters to control the resource copy process
+	 *     - option id:				"org.eclipse.jdt.core.compiler.compliance"
+	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
+	 *     - default:				"cvs,.*"
+	 * 
 	 *	JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
 	 *    the classpath prerequisite chain. When requesting to compute, this takes over
@@ -1215,7 +1221,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "compute", "ignore" }
 	 *     - default:				"ignore"	 
 	 * 
-	 * JAVACORE / Default Source Encoding Format
+	 * JAVACORE / Specify Default Source Encoding Format
 	 *    Select the encoding format for compiled sources.
 	 *     - option id:				"org.eclipse.jdt.core.encoding"
 	 *     - possible values:	{ "" for platform default, or any of the supported encoding name}.
@@ -1326,6 +1332,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		defaultOptions.put("org.eclipse.jdt.core.compiler.source", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
 		defaultOptions.put("org.eclipse.jdt.core.compiler.compliance", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
 
+		// Builder settings
+		defaultOptions.put("org.eclipse.jdt.core.builder.resourceCopyFilter", "cvs,.*"); //$NON-NLS-1$ //$NON-NLS-2$
+		
 		// JavaCore settings
 		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
 		defaultOptions.put("org.eclipse.jdt.core.encoding", ""); //$NON-NLS-1$ //$NON-NLS-2$

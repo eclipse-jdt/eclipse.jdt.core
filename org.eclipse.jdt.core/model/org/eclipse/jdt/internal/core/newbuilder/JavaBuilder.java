@@ -28,11 +28,13 @@ IContainer[] sourceFolders;
 SimpleLookupTable prereqOutputFolders; // maps a prereq project to its output folder
 State lastState;
 BuildNotifier notifier;
+char[][] resourceFilters;
 
 public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
 public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
 public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
+public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.builder.resourceCopyFilter";//$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
@@ -277,6 +279,12 @@ private void initializeBuilder() throws CoreException {
 		prereqOutputFolders);
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
+	
+	String filterSequence = (String)JavaCore.getOptions().get(OPTION_ResourceCopyFilter);
+	if (filterSequence != null){
+		this.resourceFilters = CharOperation.splitOn(',', filterSequence.toCharArray());
+		// pattern match a resource/folder name with: CharOperation.match(resourceFilters[0], rscName, true);
+	}
 }
 
 private void recordNewState(State state) {
