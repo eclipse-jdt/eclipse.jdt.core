@@ -1754,19 +1754,22 @@ public class JavaProject
 	 	Preferences preferences = new Preferences();
 	 	
 //		File prefFile = getProject().getLocation().append(PREF_FILENAME).toFile();
-		File prefFile = getProject().getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor()).append(PREF_FILENAME).toFile();
-		if (prefFile.exists()) { // load preferences from file
-			InputStream in = null;
-			try {
-				in = new BufferedInputStream(new FileInputStream(prefFile));
-				preferences.load(in);
-				return preferences;
-			} catch (IOException e) { // problems loading preference store - quietly ignore
-			} finally {
-				if (in != null) {
-					try {
-						in.close();
-					} catch (IOException e) { // ignore problems with close
+		IPath projectMetaLocation = getProject().getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor());
+		if (projectMetaLocation != null) {
+			File prefFile = projectMetaLocation.append(PREF_FILENAME).toFile();
+			if (prefFile.exists()) { // load preferences from file
+				InputStream in = null;
+				try {
+					in = new BufferedInputStream(new FileInputStream(prefFile));
+					preferences.load(in);
+					return preferences;
+				} catch (IOException e) { // problems loading preference store - quietly ignore
+				} finally {
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) { // ignore problems with close
+						}
 					}
 				}
 			}
