@@ -12219,5 +12219,23 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null,
 			false, // do not flush output
 			null);		
-	}		
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81721
+	public void _test456() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" + 
+				"	<S extends T> void doTest(S[] a);\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class AbstractTest<U> implements I<U> {\n" + 
+				"	public <V extends U> void doTest(V[] a) {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<M> extends AbstractTest<M> {}\n",
+			},
+			"");
+	}			
 }

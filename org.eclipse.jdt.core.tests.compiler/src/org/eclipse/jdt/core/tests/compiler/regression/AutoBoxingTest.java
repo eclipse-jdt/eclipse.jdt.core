@@ -2133,4 +2133,78 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			""
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407
+	public void _test079() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"public class X {\n" + 
+				"	static HashMap<Character, Character> substitutionList(String s1, String s2) {\n" + 
+				"		HashMap<Character, Character> subst = new HashMap<Character, Character>();\n" + 
+				"		for (int i = 0; i < s1.length(); i++) {\n" + 
+				"			char key = s1.charAt(i);\n" + 
+				"			char value = s2.charAt(i);\n" + 
+				"			if (subst.containsKey(key)) {\n" + 
+				"				if (value != subst.get(key)) {\n" + 
+				"					return null;\n" + 
+				"				}\n" + 
+				"			} else if (subst.containsValue(value)) {\n" + 
+				"				return null;\n" + 
+				"			} else {\n" + 
+				"				subst.put(key, value);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return subst;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"Bogon\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407 - variation
+	public void _test080() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		HashMap<Character, Character> subst = new HashMap<Character, Character>();\n" + 
+				"		subst.put(\'a\', \'a\');\n" + 
+				"		if (\'a\' == subst.get(\'a\')) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407 - variation
+	public void _test081() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		HashMap<Byte, Byte> subst = new HashMap<Byte, Byte>();\n" + 
+				"		subst.put((byte)1, (byte)1);\n" + 
+				"		if (1 + subst.get((byte)1) > 0.f) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}		\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
 }
