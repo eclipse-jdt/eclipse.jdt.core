@@ -99,10 +99,16 @@ protected void executeOperation() throws JavaModelException {
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(original);
 
 	// save the cu
-	original.getBuffer().setContents(copy.getBuffer().getCharacters());
-	original.save(fMonitor, fForce);
-	this.hasModifiedResource = true;
-
+	char[] originalContents = original.getBuffer().getCharacters();
+	try {
+		original.getBuffer().setContents(copy.getBuffer().getCharacters());
+		original.save(fMonitor, fForce);
+		this.hasModifiedResource = true;
+	} catch(JavaModelException e){
+		// restore original buffer contents since something went wrong
+		original.getBuffer().setContents(originalContents);
+		throw e;
+	}
 	// make sure working copy is in sync
 	copy.restore();
 	worked(1);
@@ -133,6 +139,7 @@ protected ICompilationUnit getCompilationUnit() {
  *		based on no longer exists.
  *  <li>UPDATE_CONFLICT - the original compilation unit has changed since
  *		the working copy was created and the operation specifies no force
+ *  <li>READ_ONLY - the original compilation unit is in read-only mode
  *  </ul>
  */
 public IJavaModelStatus verify() {
@@ -149,6 +156,9 @@ public IJavaModelStatus verify() {
 	}
 	if (!cu.isBasedOn(resource) && !fForce) {
 		return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
+	}
+	if (resource.isReadOnly()){
+		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, original);
 	}
 	return JavaModelStatus.VERIFIED_OK;
 }
