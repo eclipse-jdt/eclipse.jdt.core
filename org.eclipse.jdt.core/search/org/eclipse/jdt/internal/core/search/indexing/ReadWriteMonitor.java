@@ -61,6 +61,8 @@ public synchronized void exitWrite() {
 	if (++status == 0) notifyAll();
 }
 /**
+ * Atomic exitWrite/enterRead: Allows to keep monitor in between
+ * exit write and next enter read.
  * When writing is over, all readers are granted permissing to restart
  * concurrently.
  * This is the same as:
