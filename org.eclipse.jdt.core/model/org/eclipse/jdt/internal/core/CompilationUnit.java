@@ -279,7 +279,7 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
 	if (!isWorkingCopy()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
 	}
-	ICompilationUnit original = (ICompilationUnit)this.getOriginalElement();
+	ICompilationUnit original = (ICompilationUnit)this.getOriginalElement(); // TODO (jerome) shouldn't it use #getPrimary instead ?
 	if (original.exists()) {
 		CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
 		runOperation(op, monitor);
