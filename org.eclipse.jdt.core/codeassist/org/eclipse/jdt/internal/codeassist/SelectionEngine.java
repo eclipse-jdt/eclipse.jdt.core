@@ -258,7 +258,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			int nextCharacterPosition = selectionStart;
 			char currentCharacter = ' ';
 			try {
-				while(currentPosition > 0 || currentCharacter == '\r' || currentCharacter == '\n'){
+				while(currentPosition > 0){
 					
 					if(source[currentPosition] == '\\' && source[currentPosition+1] == 'u') {
 						int pos = currentPosition + 2;
