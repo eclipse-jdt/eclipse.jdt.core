@@ -42,7 +42,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
 				}
 			} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
-				classpaths[i] = this.getClasspathJar(file, true); // will throw an IOException if file does not exist
+				classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
 				pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
 			}
 		} catch (IOException e) {
@@ -120,8 +120,8 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 			typeName);
 	return null;
 }
-public ClasspathJar getClasspathJar(File file, boolean closeZipFileAtEnd) throws IOException {
-	return new ClasspathJar(new ZipFile(file), closeZipFileAtEnd);
+public ClasspathJar getClasspathJar(File file) throws IOException {
+	return new ClasspathJar(new ZipFile(file), true);
 }
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, File.separatorChar));

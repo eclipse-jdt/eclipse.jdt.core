@@ -29,7 +29,7 @@ public ClasspathJar getClasspathJar(File file) throws IOException {
 		ZipFile zipFile = JavaModelManager.getJavaModelManager().getZipFile(new Path(file.getPath()));
 		return new ClasspathJar(zipFile, false);
 	} catch (CoreException e) {
-		return super.getClasspathJar(file, true);
+		return super.getClasspathJar(file);
 	}
 }
 }
