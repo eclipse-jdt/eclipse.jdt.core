@@ -21,7 +21,8 @@ Previous behaviour was to select identifier between selection start and identifi
 (e.g. if you select <b>File</b> in <b>File</b>Input, now the selection engine select the class File and not FileInput)
 <li> Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6839">6839</a> required to increment the index signature 
 version so as to trigger automatic reindexing on workspace startup (and thus get rid of undesired anonymous type entries
-in the index files).
+in the index files). Further startups will not reindex any further (only if inconsistency is detected, e.g. signature version
+is different).
 </ul>
 
 <h3>
