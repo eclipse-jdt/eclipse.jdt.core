@@ -34,7 +34,6 @@ char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
 
 public static boolean DEBUG = false;
-public static Map PreferredClasspaths, PreferredOutputs;
 
 /**
  * A list of project names that have been built.
@@ -64,14 +63,10 @@ public static IMarker[] getTasksFor(IResource resource) {
 }
 
 public static void startingBuilding(Map preferredClasspaths, Map preferredOutputs) {
-	PreferredClasspaths = preferredClasspaths;
-	PreferredOutputs = preferredOutputs;
 }
 
 public static void finishedBuilding() {
 	BuildNotifier.resetProblemCounters();
-	PreferredClasspaths = null;
-	PreferredOutputs = null;
 }
 
 public static void removeProblemsFor(IResource resource) {
@@ -538,7 +533,7 @@ private boolean isWorthBuilding() throws CoreException {
  */
 void mustPropagateStructuralChanges() {
 	HashSet cycleParticipants = new HashSet(3);
-	javaProject.updateCycleParticipants(null, new ArrayList(), cycleParticipants, workspaceRoot, new HashSet(3), PreferredClasspaths);
+	javaProject.updateCycleParticipants(new ArrayList(), cycleParticipants, workspaceRoot, new HashSet(3), null);
 	IPath currentPath = javaProject.getPath();
 	Iterator i= cycleParticipants.iterator();
 	while (i.hasNext()) {

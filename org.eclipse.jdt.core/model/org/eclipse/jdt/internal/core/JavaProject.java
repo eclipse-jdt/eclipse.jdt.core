@@ -1071,7 +1071,7 @@ public class JavaProject
 	
 	/**
 	 * Remove all markers denoting classpath problems
-	 */ //TODO should improve to use a bitmask instead of booleans (CYCLE, FORMAT, VALID)
+	 */ //TODO (philippe) should improve to use a bitmask instead of booleans (CYCLE, FORMAT, VALID)
 	protected void flushClasspathProblemMarkers(boolean flushCycleMarkers, boolean flushClasspathFormatMarkers) {
 		try {
 			IProject project = getProject();
@@ -1894,9 +1894,11 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath) {// TODO could reuse map and remove first arg
+	public boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath) {
 		HashSet cycleParticipants = new HashSet();
-		updateCycleParticipants(preferredClasspath, new ArrayList(2), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot(), new HashSet(2), null);
+		HashMap preferredClasspaths = new HashMap(1);
+		preferredClasspaths.put(this, preferredClasspath);
+		updateCycleParticipants(new ArrayList(2), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot(), new HashSet(2), preferredClasspaths);
 		return !cycleParticipants.isEmpty();
 	}
 	
@@ -2555,7 +2557,7 @@ public class JavaProject
 				JavaProject project = (projects[i] = (JavaProject)JavaCore.create(rscProjects[i]));
 				if (!traversed.contains(project.getPath())){
 					prereqChain.clear();
-					project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, traversed, preferredClasspaths);
+					project.updateCycleParticipants(prereqChain, cycleParticipants, workspaceRoot, traversed, preferredClasspaths);
 				}
 			}
 		}
@@ -2595,7 +2597,6 @@ public class JavaProject
 	 * no cycle if the set is empty (and started empty)
 	 */
 	public void updateCycleParticipants(
-			IClasspathEntry[] preferredClasspath, 
 			ArrayList prereqChain, 
 			HashSet cycleParticipants, 
 			IWorkspaceRoot workspaceRoot,
@@ -2606,8 +2607,8 @@ public class JavaProject
 		prereqChain.add(path);
 		traversed.add(path);
 		try {
-			IClasspathEntry[] classpath = preferredClasspath;
-			if (classpath == null && preferredClasspaths != null) classpath = (IClasspathEntry[])preferredClasspaths.get(this);
+			IClasspathEntry[] classpath = null;
+			if (preferredClasspaths != null) classpath = (IClasspathEntry[])preferredClasspaths.get(this);
 			if (classpath == null) classpath = getResolvedClasspath(true);
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
@@ -2624,7 +2625,7 @@ public class JavaProject
 							IResource member = workspaceRoot.findMember(prereqProjectPath);
 							if (member != null && member.getType() == IResource.PROJECT){
 								JavaProject project = (JavaProject)JavaCore.create((IProject)member);
-								project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, traversed, preferredClasspaths);
+								project.updateCycleParticipants(prereqChain, cycleParticipants, workspaceRoot, traversed, preferredClasspaths);
 							}
 						}
 					}

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.internal.resources.TestingSupport;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -54,11 +55,7 @@ public ClasspathTests(String name) {
 	super(name);
 }
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
-	try { // wait for autobuild notification to occur
-		Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-	} catch (OperationCanceledException e) {
-	} catch (InterruptedException e) {
-	}
+	waitForAutoBuild();
 	StringBuffer expected = new StringBuffer("{");
 	int expectedCount = 0;
 	StringBuffer computed = new StringBuffer("{");			
@@ -82,11 +79,7 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 	assertEquals("Invalid cycle detection after setting classpath for: "+project.getElementName(), expected.toString(), computed.toString());
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
-	try { // wait for autobuild notification to occur
-		Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-	} catch (OperationCanceledException e) {
-	} catch (InterruptedException e) {
-	}
+	waitForAutoBuild();
 	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	this.sortMarkers(markers);
 	StringBuffer buffer = new StringBuffer();

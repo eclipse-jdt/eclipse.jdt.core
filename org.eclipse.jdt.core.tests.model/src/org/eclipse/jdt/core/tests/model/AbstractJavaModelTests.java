@@ -924,5 +924,16 @@ public void stopDeltas() {
 	JavaCore.removeElementChangedListener(this.deltaListener);
 	clearDeltas();
 }
-
+/**
+ * Wait for autobuild notification to occur
+ */
+public static void waitForAutoBuild() {
+	try {
+		Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+	} catch (OperationCanceledException e) {
+		e.printStackTrace();
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+	}
+}
 }
