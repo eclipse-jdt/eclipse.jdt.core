@@ -638,6 +638,224 @@ public void test0016() {
 		expectedReplacedSource,
 		testName);
 }
+public void test0017() {
+
+	String str =
+		"public class X {		\n" + 
+		"  public <T>X() {								\n" +
+		"  }           								\n" +
+		"  void foo(){;								\n" +
+		"    new <Object>X();								\n" +
+		"  }           								\n" +
+		"}											\n"; 
+
+	String selection = "X";
+	
+	String expectedCompletionNodeToString = "<SelectOnAllocationExpression:new <Object>X()>";
+	
+	String completionIdentifier = "X";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public <T>X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    <SelectOnAllocationExpression:new <Object>X()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "new <Object>X()";
+	String testName = "<select type>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0018() {
+
+	String str =
+		"public class X <U>{		\n" + 
+		"  public <T>X() {								\n" +
+		"  }           								\n" +
+		"  void foo(){;								\n" +
+		"    new <Object>X<String>();								\n" +
+		"  }           								\n" +
+		"}											\n"; 
+
+	String selection = "X";
+	
+	String expectedCompletionNodeToString = "<SelectOnAllocationExpression:new <Object>X<String>()>";
+	
+	String completionIdentifier = "X";
+	String expectedUnitDisplayString =
+		"public class X<U> {\n" + 
+		"  public <T>X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    <SelectOnAllocationExpression:new <Object>X<String>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "new <Object>X<String>()";
+	String testName = "<select type>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0019() {
+
+	String str =
+		"public class X {		\n" + 
+		"  public class Inner {								\n" +
+		"    public <U> Inner() {  								\n" +
+		"    }           								\n" +
+		"  }           								\n" +
+		"  void foo(X x){;								\n" +
+		"    x.new <Object>Inner();								\n" +
+		"  }           								\n" +
+		"}											\n"; 
+
+	String selection = "Inner";
+	
+	String expectedCompletionNodeToString = "<SelectOnQualifiedAllocationExpression:x.new <Object>Inner()>";
+	
+	String completionIdentifier = "Inner";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public class Inner {\n" + 
+		"    public <U>Inner() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(X x) {\n" + 
+		"    <SelectOnQualifiedAllocationExpression:x.new <Object>Inner()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "x.new <Object>Inner()";
+	String testName = "<select type>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0020() {
+
+	String str =
+		"public class X {		\n" + 
+		"  public class Inner<T> {								\n" +
+		"    public <U> Inner() {  								\n" +
+		"    }           								\n" +
+		"  }           								\n" +
+		"  void foo(X x){;								\n" +
+		"    x.new <Object>Inner<String>();								\n" +
+		"  }           								\n" +
+		"}											\n"; 
+
+	String selection = "Inner";
+	
+	String expectedCompletionNodeToString = "<SelectOnQualifiedAllocationExpression:x.new <Object>Inner<String>()>";
+	
+	String completionIdentifier = "Inner";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public class Inner<T> {\n" + 
+		"    public <U>Inner() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(X x) {\n" + 
+		"    <SelectOnQualifiedAllocationExpression:x.new <Object>Inner<String>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "x.new <Object>Inner<String>()";
+	String testName = "<select type>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void test0021() {
+
+	String str =
+		"public class X<V> {		\n" + 
+		"  public class Inner<T> {								\n" +
+		"    public <U> Inner() {  								\n" +
+		"    }           								\n" +
+		"  }           								\n" +
+		"  void foo(){;								\n" +
+		"    new X<String>().new <Object>Inner<String>();								\n" +
+		"  }           								\n" +
+		"}											\n"; 
+
+	String selection = "Inner";
+	
+	String expectedCompletionNodeToString = "<SelectOnQualifiedAllocationExpression:new X<String>().new <Object>Inner<String>()>";
+	
+	String completionIdentifier = "Inner";
+	String expectedUnitDisplayString =
+		"public class X<V> {\n" + 
+		"  public class Inner<T> {\n" + 
+		"    public <U>Inner() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    <SelectOnQualifiedAllocationExpression:new X<String>().new <Object>Inner<String>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "new X<String>().new <Object>Inner<String>()";
+	String testName = "<select type>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 /*
  * Selection of simple name
  */

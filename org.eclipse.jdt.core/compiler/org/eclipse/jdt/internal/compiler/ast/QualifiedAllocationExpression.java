@@ -178,16 +178,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		if (enclosingInstance != null)
 			enclosingInstance.printExpression(0, output).append('.'); 
-		if (typeArguments != null) {
-			output.append('<');//$NON-NLS-1$
-			int max = typeArguments.length - 1;
-			for (int j = 0; j < max; j++) {
-				typeArguments[j].print(0, output);
-				output.append(", ");//$NON-NLS-1$
-			}
-			typeArguments[max].print(0, output);
-			output.append('>');
-		}
 		super.printExpression(0, output);
 		if (anonymousType != null) {
 			anonymousType.print(indent, output);

@@ -173,6 +173,128 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 		this.isOrphanCompletionNode = true;
 	}
 }
+protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
+	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+
+	QualifiedAllocationExpression alloc;
+	int length;
+	if (((length = this.astLengthStack[this.astLengthPtr]) == 1) && (this.astStack[this.astPtr] == null)) {
+		
+		if (this.indexOfAssistIdentifier() < 0) {
+			super.consumeClassInstanceCreationExpressionQualifiedWithTypeArguments();
+			return;
+		}
+		
+		//NO ClassBody
+		this.astPtr--;
+		this.astLengthPtr--;
+		alloc = new SelectionOnQualifiedAllocationExpression();
+		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
+
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			this.expressionPtr -= length;
+			System.arraycopy(
+				this.expressionStack, 
+				this.expressionPtr + 1, 
+				alloc.arguments = new Expression[length], 
+				0, 
+				length); 
+		}
+		
+		// trick to avoid creating a selection on type reference
+		char [] oldIdent = this.assistIdentifier();
+		this.setAssistIdentifier(null);
+		alloc.type = getTypeReference(0);
+		
+		this.setAssistIdentifier(oldIdent);
+
+		length = this.genericsLengthStack[this.genericsLengthPtr--];
+		this.genericsPtr -= length;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		// TODO  (olivier) bug 67790 remove once DOMParser is activated
+		intPtr--;
+
+		//the default constructor with the correct number of argument
+		//will be created and added by the TC (see createsInternalConstructorWithBinding)
+		alloc.sourceStart = this.intStack[this.intPtr--];
+		pushOnExpressionStack(alloc);
+		
+		this.assistNode = alloc;
+		this.lastCheckPoint = alloc.sourceEnd + 1;
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
+		this.isOrphanCompletionNode = true;
+	} else {
+		super.consumeClassInstanceCreationExpressionQualifiedWithTypeArguments();
+	}
+
+	this.expressionLengthPtr--;
+	QualifiedAllocationExpression qae = 
+		(QualifiedAllocationExpression) this.expressionStack[this.expressionPtr--]; 
+	qae.enclosingInstance = this.expressionStack[this.expressionPtr];
+	this.expressionStack[this.expressionPtr] = qae;
+	qae.sourceStart = qae.enclosingInstance.sourceStart;
+}
+protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
+	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
+	AllocationExpression alloc;
+	int length;
+	if (((length = this.astLengthStack[this.astLengthPtr]) == 1)
+		&& (this.astStack[this.astPtr] == null)) {
+		
+		if (this.indexOfAssistIdentifier() < 0) {
+			super.consumeClassInstanceCreationExpressionWithTypeArguments();
+			return;
+		}
+		
+		//NO ClassBody
+		this.astPtr--;
+		this.astLengthPtr--;
+		alloc = new SelectionOnQualifiedAllocationExpression();
+		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
+
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			this.expressionPtr -= length;
+			System.arraycopy(
+				this.expressionStack, 
+				this.expressionPtr + 1, 
+				alloc.arguments = new Expression[length], 
+				0, 
+				length); 
+		}
+		
+		// trick to avoid creating a selection on type reference
+		char [] oldIdent = this.assistIdentifier();
+		this.setAssistIdentifier(null);
+		alloc.type = getTypeReference(0);
+		
+		this.setAssistIdentifier(oldIdent);
+
+		length = this.genericsLengthStack[this.genericsLengthPtr--];
+		this.genericsPtr -= length;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		// TODO (olivier) bug 67790 remove once DOMParser is activated
+		intPtr--;
+		
+		//the default constructor with the correct number of argument
+		//will be created and added by the TC (see createsInternalConstructorWithBinding)
+		alloc.sourceStart = this.intStack[this.intPtr--];
+		pushOnExpressionStack(alloc);
+		
+		this.assistNode = alloc;
+		this.lastCheckPoint = alloc.sourceEnd + 1;
+		if (!diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;	
+		}
+		this.isOrphanCompletionNode = true;
+	} else {
+		super.consumeClassInstanceCreationExpressionWithTypeArguments();
+	}
+}
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
 
