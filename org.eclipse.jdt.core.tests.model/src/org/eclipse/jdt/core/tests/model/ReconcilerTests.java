@@ -162,6 +162,10 @@ public void setUpSuite() throws Exception {
 			"package java.util;\n" +
 			"public class Stack<T> {\n" +
 			"}",
+			"java/util/Map.java",
+			"package java.util;\n" +
+			"public interface Map<K,V> {\n" +
+			"}",			
 		},
 		options15,
 		project.getLocation().toOSString() + File.separator + "lib15.jar"
@@ -1035,9 +1039,9 @@ public void testMethodWithError11() throws CoreException {
 			"package test.cheetah;\n"+
 			"import java.util.*;\n"+
 			"public class NestedGenerics {\n"+
-			"    Map<List<Object>, String> stack = null;\n"+
+			"    Map<List<Object>,String> map = null;\n"+
 			"    Stack<List<Object>> stack2 = null;\n"+
-			"    Map<List<Object>,List<Object>> stack3 = null;\n"+
+			"    Map<List<Object>,List<Object>> map3 = null;\n"+
 			"}\n"
 		);
 		workingCopy1.makeConsistent(null);
@@ -1049,9 +1053,9 @@ public void testMethodWithError11() throws CoreException {
 			"import java.util.*;\n"+
 			"public class NestedGenericsTest {\n"+
 			"    void test() {  \n"+
-			"        Stack s = new NestedGenerics().stack;  \n"+
+			"        Map m = new NestedGenerics().map;  \n"+
 			"		 Stack s2 = new NestedGenerics().stack2;    \n"+
-			"        Map s3 = new NestedGenerics().stack3;    \n"+
+			"        Map m3 = new NestedGenerics().map3;    \n"+
 			"    }\n"+
 			"}\n"
 		);
