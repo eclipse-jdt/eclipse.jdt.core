@@ -22,8 +22,7 @@ public class AllPerformanceTests extends TestCase {
 			FullSourceWorkspaceSearchTests.class,	// need to be run first to avoid OutOfMemory error with default VM memory heap size
 			FullSourceWorkspaceBuildTests.class,
 			FullSourceWorkspaceASTTests.class,
-			FullSourceWorkspaceTypeHierarchyTests.class,
-			BuildBatchCompilerTest.class
+			FullSourceWorkspaceTypeHierarchyTests.class
 		};
 	}
 	public static Test suite() {
