@@ -823,9 +823,13 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			interfaceNames = new char[superInterfacesLength][];
 		} else {
 			if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
-				superInterfaces = new TypeReference[] { ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type};
-				superInterfacesLength = 1;
-				interfaceNames = new char[1][];
+				// see PR 3442
+				QualifiedAllocationExpression alloc = ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation;
+				if (alloc != null && alloc.type != null) {
+					superInterfaces = new TypeReference[] { ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type};
+					superInterfacesLength = 1;
+					interfaceNames = new char[1][];
+				}
 			}
 		}
 		if (superInterfaces != null) {
