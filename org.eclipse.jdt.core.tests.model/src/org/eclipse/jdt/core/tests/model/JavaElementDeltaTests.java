@@ -178,6 +178,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation1"));
 	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation2"));
 	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation3"));
+	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation4"));
 	suite.addTest(new JavaElementDeltaTests("testChangeCustomOutput"));
 	
 	return suite;
@@ -1290,6 +1291,35 @@ public void testModifyOutputLocation3() throws CoreException {
 		
 		this.startDeltas();
 		this.createFile("/P/bin/X.class", "");
+		assertDeltas(
+			"Unexpected delta",
+			""
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that modifying a custom output location (i.e. simulate a build) doesn't report any delta.
+ * (regression test for bug 32629 DeltaProcessor walking some binary output)
+ */
+public void testModifyOutputLocation4() throws CoreException {
+	try {
+		this.createJavaProject("P");
+		this.editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry excluding=\"src/\" kind=\"src\" output=\"bin1\" path=\"\"/>\n" +
+			"    <classpathentry kind=\"src\" output=\"bin2\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		this.createFolder("/P/bin2");
+
+		this.startDeltas();
+		this.createFile("/P/bin2/X.class", "");
 		assertDeltas(
 			"Unexpected delta",
 			""

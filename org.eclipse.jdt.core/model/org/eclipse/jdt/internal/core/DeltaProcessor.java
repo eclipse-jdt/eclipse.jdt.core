@@ -1248,13 +1248,11 @@ public class DeltaProcessor implements IResourceChangeListener {
 							} else {
 								traverseModes[outputCount++] = IGNORE;
 							}
-							break;
 						}
 						
 						// check case of src==bin
 						if (entryPath.equals(projectOutput)) {
 							traverseModes[0] = (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) ? SOURCE : BINARY;
-							break;
 						}
 					}
 					return new OutputsInfo(outputs, traverseModes, outputCount);
