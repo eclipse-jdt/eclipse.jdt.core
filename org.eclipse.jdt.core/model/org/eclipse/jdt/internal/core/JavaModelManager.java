@@ -329,8 +329,10 @@ public static IJavaElement determineIfOnClasspath(
 	static class PerProjectInfo {
 		IProject project;
 		Object savedState;
-		boolean triedRead = false;
+		boolean triedRead;
 		PerProjectInfo(IProject project) {
+			this.triedRead = false;
+			this.savedState = null;
 			this.project = project;
 		}
 	};
@@ -604,19 +606,18 @@ public void doneSaving(ISaveContext context){
 	 * @private for use by image builder and evaluation support only
 	 */
 	public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
-		PerProjectInfo info= getPerProjectInfo(project);
-		Object state= info.savedState;
-		if (state == null && !info.triedRead) {
-			info.triedRead= true;
+		PerProjectInfo info = getPerProjectInfo(project);
+		if (!info.triedRead) {
+			info.triedRead = true;
 			try {
 				if (monitor != null)
 					monitor.subTask(Util.bind("build.readStateProgress", project.getName())); //$NON-NLS-1$
-				state = readState(project);
+				info.savedState = readState(project);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
 		}
-		return state;
+		return info.savedState;
 	}
 	/**
 	 * Returns the per-project info for the given project.
@@ -818,7 +819,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
 					if (in.readBoolean())
 						return JavaBuilder.readState(in);
-					else if (JavaBuilder.DEBUG)
+					if (JavaBuilder.DEBUG)
 						System.out.println("Saved state thinks last build failed for " + project.getName()); //$NON-NLS-1$
 				} finally {
 					in.close();
@@ -1121,7 +1122,7 @@ public void saving(ISaveContext context) throws CoreException {
 	 */
 	public void setLastBuiltState(IProject project, Object state) {
 		PerProjectInfo info = getPerProjectInfo(project);
-		info.triedRead= true; // no point trying to re-read once using setter
+		info.triedRead = true; // no point trying to re-read once using setter
 		info.savedState = state;
 	}
 	public void shutdown () {
