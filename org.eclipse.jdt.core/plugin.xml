@@ -200,5 +200,13 @@
         file-names="MANIFEST.MF"
         default-charset="UTF-8"/>
 </extension>
+      
+<!-- =================================================================================== -->
+<!-- Extension: Eclipse preferences initializer                                          -->
+<!-- =================================================================================== -->
+<extension
+      point="org.eclipse.core.runtime.preferences">
+   <initializer class="org.eclipse.jdt.core.JavaCorePreferenceInitializer"/>
+</extension>
 
 </plugin>
