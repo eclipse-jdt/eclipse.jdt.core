@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 /**
  * A parameterized type encapsulates a type with type arguments,
  */
@@ -26,7 +28,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.fPackage = type.fPackage;
 		this.fileName = type.fileName;
 		this.arguments = typeArguments;
-		this.tagBits = type.tagBits | IsParameterizedType;
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 	}
 	
@@ -35,7 +36,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public TypeBinding[] argumentSubstitution(ReferenceBinding targetType) {
 	    
-	    if (!this.isGeneric()) return null;
+//	    if (!this.isGeneric()) return null;
 	    TypeVariableBinding[] targetVariables = targetType.typeVariables();
 	    if (targetVariables == NoTypeVariables) return null; 
 	    int length = targetVariables.length;
@@ -85,7 +86,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#constantPoolName()
 	 */
 	public char[] constantPoolName() {
-		return this.type.constantPoolName();
+		return this.type.constantPoolName(); // erasure
 	}
 
 	/**
@@ -219,14 +220,38 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
 	 */
 	public char[] readableName() {
-		return this.type.readableName();
+	    StringBuffer nameBuffer = new StringBuffer(10);
+		if (this.type.isMemberType()) {
+			nameBuffer.append(CharOperation.concat(this.type.enclosingType().readableName(), sourceName, '.'));
+		} else {
+			nameBuffer.append(CharOperation.concatWith(this.type.compoundName, '.'));
+		}	    
+		nameBuffer.append('<');
+	    for (int i = 0, length = this.arguments.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(this.arguments[i].readableName());
+	    }
+	    nameBuffer.append('>');
+	    return nameBuffer.toString().toCharArray();
 	}
-
+		
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
 	public char[] shortReadableName() {
-		return this.type.shortReadableName();
+	    StringBuffer nameBuffer = new StringBuffer(10);
+		if (this.type.isMemberType()) {
+			nameBuffer.append(CharOperation.concat(this.type.enclosingType().shortReadableName(), sourceName, '.'));
+		} else {
+			nameBuffer.append(this.type.sourceName);
+		}	    
+		nameBuffer.append('<');
+	    for (int i = 0, length = this.arguments.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(this.arguments[i].shortReadableName());
+	    }
+	    nameBuffer.append('>');
+	    return nameBuffer.toString().toCharArray();
 	}
 
 	/**
@@ -248,7 +273,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public ReferenceBinding superclass() {
 	    ReferenceBinding superclass = this.type.superclass();
-	    if (superclass.isGeneric()) {
+	    if (superclass.typeVariables() != NoTypeVariables) {
 	        return superclass = this.environment.createParameterizedType(superclass, argumentSubstitution(superclass));
 	    }
 		return superclass;

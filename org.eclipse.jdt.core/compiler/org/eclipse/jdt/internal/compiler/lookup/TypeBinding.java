@@ -74,9 +74,6 @@ public boolean isClass() {
 */
 public abstract boolean isCompatibleWith(TypeBinding right);
 
-public final boolean isGeneric() {
-	return (tagBits & IsGenericType) != 0;
-}
 /* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
 */
 public final boolean isHierarchyInconsistent() {
@@ -98,9 +95,6 @@ public final boolean isNumericType() {
 		default :
 			return false;
 	}
-}
-public final boolean isParameterizedType() {
-    return (tagBits  & IsParameterizedType) != 0;
 }
 public TypeBinding leafComponentType(){
 	return this;

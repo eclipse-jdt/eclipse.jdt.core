@@ -36,4 +36,5 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	
 	final int AccOverriding = 0x10000000; // bit29 to record fact a method overrides another one
 	final int AccImplementing = 0x20000000; // bit30 to record fact a method implements another one (it is concrete and overrides an abstract one)
+	final int AccIsGeneric = 0x40000000; // bit31 to record fact a method/field involves generics in its signature (type vars or parameterized types)
 }
