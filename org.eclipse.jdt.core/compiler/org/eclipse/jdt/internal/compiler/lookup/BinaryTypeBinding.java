@@ -222,18 +222,20 @@ private MethodBinding createMethod(IBinaryMethod method) {
 }
 private void createMethods(IBinaryMethod[] iMethods) {
 	int total = 0;
+	int iClinit = -1;
 	int[] toSkip = null;
 	if (iMethods != null) {
 		total = iMethods.length;
 		for (int i = total; --i >= 0;) {
 			IBinaryMethod method = iMethods[i];
 			char[] methodName;
-			if ((method.getModifiers() & AccSynthetic) != 0 ||
-				((methodName = method.getSelector()).length == 8 && methodName[0] == '<')) {
-					if (toSkip == null)
-						toSkip = new int[iMethods.length];
-					toSkip[i] = -1;
-					total--;
+			if ((method.getModifiers() & AccSynthetic) != 0) {
+				if (toSkip == null) toSkip = new int[iMethods.length];
+				toSkip[i] = -1;
+				total--;
+			} else if ((methodName = method.getSelector()).length == 8 && methodName[0] == '<') {
+				iClinit = i;
+				total--;
 			}
 		}
 	}
@@ -243,14 +245,16 @@ private void createMethods(IBinaryMethod[] iMethods) {
 	}
 
 	this.methods = new MethodBinding[total];
-	int next = 0;
-	if (toSkip == null) {
-		for (int i = 0, length = iMethods.length; i < length; i++)
-			this.methods[next++] = createMethod(iMethods[i]);
+	int index = 0;
+	if (iClinit < 0 && toSkip == null) {
+		for (int i = 0, length = iMethods.length; i < length; i++) {
+			this.methods[index++] = createMethod(iMethods[i]);
+		}
 	} else {
-		for (int i = 0, length = iMethods.length; i < length; i++)
-			if (toSkip[i] == 0)
-				this.methods[next++] = createMethod(iMethods[i]);
+		for (int i = 0, length = iMethods.length; i < length; i++) {
+			if (iClinit != i && toSkip[i] == 0)
+				this.methods[index++] = createMethod(iMethods[i]);
+		}
 	}
 	modifiers |= AccUnresolved; // until methods() is sent
 }
