@@ -20,7 +20,6 @@ public class Assignment extends Expression {
 
 	public Reference lhs;
 	public Expression expression;
-	public boolean hasNoEffect; // TODO: should collapse into a bit
 		
 	public Assignment(Expression lhs, Expression expression, int sourceEnd) {
 		//lhs is always a reference by construction ,
@@ -51,7 +50,7 @@ public class Assignment extends Expression {
 		Binding left = getDirectBinding(this.lhs);
 		if (left != null && left == getDirectBinding(this.expression)) {
 			scope.problemReporter().assignmentHasNoEffect(this, left.shortReadableName());
-			this.hasNoEffect = true;
+			this.bits |= IsAssignmentWithNoEffectMASK; // record assignment has no effect
 		}
 	}
 
@@ -65,7 +64,7 @@ public class Assignment extends Expression {
 		// just a local variable.
 
 		int pc = codeStream.position;
-		if (this.hasNoEffect) {
+		if ((this.bits & IsAssignmentWithNoEffectMASK) != 0) {
 			if (valueRequired) {
 				this.expression.generateCode(currentScope, codeStream, true);
 			}

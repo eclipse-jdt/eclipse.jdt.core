@@ -55,7 +55,9 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for expression only
 	public static final int IsParenthesizedMASK = 0x20000000;
-	
+
+	// for assignment only
+	public static final int IsAssignmentWithNoEffectMASK = 0x10000000;	
 	/*
 	public final static int BitMask1= 0x1; // decimal 1
 	public final static int BitMask2= 0x2; // decimal 2
