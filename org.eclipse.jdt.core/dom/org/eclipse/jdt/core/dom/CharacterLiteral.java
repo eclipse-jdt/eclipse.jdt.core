@@ -160,9 +160,67 @@ public class CharacterLiteral extends Expression {
 			throw new IllegalArgumentException();
 		}
 		if (c == '\\') {
-			// legal: b, t, n, f, r, ", ', \, 0, 1, 2, 3, 4, 5, 6, or 7
-			// FIXME
-			throw new RuntimeException("not implemented yet");//$NON-NLS-1$
+			if (len == 3) {
+				char nextChar = s.charAt(2);
+				switch(nextChar) {
+					case 'b' :
+						return '\b';
+					case 't' :
+						return '\t';
+					case 'n' :
+						return '\n';
+					case 'f' :
+						return '\f';
+					case 'r' :
+						return '\r';
+					case '\"':
+						return '\"';
+					case '\'':
+						return '\'';
+					case '\\':
+						return '\\';
+					case '0' :
+						return '\0';
+					case '1' :
+						return '\1';
+					case '2' :
+						return '\2';
+					case '3' :
+						return '\3';
+					case '4' :
+						return '\4';
+					case '5' :
+						return '\5';
+					case '6' :
+						return '\6';
+					case '7' :
+						return '\7';
+					default:
+						throw new IllegalArgumentException("illegal character literal");
+				}
+			} else if (len == 8) {
+				//handle the case of unicode.
+				int currentPosition = 2;
+				int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+				if (s.charAt(currentPosition++) == 'u') {
+					if ((c1 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+						|| c1 < 0
+						|| (c2 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+						|| c2 < 0
+						|| (c3 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+						|| c3 < 0
+						|| (c4 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+						|| c4 < 0){
+						throw new IllegalArgumentException("illegal character literal");
+					} else {
+						return (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+					}
+				} else {
+					throw new IllegalArgumentException("illegal character literal");
+				}
+			} else {
+				throw new IllegalArgumentException("illegal character literal");
+			}
 		}
 		return c;
 	}
@@ -185,7 +243,6 @@ public class CharacterLiteral extends Expression {
 	public void setCharValue(char value) {
 		StringBuffer b = new StringBuffer(3);
 		
-		// FIXME - this does not do Unicode escaping
 		b.append('\''); // opening delimiter
 		int p = SPECIALS.indexOf(value);
 		if (p >= 0) {
