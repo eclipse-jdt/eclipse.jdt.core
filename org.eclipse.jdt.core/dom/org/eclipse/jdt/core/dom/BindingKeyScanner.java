@@ -36,24 +36,35 @@ class BindingKeyScanner {
 	int nextToken() {
 		this.start = ++this.index;
 		int length = this.source.length;
-		boolean insideMethod = false;
 		while (this.index <= length) {
 			char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
 			switch (currentChar) {
 				case '/':
+				case ',':
 				case Character.MIN_VALUE:
 					switch (this.token) {
 						case START:
+						case METHOD: // parameter
+						case ARRAY:
 							this.token = PACKAGE;
 							break;
 						case PACKAGE:
-							this.token = TYPE;
+							if (this.source[this.start-1] == ',')
+								this.token = PACKAGE;
+							else
+								this.token = TYPE;
 							break;
 						case TYPE:
-							if (this.source[start-1] == '$')
-								this.token = TYPE;
-							else
-								this.token = insideMethod ? METHOD : FIELD;
+							switch (this.source[this.start-1]) {
+								case '$':
+									this.token = TYPE;
+									break;
+								case ',':
+									this.token = PACKAGE;
+									break;
+								default:
+									this.token = FIELD;
+							}
 							break;
 					}
 					return this.token;
@@ -72,11 +83,12 @@ class BindingKeyScanner {
 					}
 					return this.token;
 				case '(':
-					do {
-						this.index++;
-					} while (this.index < length && this.source[this.index] != ')');
-					insideMethod = true;
-					break;
+					this.token = METHOD;
+					return this.token;
+				case ')':
+					this.start = ++this.index;
+					this.token = END;
+					return this.token;
 				case ']':
 					this.start--;
 					this.index++;
@@ -99,8 +111,12 @@ class BindingKeyScanner {
 		return result;
 	}
 	
-	boolean isAtEnd() {
-		return this.index >= this.source.length-1;
+	boolean isAtTypeEnd() {
+		return 
+			this.index == -1
+			|| this.index >= this.source.length-1 
+			|| this.source[this.index] == ',' 
+			|| this.source[this.index] == '(';
 	}
 	
 	public String toString() {

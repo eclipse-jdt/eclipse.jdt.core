@@ -32,6 +32,7 @@ class BindingKey {
 	 
 	 BindingKey(char[] key) {
 	 	this.scanner = new BindingKeyScanner(key);
+	 	reset();
 	 }
 	 
 	 BindingKey(String key) {
@@ -46,15 +47,14 @@ class BindingKey {
 	  */
 	 char[][] compoundName() {
 	 	if (this.compoundName == null) {
-		 	int token = this.scanner.nextToken();
-		 	if (token != BindingKeyScanner.PACKAGE) {
+		 	if (this.scanner.token != BindingKeyScanner.PACKAGE) {
 		 		this.compoundName = CharOperation.NO_CHAR_CHAR; // malformed
 		 	} else {
 			 	char[][] pkg = CharOperation.splitOn('.', this.scanner.getTokenSource());
-			 	if (this.scanner.isAtEnd()) {
+			 	if (this.scanner.isAtTypeEnd()) {
 			 		this.compoundName = pkg;
 			 	} else {
-				 	token = this.scanner.nextToken();
+				 	int token = this.scanner.nextToken();
 				 	switch (token) {
 				 		case BindingKeyScanner.TYPE:
 					 		char[] simpleName = this.scanner.getTokenSource();
@@ -78,6 +78,7 @@ class BindingKey {
 	  */
 	 CompilationUnitDeclaration getCompilationUnitDeclaration(LookupEnvironment lookupEnvironment) {
 		char[][] compundName = compoundName();
+		if (compundName.length == 0) return null;
 		ReferenceBinding binding = lookupEnvironment.getType(compundName);
 		if (!(binding instanceof SourceTypeBinding)) return null;
 		return ((SourceTypeBinding) binding).scope.compilationUnitScope().referenceContext;
@@ -113,6 +114,7 @@ class BindingKey {
 	 			char[] typeName = this.compoundName[this.compoundName.length-1];
 	 			SourceTypeBinding binding = getTypeBinding(parsedUnit, parsedUnit.types, typeName);
 	 			switch (this.scanner.token) {
+	 				case BindingKeyScanner.PACKAGE:
 					case BindingKeyScanner.END:
 	 					return binding;
 	 				case BindingKeyScanner.ARRAY:
@@ -170,21 +172,14 @@ class BindingKey {
 	 MethodBinding getMethodBinding(SourceTypeBinding typeBinding, CompilationUnitResolver resolver) {
 	 	MethodBinding[] methods = typeBinding.methods;
 	 	if (methods == null) return null;
-	 	char[] methodKey = this.scanner.getTokenSource();
-	 	int selectorEnd = CharOperation.indexOf('(', methodKey);
-	 	char[] selector = CharOperation.subarray(methodKey, 0, selectorEnd);
+	 	char[] selector = this.scanner.getTokenSource();
 	 	ArrayList parameterList = new ArrayList();
-	 	int parameterStart = selectorEnd+1;
-	 	int parameterEnd = CharOperation.indexOf(',', methodKey, selectorEnd);
-	 	while (parameterEnd != -1) {
-	 		char[] parameterKey = CharOperation.subarray(methodKey, parameterStart, parameterEnd);
-	 		// TODO (jerome) use this binding key's scanner instead of creating a new object
-	 		Binding parameterBinding = new BindingKey(parameterKey).getCompilerBinding(resolver);
+	 	do {
+	 		reset();
+	 		Binding parameterBinding = getCompilerBinding(resolver);
 	 		if (parameterBinding == null) break;
 	 		parameterList.add(parameterBinding);
-	 		parameterStart = parameterEnd+1;
-	 		parameterEnd = CharOperation.indexOf(',', methodKey, parameterStart);
-	 	}
+	 	} while (this.scanner.token != BindingKeyScanner.END);
 	 	int parameterLength = parameterList.size();
 	 	TypeBinding[] parameters = new TypeBinding[parameterLength];
 	 	parameterList.toArray(parameters);
@@ -230,6 +225,12 @@ class BindingKey {
 			}
 	 	}
 		return null;
+	 }
+	 
+	 void reset() {
+	 	this.compoundName = null;
+	 	if (this.scanner.isAtTypeEnd())
+		 	this.scanner.nextToken();
 	 }
 	 
 	 public String toString() {
