@@ -170,10 +170,19 @@ class CompilationUnitResolver extends Compiler {
 			CompilationUnitDeclaration parsedUnit = bindingKey.getCompilationUnitDeclaration(this.lookupEnvironment);
 			if (parsedUnit != null) {
 				this.requestedKeys.put(parsedUnit.compilationResult.getFileName(), bindingKey);
-			} else if (bindingKey.scanner.token == BindingKeyScanner.PACKAGE) {
-				// package binding key
-				char[] pkgName = CharOperation.concatWith(bindingKey.compoundName(), '.');
-				this.requestedKeys.put(pkgName, bindingKey);
+			} else {
+				switch (bindingKey.scanner.token) {
+					case BindingKeyScanner.PACKAGE:
+						// package binding key
+						char[] pkgName = CharOperation.concatWith(bindingKey.compoundName(), '.');
+						this.requestedKeys.put(pkgName, bindingKey);
+						break;
+					case BindingKeyScanner.TYPE:
+						// base type binding
+						char[] key = bindingKey.scanner.source;
+						this.requestedKeys.put(key, bindingKey);
+						break;
+				}
 			}
 		}
 		
@@ -552,13 +561,13 @@ class CompilationUnitResolver extends Compiler {
 				this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			}
 			
-			// remaining binding keys are package binding keys
-			char[][] pkgNames = this.requestedKeys.keyTable;
-			for (int j = 0, pkgLength = pkgNames.length; j < pkgLength; j++) {
-				char[] pkgName = pkgNames[j];
-				if (pkgName == null) continue;
-				Binding compilerBinding = new PackageBinding(CharOperation.splitOn('.', pkgName), null, this.lookupEnvironment);
-				DefaultBindingResolver resolver = new DefaultBindingResolver(null, owner, this.bindingTables, this);
+			// remaining binding keys are package binding keys or base type binding keys
+			DefaultBindingResolver resolver = new DefaultBindingResolver(null, owner, this.bindingTables, this);
+			Object[] keys = this.requestedKeys.valueTable;
+			for (int j = 0, keysLength = keys.length; j < keysLength; j++) {
+				BindingKey key = (BindingKey) keys[j];
+				if (key == null) continue;
+				Binding compilerBinding = key.getCompilerBinding(this);
 				IBinding binding = resolver.getBinding(compilerBinding);
 				
 				// pass it to requestor
