@@ -34,10 +34,15 @@ What's new in this drop</h2>
 			a default code formatter (implementing <code>ICodeFormatter</code> API). </li>
 	</ul>
 </li>
-<li> Instead of passing a problem requestor (<code>org.eclipse.jdt.core.IProblemRequestor</code>) to working copy #reconcile(...)
+<li> Working Copy API : instead of passing a problem requestor (<code>org.eclipse.jdt.core.IProblemRequestor</code>) to working copy #reconcile(...)
 operation. The problem requestor is passed along at creation time. 
+	<ul>
+	<li>added IWorkingCopy.getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</li>
+	<li>added IWorkingCopy.getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</li>
+	</ul>
+	Previous API taking <code>IBufferFactory</code> got deprecated, they will be removed in a subsequent build.
 </li>	
-<li>Internal classes got deprecated (as client code relies on them), since being surfaced:
+<li>Some internal classes got deprecated (as client code relies on them), since being surfaced:
 	<ul>
 		<li> <code>org.eclipse.jdt.internal.core.parser.InvalidInputException</code> <br>==> <code>org.eclipse.jdt.core.compiler.InvalidInputException</code> </li>
 		<li> <code>org.eclipse.jdt.internal.core.parser.TerminalSymbols</code> <br>==> <code>org.eclipse.jdt.core.compiler.ITerminalSymbols</code> </li>
