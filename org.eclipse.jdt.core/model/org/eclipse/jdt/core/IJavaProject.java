@@ -204,6 +204,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </p>
 	 * 
 	 * @return an array of non-Java resources directly contained in this project
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;
 

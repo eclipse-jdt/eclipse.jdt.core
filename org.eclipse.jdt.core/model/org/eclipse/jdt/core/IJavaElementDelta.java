@@ -243,6 +243,7 @@ public interface IJavaElementDelta {
 
 /**
  * Returns deltas for the children that have been added.
+ * @return deltas for the children that have been added
  */
 public IJavaElementDelta[] getAddedChildren();
 /**
