@@ -2047,7 +2047,8 @@ public final void pushLineSeparator() throws InvalidInputException {
 	// cr 000D
 	if (currentCharacter == '\r') {
 		int separatorPos = currentPosition - 1;
-		if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;
+		//TODO : (olivier) david - why the following line was "if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;" ?
+		if ((linePtr >= 0) && (lineEnds[linePtr] >= separatorPos)) return;
 		//System.out.println("CR-" + separatorPos);
 		try {
 			lineEnds[++linePtr] = separatorPos;
@@ -2080,7 +2081,8 @@ public final void pushLineSeparator() throws InvalidInputException {
 				lineEnds[linePtr] = currentPosition - 1;
 			} else {
 				int separatorPos = currentPosition - 1;
-				if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;
+				//TODO : (olivier) david - why the following line was "if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;" ?
+				if ((linePtr >= 0) && (lineEnds[linePtr] >= separatorPos)) return;
 				// System.out.println("LF-" + separatorPos);							
 				try {
 					lineEnds[++linePtr] = separatorPos;
