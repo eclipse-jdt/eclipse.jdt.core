@@ -151,28 +151,28 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 			return null;
 		}
-		// if generic type X<T> is referred to as parameterized X<T>, then answer itself
-		checkGeneric: {
-		    for (int i = 0; i < argLength; i++)
-				if (typeVariables[i] != argTypes[i])
-				    break checkGeneric;
-			return currentType;
-		}
-		ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
-		// check argument type compatibility
-		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
-			for (int i = 0; i < argLength; i++)
-			    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
-					scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
 
-		this.resolvedType = parameterizedType;
-		if (isTypeUseDeprecated(this.resolvedType, scope))
-			reportDeprecatedType(scope);
+		// if generic type X<T> is referred to as parameterized X<T>, then answer itself
+		boolean allEqual = true;
+	    for (int i = 0; allEqual && i < argLength; i++)
+			allEqual = typeVariables[i] == argTypes[i];
+	    if (!allEqual) {
+	    	ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
+			// check argument type compatibility
+			if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
+				for (int i = 0; i < argLength; i++)
+				    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+	
+			this.resolvedType = parameterizedType;
+			if (isTypeUseDeprecated(this.resolvedType, scope))
+				reportDeprecatedType(scope);
+		}
 		// array type ?
 		if (this.dimensions > 0) {
 			if (dimensions > 255)
 				scope.problemReporter().tooManyDimensions(this);
-			this.resolvedType = scope.createArrayType(parameterizedType, dimensions);
+			this.resolvedType = scope.createArrayType(this.resolvedType, dimensions);
 		}
 		return this.resolvedType;
 	}	

@@ -2211,20 +2211,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Type safety: The return type X of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T> of inherited method\n" + 
 			"----------\n"
 		);
-// waiting on philippe to fix array compares
-//		this.runNegativeTest(
-//			new String[] {
-//				"X.java",
-//				"interface X<T> { X<T>[] x(); }\n" +
-//				"abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + // warning: x() in Y implements x() in X; return type requires unchecked conversion
-//				"abstract class Z implements X { public abstract X[] x(); }\n"
-//			},
-//			"----------\n" + 
-//			"1. WARNING in X.java (at line 2)\n" + 
-//			"	abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + 
-//			"	                                                      ^\n" + 
-//			"Type safety: The return type X[] of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T>[] of inherited method\n" + 
-//			"----------\n"
-//		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X<T> { X<T>[] x(); }\n" +
+				"abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + // warning: x() in Y implements x() in X; return type requires unchecked conversion
+				"abstract class Z implements X { public abstract X[] x(); }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + 
+			"	                                                      ^^^\n" + 
+			"Type safety: The return type X[] of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T>[] of inherited method\n" + 
+			"----------\n"
+		);
 	}
 }
