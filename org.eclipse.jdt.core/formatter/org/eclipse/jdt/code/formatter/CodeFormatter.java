@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core;
+package org.eclipse.jdt.code.formatter;
 
 import org.eclipse.text.edits.TextEdit;
 
