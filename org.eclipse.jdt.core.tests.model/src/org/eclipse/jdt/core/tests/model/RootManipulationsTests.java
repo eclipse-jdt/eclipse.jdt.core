@@ -914,6 +914,8 @@ public void testRenameSourceFolder1() throws CoreException {
 public void testRenameSourceFolder2() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src1", "src2", "src3"}, "bin");
+		
+		// rename src1
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src1");
 		this.startDeltas();
 		this.move(root, new Path("/P/src4"));
@@ -935,6 +937,52 @@ public void testRenameSourceFolder2() throws CoreException {
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);
+			
+		// rename src2
+		root = this.getPackageFragmentRoot("/P/src2");
+		this.clearDeltas();
+		this.move(root, new Path("/P/src5"));
+		assertDeltas(
+			"Unexpected delta after renaming src2",
+			"P[*]: {CHILDREN}\n" + 
+			"	src2[-]: {MOVED_TO(src5 [in P])}\n" + 
+			"	src5[+]: {MOVED_FROM(src2 [in P])}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src4\n" + 
+			"		[default]\n" + 
+			"	src5\n" + 
+			"		[default]\n" + 
+			"	src3\n" + 
+			"		[default]\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);		
+
+		// rename src3
+		root = this.getPackageFragmentRoot("/P/src3");
+		this.clearDeltas();
+		this.move(root, new Path("/P/src6"));
+		assertDeltas(
+			"Unexpected delta after renaming src3",
+			"P[*]: {CHILDREN}\n" + 
+			"	src3[-]: {MOVED_TO(src6 [in P])}\n" + 
+			"	src6[+]: {MOVED_FROM(src3 [in P])}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src4\n" + 
+			"		[default]\n" + 
+			"	src5\n" + 
+			"		[default]\n" + 
+			"	src6\n" + 
+			"		[default]\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);		
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
