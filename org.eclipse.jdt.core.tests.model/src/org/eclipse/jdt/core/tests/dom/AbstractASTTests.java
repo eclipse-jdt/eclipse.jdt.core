@@ -166,7 +166,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	
 	protected ASTNode findNode(CompilationUnit unit, final MarkerInfo markerInfo) {
 		class EndVisit extends RuntimeException {
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 6009335074727417445L;
 		}
 		class Visitor extends ASTVisitor {
 			ASTNode found;
@@ -184,7 +184,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		} catch (EndVisit e) {
 			return visitor.found;
 		}
-		return null;
+		return unit;
 	}
 
 	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, WorkingCopyOwner owner) {

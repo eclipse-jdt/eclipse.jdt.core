@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0578"));
+		suite.addTest(new ASTConverterTestAST3_2("test0580"));
 		return suite;
 	}
 	/**
@@ -5440,5 +5440,27 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		assertEquals("Wrong number of body declarations", 3, typeDeclaration.bodyDeclarations().size());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=79953
+	 */
+	public void _test0580() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X {\n" +
+				"	d\n" +
+				"	\n" +
+				"	String[][]tab;\n" +
+				"}",
+				workingCopy);
+			assertEquals("wrong type", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

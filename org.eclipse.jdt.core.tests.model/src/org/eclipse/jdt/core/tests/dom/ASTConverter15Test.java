@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0089"));
+		suite.addTest(new ASTConverter15Test("test0090"));
 		return suite;
 	}
 		
@@ -2681,5 +2681,70 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=80021
+	 */
+	public void _test0090() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode result = buildAST(
+				"package p;\n" +
+				"public class X {\n" +
+				"	public void foo() {}\n" +
+				"	public void bar(X x, int f) {\n" +
+				"		x.foo();\n" +
+				"	}\n" +
+				"}",
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			assertProblemsSize(compilationUnit, 0);
+			compilationUnit.accept(new ASTVisitor() {
+				/* (non-Javadoc)
+				 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.SingleVariableDeclaration)
+				 */
+				public boolean visit(SingleVariableDeclaration node) {
+					IVariableBinding binding = node.resolveBinding();
+					assertNotNull("No binding", binding);
+					IJavaElement javaElement = binding.getJavaElement();
+					assertNotNull("No java element", javaElement);
+					return false;
+				}
+				/* (non-Javadoc)
+				 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.VariableDeclarationFragment)
+				 */
+				public boolean visit(VariableDeclarationFragment node) {
+					IVariableBinding binding = node.resolveBinding();
+					assertNotNull("No binding", binding);
+					IJavaElement javaElement = binding.getJavaElement();
+					assertNotNull("No java element", javaElement);
+					return false;
+				}
+				/* (non-Javadoc)
+				 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.FieldAccess)
+				 */
+				public boolean visit(FieldAccess node) {
+					IVariableBinding binding = node.resolveFieldBinding();
+					assertNotNull("No binding", binding);
+					IJavaElement javaElement = binding.getJavaElement();
+					assertNotNull("No java element", javaElement);
+					return false;
+				}
+				/* (non-Javadoc)
+				 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperFieldAccess)
+				 */
+				public boolean visit(SuperFieldAccess node) {
+					IVariableBinding binding = node.resolveFieldBinding();
+					assertNotNull("No binding", binding);
+					IJavaElement javaElement = binding.getJavaElement();
+					assertNotNull("No java element", javaElement);
+					return false;
+				}
+			});
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

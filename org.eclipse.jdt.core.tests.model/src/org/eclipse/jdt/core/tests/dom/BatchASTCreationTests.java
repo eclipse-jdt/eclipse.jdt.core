@@ -77,7 +77,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
 					super.acceptAST(source, cu);
 					ASTNode node = findNode(cu, markerInfos[++this.index]);
-					if (node != null) {
+					if (node != null && !(node instanceof CompilationUnit)) {
 						IBinding binding = null;
 						if (node instanceof PackageDeclaration) {
 							binding = ((PackageDeclaration) node).resolveBinding();
