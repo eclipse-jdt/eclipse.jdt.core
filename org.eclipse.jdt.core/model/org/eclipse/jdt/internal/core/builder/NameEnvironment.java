@@ -78,7 +78,7 @@ private void computeClasspathLocations(
 	SimpleLookupTable binaryLocationsPerProject) throws CoreException {
 
 	/* Update incomplete classpath marker */
-	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(true, true);
+	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(true, true, JavaBuilder.preferredClasspaths, JavaBuilder.preferredOutputs);
 
 	/* Update cycle marker */
 	IMarker cycleMarker = javaProject.getCycleMarker();

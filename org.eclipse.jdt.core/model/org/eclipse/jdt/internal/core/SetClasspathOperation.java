@@ -666,7 +666,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					return "updateCycleMarkers";  //$NON-NLS-1$
 				}
 				public void run() throws JavaModelException {
-					JavaProject.updateAllCycleMarkers();
+					JavaProject.updateAllCycleMarkers(null);
 				}
 			},
 			REMOVEALL_APPEND);
