@@ -41,12 +41,10 @@ STREAM: 2.0
   ================================================================================
   * JCK1.4 compliance flow analysis
   1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
-  1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - DASG - assigned variable before catch block after return statement
   
   JCK1.4 remaining defects:
   ================================================================================
   1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
-  1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - DASG - assigned variable before catch block after return statement
   1GK7MHO: ITPJCORE:WIN2000 - JCK 1.4 - BINC - Adding a String field that has the same name as a String field of a superclass
   1GK7VCA: ITPJCORE:WIN2000 - JCK 1.4 - BINC - detection of an IncompatibleClassChangeError
   1GK7UGQ: ITPJCORE:WIN2000 - JCK 1.4 - BINC - Invoke overriding class methods
@@ -113,6 +111,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  3282      JCK 1.4 - DASG - assigned variable before catch block after return statement (1GK2AHX)  
   3452		NPE doing Display from Binary (1GLEG5K) 
   3374      SearchPatter.createPattern(...) doesn't work with unicodes (1GJYBRY)  
   3309		DCR - JM - could ICompilationUnit::getType throw JME? (1GF9AL9) 

@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
  *	try statements, exception handlers, etc...
  */
 public class ExceptionHandlingFlowContext extends FlowContext {
+	
 	ReferenceBinding[] handledExceptions;
 	public final static int BitCacheSize = 32; // 32 bits per int
 	int[] isReached;
@@ -23,6 +24,8 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	ObjectCache indexes = new ObjectCache();
 	boolean isMethodContext;
 
+	public UnconditionalFlowInfo initsOnReturn;
+	
 	public ExceptionHandlingFlowContext(
 		FlowContext parent,
 		AstNode associatedNode,
@@ -50,6 +53,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 			}
 		}
 		System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
+		this.initsOnReturn = FlowInfo.DeadEnd;	
 	}
 
 	public void complainIfUnusedExceptionHandlers(
@@ -125,4 +129,9 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 				? flowInfo.copy().unconditionalInits()
 				: initsOnExceptions[index].mergedWith(flowInfo);
 	}
+	
+	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+		// record initializations which were performed at the return point
+		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
 	}
+}

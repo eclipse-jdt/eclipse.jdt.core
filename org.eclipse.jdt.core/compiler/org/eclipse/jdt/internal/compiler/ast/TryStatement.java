@@ -109,11 +109,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			FlowInfo catchInfo = flowInfo.copy().unconditionalInits()
 									.addPotentialInitializationsFrom(
 										handlingContext.initsOnException(caughtExceptionTypes[i]).unconditionalInits())
-									.addPotentialInitializationsFrom(tryInfo.unconditionalInits());
-			//*/
-			// SMART ANALYSIS (see 1FBPLCY)
-			//FlowInfo catchInfo = handlingContext.initsOnException(caughtExceptionTypes[i]);
-			
+									.addPotentialInitializationsFrom(tryInfo.unconditionalInits())
+									.addPotentialInitializationsFrom(handlingContext.initsOnReturn);
+
 			// catch var is always set
 			catchInfo.markAsDefinitelyAssigned(catchArguments[i].binding);
 			/*

@@ -22,8 +22,6 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 	public TypeBinding[] thrownExceptions = new TypeBinding[5];
 	public AstNode[] exceptionThrowers = new AstNode[5];
 
-	public UnconditionalFlowInfo initsOnReturn;
-
 	public InitializationFlowContext(
 		FlowContext parent,
 		AstNode associatedNode,
@@ -34,7 +32,6 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 			new ReferenceBinding[] { scope.getJavaLangThrowable()},
 		// tolerate any kind of exception, but record them
 		scope, FlowInfo.DeadEnd);
-		this.initsOnReturn = FlowInfo.DeadEnd;		
 	}
 
 	public void checkInitializerExceptions(
@@ -73,10 +70,5 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		}
 		thrownExceptions[exceptionCount] = raisedException;
 		exceptionThrowers[exceptionCount++] = invocationSite;
-	}
-	
-	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
-		// record initializations which were performed at the return point
-		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
 	}	
 }
