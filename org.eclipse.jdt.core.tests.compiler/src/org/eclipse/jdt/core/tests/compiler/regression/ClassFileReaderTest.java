@@ -2756,4 +2756,97 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"}";
 		checkClassFile("1.5", "X", source, expectedOutput);
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76472
+	 */
+	public void test071() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		long[] tab = new long[] {};\n" + 
+			"		System.out.println(tab.clone());\n" + 
+			"		System.out.println(tab.clone());\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  Constant pool:\n" + 
+			"    constant #1 utf8: X\n" + 
+			"    constant #2 class: #1 X\n" + 
+			"    constant #3 utf8: java/lang/Object\n" + 
+			"    constant #4 class: #3 java/lang/Object\n" + 
+			"    constant #5 utf8: <init>\n" + 
+			"    constant #6 utf8: ()V\n" + 
+			"    constant #7 utf8: Code\n" + 
+			"    constant #8 name_and_type: #5.#6 <init> ()V\n" + 
+			"    constant #9 method_ref: #4.#8 java/lang/Object.<init> ()V\n" + 
+			"    constant #10 utf8: LineNumberTable\n" + 
+			"    constant #11 utf8: LocalVariableTable\n" + 
+			"    constant #12 utf8: this\n" + 
+			"    constant #13 utf8: LX;\n" + 
+			"    constant #14 utf8: main\n" + 
+			"    constant #15 utf8: ([Ljava/lang/String;)V\n" + 
+			"    constant #16 utf8: java/lang/System\n" + 
+			"    constant #17 class: #16 java/lang/System\n" + 
+			"    constant #18 utf8: out\n" + 
+			"    constant #19 utf8: Ljava/io/PrintStream;\n" + 
+			"    constant #20 name_and_type: #18.#19 out Ljava/io/PrintStream;\n" + 
+			"    constant #21 field_ref: #17.#20 java/lang/System.out Ljava/io/PrintStream;\n" + 
+			"    constant #22 utf8: [J\n" + 
+			"    constant #23 class: #22 [J\n" + 
+			"    constant #24 utf8: clone\n" + 
+			"    constant #25 utf8: ()Ljava/lang/Object;\n" + 
+			"    constant #26 name_and_type: #24.#25 clone ()Ljava/lang/Object;\n" + 
+			"    constant #27 method_ref: #23.#26 [J.clone ()Ljava/lang/Object;\n" + 
+			"    constant #28 utf8: java/io/PrintStream\n" + 
+			"    constant #29 class: #28 java/io/PrintStream\n" + 
+			"    constant #30 utf8: println\n" + 
+			"    constant #31 utf8: (Ljava/lang/Object;)V\n" + 
+			"    constant #32 name_and_type: #30.#31 println (Ljava/lang/Object;)V\n" + 
+			"    constant #33 method_ref: #29.#32 java/io/PrintStream.println (Ljava/lang/Object;)V\n" + 
+			"    constant #34 utf8: args\n" + 
+			"    constant #35 utf8: [Ljava/lang/String;\n" + 
+			"    constant #36 utf8: tab\n" + 
+			"    constant #37 utf8: SourceFile\n" + 
+			"    constant #38 utf8: X.java\n" + 
+			"  \n" + 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public X();\n" + 
+			"    0  aload_0\n" + 
+			"    1  invokespecial #9 <Method java/lang/Object.<init>()V>\n" + 
+			"    4  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  iconst_0\n" + 
+			"     1  newarray #11 long\n" + 
+			"     3  astore_1\n" + 
+			"     4  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+			"     7  aload_1\n" + 
+			"     8  invokevirtual #27 <Method [J.clone()Ljava/lang/Object;>\n" + 
+			"    11  invokevirtual #33 <Method java/io/PrintStream.println(Ljava/lang/Object;)V>\n" + 
+			"    14  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+			"    17  aload_1\n" + 
+			"    18  invokevirtual #27 <Method [J.clone()Ljava/lang/Object;>\n" + 
+			"    21  invokevirtual #33 <Method java/io/PrintStream.println(Ljava/lang/Object;)V>\n" + 
+			"    24  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 4, line: 4]\n" + 
+			"        [pc: 14, line: 5]\n" + 
+			"        [pc: 24, line: 6]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 25] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 4, pc: 25] local: tab index: 1 type: [J\n" + 
+			"}";
+		checkClassFile("1.5", "X", source, expectedOutput);
+	}
 }
