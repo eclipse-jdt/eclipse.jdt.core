@@ -480,7 +480,7 @@ public class JavaModelManager implements ISaveParticipant {
 							pkgPath = pkgPath.removeLastSegments(1);
 						}
 						String[] pkgName = pkgPath.segments();
-						if (pkgName == null || JavaConventions.validatePackageName(Util.packageName(pkgPath)).getSeverity() == IStatus.ERROR) {
+						if (pkgName.length != 0 && JavaConventions.validatePackageName(Util.packageName(pkgPath)).getSeverity() == IStatus.ERROR) {
 							return null;
 						}
 						return root.getPackageFragment(pkgName);
@@ -1511,9 +1511,6 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		
-		// ensure that the elements that are being added have enough room
-		this.cache.ensureSpaceLimit(newElements);
-		
 		Iterator iterator = newElements.keySet().iterator();
 		while (iterator.hasNext()) {
 			IJavaElement element = (IJavaElement)iterator.next();
@@ -1651,7 +1648,6 @@ public class JavaModelManager implements ISaveParticipant {
 					}
 				}
 				this.cache.removeInfo(element);
-				this.cache.resetSpaceLimit(element);
 				if (wasVerbose) {
 					System.out.println(this.cache.toStringFillingRation("-> ")); //$NON-NLS-1$
 				}

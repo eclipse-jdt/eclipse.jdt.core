@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaElement;
@@ -65,59 +64,6 @@ public JavaModelCache() {
 	this.childrenCache = new HashMap(DEFAULT_CHILDREN_SIZE);
 }
 
-/*
- * Ensures there is enough room in each ElementCache to put the given new elements.
- */
-protected void ensureSpaceLimit(Map newElements) {
-	int rootSize = 0;
-	IJavaElement project = null;
-	int pkgSize = 0;
-	IJavaElement root = null;
-	int openableSize = 0;
-	IJavaElement pkg = null;
-	Iterator iterator = newElements.keySet().iterator();
-	while (iterator.hasNext()) {
-		IJavaElement element = (IJavaElement) iterator.next();
-		switch (element.getElementType()) {
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				project = element.getParent();
-				rootSize++;
-				break;
-			case IJavaElement.PACKAGE_FRAGMENT:
-				root = element.getParent();
-				pkgSize++;
-				break;
-			case IJavaElement.COMPILATION_UNIT:
-			case IJavaElement.CLASS_FILE:
-				pkg = element.getParent();
-				openableSize++;
-				break;
-		}
-	}
-	this.rootCache.ensureSpaceLimit(rootSize, project);
-	this.pkgCache.ensureSpaceLimit(pkgSize, root);
-	this.openableCache.ensureSpaceLimit(openableSize, pkg);
-}
-
-/*
- * The given element is being removed.
- * Ensures that the corresponding children cache's space limit is reset if this was the parent
- * that increased the space limit.
- */
-protected void resetSpaceLimit(IJavaElement element) {
-	switch (element.getElementType()) {
-		case IJavaElement.JAVA_PROJECT:
-			this.rootCache.resetSpaceLimit(DEFAULT_ROOT_SIZE, element);
-			break;
-		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			this.pkgCache.resetSpaceLimit(DEFAULT_PKG_SIZE, element);
-			break;
-		case IJavaElement.PACKAGE_FRAGMENT:
-			this.openableCache.resetSpaceLimit(DEFAULT_OPENABLE_SIZE, element);
-			break;
-	}
-}
-		
 /**
  *  Returns the info for the element.
  */
@@ -171,12 +117,15 @@ protected void putInfo(IJavaElement element, Object info) {
 			break;
 		case IJavaElement.JAVA_PROJECT:
 			this.projectCache.put(element, info);
+			this.rootCache.ensureSpaceLimit(((JavaElementInfo) info).children.length, element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			this.rootCache.put(element, info);
+			this.pkgCache.ensureSpaceLimit(((JavaElementInfo) info).children.length, element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.put(element, info);
+			this.openableCache.ensureSpaceLimit(((JavaElementInfo) info).children.length, element);
 			break;
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
@@ -196,12 +145,15 @@ protected void removeInfo(IJavaElement element) {
 			break;
 		case IJavaElement.JAVA_PROJECT:
 			this.projectCache.remove(element);
+			this.rootCache.resetSpaceLimit(DEFAULT_ROOT_SIZE, element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			this.rootCache.remove(element);
+			this.pkgCache.resetSpaceLimit(DEFAULT_PKG_SIZE, element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.remove(element);
+			this.openableCache.resetSpaceLimit(DEFAULT_OPENABLE_SIZE, element);
 			break;
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:

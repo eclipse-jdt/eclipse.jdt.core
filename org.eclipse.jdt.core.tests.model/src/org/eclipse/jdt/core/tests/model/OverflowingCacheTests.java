@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
@@ -280,6 +281,49 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	private boolean hasUnsavedChanges(int i) {
 		return i % 10 != 0;
 	}
+	
+	/*
+	 * Ensures that the Java model cache adapts its size for a project with a number of roots greater than the default max.
+	 */
+	public void testBigNumberOfRoots() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P");
+			int rootSize = JavaModelCache.DEFAULT_ROOT_SIZE * 2;
+			for (int i = 0; i < rootSize; i++) {
+				if (i < 10)
+					createFolder("/P/src00" + i);
+				else if (i < 100)
+					createFolder("/P/src0" + i);
+				else
+					createFolder("/P/src" + i);
+			}
+			IClasspathEntry[] classpath = new IClasspathEntry[rootSize+1];
+			for (int i = 0; i < rootSize; i++) {
+				if (i < 10)
+					classpath[i] = JavaCore.newSourceEntry(new Path("/P/src00" + i));
+				else if (i < 100)
+					classpath[i] = JavaCore.newSourceEntry(new Path("/P/src0" + i));
+				else
+					classpath[i] = JavaCore.newSourceEntry(new Path("/P/src" + i));
+			}
+			classpath[rootSize] = JavaCore.newVariableEntry(new Path("JCL_LIB"), null, null);
+			project.setRawClasspath(classpath, new Path("/P/bin"), null);
+			
+			// Open all roots
+			IJavaElement[] roots = project.getChildren();
+			for (int i = 0; i < rootSize; i++) {
+				((IOpenable) roots[i]).open(null);
+			}
+			
+			// Ensure that all roots remained opened
+			for (int i = 0; i < rootSize; i++) {
+				assertTrue("Root should be opened " + roots[i], ((IOpenable) roots[i]).isOpen());
+			}
+		} finally {
+			deleteProject("P");
+		}
+	}
+
 
 	/**
 	 * Creates an empty BufferCache and ensures that it answers correctly
