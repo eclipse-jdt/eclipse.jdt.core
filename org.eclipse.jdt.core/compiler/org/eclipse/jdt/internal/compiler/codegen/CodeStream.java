@@ -972,8 +972,11 @@ public void exitUserScope(BlockScope blockScope) {
 		return;
 	for (int i = 0; i < visibleLocalsCount; i++) {
 		LocalVariableBinding visibleLocal = visibleLocals[i];
-		if ((visibleLocal != null) && (visibleLocal.declaringScope == blockScope) && (visibleLocal.initializationCount > 0)) { // for filtering out preserved locals never initialized
-			visibleLocals[i].recordInitializationEndPC(position);
+		if ((visibleLocal != null) && (visibleLocal.declaringScope == blockScope)) { 
+			// there maybe some some preserved locals never initialized
+			if (visibleLocal.initializationCount > 0){
+				visibleLocals[i].recordInitializationEndPC(position);
+			}
 			visibleLocals[i] = null; // this variable is no longer visible afterwards
 		}
 	}
