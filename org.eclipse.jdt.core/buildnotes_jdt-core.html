@@ -16,12 +16,21 @@ Eclipse SDK Build 200205? - ?th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-	<li>new</li>
+	<li>Added APIs that allow to create a type hierarchy with a set of working copies that take precendence
+	      over their original compilation unit:
+	      <ul>
+	      	<li><code>IType.newSuperTypeHierarchy(IWorkingCopy[], IProgressMonitor)</code></li>
+	      	<li><code>IType.newTypeHierarchy(IWorkingCopy[], IProgressMonitor)</code></li>
+	      </ul>
+	      Note that change notification and refreshing is not supported on these hierarchies.
+	</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14051 ">14051</a>
 The implementation for IType.resolveType(String) is not implemented as noted in the JavaDoc specs
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15322">15322</a>
+need a way to create a type hierarchy that considers working copies  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15142 ">15142</a>
 CCE in SourceConstructorDeclaration 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=15349">15349</a>
