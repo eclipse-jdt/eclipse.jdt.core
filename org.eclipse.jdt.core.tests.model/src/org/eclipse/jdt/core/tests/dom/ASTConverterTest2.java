@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0451"));			
+		suite.addTest(new ASTConverterTest2("test0452"));			
 		return suite;
 	}
 	/**
@@ -1387,6 +1387,22 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type type = methodDeclaration.getReturnType();
 		checkSourceRange(type, "int", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=27204
+	 */
+	public void test0452() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "", "NO_WORKING.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		SimpleName name = methodDeclaration.getName();
+		assertEquals("wrong line number", 3, compilationUnit.lineNumber(name.getStartPosition()));
 	}
 	
 }
