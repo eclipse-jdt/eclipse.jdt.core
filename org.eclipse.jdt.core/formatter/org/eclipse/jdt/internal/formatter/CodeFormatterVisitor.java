@@ -1068,6 +1068,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 			if (arguments != null) {
+				if (this.preferences.insert_space_within_message_send) {
+					this.scribe.space();
+				}
 				int argumentLength = arguments.length;
 				Alignment argumentsAlignment = this.scribe.createAlignment(
 						"messageArguments", //$NON-NLS-1$
@@ -1079,9 +1082,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				boolean okForArguments = false;
 				do {
 					try {
-						if (this.preferences.insert_space_within_message_send) {
-							this.scribe.space();
-						}
 						for (int j = 0; j < argumentLength; j++) {
 							if (j > 0) {
 								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
@@ -1363,6 +1363,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Expression[] arguments = messageSend.arguments;
 		if (arguments != null) {
+			if (this.preferences.insert_space_within_message_send) {
+				this.scribe.space();
+			}
 			int argumentsLength = arguments.length;
 			if (argumentsLength > 1) {
 				Alignment argumentsAlignment = this.scribe.createAlignment(
@@ -1374,9 +1377,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				boolean ok = false;
 				do {
 					try {
-						if (this.preferences.insert_space_within_message_send) {
-							this.scribe.space();
-						}
 						for (int i = 0; i < argumentsLength; i++) {
 							if (i > 0) {
 								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
@@ -1859,6 +1859,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Expression[] arguments = allocationExpression.arguments;
 		if (arguments != null) {
+			if (this.preferences.insert_space_within_message_send) {
+				this.scribe.space();
+			}			
 			int argumentLength = arguments.length;
 			Alignment argumentsAlignment =this.scribe.createAlignment(
 					"allocation",//$NON-NLS-1$
@@ -1869,9 +1872,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) {
-						this.scribe.space();
-					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
@@ -2787,6 +2787,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		final Expression[] arguments = explicitConstructor.arguments;
 		if (arguments != null) {
+			if (this.preferences.insert_space_within_message_send) {
+				this.scribe.space();
+			}
 			int argumentLength = arguments.length;
 			Alignment argumentsAlignment =this.scribe.createAlignment(
 					"explicit_constructor_call",//$NON-NLS-1$
@@ -2797,9 +2800,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) {
-						this.scribe.space();
-					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_explicitconstructorcall_arguments);
@@ -3469,6 +3469,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Expression[] arguments = qualifiedAllocationExpression.arguments;
 		if (arguments != null) {
+			if (this.preferences.insert_space_within_message_send) {
+				this.scribe.space();
+			}
 			int argumentLength = arguments.length;
 			Alignment argumentsAlignment =this.scribe.createAlignment(
 					"allocation",//$NON-NLS-1$
@@ -3479,9 +3482,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean ok = false;
 			do {
 				try {
-					if (this.preferences.insert_space_within_message_send) {
-						this.scribe.space();
-					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
