@@ -127,14 +127,27 @@ public class AssertStatement extends Statement {
 		if (exceptionArgument != null) {
 			TypeBinding exceptionArgumentType = exceptionArgument.resolveType(scope);
 			if (exceptionArgumentType != null){
-				if (exceptionArgumentType.id == T_void){
-					scope.problemReporter().illegalVoidExpression(exceptionArgument);
+			    int id = exceptionArgumentType.id;
+			    switch(id) {
+					case T_void :
+						scope.problemReporter().illegalVoidExpression(exceptionArgument);
+					default:
+					    id = T_Object;
+					case T_boolean :
+					case T_byte :
+					case T_char :
+					case T_short :
+					case T_double :
+					case T_float :
+					case T_int :
+					case T_long :
+					case T_String :
+						exceptionArgument.implicitConversion = (id << 4) + id;
 				}
-				exceptionArgument.implicitConversion = (exceptionArgumentType.id << 4) + exceptionArgumentType.id;
 			}
 		}
 	}
-	
+
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {

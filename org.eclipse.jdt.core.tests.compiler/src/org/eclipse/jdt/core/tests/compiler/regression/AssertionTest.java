@@ -255,26 +255,47 @@ public class AssertionTest extends AbstractRegressionTest {
 	} 	
 	
 	/**
- * http://dev.eclipse.org/bugs/show_bug.cgi?id=28750
- */
-public void test011() {
-	this.runConformTest(
-		new String[] {
-			"AssertTest.java",
-			"public class AssertTest {\n" +
-			"   public AssertTest() {}\n" +
-			"   public class InnerClass {\n" +
-			"      InnerClass() {\n" +
-			"        assert(false);\n" +
-			"      }\n" +
-			"   }\n" +
-			"   \n" +
-			"   public static void main(String[] args) {	\n" +
-			"        System.out.print(\"SUCCESS\");	\n" +
-			"	}	\n" +
-			"}"
-		},
-		"SUCCESS"); // expected output
-}
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=28750
+	 */
+	public void test011() {
+		this.runConformTest(
+			new String[] {
+				"AssertTest.java",
+				"public class AssertTest {\n" +
+				"   public AssertTest() {}\n" +
+				"   public class InnerClass {\n" +
+				"      InnerClass() {\n" +
+				"        assert(false);\n" +
+				"      }\n" +
+				"   }\n" +
+				"   \n" +
+				"   public static void main(String[] args) {	\n" +
+				"        System.out.print(\"SUCCESS\");	\n" +
+				"	}	\n" +
+				"}"
+			},
+			"SUCCESS"); // expected output
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=57743
+	 */
+	public void test012() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main( String[] args ) {\n" + 
+				"        try {\n" + 
+				"            throw new Throwable( \"This is a test\");\n" + 
+				"        }\n" + 
+				"        catch( Throwable ioe ) {\n" + 
+				"            assert false : ioe;\n" + 
+				"        }\n" + 
+				"        System.out.print(\"SUCCESS\");	\n" +
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS"); // expected output
+	}
 
 }
