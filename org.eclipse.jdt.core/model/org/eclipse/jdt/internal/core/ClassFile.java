@@ -240,6 +240,9 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 	if (mapper == null) {
 		return null;
 	} else {
+		// ensure this class file's buffer is open so that source ranges are computed
+		getBuffer();
+
 		IType type = getType();
 		return findElement(type, position, mapper);
 	}

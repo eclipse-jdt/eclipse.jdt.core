@@ -431,7 +431,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 				try {
 					// close the root so that source attachement cache is flushed
 					root = projectOfRoot.findPackageFragmentRoot(rootPath);
-					root.close();
+					if (root != null) {
+						root.close();
+					}
 				} catch (JavaModelException e) {
 				}
 				if (root == null) return;
@@ -1058,8 +1060,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				IPath sourceAttachmentPath;
 				if (propertyString != null) {
 					int index= propertyString.lastIndexOf(JarPackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
-					if (index < 0) continue;
-					sourceAttachmentPath = new Path(propertyString.substring(0, index));
+					sourceAttachmentPath = (index < 0) ?  new Path(propertyString) : new Path(propertyString.substring(0, index));
 				} else {
 					sourceAttachmentPath = entry.getSourceAttachmentPath();
 				}

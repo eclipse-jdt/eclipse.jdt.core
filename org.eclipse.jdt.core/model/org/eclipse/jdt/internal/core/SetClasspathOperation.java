@@ -100,9 +100,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				} catch (JavaModelException e) {
 				}
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
-				if (root instanceof JarPackageFragmentRoot) {
-					((JarPackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
-				}
+				((PackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
 			}
 		}
 	}
@@ -349,14 +347,17 @@ public class SetClasspathOperation extends JavaModelOperation {
 				}
 				
 				// check source attachment
+				IPath newSourcePath = newResolvedPath[index].getSourceAttachmentPath();
 				int sourceAttachmentFlags = 
 					this.getSourceAttachmentDeltaFlag(
 						oldResolvedPath[i].getSourceAttachmentPath(),
-						newResolvedPath[index].getSourceAttachmentPath());
+						newSourcePath,
+						null/*not a source root path*/);
 				int sourceAttachmentRootFlags = 
 					this.getSourceAttachmentDeltaFlag(
 						oldResolvedPath[i].getSourceAttachmentRootPath(),
-						newResolvedPath[index].getSourceAttachmentRootPath());
+						newResolvedPath[index].getSourceAttachmentRootPath(),
+						newSourcePath/*in case both root paths are null*/);
 				int flags = sourceAttachmentFlags | sourceAttachmentRootFlags;
 				if (flags != 0) {
 					addClasspathDeltas(
@@ -449,12 +450,17 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 * Returns either F_SOURCEATTACHED, F_SOURCEDETACHED, F_SOURCEATTACHED | F_SOURCEDETACHED
 	 * or 0 if there is no difference.
 	 */
-	private int getSourceAttachmentDeltaFlag(IPath oldPath, IPath newPath) {
+	private int getSourceAttachmentDeltaFlag(IPath oldPath, IPath newPath, IPath sourcePath) {
 		if (oldPath == null) {
 			if (newPath != null) {
 				return IJavaElementDelta.F_SOURCEATTACHED;
 			} else {
-				return 0;
+				if (sourcePath != null) {
+					// if source path is specified and no root path, it needs to be recomputed dynamically
+					return IJavaElementDelta.F_SOURCEATTACHED | IJavaElementDelta.F_SOURCEDETACHED;
+				} else {
+					return 0;
+				}
 			}
 		} else if (newPath == null) {
 			return IJavaElementDelta.F_SOURCEDETACHED;

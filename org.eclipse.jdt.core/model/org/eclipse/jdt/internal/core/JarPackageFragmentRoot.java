@@ -61,19 +61,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		super(resource, project);
 		this.jarPath = resource.getFullPath();
 	}
-	/**
-	 * Close the associated JAR file stored in the info of this element. If
-	 * this jar has an associated ZIP source attachment, close it too.
-	 *
-	 * @see IOpenable
-	 */
-	protected void closing(Object info) throws JavaModelException {
-		SourceMapper mapper= getSourceMapper();
-		if (mapper != null) {
-			mapper.close();
-		}
-		super.closing(info);
-	}
+
 	/**
 	 * Compute the package fragment children of this package fragment root.
 	 * These are all of the directory zip entries, and any directories implied

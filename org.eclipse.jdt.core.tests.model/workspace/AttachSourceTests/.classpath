@@ -4,6 +4,6 @@
     <classpathentry kind="lib" path="attach2.jar"/>
     <classpathentry kind="lib" path="lib"/>
     <classpathentry kind="src" path="src"/>
-    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="var" path="JCL_LIB"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

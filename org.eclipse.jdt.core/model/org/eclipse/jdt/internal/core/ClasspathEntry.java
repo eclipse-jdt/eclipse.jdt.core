@@ -220,14 +220,14 @@ public class ClasspathEntry implements IClasspathEntry {
 			path = projectPath.append(path);
 		}
 		// source attachment info (optional)
-		String sourceAttachmentPathStr = element.getAttribute("sourcepath");	//$NON-NLS-1$
-		IPath sourceAttachmentPath =
-			sourceAttachmentPathStr.equals("") ? null : new Path(sourceAttachmentPathStr); //$NON-NLS-1$
-		String sourceAttachmentRootPathStr = element.getAttribute("rootpath"); //$NON-NLS-1$
-		IPath sourceAttachmentRootPath =
-			sourceAttachmentRootPathStr.equals("") //$NON-NLS-1$
-				? null
-				: new Path(sourceAttachmentRootPathStr);
+		IPath sourceAttachmentPath = 
+			element.hasAttribute("sourcepath")	//$NON-NLS-1$
+			? new Path(element.getAttribute("sourcepath")) //$NON-NLS-1$
+			: null;
+		IPath sourceAttachmentRootPath = 
+			element.hasAttribute("rootpath") //$NON-NLS-1$
+			? new Path(element.getAttribute("rootpath")) //$NON-NLS-1$
+			: null;
 		
 		// exported flag (optional)
 		boolean isExported = element.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$

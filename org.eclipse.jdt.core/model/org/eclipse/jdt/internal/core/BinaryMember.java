@@ -35,9 +35,12 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see ISourceReference
  */
-public ISourceRange getNameRange() {
+public ISourceRange getNameRange() throws JavaModelException {
 	SourceMapper mapper= getSourceMapper();
 	if (mapper != null) {
+		// ensure the class file's buffer is open so that source ranges are computed
+		((ClassFile)getClassFile()).getBuffer();
+		
 		return mapper.getNameRange(this);
 	} else {
 		return SourceMapper.fgUnknownRange;
@@ -49,6 +52,9 @@ public ISourceRange getNameRange() {
 public ISourceRange getSourceRange() throws JavaModelException {
 	SourceMapper mapper= getSourceMapper();
 	if (mapper != null) {
+		// ensure the class file's buffer is open so that source ranges are computed
+		((ClassFile)getClassFile()).getBuffer();
+
 		return mapper.getSourceRange(this);
 	} else {
 		return SourceMapper.fgUnknownRange;
