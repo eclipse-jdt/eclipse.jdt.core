@@ -2,20 +2,16 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.*;
 
 import java.io.IOException;
-import java.util.HashSet;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

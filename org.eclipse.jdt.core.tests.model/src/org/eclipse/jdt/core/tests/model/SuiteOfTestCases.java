@@ -1,8 +1,6 @@
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
 import junit.framework.Protectable;

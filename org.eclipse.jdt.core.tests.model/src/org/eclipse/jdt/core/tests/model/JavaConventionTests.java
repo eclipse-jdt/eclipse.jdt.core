@@ -1,11 +1,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.JavaElement;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

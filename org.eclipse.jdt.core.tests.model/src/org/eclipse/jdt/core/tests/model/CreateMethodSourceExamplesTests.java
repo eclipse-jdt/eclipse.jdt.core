@@ -1,12 +1,9 @@
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.jdom.*;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class CreateMethodSourceExamplesTests extends AbstractJavaModelTests {
 	

@@ -12,7 +12,6 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;

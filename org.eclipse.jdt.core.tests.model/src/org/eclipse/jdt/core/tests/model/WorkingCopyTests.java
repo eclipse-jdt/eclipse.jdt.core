@@ -5,14 +5,12 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.JavaModelException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Vector;
 

@@ -60,7 +60,7 @@ public final class ASTPosterChild extends java.lang.Object
 		// SimpleType, StringLiteral
 		String z = "hello";//$NON-NLS-1$
 		// NullLiteral
-		Object o1 = null;
+		Vector o1 = null;
 		// ArrayType, ArrayInitializer
 		int[] t1 = {1};
 		int[][] t2 = {{1,2}, {3,4}};

@@ -6,7 +6,6 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.*;
-import org.eclipse.jdt.internal.core.*;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
