@@ -106,13 +106,7 @@ public boolean build(SimpleLookupTable deltas) {
 			notifier.setProgressPerCompilationUnit(increment / allSourceFiles.length);
 			increment = increment / 2;
 			compile(allSourceFiles, initialTypeStrings);
-			if (secondaryTypesToRemove != null) { // delayed deleting secondary types until the end of the compile loop
-				for (int i = 0, length = secondaryTypesToRemove.size(); i < length; i++)
-					removeClassFile((IPath) secondaryTypesToRemove.get(i));
-				this.secondaryTypesToRemove = null;
-				if (previousLocations != null && previousLocations.size() > 1)
-					this.previousLocations = null; // cannot optimize recompile case when a secondary type is deleted
-			}
+			removeSecondaryTypes();
 			addAffectedSourceFiles();
 		}
 	} catch (AbortIncrementalBuildException e) {
@@ -462,6 +456,16 @@ protected void removeClassFile(IPath typePath) throws CoreException {
 		if (JavaBuilder.DEBUG)
 			System.out.println("Deleting class file of removed type " + typePath); //$NON-NLS-1$
 		classFile.delete(true, null);
+	}
+}
+
+protected void removeSecondaryTypes() throws CoreException {
+	if (secondaryTypesToRemove != null) { // delayed deleting secondary types until the end of the compile loop
+		for (int i = 0, length = secondaryTypesToRemove.size(); i < length; i++)
+			removeClassFile((IPath) secondaryTypesToRemove.get(i));
+		this.secondaryTypesToRemove = null;
+		if (previousLocations != null && previousLocations.size() > 1)
+			this.previousLocations = null; // cannot optimize recompile case when a secondary type is deleted
 	}
 }
 
