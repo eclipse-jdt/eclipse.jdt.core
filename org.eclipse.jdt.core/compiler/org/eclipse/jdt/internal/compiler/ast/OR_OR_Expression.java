@@ -61,7 +61,7 @@ public class OR_OR_Expression extends BinaryExpression {
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
 		FlowInfo falseInfo = rightInfo.initsWhenFalse().copy();
 		falseInfo.setReachMode(rightInfo.reachMode()); // so merge works fine
-		rightInfo.setReachMode(mode); // reset after trueInfo got extracted
+		rightInfo.setReachMode(mode); // reset after falseInfo got extracted
 
 		FlowInfo mergedInfo = FlowInfo.conditional(
 					// merging two true initInfos for such a negative case: if ((t && (b = t)) || f) r = b; // b may not have been initialized
