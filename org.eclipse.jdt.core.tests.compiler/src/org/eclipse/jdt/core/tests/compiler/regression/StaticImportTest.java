@@ -531,4 +531,20 @@ public class StaticImportTest extends AbstractComparisonTest {
 			""
 		);
 	}
+
+	public void test016() { // 77630
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.*;\n" +
+				"public class X {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	import static java.lang.*;\r\n" + 
+			"	              ^^^^^^^^^\n" + 
+			"Only a type can be imported. java.lang resolves to a package\n" + 
+			"----------\n"
+		);
+	}
 }

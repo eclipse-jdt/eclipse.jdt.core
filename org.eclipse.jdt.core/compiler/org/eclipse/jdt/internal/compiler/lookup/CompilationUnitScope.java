@@ -139,7 +139,7 @@ void checkAndSetImports() {
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = referenceContext.imports[i];
-		if (importReference.onDemand && CharOperation.equals(JAVA_LANG, importReference.tokens)) {
+		if (importReference.onDemand && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
 			numberOfImports--;
 			break;
 		}
@@ -165,7 +165,7 @@ void checkAndSetImports() {
 				continue nextImport;
 
 			Binding importBinding = findImport(compoundName, compoundName.length);
-			if (!importBinding.isValidBinding())
+			if (!importBinding.isValidBinding() || (importReference.isStatic() && importBinding instanceof PackageBinding))
 				continue nextImport;	// we report all problems in faultInImports()
 			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
 		} else {
@@ -262,7 +262,7 @@ void faultInImports() {
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = referenceContext.imports[i];
-		if (importReference.onDemand && CharOperation.equals(JAVA_LANG, importReference.tokens)) {
+		if (importReference.onDemand && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
 			numberOfImports--;
 			break;
 		}
@@ -297,6 +297,10 @@ void faultInImports() {
 			Binding importBinding = findImport(compoundName, compoundName.length);
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);
+				continue nextImport;
+			}
+			if (importReference.isStatic() && importBinding instanceof PackageBinding) {
+				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
 			}
 			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
