@@ -47,7 +47,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public static short check_table[] = null;
 	public static final int CurlyBracket = 2;
 	// TODO remove once testing is done
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
 	//expression stack
