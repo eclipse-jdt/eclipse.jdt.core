@@ -14,48 +14,61 @@ import java.util.*;
 class ClasspathDirectory extends ClasspathLocation {
 
 String binaryPath; // includes .class files for a single directory
-SimpleLookupTable missingPackages;
 SimpleLookupTable directoryCache;
+String[] missingPackageHolder = new String[0];
 
 ClasspathDirectory(String binaryPath) {
 	this.binaryPath = binaryPath;
 	if (!binaryPath.endsWith("/")) //$NON-NLS-1$
 		this.binaryPath += "/"; //$NON-NLS-1$
 
-	this.missingPackages = new SimpleLookupTable();
 	this.directoryCache = new SimpleLookupTable();
 }
 
 void cleanup() {
-	this.missingPackages = null;
 	this.directoryCache = null;
 }
 
-String[] directoryList(String pathPrefix, char[][] compoundName, char[] packageName) {
-	String partialPath = NameEnvironment.assembleName(packageName, compoundName, '/');
-	if (missingPackages.containsKey(partialPath)) return null;
-
-	String fullPath = pathPrefix + partialPath;
-	String[] dirList = (String[]) directoryCache.get(fullPath);
+String[] directoryList(String qualifiedPackageName) {
+	String[] dirList = (String[]) directoryCache.get(qualifiedPackageName);
+	if (dirList == missingPackageHolder) return null; // package exists in another classpath directory or jar
 	if (dirList != null) return dirList;
 
-	File dir = new File(fullPath);
-	if (dir != null && dir.isDirectory()) {
-		boolean matchesName = packageName == null;
-		if (!matchesName) {
-			int index = packageName.length;
-			while (--index >= 0 && !Character.isUpperCase(packageName[index])) {}
-			matchesName = index < 0 || exists(pathPrefix, new String(packageName), compoundName);
+	File dir = new File(binaryPath + qualifiedPackageName);
+	notFound : if (dir != null && dir.isDirectory()) {
+		// must protect against a case insensitive File call
+		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
+		int index = qualifiedPackageName.length();
+		int last = qualifiedPackageName.lastIndexOf('/');
+		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index))) {}
+		if (index > last) {
+			if (last == -1) {
+				if (!doesFileExist(qualifiedPackageName, ""))
+					break notFound;
+			} else {
+				String packageName = qualifiedPackageName.substring(last + 1);
+				String parentPackage = qualifiedPackageName.substring(0, last);
+				if (!doesFileExist(packageName, parentPackage))
+					break notFound;
+			}
 		}
-		if (matchesName) {
-			if ((dirList = dir.list()) == null)
-				dirList = new String[0];
-			directoryCache.put(fullPath, dirList);
-			return dirList;
-		}
+		if ((dirList = dir.list()) == null)
+			dirList = new String[0];
+		directoryCache.put(qualifiedPackageName, dirList);
+		return dirList;
 	}
-	missingPackages.put(partialPath, partialPath); // value is not used
+	directoryCache.put(qualifiedPackageName, missingPackageHolder);
 	return null;
+}
+
+boolean doesFileExist(String fileName, String qualifiedPackageName) {
+	String[] dirList = directoryList(qualifiedPackageName);
+	if (dirList == null) return false; // most common case
+
+	for (int i = dirList.length; --i >= 0;)
+		if (fileName.equals(dirList[i]))
+			return true;
+	return false;
 }
 
 public boolean equals(Object o) {
@@ -65,33 +78,21 @@ public boolean equals(Object o) {
 	return binaryPath.equals(((ClasspathDirectory) o).binaryPath);
 } 
 
-boolean exists(String pathPrefix, String filename, char[][] packageName) {
-	String[] dirList = directoryList(pathPrefix, packageName, null);
-	if (dirList != null)
-		for (int i = dirList.length; --i >= 0;)
-			if (filename.equals(dirList[i]))
-				return true;
-	return false;
-}
+NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	if (!doesFileExist(binaryFileName, qualifiedPackageName)) return null; // most common case
 
-NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
-	String binaryFilename = new String(className) + ".class"; //$NON-NLS-1$
-	if (exists(binaryPath, binaryFilename, packageName)) {
-		try {
-			return new NameEnvironmentAnswer(
-				ClassFileReader.read(binaryPath + NameEnvironment.assembleName(binaryFilename, packageName, '/')));
-		} catch (Exception e) {
-		}
-	}
+	try {
+		ClassFileReader reader = ClassFileReader.read(binaryPath + qualifiedBinaryFileName);
+		if (reader != null) return new NameEnvironmentAnswer(reader);
+	} catch (Exception e) {} // treat as if class file is missing
 	return null;
 }
 
-boolean isPackage(char[][] compoundName, char[] packageName) {
-	return directoryList(binaryPath, compoundName, packageName) != null;
+boolean isPackage(String qualifiedPackageName) {
+	return directoryList(qualifiedPackageName) != null;
 }
 
 void reset() {
-	this.missingPackages = new SimpleLookupTable();
 	this.directoryCache = new SimpleLookupTable();
 }
 

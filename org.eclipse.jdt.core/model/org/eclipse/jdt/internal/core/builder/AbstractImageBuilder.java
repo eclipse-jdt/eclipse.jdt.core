@@ -151,7 +151,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
 				System.out.println("About to compile " + filename); //$NON-NLS-1$
-			toCompile[i] = new SourceFile(filename, initialTypeNames[i].toCharArray());
+			toCompile[i] = new SourceFile(filename, initialTypeNames[i]);
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
@@ -169,9 +169,9 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 				if (compilingFirstGroup || workQueue.isWaiting(filename)) {
 					if (JavaBuilder.DEBUG)
 						System.out.println("About to compile " + filename);//$NON-NLS-1$
-					String typeName = initialTypeNames[i];
-					initialNamesInLoop[index] = typeName;
-					toCompile[index++] = new SourceFile(filename, typeName.toCharArray());
+					String initialTypeName = initialTypeNames[i];
+					initialNamesInLoop[index] = initialTypeName;
+					toCompile[index++] = new SourceFile(filename, initialTypeName);
 				}
 				i++;
 			}

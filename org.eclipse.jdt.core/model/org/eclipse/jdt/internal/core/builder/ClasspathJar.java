@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import java.io.*;
 import java.util.*;
@@ -17,48 +16,20 @@ class ClasspathJar extends ClasspathLocation {
 
 String zipFilename; // keep for equals
 ZipFile zipFile;
-SimpleLookupTable directoryCache;	
+SimpleLookupTable packageCache;	
 
 ClasspathJar(String zipFilename) {
 	this.zipFilename = zipFilename;
 	this.zipFile = null;
-	this.directoryCache = null;
-}
-
-void buildDirectoryStructure() {
-	this.directoryCache = new SimpleLookupTable(101);
-
-	try {
-		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-			System.out.println("[ClasspathJar.buildDirectoryStructure()] Creating ZipFile on " + zipFilename); //$NON-NLS-1$
-		}
-		this.zipFile = new ZipFile(zipFilename);
-	} catch(IOException e) {
-		return;
-	}
-	for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
-
-		// extract the package name
-		int last = fileName.lastIndexOf('/');
-		if (last > 0 && directoryCache.get(fileName.substring(0, last)) == null) {
-			// add the package name & all of its parent packages
-			for (int i = 0; i <= last; i++) {
-				i = fileName.indexOf('/', i);
-				String packageName = fileName.substring(0, i);
-				if (directoryCache.get(packageName) == null)
-					directoryCache.put(packageName, packageName);
-			}
-		}
-	}
+	this.packageCache = null;
 }
 
 void cleanup() {
 	if (zipFile != null) {
 		try { zipFile.close(); } catch(IOException e) {}
+		this.zipFile = null;
 	}
-	this.zipFile = null;
-	this.directoryCache = null;
+	this.packageCache = null;
 }
 
 public boolean equals(Object o) {
@@ -68,25 +39,43 @@ public boolean equals(Object o) {
 	return zipFilename.equals(((ClasspathJar) o).zipFilename);
 } 
 
-NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
-	if (directoryCache == null) buildDirectoryStructure();
-	try {
-		String binaryFilename =
-			NameEnvironment.assembleName(new String(className) + ".class", packageName, '/'); //$NON-NLS-1$
-		if (zipFile.getEntry(binaryFilename) == null) return null;
+NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
-		return new NameEnvironmentAnswer(ClassFileReader.read(zipFile, binaryFilename));
-	} catch (Exception e) {
-		return null; // treat as if class file is missing
-	}
+	try {
+		ClassFileReader reader = ClassFileReader.read(zipFile, qualifiedBinaryFileName);
+		if (reader != null) return new NameEnvironmentAnswer(reader);
+	} catch (Exception e) {} // treat as if class file is missing
+	return null;
 }
 
-boolean isPackage(char[][] compoundName, char[] packageName) {
-	if (directoryCache == null) buildDirectoryStructure();
-	return
-		directoryCache.get(
-			NameEnvironment.assembleName(packageName, compoundName, '/'))
-				!= null;
+boolean isPackage(String qualifiedPackageName) {
+	if (packageCache != null)
+		return packageCache.containsKey(qualifiedPackageName);
+
+	this.packageCache = new SimpleLookupTable(41);
+	packageCache.put("", ""); //$NON-NLS-1$ //$NON-NLS-2$
+	try {
+		this.zipFile = new ZipFile(zipFilename);
+	} catch(IOException e) {
+		return false;
+	}
+
+	nextEntry : for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = ((ZipEntry) e.nextElement()).getName();
+
+		// add the package name & all of its parent packages
+		int last = fileName.lastIndexOf('/');
+		while (last > 0) {
+			// extract the package name
+			String packageName = fileName.substring(0, last);
+			if (packageCache.containsKey(packageName))
+				continue nextEntry;
+			packageCache.put(packageName, packageName);
+			last = packageName.lastIndexOf('/');
+		}
+	}
+	return packageCache.containsKey(qualifiedPackageName);
 }
 
 public String toString() {

@@ -21,8 +21,8 @@ static ClasspathLocation forLibrary(String libraryPathname) {
 	return new ClasspathJar(libraryPathname);
 }
 
-abstract NameEnvironmentAnswer findClass(char[] className, char[][] packageName);
-abstract boolean isPackage(char[][] compoundName, char[] packageName);
+abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);
+abstract boolean isPackage(String qualifiedPackageName);
 
 // free anything which is not required when the state is saved
 void cleanup() {

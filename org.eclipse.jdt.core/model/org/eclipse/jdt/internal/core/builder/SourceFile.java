@@ -16,21 +16,22 @@ public char[] fileName;
 public char[] mainTypeName;
 public char[][] packageName;
 
-public SourceFile(String fileName, char[] typeName) {
+public SourceFile(String fileName, String initialTypeName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
+	char[] typeName = initialTypeName.toCharArray();
 	int lastIndex = CharOperation.lastIndexOf('/', typeName);
 	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
 	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
 }
 
-public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
+public SourceFile(String fileName, String mainTypeName, String qualifiedPackageName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
-	this.mainTypeName = mainTypeName;
-	this.packageName = packageName;
+	this.mainTypeName = mainTypeName.toCharArray();
+	this.packageName = CharOperation.splitOn('/', qualifiedPackageName.toCharArray());
 }
 
 public char[] getContents() {

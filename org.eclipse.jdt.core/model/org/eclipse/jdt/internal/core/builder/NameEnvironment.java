@@ -136,55 +136,53 @@ public static ClasspathLocation[] computeLocations(
 	return classpathLocations;
 }
 
-public static String assembleName(char[] fileName, char[][] packageName, char separator) {
-	return new String(CharOperation.concatWith(packageName, fileName, separator));
-}
-
-public static String assembleName(String fileName, char[][] packageName, char separator) {
-	return new String(
-		CharOperation.concatWith(
-			packageName,
-			fileName == null ? null : fileName.toCharArray(),
-			separator));
-}
-
 public void cleanup() {
 	for (int i = 0, length = classpathLocations.length; i < length; i++)
 		classpathLocations[i].cleanup();
 }
 
-private NameEnvironmentAnswer findClass(char[] name, char[][] packageName) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
 	if (initialTypeNames != null) {
-		String fullName = assembleName(name, packageName, '/');
 		for (int i = 0, length = initialTypeNames.length; i < length; i++)
-			if (fullName.equals(initialTypeNames[i]))
+			if (qualifiedTypeName.equals(initialTypeNames[i]))
 				return null; // looking for a file which we know was provided at the beginning of the compilation
 	}
+
+	String qualifiedBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
+	String binaryFileName = qualifiedBinaryFileName;
+	String qualifiedPackageName =  ""; //$NON-NLS-1$
+	if (qualifiedTypeName.length() > typeName.length) {
+		int typeNameStart = qualifiedBinaryFileName.length() - typeName.length - 6; // size of ".class"
+		qualifiedPackageName =  qualifiedBinaryFileName.substring(0, typeNameStart - 1);
+		binaryFileName = qualifiedBinaryFileName.substring(typeNameStart);
+	}
 	for (int i = 0, length = classpathLocations.length; i < length; i++) {
-		NameEnvironmentAnswer answer = classpathLocations[i].findClass(name, packageName);
+		NameEnvironmentAnswer answer = classpathLocations[i].findClass(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName);
 		if (answer != null) return answer;
 	}
-	return null; 
+	return null;
 }
 
 public NameEnvironmentAnswer findType(char[][] compoundName) {
-	if (compoundName == null) return null;
-	return findClass(
-		compoundName[compoundName.length - 1],
-		CharOperation.subarray(compoundName, 0, compoundName.length - 1));
+	if (compoundName != null)
+		return findClass(
+			new String(CharOperation.concatWith(compoundName, '/')),
+			compoundName[compoundName.length - 1]);
+	return null;
 }
 
-public NameEnvironmentAnswer findType(char[] name, char[][] compoundName) {
-	if (name == null) return null;
-	return findClass(name, compoundName);
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+	if (typeName != null)
+		return findClass(
+			new String(CharOperation.concatWith(packageName, typeName, '/')),
+			typeName);
+	return null;
 }
 
 public boolean isPackage(char[][] compoundName, char[] packageName) {
-	if (compoundName == null)
-		compoundName = new char[0][];
-
+	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, '/'));
 	for (int i = 0, length = classpathLocations.length; i < length; i++)
-		if (classpathLocations[i].isPackage(compoundName, packageName))
+		if (classpathLocations[i].isPackage(qualifiedPackageName))
 			return true;
 	return false;
 }
