@@ -111,28 +111,26 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		//    a sub or super type of the focus type.
 		org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
 		if (nameLookup != null) {
-			synchronized(nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
-				IWorkingCopy[] workingCopies = this.getWokingCopies();
-				IWorkingCopy[] unitsToLookInside;
-				if (unitToLookInside != null) {
-					int wcLength = workingCopies == null ? 0 : workingCopies.length;
-					if (wcLength == 0) {
-						unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
-					} else {
-						unitsToLookInside = new IWorkingCopy[wcLength+1];
-						unitsToLookInside[0] = unitToLookInside;
-						System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
-					}
+			IWorkingCopy[] workingCopies = this.getWokingCopies();
+			IWorkingCopy[] unitsToLookInside;
+			if (unitToLookInside != null) {
+				int wcLength = workingCopies == null ? 0 : workingCopies.length;
+				if (wcLength == 0) {
+					unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
 				} else {
-					unitsToLookInside = workingCopies;
+					unitsToLookInside = new IWorkingCopy[wcLength+1];
+					unitsToLookInside[0] = unitToLookInside;
+					System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
 				}
-				try {
-					nameLookup.setUnitsToLookInside(unitsToLookInside);
-					// resolve
-					this.hierarchyResolver.resolve(type);
-				} finally {
-					nameLookup.setUnitsToLookInside(null);
-				}
+			} else {
+				unitsToLookInside = workingCopies;
+			}
+			try {
+				nameLookup.setUnitsToLookInside(unitsToLookInside); // NB: this uses a PerThreadObject, so it is thread safe
+				// resolve
+				this.hierarchyResolver.resolve(type);
+			} finally {
+				nameLookup.setUnitsToLookInside(null);
 			}
 		} else {
 			// resolve

@@ -137,13 +137,11 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 				unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
 			}
 			if (this.nameLookup != null && unitToLookInside != null) {
-				synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
-					try {
-						nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
-						this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
-					} finally {
-						nameLookup.setUnitsToLookInside(null);
-					}
+				try {
+					nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside}); // NB: this uses a PerThreadObject, so it is thread safe
+					this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+				} finally {
+					nameLookup.setUnitsToLookInside(null);
 				}
 			} else {
 				this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);

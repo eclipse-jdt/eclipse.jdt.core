@@ -197,24 +197,22 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 		IType focusType = this.getType();
 		this.nameLookup = project.getNameLookup();
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
-		synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the units to look inside are set
-			if (inProjectOfFocusType) {
-				org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
-				IWorkingCopy[] unitsToLookInside;
-				if (unitToLookInside != null) {
-					int wcLength = workingCopies == null ? 0 : workingCopies.length;
-					if (wcLength == 0) {
-						unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
-					} else {
-						unitsToLookInside = new IWorkingCopy[wcLength+1];
-						unitsToLookInside[0] = unitToLookInside;
-						System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
-					}
+		if (inProjectOfFocusType) {
+			org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
+			IWorkingCopy[] unitsToLookInside;
+			if (unitToLookInside != null) {
+				int wcLength = workingCopies == null ? 0 : workingCopies.length;
+				if (wcLength == 0) {
+					unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
 				} else {
-					unitsToLookInside = workingCopies;
+					unitsToLookInside = new IWorkingCopy[wcLength+1];
+					unitsToLookInside[0] = unitToLookInside;
+					System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
 				}
-				this.nameLookup.setUnitsToLookInside(unitsToLookInside);
+			} else {
+				unitsToLookInside = workingCopies;
 			}
+			this.nameLookup.setUnitsToLookInside(unitsToLookInside); // NB: this uses a PerThreadObject, so it is thread safe
 			try {
 				this.hierarchyResolver = 
 					new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());

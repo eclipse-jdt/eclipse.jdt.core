@@ -187,27 +187,25 @@ protected char[][][] collect() throws JavaModelException {
 		this.resultIndex = 0;
 		JavaProject javaProject = (JavaProject)this.type.getJavaProject();
 		this.locator.initialize(javaProject);
-		synchronized(this.locator.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
-			this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
-			try {
-				if (this.type.isBinary()) {
-					BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type);
-					if (binding != null) {
-						this.collectSuperTypeNames(binding);
-					}
-				} else {
-					ICompilationUnit unit = this.type.getCompilationUnit();
-					CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
-					if (parsedUnit != null) {
-						parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
-					}
+		this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies); // NB: this uses a PerThreadObject, so it is thread safe
+		try {
+			if (this.type.isBinary()) {
+				BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type);
+				if (binding != null) {
+					this.collectSuperTypeNames(binding);
 				}
-			} catch (AbortCompilation e) {
-				// problem with classpath: report inacurrate matches
-				return null;
-			} finally {
-				this.locator.nameLookup.setUnitsToLookInside(null);
+			} else {
+				ICompilationUnit unit = this.type.getCompilationUnit();
+				CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
+				if (parsedUnit != null) {
+					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
+				}
 			}
+		} catch (AbortCompilation e) {
+			// problem with classpath: report inacurrate matches
+			return null;
+		} finally {
+			this.locator.nameLookup.setUnitsToLookInside(null);
 		}
 		return this.result;
 	} else {	
