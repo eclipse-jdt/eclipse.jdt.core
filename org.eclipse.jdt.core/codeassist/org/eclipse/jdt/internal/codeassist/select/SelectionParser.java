@@ -648,7 +648,7 @@ protected MessageSend newMessageSend() {
 			messageSend.arguments = new Expression[length], 
 			0, 
 			length); 
-	};
+	}
 	assistNode = messageSend;
 	if (!diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode

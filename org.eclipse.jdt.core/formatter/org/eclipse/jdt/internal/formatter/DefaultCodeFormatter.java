@@ -260,7 +260,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
 		
-		String result = this.newCodeFormatter.format(source, positions, constructorDeclaration);;
+		String result = this.newCodeFormatter.format(source, positions, constructorDeclaration);
 		if (positions != null) {
 			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
 		}

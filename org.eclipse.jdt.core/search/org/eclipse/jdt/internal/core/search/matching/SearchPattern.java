@@ -1376,7 +1376,7 @@ protected int matchLevelAsSubtype(ReferenceBinding type, char[] simpleNamePatter
 		for (int i = 0; i < interfaces.length; i++) {
 			if ((level = this.matchLevelAsSubtype(interfaces[i], simpleNamePattern, qualificationPattern)) != IMPOSSIBLE_MATCH) {
 				return level;
-			};
+			}
 		}
 	}
 

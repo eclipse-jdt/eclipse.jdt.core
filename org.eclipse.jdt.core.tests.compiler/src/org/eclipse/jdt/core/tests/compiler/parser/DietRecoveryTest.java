@@ -2800,7 +2800,7 @@ public void test44() {
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
-	String expectedCompletionDietUnitToString = expectedDietUnitToString;;
+	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 	
 	String testName = "<should find static field x>";
 	checkParse(
@@ -4969,7 +4969,7 @@ public void test88() {
 		"  }\n" + 
 		"  int foo(String s, int x) {\n" + 
 		"  }\n" + 
-		"}\n";;
+		"}\n";
 	
 	String testName = "<1FVRQG0: ITPCOM:WINNT - NullPointerException in recovery mode>";
 	checkParse(

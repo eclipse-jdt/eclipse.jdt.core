@@ -87,7 +87,7 @@ public class IfStatement extends Statement {
 				thenFlowInfo =
 					thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
 			}
-		};
+		}
 		// optimizing the jump around the ELSE part
 		this.thenExit = !thenFlowInfo.isReachable();
 

@@ -634,7 +634,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	} else {
 		/* completion inside subsequent identifier */
 		reference = this.createQualifiedAssistNameReference(subset, assistIdentifier(), positions);
-	};
+	}
 	reference.bits &= ~AstNode.RestrictiveFlagMASK;
 	reference.bits |= LOCAL | FIELD;
 	

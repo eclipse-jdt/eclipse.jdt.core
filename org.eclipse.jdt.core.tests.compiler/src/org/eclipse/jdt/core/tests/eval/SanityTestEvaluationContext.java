@@ -121,7 +121,7 @@ public void testEvaluateVariable() {
 			public void acceptResult(EvaluationResult result) {
 				assertTrue("No problems with the variable", !result.hasProblems());
 			}
-		};
+		}
 		try {
 			context.evaluateVariables(getEnv(), getOptions(), new NoPbRequestor(), getProblemFactory());
 		} catch (InstallException e) {

@@ -999,7 +999,7 @@ This variable is a type reference and dim will be its dimensions*/
 				ref.sourceEnd = endPosition;
 			}
 		}
-	};
+	}
 	return ref;
 }
 public void initialize() {
@@ -1307,7 +1307,7 @@ protected TypeReference typeReference(
 			else
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
 		}
-	};
+	}
 	return ref;
 }
 }

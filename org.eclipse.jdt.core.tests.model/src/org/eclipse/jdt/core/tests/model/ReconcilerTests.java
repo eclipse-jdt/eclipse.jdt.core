@@ -564,7 +564,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 			if (isCanceling) myMonitor.setCanceled(true); // auto-cancel on first problem
 			super.acceptProblem(problem);
 		}		
-	};
+	}
 	CancelingProblemRequestor myPbRequestor = new CancelingProblemRequestor();
 	
 	this.workingCopy.destroy();

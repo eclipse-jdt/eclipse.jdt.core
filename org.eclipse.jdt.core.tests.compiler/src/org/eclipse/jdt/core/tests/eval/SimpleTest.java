@@ -196,7 +196,7 @@ protected String errorReportSource(DefaultProblem problem, char[] source) {
 	//remove all SPACE and TAB that begin the error message...
 	int trimLeftIndex = 0;
 	while (((c = extract[trimLeftIndex++]) == TAB) || (c == SPACE)) {
-	};
+	}
 	System.arraycopy(extract, trimLeftIndex - 1, extract = new char[extract.length - trimLeftIndex + 1], 0, extract.length);
 	relativeStart -= trimLeftIndex;
 	//buffer spaces and tabs in order to reach the error position

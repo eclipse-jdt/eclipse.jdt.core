@@ -61,7 +61,7 @@ public class SelectionOnMessageSend extends MessageSend {
 						// if interface as not already been visited
 						currentType.tagBits |= TagBits.InterfaceVisited;
 
-						MethodBinding[] methods = currentType.getMethods(methodBinding.selector);;
+						MethodBinding[] methods = currentType.getMethods(methodBinding.selector);
 						if(methods != null) {
 							for (int k = 0; k < methods.length; k++) {
 								if(methodBinding.areParametersEqual(methods[k])) {

@@ -282,7 +282,7 @@ public class ForStatement extends Statement {
 				if (i > 0) output.append(", "); //$NON-NLS-1$
 				increments[i].print(0, output);
 			}
-		}; 
+		}
 		output.append(") "); //$NON-NLS-1$
 		//block
 		if (action == null)

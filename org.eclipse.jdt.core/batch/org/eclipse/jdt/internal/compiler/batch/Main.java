@@ -1443,7 +1443,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							if (problems[i].isError())
 								localErrorCount++;
 						}
-					};
+					}
 					// exit?
 					if (systemExitWhenFinished && !proceedOnError && (localErrorCount > 0)) {
 						err.flush();

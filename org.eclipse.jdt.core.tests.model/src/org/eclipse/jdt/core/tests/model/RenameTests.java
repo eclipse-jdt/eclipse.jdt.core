@@ -726,14 +726,14 @@ public void testRenameSyntaxErrorMethod() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("foo", null);;
+	IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("foo", null);
 	renamePositive(method, "newFoo", false);
 }
 /**
  * Ensures that attempting to rename with an incorrect number of renamings fails
  */
 public void testRenameWithInvalidRenamings() throws JavaModelException {
-	IMethod method = getCompilationUnit("/P/src/X.java").getType("X").getMethod("foo", null);;
+	IMethod method = getCompilationUnit("/P/src/X.java").getType("X").getMethod("foo", null);
 
 	renameNegative(
 		new IJavaElement[] {method}, 

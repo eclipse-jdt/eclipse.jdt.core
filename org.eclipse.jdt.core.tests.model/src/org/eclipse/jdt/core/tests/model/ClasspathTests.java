@@ -1983,7 +1983,7 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 			public IClasspathEntry[] getClasspathEntries() { return this.entries;	}
 			public String getDescription() { return null; 	}
 			public int getKind() { return 0; }
-		};
+		}
 
 		IClasspathContainer[] containers = new IClasspathContainer[]{ 
 			new TestContainer(
@@ -2244,7 +2244,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
 					time[0] += System.currentTimeMillis() - innerStart;
-				};
+				}
 				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}
 		}, 

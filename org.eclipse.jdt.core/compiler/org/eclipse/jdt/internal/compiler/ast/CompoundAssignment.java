@@ -77,7 +77,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 				return ">>="; //$NON-NLS-1$
 			case UNSIGNED_RIGHT_SHIFT :
 				return ">>>="; //$NON-NLS-1$
-		};
+		}
 		return "unknown operator"; //$NON-NLS-1$
 	}
 	

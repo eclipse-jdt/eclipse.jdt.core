@@ -69,7 +69,7 @@ public void checkParse(
 				}
 				buffer.append("----------\n");
 			}
-		};
+		}
 	}
 	String computedSyntaxErrorDiagnosis = buffer.toString();
  	//System.out.println(Util.displayString(computedSyntaxErrorDiagnosis));

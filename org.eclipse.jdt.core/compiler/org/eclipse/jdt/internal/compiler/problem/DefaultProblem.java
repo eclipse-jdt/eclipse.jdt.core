@@ -91,7 +91,7 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		//remove all SPACE and TAB that begin the error message...
 		int trimLeftIndex = 0;
 		while (((c = extract[trimLeftIndex++]) == TAB) || (c == SPACE)) {
-		};
+		}
 		System.arraycopy(
 			extract,
 			trimLeftIndex - 1,

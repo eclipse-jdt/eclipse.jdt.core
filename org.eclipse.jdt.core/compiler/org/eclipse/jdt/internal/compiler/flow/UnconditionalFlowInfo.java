@@ -159,7 +159,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 			int length;
 			System.arraycopy(this.extraDefiniteInits, 0, (copy.extraDefiniteInits = new long[ (length = extraDefiniteInits.length)]), 0, length);
 			System.arraycopy(this.extraPotentialInits, 0, (copy.extraPotentialInits = new long[length]), 0, length);
-		};
+		}
 		return copy;
 	}
 	

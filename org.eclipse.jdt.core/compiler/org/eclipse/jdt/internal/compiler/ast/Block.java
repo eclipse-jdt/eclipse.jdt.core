@@ -85,7 +85,7 @@ public class Block extends Statement {
 		for (int i = 0; i < statements.length; i++) {
 			statements[i].printStatement(indent + 1, output);
 			output.append('\n'); 
-		};
+		}
 		return output;
 	}
 

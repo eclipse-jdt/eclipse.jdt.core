@@ -253,7 +253,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					if(expressionLengthPtr > 0 && length == 1) {
 						int start = (int) (identifierPositionStack[selector] >>> 32);
 						if(this.expressionStack[expressionPtr-1] != null && this.expressionStack[expressionPtr-1].sourceStart > start) {
-							length += expressionLengthStack[expressionLengthPtr-1];;	
+							length += expressionLengthStack[expressionLengthPtr-1];
 						}
 
 					}
@@ -264,7 +264,7 @@ private void buildMoreCompletionContext(Expression expression) {
 						expressionPtr -= length;
 						System.arraycopy(expressionStack, expressionPtr + 1, arguments, 0, length-1);
 						arguments[length-1] = expression;
-					};
+					}
 					
 					if(invocType != ALLOCATION && invocType != QUALIFIED_ALLOCATION) {
 						MessageSend messageSend = new MessageSend();
@@ -1073,7 +1073,7 @@ protected void consumeClassHeaderName() {
 				
 				TypeDeclaration type = recoveredType.typeDeclaration;
 				if(type.superInterfaces == null) {
-					if(type.superclass == null) {;
+					if(type.superclass == null) {
 						keywords[count++] = Keywords.EXTENDS;
 					}
 					keywords[count++] = Keywords.IMPLEMENTS;
@@ -2429,12 +2429,12 @@ public  String toString() {
 	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
 		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 	s = s + "elementInfoStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
 		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 	return s + super.toString();
 }

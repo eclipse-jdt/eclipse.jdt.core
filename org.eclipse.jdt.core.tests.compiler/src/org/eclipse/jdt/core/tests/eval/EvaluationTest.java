@@ -400,7 +400,7 @@ protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnip
 				}
 			}
 		}
-	};
+	}
 	ResultRequestor requestor = new ResultRequestor();
 	try {
 		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());

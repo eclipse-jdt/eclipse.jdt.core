@@ -118,7 +118,7 @@ public class ToolFactory {
 	 * @deprecated - should use factory method creating ClassFileBytesDisassembler instead 
 	 */
 	public static org.eclipse.jdt.core.util.IClassFileDisassembler createDefaultClassFileDisassembler(){
-		class DeprecatedDisassembler extends Disassembler implements org.eclipse.jdt.core.util.IClassFileDisassembler {};
+		class DeprecatedDisassembler extends Disassembler implements org.eclipse.jdt.core.util.IClassFileDisassembler {}
 		return new DeprecatedDisassembler();
 	}
 	

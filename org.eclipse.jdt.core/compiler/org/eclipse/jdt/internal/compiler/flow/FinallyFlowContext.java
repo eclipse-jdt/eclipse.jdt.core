@@ -104,7 +104,7 @@ public class FinallyFlowContext extends FlowContext {
 				(finalVariables = new VariableBinding[assignCount * 2]),
 				0,
 				assignCount);
-		};
+		}
 		finalAssignments[assignCount] = finalAssignment;
 		finalVariables[assignCount++] = binding;
 		return true;

@@ -849,7 +849,7 @@ public class TypeDeclaration
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 			return;
-		};
+		}
 	}
 
 	public void resolve(BlockScope blockScope) {

@@ -103,7 +103,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 			initsOnContinue = flowInfo.copy().unconditionalInits();
 		} else {
 			initsOnContinue = initsOnContinue.mergedWith(flowInfo.unconditionalInits());
-		};
+		}
 	}
 
 	boolean recordFinalAssignment(
@@ -134,7 +134,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 				(finalVariables = new VariableBinding[assignCount * 2]),
 				0,
 				assignCount);
-		};
+		}
 		finalAssignments[assignCount] = finalAssignment;
 		finalVariables[assignCount++] = binding;
 		return true;
