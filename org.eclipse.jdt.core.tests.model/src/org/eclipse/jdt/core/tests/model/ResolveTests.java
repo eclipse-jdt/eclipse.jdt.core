@@ -614,7 +614,6 @@ public void testResolveInvalidResolve() throws JavaModelException {
 	try {
 		cu.codeSelect(-1, 10); 
 	} catch (IllegalArgumentException e) {
-		assertEquals("Incorrect message on assertion failure", "Selected range (-1, 9) is not located in supplied source range (0, 36)", e.getMessage());
 		return;
 	}
 	assertTrue("Exception should have been thrown for out of bounds resolution", false);

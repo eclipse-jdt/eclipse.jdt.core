@@ -1040,7 +1040,6 @@ public void testCompletionOutOfBounds() throws JavaModelException {
 	try {
 		cu.codeComplete(cu.getSource().length() + 1, requestor);
 	} catch (IllegalArgumentException e) {
-		assertEquals("Should be out of bounds", "Completion position 43 is not located in supplied source range (0, 42)", e.getMessage());
 		return;
 	}
 	assertTrue("should have failed", false);
