@@ -34,11 +34,6 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		
 		IPackageFragmentRoot root = (IPackageFragmentRoot)this.getElementToProcess();
 		IClasspathEntry rootEntry = root.getRawClasspathEntry();
-
-		// update classpath if needed
-		if (this.updateClasspath) {
-			updateReferingProjectClasspaths(rootEntry.getPath());
-		}
 		
 		// delete resource
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
@@ -77,13 +72,18 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 			}
 		}
 		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+
+		// update classpath if needed
+		if (this.updateClasspath) {
+			updateReferringProjectClasspaths(rootEntry.getPath());
+		}
 	}
 
 
 	/*
 	 * Deletes the classpath entries equals to the given rootPath from all Java projects.
 	 */
-	protected void updateReferingProjectClasspaths(IPath rootPath) throws JavaModelException {
+	protected void updateReferringProjectClasspaths(IPath rootPath) throws JavaModelException {
 		IJavaModel model = this.getJavaModel();
 		IJavaProject[] projects = model.getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {

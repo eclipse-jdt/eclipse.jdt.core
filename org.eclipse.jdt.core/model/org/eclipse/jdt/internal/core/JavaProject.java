@@ -325,13 +325,21 @@ public class JavaProject
 			case IClasspathEntry.CPE_SOURCE :
 
 				if (projectPath.isPrefixOf(entryPath)){
-					Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
-					if (target == null) return;
-
-					if (target instanceof IFolder || target instanceof IProject){
-						accumulatedRoots.add(
-							getPackageFragmentRoot((IResource)target));
-						rootIDs.add(rootID);
+					if (checkExistency) {
+						Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
+						if (target == null) return;
+	
+						if (target instanceof IFolder || target instanceof IProject){
+							accumulatedRoots.add(
+								getPackageFragmentRoot((IResource)target));
+							rootIDs.add(rootID);
+						}
+					} else {
+						IPackageFragmentRoot root = getPackageFragmentRoot(entryPath);
+						if (root != null) {
+							accumulatedRoots.add(root);
+							rootIDs.add(rootID);
+						}
 					}
 				}
 				break;
@@ -340,24 +348,31 @@ public class JavaProject
 			case IClasspathEntry.CPE_LIBRARY :
 			
 				if (!insideOriginalProject && !resolvedEntry.isExported()) return;
-
-				Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
-				if (target == null) return;
-
-				if (target instanceof IResource){
-					
-					// internal target
-					IResource resource = (IResource) target;
-					IPackageFragmentRoot root = getPackageFragmentRoot(resource);
-					if (root != null) {
-						accumulatedRoots.add(root);
-						rootIDs.add(rootID);
+				
+				if (checkExistency) {
+					Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
+					if (target == null) return;
+	
+					if (target instanceof IResource){
+						// internal target
+						IResource resource = (IResource) target;
+						IPackageFragmentRoot root = getPackageFragmentRoot(resource);
+						if (root != null) {
+							accumulatedRoots.add(root);
+							rootIDs.add(rootID);
+						}
+					} else {
+						// external target - only JARs allowed
+						if (((java.io.File)target).isFile() && (Util.isArchiveFileName(entryPath.lastSegment()))) {
+							accumulatedRoots.add(
+								new JarPackageFragmentRoot(entryPath, this));
+							rootIDs.add(rootID);
+						}
 					}
 				} else {
-					// external target - only JARs allowed
-					if (((java.io.File)target).isFile() && (Util.isArchiveFileName(entryPath.lastSegment()))) {
-						accumulatedRoots.add(
-							new JarPackageFragmentRoot(entryPath, this));
+					IPackageFragmentRoot root = getPackageFragmentRoot(entryPath);
+					if (root != null) {
+						accumulatedRoots.add(root);
 						rootIDs.add(rootID);
 					}
 				}

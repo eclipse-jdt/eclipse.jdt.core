@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -317,7 +318,22 @@ public class SetClasspathOperation extends JavaModelOperation {
 					}
 				}
 				if (pkgFragmentRoots == null) {
-					pkgFragmentRoots = project.computePackageFragmentRoots(oldResolvedPath[i]);
+					try {
+						ObjectVector accumulatedRoots = new ObjectVector();
+						HashSet rootIDs = new HashSet(5);
+						rootIDs.add(project.rootID());
+						project.computePackageFragmentRoots(
+							oldResolvedPath[i], 
+							accumulatedRoots, 
+							rootIDs,
+							true, // inside original project
+							false, // don't check existency
+							false); // don't retrieve exported roots
+						pkgFragmentRoots = new IPackageFragmentRoot[accumulatedRoots.size()];
+						accumulatedRoots.copyInto(pkgFragmentRoots);
+					} catch (JavaModelException e) {
+						pkgFragmentRoots =  new IPackageFragmentRoot[] {};
+					}
 				}
 				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
 

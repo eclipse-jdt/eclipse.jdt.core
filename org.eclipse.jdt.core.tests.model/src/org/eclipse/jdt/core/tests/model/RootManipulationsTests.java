@@ -400,9 +400,8 @@ public void testMoveSourceFolder1() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]\n" + 
-			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"P2[*]: {CHILDREN}\n" + 
 			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -450,9 +449,8 @@ public void testMoveSourceFolder2() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]\n" + 
-			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"P2[*]: {CHILDREN}\n" + 
 			"	src2[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -508,10 +506,10 @@ public void testMoveSourceFolder3() throws CoreException {
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src1/src2[*]: {REORDERED IN CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src1)[*]\n" + 
-			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"P2[*]: {CHILDREN}\n" + 
 			"	src1[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -560,9 +558,8 @@ public void testMoveSourceFolder4() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]\n" + 
-			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"P2[*]: {CHILDREN}\n" + 
 			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -607,9 +604,8 @@ public void testMoveSourceFolder5() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]\n" + 
-			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"P2[*]: {CHILDREN}\n" + 
 			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -653,9 +649,8 @@ public void testMoveSourceFolder6() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]\n" + 
-			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"P2[*]: {CHILDREN}\n" + 
 			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
