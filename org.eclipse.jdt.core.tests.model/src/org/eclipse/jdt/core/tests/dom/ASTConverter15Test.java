@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0074"));
+		suite.addTest(new ASTConverter15Test("test0075"));
 		return suite;
 	}
 		
@@ -2168,4 +2168,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding3);
 		assertEquals("wrong kind", IBinding.PACKAGE, binding3.getKind());
 	}
+	
+	/*
+	 * Ensures that a raw type doesn't include the type parameters in its binding key.
+	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
+	 */
+	public void test0075() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"import java.util.ArrayList;\n" +
+				"public class X {\n" +
+				"  /*start*/ArrayList<Integer>/*end*/ field;" +
+				"}",
+				workingCopy);
+			ITypeBinding binding = ((Type) node).resolveBinding();
+			ITypeBinding erasure = binding.getErasure();
+			assertFalse("Equals", binding.isEqualTo(erasure));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
 }

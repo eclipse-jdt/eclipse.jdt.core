@@ -183,7 +183,15 @@ class BindingComparator {
 			// reference type
 			ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
 			ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
-			return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName);
+			return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
+				&& (referenceBinding.isParameterizedType() == referenceBinding2.isParameterizedType())
+				&& (referenceBinding.isWildcard() == referenceBinding2.isWildcard())
+				&& (referenceBinding.isGenericType() == referenceBinding2.isGenericType())
+				&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
+				&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
+				&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
+				&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
+				&& (referenceBinding.modifiers == referenceBinding2.modifiers);
 		}
 	}
 }
