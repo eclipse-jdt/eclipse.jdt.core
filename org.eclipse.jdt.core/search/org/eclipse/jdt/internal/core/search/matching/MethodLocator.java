@@ -56,7 +56,25 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
 	return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess();
 }
-//public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(ASTNode node, MatchingNodeSet nodeSet) {
+	int declarationsLevel = IMPOSSIBLE_MATCH;
+	if (this.pattern.findReferences) {
+		if (node instanceof ImportReference) {
+			// With static import, we can have static method reference in import reference
+			ImportReference importRef = (ImportReference) node;
+			int length = importRef.tokens.length-1;
+			if (importRef.isStatic() && !importRef.onDemand && matchesName(this.pattern.selector, importRef.tokens[length])) {
+				char[][] compoundName = new char[length][];
+				System.arraycopy(importRef.tokens, 0, compoundName, 0, length);
+				char[] declaringType = CharOperation.concat(pattern.declaringQualification, pattern.declaringSimpleName, '.');
+				if (matchesName(declaringType, CharOperation.concatWith(compoundName, '.'))) {
+					declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				}
+			}
+		}
+	}
+	return nodeSet.addMatch(node, declarationsLevel);
+}
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -107,10 +125,19 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 
 protected int matchContainer() {
 	if (this.pattern.findReferences) {
-		// need to look almost everywhere to find in javadocs
-		return CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
+		// need to look almost everywhere to find in javadocs and static import
+		return ALL_CONTAINER;
 	}
 	return CLASS_CONTAINER;
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchLevelAndReportImportRef(org.eclipse.jdt.internal.compiler.ast.ImportReference, org.eclipse.jdt.internal.compiler.lookup.Binding, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
+ * Accept to report match of static field on static import
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	if (importRef.isStatic() && binding instanceof MethodBinding) {
+		super.matchLevelAndReportImportRef(importRef, binding, locator);
+	}
 }
 protected int matchMethod(MethodBinding method) {
 	if (!matchesName(this.pattern.selector, method.selector)) return IMPOSSIBLE_MATCH;

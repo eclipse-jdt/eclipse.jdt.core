@@ -129,6 +129,10 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 			FieldBinding fieldBinding = (FieldBinding) binding;
 			if (!fieldBinding.isStatic()) return;
 			refBinding = fieldBinding.declaringClass;
+		} else if (binding instanceof MethodBinding) {
+			MethodBinding methodBinding = (MethodBinding) binding;
+			if (!methodBinding.isStatic()) return;
+			refBinding = methodBinding.declaringClass;
 		} else if (binding instanceof MemberTypeBinding) {
 			MemberTypeBinding memberBinding = (MemberTypeBinding) binding;
 			if (!memberBinding.isStatic()) return;

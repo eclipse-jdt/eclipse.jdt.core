@@ -36,7 +36,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX =  "testTypeParameter";
+//		TESTS_PREFIX =  "testStaticImport";
 //		TESTS_NAMES = new String[] { "testTypeParameterConstructors05" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
@@ -936,20 +936,6 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			this.resultCollector);
 	}
 	/**
-	 * Field reference in static import
-	 */
-	public void testFieldReference21() throws CoreException {
-		IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
-		IField field = type.getField("in");
-		search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
-		assertSearchResults(
-			"src/s1/A.java [in]\n" + 
-			"src/s1/B.java void s1.B.foo() [in]\n" + 
-			"src/s1/D.java [in]\n" + 
-			"src/s1/D.java void s1.D.foo() [in]",
-			this.resultCollector);
-	}
-	/**
 	 * Interface implementors test.
 	 */
 	public void testInterfaceImplementors1() throws CoreException { // was testInterfaceImplementors
@@ -1793,21 +1779,6 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			getJavaSearchScope(), 
 			this.resultCollector);
 		resultCollector.toString();
-	}
-	/**
-	 * Package reference in static import
-	 */
-	public void testPackageReference9() throws CoreException {
-		IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "s1.j.l");
-		search(pkg, REFERENCES, getJavaSearchScope15(), resultCollector);
-		assertSearchResults(
-			"src/s1/A.java [s1.j.l]\n" + 
-			"src/s1/A.java [s1.j.l]\n" + 
-			"src/s1/B.java [s1.j.l]\n" + 
-			"src/s1/D.java [s1.j.l]\n" + 
-			"src/s1/D.java [s1.j.l]\n" + 
-			"src/s1/E.java [s1.j.l]",
-			this.resultCollector);
 	}
 	/**
 	 * Test that we find potential matches in binaries even if we can't resolve the entire
@@ -3015,33 +2986,6 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
 			this.resultCollector);
 	}
-	/**
-	 * Type reference in static import
-	 */
-	public void testTypeReference39() throws CoreException {
-		IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
-		search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
-		assertSearchResults(
-			"src/s1/A.java [s1.j.l.S]\n" + 
-			"src/s1/A.java [s1.j.l.S]\n" + 
-			"src/s1/B.java [s1.j.l.S]\n" + 
-			"src/s1/D.java [s1.j.l.S]\n" + 
-			"src/s1/D.java [s1.j.l.S]\n" + 
-			"src/s1/E.java [s1.j.l.S]",
-			this.resultCollector);
-	}
-	/**
-	 * Member type reference in static import
-	 */
-	public void testTypeReference40() throws CoreException {
-		IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
-		IType member = type.getType("Member");
-		search(member, REFERENCES, getJavaSearchScope15(), this.resultCollector);
-		assertSearchResults(
-			"src/s1/E.java [s1.j.l.S.Member]\n" + 
-			"src/s1/E.java s1.E.m [Member]",
-			this.resultCollector);
-	}
 
 	/**
 	 * Search for enumerations
@@ -3403,6 +3347,144 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		assertSearchResults(
 			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [U2]\n" +
 			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [U2]"
+		);
+	}
+	/**
+	 * Test static import
+	 */
+	// for fields
+	public void testStaticImportField01() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
+		search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s1/A.java [s1.pack.age.S]\n" + 
+			"src/s1/A.java [s1.pack.age.S]\n" + 
+			"src/s1/A.java [s1.pack.age.S]\n" + 
+			"src/s1/B.java [s1.pack.age.S]\n" + 
+			"src/s1/B.java [s1.pack.age.S]\n" + 
+			"src/s1/C.java [s1.pack.age.S]\n" + 
+			"src/s1/C.java [s1.pack.age.S]\n" + 
+			"src/s1/D.java [s1.pack.age.S]"
+		);
+	}
+	public void testStaticImportField02() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
+		IField field = type.getField("out");
+		search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s1/A.java [out]\n" + 
+			"src/s1/B.java void s1.B.foo() [out]\n" + 
+			"src/s1/C.java [out]\n" + 
+			"src/s1/C.java void s1.C.foo() [out]"
+		);
+	}
+	public void testStaticImportField03() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
+		IType member = type.getType("M");
+		search(member, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s1/A.java [s1.pack.age.S.M]\n" + 
+			"src/s1/B.java [s1.pack.age.S.M]\n" + 
+			"src/s1/C.java [s1.pack.age.S.M]\n" + 
+			"src/s1/D.java [s1.pack.age.S.M]\n" + 
+			"src/s1/D.java void s1.D.foo() [M]\n" + 
+			"src/s1/D.java void s1.D.foo() [M]"
+		);
+	}
+	public void testStaticImportField04() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s1.pack.age", "S.java").getType("S");
+		IType member = type.getType("M");
+		IField field = member.getField("in");
+		search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s1/A.java [in]\n" + 
+			"src/s1/B.java void s1.B.foo() [in]\n" + 
+			"src/s1/C.java [in]\n" + 
+			"src/s1/C.java void s1.C.foo() [in]\n" + 
+			"src/s1/D.java void s1.D.foo() [in]"
+		);
+	}
+	// for methods
+	public void testStaticImportMethod01() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
+		search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s2/A.java [s2.pack.age.S]\n" + 
+			"src/s2/A.java [s2.pack.age.S]\n" + 
+			"src/s2/A.java [s2.pack.age.S]\n" + 
+			"src/s2/B.java [s2.pack.age.S]\n" + 
+			"src/s2/B.java [s2.pack.age.S]\n" + 
+			"src/s2/C.java [s2.pack.age.S]\n" + 
+			"src/s2/C.java [s2.pack.age.S]\n" + 
+			"src/s2/D.java [s2.pack.age.S]"
+		);
+	}
+	public void testStaticImportMethod02() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
+		IMethod method = type.getMethod("out", new String[0]);
+		search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			// Reference in A is missed due to indexing (query use parameter count which does not match for import...)
+//			"src/s2/A.java [s2.pack.age.S.out]\n" + 
+			"src/s2/B.java void s2.B.foo() [out()]\n" + 
+			"src/s2/C.java [s2.pack.age.S.out]\n" + 
+			"src/s2/C.java void s2.C.foo() [out()]"
+		);
+	}
+	public void testStaticImportMethod03() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
+		IType member = type.getType("M");
+		search(member, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s2/A.java [s2.pack.age.S.M]\n" + 
+			"src/s2/B.java [s2.pack.age.S.M]\n" + 
+			"src/s2/C.java [s2.pack.age.S.M]\n" + 
+			"src/s2/D.java [s2.pack.age.S.M]\n" + 
+			"src/s2/D.java void s2.D.foo() [M]\n" + 
+			"src/s2/D.java void s2.D.foo() [M]"
+		);
+	}
+	public void testStaticImportMethod04() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch15", "src", "s2.pack.age", "S.java").getType("S");
+		IType member = type.getType("M");
+		IMethod method = member.getMethod("in", new String[0]);
+		search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			// Reference in A is missed due to indexing (query use parameter count which does not match for import...)
+//			"src/s2/A.java [s2.pack.age.S.M.in]\n" + 
+			"src/s2/B.java void s2.B.foo() [in()]\n" + 
+			"src/s2/C.java [s2.pack.age.S.M.in]\n" + 
+			"src/s2/C.java void s2.C.foo() [in()]\n" + 
+			"src/s2/D.java void s2.D.foo() [in()]"
+		);
+	}
+	// for packages
+	public void testStaticImportPackage01() throws CoreException {
+		IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "s1.pack.age");
+		search(pkg, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s1/A.java [s1.pack.age]\n" + 
+			"src/s1/A.java [s1.pack.age]\n" + 
+			"src/s1/A.java [s1.pack.age]\n" + 
+			"src/s1/B.java [s1.pack.age]\n" + 
+			"src/s1/B.java [s1.pack.age]\n" + 
+			"src/s1/C.java [s1.pack.age]\n" + 
+			"src/s1/C.java [s1.pack.age]\n" + 
+			"src/s1/D.java [s1.pack.age]"
+		);
+	}
+	public void testStaticImportPackage02() throws CoreException {
+		IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "s2.pack.age");
+		search(pkg, REFERENCES, getJavaSearchScope15(), resultCollector);
+		assertSearchResults(
+			"src/s2/A.java [s2.pack.age]\n" + 
+			"src/s2/A.java [s2.pack.age]\n" + 
+			"src/s2/A.java [s2.pack.age]\n" + 
+			"src/s2/B.java [s2.pack.age]\n" + 
+			"src/s2/B.java [s2.pack.age]\n" + 
+			"src/s2/C.java [s2.pack.age]\n" + 
+			"src/s2/C.java [s2.pack.age]\n" + 
+			"src/s2/D.java [s2.pack.age]"
 		);
 	}
 }

@@ -123,10 +123,27 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 			FieldBinding fieldBinding = (FieldBinding) binding;
 			if (!fieldBinding.isStatic()) return;
 			refBinding = fieldBinding.declaringClass;
+		} else if (binding instanceof MethodBinding) {
+			MethodBinding methodBinding = (MethodBinding) binding;
+			if (!methodBinding.isStatic()) return;
+			refBinding = methodBinding.declaringClass;
 		} else if (binding instanceof MemberTypeBinding) {
 			MemberTypeBinding memberBinding = (MemberTypeBinding) binding;
 			if (!memberBinding.isStatic()) return;
 		}
+		// resolve and report
+		int level = resolveLevel(refBinding);
+		if (level >= INACCURATE_MATCH) {
+			matchReportImportRef(
+				importRef, 
+				binding, 
+				locator.createImportHandle(importRef), 
+				level == ACCURATE_MATCH
+					? SearchMatch.A_ACCURATE
+					: SearchMatch.A_INACCURATE,
+				locator);
+		}
+		return;
 	}
 	super.matchLevelAndReportImportRef(importRef, refBinding, locator);
 }
@@ -159,11 +176,21 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	}
 	
 	// Try to find best selection for match
+	ReferenceBinding typeBinding = null;
+	boolean lastButOne = false;
 	if (binding instanceof ReferenceBinding) {
-		ReferenceBinding typeBinding = (ReferenceBinding) binding;
+		typeBinding = (ReferenceBinding) binding;
+	} else if (binding instanceof FieldBinding) { // may happen for static import
+		typeBinding = ((FieldBinding)binding).declaringClass;
+		lastButOne = importRef.isStatic() && !importRef.onDemand;
+	} else if (binding instanceof MethodBinding) { // may happen for static import
+		typeBinding = ((MethodBinding)binding).declaringClass;
+		lastButOne = importRef.isStatic() && !importRef.onDemand;
+	}
+	if (typeBinding != null) {
 		int lastIndex = importRef.tokens.length - 1;
-		if (importRef.isStatic() && !importRef.onDemand && !typeBinding.isMemberType()) {
-			// for field static import, do not use last token
+		if (lastButOne) {
+			// for field or method static import, use last but one token
 			lastIndex--;
 		}
 		if (typeBinding instanceof ProblemReferenceBinding) {
