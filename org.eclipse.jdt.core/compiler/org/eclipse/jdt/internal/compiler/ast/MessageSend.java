@@ -267,7 +267,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 		}
 		if (containsCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, (ReferenceBinding)receiverType, binding, this.arguments, argumentTypes, this);
+			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, this);
 		}
 	}
 	//-------message send that are known to fail at compile time-----------

@@ -244,7 +244,7 @@ public class CastExpression extends Expression {
 	 * Cast expressions will considered as useful if removing them all would actually bind to a different method
 	 * (no fine grain analysis on per casted argument basis, simply separate widening cast from narrowing ones)
 	 */
-	public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiver, ReferenceBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] argumentTypes, final InvocationSite invocationSite) {
+	public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] argumentTypes, final InvocationSite invocationSite) {
 	
 		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
@@ -346,7 +346,7 @@ public class CastExpression extends Expression {
 		}
 	}
 
-	private static void checkAlternateBinding(BlockScope scope, Expression receiver, ReferenceBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
+	private static void checkAlternateBinding(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
 
 			InvocationSite fakeInvocationSite = new InvocationSite(){	
 				public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
@@ -357,7 +357,7 @@ public class CastExpression extends Expression {
 			};	
 			MethodBinding bindingIfNoCast;
 			if (binding.isConstructor()) {
-				bindingIfNoCast = scope.getConstructor(receiverType, alternateArgumentTypes, fakeInvocationSite);
+				bindingIfNoCast = scope.getConstructor((ReferenceBinding)receiverType, alternateArgumentTypes, fakeInvocationSite);
 			} else {
 				bindingIfNoCast = receiver.isImplicitThis()
 					? scope.getImplicitMethod(binding.selector, alternateArgumentTypes, fakeInvocationSite)
