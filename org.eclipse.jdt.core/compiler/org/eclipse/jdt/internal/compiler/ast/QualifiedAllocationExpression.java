@@ -307,6 +307,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			return this.resolvedType = receiverType;
 		}
 
+		if (receiverType.isTypeVariable()) {
+			receiverType = new ProblemReferenceBinding(receiverType.sourceName(), (ReferenceBinding)receiverType, ProblemReasons.IllegalSuperTypeVariable);
+			scope.problemReporter().invalidType(this, receiverType);
+			return null;
+		}
 		// anonymous type scenario
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
 		this.superTypeBinding = receiverType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) receiverType;

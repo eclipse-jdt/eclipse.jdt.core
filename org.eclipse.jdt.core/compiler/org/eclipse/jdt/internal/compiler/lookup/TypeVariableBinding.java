@@ -65,7 +65,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return true;
 	}
-
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
+	 */
+	public boolean canBeInstantiated() {
+		return false;
+	}
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
