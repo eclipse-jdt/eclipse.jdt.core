@@ -658,6 +658,7 @@ public class ASTParser {
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
 					if (this.compilationUnitSource != null) {
 						sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.compilationUnitSource;
+						sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
 					} else if (this.classFileSource != null) {
 						try {
 							String sourceString = this.classFileSource.getSource();
@@ -710,7 +711,7 @@ public class ASTParser {
 					}
 					return CompilationUnitResolver.convert(
 						compilationUnitDeclaration, 
-						sourceContents,
+						sourceUnit.getContents(),
 						this.apiLevel, 
 						this.compilerOptions,
 						needToResolveBindings,
