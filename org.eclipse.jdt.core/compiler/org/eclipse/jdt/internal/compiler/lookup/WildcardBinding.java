@@ -279,15 +279,19 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {
+        	if (this.typeVariable() != null) {
+        		this.superInterfaces = this.typeVariable.superInterfaces();
+        	} else {
+        		this.superInterfaces = NoSuperInterfaces;
+        	}
 			if (this.kind == Wildcard.EXTENDS) {
-				if (this.bound.isInterface())
-					return new ReferenceBinding[] {(ReferenceBinding) this.bound};
-				return NoSuperInterfaces;
-			} else if (this.typeVariable() != null) {
-				return this.typeVariable.superInterfaces();
+				if (this.bound.isInterface()) {
+					// augment super interfaces with the wildcard bound
+					int length = this.superInterfaces.length;
+					System.arraycopy(this.superInterfaces, 0, this.superInterfaces = new ReferenceBinding[length+1], 1, length);
+					this.superInterfaces[0] = (ReferenceBinding) this.bound; // make bound first
+				}
 			}
-			// TODO (philippe) if we fall thru, we'll answer null but no one will expect it
-			// return NoSuperInterfaces;
         }
         return this.superInterfaces;
     }
