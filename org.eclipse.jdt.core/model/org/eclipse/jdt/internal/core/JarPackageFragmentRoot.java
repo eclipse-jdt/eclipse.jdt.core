@@ -131,16 +131,17 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			}
 			setSourceMapper(mapper);
 			if (zipPath == null) {
-				setSourceAttachmentProperty(null); //remove the property
+				//remove the property
+				getWorkspace().getRoot().setPersistentProperty(qName, null);
 			} else {
 				//set the property to the path of the mapped zip
-				setSourceAttachmentProperty(zipPath.toString() + ATTACHMENT_PROPERTY_DELIMITER + rootPath.toString());
+				getWorkspace().getRoot().setPersistentProperty(qName, zipPath.toString() + ATTACHMENT_PROPERTY_DELIMITER + rootPath.toString());
 			}
 			if (rootNeedsToBeClosed) {
 				if (oldMapper != null) {
 					oldMapper.close();
 				}
-				BufferManager manager= BufferManager.getDefaultBufferManager();
+				IBufferManager manager= BufferManager.getDefaultBufferManager();
 				Enumeration openBuffers= manager.getOpenBuffers();
 				while (openBuffers.hasMoreElements()) {
 					IBuffer buffer= (IBuffer) openBuffers.nextElement();
@@ -154,8 +155,17 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				}
 			}
 		} catch (JavaModelException e) {
-			setSourceAttachmentProperty(null); // loose info - will be recomputed
+			try {
+				getWorkspace().getRoot().setPersistentProperty(qName, null); // loose info - will be recomputed
+			} catch(CoreException ce){
+			}
 			throw e;
+		} catch (CoreException rae) {
+			try {
+				getWorkspace().getRoot().setPersistentProperty(qName, null); // loose info - will be recomputed
+			} catch(CoreException ce){
+			}
+			throw new JavaModelException(rae);
 		} finally {
 			if (monitor != null) {
 				monitor.done();
@@ -415,9 +425,6 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 
 	return null;
 }
-
-
-
 	/**
 	 * Returns the underlying ZipFile for this Jar package fragment root.
 	 *
@@ -497,7 +504,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 					propertyString = recommendation.getSourceAttachmentPath().toString() 
 										+ ATTACHMENT_PROPERTY_DELIMITER 
 										+ (recommendation.getSourceAttachmentRootPath() == null ? "" : recommendation.getSourceAttachmentRootPath().toString()); //$NON-NLS-1$
-					setSourceAttachmentProperty(propertyString);
+					getWorkspace().getRoot().setPersistentProperty(qName, propertyString);
 				}
 			}
 			return propertyString;
@@ -505,14 +512,6 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 			throw new JavaModelException(ce);
 		}
 	}
-	
-	public void setSourceAttachmentProperty(String property){
-		try {
-			getWorkspace().getRoot().setPersistentProperty(this.getSourceAttachmentPropertyName(), property);
-		} catch (CoreException ce) {
-		}
-	}
-	
 	/**
 	 * Returns the qualified name for the source attachment property
 	 * of this jar.
@@ -605,8 +604,8 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	/**
 	 * @see Openable#openWhenClosed()
 	 */
-	protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-		super.openWhenClosed(pm, buffer);
+	protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+		super.openWhenClosed(pm);
 		try {
 			//restore any stored attached source zip
 			IPath zipPath= getSourceAttachmentPath();

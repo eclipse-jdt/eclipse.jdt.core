@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.lookup.*;
@@ -200,7 +199,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, H
 		// generate structure
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 		IProblemFactory factory = new DefaultProblemFactory();
-		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
+		SourceElementParser parser = new SourceElementParser(requestor, factory);
 		parser.parseCompilationUnit(this, !isWorkingCopy());
 		if (isWorkingCopy()) {
 			// remember problems
@@ -407,16 +406,9 @@ public IType[] getTypes() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
-	return (IJavaElement)this.getWorkingCopy(null, null);
-}
-/**
- * @see IWorkingCopy
- */
-public IWorkingCopy getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
-	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName());
+	WorkingCopy workingCopy= new WorkingCopy((IPackageFragment)getParent(), getElementName());
 	// open the working copy now to ensure contents are that of the current state of this element
-	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
-	workingCopy.open(pm, buffer);
+	workingCopy.open(null);
 	return workingCopy;
 }
 /**

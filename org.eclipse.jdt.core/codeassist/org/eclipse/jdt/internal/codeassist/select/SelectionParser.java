@@ -19,8 +19,6 @@ import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -34,7 +32,11 @@ public class SelectionParser extends AssistParser {
 
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
-	
+
+/** @deprecated - should use constructor with assertMode */
+public SelectionParser(ProblemReporter problemReporter) {
+	this(problemReporter, false/*no assertion by default*/);
+}	
 public SelectionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }
@@ -90,11 +92,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 
 		this.assistNode = alloc;
 		this.lastCheckPoint = alloc.sourceEnd + 1;
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;	
-		}
-		this.isOrphanCompletionNode = true;
+		restartRecovery = true; // force to restart into recovery mode
+		isOrphanCompletionNode = true;				
 	}
 }
 protected void consumeArrayCreationExpression() {
@@ -105,11 +104,8 @@ protected void consumeArrayCreationExpression() {
 
 	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
 	if (alloc.type == assistNode){
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;	
-		}
-		this.isOrphanCompletionNode = true;
+		restartRecovery = true;
+		isOrphanCompletionNode = true; 
 	}
 }
 protected void consumeEnterAnonymousClassBody() {
@@ -152,11 +148,8 @@ protected void consumeEnterAnonymousClassBody() {
 
 	assistNode = alloc;
 	this.lastCheckPoint = alloc.sourceEnd + 1;
-	if (!diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;	
-	}
-	this.isOrphanCompletionNode = true;
+	restartRecovery = true; // force to restart into recovery mode
+	isOrphanCompletionNode = true;	
 		
 	anonymousType.bodyStart = scanner.currentPosition;	
 	listLength = 0; // will be updated when reading super-interfaces
@@ -175,10 +168,7 @@ protected void consumeEnterVariable() {
 
 	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) astStack[astPtr];
 	if (variable.type == assistNode){
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;	
-		}
+		restartRecovery = true;
 		isOrphanCompletionNode = false; // already attached inside variable decl
 	}
 }
@@ -207,11 +197,8 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	}
 	assistNode = fieldReference;
 	this.lastCheckPoint = fieldReference.sourceEnd + 1;
-	if (!diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
-	}
-	this.isOrphanCompletionNode = true;	
+	restartRecovery	= true;	// force to restart in recovery mode
+	isOrphanCompletionNode = true;		
 }
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
@@ -234,7 +221,7 @@ protected void consumeMethodInvocationName() {
 		return;
 	}
 	
-	final ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(accessMode);
+	ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(accessMode);
 	constructorCall.sourceEnd = rParenPos;
 	constructorCall.sourceStart = (int) (identifierPositionStack[identifierPtr] >>> 32);
 	int length;
@@ -243,21 +230,11 @@ protected void consumeMethodInvocationName() {
 		System.arraycopy(expressionStack, expressionPtr + 1, constructorCall.arguments = new Expression[length], 0, length);
 	}
 
-	if (!diet){
-		pushOnAstStack(constructorCall);
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
-	} else {
-		pushOnExpressionStack(new Expression(){
-			public TypeBinding resolveType(BlockScope scope) {
-				constructorCall.resolve(scope);
-				return null;
-			}
-		});
-	}
+	pushOnAstStack(constructorCall);
 	this.assistNode = constructorCall;	
 	this.lastCheckPoint = constructorCall.sourceEnd + 1;
-	this.isOrphanCompletionNode = true;
+	restartRecovery	= true;	// force to restart in recovery mode
+	isOrphanCompletionNode = true;	
 }
 protected void consumeMethodInvocationPrimary() {
 	//optimize the push/pop
@@ -279,7 +256,7 @@ protected void consumeMethodInvocationPrimary() {
 		return;
 	}
 	
-	final ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(accessMode);
+	ExplicitConstructorCall constructorCall = new SelectionOnExplicitConstructorCall(accessMode);
 	constructorCall.sourceEnd = rParenPos;
 	int length;
 	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
@@ -289,22 +266,11 @@ protected void consumeMethodInvocationPrimary() {
 	constructorCall.qualification = expressionStack[expressionPtr--];
 	constructorCall.sourceStart = constructorCall.qualification.sourceStart;
 	
-	if (!diet){
-		pushOnAstStack(constructorCall);
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
-	} else {
-		pushOnExpressionStack(new Expression(){
-			public TypeBinding resolveType(BlockScope scope) {
-				constructorCall.resolve(scope);
-				return null;
-			}
-		});
-	}
-	
+	pushOnAstStack(constructorCall);
 	this.assistNode = constructorCall;
 	this.lastCheckPoint = constructorCall.sourceEnd + 1;
-	this.isOrphanCompletionNode = true;
+	restartRecovery	= true;	// force to restart in recovery mode
+	isOrphanCompletionNode = true;	
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
 	// TypeImportOnDemandDeclarationName ::= 'import' Name '.' '*'
@@ -431,11 +397,8 @@ protected NameReference getUnspecifiedReference() {
 		pushOnAstStack(reference);
 		this.assistNode = reference;	
 		this.lastCheckPoint = reference.sourceEnd + 1;
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;		
-		}
-		this.isOrphanCompletionNode = true;
+		restartRecovery	= true;	// force to restart in recovery mode
+		isOrphanCompletionNode = true;	
 		return new SingleNameReference(new char[0], 0); // dummy reference
 	}
 	NameReference nameReference;
@@ -461,11 +424,8 @@ protected NameReference getUnspecifiedReference() {
 	}
 	assistNode = nameReference;
 	this.lastCheckPoint = nameReference.sourceEnd + 1;
-	if (!diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;	
-	}
-	this.isOrphanCompletionNode = true;
+	isOrphanCompletionNode = true;
+	restartRecovery = true; // force to restart into recovery mode
 	return nameReference;
 }
 /*
@@ -480,11 +440,8 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	NameReference reference = super.getUnspecifiedReferenceOptimized();
 
 	if (index >= 0){
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;		
-		}
-		this.isOrphanCompletionNode = true;
+		restartRecovery = true; // force to stop and restart in recovery mode
+		isOrphanCompletionNode = true;		
 	}
 	return reference;
 }
@@ -511,11 +468,8 @@ protected MessageSend newMessageSend() {
 			length); 
 	};
 	assistNode = messageSend;
-	if (!diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;	
-	}
-	this.isOrphanCompletionNode = true;
+	restartRecovery	= true;	// force to restart in recovery mode
+	isOrphanCompletionNode = true;	
 	return messageSend;
 }
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int selectionStart, int selectionEnd) {

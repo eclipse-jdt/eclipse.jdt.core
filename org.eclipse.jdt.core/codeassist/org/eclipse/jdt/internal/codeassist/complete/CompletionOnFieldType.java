@@ -29,15 +29,13 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnFieldType extends FieldDeclaration {
-	public boolean isLocalVariable;
-	
-public CompletionOnFieldType(TypeReference type, boolean isLocalVariable){
+
+public CompletionOnFieldType(TypeReference type){
 	super();
 	this.sourceStart = type.sourceStart;
 	this.sourceEnd = type.sourceEnd;
 	this.type = type;
 	this.name = NoChar;
-	this.isLocalVariable = isLocalVariable;
 }
 public TypeBinding getTypeBinding(Scope scope) {
 	if(type instanceof CompletionOnSingleTypeReference)

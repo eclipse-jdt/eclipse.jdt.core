@@ -177,7 +177,7 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 		}
 		this.nameLookup = project.getNameLookup();
 		this.hierarchyResolver = 
-			new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
+			new HierarchyResolver(this.searchableEnvironment, this, new DefaultProblemFactory());
 		if (focusType != null) {
 			char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
 			this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
@@ -469,7 +469,8 @@ public static void searchAllPossibleSubTypes(
 				type, 
 				IInfoConstants.PathInfo, 
 				searchRequestor, 
-				indexManager);
+				indexManager, 
+				progressMonitor);
 	
 	/* iterate all queued names */
 	awaitings.add(type.getElementName().toCharArray());

@@ -16,12 +16,9 @@ public class CompilationUnitScope extends Scope {
 	public ImportBinding[] imports;
 	public SourceTypeBinding[] topLevelTypes;
 
-	private CompoundNameVector qualifiedReferences;
-	private SimpleNameVector simpleNameReferences;
-
 	private ObjectVector namespaceDependencies;
 	private ObjectVector typeDependencies;
-
+	
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
 	this.environment = environment;
@@ -30,15 +27,9 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 	this.currentPackageName = unit.currentPackage == null ? NoCharChar : unit.currentPackage.tokens;
 
 	if (environment.options.produceReferenceInfo) {
-		this.qualifiedReferences = new CompoundNameVector();
-		this.simpleNameReferences = new SimpleNameVector();
-
 		this.namespaceDependencies = new ObjectVector();
 		this.typeDependencies = new ObjectVector();
 	} else {
-		this.qualifiedReferences = null; // used to test if dependencies should be recorded
-		this.simpleNameReferences = null;
-
 		this.namespaceDependencies = null; // used to test if dependencies should be recorded
 		this.typeDependencies = null;
 	}
@@ -72,7 +63,7 @@ public void addTypeReference(TypeBinding type) {
 public void addTypeReferences(TypeBinding[] types) {
 	if (typeDependencies == null) return; // we're not recording dependencies
 	if (types == null || types == NoExceptions) return;
-
+	
 	for (int i = 0, max = types.length; i < max; i++) addTypeReference(types[i]);
 }
 void buildFieldsAndMethods() {
@@ -288,9 +279,6 @@ public void faultInTypes() {
 		topLevelTypes[i].faultInTypesForFieldsAndMethods();
 }
 private Binding findOnDemandImport(char[][] compoundName) {
-	// replaces the 3 calls to addNamespaceReference & 2 to addTypeReference
-	compilationUnitScope().recordReference(compoundName);
-
 	Binding binding = environment.getPackage0(compoundName[0]);
 	if (binding == null) {
 		if (environment.isPackage(null, compoundName[0]))
@@ -347,7 +335,6 @@ private Binding findOnDemandImport(char[][] compoundName) {
 }
 private Binding findSingleTypeImport(char[][] compoundName) {
 	if (compoundName.length == 1) {
-		// findType records the reference
 		// the name cannot be a package
 		if (environment.defaultPackage == null)
 			return new ProblemReferenceBinding(compoundName, NotFound);
@@ -371,103 +358,6 @@ public ProblemReporter problemReporter() {
 	problemReporter.referenceContext = referenceContext;
 	return problemReporter;
 }
-
-/*
-What do we hold onto:
-
-1. when we resolve 'a.b.c', say we keep only 'a.b.c'
- & when we fail to resolve 'c' in 'a.b', lets keep 'a.b.c'
-THEN when we come across a new/changed/removed item named 'a.b.c',
- we would find all references to 'a.b.c'
--> This approach fails because every type is resolved in every onDemand import to
- detect collision cases... so the references could be 10 times bigger than necessary.
-
-2. when we resolve 'a.b.c', lets keep 'a.b' & 'c'
- & when we fail to resolve 'c' in 'a.b', lets keep 'a.b' & 'c'
-THEN when we come across a new/changed/removed item named 'a.b.c',
- we would find all references to 'a.b' & 'c'
--> This approach does not have a space problem but fails to handle collision cases.
- What happens if a type is added named 'a.b'? We would search for 'a' & 'b' but
- would not find a match.
-
-3. when we resolve 'a.b.c', lets keep 'a', 'a.b' & 'a', 'b', 'c'
- & when we fail to resolve 'c' in 'a.b', lets keep 'a', 'a.b' & 'a', 'b', 'c'
-THEN when we come across a new/changed/removed item named 'a.b.c',
- we would find all references to 'a.b' & 'c'
-OR 'a.b' -> 'a' & 'b'
-OR 'a' -> '' & 'a'
--> As long as each single char[] is interned, we should not have a space problem
- and can handle collision cases.
-*/
-void recordReference(char[][] qualifiedName) {
-	if (qualifiedReferences == null) return; // we're not recording dependencies
-
-	int length = qualifiedName.length;
-	switch (length) {
-		case 0 : return;
-		case 1 :
-			recordReference(NoCharChar, qualifiedName[0]);
-			return;
-		case 2 :
-			recordReference(new char[][] {qualifiedName[0]}, qualifiedName[1]);
-			return;
-		default :
-			char[][] qName = new char[length - 1][];
-			System.arraycopy(qualifiedName, 0, qName, 0, length - 1);
-			recordReference(qName, qualifiedName[length - 1]);
-	}
-}
-void recordReference(char[][] qualifiedEnclosingName, char[] simpleName) {
-	if (qualifiedReferences == null) return; // we're not recording dependencies
-
-	if (!qualifiedReferences.contains(qualifiedEnclosingName)) {
-		qualifiedReferences.add(qualifiedEnclosingName);
-		recordReference(qualifiedEnclosingName);
-	}
-	if (!simpleNameReferences.contains(simpleName))
-		simpleNameReferences.add(simpleName);
-}
-void recordReferences(TypeBinding[] types) {
-	if (qualifiedReferences == null) return; // we're not recording dependencies
-	if (types == null || types == NoExceptions) return;
-
-// Do not think we need to record supertypes of method arguments & thrown exceptions
-// If a field/method is retrieved from such a type then a separate call does the job
-//	for (int i = 0, max = types.length; i < max; i++)
-//		recordTypeReference(types[i]);
-
-	for (int i = 0, max = types.length; i < max; i++) {
-		TypeBinding type = types[i];
-		if (type.isArrayType())
-			type = ((ArrayBinding) type).leafComponentType;
-		if (!type.isBaseType())
-			recordReference(((ReferenceBinding) type).compoundName);
-	}
-}
-void recordSimpleReference(char[] simpleName) {
-	if (simpleNameReferences == null) return; // we're not recording dependencies
-
-	if (!simpleNameReferences.contains(simpleName))
-		simpleNameReferences.add(simpleName);
-}
-void recordTypeReference(TypeBinding type) {
-	if (qualifiedReferences == null) return; // we're not recording dependencies
-
-	if (type.isArrayType())
-		type = ((ArrayBinding) type).leafComponentType;
-	if (!type.isBaseType()) {
-		ReferenceBinding actualtype = (ReferenceBinding) type;
-		recordReference(actualtype.compoundName);
-		if (actualtype.enclosingType() != null)
-			recordTypeReference(actualtype.enclosingType());
-		if (actualtype.superclass() != null)
-			recordTypeReference(actualtype.superclass());
-		ReferenceBinding[] interfaces = actualtype.superInterfaces();
-		if (interfaces != null && interfaces.length > 0)
-			for (int j = 0, length = interfaces.length; j < length; j++)
-				recordTypeReference(interfaces[j]);
-	}
-}
 Binding resolveSingleTypeImport(ImportBinding importBinding) {
 	if (importBinding.resolvedImport == null) {
 		importBinding.resolvedImport = findSingleTypeImport(importBinding.compoundName);
@@ -483,18 +373,6 @@ Binding resolveSingleTypeImport(ImportBinding importBinding) {
 	return importBinding.resolvedImport;
 }
 public void storeDependencyInfo() {
-	int size = qualifiedReferences.size;
-	char[][][] qualifiedRefs = new char[size][][];
-	for (int i = 0; i < size; i++)
-		qualifiedRefs[i] = qualifiedReferences.elementAt(i);
-	referenceContext.compilationResult.qualifiedReferences = qualifiedRefs;
-
-	size = simpleNameReferences.size;
-	char[][] simpleRefs = new char[size][];
-	for (int i = 0; i < size; i++)
-		simpleRefs[i] = simpleNameReferences.elementAt(i);
-	referenceContext.compilationResult.simpleNameReferences = simpleRefs;
-
 	for (int i = 0; i < typeDependencies.size; i++) { // grows as more types are added
 		// add all the supertypes & associated packages
 		ReferenceBinding type = (ReferenceBinding) typeDependencies.elementAt(i);

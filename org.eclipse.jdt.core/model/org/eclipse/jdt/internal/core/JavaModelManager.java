@@ -104,11 +104,9 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * Table from IProject to PerProjectInfo.
 	 */
 	protected Hashtable perProjectInfo = new Hashtable(5);
-
-
+
 	static class PerProjectInfo {
 		IProject project;
-		Object savedState;
 		IDevelopmentContext developmentContext = new JavaDevelopmentContextImpl();
 		byte[] savedStateFingerprint;
 		boolean triedRead = false;
@@ -126,7 +124,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 			developmentContext.setCurrentState(state);
 		}
 	};
-	public static boolean VERBOSE = false;
+	public final static boolean VERBOSE = false;
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
@@ -157,7 +155,6 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 			for (int i = 0, length = children.length; i < length; i++) {
 				this.checkProjectBeingAdded(children[i]);
 			}
-			break;
 		case IResource.PROJECT :
 			if (delta.getKind() == IResourceDelta.ADDED) {
 				fProjectsBeingDeleted.remove(delta.getResource());
@@ -227,9 +224,6 @@ public void doneSaving(ISaveContext context){
 			try {
 				while (deltas.hasMoreElements()) {
 					IJavaElementDelta delta= (IJavaElementDelta) deltas.nextElement();
-					if (DeltaProcessor.VERBOSE){
-						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);
-					}
 					ElementChangedEvent event= new ElementChangedEvent(delta);
 					// Clone the listeners since they could remove themselves when told about the event 
 					// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
@@ -428,22 +422,6 @@ public void doneSaving(ISaveContext context){
 		}
 		return state;
 	}
-	public Object getLastBuiltState2(IProject project, IProgressMonitor monitor) {
-		PerProjectInfo info= getPerProjectInfo(project);
-		Object state= info.savedState;
-//		if (state == null && JavaBuilder.SAVE_ENABLED && !info.triedRead) {
-//			info.triedRead= true;
-//			try {
-//				if (monitor != null) monitor.subTask(Util.bind("build.readStateProgress"/*nonNLS*/, project.getName()));
-//				state= readState(info);
-//				info.setLastBuiltState(state);
-//			} catch (CoreException e) {
-//				e.printStackTrace();
-//			}
-//		}
-		return state;
-	}
-
 	/**
 	 * Returns the last built state for the given project, or null if there is none.
 	 * Deserializes the state if necessary.
@@ -1014,11 +992,6 @@ public void saving(ISaveContext context) throws CoreException {
 		PerProjectInfo info= getPerProjectInfo(project);
 		info.triedRead= true; // no point trying to re-read once using setter
 		info.developmentContext.setCurrentState(state);
-	}
-	public void setLastBuiltState2(IProject project, Object state) {
-		PerProjectInfo info = getPerProjectInfo(project);
-//		info.triedRead= true; // no point trying to re-read once using setter
-		info.savedState = state;
 	}
 	public void shutdown () {
 		if (fDeltaProcessor.indexManager != null){ // no more indexing

@@ -242,34 +242,4 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append(']');
 		return buffer.toString();
 	}
-	
-	/**
-	 * Answers an ID which is used to distinguish entries during package
-	 * fragment root computations
-	 */
-	public String rootID(){
-		StringBuffer buffer = new StringBuffer(10);
-		buffer.append('[');
-		switch(this.entryKind){
-			case IClasspathEntry.CPE_LIBRARY :
-				return "[LIB]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_PROJECT :
-				return "[PRJ]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_SOURCE :
-				return "[SRC]"+this.path;  //$NON-NLS-1$
-			case IClasspathEntry.CPE_VARIABLE :
-				return "[VAR]"+this.path;  //$NON-NLS-1$
-		}
-		return "";  //$NON-NLS-1$
-	}
-	
-	/**
-	 * @see IClasspathEntry
-	 * @deprecated
-	 */
-	public IClasspathEntry getResolvedEntry() {
-	
-		return JavaCore.getResolvedClasspathEntry(this);
-	}
-	
 }

@@ -78,8 +78,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
-	private static final String JAVAMODEL_DEBUG = PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
-	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	
 	
 	private static Hashtable Variables = new Hashtable(5);
@@ -195,30 +193,29 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (folder == null) {
 			return null;
 		}
-		JavaProject project = (JavaProject) create(folder.getProject());
-		if (project == null)
-			return null;
-		IJavaElement element = determineIfOnClasspath(folder, project);
-		try {
-			IPath outputLocation = project.getOutputLocation();
-			if (outputLocation == null)
+		if (folder.getName().indexOf('.') < 0) {
+			JavaProject project = (JavaProject) create(folder.getProject());
+			if (project == null)
 				return null;
-			if (outputLocation.isPrefixOf(folder.getFullPath())) {
-				if (project.getClasspathEntryFor(outputLocation) != null) {
-					// if the output location is the same as an input location, return the element
-					return element;
-				} else {
-					// otherwise, do not create elements for folders in the output location
+			IJavaElement element = determineIfOnClasspath(folder, project);
+			try {
+				IPath outputLocation = project.getOutputLocation();
+				if (outputLocation == null)
 					return null;
+				if (outputLocation.isPrefixOf(folder.getFullPath())) {
+					if (project.getClasspathEntryFor(outputLocation) != null) {
+						// if the output location is the same as an input location, return the element
+						return element;
+					} else {
+						// otherwise, do not create elements for folders in the output location
+						return null;
+					}
+				} else {
+					return element;
 				}
-			} else {
-				if (folder.getName().indexOf('.') >= 0 && !(element instanceof IPackageFragmentRoot)) {
-					return null; // only package fragment roots are allowed with dot names
-				}
-
-				return element;
+			} catch (JavaModelException e) {
+				return null;
 			}
-		} catch (JavaModelException e) {
 		}
 		return null;
 	}
@@ -1058,13 +1055,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			
 			option = Platform.getDebugOption(COMPILER_DEBUG);
 			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
-			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(DELTA_DEBUG);
-			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
 		}
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -1456,177 +1446,5 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		return defaultOptions;
 	}
-
-
-	/**
-	 * Names of recognized configurable options
-	 */
 	
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable"; //$NON-NLS-1$
-		// possible values are GENERATE or DO_NOT_GENERATE (default is DO_NOT_GENERATE)
-		
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"; //$NON-NLS-1$
-		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
-		
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile"; //$NON-NLS-1$
-		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"; //$NON-NLS-1$
-		// possible values are PRESERVE or OPTIMIZE_OUT	(default is OPTIMIZE_OUT)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"; //$NON-NLS-1$
-		// possible values are VERSION_1_1 or VERSION_1_2	(default is VERSION_1_1)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"; //$NON-NLS-1$
-		// possible values are ERROR or WARNING	(default is ERROR)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"; //$NON-NLS-1$
-		// possible values are ERROR or WARNING	(default is ERROR)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is WARNING)
-		
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is WARNING)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
-		// possible values are WARNING or IGNORE (default is IGNORE)
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
-		// possible values are COMPUTE or IGNORE (default is COMPUTE)
-
-	/**
-	 * Possible values for configurable options
-	 */
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String GENERATE = "generate"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String DO_NOT_GENERATE = "do not generate"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String PRESERVE = "preserve"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String OPTIMIZE_OUT = "optimize out"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String VERSION_1_1 = "1.1"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String ERROR = "error"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String WARNING = "warning"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String IGNORE = "ignore"; //$NON-NLS-1$
-
-	/** 
-	 * @deprecated - use string value directly
-	 * @see JavaCore#getDefaultOptions
-	 */
-	public static final String COMPUTE = "compute"; //$NON-NLS-1$
 }

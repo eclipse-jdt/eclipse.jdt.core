@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -171,7 +170,7 @@ public String[] getParameterNames() throws JavaModelException {
 				if (source != null & sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
 					IProblemFactory factory = new DefaultProblemFactory();
 					DecodeParametersNames decoder = new DecodeParametersNames();
-					SourceElementParser parser = new SourceElementParser(decoder, factory, new CompilerOptions(JavaCore.getOptions()));
+					SourceElementParser parser = new SourceElementParser(decoder, factory);
 					int start = sourceRange.getOffset();
 					int end = start + sourceRange.getLength();
 					parser.parseTypeMemberDeclarations(source, start, end);

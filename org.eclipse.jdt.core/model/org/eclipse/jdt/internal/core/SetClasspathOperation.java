@@ -4,17 +4,9 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Enumeration;
-import java.util.Hashtable;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
-import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
 /**
  * This operation sets an <code>IJavaProject</code>'s classpath.
@@ -25,7 +17,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 	IClasspathEntry[] oldExpandedPath;
 	IClasspathEntry[] newRawPath;
-	boolean canChangeResource;
+	boolean saveClasspath;
 
 	/**
 	 * When executed, this operation sets the classpath of the given project.
@@ -34,12 +26,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IJavaProject project,
 		IClasspathEntry[] oldExpandedPath,
 		IClasspathEntry[] newRawPath,
-		boolean canChangeResource) {
+		boolean saveClasspath) {
 
 		super(new IJavaElement[] { project });
 		this.oldExpandedPath = oldExpandedPath;
 		this.newRawPath = newRawPath;
-		this.canChangeResource = canChangeResource;
+		this.saveClasspath = saveClasspath;
 	}
 
 	/**
@@ -88,8 +80,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		beginTask(Util.bind("classpath.settingProgress"), 2); //$NON-NLS-1$
 		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
 
-		String[] oldRequired = project.getRequiredProjectNames();
-		
 		project.setRawClasspath0(this.newRawPath);
 
 		// change builder specs to build in the order given by the new classpath
@@ -110,12 +100,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 				manager,
 				project);
 		} else {
-			project.saveClasspath(this.canChangeResource);
-			updateAffectedProjects(project.getProject().getFullPath());
+			project.saveClasspath(this.saveClasspath);
 		}
-		updateProjectReferences(oldRequired, project.getRequiredProjectNames());
 
-		
 		done();
 	}
 
@@ -144,15 +131,22 @@ public class SetClasspathOperation extends JavaModelOperation {
 				IPackageFragmentRoot[] pkgFragmentRoots =
 					project.getPackageFragmentRoots(oldResolvedPath[i]);
 				addDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
-
-				int changeKind = oldResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
+				hasChangedSourceEntries |= oldResolvedPath[i].getEntryKind()
+					== IClasspathEntry.CPE_SOURCE;
 
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
 				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
 					IPackageFragmentRoot root = pkgFragmentRoots[j];
+
 					if (root instanceof JarPackageFragmentRoot) {
-						((JarPackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
+						JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) root;
+						try {
+							jarRoot.getWorkspace().getRoot().setPersistentProperty(
+								jarRoot.getSourceAttachmentPropertyName(),
+								null);
+							// loose info - will be recomputed
+						} catch (CoreException ce) {
+						}
 					}
 				}
 				hasDelta = true;
@@ -163,9 +157,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 					project.getPackageFragmentRoots(oldResolvedPath[i]),
 					IJavaElementDelta.F_CLASSPATH_REORDER,
 					delta);
-				int changeKind = oldResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
-
+				hasChangedSourceEntries |= oldResolvedPath[i].getEntryKind()
+					== IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
 			}
 		}
@@ -178,8 +171,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 					project.getPackageFragmentRoots(newResolvedPath[i]),
 					IJavaElementDelta.F_ADDED_TO_CLASSPATH,
 					delta);
-				int changeKind = newResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
+				hasChangedSourceEntries |= newResolvedPath[i].getEntryKind()
+					== IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
 
 			} else if (
@@ -188,14 +181,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 					project.getPackageFragmentRoots(newResolvedPath[i]),
 					IJavaElementDelta.F_CLASSPATH_REORDER,
 					delta);
-				int changeKind = newResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
+				hasChangedSourceEntries |= newResolvedPath[i].getEntryKind()
+					== IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
 			}
 		}
 		if (hasDelta) {
 			try {
-				project.saveClasspath(this.canChangeResource);
+				project.saveClasspath(this.saveClasspath);
 			} catch (JavaModelException e) {
 			}
 			this.addDelta(delta);
@@ -258,12 +251,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
 					JavaProject project = (JavaProject) projects[i];
-					IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+					IClasspathEntry[] classpath = project.getRawClasspath();
 					for (int j = 0, entryCount = classpath.length; j < entryCount; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
-							project.updateClassPath(this.fMonitor, this.canChangeResource);
+							project.updateClassPath();
 							break;
 						}
 					}
@@ -273,54 +266,4 @@ public class SetClasspathOperation extends JavaModelOperation {
 		} catch (JavaModelException e) {
 		}
 	}
-
-	/**
-	 * Update projects references so that the build order is consistent with the classpath
-	 */
-	protected void updateProjectReferences(String[] oldRequired, String[] newRequired) {
-
-		try {		
-			if (!this.canChangeResource) return;
-
-			JavaProject jproject = ((JavaProject) getElementsToProcess()[0]);
-			IProject project = jproject.getProject();
-			IProjectDescription description = project.getDescription();
-			 
-			IProject[] projectReferences = description.getReferencedProjects();
-			ObjectSet updatedReferences = new ObjectSet(projectReferences.length);
-			updatedReferences.addAll(projectReferences);
-
-			ObjectSet removed = new ObjectSet(oldRequired.length);
-			for (int i = 0; i < oldRequired.length; i++){
-				String projectName = oldRequired[i];
-				removed.add(projectName);
-			}
-			ObjectSet added = new ObjectSet(newRequired.length);
-			for (int i = 0; i < newRequired.length; i++){
-				String projectName = newRequired[i];
-				if (!removed.remove(projectName)){
-					added.add(projectName);
-				}
-			}
-			if (!added.isEmpty() || !removed.isEmpty()){
-				Enumeration enum = added.elements();
-				while (enum.hasMoreElements()){
-					String name = (String)enum.nextElement();
-					updatedReferences.add(project.getWorkspace().getRoot().getProject(name));
-				}
-				enum = removed.elements();
-				while (enum.hasMoreElements()){
-					String name = (String)enum.nextElement();
-					updatedReferences.remove(project.getWorkspace().getRoot().getProject(name));
-				}
-
-				IProject[] requiredProjectArray = new IProject[updatedReferences.size()];
-				updatedReferences.copyInto(requiredProjectArray);
-				description.setReferencedProjects(requiredProjectArray);
-				project.setDescription(description, this.fMonitor);
-			}
-		} catch(CoreException e){
-		}
-	}
-
 }

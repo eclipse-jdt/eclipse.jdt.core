@@ -359,7 +359,12 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	public static final int SquareBracket = 1;
 	public static final int CurlyBracket = 2;
 	public static final int BracketKinds = 3;
-
+public Parser(ProblemReporter problemReporter) {
+	this(problemReporter, false);
+}
+public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
+	this(problemReporter, false, false);
+}
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals, boolean assertMode) {
 		
 	this.problemReporter = problemReporter;

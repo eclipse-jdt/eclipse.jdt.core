@@ -430,24 +430,24 @@ public class BlockScope extends Scope {
 	 *
 	 *	IMPORTANT NOTE: This method is written under the assumption that compoundName is longer than length 1.
 	 */
-	public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite) {
+	public Binding getBinding(
+		char[][] compoundName,
+		int mask,
+		InvocationSite invocationSite) {
 
-		Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite);
+		Binding binding =
+			getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite);
 		invocationSite.setFieldIndex(1);
-		if (binding instanceof VariableBinding) return binding;
-		compilationUnitScope().recordSimpleReference(compoundName[0]);
-		if (!binding.isValidBinding()) return binding;
+		if (!binding.isValidBinding() || binding instanceof VariableBinding)
+			return binding;
 
 		int length = compoundName.length;
 		int currentIndex = 1;
 		foundType : if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
-// this is replaced by the call to recordSimpleReference above
 			compilationUnitScope().addNamespaceReference(packageBinding);
 
 			while (currentIndex < length) {
-// replaces call to addNamespaceReference at the end of the loop & call to addTypeReference
-				compilationUnitScope().recordReference(packageBinding.compoundName, compoundName[currentIndex]);
 				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
 				invocationSite.setFieldIndex(currentIndex);
 				if (binding == null) {
@@ -507,7 +507,8 @@ public class BlockScope extends Scope {
 					binding.problemId());
 		}
 
-		if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) {
+		if ((mask & FIELD) != 0
+			&& (binding instanceof FieldBinding)) {
 			// was looking for a field and found a field
 			FieldBinding field = (FieldBinding) binding;
 			if (!field.isStatic())
@@ -517,7 +518,8 @@ public class BlockScope extends Scope {
 					NonStaticReferenceInStaticContext);
 			return binding;
 		}
-		if ((mask & TYPE) != 0 && (binding instanceof ReferenceBinding)) {
+		if ((mask & TYPE) != 0
+			&& (binding instanceof ReferenceBinding)) {
 			// was looking for a type and found a type
 			return binding;
 		}
@@ -642,7 +644,10 @@ public class BlockScope extends Scope {
 	 *
 	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
 	 */
-	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite) {
+	public Binding getBinding(
+		char[] name,
+		int mask,
+		InvocationSite invocationSite) {
 			
 		Binding binding = null;
 		FieldBinding problemField = null;
@@ -650,7 +655,8 @@ public class BlockScope extends Scope {
 			if (this.kind == BLOCK_SCOPE || this.kind == METHOD_SCOPE) {
 				LocalVariableBinding variableBinding = findVariable(name);
 				// looks in this scope only
-				if (variableBinding != null) return variableBinding;
+				if (variableBinding != null)
+					return variableBinding;
 			}
 
 			boolean insideStaticContext = false;
@@ -787,7 +793,6 @@ public class BlockScope extends Scope {
 				return binding;
 			// answer the problem type binding if we are only looking for a type
 		} else if ((mask & PACKAGE) != 0) {
-			compilationUnitScope().recordSimpleReference(name);
 			if ((binding = environment().getTopLevelPackage(name)) != null)
 				return binding;
 		}
@@ -904,10 +909,6 @@ public class BlockScope extends Scope {
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
-// is this needed? Or when the type is resolved, is it recorded?
-		compilationUnitScope().recordTypeReference(receiverType);
-// replaces call to addTypeReferences
-		compilationUnitScope().recordReferences(argumentTypes);
 		compilationUnitScope().addTypeReferences(argumentTypes);
 		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
 		if (methodBinding != null)

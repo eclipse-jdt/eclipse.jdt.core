@@ -184,25 +184,4 @@ public interface IClasspathEntry {
 	 * @since 2.0
 	 */
 	boolean isExported();
-	
-	/**
-	 * This is a helper method which returns the resolved classpath entry denoted 
-	 * by an entry (if it is a variable entry). It is obtained by resolving the variable 
-	 * reference in the first segment. Returns <node>null</code> if unable to resolve using 
-	 * the following algorithm:
-	 * <ul>
-	 * <li> if variable segment cannot be resolved, returns <code>null</code></li>
-	 * <li> finds a project, JAR or binary folder in the workspace at the resolved path location</li>
-	 * <li> if none finds an external JAR file or folder outside the workspace at the resolved path location </li>
-	 * <li> if none returns <code>null</code></li>
-	 * </ul>
-	 * <p>
-	 * Variable source attachment is also resolved and recorded in the resulting classpath entry.
-	 * <p>
-	 * @return the resolved library or project classpath entry, or <code>null</code>
-	 *   if the given path could not be resolved to a classpath entry
-	 *
-	 * @deprecated - use JavaCore.getResolvedClasspathEntry(...)
-	 */
-	IClasspathEntry getResolvedEntry();	
 }

@@ -7,8 +7,6 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.*;
 
@@ -214,6 +212,6 @@ protected void exitType(int declarationEnd) {
  * Creates a new parser.
  */
 protected SourceElementParser getParser() {
-	return new SourceElementParser(this, new NullProblemFactory(), new CompilerOptions(JavaCore.getOptions()));
+	return new SourceElementParser(this, new NullProblemFactory());
 }
 }

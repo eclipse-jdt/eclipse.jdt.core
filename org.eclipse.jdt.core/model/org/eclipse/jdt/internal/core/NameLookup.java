@@ -544,9 +544,6 @@ public class NameLookup {
 		if (index != -1) {
 			//the type name of the inner type
 			unqualifiedName= name.substring(index + 1, name.length());
-			if (unqualifiedName.length() > 0 && Character.isDigit(unqualifiedName.charAt(0))){
-				unqualifiedName = name;
-			}
 		}
 		String lowerName= name.toLowerCase();
 		for (int i= 0; i < length; i++) {

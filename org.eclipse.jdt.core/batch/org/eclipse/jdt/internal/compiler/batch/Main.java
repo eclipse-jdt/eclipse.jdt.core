@@ -21,7 +21,7 @@ import java.util.*;
 
 public class Main implements ProblemSeverities {
 
-	private boolean noWarn = false;
+private boolean noWarn = false;
 	
 	PrintWriter out;
 	boolean systemExitWhenFinished = true;
@@ -45,8 +45,6 @@ public class Main implements ProblemSeverities {
 	int globalWarningsCount;
 
 	private static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
-	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
-	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
 	int exportedClassFilesCounter;
 
@@ -825,14 +823,8 @@ public static String bind(String id, String[] bindings) {
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 		return "Missing message: "+id+" in: "+bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
-	// for compatibility with MessageFormat which eliminates double quotes in original message
-	char[] messageWithNoDoubleQuotes =
-		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-	message = new String(messageWithNoDoubleQuotes);
-
 	if (bindings == null)
 		return message;
-			
 	int length = message.length();
 	int start = -1;
 	int end = length;

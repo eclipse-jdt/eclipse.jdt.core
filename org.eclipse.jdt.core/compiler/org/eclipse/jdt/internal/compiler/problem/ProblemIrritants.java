@@ -164,8 +164,6 @@ public interface ProblemIrritants { // max: 500
 	// syntax errors
 	final int InterfaceCannotHaveConstructors = Internal + 207;
 	final int ArrayConstantsOnlyInArrayInitializers = Internal + 208;
-	final int ParsingErrorOnKeyword = Internal + 209;	
-	final int ParsingErrorOnKeywordNoSuggestion = Internal + 210;
 
 	final int UnmatchedBracket = Internal + 220;
 	final int NoFieldOnBaseType = FieldRelated + 221;

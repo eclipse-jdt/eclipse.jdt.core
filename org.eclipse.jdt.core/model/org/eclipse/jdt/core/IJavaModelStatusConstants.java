@@ -227,4 +227,13 @@ public interface IJavaModelStatusConstants {
 	 * Status constant indicating that a classpath entry was invalid
 	 */
 	public static final int INVALID_CLASSPATH = 964;
+	/**
+	 * Status constant indicating that a value is not a possible value
+	 * for an option.
+	 */
+	public static final int INVALID_OPTION_VALUE = 963;
+	/**
+	 * Status constant indicating that an option is not an existing option.
+	 */
+	public static final int INVALID_OPTION = 962;
 }

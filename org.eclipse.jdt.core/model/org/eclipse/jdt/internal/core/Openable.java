@@ -191,7 +191,7 @@ public IBuffer getBuffer() throws JavaModelException {
 /**
  * Returns the buffer manager for this element.
  */
-protected BufferManager getBufferManager() {
+protected IBufferManager getBufferManager() {
 	return BufferManager.getDefaultBufferManager();
 }
 /**
@@ -303,14 +303,8 @@ public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
  * @see IOpenable
  */
 public void open(IProgressMonitor pm) throws JavaModelException {
-	this.open(pm, null);
-}
-/**
- * Opens this openable using the given buffer (or null if one should be created)
- */
-protected void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	if (!isOpen()) {
-		this.openWhenClosed(pm, buffer);
+		openWhenClosed(pm);
 	}
 }
 /**
@@ -322,24 +316,17 @@ protected void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelExcepti
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	return null;
 }
-
 /**
  * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
- * Use the given buffer to get the source, or open a new one if null.
  */
-protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	try {
-		
-		if (JavaModelManager.VERBOSE){
-			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
-		}
-		
 		// 1) Parent must be open - open the parent if necessary
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
 			OpenableElementInfo openableParentInfo = (OpenableElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 			if (openableParentInfo == null) {
-				openableParent.openWhenClosed(pm, null);
+				openableParent.openWhenClosed(pm);
 			}
 			// Parent is open. 
 		}
@@ -354,15 +341,10 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 			}
 		}
 
-		// 2) create the new element info and open a buffer if needed
+		// 2) create the new element info and open a buffer
 		OpenableElementInfo info = createElementInfo();
-		if (buffer == null) {
-			if (resource != null && isSourceElement()) {
-				this.openBuffer(pm);
-			} 
-		} else {
-			this.getBufferManager().addBuffer(buffer);
-			buffer.addBufferChangedListener(this);
+		if (resource != null && isSourceElement()) {
+			openBuffer(pm);
 		}
 
 		// 3) build the structure of the openable

@@ -1750,27 +1750,15 @@ public void parseError(
 	CompilationResult compilationResult) {
 		
 	if (possibleTokens.length == 0) { //no suggestion available
-		if (isKeyword(currentTokenSource)) {
-			this.handle(
-				ParsingErrorOnKeywordNoSuggestion,
-				new String[] {new String(currentTokenSource)},
-				// this is the current -invalid- token position
-				startPosition,
-				endPosition,
-				context,
-				compilationResult);
-			return;
-		} else {
-			this.handle(
-				ParsingErrorNoSuggestion,
-				new String[] {errorTokenName},
-				// this is the current -invalid- token position
-				startPosition,
-				endPosition,
-				context, 
-				compilationResult);
-			return;
-		}
+		this.handle(
+			ParsingErrorNoSuggestion,
+			new String[] {errorTokenName},
+			// this is the current -invalid- token position
+			startPosition,
+			endPosition,
+			context, 
+			compilationResult);
+		return;
 	}
 
 	//build a list of probable right tokens
@@ -1783,17 +1771,6 @@ public void parseError(
 		list.append('"');
 	}
 
-	if (isKeyword(currentTokenSource)) {
-		this.handle(
-			ParsingErrorOnKeyword,
-			new String[] {new String(currentTokenSource), list.toString()},
-			// this is the current -invalid- token position
-			startPosition,
-			endPosition,
-			context,
-			compilationResult);
-		return;
-	}
 	//extract the literal when it's a literal  
 	if ((errorTokenName.equals("IntegerLiteral")) || //$NON-NLS-1$
 		(errorTokenName.equals("LongLiteral")) || //$NON-NLS-1$
@@ -2258,98 +2235,5 @@ public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) 
 		Abort | Error,
 		typeDeclaration.sourceStart(),
 		typeDeclaration.sourceEnd());
-}
-
-private boolean isKeyword(char[] tokenSource) {
-	/*
-	 * This code is heavily grammar dependant
-	 */
-
-	if (tokenSource == null) {
-		return false;
-	}
-	try {
-		Scanner scanner = new Scanner();
-		scanner.setSourceBuffer(tokenSource);
-		int token = scanner.getNextToken();
-		char[] currentKeyword;
-		try {
-			currentKeyword = scanner.getCurrentIdentifierSource();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
-		int nextToken= scanner.getNextToken();
-		if (nextToken == TerminalSymbols.TokenNameEOF
-			&& scanner.startPosition == scanner.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
-															     // while reading the last token
-			switch(token) {
-				case Scanner.TokenNameERROR:
-					if (CharOperation.equals("goto".toCharArray(), currentKeyword) ||CharOperation.equals("const".toCharArray(), currentKeyword)) { //$NON-NLS-1$ //$NON-NLS-2$
-						return true;
-					} else {
-						return false;
-					}
-				case Scanner.TokenNameabstract:
-				case Scanner.TokenNameassert:
-				case Scanner.TokenNamebyte:
-				case Scanner.TokenNamebreak:
-				case Scanner.TokenNameboolean:
-				case Scanner.TokenNamecase:
-				case Scanner.TokenNamechar:
-				case Scanner.TokenNamecatch:
-				case Scanner.TokenNameclass:
-				case Scanner.TokenNamecontinue:
-				case Scanner.TokenNamedo:
-				case Scanner.TokenNamedouble:
-				case Scanner.TokenNamedefault:
-				case Scanner.TokenNameelse:
-				case Scanner.TokenNameextends:
-				case Scanner.TokenNamefor:
-				case Scanner.TokenNamefinal:
-				case Scanner.TokenNamefloat:
-				case Scanner.TokenNamefalse:
-				case Scanner.TokenNamefinally:
-				case Scanner.TokenNameif:
-				case Scanner.TokenNameint:
-				case Scanner.TokenNameimport:
-				case Scanner.TokenNameinterface:
-				case Scanner.TokenNameimplements:
-				case Scanner.TokenNameinstanceof:
-				case Scanner.TokenNamelong:
-				case Scanner.TokenNamenew:
-				case Scanner.TokenNamenull:
-				case Scanner.TokenNamenative:
-				case Scanner.TokenNamepublic:
-				case Scanner.TokenNamepackage:
-				case Scanner.TokenNameprivate:
-				case Scanner.TokenNameprotected:
-				case Scanner.TokenNamereturn:
-				case Scanner.TokenNameshort:
-				case Scanner.TokenNamesuper:
-				case Scanner.TokenNamestatic:
-				case Scanner.TokenNameswitch:
-				case Scanner.TokenNamestrictfp:
-				case Scanner.TokenNamesynchronized:
-				case Scanner.TokenNametry:
-				case Scanner.TokenNamethis:
-				case Scanner.TokenNametrue:
-				case Scanner.TokenNamethrow:
-				case Scanner.TokenNamethrows:
-				case Scanner.TokenNametransient:
-				case Scanner.TokenNamevoid:
-				case Scanner.TokenNamevolatile:
-				case Scanner.TokenNamewhile:
-					return true;
-				default: 
-					return false;
-			}
-		} else {
-			return false;
-		}
-	}
-	catch (InvalidInputException e) {
-		return false;
-	}
-	
 }
 }

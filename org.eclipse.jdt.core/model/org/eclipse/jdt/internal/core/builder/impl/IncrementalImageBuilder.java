@@ -323,9 +323,6 @@ protected void changedSourceElement(SourceEntry newEntry) {
 	PackageElement element = fNewState.packageElementFromSourceEntry(newEntry);
 	if (element.isSource()) {
 		fWorkQueue.add(element);
-	} else {
-		// trigger recompilation of all dependents of any changed binary
-		markDependentsAsNeedingCompile(element);
 	}
 
 	/* remove problems for this source entry */
@@ -556,7 +553,7 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 				if (rootResource != null && rootResource.getFullPath().isPrefixOf(path)) {
 					found = true;
 					break;
-				} 
+				}
 			}
 			if (!found) {
 				for (int i = 0; i < oldRoots.length; i++) {
@@ -582,13 +579,11 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 	}
 	IResourceDelta[] children = delta.getAffectedChildren();
 	for (int i = 0; i < children.length; ++i) {
-		IResource rsc = children[i].getResource();
-		String ext = children[i].getFullPath().getFileExtension();
-		if (rsc instanceof IFolder 
-			|| (rsc instanceof IFile 
-					&& ("jar".equalsIgnoreCase(ext)  //$NON-NLS-1$
-						|| "zip".equalsIgnoreCase(ext)))){ //$NON-NLS-1$
-				
+		String extension = children[i].getFullPath().getFileExtension();
+		if (extension == null
+			|| extension.equalsIgnoreCase("zip") //$NON-NLS-1$
+			|| extension.equalsIgnoreCase("jar")) { //$NON-NLS-1$
+			// TBD: Currently rely on empty extension indicating folder
 			computeAllPackages(children[i], oldRoots, newRoots);
 		}
 	}

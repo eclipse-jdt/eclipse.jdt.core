@@ -57,7 +57,7 @@ public HierarchyBuilder(TypeHierarchy hierarchy) throws JavaModelException {
 	this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
 	this.nameLookup = project.getNameLookup();
 	this.hierarchyResolver = 
-		new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
+		new HierarchyResolver(this.searchableEnvironment, this, new DefaultProblemFactory());
 	this.infoToHandle = new Hashtable(5);
 }
 public abstract void build(boolean computeSubtypes) throws JavaModelException, CoreException;

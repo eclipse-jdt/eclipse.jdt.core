@@ -315,7 +315,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *	<li>The path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
 	 *	<li>The path is not an absolute path (<code>RELATIVE_PATH</code>)
 	 *  <li>The path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
-	 *  <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)	 
 	 * </ul>
 	 */
 	void setOutputLocation(IPath path, IProgressMonitor monitor)
@@ -350,79 +349,4 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IProgressMonitor monitor)
 		throws JavaModelException;
-		
-	/**
-	 * Returns the classpath for the project, as a list of classpath
-	 * entries.
-	 *
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
-	 *
-	 * @deprecated - since classpath variable support was added either use #getRawClasspath or #getResolvedClasspath
-	 */
-	IClasspathEntry[] getClasspath() throws JavaModelException;
-	
-	/**
-	 * Creates and returns a new classpath entry of kind <code>K_BINARY</code> for the JAR
-	 * or folder identified by the given absolute path. This specifies that
-	 * all package fragments within the root will have children of type
-	 * <code>IClassFile</code>.
-	 * The path can be:
-	 * 	- internal to the workbench: "/Project/binary"
-	 *  - external to the workbench: "c:/jdk/classes.zip"
-	 *
-	 * @deprecated - use JavaCore#newLibraryEntry
-	 */
-	public IClasspathEntry newLibraryEntry(IPath path);
-	
-	/**
-	 * Creates and returns a new classpath entry of kind <code>K_SOURCE</code>
-	 * for the project identified by the given absolute path. This
-	 * identifies all the source code of the given project to be
-	 * used in the Java model, and the output location of the project
-	 * to be used when building.
-	 * The path can be:
-	 * 	- internal to the workbench: "/Project/binary"
-	 *  - external to the workbench: "c:/jdk/classes.zip"
-	 *
-	 * @deprecated - use JavaCore#newProjectEntry
-	 */
-	public IClasspathEntry newProjectEntry(IPath path);
-	
-	/**
-	 * Creates and returns a new classpath entry of kind <code>K_SOURCE</code>
-	 * for folder identified by the given absolute path. This specifies that
-	 * all package fragments within the root will have children of type
-	 * <code>ICompilationUnit</code>.
-	 * The path can be:
-	 * 	- internal to the workbench: "/Project/binary"
-	 *  - external to the workbench: "c:/jdk/classes.zip"
-	 *
-	 * @deprecated - use JavaCore#newSourceEntry
-	 */
-	public IClasspathEntry newSourceEntry(IPath path);		
-	
-	/**
-	 * Sets the classpath of this project.
-	 * <p>
-	 * Setting the classpath to <code>null</code> specifies a default classpath
-	 * (the project root). Setting the classpath to an empty array specifies an
-	 * empty classpath.
-	 * <p>
-	 * If a cycle is detected while setting this classpath, an error marker will be added
-	 * to the project closing the cycle.
-	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
-	 * before setting the classpath.
-	 *
-	 * @exception JavaModelException if the classpath could not be set. Reasons include:
-	 * <ul>
-	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * <li> Two or more entries specify source roots with the same or overlapping paths (NAME_COLLISION)
-	 * <li> A entry of kind <code>CPE_PROJECT</code> refers to this project (INVALID_PATH)
-	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
-	 * </ul>
-	 * @deprecated - was renamed to #setRawClasspath
-	 */
-	void setClasspath(IClasspathEntry[] entries, IProgressMonitor monitor) throws JavaModelException;
-
 }

@@ -87,7 +87,6 @@ protected JavaElement(int type, IJavaElement parent, String name) throws Illegal
  * @see IOpenable
  */
 public void close() throws JavaModelException {
-
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		if (this instanceof IParent) {
@@ -105,9 +104,6 @@ public void close() throws JavaModelException {
  * This element is being closed.  Do any necessary cleanup.
  */
 protected void closing(Object info) throws JavaModelException {
-	if (JavaModelManager.VERBOSE){
-		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
-	}
 }
 /**
  * Returns true if this handle represents the same Java element
@@ -464,13 +460,13 @@ public void offsetSourceRange(int amount) {
  */
 protected void openHierarchy() throws JavaModelException {
 	if (this instanceof IOpenable) {
-		((Openable) this).openWhenClosed(null, null);
+		((Openable) this).openWhenClosed(null);
 	} else {
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
 			JavaElementInfo openableParentInfo = (JavaElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 			if (openableParentInfo == null) {
-				openableParent.openWhenClosed(null, null);
+				openableParent.openWhenClosed(null);
 			} else {
 				throw newNotPresentException();
 			}

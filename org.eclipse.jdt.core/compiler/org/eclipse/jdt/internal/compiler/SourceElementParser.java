@@ -85,7 +85,7 @@ public SourceElementParser(
 			requestor.acceptProblem(problem);
 		}
 	},
-	true,
+	false,
 	options.assertMode);
 	this.requestor = requestor;
 	typeNames = new char[4][];
@@ -93,7 +93,6 @@ public SourceElementParser(
 	nestedTypeIndex = 0;
 }
 
-/** @deprecated use SourceElementParser(ISourceElementRequestor, IProblemFactory, CompilerOptions) */
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory) {
@@ -103,9 +102,8 @@ public SourceElementParser(
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory,
-	CompilerOptions options,
 	boolean reportLocalDeclarations) {
-		this(requestor, problemFactory, options);
+		this(requestor, problemFactory, new CompilerOptions());
 		if (reportLocalDeclarations) {
 			this.localDeclarationVisitor = new LocalDeclarationVisitor();
 		}
@@ -1072,7 +1070,8 @@ public void parseTypeMemberDeclarations(
 		// the compilationUnitDeclaration should contain exactly one type
 		/* run automaton */
 		parse();
-	} catch (AbortCompilation e) {
+	} catch (Exception e) {
+		e.printStackTrace();
 	} finally {
 		diet = old;
 	}

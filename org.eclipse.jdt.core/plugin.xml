@@ -3,7 +3,7 @@
 <plugin
     name = "%pluginName"
     id = "org.eclipse.jdt.core"
-    version = "0.9"
+    version = "2.0"
     provider-name = "Object Technology International, Inc."
     class="org.eclipse.jdt.core.JavaCore">
 
@@ -44,8 +44,6 @@
 	id="javabuilder"
 	name="%javaBuilderName">
 	<builder>
-	<!-- old builder is "org.eclipse.jdt.internal.core.builder.impl.JavaBuilder" -->
-	<!-- new builder is "org.eclipse.jdt.internal.core.newbuilder.JavaBuilder" -->
 		<run class="org.eclipse.jdt.internal.core.builder.impl.JavaBuilder">
 		</run>
 	</builder>

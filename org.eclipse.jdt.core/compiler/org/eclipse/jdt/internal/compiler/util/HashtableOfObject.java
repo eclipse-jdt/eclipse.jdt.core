@@ -16,7 +16,7 @@ public final class HashtableOfObject {
 
 	int elementSize; // number of elements in the table
 	int threshold;
-
+	
 	public HashtableOfObject() {
 		this(13);
 	}
@@ -30,21 +30,6 @@ public final class HashtableOfObject {
 			extraRoom++;
 		this.keyTable = new char[extraRoom][];
 		this.valueTable = new Object[extraRoom];
-	}
-
-	public Object clone() throws CloneNotSupportedException {
-		HashtableOfObject result = (HashtableOfObject) super.clone();
-		result.elementSize = this.elementSize;
-		result.threshold = this.threshold;
-
-		int length = this.keyTable.length;
-		result.keyTable = new char[length][];
-		System.arraycopy(this.keyTable, 0, result.keyTable, 0, length);
-
-		length = this.valueTable.length;
-		result.valueTable = new Object[length];
-		System.arraycopy(this.valueTable, 0, result.valueTable, 0, length);
-		return result;
 	}
 
 	public boolean containsKey(char[] key) {

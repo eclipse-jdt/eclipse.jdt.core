@@ -759,8 +759,6 @@ public class ClassScope extends Scope {
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
 		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 		char[][] compoundName = typeReference.getTypeName();
-// replaces 2 calls to addNamespaceReference
-		compilationUnitScope().recordReference(compoundName);
 		SourceTypeBinding sourceType = referenceContext.binding;
 		int size = compoundName.length;
 		int n = 1;
@@ -798,7 +796,6 @@ public class ClassScope extends Scope {
 			if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
 			superType = (ReferenceBinding) typeOrPackage;
-			compilationUnitScope().recordTypeReference(superType); // to record supertypes
 			compilationUnitScope().addTypeReference(superType);
 
 			if (checkVisibility

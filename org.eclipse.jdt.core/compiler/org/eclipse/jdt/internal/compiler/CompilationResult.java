@@ -33,10 +33,7 @@ public class CompilationResult {
 	public IProblem problems[];
 	public int problemCount;
 	public ICompilationUnit compilationUnit;
-
-	public char[][][] qualifiedReferences;
-	public char[][] simpleNameReferences;
-
+	
 	public char[][] namespaceDependencies;
 	public char[][] fileDependencies;
 	public int lineSeparatorPositions[];

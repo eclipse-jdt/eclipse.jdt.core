@@ -36,7 +36,6 @@ public class HierarchyResolver implements ITypeRequestor {
 	private IGenericType[] typeModels;
 	private ReferenceBinding[] typeBindings;
 	private ReferenceBinding focusType;
-	private CompilerOptions options;
 	
 public HierarchyResolver(
 	INameEnvironment nameEnvironment,
@@ -46,7 +45,7 @@ public HierarchyResolver(
 	IProblemFactory problemFactory) {
 
 	// create a problem handler given a handling policy
-	options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
+	CompilerOptions options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
 	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
 	this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 	this.requestor = requestor;
@@ -55,11 +54,11 @@ public HierarchyResolver(
 	this.typeModels = new IGenericType[5];
 	this.typeBindings = new ReferenceBinding[5];
 }
-public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierarchyRequestor requestor, IProblemFactory problemFactory) {
+public HierarchyResolver(INameEnvironment nameEnvironment, IHierarchyRequestor requestor, IProblemFactory problemFactory) {
 	this(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
-		settings,
+		null,
 		requestor,
 		problemFactory);
 }
@@ -266,7 +265,8 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		for (int i = 0; i < sourceLength; i++){
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
-			Parser parser = new Parser(lookupEnvironment.problemReporter, true, options.assertMode);
+			CompilerOptions options = new CompilerOptions();
+			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.assertMode);
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
 				units[suppliedLength+i] = parsedUnit;

@@ -73,11 +73,7 @@ public void handle(
 
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
-		if ((severity & Error) != 0) { // non reportable error is fatal
-			throw new AbortCompilation(problemId, problemArguments);
-		} else {
-			return; // ignore non reportable warning
-		}
+		throw new AbortCompilation(problemId, problemArguments);
 	}
 
 	IProblem problem = 
@@ -100,8 +96,8 @@ public void handle(
 			// should abort ?
 			int abortLevel;
 			if ((abortLevel = 
-				(policy.stopOnFirstError() ? AbortCompilation : severity & Abort)) != 0) {
-
+				(policy.stopOnFirstError() ? AbortCompilation : severity & Abort))
+				!= 0) {
 				referenceContext.abort(abortLevel);
 			}
 			break;

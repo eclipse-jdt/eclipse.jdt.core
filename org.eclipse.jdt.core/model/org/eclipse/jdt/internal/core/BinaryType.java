@@ -33,7 +33,6 @@ protected BinaryType(IJavaElement parent, String name) {
  * @see IOpenable
  */
 public void close() throws JavaModelException {
-	
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		ClassFileInfo cfi = getClassFileInfo();
@@ -55,9 +54,6 @@ public void close() throws JavaModelException {
  * Remove my cached children from the Java Model
  */
 protected void closing(Object info) throws JavaModelException {
-	if (JavaModelManager.VERBOSE){
-		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
-	}
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 }
@@ -246,11 +242,7 @@ public String getTypeQualifiedName() {
 		return name.substring(0,name.lastIndexOf('.'));
 	}
 	if (fParent.getElementType() == IJavaElement.TYPE) {
-		if (Character.isDigit(fName.charAt(0))) {
-			return ((IType) fParent).getTypeQualifiedName();
-		} else {
-			return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
-		}
+		return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
 	}
 	Assert.isTrue(false); // should not be reachable
 	return null;

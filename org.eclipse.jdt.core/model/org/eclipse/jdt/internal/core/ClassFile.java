@@ -269,7 +269,7 @@ public IType getType() throws JavaModelException {
 		String name = fName.substring(0, fName.lastIndexOf('.'));
 		name = name.substring(name.lastIndexOf('.') + 1);
 		int index = name.lastIndexOf('$');
-		if (index > -1 && !Character.isDigit(name.charAt(index + 1))) {
+		if (index > -1) {
 			name = name.substring(index + 1);
 		}
 		fBinaryType = new BinaryType(this, name);
@@ -334,7 +334,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	if (mapper != null) {
 		char[] contents = mapper.findSource(getType());
 		if (contents != null) {
-			BufferManager bufManager = getBufferManager();
+			IBufferManager bufManager = getBufferManager();
 			IBuffer buf = bufManager.openBuffer(contents, pm, this, isReadOnly());
 			// do the source mapping
 			mapper.mapSource(getType(), contents);
@@ -370,9 +370,6 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 		if (className[i] == '$') {
 			char[] name = new char[count];
 			System.arraycopy(className, i + 1, name, 0, count);
-			if (Character.isDigit(name[0])) {
-				break;
-			}
 			return name;
 		}
 		count++;
