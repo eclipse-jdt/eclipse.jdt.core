@@ -15,7 +15,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
-import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
@@ -37,7 +36,7 @@ import org.eclipse.jdt.core.util.ISourceAttribute;
  * Disassembler of .class files. It generates an output in the Writer that looks close to
  * the javap output.
  */
-public class Disassembler extends ClassFileBytesDisassembler implements IClassFileDisassembler {
+public class Disassembler extends ClassFileBytesDisassembler {
 
 	private static final char[] ANY_EXCEPTION = Util.bind("classfileformat.anyexceptionhandler").toCharArray();	 //$NON-NLS-1$
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$

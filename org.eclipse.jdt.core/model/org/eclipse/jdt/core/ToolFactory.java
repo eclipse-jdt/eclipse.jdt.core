@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
@@ -107,7 +108,7 @@ public class ToolFactory {
 	 * @deprecated - should use factory method creating ClassFileBytesDisassembler instead 
 	 */
 	public static IClassFileDisassembler createDefaultClassFileDisassembler(){
-		return new Disassembler();
+		return new DeprecatedDisassembler();
 	}
 	
 	/**
