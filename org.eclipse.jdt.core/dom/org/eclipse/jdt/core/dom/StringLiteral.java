@@ -23,18 +23,6 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 public class StringLiteral extends Expression {
 
 	/**
-	 * String of characters that have a special escape equivalent.
-	 * Paralleled by QUOTED_SPECIALS.
-	 */
-	private static final String SPECIALS = "\b\t\n\f\r\"\'\\";//$NON-NLS-1$
-
-	/**
-	 * String of single-letter escape equivalents.
-	 * Parallel to SPECIALS.
-	 */
-	private static final String QUOTED_SPECIALS = "btnfr\"\'\\";//$NON-NLS-1$
-
-	/**
 	 * The literal string, including quotes and escapes; defaults to the 
 	 * literal for the empty string.
 	 */
@@ -223,6 +211,24 @@ public class StringLiteral extends Expression {
 						case '7' :
 							b.append('\7');
 							break;
+						case 'u' :
+							//handle the case of unicode.
+							int currentPosition = i + 1;
+							int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+							if ((c1 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+								|| c1 < 0
+								|| (c2 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+								|| c2 < 0
+								|| (c3 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+								|| c3 < 0
+								|| (c4 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
+								|| c4 < 0){
+								throw new IllegalArgumentException("Invalid string literal");
+							} else {
+								b.append((char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4));
+								i = currentPosition - 1;
+							}
+							break;
 						default:
 							throw new IllegalArgumentException("Invalid string literal");//$NON-NLS-1$
 					}
@@ -264,19 +270,63 @@ public class StringLiteral extends Expression {
 		int len = value.length();
 		StringBuffer b = new StringBuffer(len + 2);
 		
-		// FIXME - this does not do Unicode escaping
-		b.append('\"'); // opening delimiter
+		b.append("\""); // opening delimiter
 		for (int i = 0; i < len; i++) {
 			char c = value.charAt(i);
-			int p = SPECIALS.indexOf(c);
-			if (p >= 0) {
-				b.append('\\');
-				b.append(QUOTED_SPECIALS.charAt(p));
-			} else {
-				b.append(c);
+			switch(c) {
+				case '\b' :
+					b.append("\\b");
+					break;
+				case '\t' :
+					b.append("\\t");
+					break;
+				case '\n' :
+					b.append("\\n");
+					break;
+				case '\f' :
+					b.append("\\f");
+					break;
+				case '\r' :
+					b.append("\\r");
+					break;
+				case '\"':
+					b.append("\\\"");
+					break;
+				case '\'':
+					b.append("\\\'");
+					break;
+				case '\\':
+					b.append("\\\\");
+					break;
+				case '\0' :
+					b.append("\\0");
+					break;
+				case '\1' :
+					b.append("\\1");
+					break;
+				case '\2' :
+					b.append("\\2");
+					break;
+				case '\3' :
+					b.append("\\3");
+					break;
+				case '\4' :
+					b.append("\\4");
+					break;
+				case '\5' :
+					b.append("\\5");
+					break;
+				case '\6' :
+					b.append("\\6");
+					break;
+				case '\7' :
+					b.append("\\7");
+					break;			
+				default:
+					b.append(c);
 			}
 		}
-		b.append('\"'); // closing delimiter
+		b.append("\""); // closing delimiter
 		setEscapedValue(b.toString());
 	}
 	/* (omit javadoc for this method)
