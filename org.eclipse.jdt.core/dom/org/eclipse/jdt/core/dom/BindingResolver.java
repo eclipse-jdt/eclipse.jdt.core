@@ -260,6 +260,72 @@ class BindingResolver {
 	}
 	
 	/**
+	 * Resolves and returns the binding for the constructor being invoked.
+	 * <p>
+	 * The implementation of
+	 * <code>ConstructorInvocation.resolveConstructor</code>
+	 * forwards to this method. Which constructor is invoked is often a function
+	 * of the context in which the expression node is embedded as well as
+	 * the expression subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param expression the expression of interest
+	 * @return the binding for the constructor being invoked, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IMethodBinding resolveConstructor(ConstructorInvocation expression) {
+		return null;
+	}
+	
+	/**
+	 * Resolves and returns the binding for the constructor being invoked.
+	 * <p>
+	 * The implementation of
+	 * <code>SuperConstructorInvocation.resolveConstructor</code>
+	 * forwards to this method. Which constructor is invoked is often a function
+	 * of the context in which the expression node is embedded as well as
+	 * the expression subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param expression the expression of interest
+	 * @return the binding for the constructor being invoked, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
+		return null;
+	}
+	
+	/**
+	 * Resolves and returns the binding for the constructor being invoked.
+	 * <p>
+	 * The implementation of
+	 * <code>ClassInstanceCreation.resolveConstructor</code>
+	 * forwards to this method. Which constructor is invoked is often a function
+	 * of the context in which the expression node is embedded as well as
+	 * the expression subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param expression the expression of interest
+	 * @return the binding for the constructor being invoked, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
+		return null;
+	}
+	
+	/**
 	 * Finds the corresponding AST node from which the given binding originated.
 	 * Returns <code>null</code> if the binding does not correspond to any node
 	 * in the compilation unit.

@@ -218,6 +218,22 @@ public class ClassInstanceCreation extends Expression {
 		return bodyDeclarations;
 	}
 
+	/**
+	 * Resolves and returns the binding for the constructor invoked by this
+	 * expression. For anonymous classes, the binding is that of the anonymous
+	 * constructor.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the constructor binding, or <code>null</code> if the binding
+	 *    cannot be resolved
+	 */	
+	public IMethodBinding resolveConstructorBinding() {
+		return getAST().getBindingResolver().resolveConstructor(this);
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
