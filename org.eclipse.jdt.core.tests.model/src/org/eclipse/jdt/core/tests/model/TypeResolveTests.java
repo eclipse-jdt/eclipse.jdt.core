@@ -118,6 +118,19 @@ public void testResolveTypeInInner() throws JavaModelException {
 		this.resultToString(types));	
 }
 /**
+ * Resolve the type "Object" within a local class.
+ * (regression test for bug 48350 IType#resolveType(String) fails on local types)
+ */
+public void testResolveTypeInInner2() throws JavaModelException {
+	IType type = this.getCompilationUnit("/TypeResolve/src/p5/A.java").getType("A").getMethod("foo", new String[] {}).getType("Local", 1);
+	
+	String[][] types = type.resolveType("Object");
+	assertEquals(
+		"Unexpected result", 
+		"java.lang.Object",
+		this.resultToString(types));		
+}
+/**
  * Resolve the type "String".
  */
 public void testResolveTypeInJavaLang() throws JavaModelException {

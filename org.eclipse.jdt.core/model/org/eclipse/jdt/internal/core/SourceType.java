@@ -701,9 +701,9 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 			
 	 	IType[] topLevelTypes = this.getCompilationUnit().getTypes();
 	 	int length = topLevelTypes.length;
-	 	ISourceType[] topLevelInfos = new ISourceType[length];
+	 	SourceTypeElementInfo[] topLevelInfos = new SourceTypeElementInfo[length];
 	 	for (int i = 0; i < length; i++) {
-			topLevelInfos[i] = (ISourceType)((SourceType)topLevelTypes[i]).getElementInfo();
+			topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
 		}
 			
 		engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
