@@ -137,8 +137,18 @@ public class SearchMatch {
 	 * Returns whether this Java search match is inside a doc comment.
 	 * 
 	 * @return whether this Java search match is inside a doc comment
+	 * @deprecated Use {@link #isInsideDocComment()} instead.
 	 */
 	public boolean insideDocComment() {
+		return isInsideDocComment();
+	}
+
+	/**
+	 * Returns whether this Java search match is inside a doc comment.
+	 * 
+	 * @return whether this Java search match is inside a doc comment
+	 */
+	public boolean isInsideDocComment() {
 		// default is outside a doc comment
 		return false;
 	}

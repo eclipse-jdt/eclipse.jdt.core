@@ -162,7 +162,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 			}
 			if (this.showInsideDoc) {
 				results.append(" ");
-				if (match.insideDocComment()) {
+				if (match.isInsideDocComment()) {
 					results.append("INSIDE_JAVADOC");
 				} else {
 					results.append("OUTSIDE_JAVADOC");

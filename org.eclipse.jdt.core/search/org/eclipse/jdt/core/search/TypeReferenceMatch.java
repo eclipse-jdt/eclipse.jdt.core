@@ -42,9 +42,9 @@ public class TypeReferenceMatch extends SearchMatch {
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.core.search.SearchMatch#insideDocComment()
+	 * @see org.eclipse.jdt.core.search.SearchMatch#isInsideDocComment()
 	 */
-	public boolean insideDocComment() {
+	public boolean isInsideDocComment() {
 		return this.insideDocComment;
 	}
 }
