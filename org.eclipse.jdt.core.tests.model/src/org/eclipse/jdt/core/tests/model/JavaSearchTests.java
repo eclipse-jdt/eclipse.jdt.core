@@ -275,6 +275,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testConstructorDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInInitializer"));
+	suite.addTest(new JavaSearchTests("testMethodDeclarationNoReturnType"));
 	
 	// method reference
 	suite.addTest(new JavaSearchTests("testSimpleMethodReference"));
@@ -1479,6 +1480,25 @@ public void testMethodDeclarationInPackageScope() throws JavaModelException, Cor
 		resultCollector);
 	assertEquals(
 		"src/p/A.java p.A.main(String[]) -> void [main]", 
+		resultCollector.toString());
+}
+/*
+ * Method declaration with a missing return type.
+ * (regression test for bug 43080 NPE when searching in CU with incomplete method declaration)
+ */
+public void testMethodDeclarationNoReturnType() throws JavaModelException {
+	IType type = getCompilationUnit("JavaSearch", "src", "e8", "A.java").getType("A");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"m() int",
+		METHOD,
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertEquals(
+		"", 
 		resultCollector.toString());
 }
 /**
