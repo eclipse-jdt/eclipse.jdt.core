@@ -417,7 +417,11 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
  * Record the fact that bridge methods need to be generated to override certain inherited methods
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
-    
+	if (!isClass()) return null; // only classes get bridge methods
+	if (inheritedMethodToBridge.returnType.erasure() == localTargetMethod.returnType.erasure())
+		if (inheritedMethodToBridge.areParameterErasuresEqual(localTargetMethod))
+			return null; // do not need bridge method
+
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
 	}
@@ -430,8 +434,8 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 		while (synthMethods.hasNext()) {
 			Object method = synthMethods.next();
 			if (method instanceof MethodBinding)
-				if (inheritedMethodToBridge.areParameterErasuresEqual((MethodBinding) method))
-					if (inheritedMethodToBridge.returnType.erasure() == ((MethodBinding) method).returnType.erasure())
+				if (inheritedMethodToBridge.returnType.erasure() == ((MethodBinding) method).returnType.erasure())
+					if (inheritedMethodToBridge.areParameterErasuresEqual((MethodBinding) method))
 						return null;
 		}
 	}
@@ -700,7 +704,10 @@ public MethodBinding[] getMethods(char[] selector) {
 		for (int i = 0, length = result.length - 1; i < length; i++) {
 			MethodBinding method = result[i];
 			for (int j = length; j > i; j--) {
-				if (method.areParameterErasuresEqual(result[j])) {
+				boolean paramsMatch = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5
+					? method.areParameterErasuresEqual(result[j])
+					: method.areParametersEqual(result[j]);
+				if (paramsMatch) {
 					methods();
 					return getMethods(selector); // try again since the duplicate methods have been removed
 				}
@@ -846,7 +853,10 @@ public MethodBinding[] methods() {
 				for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						if (method.areParameterErasuresEqual(method2)) {
+						boolean paramsMatch = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5
+							? method.areParameterErasuresEqual(method2)
+							: method.areParametersEqual(method2);
+						if (paramsMatch) {
 							boolean isEnumSpecialMethod = isEnum()
 								&& (method.selector == TypeConstants.VALUEOF || method.selector == TypeConstants.VALUES);
 							if (methodDecl == null) {

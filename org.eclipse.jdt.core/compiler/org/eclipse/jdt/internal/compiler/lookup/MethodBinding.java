@@ -84,9 +84,9 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 	if (length != args.length)
 		return false;
 
-	for (int i = 0; i < length; i++) {
-		if (parameters[i].erasure() != args[i].erasure()) return false;
-	}
+	for (int i = 0; i < length; i++)
+		if (parameters[i] != args[i] && parameters[i].erasure() != args[i].erasure())
+			return false;
 	return true;
 }
 /* API
