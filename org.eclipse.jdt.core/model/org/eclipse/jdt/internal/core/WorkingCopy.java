@@ -5,6 +5,8 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import java.util.ArrayList;
+import java.util.Map;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -87,17 +89,28 @@ public void destroy() {
 		
 		// remove working copy from the cache
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		if (manager.sharedWorkingCopies.remove(originalElement) != null) {
-			if (SHARED_WC_VERBOSE) {
-				System.out.println("Destroying shared working copy " + this.toDebugString());//$NON-NLS-1$
-			}
-
-			// report removed java delta
-			JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-			delta.removed(this);
-			manager.fire(delta, JavaModelManager.DEFAULT_CHANGE_EVENT);
-		}
 		
+		// In order to be shared, working copies have to denote the same compilation unit 
+		// AND use the same buffer factory.
+		// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
+		Map sharedWorkingCopies = manager.sharedWorkingCopies;
+		
+		Map perFactoryWorkingCopies = 
+			this.bufferFactory == null 
+				?(Map) sharedWorkingCopies.get(CompilationUnit.DEFAULT_FACTORY)  
+				: (Map) sharedWorkingCopies.get(this.bufferFactory);
+		if (perFactoryWorkingCopies != null){
+			if (perFactoryWorkingCopies.remove(originalElement) != null) {
+				if (SHARED_WC_VERBOSE) {
+					System.out.println("Destroying shared working copy " + this.toDebugString());//$NON-NLS-1$
+				}
+	
+				// report removed java delta
+				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+				delta.removed(this);
+				manager.fire(delta, JavaModelManager.DEFAULT_CHANGE_EVENT);
+			}
+		}		
 	} catch (JavaModelException e) {
 		// do nothing
 	}

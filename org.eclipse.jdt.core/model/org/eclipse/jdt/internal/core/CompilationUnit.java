@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit {
 	
 	public static boolean SHARED_WC_VERBOSE = false;
+	public final static Object DEFAULT_FACTORY = "DEFAULT"; //$NON-NLS-1$
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -281,8 +282,19 @@ public IType findPrimaryType() {
 /**
  * @see IWorkingCopy
  */
-public IJavaElement findSharedWorkingCopy() {
-	return (IJavaElement)JavaModelManager.getJavaModelManager().sharedWorkingCopies.get(this);
+public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
+
+	// In order to be shared, working copies have to denote the same compilation unit 
+	// AND use the same buffer factory.
+	// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
+	Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
+	
+	Map perFactoryWorkingCopies = 
+		factory == null 
+			?(Map) sharedWorkingCopies.get(CompilationUnit.DEFAULT_FACTORY) 
+			: (Map) sharedWorkingCopies.get(factory);
+	if (perFactoryWorkingCopies == null) return null;
+	return (WorkingCopy)perFactoryWorkingCopies.get(this);
 }
 
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
@@ -530,9 +542,27 @@ public IType[] getTypes() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	
+	// In order to be shared, working copies have to denote the same compilation unit 
+	// AND use the same buffer factory.
+	// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
-	WorkingCopy workingCopy = (WorkingCopy)sharedWorkingCopies.get(this);
+	
+	Map perFactoryWorkingCopies = 
+		factory == null 
+			?(Map) sharedWorkingCopies.get(CompilationUnit.DEFAULT_FACTORY) 
+			: (Map) sharedWorkingCopies.get(factory);
+	if (perFactoryWorkingCopies == null){
+		perFactoryWorkingCopies = new HashMap();
+		if (factory == null){
+			sharedWorkingCopies.put(CompilationUnit.DEFAULT_FACTORY, perFactoryWorkingCopies); 
+		} else {
+			sharedWorkingCopies.put(factory, perFactoryWorkingCopies);
+		}
+	}
+	WorkingCopy workingCopy = (WorkingCopy)perFactoryWorkingCopies.get(this);
 	if (workingCopy != null) {
 		workingCopy.useCount++;
 
@@ -543,7 +573,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 		return workingCopy;
 	} else {
 		workingCopy = (WorkingCopy)this.getWorkingCopy(pm, factory, problemRequestor);
-		sharedWorkingCopies.put(this, workingCopy);
+		perFactoryWorkingCopies.put(this, workingCopy);
 
 		if (SHARED_WC_VERBOSE) {
 			System.out.println("Creating shared working copy " + workingCopy.toDebugString()); //$NON-NLS-1$

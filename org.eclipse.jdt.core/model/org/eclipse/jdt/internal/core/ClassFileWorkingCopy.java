@@ -343,9 +343,9 @@ public IResource getResource() {
 	}
 
 	/*
-	 * @see IWorkingCopy#findSharedWorkingCopy()
+	 * @see IWorkingCopy#findSharedWorkingCopy(IBufferFactory)
 	 */
-	public IJavaElement findSharedWorkingCopy() {
+	public IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory) {
 		return null;
 	}
 

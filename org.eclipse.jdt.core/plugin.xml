@@ -146,4 +146,16 @@
 	<attribute name="arguments"/>
 </extension>
     
+<!-- =================================================================================== -->
+<!-- Extension: Javac Ant Adapter                                                             -->
+<!-- =================================================================================== -->
+
+<extension point="org.eclipse.ant.core.antObjects">
+	<antObject
+		name="org.eclipse.jdt.internal.core.JDTCompilerAdapter"
+		class="org.eclipse.jdt.internal.core.JDTCompilerAdapter"
+		library="jdtCompilerAdapter.jar">
+	</antObject>
+</extension>    
+   
 </plugin>

@@ -94,14 +94,16 @@ public interface IWorkingCopy {
 	void destroy();
 	
 	/**
-	 * Finds the shared working copy for this element. If no working copy has been created 
-	 * for this element, returns <code>null</code>.
+	 * Finds the shared working copy for this element, given a <code>IBuffer</code> factory. 
+	 * If no working copy has been created for this element associated with this
+	 * buffer factory, returns <code>null</code>.
 	 * <p>
 	 * Users of this method must not destroy the resulting working copy. 
 	 * 
+	 * @see IBufferFactory
 	 * @since 2.0
 	 */
-	IJavaElement findSharedWorkingCopy();
+	IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory);
 	
 	/**
 	 * Returns the original element the specified working copy element was created from,
@@ -146,6 +148,8 @@ public interface IWorkingCopy {
 	/**
 	 * Returns a shared working copy on this element using the given factory to create
 	 * the buffer, or this element if this element is already a working copy.
+	 * This API can only answer an already existing working copy if it is based on the same
+	 * original compilation unit AND was using the same buffer factory (i.e. as defined by <code>Object#equals</code>).	 
 	 * <p>
 	 * The life time of a shared working copy is as follows:
 	 * <ul>
@@ -177,6 +181,8 @@ public interface IWorkingCopy {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
+	 * @see IBufferFactory
+	 * @see IProblemRequestor
 	 * @since 2.0
 	 */
 	IJavaElement getSharedWorkingCopy(
