@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * AST node for a member reference within a doc comment
- * ({@link Javadoc Javadoc}). The principal uses of these are in "@see" and "@link"
+ * ({@link Javadoc}). The principal uses of these are in "@see" and "@link"
  * tag elements, for references to field members (and occasionally to method
  * and constructor members).
  * <pre>
