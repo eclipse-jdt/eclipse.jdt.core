@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.*;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -1999,7 +2000,14 @@ public class JavaProject
 		String property = null;
 		IFile rscFile = this.project.getFile(key);
 		if (rscFile.exists()) {
-			property = new String(Util.getResourceContentsAsByteArray(rscFile));
+			byte[] bytes = Util.getResourceContentsAsByteArray(rscFile);
+			try {
+				property = new String(bytes, "UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+			} catch (UnsupportedEncodingException e) {
+				Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
+				// fallback to default
+				property = new String(bytes);
+			}
 		}
 		return property;
 	}
@@ -2720,7 +2728,15 @@ public class JavaProject
 	public void setSharedProperty(String key, String value) throws CoreException {
 
 		IFile rscFile = this.project.getFile(key);
-		InputStream inputStream = new ByteArrayInputStream(value.getBytes());
+		byte[] bytes = null;
+		try {
+			bytes = value.getBytes("UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+		} catch (UnsupportedEncodingException e) {
+			Util.log(e, "Could not write .classpath with UTF-8 encoding "); //$NON-NLS-1$
+			// fallback to default
+			bytes = value.getBytes();
+		}
+		InputStream inputStream = new ByteArrayInputStream(bytes);
 		// update the resource content
 		if (rscFile.exists()) {
 			if (rscFile.isReadOnly()) {
