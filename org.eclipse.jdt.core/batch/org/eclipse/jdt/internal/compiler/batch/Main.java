@@ -280,7 +280,8 @@ private void configure(String[] argv) throws InvalidInputException {
 	boolean printUsageRequired = false;
 
 	boolean didSpecifyCompliance = false;
-		
+	boolean didSpecifySourceLevel = false;
+			
 	while (++index < argCount) {
 		String currentArg = argv[index].trim();
 		if (currentArg.endsWith(".java")) { //$NON-NLS-1$
@@ -308,6 +309,7 @@ private void configure(String[] argv) throws InvalidInputException {
 		}
 		if (currentArg.equals("-source")) { //$NON-NLS-1$
 			mode = InsideSource;
+			didSpecifySourceLevel = true;
 			continue;
 		}
 		if (currentArg.equals("-1.3")) { //$NON-NLS-1$
@@ -316,6 +318,9 @@ private void configure(String[] argv) throws InvalidInputException {
 			}
 			didSpecifyCompliance = true;
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+			if (!didSpecifySourceLevel){
+				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+			}
 			mode = Default;
 			continue;
 		}
@@ -325,6 +330,9 @@ private void configure(String[] argv) throws InvalidInputException {
 			}
 			didSpecifyCompliance = true;
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+			if (!didSpecifySourceLevel){
+				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+			}
 			mode = Default;
 			continue;
 		}

@@ -12,12 +12,15 @@
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK Build 200201?? - ??th January 2002
-<br>Project org.eclipse.jdt.core v_22?
+<br>Project org.eclipse.jdt.core v_225
 <h2>
 What's new in this drop</h2>
 <ul>
 <li> Java compiler is JCK 1.4 compliant. When toggled in 1.4 mode (batch: -1.4 -source 1.4), the Java compiler is fully JCK 1.4 compliant 
 as of JCK 1.4 2001-10-01 update. When in 1.3 mode (default), it is JCK 1.3a compliant.
+</li>
+<li> By default, when toggled into 1.4 mode, the batch compiler will enable assertion support (e.g. -source 1.4). It can still manually
+be toggled for 1.3 source level compatibility (-source 1.3).
 </li>
 </ul>
 
