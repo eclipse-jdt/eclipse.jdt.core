@@ -6055,7 +6055,7 @@ public void initialize() {
 	lastErrorEndPosition = -1;
 }
 public void initializeScanner(){
-	this.scanner = new Scanner(false, false, this.problemReporter.options.isNonExternalizedStringLiteralHandledAsWarning(), this.assertMode);
+	this.scanner = new Scanner(false, false, this.problemReporter.options.getNonExternalizedStringLiteralSeverity() != ProblemSeverities.Ignore , this.assertMode);
 }
 public final static void initTables() throws java.io.IOException {
 

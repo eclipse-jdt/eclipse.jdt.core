@@ -11,10 +11,6 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, ProblemReasons, ProblemSeverities {
-	private static final int ERROR = 0;
-	private static final int WARNING = 1;
-	private static final int IGNORE = 2;
-	
 	// class file output
 	// these are the bits used to buld a mask to know which debug 
 	// attributes should be included in the .class file
@@ -88,10 +84,10 @@ public void setAccessEmulationSeverity(int flag) {
 	errorThreshold &= ~AccessEmulation;
 	warningThreshold &= ~AccessEmulation;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= AccessEmulation;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= AccessEmulation;
 			break;
 	}
@@ -100,10 +96,10 @@ public void setDeprecationUseSeverity(int flag) {
 	errorThreshold &= ~UsingDeprecatedAPI;
 	warningThreshold &= ~UsingDeprecatedAPI;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= UsingDeprecatedAPI;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= UsingDeprecatedAPI;
 			break;
 	}
@@ -112,10 +108,10 @@ public void setImportProblemSeverity(int flag) {
 	errorThreshold &= ~ImportProblem;
 	warningThreshold &= ~ImportProblem;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= ImportProblem;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= ImportProblem;
 			break;
 	}
@@ -124,10 +120,10 @@ public void setMaskedCatchBlockSeverity(int flag) {
 	errorThreshold &= ~MaskedCatchBlock;
 	warningThreshold &= ~MaskedCatchBlock;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= MaskedCatchBlock;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= MaskedCatchBlock;
 			break;
 	}
@@ -136,10 +132,10 @@ public void setMethodWithConstructorNameSeverity(int flag) {
 	errorThreshold &= ~MethodWithConstructorName;
 	warningThreshold &= ~MethodWithConstructorName;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= MethodWithConstructorName;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= MethodWithConstructorName;
 			break;
 	}
@@ -149,10 +145,10 @@ public void setOverriddenPackageDefaultMethodSeverity(int flag) {
 	errorThreshold &= ~OverriddenPackageDefaultMethod;
 	warningThreshold &= ~OverriddenPackageDefaultMethod;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= OverriddenPackageDefaultMethod;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= OverriddenPackageDefaultMethod;
 			break;
 	}
@@ -161,10 +157,10 @@ public void setUnreachableCodeSeverity(int flag) {
 	errorThreshold &= ~UnreachableCode;
 	warningThreshold &= ~UnreachableCode;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= UnreachableCode;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= UnreachableCode;
 			break;
 	}	
@@ -173,10 +169,10 @@ public void setUnusedArgumentSeverity(int flag) {
 	errorThreshold &= ~UnusedArgument;
 	warningThreshold &= ~UnusedArgument;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= UnusedArgument;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= UnusedArgument;
 			break;
 	}
@@ -185,10 +181,10 @@ public void setUnusedLocalVariableSeverity(int flag) {
 	errorThreshold &= ~UnusedLocalVariable;
 	warningThreshold &= ~UnusedLocalVariable;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= UnusedLocalVariable;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= UnusedLocalVariable;
 			break;
 	}
@@ -197,10 +193,10 @@ public void setNonExternalizedStringLiteralSeverity(int flag) {
 	errorThreshold &= ~NonExternalizedString;
 	warningThreshold &= ~NonExternalizedString;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= NonExternalizedString;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= NonExternalizedString;
 			break;
 	}	
@@ -209,56 +205,56 @@ public void setAssertIdentifierSeverity(int flag) {
 	errorThreshold &= ~AssertUsedAsAnIdentifier;
 	warningThreshold &= ~AssertUsedAsAnIdentifier;
 	switch(flag){
-		case ERROR : 
+		case Error : 
 			errorThreshold |= AssertUsedAsAnIdentifier;
 			break;
-		case WARNING : 
+		case Warning : 
 			warningThreshold |= AssertUsedAsAnIdentifier;
 			break;
 	}	
 }
 public int getAccessEmulationSeverity() {
 	if((warningThreshold & AccessEmulation) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & AccessEmulation) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getDeprecationUseSeverity() {
 	if((warningThreshold & UsingDeprecatedAPI) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & UsingDeprecatedAPI) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getImportProblemSeverity() {
 	if((warningThreshold & ImportProblem) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & ImportProblem) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getMaskedCatchBlockSeverity() {
 	if((warningThreshold & MaskedCatchBlock) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & MaskedCatchBlock) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getMethodWithConstructorNameSeverity() {
 	if((warningThreshold & MethodWithConstructorName) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & MethodWithConstructorName) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 
 public int getOverriddenPackageDefaultMethodSeverity() {
 	if((warningThreshold & OverriddenPackageDefaultMethod) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & OverriddenPackageDefaultMethod) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public boolean isPreservingAllLocalVariables() {
 	return this.preserveAllLocalVariables ;
@@ -268,38 +264,38 @@ public boolean isPrivateConstructorAccessChangingVisibility() {
 }
 public int getUnreachableCodeHandledAsError() {
 	if((warningThreshold & UnreachableCode) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & UnreachableCode) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getUnusedArgumentSeverity() {
 	if((warningThreshold & UnusedArgument) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & UnusedArgument) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getUnusedLocalVariableSeverity() {
 	if((warningThreshold & UnusedLocalVariable) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & UnusedLocalVariable) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getNonExternalizedStringLiteralSeverity() {
 	if((warningThreshold & NonExternalizedString) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & NonExternalizedString) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public int getAssertIdentifierSeverity() {
 	if((warningThreshold & NonExternalizedString) != 0)
-		return WARNING;
+		return Warning;
 	if((errorThreshold & NonExternalizedString) != 0)
-		return ERROR;
-	return IGNORE;
+		return Error;
+	return Ignore;
 }
 public void preserveAllLocalVariables(boolean flag) {
 	this.preserveAllLocalVariables = flag;
@@ -350,25 +346,25 @@ void setOption(ConfigurableOption setting) {
 	}else if(optionID.equals(componentName + ".problemUnreachableCode"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setUnreachableCodeSeverity(ERROR);
+				setUnreachableCodeSeverity(Error);
 				break;
 			case 1 :
-				setUnreachableCodeSeverity(WARNING);
+				setUnreachableCodeSeverity(Warning);
 				break;
 			case 2 :
-				setUnreachableCodeSeverity(IGNORE);
+				setUnreachableCodeSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemInvalidImport"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setImportProblemSeverity(ERROR);
+				setImportProblemSeverity(Error);
 				break;
 			case 1 :
-				setImportProblemSeverity(WARNING);
+				setImportProblemSeverity(Warning);
 				break;
 			case 2 :
-				setImportProblemSeverity(IGNORE);
+				setImportProblemSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".codegenTargetPlatform"/*nonNLS*/)){
@@ -376,109 +372,109 @@ void setOption(ConfigurableOption setting) {
 	}else if(optionID.equals(componentName + ".problemMethodWithConstructorName"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setMethodWithConstructorNameSeverity(ERROR);
+				setMethodWithConstructorNameSeverity(Error);
 				break;
 			case 1 :
-				setMethodWithConstructorNameSeverity(WARNING);
+				setMethodWithConstructorNameSeverity(Warning);
 				break;
 			case 2 :
-				setMethodWithConstructorNameSeverity(IGNORE);
+				setMethodWithConstructorNameSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemOverridingPackageDefaultMethod"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setOverriddenPackageDefaultMethodSeverity(ERROR);
+				setOverriddenPackageDefaultMethodSeverity(Error);
 				break;
 			case 1 :
-				setOverriddenPackageDefaultMethodSeverity(WARNING);
+				setOverriddenPackageDefaultMethodSeverity(Warning);
 				break;
 			case 2 :
-				setOverriddenPackageDefaultMethodSeverity(IGNORE);
+				setOverriddenPackageDefaultMethodSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemDeprecation"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setDeprecationUseSeverity(ERROR);
+				setDeprecationUseSeverity(Error);
 				break;
 			case 1 :
-				setDeprecationUseSeverity(WARNING);
+				setDeprecationUseSeverity(Warning);
 				break;
 			case 2 :
-				setDeprecationUseSeverity(IGNORE);
+				setDeprecationUseSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemHiddenCatchBlock"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setMaskedCatchBlockSeverity(ERROR);
+				setMaskedCatchBlockSeverity(Error);
 				break;
 			case 1 :
-				setMaskedCatchBlockSeverity(WARNING);
+				setMaskedCatchBlockSeverity(Warning);
 				break;
 			case 2 :
-				setMaskedCatchBlockSeverity(IGNORE);
+				setMaskedCatchBlockSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemUnusedLocal"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setUnusedLocalVariableSeverity(ERROR);
+				setUnusedLocalVariableSeverity(Error);
 				break;
 			case 1 :
-				setUnusedLocalVariableSeverity(WARNING);
+				setUnusedLocalVariableSeverity(Warning);
 				break;
 			case 2 :
-				setUnusedLocalVariableSeverity(IGNORE);
+				setUnusedLocalVariableSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemUnusedParameter"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setUnusedArgumentSeverity(ERROR);
+				setUnusedArgumentSeverity(Error);
 				break;
 			case 1 :
-				setUnusedArgumentSeverity(WARNING);
+				setUnusedArgumentSeverity(Warning);
 				break;
 			case 2 :
-				setUnusedArgumentSeverity(IGNORE);
+				setUnusedArgumentSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemSyntheticAccessEmulation"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setAccessEmulationSeverity(ERROR);
+				setAccessEmulationSeverity(Error);
 				break;
 			case 1 :
-				setAccessEmulationSeverity(WARNING);
+				setAccessEmulationSeverity(Warning);
 				break;
 			case 2 :
-				setAccessEmulationSeverity(IGNORE);
+				setAccessEmulationSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemNonExternalizedStringLiteral"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setNonExternalizedStringLiteralSeverity(ERROR);
+				setNonExternalizedStringLiteralSeverity(Error);
 				break;
 			case 1 :
-				setNonExternalizedStringLiteralSeverity(WARNING);
+				setNonExternalizedStringLiteralSeverity(Warning);
 				break;
 			case 2 :
-				setNonExternalizedStringLiteralSeverity(IGNORE);
+				setNonExternalizedStringLiteralSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".problemAssertIdentifier"/*nonNLS*/)){
 		switch(setting.getValueIndex()){
 			case 0 : 
-				setAssertIdentifierSeverity(ERROR);
+				setAssertIdentifierSeverity(Error);
 				break;
 			case 1 :
-				setAssertIdentifierSeverity(WARNING);
+				setAssertIdentifierSeverity(Warning);
 				break;
 			case 2 :
-				setAssertIdentifierSeverity(IGNORE);
+				setAssertIdentifierSeverity(Ignore);
 				break;
 		}
 	}else if(optionID.equals(componentName + ".source"/*nonNLS*/)){
