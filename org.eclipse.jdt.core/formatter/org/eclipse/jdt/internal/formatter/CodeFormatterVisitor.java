@@ -578,52 +578,73 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 		multiFieldDeclaration.declarations[0].type.traverse(this, scope);
 	
-		for (int i = 0, length = multiFieldDeclaration.declarations.length; i < length; i++) {
-			FieldDeclaration fieldDeclaration = multiFieldDeclaration.declarations[i];
-			/*
-			 * Field name
-			 */
-			if (i == 0) {
-				this.scribe.alignFragment(fieldAlignment, 0);
-			}
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+		final int multipleFieldDeclarationsLength = multiFieldDeclaration.declarations.length;
+
+		Alignment multiFieldDeclarationsAlignment =this.scribe.createAlignment(
+				"multiple_field",//$NON-NLS-1$
+				this.preferences.multiple_fields_alignment,
+				multipleFieldDeclarationsLength - 1,
+				this.scribe.scanner.currentPosition);
+		this.scribe.enterAlignment(multiFieldDeclarationsAlignment);
 	
-			/*
-			 * Check for extra dimensions
-			 */
-			int extraDimensions = getExtraDimension();
-			if (extraDimensions != 0) {
-				 for (int index = 0; index < extraDimensions; index++) {
-				 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-				 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
-				 }
-			}
-		
-			/*
-			 * Field initialization
-			 */
-			if (fieldDeclaration.initialization != null) {
-				if (i == 0) {
-					this.scribe.alignFragment(fieldAlignment, 1);
-				}
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
-				if (this.preferences.insert_space_after_assignment_operators) {
-					this.scribe.space();
-				}
-				fieldDeclaration.initialization.traverse(this, scope);
-			}
+		boolean ok = false;
+		do {
+			try {
+				for (int i = 0, length = multipleFieldDeclarationsLength; i < length; i++) {
+					FieldDeclaration fieldDeclaration = multiFieldDeclaration.declarations[i];
+					/*
+					 * Field name
+					 */
+					if (i == 0) {
+						this.scribe.alignFragment(fieldAlignment, 0);
+					}
+					this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
 			
-			if (i != length - 1) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_field_declarations);
-				if (this.preferences.insert_space_after_comma_in_multiple_field_declarations) {
-					this.scribe.space();
+					/*
+					 * Check for extra dimensions
+					 */
+					int extraDimensions = getExtraDimension();
+					if (extraDimensions != 0) {
+						 for (int index = 0; index < extraDimensions; index++) {
+						 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+						 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+						 }
+					}
+				
+					/*
+					 * Field initialization
+					 */
+					if (fieldDeclaration.initialization != null) {
+						if (i == 0) {
+							this.scribe.alignFragment(fieldAlignment, 1);
+						}
+						this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
+						if (this.preferences.insert_space_after_assignment_operators) {
+							this.scribe.space();
+						}
+						fieldDeclaration.initialization.traverse(this, scope);
+					}
+					
+					if (i != length - 1) {
+						this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_field_declarations);
+
+						this.scribe.alignFragment(multiFieldDeclarationsAlignment, i);
+
+						if (this.preferences.insert_space_after_comma_in_multiple_field_declarations) {
+							this.scribe.space();
+						}
+					} else {
+						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.alignFragment(fieldAlignment, 2);
+						this.scribe.printTrailingComment();
+					}
 				}
-			} else {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				this.scribe.alignFragment(fieldAlignment, 2);
-				this.scribe.printTrailingComment();
+				ok = true;
+			} catch (AlignmentException e) {
+				this.scribe.redoAlignment(e);
 			}
-		}
+		} while (!ok);
+		this.scribe.exitAlignment(multiFieldDeclarationsAlignment, true);				
 		if (fieldAlignment != null) {
 			this.scribe.exitAlignment(fieldAlignment, false);
 		}

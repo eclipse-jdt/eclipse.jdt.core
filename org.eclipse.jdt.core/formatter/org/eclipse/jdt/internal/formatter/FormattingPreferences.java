@@ -164,6 +164,7 @@ public class FormattingPreferences {
 	public static final String NUMBER_OF_EMPTY_LINES_TO_PRESERVE = "number_of_empty_lines_to_preserve";	//$NON-NLS-1$
 	public static final String PRESERVE_USER_LINEBREAKS = "preserve_user_linebreaks";//$NON-NLS-1$
 	public static final String INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = "insert_new_line_before_closing_brace_in_array_initializer";//$NON-NLS-1$
+	public static final String MULTIPLE_FIELDS_ALIGNMENT = "multiple_fields_alignment";//$NON-NLS-1$
 
 	/**
 	 * Preferences defaults value	 */	
@@ -302,7 +303,8 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK = true;
 	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
-	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = true;
+	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
+	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;//$NON-NLS-1$
 
 	public int page_width;
 	public boolean use_tab;
@@ -440,6 +442,7 @@ public class FormattingPreferences {
 	public int number_of_empty_lines_to_preserve;
 	public boolean preserve_user_linebreaks;
 	public boolean insert_new_line_before_closing_brace_in_array_initializer;
+	public int multiple_fields_alignment;
 
 	private FormattingPreferences() {
 		// default implementation: make instanciation impossible
@@ -1111,6 +1114,17 @@ public class FormattingPreferences {
 		} else {
 			this.number_of_empty_lines_to_preserve = DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE;
 		}
+		
+		if (map.get(INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER) != null) {
+			this.insert_new_line_before_closing_brace_in_array_initializer = Boolean.valueOf((String)map.get(INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER)).booleanValue();
+		} else {
+			this.insert_new_line_before_closing_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
+		}
+		if (map.get(MULTIPLE_FIELDS_ALIGNMENT) != null) { 
+			this.multiple_fields_alignment = Integer.parseInt((String)map.get(MULTIPLE_FIELDS_ALIGNMENT));
+		} else {
+			this.multiple_fields_alignment = DEFAULT_MULTIPLE_FIELDS_ALIGNMENT;
+		}
 	}
 		
 	public static FormattingPreferences getDefault() {
@@ -1249,6 +1263,7 @@ public class FormattingPreferences {
 		defaults.number_of_empty_lines_to_preserve = DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE;
 		defaults.preserve_user_linebreaks = DEFAULT_PRESERVE_USER_LINEBREAKS;
 		defaults.insert_new_line_before_closing_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
+		defaults.multiple_fields_alignment = DEFAULT_MULTIPLE_FIELDS_ALIGNMENT;
 		return defaults;
 	}
 
@@ -1388,6 +1403,7 @@ public class FormattingPreferences {
 		sunSettings.number_of_empty_lines_to_preserve = 1;
 		sunSettings.preserve_user_linebreaks = false;
 		sunSettings.insert_new_line_before_closing_brace_in_array_initializer = false;
+		sunSettings.multiple_fields_alignment = Alignment.M_COMPACT_SPLIT;
 		return sunSettings;
 	}
 }
