@@ -178,16 +178,6 @@ public void delete(
 }
 
 /**
- * This root is being closed.  If this root has an associated source attachment, 
- * close it too.
- *
- * @see JavaElement
- */
-//protected void closing(Object info) throws JavaModelException { TODO remove after 2.1
-//	((PackageFragmentRootInfo) info).sourceMapper = null;
-//	super.closing(info);
-//}
-/**
  * Compute the package fragment children of this package fragment root.
  * 
  * @exception JavaModelException  The resource associated with this package fragment root does not exist
@@ -196,11 +186,11 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
-		IResource resource = getResource();
-		if (resource.getType() == IResource.FOLDER || resource.getType() == IResource.PROJECT) {
+		IResource underlyingResource = getResource();
+		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
 			ArrayList vChildren = new ArrayList(5);
 			char[][] exclusionPatterns = fullExclusionPatternChars();
-			computeFolderChildren((IContainer) resource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
+			computeFolderChildren((IContainer) underlyingResource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
 			info.setChildren(children);
@@ -458,13 +448,13 @@ protected char getHandleMementoDelimiter() {
  */
 public String getHandleMemento(){
 	IPath path;
-	IResource resource = getResource();
-	if (resource != null) {
+	IResource underlyingResource = getResource();
+	if (underlyingResource != null) {
 		// internal jar or regular root
 		if (getResource().getProject().equals(getJavaProject().getProject())) {
-			path = resource.getProjectRelativePath();
+			path = underlyingResource.getProjectRelativePath();
 		} else {
-			path = resource.getFullPath();
+			path = underlyingResource.getFullPath();
 		}
 	} else {
 		// external jar

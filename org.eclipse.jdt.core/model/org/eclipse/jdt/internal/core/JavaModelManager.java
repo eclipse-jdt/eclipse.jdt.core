@@ -487,9 +487,9 @@ public class JavaModelManager implements ISaveParticipant {
 	public Map sharedWorkingCopies = new HashMap();
 	
 	/**
-	 * A weak set of the known scopes.
+	 * A weak set of the known search scopes.
 	 */
-	protected WeakHashMap scopes = new WeakHashMap();
+	protected WeakHashMap searchScopes = new WeakHashMap();
 
 	public static class PerProjectInfo {
 		public IProject project;
@@ -692,7 +692,7 @@ public class JavaModelManager implements ISaveParticipant {
 			
 		// Refresh internal scopes
 		if (deltaToNotify != null) {
-			Iterator scopes = this.scopes.keySet().iterator();
+			Iterator scopes = this.searchScopes.keySet().iterator();
 			while (scopes.hasNext()) {
 				AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
 				scope.processDelta(deltaToNotify);
@@ -848,9 +848,8 @@ public class JavaModelManager implements ISaveParticipant {
 		if (memento == null) {
 			return null;
 		}
-		JavaModel model= (JavaModel) getJavaModel();
 		if (memento.equals("")){ // workspace memento //$NON-NLS-1$
-			return model;
+			return this.javaModel;
 		}
 		int modelEnd= memento.indexOf(JavaElement.JEM_JAVAPROJECT);
 		if (modelEnd == -1) {
@@ -863,15 +862,15 @@ public class JavaModelManager implements ISaveParticipant {
 			returnProject= true;
 		}
 		String projectName= memento.substring(modelEnd + 1, projectEnd);
-		JavaProject proj= (JavaProject) model.getJavaProject(projectName);
+		JavaProject proj= (JavaProject) this.javaModel.getJavaProject(projectName);
 		if (returnProject) {
 			return proj;
 		}
 		int rootEnd= memento.indexOf(JavaElement.JEM_PACKAGEFRAGMENT, projectEnd + 1);
 		if (rootEnd == -1) {
-			return model.getHandleFromMementoForRoot(memento, proj, projectEnd, memento.length());
+			return this.javaModel.getHandleFromMementoForRoot(memento, proj, projectEnd, memento.length());
 		}
-		IPackageFragmentRoot root = model.getHandleFromMementoForRoot(memento, proj, projectEnd, rootEnd);
+		IPackageFragmentRoot root = this.javaModel.getHandleFromMementoForRoot(memento, proj, projectEnd, rootEnd);
 		if (root == null)
 			return null;
 
@@ -886,11 +885,11 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 			}
 			//deal with class file and binary members
-			return model.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, end);
+			return this.javaModel.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, end);
 		}
 
 		//deal with compilation units and source members
-		return model.getHandleFromMementoForSourceMembers(memento, root, rootEnd, end);
+		return this.javaModel.getHandleFromMementoForSourceMembers(memento, root, rootEnd, end);
 	}
 	public IndexManager getIndexManager() {
 		return this.deltaProcessor.indexManager;
@@ -1038,7 +1037,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
 			
-		synchronized(this.zipFiles) { // TODO:  use PeThreadObject which does synchronization
+		synchronized(this.zipFiles) { // TODO:  use PerThreadObject which does synchronization
 			Thread currentThread = Thread.currentThread();
 			HashMap map = null;
 			ZipFile zipFile;
@@ -1195,8 +1194,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		
 		Iterator iterator = deltas.iterator();
-		IJavaElement javaModel = this.getJavaModel();
-		JavaElementDelta rootDelta = new JavaElementDelta(javaModel);
+		JavaElementDelta rootDelta = new JavaElementDelta(this.javaModel);
 		boolean insertedTree = false;
 		while (iterator.hasNext()) {
 			JavaElementDelta delta = (JavaElementDelta)iterator.next();
@@ -1204,7 +1202,7 @@ public class JavaModelManager implements ISaveParticipant {
 				System.out.println(delta.toString());
 			}
 			IJavaElement element = delta.getElement();
-			if (javaModel.equals(element)) {
+			if (this.javaModel.equals(element)) {
 				IJavaElementDelta[] children = delta.getAffectedChildren();
 				for (int j = 0; j < children.length; j++) {
 					JavaElementDelta projectDelta = (JavaElementDelta) children[j];
@@ -1337,7 +1335,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void rememberScope(AbstractSearchScope scope) {
 		// NB: The value has to be null so as to not create a strong reference on the scope
-		this.scopes.put(scope, null); 
+		this.searchScopes.put(scope, null); 
 	}
 
 	/**
