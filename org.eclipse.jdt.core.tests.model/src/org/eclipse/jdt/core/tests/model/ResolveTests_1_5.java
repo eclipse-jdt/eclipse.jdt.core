@@ -33,7 +33,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new ResolveTests_1_5("test0082"));			
+	suite.addTest(new ResolveTests_1_5("test0085"));			
 	return suite;
 }
 
@@ -1838,5 +1838,15 @@ public void test0084() throws JavaModelException {
 			"Test");
 	assertEquals("test0084.Test", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 }
-
+public void test0085() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0085/Test.java",
+			"package test0085;\n" +
+			"public class Test<T> {\n" +
+			"  class Member {\n" +
+			"  }\n" +
+			"}",
+			"Member");
+	assertEquals("test0085.Test<T>.Member", ((IType)elements[0]).getFullyQualifiedParameterizedName());
+}
 }

@@ -222,17 +222,18 @@ public String getFullyQualifiedName() {
  * @see IType#getFullyQualifiedName(char)
  */
 public String getFullyQualifiedName(char enclosingTypeSeparator) {
-	String packageName = getPackageFragment().getElementName();
-	if (packageName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-		return getTypeQualifiedName(enclosingTypeSeparator);
+	try {
+		return getFullyQualifiedName(enclosingTypeSeparator, false/*don't show parameters*/);
+	} catch (JavaModelException e) {
+		// exception thrown only when showing parameters
+		return null;
 	}
-	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
 /*
  * @see IType#getFullyQualifiedParameterizedName()
  */
 public String getFullyQualifiedParameterizedName() throws JavaModelException {
-	return getFullyQualifiedParameterizedName(getFullyQualifiedName(), getTypeParameters());
+	return getFullyQualifiedName('.', true/*show parameters*/);
 }
 /*
  * @see JavaElement
@@ -484,21 +485,12 @@ public String getTypeQualifiedName() {
  * @see IType#getTypeQualifiedName(char)
  */
 public String getTypeQualifiedName(char enclosingTypeSeparator) {
-	switch (this.parent.getElementType()) {
-		case IJavaElement.COMPILATION_UNIT:
-			return this.name;
-		case IJavaElement.TYPE:
-			String simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
-			return ((IType) this.parent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + simpleName;
-		case IJavaElement.FIELD:
-		case IJavaElement.INITIALIZER:
-		case IJavaElement.METHOD:
-			simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
-			return 
-				((IMember) this.parent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
-				+ enclosingTypeSeparator + simpleName;
+	try {
+		return getTypeQualifiedName(enclosingTypeSeparator, false/*don't show parameters*/);
+	} catch (JavaModelException e) {
+		// exception thrown only when showing parameters
+		return null;
 	}
-	return null;
 }
 
 /**

@@ -277,18 +277,19 @@ public String getFullyQualifiedName() {
  * @see IType#getFullyQualifiedName(char enclosingTypeSeparator)
  */
 public String getFullyQualifiedName(char enclosingTypeSeparator) {
-	String packageName = getPackageFragment().getElementName();
-	if (packageName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-		return getTypeQualifiedName(enclosingTypeSeparator);
+	try {
+		return getFullyQualifiedName(enclosingTypeSeparator, false/*don't show parameters*/);
+	} catch (JavaModelException e) {
+		// exception thrown only when showing parameters
+		return null;
 	}
-	return packageName + '.' + getTypeQualifiedName(enclosingTypeSeparator);
 }
 
 /*
  * @see IType#getFullyQualifiedParameterizedName()
  */
 public String getFullyQualifiedParameterizedName() throws JavaModelException {
-	return getFullyQualifiedParameterizedName(getFullyQualifiedName(), getTypeParameters());
+	return getFullyQualifiedName('.', true/*show parameters*/);
 }
 
 /*
@@ -541,21 +542,11 @@ public String getTypeQualifiedName() {
  * @see IType#getTypeQualifiedName(char)
  */
 public String getTypeQualifiedName(char enclosingTypeSeparator) {
-	IType declaringType = this.getDeclaringType();
-	if (declaringType == null) {
-		String classFileName = this.getClassFile().getElementName();
-		if (classFileName.indexOf('$') == -1) {
-			// top level class file: name of type is same as name of class file
-			return this.name;
-		} else {
-			// anonymous or local class file
-			return classFileName.substring(0, classFileName.lastIndexOf('.')); // remove .class
-		}
-	} else {
-		return 
-			declaringType.getTypeQualifiedName(enclosingTypeSeparator)
-			+ enclosingTypeSeparator
-			+ this.name;
+	try {
+		return getTypeQualifiedName(enclosingTypeSeparator, false/*don't show parameters*/);
+	} catch (JavaModelException e) {
+		// exception thrown only when showing parameters
+		return null;
 	}
 }
 /*
