@@ -68,7 +68,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0026"));
+		suite.addTest(new ASTConverter15Test("test0027"));
 		return suite;
 	}
 		
@@ -825,9 +825,60 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 6, bodyDeclarations.size());
 		EnumConstantDeclaration enumConstantDeclaration = enumConstantDeclarations[0];
 		checkSourceRange(enumConstantDeclaration.getName(), "PLUS", source);
-		checkSourceRange(enumConstantDeclaration, "PLUS {\r\n" + 
-				"        double eval(double x, double y) { return x + y; }\r\n" + 
-				"    }", source);		
+		checkSourceRange(enumConstantDeclaration, "PLUS {\n" + 
+				"        double eval(double x, double y) { return x + y; }\n" + 
+				"    }", source);
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		checkSourceRange(methodDeclaration.getName(), "eval", source);
+		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x + y; }", source);
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+		
+		enumConstantDeclaration = enumConstantDeclarations[1];
+		checkSourceRange(enumConstantDeclaration.getName(), "MINUS", source);
+		checkSourceRange(enumConstantDeclaration, "MINUS {\n" + 
+				"        double eval(double x, double y) { return x - y; }\n" + 
+				"    }", source);
+		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		checkSourceRange(methodDeclaration.getName(), "eval", source);
+		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x - y; }", source);
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+
+		enumConstantDeclaration = enumConstantDeclarations[2];
+		checkSourceRange(enumConstantDeclaration.getName(), "TIMES", source);
+		checkSourceRange(enumConstantDeclaration, "TIMES {\n" + 
+				"        double eval(double x, double y) { return x * y; }\n" + 
+				"    }", source);
+		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		checkSourceRange(methodDeclaration.getName(), "eval", source);
+		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x * y; }", source);
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+
+		enumConstantDeclaration = enumConstantDeclarations[3];
+		checkSourceRange(enumConstantDeclaration.getName(), "DIVIDED_BY", source);
+		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" + 
+				"        double eval(double x, double y) { return x / y; }\n" + 
+				"    }", source);
+		bodyDeclarations = enumConstantDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		checkSourceRange(methodDeclaration.getName(), "eval", source);
+		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x / y; }", source);
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 	}
 	
 	public void test0027() throws JavaModelException {
@@ -836,6 +887,84 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		List modifiers = enumDeclaration.modifiers();
+		assertEquals("Wrong number of modifiers", 1, modifiers.size());
+		IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not a modifier", extendedModifier instanceof Modifier);
+		Modifier modifier = (Modifier) extendedModifier;
+		checkSourceRange(modifier, "public", source);
+		assertEquals("wrong name", "Coin", enumDeclaration.getName().getIdentifier());
+		EnumConstantDeclaration[] enumConstantDeclarations = enumDeclaration.getEnumConstants();
+		assertEquals("wrong size", 4, enumConstantDeclarations.length);
+		EnumConstantDeclaration enumConstantDeclaration = enumConstantDeclarations[0];
+		checkSourceRange(enumConstantDeclaration.getName(), "PENNY", source);
+		checkSourceRange(enumConstantDeclaration, "PENNY(1)", source);
+		List arguments = enumConstantDeclaration.arguments();
+		assertEquals("wrong size", 1, arguments.size());		
+		Expression argument = (Expression) arguments.get(0);
+		checkSourceRange(argument, "1", source);
+		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+		
+		enumConstantDeclaration = enumConstantDeclarations[1];
+		checkSourceRange(enumConstantDeclaration.getName(), "NICKEL", source);
+		checkSourceRange(enumConstantDeclaration, "NICKEL(5)", source);
+		arguments = enumConstantDeclaration.arguments();
+		assertEquals("wrong size", 1, arguments.size());		
+		argument = (Expression) arguments.get(0);
+		checkSourceRange(argument, "5", source);
+		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+		
+		enumConstantDeclaration = enumConstantDeclarations[2];
+		checkSourceRange(enumConstantDeclaration.getName(), "DIME", source);
+		checkSourceRange(enumConstantDeclaration, "DIME(10)", source);
+		arguments = enumConstantDeclaration.arguments();
+		assertEquals("wrong size", 1, arguments.size());		
+		argument = (Expression) arguments.get(0);
+		checkSourceRange(argument, "10", source);
+		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+
+	
+		enumConstantDeclaration = enumConstantDeclarations[3];
+		checkSourceRange(enumConstantDeclaration.getName(), "QUARTER", source);
+		checkSourceRange(enumConstantDeclaration, "QUARTER(25)", source);
+		arguments = enumConstantDeclaration.arguments();
+		assertEquals("wrong size", 1, arguments.size());		
+		argument = (Expression) arguments.get(0);
+		checkSourceRange(argument, "25", source);
+		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+	}
+	
+	public void test0028() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0028", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		checkSourceRange(methodDeclaration.getName(), "foo", source);
+		checkSourceRange(methodDeclaration, "void foo() {\n" + 
+				"    	if (args.length < 2) {\n" + 
+				"    		System.out.println(\"Usage: X <double> <double>\");\n" + 
+				"    		return;\n" + 
+				"    	}\n" + 
+				"        double x = Double.parseDouble(args[0]);\n" + 
+				"        double y = Double.parseDouble(args[1]);\n" + 
+				"\n" + 
+				"        for (X op : X.values())\n" + 
+				"            System.out.println(x + \" \" + op + \" \" + y + \" = \" + op.eval(x, y));\n" + 
+				"	}", source);
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		checkSourceRange(methodDeclaration.getName(), "bar", source);
+		checkSourceRange(methodDeclaration, "abstract double bar(double x, double y);", source);		
 	}
 }
 

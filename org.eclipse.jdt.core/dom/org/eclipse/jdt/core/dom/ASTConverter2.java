@@ -252,9 +252,21 @@ class ASTConverter2 extends ASTConverter {
 		SimpleName typeName = this.ast.newSimpleName(new String(enumConstant.name));
 		typeName.setSourceRange(enumConstant.sourceStart, enumConstant.sourceEnd - enumConstant.sourceStart + 1);
 		enumConstantDeclaration.setName(typeName);
-		enumConstantDeclaration.setSourceRange(enumConstant.declarationSourceStart, enumConstant.declarationSourceEnd - enumConstant.declarationSourceStart + 1);
-
+		int declarationSourceStart = enumConstant.declarationSourceStart;
+		int declarationSourceEnd = enumConstant.bodyEnd;
+		if ((enumConstant.modifiers & CompilerModifiers.AccSemicolonBody) == 0) {
+			int closingPosition = retrieveRightBrace(declarationSourceEnd, enumConstant.declarationSourceEnd);
+			enumConstantDeclaration.setSourceRange(declarationSourceStart, closingPosition - declarationSourceStart + 1);
+		} else {
+			enumConstantDeclaration.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
+		}
 		buildBodyDeclarations(enumConstant, enumConstantDeclaration);
+		final org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = enumConstant.arguments;
+		if (arguments != null) {
+			for (int i = 0, max = arguments.length; i < max; i++) {
+				enumConstantDeclaration.arguments().add(convert(arguments[i]));
+			}
+		}
 		if (this.resolveBindings) {
 			recordNodes(enumConstantDeclaration, enumConstant);
 			recordNodes(typeName, enumConstant);

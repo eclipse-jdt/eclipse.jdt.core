@@ -374,10 +374,10 @@ class ASTConverter {
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
 		int declarationSourceEnd = methodDeclaration.bodyEnd;
 		methodDecl.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
-		int closingPosition = retrieveRightBraceOrSemiColonPosition(methodDecl, methodDeclaration);
+		int closingPosition = retrieveRightBraceOrSemiColonPosition(methodDeclaration.bodyEnd, methodDeclaration.declarationSourceEnd);
 		if (closingPosition != -1) {
 			int startPosition = methodDecl.getStartPosition();
-			methodDecl.setSourceRange(startPosition, closingPosition - startPosition);
+			methodDecl.setSourceRange(startPosition, closingPosition - startPosition + 1);
 
 			org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
 			
@@ -3033,27 +3033,16 @@ class ASTConverter {
 	 * This method is used to retrieve position before the next right brace or semi-colon.
 	 * @return int the position found.
 	 */
-	protected int retrieveRightBraceOrSemiColonPosition(MethodDeclaration node, org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
-		int start = node.getStartPosition();
-		this.scanner.resetTo(start, methodDeclaration.declarationSourceEnd);
+	protected int retrieveRightBraceOrSemiColonPosition(int start, int end) {
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			int braceCounter = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameLBRACE :
-						braceCounter++;
-						break;
 					case TerminalTokens.TokenNameRBRACE :
-						braceCounter--;
-						if (braceCounter == 0) {
-							return this.scanner.currentPosition;
-						}
-						break;
+						return this.scanner.currentPosition - 1;
 					case TerminalTokens.TokenNameSEMICOLON :
-						if (braceCounter == 0) {
-							return this.scanner.currentPosition;
-						}
+						return this.scanner.currentPosition - 1;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -3062,6 +3051,26 @@ class ASTConverter {
 		return -1;
 	}
 
+	/**
+	 * This method is used to retrieve position before the next right brace or semi-colon.
+	 * @return int the position found.
+	 */
+	protected int retrieveRightBrace(int start, int end) {
+		this.scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(token) {
+					case TerminalTokens.TokenNameRBRACE :
+						return this.scanner.currentPosition - 1;
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		return -1;
+	}
+	
 	/**
 	 * This method is used to retrieve the position of the right bracket.
 	 * @return int the dimension found, -1 if none
