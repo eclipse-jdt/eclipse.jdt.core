@@ -115,12 +115,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 				for (int j = 0, length2 = classpath.length; j < length2; j++) {
 					IClasspathEntry entry = classpath[j];
-					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
-							&& entry.getPath().equals(projectPath)) {
-						result.add(project);
+						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
+								&& entry.getPath().equals(projectPath)) {
+							result.add(project);
+						}
 					}
 				}
-			}
 		} catch (JavaModelException e) {
 		}
 	}
@@ -597,7 +597,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					fCurrentDelta.added(element);
 				}
 				this.projectsToUpdate.add(element);
-				this.updateRoots(element, delta);
+				this.updateRoots(element.getPath(), delta);
 			}
 		} else {			
 			addToParentInfo(element);
@@ -763,7 +763,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager.getJavaModelManager().removePerProjectInfo(
 					(JavaProject) element);
-				this.updateRoots(element, delta);
+				this.updateRoots(element.getPath(), delta);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				JavaProject project = (JavaProject) element.getJavaProject();
@@ -1148,14 +1148,24 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 	Openable element;
 	switch (delta.getKind()) {
 		case IResourceDelta.ADDED :
-			element = this.createElement(delta.getResource(), elementType, project);
-			if (element == null) throw newInvalidElementType();
+			IResource deltaRes = delta.getResource();
+			element = this.createElement(deltaRes, elementType, project);
+			if (element == null) {
+				// resource might be containing shared roots (see bug 19058)
+				this.updateRoots(deltaRes.getFullPath(), delta);
+				throw newInvalidElementType();
+			}
 			this.updateIndex(element, delta);
 			this.elementAdded(element, delta);
 			return false;
 		case IResourceDelta.REMOVED :
-			element = this.createElement(delta.getResource(), elementType, project);
-			if (element == null) throw newInvalidElementType();
+			deltaRes = delta.getResource();
+			element = this.createElement(deltaRes, elementType, project);
+			if (element == null) {
+				// resource might be containing shared roots (see bug 19058)
+				this.updateRoots(deltaRes.getFullPath(), delta);
+				throw newInvalidElementType();
+			}
 			this.updateIndex(element, delta);
 			this.elementRemoved(element, delta);
 			return false;
@@ -1172,7 +1182,11 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					// project has been opened or closed
 					IProject res = (IProject)delta.getResource();
 					element = this.createElement(res, elementType, project);
-					if (element == null) throw newInvalidElementType();
+					if (element == null) {
+						// resource might be containing shared roots (see bug 19058)
+						this.updateRoots(res.getFullPath(), delta);
+						throw newInvalidElementType();
+					}
 					if (res.isOpen()) {
 						if (this.hasJavaNature(res)) {
 							this.elementAdded(element, delta);
@@ -1198,7 +1212,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					if (wasJavaProject != isJavaProject) {
 						// project's nature has been added or removed
 						element = this.createElement(res, elementType, project);
-						if (element == null) throw newInvalidElementType();
+						if (element == null) throw newInvalidElementType(); // note its resources are still visible as roots to other projects
 						if (isJavaProject) {
 							this.elementAdded(element, delta);
 							this.indexManager.indexAll(res);
@@ -1770,15 +1784,14 @@ private void updateRootIndex(IPackageFragmentRoot root, IPackageFragment pkg, IR
 	}
 }
 /*
- * Update the roots that are affected by the addition or the removal of the given project.
+ * Update the roots that are affected by the addition or the removal of the given container resource.
  */
-private void updateRoots(Openable project, IResourceDelta projectDelta) {
-	IPath projectPath = project.getPath();
+private void updateRoots(IPath containerPath, IResourceDelta containerDelta) {
 	Iterator iterator = this.roots.keySet().iterator();
 	while (iterator.hasNext()) {
 		IPath path = (IPath)iterator.next();
-		if (projectPath.isPrefixOf(path) && !projectPath.equals(path)) {
-			IResourceDelta rootDelta = projectDelta.findMember(path.removeFirstSegments(1));
+		if (containerPath.isPrefixOf(path) && !containerPath.equals(path)) {
+			IResourceDelta rootDelta = containerDelta.findMember(path.removeFirstSegments(1));
 			IJavaProject rootProject = (IJavaProject)this.roots.get(path);
 			try {
 				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
