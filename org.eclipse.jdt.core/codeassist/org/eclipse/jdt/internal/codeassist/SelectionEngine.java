@@ -764,9 +764,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			CompilationUnitDeclaration parsedUnit =
 				SourceTypeConverter.buildCompilationUnit(
 						topLevelTypes,
-						false, // no need for field and methods
-						true, // need member types
-						false, // no need for field initialization
+						// no need for field and methods
+						SourceTypeConverter.MEMBER_TYPE, // need member types
+						// no need for field initialization
 						this.parser.problemReporter(), 
 						result);
 

@@ -179,9 +179,9 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
 			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
-			true, //need for field and methods // TODO (jerome) need fields and methods for super types of local types only
-			true, // need member types
-			false, // no need for field initialization
+			SourceTypeConverter.CONSTRUCTOR //need constructors in case it is a super type of an anonymous
+			| SourceTypeConverter.MEMBER_TYPE, // need member types
+			// no need for field initialization
 			lookupEnvironment.problemReporter, 
 			result);
 		
@@ -193,7 +193,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 			org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)sourceType).getHandle().getCompilationUnit();
 			rememberAllTypes(unit, cu, false);
 
-			this.lookupEnvironment.completeTypeBindings(unit, true); // TODO (jerome) need build fields and methods for super types of local types only
+			this.lookupEnvironment.completeTypeBindings(unit, true/*build constructor only*/);
 		} catch (AbortCompilation e) {
 			// missing 'java.lang' package: ignore
 		}
@@ -493,9 +493,9 @@ public void resolve(IGenericType suppliedType) {
 			CompilationUnitDeclaration unit =
 				SourceTypeConverter.buildCompilationUnit(
 					new ISourceType[]{topLevelType}, 
-					false, // no need for field and methods
-					true, // need member types
-					false, // no need for field initialization
+					// no need for field and methods
+					SourceTypeConverter.MEMBER_TYPE, // need member types
+					// no need for field initialization
 					this.lookupEnvironment.problemReporter, 
 					result);
 
@@ -583,9 +583,9 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 						parsedUnit = 
 							SourceTypeConverter.buildCompilationUnit(
 								typeInfos, 
-								true, // need for field and methods // TODO (jerome) need fields and methods only for supertypes of local types
-								true, // need member types
-								false, // no need for field initialization
+								SourceTypeConverter.CONSTRUCTOR //need constructors in case it is a super type of an anonymous
+								| SourceTypeConverter.MEMBER_TYPE, // need member types
+								// no need for field initialization
 								this.lookupEnvironment.problemReporter, 
 								result);
 					} else {
@@ -666,7 +666,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					if (containsLocalType) { // NB: no-op if method bodies have been already parsed
 						parser.getMethodBodies(parsedUnit);
 					}
-					this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // TODO (jerome) build fields and methods only for super types of local types
+					this.lookupEnvironment.completeTypeBindings(parsedUnit, true/*build constructor only*/);
 				} catch (AbortCompilation e) {
 					// classpath problem for this type: ignore
 				}

@@ -120,9 +120,9 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationResult compilationResult = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, 0);
 	CompilationUnitDeclaration unit = SourceTypeConverter.buildCompilationUnit(
 		sourceTypes, //sourceTypes[0] is always toplevel here
-		false, // no need for field and methods
-		true, // need member types
-		false, // no need for field initialization
+		// no need for field and methods
+		SourceTypeConverter.MEMBER_TYPE, // need member types
+		// no need for field initialization
 		this.locator.lookupEnvironment.problemReporter, 
 		compilationResult);
 

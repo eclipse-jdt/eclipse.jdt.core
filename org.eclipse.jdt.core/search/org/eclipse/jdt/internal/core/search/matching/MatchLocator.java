@@ -239,9 +239,9 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
 				sourceTypes,
-				true, // need field and methods
-				true, // need member types
-				false, // no need for field initialization
+				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+				| SourceTypeConverter.MEMBER_TYPE, // need member types
+				// no need for field initialization
 				lookupEnvironment.problemReporter,
 				result);
 		this.lookupEnvironment.buildTypeBindings(unit);

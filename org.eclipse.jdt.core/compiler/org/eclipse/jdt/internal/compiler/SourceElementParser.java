@@ -1078,9 +1078,10 @@ public void parseTypeMemberDeclarations(
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
 				new ISourceType[]{type}, 
-				false, // no need for field and methods
-				false, // no need for member types
-				false, // no need for field initialization
+				// no need for field and methods
+				// no need for member types
+				// no need for field initialization
+				SourceTypeConverter.NONE,
 				problemReporter(), 
 				compilationUnitResult); 
 		if ((unit == null) || (unit.types == null) || (unit.types.length != 1))

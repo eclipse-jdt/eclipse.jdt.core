@@ -97,9 +97,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
 				sourceTypes,//sourceTypes[0] is always toplevel here
-				true, // need field and methods
-				true, // need member types
-				true, // need field initialization
+				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+				| SourceTypeConverter.MEMBER_TYPE // need member types
+				| SourceTypeConverter.FIELD_INITIALIZATION, // need field initialization
 				lookupEnvironment.problemReporter,
 				result);
 
