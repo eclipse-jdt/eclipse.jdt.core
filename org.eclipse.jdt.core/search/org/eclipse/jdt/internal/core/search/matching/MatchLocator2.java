@@ -918,6 +918,19 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			this.locatePackageDeclarations(orPattern.rightPattern, workspace);
 		} else
 			if (searchPattern instanceof PackageDeclarationPattern) {
+				if (searchPattern.focus != null) {
+					this.currentPotentialMatch = new PotentialMatch(this, searchPattern.focus.getResource(), null);
+					try {
+						this.report(-1, -2, searchPattern.focus, IJavaSearchResultCollector.EXACT_MATCH);
+					} catch (CoreException e) {
+						if (e instanceof JavaModelException) {
+							throw (JavaModelException) e;
+						} else {
+							throw new JavaModelException(e);
+						}
+					}					
+					return;
+				}
 				PackageDeclarationPattern pkgPattern =
 					(PackageDeclarationPattern) searchPattern;
 				IJavaProject[] projects =
