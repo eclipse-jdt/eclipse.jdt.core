@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.*;
 import java.util.*;
 
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.index.*;
 
 /**
@@ -23,14 +22,9 @@ public class InMemoryIndex {
 	protected WordEntryHashedArray words;
 
 	/**
-	 * Vector of IndexedFiles = file name + a unique number.
+	 * List of IndexedFiles = file name + a unique number.
 	 */
-	protected ObjectVector files;
-
-	/**
-	 * Number of references in the index (not the number of actual words).
-	 */
-	protected int wordCount;
+	protected ArrayList files;
 
 	/**
 	 * Size of the index.
@@ -46,7 +40,7 @@ public class InMemoryIndex {
 	 * @see IIndex#addFile
 	 */
 	public IndexedFile addDocument(IDocument document) {
-		IndexedFile indexedFile= new IndexedFile(document, this.files.size + 1);
+		IndexedFile indexedFile= new IndexedFile(document, this.files.size() + 1);
 		this.files.add(indexedFile);
 		this.footprint += indexedFile.footprint() + 4;
 		this.sortedFiles = null;
@@ -80,7 +74,6 @@ public class InMemoryIndex {
 		} else {
 			this.footprint += entry.addRef(fileNum);
 		}
-		++this.wordCount;
 	}
 	/**
 	 * @see IIndex#addRef
@@ -106,8 +99,8 @@ public class InMemoryIndex {
 	 */
 	public IndexedFile getIndexedFile(String path) {
 		// duplicate paths do exist but by walking the collection backwards, the latest is found
-		for (int i= files.size; i > 0; i--) {
-			IndexedFile file= (IndexedFile) files.elementAt(i - 1);
+		for (int i= files.size(); i > 0; i--) {
+			IndexedFile file= (IndexedFile) files.get(i - 1);
 			if (file.getPath().equals(path))
 				return file;
 		}
@@ -117,7 +110,7 @@ public class InMemoryIndex {
 	 * @see IIndex#getNumFiles
 	 */
 	public int getNumFiles() {
-		return files.size;
+		return files.size();
 	}
 	/**
 	 * @see IIndex#getNumWords
@@ -130,9 +123,9 @@ public class InMemoryIndex {
 	 */
 	protected IndexedFile[] getSortedFiles() {
 		if (this.sortedFiles == null) {
-			IndexedFile[] indexedfiles= new IndexedFile[files.size];
+			IndexedFile[] indexedfiles= new IndexedFile[files.size()];
 			for (int i= 0; i < indexedfiles.length; i++)
-				indexedfiles[i]= (IndexedFile) files.elementAt(i);
+				indexedfiles[i]= (IndexedFile) files.get(i);
 			Util.sort(indexedfiles);
 			this.sortedFiles= indexedfiles;
 		}
@@ -160,8 +153,7 @@ public class InMemoryIndex {
 	 */
 	public void init() {
 		words= new WordEntryHashedArray(501);
-		files= new ObjectVector();
-		wordCount= 0;
+		files= new ArrayList(101);
 		footprint= 0;
 		sortedWordEntries= null;
 		sortedFiles= null;
@@ -209,9 +201,9 @@ public class InMemoryIndex {
 		getSortedWordEntries(); // init the slot
 		try {
 			output.open();
-			int numFiles= this.files.size;
+			int numFiles= this.files.size();
 			for (int i= 0; i < numFiles; ++i) {
-				IndexedFile indexedFile= (IndexedFile) this.files.elementAt(i);
+				IndexedFile indexedFile= (IndexedFile) this.files.get(i);
 				output.addFile(indexedFile); // written out in order BUT not alphabetical
 			}
 			for (int i= 0, numWords= sortedWordEntries.length; i < numWords; ++i)
