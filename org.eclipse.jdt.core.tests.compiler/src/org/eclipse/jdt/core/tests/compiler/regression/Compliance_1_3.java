@@ -71,7 +71,7 @@ public void test001() {
 		"1. ERROR in p1\\Test.java (at line 10)\n" + 
 		"	M m; \n" + 
 		"	^\n" + 
-		"The field type M is defined in an inherited type and an enclosing scope\n" + 
+		"The type M is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n"
 	);
 }
@@ -1472,12 +1472,12 @@ public void test040() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
-		"Superclass Homonym is defined in an inherited type and an enclosing scope\n" + 
+		"The type Homonym is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
-		"Superclass Homonym is defined in an inherited type and an enclosing scope\n" + 
+		"The type Homonym is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n");
 }
 /*
@@ -2178,7 +2178,7 @@ public void test061() {
 		"1. ERROR in p\\X.java (at line 6)\n" + 
 		"	Z someField;	\n" + 
 		"	^\n" + 
-		"The field type Z is defined in an inherited type and an enclosing scope\n" + 
+		"The type Z is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. WARNING in q\\Y.java (at line 3)\n" + 

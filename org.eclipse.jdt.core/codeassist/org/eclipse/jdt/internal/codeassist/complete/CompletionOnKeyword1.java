@@ -32,7 +32,7 @@ public class CompletionOnKeyword1 extends SingleTypeReference implements Complet
 	public void aboutToResolve(Scope scope) {
 		getTypeBinding(scope);
 	}
-	public TypeBinding getTypeBinding(Scope scope) {
+	protected TypeBinding getTypeBinding(Scope scope) {
 		throw new CompletionNodeFound(this, scope);
 	}
 	public StringBuffer printExpression(int indent, StringBuffer output){

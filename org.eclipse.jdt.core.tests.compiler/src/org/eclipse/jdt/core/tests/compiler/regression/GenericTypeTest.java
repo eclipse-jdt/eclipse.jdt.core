@@ -97,7 +97,7 @@ public void test003() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <X> extends X {\n" + 
 		"	                           ^\n" + 
-		"Superclass X cannot refer to a type variable\n" + 
+		"Cannot refer to the type variable X\n" + 
 		"----------\n");
 }
 		
@@ -113,7 +113,7 @@ public void test004() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <X> implements X {\n" + 
 		"	                              ^\n" + 
-		"Superinterface X cannot refer to a type variable\n" + 
+		"Cannot refer to the type variable X\n" + 
 		"----------\n");
 }
 
@@ -179,12 +179,12 @@ public void test006() {
 		"4. ERROR in X.java (at line 10)\n" + 
 		"	class MX extends T {\n" + 
 		"	                 ^\n" + 
-		"Superclass T cannot refer to a type variable\n" + 
+		"Cannot refer to the type variable T\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 13)\n" + 
 		"	static class SMX extends T {\n" + 
 		"	                         ^\n" + 
-		"Superclass T cannot refer to a type variable\n" + 
+		"Cannot refer to the type variable T\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 14)\n" + 
 		"	T wrong4;\n" + 

@@ -110,10 +110,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
 		}
-		// look if the name of the method is correct
-		if (binding != null && isTypeUseDeprecated(binding.returnType, scope))
-			scope.problemReporter().deprecatedType(binding.returnType, returnType);
-
 		// check if method with constructor name
 		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector)) {
 			scope.problemReporter().methodWithConstructorName(this);

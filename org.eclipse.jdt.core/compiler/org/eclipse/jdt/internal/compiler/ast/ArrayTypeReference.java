@@ -33,7 +33,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 		return dimensions;
 	}
 	
-	public TypeBinding getTypeBinding(Scope scope) {
+	protected TypeBinding getTypeBinding(Scope scope) {
 		
 		if (this.resolvedType != null) return this.resolvedType;
 		if (dimensions > 255) {

@@ -81,7 +81,7 @@ public abstract TypeReference copyDims(int dim);
 public int dimensions() {
 	return 0;
 }
-public abstract TypeBinding getTypeBinding(Scope scope);
+protected abstract TypeBinding getTypeBinding(Scope scope);
 /**
  * @return char[][]
  */

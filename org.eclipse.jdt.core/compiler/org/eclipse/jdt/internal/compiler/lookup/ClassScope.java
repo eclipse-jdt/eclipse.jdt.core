@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Clinit;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -175,7 +176,6 @@ public class ClassScope extends Scope {
 						continue nextMember;
 					}
 				}
-
 				ClassScope memberScope = new ClassScope(this, referenceContext.memberTypes[i]);
 				LocalTypeBinding memberBinding = memberScope.buildLocalType(localType, packageBinding);
 				memberBinding.setAsMemberType();
@@ -661,15 +661,17 @@ public class ClassScope extends Scope {
 			sourceType.superclass = getJavaLangObject();
 			return !detectCycle(sourceType, sourceType.superclass, null);
 		}
-		ReferenceBinding superclass = findSupertype(referenceContext.superclass);
+		TypeReference superclassRef = referenceContext.superclass;
+		superclassRef.bits |= ASTNode.SuperTypeReference;
+		ReferenceBinding superclass = findSupertype(superclassRef);
 		if (superclass != null) { // is null if a cycle was detected cycle
-			referenceContext.superclass.resolvedType = superclass; // hold onto the problem type
+			superclassRef.resolvedType = superclass; // hold onto the problem type
 			if (!superclass.isValidBinding()) {
-				problemReporter().invalidSuperclass(sourceType, referenceContext.superclass, superclass);
+				problemReporter().invalidType(superclassRef, superclass);
 			} else if (superclass.isInterface()) {
-				problemReporter().superclassMustBeAClass(sourceType, referenceContext.superclass, superclass);
+				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
 			} else if (superclass.isFinal()) {
-				problemReporter().classExtendFinalClass(sourceType, referenceContext.superclass, superclass);
+				problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
 			} else {
 				// only want to reach here when no errors are reported
 				sourceType.superclass = superclass;
@@ -706,17 +708,16 @@ public class ClassScope extends Scope {
 		ReferenceBinding[] interfaceBindings = new ReferenceBinding[length];
 		int count = 0;
 		nextInterface : for (int i = 0; i < length; i++) {
-			ReferenceBinding superInterface = findSupertype(referenceContext.superInterfaces[i]);
+		    TypeReference superInterfaceRef = referenceContext.superInterfaces[i];
+    		superInterfaceRef.bits |= ASTNode.SuperTypeReference;
+			ReferenceBinding superInterface = findSupertype(superInterfaceRef);
 			if (superInterface == null) { // detected cycle
 				noProblems = false;
 				continue nextInterface;
 			}
-			referenceContext.superInterfaces[i].resolvedType = superInterface; // hold onto the problem type
+			superInterfaceRef.resolvedType = superInterface; // hold onto the problem type
 			if (!superInterface.isValidBinding()) {
-				problemReporter().invalidSuperinterface(
-					sourceType,
-					referenceContext.superInterfaces[i],
-					superInterface);
+				problemReporter().invalidType(superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;

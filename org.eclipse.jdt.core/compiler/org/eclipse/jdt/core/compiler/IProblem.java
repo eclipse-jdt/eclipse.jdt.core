@@ -651,7 +651,6 @@ public interface IProblem {
 	int CannotImportPackage = ImportRelated + 387;
 	int UnusedImport = ImportRelated + 388;
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
 	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
@@ -814,17 +813,15 @@ public interface IProblem {
 	/** @since 3.0 */
 	int DuplicateTypeVariable = Internal + 520;
 	/** @since 3.0 */
-	int SuperclassIllegalTypeVariable = Internal + 521;
+	int IllegalTypeVariableReference = Internal + 521;
 	/** @since 3.0 */
-	int InterfaceIllegalTypeVariable = Internal + 522;
+	int TypeVariableReferenceFromStaticContext = Internal + 522;
 	/** @since 3.0 */
-	int TypeVariableReferenceFromStaticContext = Internal + 523;
+	int ObjectCannotBeGeneric = Internal + 523;
 	/** @since 3.0 */
-	int ObjectCannotBeGeneric = Internal + 524;
+	int NonGenericType = TypeRelated + 524;
 	/** @since 3.0 */
-	int NonGenericType = TypeRelated + 525;
+	int IncorrectArityForParameterizedType = TypeRelated + 525;
 	/** @since 3.0 */
-	int IncorrectArityForParameterizedType = TypeRelated + 526;
-	/** @since 3.0 */
-	int TypeArgumentMismatch = TypeRelated + 527;
+	int TypeArgumentMismatch = TypeRelated + 526;
 }

@@ -95,7 +95,7 @@ public class AbstractMethodTests extends Tests {
 			);
 			
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved (or is not a valid type) for the parameter x of the method foo", classX)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingOnlySpecificProblemFor(classY, new Problem("Y", "Class must implement the inherited abstract method IX.foo(IX)", classY)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
@@ -182,7 +182,7 @@ public class AbstractMethodTests extends Tests {
 			);
 			
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved (or is not a valid type) for the parameter x of the method foo", classX)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(classX, new Problem("X.foo(I__X)", "I__X cannot be resolved to a type", classX)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingOnlySpecificProblemFor(classY, new Problem("Y", "Class must implement the inherited abstract method X.foo(IX)", classY)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------

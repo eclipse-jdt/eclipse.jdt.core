@@ -34,7 +34,7 @@ public class ImplicitDocTypeReference extends TypeReference {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
-	public TypeBinding getTypeBinding(Scope scope) {
+	protected TypeBinding getTypeBinding(Scope scope) {
 		this.constant = NotAConstant;
 		return this.resolvedType = scope.enclosingSourceType();
 	}

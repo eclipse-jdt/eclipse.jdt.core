@@ -58,7 +58,7 @@ public class BuildpathTests extends Tests {
 		);
 
 		fullBuild();
-		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved or is not a valid superclass", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved to a type", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
 		//           Step 2

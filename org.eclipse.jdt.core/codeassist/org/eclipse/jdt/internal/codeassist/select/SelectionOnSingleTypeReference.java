@@ -37,7 +37,7 @@ public SelectionOnSingleTypeReference(char[] source, long pos) {
 public void aboutToResolve(Scope scope) {
 	getTypeBinding(scope.parent); // step up from the ClassScope
 }
-public TypeBinding getTypeBinding(Scope scope) {
+protected TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
 	Binding binding = scope.getTypeOrPackage(new char[][] {token});
 	if (!binding.isValidBinding()) {

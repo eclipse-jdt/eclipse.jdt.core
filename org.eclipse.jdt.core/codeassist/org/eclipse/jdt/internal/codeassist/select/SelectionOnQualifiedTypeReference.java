@@ -38,7 +38,7 @@ public SelectionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] se
 public void aboutToResolve(Scope scope) {
 	getTypeBinding(scope.parent); // step up from the ClassScope
 }
-public TypeBinding getTypeBinding(Scope scope) {
+protected TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
 	Binding binding = scope.getTypeOrPackage(tokens);
 	if (!binding.isValidBinding()) {

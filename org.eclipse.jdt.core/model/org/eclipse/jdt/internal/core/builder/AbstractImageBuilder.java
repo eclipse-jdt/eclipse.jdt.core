@@ -316,21 +316,22 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 				String[] args = problem.getArguments();
 				missingClassFile = args[0];
 				break;
+
+			case IProblem.UndefinedType:
+			case IProblem.NotVisibleType :
+			case IProblem.AmbiguousType :
+			case IProblem.InternalTypeNameProvided :
+			case IProblem.InheritedTypeHidesEnclosingName :
+			    // TODO (kent) shouldn't it rather record the fact hierarchy is broken differently ? through the compilation result ? 
+			    if (!ProblemReporter.SUPER_TYPE_PROBLEM.equals(problem.getArguments()[1])) { // is problem affected a supertype ?
+			        break;
+			    }
+			    // fall through
 			case IProblem.SuperclassMustBeAClass :
 			case IProblem.SuperInterfaceMustBeAnInterface :
 			case IProblem.HierarchyCircularitySelfReference :
 			case IProblem.HierarchyCircularity :
 			case IProblem.HierarchyHasProblems :
-			case IProblem.SuperclassNotFound :
-			case IProblem.SuperclassNotVisible :
-			case IProblem.SuperclassAmbiguous :
-			case IProblem.SuperclassInternalNameProvided :
-			case IProblem.SuperclassInheritedNameHidesEnclosingName :
-			case IProblem.InterfaceNotFound :
-			case IProblem.InterfaceNotVisible :
-			case IProblem.InterfaceAmbiguous :
-			case IProblem.InterfaceInternalNameProvided :
-			case IProblem.InterfaceInheritedNameHidesEnclosingName :
 				// ensure that this file is always retrieved from source for the rest of the build
 				if (!problemSourceFiles.contains(sourceFile))
 					problemSourceFiles.add(sourceFile);

@@ -600,7 +600,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	Zork f;	\n" + 
 		"	^^^^\n" + 
-		"Zork cannot be resolved (or is not a valid type) for the field X.f\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n"
 	);
 }
@@ -920,8 +920,9 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	public void bar( {\n" + 
 		"	               ^\n" + 
-		"Syntax error on token \"(\", ) expected after this token\n" + 
+		"Syntax error, insert \"MethodHeaderParameters\" to complete MethodHeader\n" + 
 		"----------\n"
+		// TODO (david) should improve error diagnosis
 	);
 }
 /**

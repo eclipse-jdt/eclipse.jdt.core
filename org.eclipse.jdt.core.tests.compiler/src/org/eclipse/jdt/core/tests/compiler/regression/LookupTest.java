@@ -998,7 +998,7 @@ public void test029() {
 		"1. ERROR in p1\\X.java (at line 4)\n" + 
 		"	Member field;	\n" + 
 		"	^^^^^^\n" + 
-		"The type Member is not visible for the field X.field\n" + 
+		"The type Member is not visible\n" + 
 		"----------\n");
 }
 /*

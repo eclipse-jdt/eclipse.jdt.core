@@ -32,7 +32,7 @@ public class SingleTypeReference extends TypeReference {
 		return new ArrayTypeReference(token, dim,(((long)sourceStart)<<32)+sourceEnd);
 	}
 
-	public TypeBinding getTypeBinding(Scope scope) {
+	protected TypeBinding getTypeBinding(Scope scope) {
 		if (this.resolvedType != null)
 			return this.resolvedType;
 		return scope.getType(token);

@@ -2382,7 +2382,7 @@ public void test073() {
 		"1. ERROR in X.java (at line 14)\n" + 
 		"	System.out.println(new Local());\n" + 
 		"	                       ^^^^^\n" + 
-		"Local cannot be resolved or is not a type\n" + 
+		"Local cannot be resolved to a type\n" + 
 		"----------\n");
 }
 
@@ -2422,12 +2422,12 @@ public void test074() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	System.out.print(new Local());	\n" + 
 		"	                     ^^^^^\n" + 
-		"Local cannot be resolved or is not a type\n" + 
+		"Local cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 17)\n" + 
 		"	System.out.println(new Local(){	\n" + 
 		"	                       ^^^^^\n" + 
-		"Local cannot be resolved or is not a type\n" + 
+		"Local cannot be resolved to a type\n" + 
 		"----------\n");
 }
 

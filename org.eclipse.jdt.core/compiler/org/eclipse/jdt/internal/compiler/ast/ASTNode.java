@@ -26,7 +26,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, type and method decl)
-	public final static int Bit5 = 0x10; 					// value for return (expression) | has all method bodies (unit)
+	public final static int Bit5 = 0x10; 					// value for return (expression) | has all method bodies (unit) | supertype ref (type ref)
 	public final static int Bit6 = 0x20; 					// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 					// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression)
 	public final static int Bit8 = 0x80; 					// depth (name ref, msg) | operator (operator) 
@@ -117,6 +117,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 	// for references in Javadoc comments
 	public static final int InsideJavadoc = Bit16;
+	
+	// for type references (only set during name resolution)
+	public static final int SuperTypeReference = Bit5;
 	
 	public ASTNode() {
 

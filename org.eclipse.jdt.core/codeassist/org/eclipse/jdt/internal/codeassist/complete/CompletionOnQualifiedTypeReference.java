@@ -42,7 +42,7 @@ public void aboutToResolve(Scope scope) {
 public TypeReference copyDims(int dim){
 	return this;
 }
-public TypeBinding getTypeBinding(Scope scope) {
+protected TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
 	Binding binding = scope.parent.getTypeOrPackage(tokens); // step up from the ClassScope
 	if (!binding.isValidBinding()) {

@@ -212,7 +212,7 @@ public void testProblemInExpression() {
 public void testProblemInExpression2() {
 	evaluateWithExpectedProblem(
 		"new UnknownClass()".toCharArray(), 
-		newProblem(IProblem.UndefinedType, Error, 4, 15, 1)); // UnknownClass cannot be resolved or is not a type
+		newProblem(IProblem.UndefinedType, Error, 4, 15, 1)); // UnknownClass cannot be resolved to a type
 }
 /**
  * Test a code snippet which declares a class that has a problem.
@@ -224,7 +224,7 @@ public void testProblemInInnerClass() {
 		"	Y foo = new Y();",
 		"}",
 		"return new X().foo;"}), 
-		newProblem(IProblem.FieldTypeNotFound, Error, 11, 11, 2)); // The type Y is undefined for the field X.foo
+		newProblem(IProblem.UndefinedType, Error, 11, 11, 2)); // The type Y is undefined
 
 	// class declared as part of the last expression
 	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {

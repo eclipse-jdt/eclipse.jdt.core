@@ -89,7 +89,7 @@ public class ErrorsTests extends Tests {
 			
 		fullBuild(projectPath);
 		expectingOnlyProblemsFor(cuPath);
-		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved or is not a valid superclass", cuPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved to a type", cuPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		
 		env.renameCU(root.append("p1"), "X.java", "X.txt"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -62,8 +62,6 @@ public class Argument extends LocalDeclaration {
 			this.binding =
 				new LocalVariableBinding(this, typeBinding, modifierFlag, true));
 		//true stand for argument instead of just local
-		if (typeBinding != null && isTypeUseDeprecated(typeBinding, scope))
-			scope.problemReporter().deprecatedType(typeBinding, this.type);
 		this.binding.declaration = this;
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
 	}

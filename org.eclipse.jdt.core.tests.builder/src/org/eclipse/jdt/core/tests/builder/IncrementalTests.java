@@ -151,7 +151,7 @@ public class IncrementalTests extends Tests {
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToA, pathToB, pathToC });
 		expectingSpecificProblemFor(pathToA, new Problem("_A", "The public type _A must be defined in its own file", pathToA)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(pathToB, new Problem("B", "A cannot be resolved or is not a valid superclass", pathToB)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToB, new Problem("B", "A cannot be resolved to a type", pathToB)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(pathToC, new Problem("C", "The hierarchy of the type C is inconsistent", pathToC)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		/* Touch both A and C, removing A main type */
@@ -219,7 +219,7 @@ public class IncrementalTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToAB });
-		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved or is not a valid superclass", pathToAB)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved to a type", pathToAB)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;	\n"+ //$NON-NLS-1$
@@ -286,7 +286,7 @@ public class IncrementalTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToBB });
-		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved or is not a type", pathToBB)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved to a type", pathToBB)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;	\n"+ //$NON-NLS-1$

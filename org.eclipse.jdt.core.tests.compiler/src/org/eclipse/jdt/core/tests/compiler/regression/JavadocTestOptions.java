@@ -265,7 +265,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"3. ERROR in Y.java (at line 5)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"4. ERROR in Y.java (at line 6)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -330,7 +330,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"16. ERROR in Y.java (at line 21)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"17. ERROR in Y.java (at line 22)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -395,7 +395,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"29. ERROR in Y.java (at line 37)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"30. ERROR in Y.java (at line 38)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -460,7 +460,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"42. ERROR in Y.java (at line 53)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"43. ERROR in Y.java (at line 54)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -538,7 +538,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"5. ERROR in Y.java (at line 9)\n" + 
 //			"	* @throws Unknown\n" + 
 //			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"6. ERROR in Y.java (at line 10)\n" + 
 //			"	* @see X.X_dep\n" + 
@@ -553,7 +553,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"8. ERROR in Y.java (at line 12)\n" + 
 //			"	* @see X.Unknown\n" + 
 //			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"9. ERROR in Y.java (at line 13)\n" + 
 //			"	* @see X#X(int)\n" + 
@@ -628,7 +628,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"23. ERROR in Y.java (at line 32)\n" + 
 //			"	* @throws Unknown\n" + 
 //			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"24. ERROR in Y.java (at line 33)\n" + 
 //			"	* @see X.X_dep\n" + 
@@ -643,7 +643,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"26. ERROR in Y.java (at line 35)\n" + 
 //			"	* @see X.Unknown\n" + 
 //			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"27. ERROR in Y.java (at line 36)\n" + 
 //			"	* @see X#X(int)\n" + 
@@ -718,7 +718,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"41. ERROR in Y.java (at line 55)\n" + 
 //			"	* @throws Unknown\n" + 
 //			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"42. ERROR in Y.java (at line 56)\n" + 
 //			"	* @see X.X_dep\n" + 
@@ -733,7 +733,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"44. ERROR in Y.java (at line 58)\n" + 
 //			"	* @see X.Unknown\n" + 
 //			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"45. ERROR in Y.java (at line 59)\n" + 
 //			"	* @see X#X(int)\n" + 
@@ -808,7 +808,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"59. ERROR in Y.java (at line 78)\n" + 
 //			"	* @throws Unknown\n" + 
 //			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"60. ERROR in Y.java (at line 79)\n" + 
 //			"	* @see X.X_dep\n" + 
@@ -823,7 +823,7 @@ public class JavadocTestOptions extends JavadocTest {
 //			"62. ERROR in Y.java (at line 81)\n" + 
 //			"	* @see X.Unknown\n" + 
 //			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 //			"----------\n" + 
 //			"63. ERROR in Y.java (at line 82)\n" + 
 //			"	* @see X#X(int)\n" + 
@@ -893,7 +893,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"4. ERROR in Y.java (at line 9)\n" + 
 			"	* @throws Unknown\n" + 
 			"	          ^^^^^^^\n" + 
-			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"5. ERROR in Y.java (at line 10)\n" + 
 			"	* @see X.X_dep\n" + 
@@ -908,7 +908,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"7. ERROR in Y.java (at line 12)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"8. ERROR in Y.java (at line 13)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -978,7 +978,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"21. ERROR in Y.java (at line 32)\n" + 
 			"	* @throws Unknown\n" + 
 			"	          ^^^^^^^\n" + 
-			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"22. ERROR in Y.java (at line 33)\n" + 
 			"	* @see X.X_dep\n" + 
@@ -993,7 +993,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"24. ERROR in Y.java (at line 35)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"25. ERROR in Y.java (at line 36)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -1063,7 +1063,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"38. ERROR in Y.java (at line 55)\n" + 
 			"	* @throws Unknown\n" + 
 			"	          ^^^^^^^\n" + 
-			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"39. ERROR in Y.java (at line 56)\n" + 
 			"	* @see X.X_dep\n" + 
@@ -1078,7 +1078,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"41. ERROR in Y.java (at line 58)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"42. ERROR in Y.java (at line 59)\n" + 
 			"	* @see X#X(int)\n" + 
@@ -1148,7 +1148,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"55. ERROR in Y.java (at line 78)\n" + 
 			"	* @throws Unknown\n" + 
 			"	          ^^^^^^^\n" + 
-			"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"56. ERROR in Y.java (at line 79)\n" + 
 			"	* @see X.X_dep\n" + 
@@ -1163,7 +1163,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"58. ERROR in Y.java (at line 81)\n" + 
 			"	* @see X.Unknown\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Javadoc: X.Unknown cannot be resolved or is not a type\n" + 
+			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"59. ERROR in Y.java (at line 82)\n" + 
 			"	* @see X#X(int)\n" + 

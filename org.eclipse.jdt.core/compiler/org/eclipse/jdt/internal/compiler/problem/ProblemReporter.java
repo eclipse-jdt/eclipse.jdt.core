@@ -23,6 +23,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
 	
+    public static final String SUPER_TYPE_PROBLEM = "superType"; //$NON-NLS-1$
+    
 	public ReferenceContext referenceContext;
 	
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
@@ -144,45 +146,6 @@ public void argumentTypeCannotBeVoidArray(SourceTypeBinding type, AbstractMethod
 		arguments,
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
-}
-public void argumentTypeProblem(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, Argument arg, TypeBinding expectedType) {
-	int problemId = expectedType.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.ArgumentTypeNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.ArgumentTypeNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.ArgumentTypeAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.ArgumentTypeInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.ArgumentTypeInheritedNameHidesEnclosingName;
-			break;
-		case NonStaticReferenceInStaticContext : // 7
-			this.handle(
-				IProblem.TypeVariableReferenceFromStaticContext,
-				new String[] {new String(expectedType.readableName())},
-				new String[] {new String(expectedType.shortReadableName())},
-				arg.type.sourceStart,
-				arg.type.sourceEnd);
-		    return;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
-	}
-	this.handle(
-		id,
-		new String[] {new String(methodDecl.selector), new String(arg.name), new String(expectedType.readableName())},
-		new String[] {new String(methodDecl.selector), new String(arg.name), new String(expectedType.shortReadableName())},
-		arg.type.sourceStart,
-		arg.type.sourceEnd);
 }
 public void arrayConstantsOnlyInArrayInitializers(int sourceStart, int sourceEnd) {
 	this.handle(
@@ -882,37 +845,6 @@ public void errorThisSuperInStatic(ASTNode reference) {
 		reference.sourceStart,
 		reference.sourceEnd);
 }
-public void exceptionTypeProblem(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, TypeReference exceptionType, TypeBinding expectedType) {
-	int problemId = expectedType.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.ExceptionTypeNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.ExceptionTypeNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.ExceptionTypeAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.ExceptionTypeInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.ExceptionTypeInheritedNameHidesEnclosingName;
-			break;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
-	}
-	this.handle(
-		id,
-		new String[] {new String(methodDecl.selector), new String(expectedType.readableName())},
-		new String[] {new String(methodDecl.selector), new String(expectedType.shortReadableName())},
-		exceptionType.sourceStart,
-		exceptionType.sourceEnd);
-}
 public void expressionShouldBeAVariable(Expression expression) {
 	this.handle(
 		IProblem.ExpressionShouldBeAVariable,
@@ -958,45 +890,6 @@ public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 		NoArgument,
 		reference.sourceStart,
 		reference.sourceEnd);
-}
-public void fieldTypeProblem(SourceTypeBinding type, FieldDeclaration fieldDecl, TypeBinding expectedType) {
-	int problemId = expectedType.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.FieldTypeNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.FieldTypeNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.FieldTypeAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.FieldTypeInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.FieldTypeInheritedNameHidesEnclosingName;
-			break;
-		case NonStaticReferenceInStaticContext : // 7
-			this.handle(
-				IProblem.TypeVariableReferenceFromStaticContext,
-				new String[] {new String(expectedType.readableName())},
-				new String[] {new String(expectedType.shortReadableName())},
-				fieldDecl.type.sourceStart,
-				fieldDecl.type.sourceEnd);
-			return;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
-	}
-	this.handle(
-		id,
-		new String[] {new String(fieldDecl.name), new String(type.sourceName()), new String(expectedType.readableName())},
-		new String[] {new String(fieldDecl.name), new String(type.sourceName()), new String(expectedType.shortReadableName())},
-		fieldDecl.type.sourceStart,
-		fieldDecl.type.sourceEnd);
 }
 public void finallyMustCompleteNormally(Block finallyBlock) {
 	this.handle(
@@ -1334,34 +1227,20 @@ public void illegalVoidExpression(ASTNode location) {
 		location.sourceEnd);
 }
 public void importProblem(ImportReference importRef, Binding expectedImport) {
-	int problemId = expectedImport.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.ImportNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.ImportNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.ImportAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.ImportInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.ImportInheritedNameHidesEnclosingName;
-			break;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
+	if (expectedImport.problemId() == NotFound) {
+		char[][] tokens = expectedImport instanceof ProblemReferenceBinding
+			? ((ProblemReferenceBinding) expectedImport).compoundName
+			: importRef.tokens;
+		String[] arguments = new String[]{CharOperation.toString(tokens)};
+		this.handle(
+		        IProblem.ImportNotFound, 
+		        arguments, 
+		        arguments, 
+		        importRef.sourceStart, 
+		        (int) importRef.sourcePositions[tokens.length - 1]);
+		return;
 	}
-	char[][] tokens = expectedImport instanceof ProblemReferenceBinding
-		? ((ProblemReferenceBinding) expectedImport).compoundName
-		: importRef.tokens;
-	String[] arguments = new String[]{CharOperation.toString(tokens)};
-	this.handle(id, arguments, arguments, importRef.sourceStart, (int) importRef.sourcePositions[tokens.length - 1]);
+	invalidType(importRef, (TypeBinding)expectedImport);
 }
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
 	if (type == currentMethod.declaringClass) {
@@ -2013,74 +1892,6 @@ public void invalidParenthesizedExpression(ASTNode reference) {
 		reference.sourceStart,
 		reference.sourceEnd);
 }
-public void invalidSuperclass(SourceTypeBinding type, TypeReference superclassRef, ReferenceBinding expectedType) {
-	int problemId = expectedType.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.SuperclassNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.SuperclassNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.SuperclassAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.SuperclassInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.SuperclassInheritedNameHidesEnclosingName;
-			break;
-		case IllegalTypeVariable : // 9
-		    id =  IProblem.SuperclassIllegalTypeVariable;
-		    break;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
-	}
-	this.handle(
-		id,
-		new String[] {new String(expectedType.readableName()), new String(type.sourceName())},
-		new String[] {new String(expectedType.shortReadableName()), new String(type.sourceName())},
-		superclassRef.sourceStart,
-		superclassRef.sourceEnd);
-}
-public void invalidSuperinterface(SourceTypeBinding type, TypeReference superinterfaceRef, ReferenceBinding expectedType) {
-	int problemId = expectedType.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.InterfaceNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.InterfaceNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.InterfaceAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.InterfaceInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.InterfaceInheritedNameHidesEnclosingName;
-			break;
-		case IllegalTypeVariable : // 9
-		    id = IProblem.InterfaceIllegalTypeVariable;
-		    break;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
-	}
-		this.handle(
-			id,
-			new String[] {new String(expectedType.readableName()), new String(type.sourceName())},
-			new String[] {new String(expectedType.shortReadableName()), new String(type.sourceName())},
-			superinterfaceRef.sourceStart,
-			superinterfaceRef.sourceEnd);
-}
 public void invalidType(ASTNode location, TypeBinding type) {
 	int id = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
@@ -2102,6 +1913,9 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		case NonStaticReferenceInStaticContext :
 			id = IProblem.TypeVariableReferenceFromStaticContext;
 		    break;
+		case IllegalTypeVariable : 
+		    id = IProblem.IllegalTypeVariableReference;
+		    break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -2114,10 +1928,11 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
 	}
+	boolean isSuperType = (location.bits & ASTNode.SuperTypeReference) != 0;
 	this.handle(
 		id,
-		new String[] {new String(type.readableName())},
-		new String[] {new String(type.shortReadableName())},
+		new String[] {new String(type.readableName()), isSuperType ? SUPER_TYPE_PROBLEM : "" },	 //$NON-NLS-1$  
+		new String[] {new String(type.shortReadableName()), isSuperType ? SUPER_TYPE_PROBLEM : ""}, //$NON-NLS-1$
 		location.sourceStart,
 		end);
 }
@@ -3038,37 +2853,6 @@ public void returnTypeCannotBeVoidArray(SourceTypeBinding type, MethodDeclaratio
 		arguments,
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
-}
-public void returnTypeProblem(SourceTypeBinding type, MethodDeclaration methodDecl, TypeBinding expectedType) {
-	int problemId = expectedType.problemId();
-	int id;
-	switch (problemId) {
-		case NotFound : // 1
-			id = IProblem.ReturnTypeNotFound;
-			break;
-		case NotVisible : // 2
-			id = IProblem.ReturnTypeNotVisible;
-			break;
-		case Ambiguous : // 3
-			id = IProblem.ReturnTypeAmbiguous;
-			break;
-		case InternalNameProvided : // 4
-			id = IProblem.ReturnTypeInternalNameProvided;
-			break;
-		case InheritedNameHidesEnclosingName : // 5
-			id = IProblem.ReturnTypeInheritedNameHidesEnclosingName;
-			break;
-		case NoError : // 0
-		default :
-			needImplementation(); // want to fail to see why we were here...
-			return;
-	}
-	this.handle(
-		id,
-		new String[] {new String(methodDecl.selector), new String(expectedType.readableName())},
-		new String[] {new String(methodDecl.selector), new String(expectedType.shortReadableName())},
-		methodDecl.returnType.sourceStart,
-		methodDecl.returnType.sourceEnd);
 }
 public void scannerError(Parser parser, String errorTokenName) {
 	Scanner scanner = parser.scanner;

@@ -787,27 +787,32 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		if (fieldDecls[f].binding != field)
 			continue;
 
-		field.type = fieldDecls[f].getTypeBinding(
-			field.isStatic() 
+			MethodScope initializationScope = field.isStatic() 
 				? scope.referenceContext.staticInitializerScope 
-				: scope.referenceContext.initializerScope);
-		field.modifiers ^= AccUnresolved;
-		if (!field.type.isValidBinding()) {
-			scope.problemReporter().fieldTypeProblem(this, fieldDecls[f], field.type);
-			//scope.problemReporter().invalidType(fieldDecls[f].type, field.type);
-			fieldDecls[f].binding = null;
-			return null;
-		}
-		if (field.type == VoidBinding) {
-			scope.problemReporter().variableTypeCannotBeVoid(fieldDecls[f]);
-			fieldDecls[f].binding = null;
-			return null;
-		}
-		if (field.type.isArrayType() && ((ArrayBinding) field.type).leafComponentType == VoidBinding) {
-			scope.problemReporter().variableTypeCannotBeVoidArray(fieldDecls[f]);
-			fieldDecls[f].binding = null;
-			return null;
-		}
+				: scope.referenceContext.initializerScope;
+			FieldBinding previousField = initializationScope.initializedField;
+			try {
+				initializationScope.initializedField = field;
+				TypeBinding fieldType = fieldDecls[f].type.resolveType(initializationScope);
+				field.type = fieldType;
+				field.modifiers ^= AccUnresolved;
+				if (fieldType == null) {
+					fieldDecls[f].binding = null;
+					return null;
+				}
+				if (fieldType == VoidBinding) {
+					scope.problemReporter().variableTypeCannotBeVoid(fieldDecls[f]);
+					fieldDecls[f].binding = null;
+					return null;
+				}
+				if (fieldType.isArrayType() && ((ArrayBinding) fieldType).leafComponentType == VoidBinding) {
+					scope.problemReporter().variableTypeCannotBeVoidArray(fieldDecls[f]);
+					fieldDecls[f].binding = null;
+					return null;
+				}
+			} finally {
+			    initializationScope.initializedField = previousField;
+			}
 		return field;
 	}
 	return null; // should never reach this point
@@ -825,9 +830,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		int count = 0;
 		ReferenceBinding resolvedExceptionType;
 		for (int i = 0; i < size; i++) {
-			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].getTypeBinding(scope);
-			if (!resolvedExceptionType.isValidBinding()) {
-				methodDecl.scope.problemReporter().exceptionTypeProblem(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
+			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope);
+			if (resolvedExceptionType == null) {
 				continue;
 			}
 			if (throwable != resolvedExceptionType && !throwable.isSuperclassOf(resolvedExceptionType)) {
@@ -847,17 +851,17 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		method.parameters = new TypeBinding[size];
 		for (int i = 0; i < size; i++) {
 			Argument arg = arguments[i];
-			method.parameters[i] = arg.type.getTypeBinding(methodDecl.scope);
-			if (!method.parameters[i].isValidBinding()) {
-				methodDecl.scope.problemReporter().argumentTypeProblem(this, methodDecl, arg, method.parameters[i]);
+			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope);
+			if (parameterType == null) {
 				foundArgProblem = true;
-			} else if (method.parameters[i] == VoidBinding) {
+			} else if (parameterType == VoidBinding) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);
 				foundArgProblem = true;
-			} else if (method.parameters[i].isArrayType() && ((ArrayBinding) method.parameters[i]).leafComponentType == VoidBinding) {
+			} else if (parameterType.isArrayType() && ((ArrayBinding) parameterType).leafComponentType == VoidBinding) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
 				foundArgProblem = true;
 			}
+			method.parameters[i] = parameterType;
 		}
 	}
 
@@ -869,11 +873,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			method.returnType = null;
 			foundReturnTypeProblem = true;
 		} else {
-			method.returnType = returnType.getTypeBinding(scope);
-			if (!method.returnType.isValidBinding()) {
-				methodDecl.scope.problemReporter().returnTypeProblem(this, (MethodDeclaration) methodDecl, method.returnType);
-				//methodDecl.scope.problemReporter().invalidType(returnType, method.returnType);
-				method.returnType = null;
+			method.returnType = returnType.resolveType(methodDecl.scope);
+			if (method.returnType == null) {
 				foundReturnTypeProblem = true;
 			} else if (method.returnType.isArrayType() && ((ArrayBinding) method.returnType).leafComponentType == VoidBinding) {
 				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray(this, (MethodDeclaration) methodDecl);

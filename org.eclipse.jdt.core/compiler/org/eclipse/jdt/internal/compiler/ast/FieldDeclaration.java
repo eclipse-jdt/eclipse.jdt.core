@@ -116,11 +116,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public TypeBinding getTypeBinding(Scope scope) {
-
-		return this.type.getTypeBinding(scope);
-	}
-
 	public boolean isField() {
 
 		return true;
@@ -173,9 +168,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				initializationScope.initializedField = this.binding;
 				initializationScope.lastVisibleFieldID = this.binding.id;
 
-				if (isTypeUseDeprecated(this.binding.type, initializationScope)) {
-					initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
-				}
 				// the resolution of the initialization hasn't been done
 				if (this.initialization == null) {
 					this.binding.constant = Constant.NotAConstant;
