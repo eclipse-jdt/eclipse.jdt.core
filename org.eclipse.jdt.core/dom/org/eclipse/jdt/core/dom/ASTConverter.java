@@ -226,7 +226,7 @@ class ASTConverter {
 			secondToken.setSourceRange(start, end - start + 1);
 			QualifiedName qualifiedName = this.ast.newQualifiedName(firstToken, secondToken);
 			qualifiedName.setSourceRange(start0, end - start0 + 1);
-			SimpleName newPart;
+			SimpleName newPart = null;
 			for (int i = 2; i < length; i++) {
 				newPart = this.ast.newSimpleName(new String(typeName[i]));
 				start = (int)(positions[i]>>>32);
@@ -234,6 +234,9 @@ class ASTConverter {
 				newPart.setSourceRange(start,  end - start + 1);
 				qualifiedName = this.ast.newQualifiedName(qualifiedName, newPart);
 				qualifiedName.setSourceRange(start0, end - start0 + 1);
+			}
+			if (this.resolveBindings && newPart != null) {
+				recordNodes(newPart, typeReference);
 			}
 			name = qualifiedName;
 		} else {
@@ -271,7 +274,7 @@ class ASTConverter {
 		secondToken.setSourceRange(start, end - start + 1);
 		QualifiedName qualifiedName = this.ast.newQualifiedName(firstToken, secondToken);
 		qualifiedName.setSourceRange(start0, end - start0 + 1);
-		SimpleName newPart;
+		SimpleName newPart = null;
 		for (int i = 2; i < length; i++) {
 			newPart = this.ast.newSimpleName(new String(typeName[i]));
 			start = (int)(positions[i]>>>32);
@@ -279,6 +282,9 @@ class ASTConverter {
 			newPart.setSourceRange(start,  end - start + 1);
 			qualifiedName = this.ast.newQualifiedName(qualifiedName, newPart);
 			qualifiedName.setSourceRange(start0, end - start0 + 1);
+		}
+		if (this.resolveBindings && newPart != null) {
+			recordNodes(newPart, nameReference);
 		}
 		QualifiedName name = qualifiedName;
 		if (this.resolveBindings) {

@@ -113,12 +113,12 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof QualifiedNameReference) {
 			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
 			if (qualifiedNameReference.isFieldReference()) {
-				return this.getVariableBinding(qualifiedNameReference.fieldBinding());
+				return this.getVariableBinding(qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1]);
 			} else if (qualifiedNameReference.isTypeReference()) {
 				this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
 			} else {
 				// this is a variable
-				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
+				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1]);				
 			}
 		}
 		return super.resolveName(name);
