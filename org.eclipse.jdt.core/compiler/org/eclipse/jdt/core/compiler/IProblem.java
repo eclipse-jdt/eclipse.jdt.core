@@ -794,11 +794,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocUnterminatedInlineTag = Javadoc + Internal + 512;
 	/** @since 3.0 */
-	int JavadocMissingHashCharacter = Javadoc + Internal + 513;
+	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
 	/** @since 3.0 */
-	int JavadocMalformedSeeReference = Javadoc + Internal + 514;
-	/** @since 3.0 */
-	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
-	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 516;
+	int JavadocMessagePrefix = Internal + 515;
 }

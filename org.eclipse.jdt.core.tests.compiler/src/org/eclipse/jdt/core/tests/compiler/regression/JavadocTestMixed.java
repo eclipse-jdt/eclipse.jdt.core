@@ -1304,7 +1304,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	* @see X(double)\n" + 
 				"	       ^^^^^^^^^\n" + 
-				"Javadoc: Missing #: \"X(double\"\n" + 
+				"Javadoc: Invalid reference\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 6)\n" + 
 				"	* @see X[double]\n" + 
@@ -1319,7 +1319,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @see foo()\n" + 
 				"	       ^^^^^\n" + 
-				"Javadoc: Missing #: \"foo(\"\n" + 
+				"Javadoc: Invalid reference\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 9)\n" + 
 				"	* @see foo  ()\n" + 
@@ -3076,22 +3076,22 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	/**@return*/\n" + 
 				"	    ^^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	/**@return        */\n" + 
 				"	    ^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	/**@return****/\n" + 
 				"	    ^^^^^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 9)\n" + 
 				"	*	@return\n" + 
 				"	 	 ^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n"
 		);
 	}
@@ -3114,12 +3114,12 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	*	@return* */\n" + 
 				"	 	 ^^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	/**@return** **/\n" + 
 				"	    ^^^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n"
 		);
 	}
@@ -3140,7 +3140,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	*	@return#\n" + 
 				"	 	 ^^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
+				"Javadoc: Invalid tag\n" + 
 				"----------\n"
 		);
 	}

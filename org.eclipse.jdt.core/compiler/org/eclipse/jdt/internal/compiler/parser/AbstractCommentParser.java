@@ -293,7 +293,7 @@ public abstract class AbstractCommentParser {
 										if(!verifyCharsAfterReturnTag(this.index)) {
 											if (this.sourceParser != null) {
 												int end = this.starPosition == -1 || this.lineEnd<this.starPosition ? this.lineEnd : this.starPosition;
-												this.sourceParser.problemReporter().javadocEmptyReturnTag(this.tagSourceStart, end);
+												this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, end);
 											}
 										}
 										break;
@@ -965,7 +965,7 @@ public abstract class AbstractCommentParser {
 		// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=47215
 		char ch = peekChar();
 		if (ch == '(') {
-			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMissingHashCharacter(typeRefStartPosition, this.lineEnd, String.valueOf(this.source, typeRefStartPosition, this.lineEnd-typeRefStartPosition));
+			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeReference(typeRefStartPosition, this.lineEnd);
 			return false;
 		}
 
