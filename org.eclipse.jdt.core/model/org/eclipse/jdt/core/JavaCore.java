@@ -813,7 +813,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 		if (container == null){
-			final ClasspathContainerInitializer initializer = JavaModelManager.getClasspathContainerInitializer(containerPath.segment(0));
+			final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
 			if (initializer != null){
 				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
 				boolean ok = false;
@@ -858,6 +858,47 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		return container;			
 	}
+
+	/**
+	 * Helper method finding the classpath container initializer registered for a given classpath container ID 
+	 * or <code>null</code> if none was found while iterating over the contributions to extension point to
+	 * the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
+	 * <p>
+	 * A containerID is the first segment of any container path, used to identify the registered container initializer.
+	 * <p>
+	 * @return ClasspathContainerInitializer - the registered classpath container initializer or <code>null</code> if 
+	 * none was found.
+	 * @since 2.1
+	 */
+	public static ClasspathContainerInitializer getClasspathContainerInitializer(String containerID){
+		
+		Plugin jdtCorePlugin = JavaCore.getPlugin();
+		if (jdtCorePlugin == null) return null;
+
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
+		if (extension != null) {
+			IExtension[] extensions =  extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++){
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+				for(int j = 0; j < configElements.length; j++){
+					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+					if (initializerID != null && initializerID.equals(containerID)){
+						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							System.out.println("CPContainer INIT - found initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+						}						
+						try {
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							if (execExt instanceof ClasspathContainerInitializer){
+								return (ClasspathContainerInitializer)execExt;
+							}
+						} catch(CoreException e) {
+						}
+					}
+				}
+			}	
+		}
+		return null;
+	}		
 
 	/**
 	 * Returns the path held in the given classpath variable.
