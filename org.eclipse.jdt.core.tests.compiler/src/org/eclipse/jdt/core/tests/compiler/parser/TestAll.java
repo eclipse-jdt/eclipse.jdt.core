@@ -14,6 +14,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+
 /**
  * Run all parser regression tests
  */
@@ -66,6 +67,7 @@ public static Test suite() {
 
 	/* syntax error diagnosis tests */
 	addTest(suite, SyntaxErrorTest.class);
+	addTest(suite, DualParseSyntaxErrorTest.class);
 
 	return suite;
 }

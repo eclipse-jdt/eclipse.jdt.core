@@ -1892,7 +1892,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("No error", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("No error", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$

@@ -47,8 +47,8 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int sourceEnd){
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
 	if (this.statement.sourceEnd == 0)	
-		this.statement.sourceEnd = sourceEnd;
+		this.statement.sourceEnd = bodyEnd;
 }
 }

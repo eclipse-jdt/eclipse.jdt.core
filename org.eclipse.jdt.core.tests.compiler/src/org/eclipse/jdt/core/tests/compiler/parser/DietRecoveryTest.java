@@ -242,6 +242,7 @@ public void test01() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    System.out.println();\n" +
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
@@ -416,6 +417,7 @@ public void test03() {
 		"    super();\n" +
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    System.out.println();\n" +
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
@@ -509,6 +511,7 @@ public void test04() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    System.out.println();\n" +
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
@@ -658,6 +661,7 @@ public void test06() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    System.out.println();\n" +
 		"  }\n" + 
 		"  void baz() {\n" + 
 		"  }\n" + 
@@ -1044,6 +1048,7 @@ public void test11() {
 		"    System.out.println();\n" + 
 		"  }\n" + 
 		"  void bar() {\n" + 
+		"    int x;\n" +
 		"  }\n" + 
 		"  void baz() {\n" + 
 		"  }\n" + 
@@ -1754,6 +1759,11 @@ public void test24() {
 		"    super();\n"+
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    System.out.println();\n" + 
+		"    new X() {\n" + 
+		"  void baz() {\n" + 
+		"  }\n" + 
+		"}.baz();\n" +
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
@@ -2202,6 +2212,7 @@ public void test31() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    System.out.println();\n" +
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
@@ -2314,6 +2325,7 @@ public void test33() {
 		"  void hello() {\n" + 
 		"  }\n" + 
 		"  public X(int i) {\n" + 
+		"    super();\n" +
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
@@ -2365,6 +2377,7 @@ public void test34() {
 		"  void hello() {\n" + 
 		"  }\n" + 
 		"  public X(int i) {\n" + 
+		"    super();\n" +
 		"  }\n" + 
 		"  static void foo() {\n" + 
 		"    X x;\n" + 
@@ -3683,6 +3696,7 @@ public void test62() {
 		"    <clinit>() {\n" + 
 		"    }\n" + 
 		"    int foo() {\n" + 
+		"      return 1;\n" +
 		"    }\n" + 
 		"    int baz() {\n" + 
 		"    }\n" + 
@@ -4680,12 +4694,20 @@ public void test82() {
 	String expectedDietPlusBodyUnitToString = 
 		"public class A {\n" + 
 		"  public A() {\n" + 
-		"    super();\n" + 		
+		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
+		"    if (true)\n" + 
+		"        {\n" + 
+		"        }\n" + 
+		"    else\n" + 
+		"        {\n" + 
+		"          Bar s;\n" + 
+		"          s.fred();\n" + 
+		"        }\n" + 
 		"  }\n" + 
 		"}\n";
-	
+			
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
@@ -4724,12 +4746,20 @@ public void test83() {
 		"}\n";
 		
 	String expectedDietPlusBodyUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 		
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    if (true)\n" +
+		"        {\n" +
+		"        }\n" +
+		"    else\n" +
+		"        {\n" +
+		"          Bar s;\n" +
+		"          s.fred();\n" +
+		"        }\n" +
+		"  }\n" +
 		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;

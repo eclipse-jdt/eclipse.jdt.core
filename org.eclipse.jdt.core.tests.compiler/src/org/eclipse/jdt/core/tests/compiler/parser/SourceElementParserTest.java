@@ -671,7 +671,7 @@ public void test04() {
 	assertEquals("Invalid methods length ", 3, methods.length);
 
 	assertEquals("Invalid declaration source start for method foo", 115, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 246, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for method foo", 222, methods[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for method bar", 317, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method bar", 337, methods[1].getDeclarationSourceEnd());
@@ -750,7 +750,7 @@ public void test05() {
 	assertEquals("Invalid methods length ", 3, methods.length);
 
 	assertEquals("Invalid declaration source start for method foo", 115, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 246, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for method foo", 222, methods[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for method bar", 317, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method bar", 337, methods[1].getDeclarationSourceEnd());
@@ -2538,7 +2538,7 @@ public void test29() {
 	assertEquals(" contains 3 methods ", 3, methods.length);
 
 	assertEquals("Invalid declaration source start for method foo", 114, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 274, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for method foo", 250, methods[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for method bar", 312, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method bar", 332, methods[1].getDeclarationSourceEnd());
@@ -2620,7 +2620,7 @@ public void test30() {
 	assertEquals(" contains 3 methods ", 3, methods.length);
 
 	assertEquals("Invalid declaration source start for method foo", 114, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 274, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for method foo", 250, methods[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for method bar", 312, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method bar", 332, methods[1].getDeclarationSourceEnd());
@@ -2913,7 +2913,7 @@ public void test34() {
 	assertEquals(" contains 3 methods ", 3, methods.length);
 
 	assertEquals("Invalid declaration source start for method foo", 114, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 248, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for method foo", 236, methods[0].getDeclarationSourceEnd());
 
 	assertEquals("Invalid declaration source start for method bar", 286, methods[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for method bar", 306, methods[1].getDeclarationSourceEnd());

@@ -902,6 +902,7 @@ protected void consumeStaticOnly() {
 	// StaticOnly ::= 'static'
 	checkAnnotation(); // might update declaration source start
 	pushOnIntStack(modifiersSourceStart);
+	pushOnIntStack(scanner.currentPosition);
 	pushOnIntStack(
 		declarationSourceStart >= 0 ? declarationSourceStart : modifiersSourceStart); 
 	jumpOverMethodBody();

@@ -117,6 +117,10 @@ public SourceElementParser(
 }
 
 public void checkAnnotation() {
+	
+	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
+		flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments
+	}
 	int firstCommentIndex = scanner.commentPtr;
 
 	super.checkAnnotation();

@@ -87,6 +87,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
 	protected int endStatementPosition;
 	protected int lParenPos,rParenPos; //accurate only when used !
+	protected int rBraceStart, rBraceEnd, rBraceSuccessorStart; //accurate only when used !
 	//modifiers dimensions nestedType etc.......
 	protected boolean optimizeStringLiterals =true;
 	protected int modifiers;
@@ -1076,6 +1077,8 @@ public RecoveredElement buildInitialRecoveryState(){
 			compilationUnit.types = null;
 			currentToken = 0;
 			listLength = 0;
+			endPosition = 0;
+			endStatementPosition = 0;
 			return element;
 		}
 		if (compilationUnit.currentPackage != null){
@@ -1127,7 +1130,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			Initializer initializer = (Initializer) node;
 			if (initializer.declarationSourceEnd == 0){
 				element = element.add(initializer, 1);
-				lastCheckPoint = initializer.bodyStart;				
+				lastCheckPoint = initializer.sourceStart;				
 			} else {
 				element = element.add(initializer, 0);
 				lastCheckPoint = initializer.declarationSourceEnd + 1;
@@ -1524,6 +1527,9 @@ public final void checkAndSetModifiers(int flag){
 }
 public void checkAnnotation() {
 
+	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
+		flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments
+	}
 	boolean deprecated = false;
 	boolean checkDeprecated = false;
 	int lastAnnotationIndex = -1;
@@ -1607,6 +1613,30 @@ protected boolean checkDeprecation(
 		}
 	}
 	return deprecated;
+}
+protected void checkNonExternalizedStringLiteral() {
+	if (scanner.wasNonExternalizedStringLiteral) {
+		StringLiteral[] literals = this.scanner.nonNLSStrings;
+		// could not reproduce, but this is the only NPE
+		// added preventive null check see PR 9035
+		if (literals != null) {
+			for (int i = 0, max = literals.length; i < max; i++) {
+				problemReporter().nonExternalizedStringLiteral(literals[i]);
+			}
+		}
+		scanner.wasNonExternalizedStringLiteral = false;
+	}
+}
+protected void checkNonNLSAfterBodyEnd(int declarationEnd){
+	if(scanner.currentPosition - 1 < declarationEnd) {
+		scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
+		try {
+			while(scanner.getNextToken() != TokenNameEOF);
+			checkNonExternalizedStringLiteral();
+		} catch (InvalidInputException e) {
+			// Nothing to do
+		}
+	}
 }
 protected char getNextCharacter(char[] comment, int[] index) {
 	char nextCharacter = comment[index[0]++];
@@ -1769,10 +1799,7 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 }
 
 protected void consumeArrayCreationHeader() {
-	if(currentElement != null && currentToken == TokenNameLBRACE) {
-		ignoreNextOpeningBrace = true;
-		currentElement.bracketBalance++;
-	}
+	// nothing to do
 }
 protected void consumeArrayCreationExpressionWithInitializer() {
 	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
@@ -2013,12 +2040,14 @@ protected void consumeClassBodyDeclaration() {
 	nestedMethod[nestedType]--;
 	Initializer initializer = new Initializer((Block) astStack[astPtr], 0);
 	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
+	initializer.bodyStart = intStack[intPtr--];
 	realBlockPtr--; // pop the block variable counter left on the stack by consumeNestedMethod
 	int javadocCommentStart = intStack[intPtr--];
 	if (javadocCommentStart != -1) {
 		initializer.declarationSourceStart = javadocCommentStart;
 	}
 	astStack[astPtr] = initializer;
+	initializer.bodyEnd = endPosition;
 	initializer.sourceEnd = endStatementPosition;
 	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
 }
@@ -2239,6 +2268,7 @@ protected void consumeConstructorDeclaration() {
 	int length;
 
 	// pop the position of the {  (body of the method) pushed in block decl
+	intPtr--;
 	intPtr--;
 
 	//statements
@@ -3048,6 +3078,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	if (isNotAbstract) {
 		// pop the position of the {  (body of the method) pushed in block decl
 		intPtr--;
+		intPtr--;
 	}
 
 	int explicitDeclarations = 0;
@@ -3309,6 +3340,7 @@ protected void consumeNestedMethod() {
 	// NestedMethod ::= $empty
 	jumpOverMethodBody();
 	nestedMethod[nestedType] ++;
+	pushOnIntStack(scanner.currentPosition);
 	consumeOpenBlock();
 }
 protected void consumeNestedType() {
@@ -4344,7 +4376,7 @@ protected void consumeRule(int act) {
 		    consumeEmptyClassBodyDeclarationsopt();  
 			break ;
  
-    case 415 : // System.out.println("ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations");
+    case 415 : // System.out.println("ClassBodyDeclarationsopt  ::= NestedType ClassBodyDeclarations");
 		    consumeClassBodyDeclarationsopt();  
 			break ;
  
@@ -4759,6 +4791,8 @@ protected void consumeStaticInitializer() {
 	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
 	nestedMethod[nestedType] --;
 	initializer.declarationSourceStart = intStack[intPtr--];
+	initializer.bodyStart = intStack[intPtr--];
+	initializer.bodyEnd = endPosition;
 	
 	// recovery
 	if (currentElement != null){
@@ -4774,6 +4808,7 @@ protected void consumeStaticOnly() {
 	if (modifiersSourceStart >= savedModifiersSourceStart) {
 		modifiersSourceStart = savedModifiersSourceStart;
 	}
+	pushOnIntStack(scanner.currentPosition);
 	pushOnIntStack(
 		modifiersSourceStart >= 0 ? modifiersSourceStart : scanner.startPosition);
 	jumpOverMethodBody();
@@ -4804,17 +4839,7 @@ protected void consumeSwitchLabels() {
 protected void consumeToken(int type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
-	if (scanner.wasNonExternalizedStringLiteral) {
-		StringLiteral[] literals = this.scanner.nonNLSStrings;
-		// could not reproduce, but this is the only NPE
-		// added preventive null check see PR 9035
-		if (literals != null) {
-			for (int i = 0, max = literals.length; i < max; i++) {
-				problemReporter().nonExternalizedStringLiteral(literals[i]);
-			}
-		}
-		scanner.wasNonExternalizedStringLiteral = false;
-	}
+	checkNonExternalizedStringLiteral();
 	// clear the commentPtr of the scanner in case we read something different from a modifier
 	switch(type) {
 		case TokenNameabstract :
@@ -5637,6 +5662,12 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	ref.bits |= LOCAL | FIELD;
 	return ref;
 }
+public void goForBlockStatementsopt() {
+	//tells the scanner to go for block statements opt parsing
+
+	firstToken = TokenNameTWIDDLE;
+	scanner.recordLineSeparator = false;
+}
 public void goForBlockStatementsOrMethodHeaders() {
 	//tells the scanner to go for block statements or method headers parsing 
 
@@ -5657,6 +5688,12 @@ public void goForCompilationUnit(){
 	scanner.foundTaskCount = 0;
 	scanner.recordLineSeparator = true;
 	scanner.currentLine= null;
+}
+public void goForConstructorBlockStatementsopt() {
+	//tells the scanner to go for constructor block statements opt parsing
+
+	firstToken = TokenNameNOT;
+	scanner.recordLineSeparator = false;
 }
 public void goForConstructorBody(){
 	//tells the scanner to go for compilation unit parsing
@@ -7488,13 +7525,14 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 	//convert bugs into parse error
 
 	initialize();
-	goForConstructorBody();
+	goForConstructorBlockStatementsopt();
 	nestedMethod[nestedType]++;
-
+	pushOnRealBlockStack(0);
+	
 	referenceContext = cd;
 	compilationUnit = unit;
 
-	scanner.resetTo(cd.sourceEnd + 1, cd.declarationSourceEnd);
+	scanner.resetTo(cd.bodyStart, cd.bodyEnd);
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
@@ -7503,6 +7541,8 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 		nestedMethod[nestedType]--;
 	}
 
+	checkNonNLSAfterBodyEnd(cd.declarationSourceEnd);
+	
 	if (lastAct == ERROR_ACTION) {
 		initialize();
 		return;
@@ -7592,13 +7632,14 @@ public void parse(
 	//convert bugs into parse error
 
 	initialize();
-	goForInitializer();
+	goForBlockStatementsopt();
 	nestedMethod[nestedType]++;
-
+	pushOnRealBlockStack(0);
+	
 	referenceContext = type;
 	compilationUnit = unit;
 
-	scanner.resetTo(ini.sourceStart, ini.sourceEnd); // just on the beginning {
+	scanner.resetTo(ini.bodyStart, ini.bodyEnd); // just on the beginning {
 	try {
 		parse();
 	} catch (AbortCompilation ex) {
@@ -7607,11 +7648,22 @@ public void parse(
 		nestedMethod[nestedType]--;
 	}
 
+	checkNonNLSAfterBodyEnd(ini.declarationSourceEnd);
+	
 	if (lastAct == ERROR_ACTION) {
 		return;
 	}
-
-	ini.block = ((Initializer) astStack[astPtr]).block;
+	
+	//refill statements
+	ini.block.explicitDeclarations = realBlockStack[realBlockPtr--];
+	int length;
+	if ((length = astLengthStack[astLengthPtr--]) != 0)
+		System.arraycopy(
+			astStack, 
+			(astPtr -= length) + 1, 
+			ini.block.statements = new Statement[length], 
+			0, 
+			length); 
 	
 	// mark initializer with local type if one was found during parsing
 	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
@@ -7634,13 +7686,14 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 		return;
 
 	initialize();
-	goForMethodBody();
+	goForBlockStatementsopt();
 	nestedMethod[nestedType]++;
+	pushOnRealBlockStack(0);
 
 	referenceContext = md;
 	compilationUnit = unit;
 
-	scanner.resetTo(md.sourceEnd + 1, md.declarationSourceEnd); 
+	scanner.resetTo(md.bodyStart, md.bodyEnd);
 	// reset the scanner to parser from { down to }
 	try {
 		parse();
@@ -7650,6 +7703,8 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 		nestedMethod[nestedType]--;		
 	}
 
+	checkNonNLSAfterBodyEnd(md.declarationSourceEnd);
+	
 	if (lastAct == ERROR_ACTION) {
 		return;
 	}
@@ -7878,6 +7933,19 @@ protected void pushOnIntStack(int pos) {
 		intStack[intPtr] = pos;
 	}
 }
+protected void pushOnRealBlockStack(int i){
+	
+	try {
+		realBlockStack[++realBlockPtr] = i;
+	} catch (IndexOutOfBoundsException e) {
+		//realBlockPtr is correct 
+		int oldStackLength = realBlockStack.length;
+		int oldStack[] = realBlockStack;
+		realBlockStack = new int[oldStackLength + StackIncrement];
+		System.arraycopy(oldStack, 0, realBlockStack, 0, oldStackLength);
+		realBlockStack[realBlockPtr] = i;
+	}
+}
 protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//files are located at Parser.class directory
@@ -7935,10 +8003,10 @@ public void recoveryExitFromVariable() {
  */
 public void recoveryTokenCheck() {
 	switch (currentToken) {
-		case TokenNameLBRACE : {
+		case TokenNameLBRACE : 
 			RecoveredElement newElement = null;
 			if(!ignoreNextOpeningBrace) {
-				newElement = currentElement.updateOnOpeningBrace(scanner.currentPosition - 1);
+				newElement = currentElement.updateOnOpeningBrace(scanner.startPosition - 1, scanner.currentPosition - 1);
 			}
 			lastCheckPoint = scanner.currentPosition;				
 			if (newElement != null){ // null means nothing happened
@@ -7946,15 +8014,27 @@ public void recoveryTokenCheck() {
 				currentElement = newElement;
 			}
 			break;
-		}
-		case TokenNameRBRACE : {
-			endPosition = this.flushAnnotationsDefinedPriorTo(scanner.currentPosition - 1);
-			RecoveredElement newElement =
-				currentElement.updateOnClosingBrace(scanner.startPosition, scanner.currentPosition -1);
+		
+		case TokenNameRBRACE : 
+			this.rBraceStart = scanner.startPosition - 1;
+			this.rBraceEnd = scanner.currentPosition - 1;
+			endPosition = this.flushAnnotationsDefinedPriorTo(this.rBraceEnd);
+			newElement =
+				currentElement.updateOnClosingBrace(scanner.startPosition, this.rBraceEnd);
 				lastCheckPoint = scanner.currentPosition;
 			if (newElement != currentElement){
 				currentElement = newElement;
 			}
+			break;
+		case TokenNameSEMICOLON :
+			endStatementPosition = scanner.currentPosition - 1;
+			endPosition = scanner.startPosition - 1; 
+			// fall through
+		default : {
+			if (this.rBraceEnd > this.rBraceSuccessorStart && scanner.currentPosition != scanner.startPosition){
+				this.rBraceSuccessorStart = scanner.startPosition;
+			}
+			break;
 		}
 	}
 	ignoreNextOpeningBrace = false;

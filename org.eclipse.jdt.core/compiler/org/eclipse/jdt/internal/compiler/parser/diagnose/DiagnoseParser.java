@@ -144,9 +144,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		this.parser = parser;
 		if(isDiet) {
 			int[][] intervalToSkip = Util.computeDietRange(parser.compilationUnit.types);
-			this.lexStream = new LexStream(BUFF_SIZE, scanner, intervalToSkip[0], intervalToSkip[1], firstToken, init, eof);
+			this.lexStream = new LexStream(BUFF_SIZE, scanner, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2], firstToken, init, eof);
 		} else {
-			this.lexStream = new LexStream(BUFF_SIZE, scanner, new int[0], new int[0], firstToken, init, eof);
+			this.lexStream = new LexStream(BUFF_SIZE, scanner, new int[0], new int[0], new int[0], firstToken, init, eof);
 		}
 	}
 	
@@ -203,6 +203,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		int tok = lexStream.kind(currentToken);
 		locationStack[stateStackTop] = currentToken;
 		locationStartStack[stateStackTop] = lexStream.start(currentToken);
+		
+		boolean forceRecoveryAfterLBracketMissing = false;
+		int forceRecoveryToken = -1;
 
 		//
 		// Process a terminal
@@ -322,6 +325,16 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 					act = Parser.tAction(act, tok);
 				}
 
+				if((tok != TokenNameRBRACE || (forceRecoveryToken != currentToken && (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0))
+					&& (lexStream.flags(currentToken) & LexStream.IS_AFTER_JUMP) !=0) {
+					act = ERROR_ACTION;
+					if(forceRecoveryToken != currentToken
+						&& (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0) {
+						forceRecoveryAfterLBracketMissing = true;
+						forceRecoveryToken = currentToken;
+					}
+				}
+				
 				//
 				// No error was detected, Read next token into
 				// PREVTOK element, advance CURTOK pointer and
@@ -350,7 +363,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				//
 				// An error was detected.
 				//
-				RepairCandidate candidate = errorRecovery(currentToken);
+				RepairCandidate candidate = errorRecovery(currentToken, forceRecoveryAfterLBracketMissing);
+				
+				forceRecoveryAfterLBracketMissing = false;
 				
 				if(parser.reportOnlyOneSyntaxError) {
 					return;
@@ -406,12 +421,32 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 //	   NEXT_STACK may contain the sequence of states preceding any
 //	   action on the successor of curtok.
 //
-	private RepairCandidate errorRecovery(int error_token) {
+	private RepairCandidate errorRecovery(int error_token, boolean forcedError) {
 		this.errorToken = error_token;
 		this.errorTokenStart = lexStream.start(error_token);
 		
 		int prevtok = lexStream.previous(error_token);
 		int prevtokKind = lexStream.kind(prevtok);
+		
+		if(forcedError) {
+			int name_index = Parser.terminal_index[TokenNameLBRACE];
+
+			reportError(INSERTION_CODE, name_index, prevtok, prevtok);
+			
+			RepairCandidate candidate = new RepairCandidate();
+			candidate.symbol = TokenNameLBRACE;
+			candidate.location = error_token;
+			lexStream.reset(error_token);
+			
+			stateStackTop = nextStackTop;
+			for (int j = 0; j <= stateStackTop; j++) {
+				stack[j] = nextStack[j];
+			}
+			locationStack[stateStackTop] = error_token;
+			locationStartStack[stateStackTop] = lexStream.start(error_token);
+			
+			return candidate;
+		}
 
 		//
 		// Try primary phase recoveries. If not successful, try secondary
@@ -863,8 +898,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 //	   or the substitution of another token for the error token.
 //
 	private RepairCandidate primaryDiagnosis(PrimaryRepairInfo repair) {
-		RepairCandidate candidate = new RepairCandidate();
-
 		int name_index;
 
 		//
@@ -946,6 +979,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		//
 		//  Update buffer.
 		//
+		RepairCandidate candidate = new RepairCandidate();
 		switch (repair.code) {
 			case INSERTION_CODE:
 			case BEFORE_CODE:
@@ -2165,47 +2199,11 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		return;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	public String toString() {
 		StringBuffer res = new StringBuffer();
 		
-		res.append("buffer:name= {");//$NON-NLS-1$
-		for (int i = 0; i < buffer.length; i++) {
-			res.append('\'');
-			res.append(lexStream.name(buffer[i]));
-			res.append('\'');
-			res.append(',');
-		}
-		res.append("\nbuffer:kind= {");//$NON-NLS-1$
-		for (int i = 0; i < buffer.length; i++) {
-			res.append(lexStream.kind(buffer[i]));
-			res.append(',');
-		}
-		res.append("}\n");//$NON-NLS-1$
-		
-		String source = new String(parser.scanner.source);
-		if(currentToken <= 0) {
-			res.append(source);
-		} else {
-			int curtokStart = lexStream.start(currentToken);
-			int curtokEnd = lexStream.end(currentToken);
-			res.append(source.substring(0, curtokStart));
-			res.append('#');
-			res.append(source.substring(curtokStart, curtokEnd + 1));
-			res.append('#');
-			res.append(source.substring(curtokEnd+1));
-		}
+		res.append(lexStream.toString());
 		
 		return res.toString();
 	}
-	
-//	private String getSymbolName(int symbol){
-//		if(symbol > NT_OFFSET) {
-//			return Parser.name[Parser.non_terminal_index[symbol - NT_OFFSET]];
-//		} else {
-//			return Parser.name[Parser.terminal_index[symbol]];
-//		}
-//	}
 }

@@ -181,7 +181,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			Initializer initializer = (Initializer) node;
 			if (initializer.declarationSourceEnd == 0){
 				element = element.add(initializer, 1);
-				lastCheckPoint = initializer.bodyStart;				
+				lastCheckPoint = initializer.sourceStart;				
 			} else {
 				element = element.add(initializer, 0);
 				lastCheckPoint = initializer.declarationSourceEnd + 1;
@@ -643,19 +643,11 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	return reference;
 }
 public void goForBlockStatementsopt() {
-	//tells the scanner to go for block statements opt parsing
-
-	firstToken = TokenNameTWIDDLE;
-	scanner.recordLineSeparator = false;
-	
+	super.goForBlockStatementsopt();
 	isFirst = true;
 }
 public void goForConstructorBlockStatementsopt() {
-	//tells the scanner to go for constructor block statements opt parsing
-
-	firstToken = TokenNameNOT;
-	scanner.recordLineSeparator = false;
-	
+	super.goForConstructorBlockStatementsopt();
 	isFirst = true;
 }
 public void goForHeaders(){

@@ -48,10 +48,10 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int sourceEnd){
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
 	if (this.importReference.declarationSourceEnd == 0) {
-		this.importReference.declarationSourceEnd = sourceEnd;
-		this.importReference.declarationEnd = sourceEnd;
+		this.importReference.declarationSourceEnd = bodyEnd;
+		this.importReference.declarationEnd = bodyEnd;
 	}
 }
 }

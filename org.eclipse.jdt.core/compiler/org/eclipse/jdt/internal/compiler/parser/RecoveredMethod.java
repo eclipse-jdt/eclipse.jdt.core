@@ -402,7 +402,7 @@ public void updateFromParserState(){
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.
  */
-public RecoveredElement updateOnOpeningBrace(int braceEnd){
+public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 
 	/* in case the opening brace is close enough to the signature */
 	if (bracketBalance == 0){
@@ -419,7 +419,7 @@ public RecoveredElement updateOnOpeningBrace(int braceEnd){
 				bracketBalance = 1; // pretend the brace was already there
 		}
 	}	
-	return super.updateOnOpeningBrace(braceEnd);
+	return super.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
 	this.updatedMethodDeclaration();
@@ -427,10 +427,18 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int sourceEnd){
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
 	if (this.methodDeclaration.declarationSourceEnd == 0) {
-		this.methodDeclaration.declarationSourceEnd = sourceEnd;
-		this.methodDeclaration.bodyEnd = sourceEnd;
+		int end, declarationSourceEnd;
+		if(parser().rBraceSuccessorStart >= bodyEnd) {
+			declarationSourceEnd = parser().rBraceEnd;
+			end = parser().rBraceStart;
+		} else {
+			declarationSourceEnd = bodyEnd;
+			end = bodyStart - 1;
+		}
+		this.methodDeclaration.declarationSourceEnd = declarationSourceEnd;
+		this.methodDeclaration.bodyEnd = end;
 	}
 }
 }

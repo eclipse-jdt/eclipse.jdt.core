@@ -248,7 +248,7 @@ public Statement updatedStatement(){
  */
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if ((--bracketBalance <= 0) && (parent != null)){
-		this.updateSourceEndIfNecessary(braceEnd);
+		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 
 		/* if the block is the method body, then it closes the method too */
 		RecoveredMethod method = enclosingMethod();
@@ -267,7 +267,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.
  */
-public RecoveredElement updateOnOpeningBrace(int currentPosition){
+public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 
 	// create a nested block
 	Block block = new Block(0);

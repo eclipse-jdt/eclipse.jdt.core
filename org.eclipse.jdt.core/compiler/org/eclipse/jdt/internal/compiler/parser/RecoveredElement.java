@@ -292,7 +292,7 @@ public void updateFromParserState(){
  */
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if ((--bracketBalance <= 0) && (parent != null)){
-		this.updateSourceEndIfNecessary(braceEnd);
+		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 		return parent;
 	}
 	return this;
@@ -301,7 +301,8 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.
  */
-public RecoveredElement updateOnOpeningBrace(int braceEnd){
+/*public RecoveredElement updateOnOpeningBrace(int braceEnd){return null;}*/
+public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 
 	if (bracketBalance++ == 0){
 		this.updateBodyStart(braceEnd + 1);
@@ -317,6 +318,9 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
+}
 public void updateSourceEndIfNecessary(int sourceEnd){
+	this.updateSourceEndIfNecessary(sourceEnd + 1, sourceEnd);
 }
 }

@@ -16,12 +16,16 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 public class LexStream implements TerminalTokens {
+	public static final int IS_AFTER_JUMP = 1;
+	public static final int LBRACE_MISSING = 2;
+		
 	public class Token{
 		int kind;
 		char[] name;
 		int start;
 		int end;
 		int line;
+		int flags;
 		
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
@@ -41,8 +45,11 @@ public class LexStream implements TerminalTokens {
 	private Scanner scanner;
 	private int[] intervalStartToSkip;
 	private int[] intervalEndToSkip;
+	private int[] intervalFlagsToSkip;
 	
-	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int firstToken, int init, int eof) {
+	private int previousInterval = -1;
+	
+	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, int firstToken, int init, int eof) {
 		this.tokenCache = new Token[size];
 		this.tokenCacheIndex = 0;
 		this.tokenCacheEOFIndex = Integer.MAX_VALUE;
@@ -55,8 +62,8 @@ public class LexStream implements TerminalTokens {
 		
 		this.intervalStartToSkip = intervalStartToSkip;
 		this.intervalEndToSkip = intervalEndToSkip;
+		this.intervalFlagsToSkip = intervalFlagsToSkip;
 		
-		//scanner.recordLineSeparator = true;
 		scanner.resetTo(init, eof);
 		this.scanner = scanner;
 	}
@@ -64,6 +71,7 @@ public class LexStream implements TerminalTokens {
 	private void readTokenFromScanner(){
 		int length = tokenCache.length;
 		boolean tokenNotFound = true;
+		
 		while(tokenNotFound) {
 			try {
 				int tokenKind =  scanner.getNextToken();
@@ -78,6 +86,15 @@ public class LexStream implements TerminalTokens {
 						token.end = end;
 						token.line = scanner.getLineNumber(end);
 						
+						int pInterval = Util.getPreviousInterval(start, end, intervalStartToSkip, intervalEndToSkip);
+						if(pInterval != previousInterval){
+							token.flags = IS_AFTER_JUMP;
+							if((intervalFlagsToSkip[pInterval] & Util.LBRACE_MISSING) != 0){
+								token.flags |= LBRACE_MISSING;
+							}
+						}
+						previousInterval = pInterval;
+
 						tokenCache[++tokenCacheIndex % length] = token;
 						
 						tokenNotFound = false;
@@ -104,6 +121,12 @@ public class LexStream implements TerminalTokens {
 	}
 	
 	public Token token(int index) {
+		if(index < 0) {
+			Token eofToken = new Token();
+			eofToken.kind = TokenNameEOF;
+			eofToken.name = CharOperation.NO_CHAR;
+			return eofToken;
+		}
 		if(this.tokenCacheEOFIndex >= 0 && index > this.tokenCacheEOFIndex) {
 			return token(this.tokenCacheEOFIndex);
 		}
@@ -113,7 +136,7 @@ public class LexStream implements TerminalTokens {
 			while(tokensToRead-- != 0) {
 				readTokenFromScanner();
 			}
-		} else if(this.tokenCacheIndex - length > index) {
+		} else if(this.tokenCacheIndex - length >= index) {
 			return null;
 		}
 		
@@ -170,15 +193,78 @@ public class LexStream implements TerminalTokens {
 		return token(tokenIndex).end;
 	}
 	
+	public int flags(int tokenIndex) {
+		return token(tokenIndex).flags;
+	}
+	
 	public boolean isInsideStream(int index) {
 		if(this.tokenCacheEOFIndex >= 0 && index > this.tokenCacheEOFIndex) {
 			return false;
 		} else if(index > this.tokenCacheIndex) {
 			return true;
-		} else if(this.tokenCacheIndex - tokenCache.length > index) {
+		} else if(this.tokenCacheIndex - tokenCache.length >= index) {
 			return false;
 		} else {
 			return true;
 		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		StringBuffer res = new StringBuffer();
+		
+		String source = new String(scanner.source);
+		if(currentIndex < 0) {
+			res.append(source);
+		} else {
+			Token token = token(currentIndex);
+			int curtokKind = token.kind;
+			int curtokStart = token.start;
+			int curtokEnd = token.end;
+			
+			int previousEnd = -1;
+			for (int i = 0; i < intervalStartToSkip.length; i++) {
+				int intervalStart = intervalStartToSkip[i];
+				int intervalEnd = intervalEndToSkip[i];
+				
+				if(curtokStart >= previousEnd && curtokEnd <= intervalStart) {
+					res.append(source.substring(previousEnd + 1, curtokStart));
+					res.append('<');
+					res.append('#');
+					res.append(source.substring(curtokStart, curtokEnd + 1));
+					res.append('#');
+					res.append('>');
+					res.append(source.substring(curtokEnd+1, intervalStart));
+				} else {
+					res.append(source.substring(previousEnd + 1, intervalStart));
+				}
+				res.append('<');
+				res.append('@');
+				res.append(source.substring(intervalStart, intervalEnd + 1));
+				res.append('@');
+				res.append('>');
+				
+				previousEnd = intervalEnd;
+			}
+			if(curtokStart >= previousEnd) {
+				res.append(source.substring(previousEnd + 1, curtokStart));
+				res.append('<');
+				res.append('#');
+				if(curtokKind == TokenNameEOF) {
+					res.append("EOF#>"); //$NON-NLS-1$
+				} else {
+					res.append(source.substring(curtokStart, curtokEnd + 1));
+					res.append('#');
+					res.append('>');
+					res.append(source.substring(curtokEnd+1));
+				}
+			} else {
+				res.append(source.substring(previousEnd + 1));
+			}
+		}
+		
+		return res.toString();
 	}
 }

@@ -21,11 +21,12 @@ public class Initializer extends FieldDeclaration {
 	public Block block;
 	public int lastFieldID;
 	public int bodyStart;
+	public int bodyEnd;
 	public Initializer(Block block, int modifiers) {
 		this.block = block;
 		this.modifiers = modifiers;
 
-		declarationSourceStart = sourceStart = bodyStart = block.sourceStart;
+		declarationSourceStart = sourceStart = block.sourceStart;
 	}
 
 	public FlowInfo analyseCode(

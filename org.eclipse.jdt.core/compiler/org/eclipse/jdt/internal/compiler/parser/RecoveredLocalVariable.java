@@ -82,7 +82,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.
  */
-public RecoveredElement updateOnOpeningBrace(int currentPosition){
+public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	if (localDeclaration.declarationSourceEnd == 0 
 		&& localDeclaration.type instanceof ArrayTypeReference
 		&& !alreadyCompletedLocalInitialization){
@@ -90,8 +90,8 @@ public RecoveredElement updateOnOpeningBrace(int currentPosition){
 		return null; // no update is necessary	(array initializer)
 	}
 	// might be an array initializer
-	this.updateSourceEndIfNecessary(currentPosition - 1);	
-	return this.parent.updateOnOpeningBrace(currentPosition);	
+	this.updateSourceEndIfNecessary(braceStart - 1, braceEnd - 1);	
+	return this.parent.updateOnOpeningBrace(braceStart, braceEnd);	
 }
 public void updateParseTree(){
 	this.updatedStatement();
@@ -99,10 +99,10 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int sourceEnd){
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
 	if (this.localDeclaration.declarationSourceEnd == 0) {
-		this.localDeclaration.declarationSourceEnd = sourceEnd;
-		this.localDeclaration.declarationEnd = sourceEnd;	
+		this.localDeclaration.declarationSourceEnd = bodyEnd;
+		this.localDeclaration.declarationEnd = bodyEnd;	
 	}
 }
 }

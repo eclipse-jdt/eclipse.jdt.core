@@ -180,7 +180,7 @@ public abstract class Engine implements ITypeRequestor {
 				if (!(fields[i] instanceof Initializer))
 					continue;
 				Initializer initializer = (Initializer) fields[i];
-				if (initializer.bodyStart > position)
+				if (initializer.sourceStart > position)
 					continue;
 				if (initializer.declarationSourceEnd >= position) {
 					getParser().parseBlockStatements(initializer, type, unit);

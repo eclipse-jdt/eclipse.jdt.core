@@ -118,7 +118,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	}
 	/* method body should have been created */
 	Block block = new Block(0);
-	block.sourceStart = ((Initializer)fieldDeclaration).bodyStart;
+	block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
 	RecoveredElement element = this.add(block, 1);
 	return element.add(localDeclaration, bracketBalanceValue);	
 }
@@ -139,7 +139,7 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 	}
 	/* initializer body should have been created */
 	Block block = new Block(0);
-	block.sourceStart = ((Initializer)fieldDeclaration).bodyStart;
+	block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
 	RecoveredElement element = this.add(block, 1);
 	return element.add(statement, bracketBalanceValue);	
 }
@@ -158,7 +158,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	if (typeDeclaration instanceof LocalTypeDeclaration){
 		/* method body should have been created */
 		Block block = new Block(0);
-		block.sourceStart = ((Initializer)fieldDeclaration).bodyStart;
+		block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
 		RecoveredElement element = this.add(block, 1);
 		return element.add(typeDeclaration, bracketBalanceValue);	
 	}	
@@ -216,7 +216,7 @@ public FieldDeclaration updatedFieldDeclaration(){
  */
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if ((--bracketBalance <= 0) && (parent != null)){
-		this.updateSourceEndIfNecessary(braceEnd);
+		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 		return parent;
 	}
 	return this;
@@ -225,18 +225,19 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.
  */
-public RecoveredElement updateOnOpeningBrace(int currentPosition){
+public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	bracketBalance++;
 	return this; // request to restart
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int sourceEnd){
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
 	if (this.fieldDeclaration.declarationSourceEnd == 0) {
-		this.fieldDeclaration.sourceEnd = sourceEnd;
-		this.fieldDeclaration.declarationSourceEnd = sourceEnd;
-		this.fieldDeclaration.declarationEnd = sourceEnd;
+		this.fieldDeclaration.sourceEnd = bodyEnd;
+		this.fieldDeclaration.declarationSourceEnd = bodyEnd;
+		this.fieldDeclaration.declarationEnd = bodyEnd;
+		((Initializer)this.fieldDeclaration).bodyEnd = bodyStart - 1;	
 	}
 }
 }

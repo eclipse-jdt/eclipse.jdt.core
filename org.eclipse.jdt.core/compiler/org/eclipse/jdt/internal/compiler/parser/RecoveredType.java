@@ -444,7 +444,7 @@ public void updateFromParserState(){
  */
 public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if ((--bracketBalance <= 0) && (parent != null)){
-		this.updateSourceEndIfNecessary(braceEnd);
+		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 		this.bodyEnd = braceStart - 1;
 		return parent;
 	}
@@ -454,7 +454,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
  * An opening brace got consumed, might be the expected opening one of the current element,
  * in which case the bodyStart is updated.
  */
-public RecoveredElement updateOnOpeningBrace(int braceEnd){
+public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	/* in case the opening brace is not close enough to the signature, ignore it */
 	if (bracketBalance == 0){
 		/*
@@ -484,9 +484,10 @@ public RecoveredElement updateOnOpeningBrace(int braceEnd){
 			init = new Initializer(block, AccStatic);
 			init.declarationSourceStart = parser.recoveredStaticInitializerStart;
 		}
+		init.bodyStart = parser.scanner.currentPosition;
 		return this.add(init, 1);
 	}
-	return super.updateOnOpeningBrace(braceEnd);
+	return super.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
 	this.updatedTypeDeclaration();
@@ -494,11 +495,11 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int sourceEnd){
+public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
 	if (this.typeDeclaration.declarationSourceEnd == 0){
 		this.bodyEnd = 0;
-		this.typeDeclaration.declarationSourceEnd = sourceEnd;
-		this.typeDeclaration.bodyEnd = sourceEnd;
+		this.typeDeclaration.declarationSourceEnd = bodyEnd;
+		this.typeDeclaration.bodyEnd = bodyEnd;
 	}
 }
 }

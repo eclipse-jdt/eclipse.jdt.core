@@ -616,7 +616,7 @@ private boolean checkClassLiteralAccess() {
 			this.identifierLengthPtr--; // it can only be a simple identifier (so its length is one)
 			
 			// get the type reference
-			TypeReference typeRef = getTypeReference(this.intPtr--);
+			TypeReference typeRef = getTypeReference(this.intStack[this.intPtr--]);
 			
 			// build the completion on class literal access node
 			CompletionOnClassLiteralAccess access = new CompletionOnClassLiteralAccess(pos, typeRef);

@@ -708,22 +708,24 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
 			
 			if (statements != null || explicitConstructorCall != null) {
-				Block block = this.ast.newBlock();
 				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
-				block.setSourceRange(start, end - start + 1);
-				if (explicitConstructorCall != null && explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
-					block.statements().add(convert(explicitConstructorCall));
-				}
-				int statementsLength = statements == null ? 0 : statements.length;
-				for (int i = 0; i < statementsLength; i++) {
-					if (statements[i] instanceof LocalDeclaration) {
-						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
-					} else {
-						block.statements().add(convert(statements[i]));
+				if (start != -1 && end != -1) {
+					Block block = this.ast.newBlock();
+					block.setSourceRange(start, end - start + 1);
+					if (explicitConstructorCall != null && explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
+						block.statements().add(convert(explicitConstructorCall));
 					}
+					int statementsLength = statements == null ? 0 : statements.length;
+					for (int i = 0; i < statementsLength; i++) {
+						if (statements[i] instanceof LocalDeclaration) {
+							checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
+						} else {
+							block.statements().add(convert(statements[i]));
+						}
+					}
+					methodDecl.setBody(block);
 				}
-				methodDecl.setBody(block);
 			} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
 				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 				end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);

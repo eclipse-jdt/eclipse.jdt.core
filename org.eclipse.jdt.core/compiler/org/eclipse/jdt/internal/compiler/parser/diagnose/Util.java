@@ -15,19 +15,33 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
 public class Util {
+	private static final int INITIAL_SIZE = 10;
+	
+	// flags
+	public static final int NO_FLAG = 0;
+	public static final int LBRACE_MISSING = 1;
+	
 	private static int pos;
 	private static int[] intervalStarts;
 	private static int[] intervalEnds;
+	private static int[] intervalFlags;
 	
 	private static void addInterval(int start, int end){
+		addInterval(start, end, 0);
+	}
+	
+	private static void addInterval(int start, int end, int flags){
 		if(pos >= intervalStarts.length) {
 			System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos * 2], 0, pos);
 			System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos * 2], 0, pos);
+			System.arraycopy(intervalFlags, 0, intervalFlags = new int[pos * 2], 0, pos);
 		}
 		intervalStarts[pos] = start;
 		intervalEnds[pos] = end;
+		intervalFlags[pos] = flags;
 		pos++;
 	}
 	
@@ -35,7 +49,7 @@ public class Util {
 		return i1 - i2;
 	}
 	
-	private static void quickSort(int[] list, int[] list2, int left, int right) {
+	private static void quickSort(int[] list, int[] list2, int[] list3, int left, int right) {
 		int original_left= left;
 		int original_right= right;
 		int mid= list[(left + right) / 2];
@@ -55,36 +69,43 @@ public class Util {
 				list2[left]= list2[right];
 				list2[right]= tmp;
 				
+				tmp = list3[left];
+				list3[left]= list3[right];
+				list3[right]= tmp;
+				
 				left++;
 				right--;
 			}
 		} while (left <= right);
 		
 		if (original_left < right) {
-			quickSort(list, list2, original_left, right);
+			quickSort(list, list2, list3, original_left, right);
 		}
 		if (left < original_right) {
-			quickSort(list, list2, left, original_right);
+			quickSort(list, list2, list3, left, original_right);
 		}
 	}
 	public static int[][] computeDietRange(TypeDeclaration[] types) {
 		if(types == null || types.length == 0) {
-			return new int[2][0];
+			return new int[3][0];
 		} else {
 			pos = 0;
-			intervalStarts = new int[10];
-			intervalEnds = new int[10];
+			intervalStarts = new int[INITIAL_SIZE];
+			intervalEnds = new int[INITIAL_SIZE];
+			intervalFlags = new int[INITIAL_SIZE];
 			computeDietRange0(types);
 			
 			System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos], 0, pos);
 			System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos], 0, pos);
+			System.arraycopy(intervalFlags, 0, intervalFlags = new int[pos], 0, pos);
 
 			if (intervalStarts.length > 1) {
-				quickSort(intervalStarts, intervalEnds, 0, intervalStarts.length - 1);
+				quickSort(intervalStarts, intervalEnds, intervalFlags, 0, intervalStarts.length - 1);
 			}
-			int[][] res = new int[][]{intervalStarts, intervalEnds};
+			int[][] res = new int[][]{intervalStarts, intervalEnds, intervalFlags};
 			intervalStarts = null;
 			intervalEnds = null;
+			intervalFlags = null;
 			return res;
 		}
 	}
@@ -102,8 +123,12 @@ public class Util {
 				int length = methods.length;
 				for (int i = 0; i < length; i++) {
 					AbstractMethodDeclaration method = methods[i];
-					if(!method.isDefaultConstructor() && !method.isClinit()) {
-						addInterval(method.bodyStart, method.bodyEnd);
+					if(!method.isDefaultConstructor()
+						&& !method.isClinit()
+						&& (method.modifiers & CompilerModifiers.AccSemicolonBody) == 0) {
+						
+						int flags = method.sourceEnd + 1 == method.bodyStart ? LBRACE_MISSING : NO_FLAG;
+						addInterval(method.bodyStart, method.bodyEnd, flags);
 					}
 				}
 			}
@@ -115,7 +140,7 @@ public class Util {
 				for (int i = 0; i < length; i++) {
 					if (fields[i] instanceof Initializer) {
 						Initializer initializer = (Initializer)fields[i];
-						addInterval(initializer.sourceStart, initializer.sourceEnd);
+						addInterval(initializer.bodyStart, initializer.bodyEnd);
 					}
 				}
 			}
@@ -125,12 +150,22 @@ public class Util {
 	public static boolean isInInterval(int start, int end, int[] intervalStart, int[] intervalEnd) {
 		int length = intervalStart.length;
 		for (int i = 0; i < length; i++) {
-			if(intervalStart[i] < start && intervalEnd[i] > end) {
+			if(intervalStart[i] <= start && intervalEnd[i] >= end) {
 				return true;
 			} else if(intervalStart[i] > end) {
 				return false;
 			}
 		}
 		return false;
+	}
+	
+	public static int getPreviousInterval(int start, int end, int[] intervalStart, int[] intervalEnd) {
+		int length = intervalStart.length;
+		for (int i = 0; i < length; i++) {
+			if(intervalStart[i] > end) {
+				return i - 1;
+			}
+		}
+		return length - 1;
 	}
 }
