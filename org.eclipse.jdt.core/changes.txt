@@ -113,6 +113,8 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  3430      usability: parameter hints (1GKYXK5)  
+  3431      Unreachable code in JCore (1GL2V6K)  
   3175      JCK1.3a - ICLS - Comparing current instance against enclosing instance inside of anonymous class. (1GLDSBS)  
   1GLBOJZ:  ITPJCORE:WIN2000 - UnaryExpression doesn't store expression type in bit mask
   1GDS7IP:  ITPJCORE:WIN2000 - VerifyError related to a local index computation
@@ -122,6 +124,7 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3223      Search from editor's context menu doesn't work (1GAJCD8)    
   3433		search: missing field occurrecnces (1GKZ8J6)  
   3176      JCK1.3a - STMT - Single declaration in try block (1GLDSH9)  
   1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types
