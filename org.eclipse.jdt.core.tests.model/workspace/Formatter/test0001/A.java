@@ -14,6 +14,6 @@ public abstract /* */ class A extends java.lang.Object implements Runnable, Clon
 	public void run() {
 	}
 	
-	public void foo() throws IOException {
+	public static void foo() throws IOException {
 	}
 }
