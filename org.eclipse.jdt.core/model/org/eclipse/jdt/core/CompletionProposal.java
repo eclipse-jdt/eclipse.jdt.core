@@ -31,8 +31,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  * The proposal is as follows: insert
  * the {@linkplain #getCompletion() completion string} into the
  * source file buffer, replacing the characters between 
- * {@linkplain #getReplaceStart()() the start}
- * and {@linkplain #getReplaceEnd()() end}. The string
+ * {@linkplain #getReplaceStart() the start}
+ * and {@linkplain #getReplaceEnd() end}. The string
  * can be arbitrary; for example, it might include not only the 
  * name of a method but a set of parentheses. Moreover, the source
  * range may include source positions before or after the source
@@ -429,7 +429,7 @@ public final class CompletionProposal {
 				|| (kind > CompletionProposal.VARIABLE_DECLARATION)) {
 			throw new IllegalArgumentException();
 		}
-		if (completion == null || completionLocation < 0) {
+		if (this.completion == null || completionLocation < 0) {
 			throw new IllegalArgumentException();
 		}
 		this.completionKind = kind;
@@ -880,7 +880,7 @@ public final class CompletionProposal {
 	 * or not available or not relevant
 	 */
 	public char[][] findParameterNames(IProgressMonitor monitor) {
-		if (!parameterNamesComputed) {
+		if (!this.parameterNamesComputed) {
 			this.parameterNamesComputed = true;
 			// TODO (jerome) - Missing implementation
 		}

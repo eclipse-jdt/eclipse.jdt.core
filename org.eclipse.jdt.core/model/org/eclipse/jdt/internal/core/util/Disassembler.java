@@ -408,14 +408,22 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileDisassembler#disassemble(org.eclipse.jdt.core.util.IClassFileReader, java.lang.String)
+	 * @see #disassemble(org.eclipse.jdt.core.util.IClassFileReader, java.lang.String, int)
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator) {
 		return disassemble(classFileReader, lineSeparator, ClassFileBytesDisassembler.DEFAULT);
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileDisassembler#disassemble(org.eclipse.jdt.core.util.IClassFileReader, java.lang.String, int)
+	 * Answers back the disassembled string of the IClassFileReader according to the
+	 * mode.
+	 * This is an output quite similar to the javap tool.
+	 * 
+	 * @param classFileReader The classFileReader to be disassembled
+	 * @param lineSeparator the line separator to use.
+	 * @param mode the mode used to disassemble the IClassFileReader
+	 * 
+	 * @return the disassembled string of the IClassFileReader according to the mode
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode) {
 		if (classFileReader == null) return EMPTY_OUTPUT;

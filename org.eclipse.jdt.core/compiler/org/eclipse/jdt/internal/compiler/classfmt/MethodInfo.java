@@ -41,7 +41,7 @@ public MethodInfo (byte classFileBytes[], int offsets[], int offset) {
 	attributeBytes = readOffset;
 }
 /**
- * @see IGenericMethod#getArgumentNames()
+ * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
  */
 public char[][] getArgumentNames() {
 	return null;

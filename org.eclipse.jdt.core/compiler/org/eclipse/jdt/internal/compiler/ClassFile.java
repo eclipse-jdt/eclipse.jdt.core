@@ -552,7 +552,7 @@ public class ClassFile
 	 * INTERNAL USE-ONLY
 	 * This methods stores the bindings for each inner class. They will be used to know which entries
 	 * have to be generated for the inner classes attributes.
-	 * @param referenceBinding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding 
+	 * @param refBinding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding 
 	 */
 	public void addInnerClasses(ReferenceBinding refBinding) {
 		// check first if that reference binding is there
@@ -576,7 +576,7 @@ public class ClassFile
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem clinit method info that correspond to a boggus method.
 	 *
-	 * @param problem org.eclipse.jdt.internal.compiler.problem.Problem[]
+	 * @param problems org.eclipse.jdt.internal.compiler.problem.Problem[]
 	 */
 	public void addProblemClinit(IProblem[] problems) {
 		generateMethodInfoHeaderForClinit();
@@ -633,7 +633,7 @@ public class ClassFile
 	 *
 	 * @param method org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding
-	 * @param problem org.eclipse.jdt.internal.compiler.problem.Problem[]
+	 * @param problems org.eclipse.jdt.internal.compiler.problem.Problem[]
 	 */
 	public void addProblemConstructor(
 		AbstractMethodDeclaration method,
@@ -694,7 +694,7 @@ public class ClassFile
 	 *
 	 * @param method org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding
-	 * @param problem org.eclipse.jdt.internal.compiler.problem.Problem[]
+	 * @param problems org.eclipse.jdt.internal.compiler.problem.Problem[]
 	 * @param savedOffset <CODE>int</CODE>
 	 */
 	public void addProblemConstructor(
@@ -714,7 +714,7 @@ public class ClassFile
 	 *
 	 * @param method org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding
-	 * @param problem org.eclipse.jdt.internal.compiler.problem.Problem[]
+	 * @param problems org.eclipse.jdt.internal.compiler.problem.Problem[]
 	 */
 	public void addProblemMethod(
 		AbstractMethodDeclaration method,
@@ -782,7 +782,7 @@ public class ClassFile
 	 *
 	 * @param method org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding
-	 * @param problem org.eclipse.jdt.internal.compiler.problem.Problem[]
+	 * @param problems org.eclipse.jdt.internal.compiler.problem.Problem[]
 	 * @param savedOffset <CODE>int</CODE>
 	 */
 	public void addProblemMethod(
@@ -1218,7 +1218,6 @@ public class ClassFile
 	 * - exception table
 	 * - and debug attributes if necessary.
 	 *
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
 	public void completeCodeAttribute(int codeAttributeOffset) {
@@ -1489,7 +1488,6 @@ public class ClassFile
 	 * - exception table
 	 * - and debug attributes if necessary.
 	 *
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
 	public void completeCodeAttributeForClinit(int codeAttributeOffset) {
@@ -1738,10 +1736,8 @@ public class ClassFile
 	 * - exception table
 	 * - and debug attributes if necessary.
 	 *
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param codeAttributeOffset <CODE>int</CODE>
-	 * @param exceptionHandler int[]
-	 * @param startIndexes int[]
+	 * @param startLineIndexes int[]
 	 */
 	public void completeCodeAttributeForClinit(
 		int codeAttributeOffset,
@@ -1875,9 +1871,7 @@ public class ClassFile
 	 * - exception table
 	 * - and debug attributes if necessary.
 	 *
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param codeAttributeOffset <CODE>int</CODE>
-	 * @param exceptionHandler int[] 
 	 */
 	public void completeCodeAttributeForProblemMethod(
 		AbstractMethodDeclaration method,
@@ -2122,7 +2116,6 @@ public class ClassFile
 	 * - and debug attributes if necessary.
 	 *
 	 * @param binding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
 	public void completeCodeAttributeForSyntheticAccessMethod(
@@ -2602,8 +2595,6 @@ public class ClassFile
 	 * - the access flags (always default access + static)
 	 * - the name index of the method name (always <clinit>) inside the constant pool 
 	 * - the descriptor index of the signature (always ()V) of the method inside the constant pool.
-	 *
-	 * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
 	 */
 	public void generateMethodInfoHeaderForClinit() {
 		// check that there is enough space to write all the bytes for the method info corresponding

@@ -664,7 +664,7 @@ public int literalIndex(byte[] utf8encoding, char[] stringCharArray) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param char[] stringName
+ * @param utf8Constant char[]
  * @return <CODE>int</CODE>
  */
 public int literalIndex(char[] utf8Constant) {
@@ -742,7 +742,7 @@ public int literalIndex(char[] stringCharArray, byte[] utf8encoding) {
  * value. If the double is not already present into the pool, it is added. The 
  * double cache is updated and it returns the right index.
  *
- * @param <CODE>double</CODE> key
+ * @param key <CODE>double</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(double key) {
@@ -783,7 +783,7 @@ public int literalIndex(double key) {
  * value. If the float is not already present into the pool, it is added. The 
  * int cache is updated and it returns the right index.
  *
- * @param <CODE>float</CODE> key
+ * @param key <CODE>float</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(float key) {
@@ -821,7 +821,7 @@ public int literalIndex(float key) {
  * value. If the int is not already present into the pool, it is added. The 
  * int cache is updated and it returns the right index.
  *
- * @param <CODE>int</CODE> key
+ * @param key <CODE>int</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(int key) {
@@ -858,7 +858,7 @@ public int literalIndex(int key) {
  * value. If the long is not already present into the pool, it is added. The 
  * long cache is updated and it returns the right index.
  *
- * @param <CODE>long</CODE> key
+ * @param key <CODE>long</CODE>
  * @return <CODE>int</CODE>
  */
 public int literalIndex(long key) {
@@ -920,7 +920,7 @@ public int literalIndex(String stringConstant) {
  * This method returns the index into the constantPool 
  * corresponding to the field binding aFieldBinding.
  *
- * @param FieldBinding aFieldBinding
+ * @param aFieldBinding FieldBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(FieldBinding aFieldBinding) {
@@ -963,7 +963,7 @@ public int literalIndex(FieldBinding aFieldBinding) {
  * or a method reference constant.
  * Note: uses the method binding #constantPoolDeclaringClass which could be an array type
  * for the array clone method (see UpdatedMethodDeclaration).
- * @param MethodBinding aMethodBinding
+ * @param aMethodBinding MethodBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(MethodBinding aMethodBinding) {
@@ -1049,7 +1049,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
+ * @param aTypeBinding TypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndex(TypeBinding aTypeBinding) {
@@ -1087,9 +1087,9 @@ public int literalIndex(TypeBinding aTypeBinding) {
  * This method returns the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeIndex.
  *
- * @param int nameIndex
- * @param int nameIndex
- * @param org.eclipse.jdt.internal.compiler.lookup.FieldBinding a FieldBinding
+ * @param nameIndex int
+ * @param typeIndex int
+ * @param key org.eclipse.jdt.internal.compiler.lookup.FieldBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key) {
@@ -1123,7 +1123,6 @@ public int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key)
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangBoolean() {
@@ -1176,7 +1175,6 @@ public int literalIndexForJavaLangBooleanTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangByte() {
@@ -1229,7 +1227,6 @@ public int literalIndexForJavaLangByteTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangCharacter() {
@@ -1282,7 +1279,6 @@ public int literalIndexForJavaLangCharacterTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangClass() {
@@ -1412,7 +1408,6 @@ public int literalIndexForJavaLangClassGetComponentType() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangClassNotFoundException() {
@@ -1434,7 +1429,6 @@ public int literalIndexForJavaLangClassNotFoundException() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangDouble() {
@@ -1487,7 +1481,6 @@ public int literalIndexForJavaLangDoubleTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangError() {
@@ -1560,7 +1553,6 @@ public int literalIndexForJavaLangException() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangFloat() {
@@ -1613,7 +1605,6 @@ public int literalIndexForJavaLangFloatTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangInteger() {
@@ -1666,7 +1657,6 @@ public int literalIndexForJavaLangIntegerTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangLong() {
@@ -1719,7 +1709,6 @@ public int literalIndexForJavaLangLongTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangNoClassDefFoundError() {
@@ -1742,7 +1731,6 @@ public int literalIndexForJavaLangNoClassDefFoundError() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangAssertionError() {
@@ -1765,7 +1753,7 @@ public int literalIndexForJavaLangAssertionError() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
+ * @param typeBindingID int
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangAssertionErrorConstructor(int typeBindingID) {
@@ -2026,7 +2014,6 @@ public int literalIndexForJavaLangNoClassDefFoundErrorStringConstructor() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangObject() {
@@ -2048,7 +2035,6 @@ public int literalIndexForJavaLangObject() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangReflectConstructor() {
@@ -2099,7 +2085,6 @@ public int literalIndexForJavaLangReflectConstructorNewInstance() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangShort() {
@@ -2152,7 +2137,6 @@ public int literalIndexForJavaLangShortTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangString() {
@@ -2174,7 +2158,6 @@ public int literalIndexForJavaLangString() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangStringBuffer() {
@@ -2728,7 +2711,6 @@ public int literalIndexForJavaLangStringValueOf(int typeID) {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangSystem() {
@@ -2817,7 +2799,6 @@ public int literalIndexForJavaLangSystemOut() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangThrowable() {
@@ -2875,7 +2856,6 @@ public int literalIndexForJavaLangThrowableGetMessage() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForJavaLangVoid() {
@@ -2928,7 +2908,7 @@ public int literalIndexForJavaLangVoidTYPE() {
 /**
  * This method returns the index into the constantPool corresponding to the type descriptor.
  *
- * @param char[] stringName
+ * @param stringCharArray char[]
  * @return <CODE>int</CODE>
  */
 public int literalIndexForLdc(char[] stringCharArray) {
@@ -2999,9 +2979,9 @@ public int literalIndexForLdc(char[] stringCharArray) {
  * This method returns the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeIndex.
  *
- * @param int nameIndex
- * @param int nameIndex
- * @param org.eclipse.jdt.internal.compiler.lookup.MethodBinding a methodBinding
+ * @param nameIndex int
+ * @param typeIndex int
+ * @param key org.eclipse.jdt.internal.compiler.lookup.MethodBinding
  * @return <CODE>int</CODE>
  */
 public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding key) {
@@ -3087,7 +3067,7 @@ public void resetForClinit(int constantPoolIndex, int constantPoolOffset) {
 /**
  * Write a unsigned byte into the byte array
  * 
- * @param <CODE>int</CODE> The value to write into the byte array
+ * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU1(int value) {
 	try {
@@ -3102,7 +3082,7 @@ protected final void writeU1(int value) {
 /**
  * Write a unsigned byte into the byte array
  * 
- * @param <CODE>int</CODE> The value to write into the byte array
+ * @param value <CODE>int</CODE> The value to write into the byte array
  */
 protected final void writeU2(int value) {
 	//first byte

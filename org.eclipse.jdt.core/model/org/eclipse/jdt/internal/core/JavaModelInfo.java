@@ -17,7 +17,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
  * Implementation of IJavaModel. A Java Model is specific to a
  * workspace.
  *
- * @see IJavaModel
+ * @see org.eclipse.jdt.core.IJavaModel
  */
 public class JavaModelInfo extends OpenableElementInfo {
 

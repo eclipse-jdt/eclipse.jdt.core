@@ -130,7 +130,7 @@ protected int matchMethod(MethodBinding method) {
 	return level;
 }
 /**
- * @see SearchPattern#matchReportReference
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
  */
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedMethodsPattern) {

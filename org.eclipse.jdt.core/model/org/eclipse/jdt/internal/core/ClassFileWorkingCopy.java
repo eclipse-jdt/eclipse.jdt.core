@@ -453,7 +453,7 @@ public IType findPrimaryType() {
 	}
 
 	/**
-	 * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory)
+	 * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
 	 * @deprecated
 	 */
 	public IJavaElement getSharedWorkingCopy(
@@ -487,8 +487,8 @@ public IType findPrimaryType() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/**
-	 * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.ICompilationUnit#getWorkingCopy(org.eclipse.jdt.core.WorkingCopyOwner, org.eclipse.jdt.core.IProblemRequestor, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
@@ -530,8 +530,8 @@ public IType findPrimaryType() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	
-	/**
-	 * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.IWorkingCopy#reconcile(boolean, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public void reconcile(
 		boolean forceProblemDetection,
@@ -540,7 +540,7 @@ public IType findPrimaryType() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/**
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IWorkingCopy#restore()
 	 */
 	public void restore() throws JavaModelException {

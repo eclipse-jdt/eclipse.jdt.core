@@ -150,7 +150,7 @@ protected DOMNode newDOMNode() {
 	return new DOMImport();
 }
 /**
- * @see IDOMNode#setName(char[])
+ * @see IDOMNode#setName(String)
  */
 public void setName(String name) {
 	if (name == null) {

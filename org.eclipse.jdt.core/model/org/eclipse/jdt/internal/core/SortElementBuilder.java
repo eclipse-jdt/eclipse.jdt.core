@@ -982,7 +982,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 	
 	void sort() {
-		compilationUnit.sort();
+		this.compilationUnit.sort();
 	}
 
 	void mapNextPosition(SortJavaElement node, int start, int end) {
@@ -999,7 +999,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		this.positionsToMapIndex = i;
 	}
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterClass(int, int, char, int, int, char, char)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterClass(int, int, char[], int, int, char[], char[][])
 	 */
 	public void enterClass(
 		int declarationStart,
@@ -1019,11 +1019,11 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	 */
 	public void enterCompilationUnit() {
 		this.stack = new Stack();
-		push(compilationUnit = new SortCompilationUnit(0));
+		push(this.compilationUnit = new SortCompilationUnit(0));
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterConstructor(int, int, char, int, int, char, char, char)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterConstructor(int, int, char[], int, int, char[][], char[][], char[][])
 	 */
 	public void enterConstructor(
 		int declarationStart,
@@ -1042,7 +1042,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterField(int, int, char, char, int, int)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterField(int, int, char[], char[], int, int)
 	 */
 	public void enterField(
 		int declarationStart,
@@ -1084,7 +1084,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterInterface(int, int, char, int, int, char)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterInterface(int, int, char[], int, int, char[][])
 	 */
 	public void enterInterface(
 		int declarationStart,
@@ -1099,7 +1099,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterMethod(int, int, char, char, int, int, char, char, char)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterMethod(int, int, char[], char[], int, int, char[][], char[][], char[][])
 	 */
 	public void enterMethod(
 		int declarationStart,
@@ -1141,7 +1141,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#exitField(int, int)
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#exitField(int, int, int)
 	 */
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		int normalizedDeclarationSourceEnd = this.normalizeSourceEnd(declarationSourceEnd);

@@ -331,7 +331,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
      * This method adds all files in the given
      * directories (but not in sub-directories!) to the classpath,
      * so that you don't have to specify them all one by one.
-     * @param extdirs - Path to append files to
+     * @param extDirs - Path to append files to
      */
     private void addExtdirs(Path extDirs, Path classpath) {
         if (extDirs == null) {

@@ -184,8 +184,6 @@ public String[] getPossibleValues() {
  *
  * In case the set of possibleValues is NoDiscreteValue, then this index is the
  * actual value (e.g. max line lenght set to 80).
- *
- * @return int
  */
 public void setValueIndex(int newIndex) {
 	currentValueIndex = newIndex;

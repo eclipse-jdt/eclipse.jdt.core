@@ -40,7 +40,7 @@ public CreateFieldOperation(IType parentElement, String source, boolean force) {
 	super(parentElement, source, force);
 }
 /**
- * @see CreateTypeMemberOperation#generateElementDOM
+ * @see CreateTypeMemberOperation#generateSyntaxIncorrectDOM()
  * @deprecated JDOM is obsolete
  */
 // TODO - JDOM - remove once model ported off of JDOM

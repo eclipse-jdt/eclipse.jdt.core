@@ -136,7 +136,7 @@ public CharArrayBuffer append(char[] src, int start, int length) {
 /**
  * Appends the given char.  Given for convenience.
  *
- * @param src - a char which is appended to the end of the buffer.
+ * @param c - a char which is appended to the end of the buffer.
  */
 public CharArrayBuffer append(char c) {
 	append(new char[] {c}, 0, 1);

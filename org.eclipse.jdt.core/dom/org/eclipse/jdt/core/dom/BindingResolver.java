@@ -51,7 +51,7 @@ class BindingResolver {
 	 * </p>
 	 * 
 	 * @param newNode the new AST node
-	 * @param oldNode the old AST node
+	 * @param oldASTNode the old AST node
 	 */
 	void store(ASTNode newNode, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
 		// default implementation: do nothing
@@ -674,7 +674,7 @@ class BindingResolver {
 	 * Subclasses may reimplement.
 	 * </p>
 	 * 
-	 * @param variableBinding the old variable binding
+	 * @param binding the old variable binding
 	 * @return the new variable binding
 	 */
 	IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {

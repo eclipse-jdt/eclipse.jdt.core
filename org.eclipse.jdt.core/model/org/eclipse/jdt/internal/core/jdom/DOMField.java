@@ -546,7 +546,7 @@ protected void setHasInitializer(boolean hasInitializer) {
 	setMask(MASK_FIELD_HAS_INITIALIZER, hasInitializer);
 }
 /**
- * @see IDOMField#setInitializer(char[])
+ * @see IDOMField#setInitializer(String)
  */
 public void setInitializer(String initializer) {
 	becomeDetailed();
@@ -570,7 +570,7 @@ protected void setIsVariableDeclarator(boolean isVariableDeclarator) {
 	setMask(MASK_FIELD_IS_VARIABLE_DECLARATOR, isVariableDeclarator);
 }
 /**
- * @see IDOMField#setName(char[])
+ * @see IDOMField#setName(String)
  */
 public void setName(String name) throws IllegalArgumentException {
 	if (name == null) {
@@ -581,7 +581,7 @@ public void setName(String name) throws IllegalArgumentException {
 	}
 }
 /**
- * @see IDOMField#setType(char[])
+ * @see IDOMField#setType(String)
  */
 public void setType(String typeName) throws IllegalArgumentException {
 	if (typeName == null) {

@@ -242,7 +242,7 @@ public int accessFlags() {
  * Answer the char array that corresponds to the class name of the constant class.
  * constantPoolIndex is the index in the constant pool that is a constant class entry.
  *
- * @param int constantPoolIndex
+ * @param constantPoolIndex int
  * @return char[]
  */
 private char[] getConstantClassNameAt(int constantPoolIndex) {
@@ -575,7 +575,7 @@ public boolean hasStructuralChanges(byte[] newBytes) {
  * If any of these changes occurs, the method returns true. false otherwise.
  * @param newBytes the bytes of the .class file we want to compare the receiver to
  * @param orderRequired a boolean indicating whether the members should be sorted or not
- * @param excludesSynthetics a boolean indicating whether the synthetic members should be used in the comparison
+ * @param excludesSynthetic a boolean indicating whether the synthetic members should be used in the comparison
  * @return boolean Returns true is there is a structural change between the two .class files, false otherwise
  */
 public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, boolean excludesSynthetic) {

@@ -37,7 +37,7 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	
 	/**
 	 * @param classFileBytes byte[]
-	 * @param offsets int[]
+	 * @param constantPool IConstantPool
 	 * @param offset int
 	 */
 	public FieldInfo(byte classFileBytes[], IConstantPool constantPool, int offset)
@@ -65,7 +65,7 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 			this.attributes = new IClassFileAttribute[this.attributesCount];
 		}
 		int attributesIndex = 0;
-		for (int i = 0; i < attributesCount; i++) {
+		for (int i = 0; i < this.attributesCount; i++) {
 			constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
@@ -86,7 +86,7 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
 
-		attributeBytes = readOffset;
+		this.attributeBytes = readOffset;
 	}
 	/**
 	 * @see IFieldInfo#getAccessFlags()
@@ -138,7 +138,7 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	}
 
 	int sizeInBytes() {
-		return attributeBytes;
+		return this.attributeBytes;
 	}
 	/**
 	 * @see IFieldInfo#getAttributeCount()

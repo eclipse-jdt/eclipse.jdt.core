@@ -83,7 +83,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 			return this.isConstructor;
 		}
 		/**
-		 * @see IGenericMethod#getArgumentNames()
+		 * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
 		 */
 		public char[][] getArgumentNames() {
 			return null;

@@ -44,7 +44,7 @@ public CreateInitializerOperation(IType parentElement, String source) {
 	super(parentElement, source, false);
 }
 /**
- * @see CreateTypeMemberOperation#generateElementDOM
+ * @see CreateTypeMemberOperation#generateSyntaxIncorrectDOM()
  * @deprecated JDOM is obsolete
  */
 // TODO - JDOM - remove once model ported off of JDOM

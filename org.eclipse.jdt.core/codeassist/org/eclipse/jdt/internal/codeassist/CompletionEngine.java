@@ -871,7 +871,7 @@ public final class CompletionEngine
 	 * Ask the engine to compute a completion at the specified position
 	 * of the given compilation unit.
 	 *
-	 *  @return void
+	 *  No return
 	 *      completion results are answered through a requestor.
 	 *
 	 *  @param sourceUnit org.eclipse.jdt.internal.compiler.env.ICompilationUnit

@@ -140,7 +140,7 @@ class DefaultCommentMapper {
 
 	/**
 	 * Returns the extended start position of the given node. Unlike
-	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()},
 	 * the extended source range may include comments and whitespace
 	 * immediately before or after the normal source range for the node.
 	 * 
@@ -177,7 +177,7 @@ class DefaultCommentMapper {
 
 	/**
 	 * Returns the extended source length of the given node. Unlike
-	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()},
 	 * the extended source range may include comments and whitespace
 	 * immediately before or after the normal source range for the node.
 	 * 

@@ -202,7 +202,7 @@ public void acceptProblem(IProblem problem) {
 }
 /**
  * Convert these type names to signatures.
- * @see Signature.
+ * @see Signature
  */
 /* default */ static String[] convertTypeNamesToSigs(char[][] typeNames) {
 	if (typeNames == null)

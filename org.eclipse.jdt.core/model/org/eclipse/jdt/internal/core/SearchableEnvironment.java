@@ -150,7 +150,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment#findType(char[], char[][])
+	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#findType(char[], char[][])
 	 */
 	public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
 		if (name == null) return null;

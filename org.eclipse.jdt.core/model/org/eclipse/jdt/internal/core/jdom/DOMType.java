@@ -350,7 +350,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 	
 }
 /**
- * @see DOMNode#appendSimpleContents(CharArrayBuffer)
+ * @see DOMMember#appendSimpleContents(CharArrayBuffer)
  */
 protected void appendSimpleContents(CharArrayBuffer buffer) {
 	// append eveything before my name
@@ -642,7 +642,7 @@ void setCloseBodyRangeStart(int start) {
  * as fragmented, since the names of the constructors must reflect the name
  * of this type.
  *
- * @see IDOMNode#setName(char[])
+ * @see IDOMNode#setName(String)
  */
 public void setName(String name) throws IllegalArgumentException {
 	if (name == null) {
@@ -670,7 +670,7 @@ void setOpenBodyRangeStart(int start) {
 	fOpenBodyRange[0] = start;
 }
 /**
- * @see IDOMType#setSuperclass(char[])
+ * @see IDOMType#setSuperclass(String)
  */
 public void setSuperclass(String superclassName) {
 	becomeDetailed();

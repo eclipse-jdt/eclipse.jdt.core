@@ -235,9 +235,6 @@ public int getFlags() {
 /**
  * Returns the location of the first character in the member's declaration
  * section.
- *
- * @see DOMMember#getMemberDeclarationContents()
- * @see DOMMember#getFragmentedContents()
  */
 protected abstract int getMemberDeclarationStartPosition();
 /**

@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class DeleteElementsOperation extends MultiOperation {
 	/**
 	 * The elements this operation processes grouped by compilation unit
-	 * @see processElements(). Keys are compilation units,
+	 * @see #processElements() Keys are compilation units,
 	 * values are <code>IRegion</code>s of elements to be processed in each
 	 * compilation unit.
 	 */ 

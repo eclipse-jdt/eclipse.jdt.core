@@ -1843,7 +1843,7 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
 /**
  * The equivalent code performs a string conversion:
  *
- * @param oper1 org.eclipse.jdt.internal.compiler.lookup.BlockScope
+ * @param blockScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
  * @param oper1 org.eclipse.jdt.internal.compiler.ast.Expression
  * @param oper2 org.eclipse.jdt.internal.compiler.ast.Expression
  */
@@ -1941,8 +1941,7 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 }
 
 /**
- * @param parameters org.eclipse.jdt.internal.compiler.lookup.TypeBinding[]
- * @param constructorBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
+ * @param accessBinding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
  */
 public void generateSyntheticBodyForConstructorAccess(SyntheticAccessMethodBinding accessBinding) {
 
@@ -2919,8 +2918,7 @@ public void init(ClassFile targetClassFile) {
 	position = 0;
 }
 /**
- * @param methodDeclaration org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
- * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
+ * @param methodBinding org.eclipse.jdt.internal.compiler.ast.MethodBinding
  */
 public void initializeMaxLocals(MethodBinding methodBinding) {
 
@@ -2966,7 +2964,9 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
  * Otherwise it returns the index where the entry for the pc has to be inserted.
  * This is based on the fact that the pcToSourceMap table is sorted according to the pc.
  *
- * @param int pc
+ * @param pcToSourceMap int[]
+ * @param length int
+ * @param pc int
  * @return int
  */
 public static int insertionIndex(int[] pcToSourceMap, int length, int pc) {
@@ -5005,8 +5005,8 @@ public final void removeNotDefinitelyAssignedVariables(Scope scope, int initStat
 	}
 }
 /**
- * @param methodDeclaration org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
- * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
+ * @param referenceMethod org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
+ * @param targetClassFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
  */
 public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetClassFile) {
 	init(targetClassFile);
@@ -5015,8 +5015,7 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	initializeMaxLocals(referenceMethod.binding);
 }
 /**
- * @param methodDeclaration org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
- * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
+ * @param targetClassFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
  */
 public void resetForProblemClinit(ClassFile targetClassFile) {
 	init(targetClassFile);
@@ -5662,7 +5661,7 @@ public final void writeByteAtPos(int pos, byte value) {
 }
 /**
  * Write a unsigned 8 bits value into the byte array
- * @param b the signed byte
+ * @param value the signed byte
  */
 public final void writeSignedByte(int value) {
 	try {
@@ -5760,7 +5759,7 @@ public final void writeSignedWord(int pos, int value) {
 }
 /**
  * Write a unsigned 8 bits value into the byte array
- * @param b the unsigned byte
+ * @param value the unsigned byte
  */
 public final void writeUnsignedByte(int value) {
 	try {
@@ -5772,7 +5771,7 @@ public final void writeUnsignedByte(int value) {
 }
 /**
  * Write a unsigned 16 bits value into the byte array
- * @param b the unsigned short
+ * @param value the unsigned short
  */
 public final void writeUnsignedShort(int value) {
 	try {

@@ -239,7 +239,7 @@ void enterConstructor(
  * @param nameEnd - a source position corresponding to the last character of the name
  * @param extendedTypeDimensionCount - the array dimension indicated on the variable,
  *  (for example, 'int v[]')
- * @param extendedTypeDimnesionEnd - a source position corresponding to the end of
+ * @param extendedTypeDimensionEnd - a source position corresponding to the end of
  *  the extened type dimension. This position should be -1 in case there is no extended
  *  dimension for the type.
  */

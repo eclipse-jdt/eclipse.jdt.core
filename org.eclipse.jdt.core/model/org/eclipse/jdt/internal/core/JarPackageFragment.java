@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 /**
  * A package fragment that represents a package fragment found in a JAR.
  *
- * @see IPackageFragment
+ * @see org.eclipse.jdt.core.IPackageFragment
  */
 class JarPackageFragment extends PackageFragment implements SuffixConstants {
 /**
@@ -90,7 +90,7 @@ public boolean containsJavaResources() throws JavaModelException {
 	return ((JarPackageFragmentInfo) getElementInfo()).containsJavaResources();
 }
 /**
- * @see IPackageFragment
+ * @see org.eclipse.jdt.core.IPackageFragment
  */
 public ICompilationUnit createCompilationUnit(String cuName, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
@@ -112,7 +112,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	}
 }
 /**
- * @see IPackageFragment
+ * @see org.eclipse.jdt.core.IPackageFragment
  */
 public IClassFile[] getClassFiles() throws JavaModelException {
 	ArrayList list = getChildrenOfType(CLASS_FILE);
@@ -122,7 +122,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
 }
 /**
  * A jar package fragment never contains compilation units.
- * @see IPackageFragment
+ * @see org.eclipse.jdt.core.IPackageFragment
  */
 public ICompilationUnit[] getCompilationUnits() {
 	return NO_COMPILATION_UNITS;

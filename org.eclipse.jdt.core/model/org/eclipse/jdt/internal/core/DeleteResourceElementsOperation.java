@@ -100,7 +100,7 @@ protected String getMainTaskName() {
 	return Util.bind("operation.deleteResourceProgress"); //$NON-NLS-1$
 }
 /**
- * @see MultiOperation. This method delegate to <code>deleteResource</code> or
+ * @see MultiOperation This method delegate to <code>deleteResource</code> or
  * <code>deletePackageFragment</code> depending on the type of <code>element</code>.
  */
 protected void processElement(IJavaElement element) throws JavaModelException {

@@ -640,7 +640,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public static class PluginPreferencesListener implements Preferences.IPropertyChangeListener {
 		/**
-		 * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(PropertyChangeEvent)
+		 * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(Preferences.PropertyChangeEvent)
 		 */
 		public void propertyChange(Preferences.PropertyChangeEvent event) {
 

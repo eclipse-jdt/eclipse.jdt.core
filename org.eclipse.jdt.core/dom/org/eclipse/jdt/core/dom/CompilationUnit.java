@@ -183,7 +183,7 @@ public class CompilationUnit extends ASTNode {
 	 * For example, the source string <code>A\nB\nC</code> has
 	 * line end table {1, 3, 4}.
 	 * 
-	 * @param lineEndtable the line end table
+	 * @param lineEndTable the line end table
 	 */
 	void setLineEndTable(int[] lineEndTable) {
 		if (lineEndTable == null) {
@@ -470,7 +470,7 @@ public class CompilationUnit extends ASTNode {
 
 	/**
 	 * Returns the extended start position of the given node. Unlike
-	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()},
 	 * the extended source range may include comments and whitespace
 	 * immediately before or after the normal source range for the node.
 	 * 
@@ -490,7 +490,7 @@ public class CompilationUnit extends ASTNode {
 
 	/**
 	 * Returns the extended source length of the given node. Unlike
-	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()},
 	 * the extended source range may include comments and whitespace
 	 * immediately before or after the normal source range for the node.
 	 * 

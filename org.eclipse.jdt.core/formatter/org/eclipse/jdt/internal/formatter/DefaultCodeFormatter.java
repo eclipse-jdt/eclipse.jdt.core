@@ -62,7 +62,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	/**
-	 * @see CodeFormatter#format(int, String, int, int[], String, Map)
+	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, java.lang.String, int, int, int, java.lang.String)
 	 */
 	public TextEdit format(
 			int kind,
