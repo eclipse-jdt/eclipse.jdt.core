@@ -1420,7 +1420,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"SUCCESS");
 	}
 
-	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types
+	// JSR14-v10[2.1,2.2]: Valid multiple parameter types
 	public void test058() {
 		this.runConformTest(
 			new String[] {
@@ -1436,7 +1436,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			}
 		);
 	}
-	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: more declared than referenced
+	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more declared than referenced
 	public void test059() {
 		this.runNegativeTest(
 			new String[] {
@@ -1458,7 +1458,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"----------\n"
 		);
 	}
-	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: more referenced than declared
+	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more referenced than declared
 	public void test060() {
 		this.runNegativeTest(
 			new String[] {
@@ -1480,7 +1480,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"----------\n"
 		);
 	}
-	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: primitive types
+	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: primitive types
 	public void test061() {
 		this.runNegativeTest(
 			new String[] {
@@ -1532,7 +1532,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"----------\n"
 		);
 	}
-	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types: primitive type arrays
+	// JSR14-v10[2.1,2.2]: Valid multiple parameter types: primitive type arrays
 	public void test062() {
 		this.runConformTest(
 			new String[] {
@@ -1657,7 +1657,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			customOptions);
 	}
 
-	// JSR14-v10[§2.1,§2.2]: Invalid PT declaration (mix with reference)
+	// JSR14-v10[2.1,2.2]: Invalid PT declaration (mix with reference)
 	public void test066() {
 		this.runNegativeTest(
 			new String[] {
@@ -1681,7 +1681,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[§2.1,§2.2]: Invalid PT declaration (mix with reference)
+	// JSR14-v10[2.1,2.2]: Invalid PT declaration (mix with reference)
 	public void test067() {
 		this.runNegativeTest(
 			new String[] {
@@ -1705,7 +1705,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	// JSR14-V10[2.4]: Not terminated consecutive declaration
 	// TODO (david) diagnosis message on error 3 sounds strange, doesn't it?
 	public void test068() {
 		this.runNegativeTest(
@@ -1740,7 +1740,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-V10[§2.4]: Not terminated consecutive declaration
+	// JSR14-V10[2.4]: Not terminated consecutive declaration
 	public void test069() {
 		this.runNegativeTest(
 			new String[] {
@@ -1764,7 +1764,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (right-shift symbol)
+	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
 	public void test070() {
 		this.runNegativeTest(
@@ -1785,7 +1785,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[§2.1,§2.2]: Unexpected consecutive PT declaration (with spaces)
+	// JSR14-v10[2.1,2.2]: Unexpected consecutive PT declaration (with spaces)
 	public void test071() {
 		this.runNegativeTest(
 			new String[] {
@@ -1805,7 +1805,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (unary right-shift symbol)
+	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (unary right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
 	public void test072() {
 		this.runNegativeTest(
@@ -1826,7 +1826,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (right-shift symbol)
+	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
 	public void test073() {
 		this.runNegativeTest(
@@ -1851,7 +1851,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[§2.1,§2.2]: Unexpected consecutive PT declaration (with spaces)
+	// JSR14-v10[2.1,2.2]: Unexpected consecutive PT declaration (with spaces)
 	public void test074() {
 		this.runNegativeTest(
 			new String[] {
@@ -2061,7 +2061,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}	
 
-	// JSR14-v10[§2.4]: Valid consecutive Type Parameters Brackets
+	// JSR14-v10[2.4]: Valid consecutive Type Parameters Brackets
 	public void test079() {
 		this.runConformTest(
 			new String[] {
