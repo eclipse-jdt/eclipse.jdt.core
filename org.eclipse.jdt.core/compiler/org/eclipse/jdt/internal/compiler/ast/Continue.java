@@ -52,6 +52,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					break;
 				}
 			}
+			// remember the initialization at this
+			// point for dealing with blank final variables.
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+			
 			if (traversedContext == targetContext) {
 				break;
 			} else {

@@ -67,7 +67,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		// remember the initialization at this
-		// point for dealing with blank final fields.
+		// point for dealing with blank final variables.
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 
 		FlowContext parentContext;
