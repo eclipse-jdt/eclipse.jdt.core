@@ -124,6 +124,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionVariableName2"));
 	suite.addTest(new CompletionTests("testCompletionOnStaticMember1"));
 	suite.addTest(new CompletionTests("testCompletionOnStaticMember2"));
+	suite.addTest(new CompletionTests("testCompletionMemberType2"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8004,6 +8005,20 @@ public void testCompletionKeywordInstanceof6() throws JavaModelException {
 
 		assertEquals(
 			"",
+			requestor.getResults());
+}
+public void testCompletionMemberType2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionMemberType2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "new ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:CompletionMemberType2    completion:CompletionMemberType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+			"element:CompletionMemberType2.MemberException    completion:MemberException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION),
 			requestor.getResults());
 }
 }

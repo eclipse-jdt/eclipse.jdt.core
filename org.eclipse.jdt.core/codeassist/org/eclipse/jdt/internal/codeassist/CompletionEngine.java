@@ -1598,6 +1598,7 @@ public final class CompletionEngine
 
 			if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
+				relevance += computeRelevanceForException(memberType.sourceName);
 				requestor.acceptClass(
 					memberType.qualifiedPackageName(),
 					memberType.qualifiedSourceName(),
@@ -2485,6 +2486,7 @@ public final class CompletionEngine
 								relevance += computeRelevanceForInterestingProposal();
 								relevance += computeRelevanceForCaseMatching(typeName, localType.sourceName);
 								relevance += computeRelevanceForExpectingType(localType);
+								relevance += computeRelevanceForException(localType.sourceName);
 								relevance += computeRelevanceForClass();
 								
 								requestor.acceptClass(
@@ -2550,6 +2552,7 @@ public final class CompletionEngine
 
 				if (sourceType.isClass()){
 					relevance += computeRelevanceForClass();
+					relevance += computeRelevanceForException(sourceType.sourceName);
 					requestor.acceptClass(
 						sourceType.qualifiedPackageName(),
 						sourceType.sourceName(),
