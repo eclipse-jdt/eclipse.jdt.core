@@ -194,19 +194,23 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTb
 
 	return false;
 }
-public final void computeConstant(TypeBinding leftTb, TypeBinding rightTb) {
-	if ((left.constant != NotAConstant) && (right.constant != NotAConstant)) {
-		constant =
+public final void computeConstant(TypeBinding leftType, TypeBinding rightType) {
+	if ((this.left.constant != NotAConstant) && (this.right.constant != NotAConstant)) {
+		this.constant =
 			Constant.computeConstantOperationEQUAL_EQUAL(
 				left.constant,
-				leftTb.id,
+				leftType.id,
 				EQUAL_EQUAL,
 				right.constant,
-				rightTb.id);
-		if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT_EQUAL)
+				rightType.id);
+		if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT_EQUAL)
 			constant = Constant.fromValue(!constant.booleanValue());
 	} else {
-		constant = NotAConstant;
+		this.constant = NotAConstant;
+		// optimization for null == null
+		if (this.left instanceof NullLiteral && this.right instanceof NullLiteral) {
+			this.optimizedBooleanConstant = Constant.fromValue(((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL);
+		}
 	}
 }
 /**
@@ -260,7 +264,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
  *	Optimized operations are: == and !=
  */
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
-	if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
+
+	if (constant != Constant.NotAConstant) {
 		super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 		return;
 	}
@@ -330,27 +335,6 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 	int pc = codeStream.position;
 	Constant inline;
 	if ((inline = right.constant) != NotAConstant) {
-		// optimized case: x == null
-		if (right.constant == NullConstant.Default) {
-			left.generateCode(currentScope, codeStream, valueRequired);
-			if (valueRequired) {
-				if (falseLabel == null) {
-					if (trueLabel != null) {
-						// implicit falling through the FALSE case
-						codeStream.ifnull(trueLabel);
-					}
-				} else {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.ifnonnull(falseLabel);
-					} else {
-						// no implicit fall through TRUE/FALSE --> should never occur
-					}
-				}
-			}
-			codeStream.recordPositionsFrom(pc, this.sourceStart);
-			return;
-		}
 		// optimized case: x == 0
 		if (((left.implicitConversion >> 4) == T_int) && (inline.intValue() == 0)) {
 			left.generateCode(currentScope, codeStream, valueRequired);
@@ -374,27 +358,6 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 		}
 	}
 	if ((inline = left.constant) != NotAConstant) {
-		// optimized case: null == x
-		if (left.constant == NullConstant.Default) {
-			right.generateCode(currentScope, codeStream, valueRequired);
-			if (valueRequired) {
-				if (falseLabel == null) {
-					if (trueLabel != null) {
-						// implicit falling through the FALSE case
-						codeStream.ifnull(trueLabel);
-					}
-				} else {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.ifnonnull(falseLabel);
-					} else {
-						// no implicit fall through TRUE/FALSE --> should never occur
-					}
-				}
-			}
-			codeStream.recordPositionsFrom(pc, this.sourceStart);
-			return;
-		}
 		// optimized case: 0 == x
 		if (((left.implicitConversion >> 4) == T_int)
 			&& (inline.intValue() == 0)) {
@@ -418,6 +381,60 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 			return;
 		}
 	}
+	// null cases
+	// optimized case: x == null
+	if (right instanceof NullLiteral) {
+		if (left instanceof NullLiteral) {
+			// null == null
+			if (valueRequired) {
+				if (falseLabel == null) {
+					// implicit falling through the FALSE case
+					if (trueLabel != null) {
+						codeStream.goto_(trueLabel);
+					}
+				}
+			}
+		} else {
+			left.generateCode(currentScope, codeStream, valueRequired);
+			if (valueRequired) {
+				if (falseLabel == null) {
+					if (trueLabel != null) {
+						// implicit falling through the FALSE case
+						codeStream.ifnull(trueLabel);
+					}
+				} else {
+					// implicit falling through the TRUE case
+					if (trueLabel == null) {
+						codeStream.ifnonnull(falseLabel);
+					} else {
+						// no implicit fall through TRUE/FALSE --> should never occur
+					}
+				}
+			}
+		}
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		return;
+	} else if (left instanceof NullLiteral) { // optimized case: null == x
+		right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			if (falseLabel == null) {
+				if (trueLabel != null) {
+					// implicit falling through the FALSE case
+					codeStream.ifnull(trueLabel);
+				}
+			} else {
+				// implicit falling through the TRUE case
+				if (trueLabel == null) {
+					codeStream.ifnonnull(falseLabel);
+				} else {
+					// no implicit fall through TRUE/FALSE --> should never occur
+				}
+			}
+		}
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		return;
+	}
+
 	// default case
 	left.generateCode(currentScope, codeStream, valueRequired);
 	right.generateCode(currentScope, codeStream, valueRequired);

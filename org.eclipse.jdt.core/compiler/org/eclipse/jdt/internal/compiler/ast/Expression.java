@@ -42,9 +42,16 @@ public abstract class Expression extends Statement {
 		return analyseCode(currentScope, flowContext, flowInfo);
 	}
 
-	public Constant conditionalConstant() {
+	/**
+	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
+	 * since it is not strictly equivalent to the definition of constant expressions.
+	 * In particular, some side-effects may be required to occur (only the end value
+	 * is known).
+	 * Constant is known to be of boolean type
+	 */ 
+	public Constant optimizedBooleanConstant() {
 
-		return constant;
+		return this.constant;
 	}
 
 	public static final boolean isConstantValueRepresentable(
@@ -336,7 +343,7 @@ public abstract class Expression extends Statement {
 		}
 		codeStream.newStringBuffer();
 		codeStream.dup();
-		if ((typeID == T_String) || (typeID == T_null)) {
+		if (typeID == T_String || typeID == T_null) {
 			if (constant != NotAConstant) {
 				codeStream.ldc(constant.stringValue());
 			} else {
@@ -358,15 +365,15 @@ public abstract class Expression extends Statement {
 		if (runtimeTimeType == null || compileTimeType == null)
 			return;
 
-		if (compileTimeType.id == T_null) {
-			// this case is possible only for constant null
-			// The type of runtime is a reference type
-			// The code gen use the constant id thus any value
-			// for the runtime id (akak the <<4) could be used.
-			// T_Object is used as some general T_reference
-			implicitConversion = (T_Object << 4) + T_null;
-			return;
-		}
+//		if (compileTimeType.id == T_null) {
+//			// this case is possible only for constant null
+//			// The type of runtime is a reference type
+//			// The code gen use the constant id thus any value
+//			// for the runtime id (akak the <<4) could be used.
+//			// T_Object is used as some general T_reference
+//			implicitConversion = (T_Object << 4) + T_null;
+//			return;
+//		}
 
 		switch (runtimeTimeType.id) {
 			case T_byte :

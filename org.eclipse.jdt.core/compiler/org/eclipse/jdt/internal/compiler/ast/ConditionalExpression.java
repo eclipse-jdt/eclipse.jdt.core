@@ -42,7 +42,7 @@ public class ConditionalExpression extends OperatorExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant conditionConstant = condition.conditionalConstant();
+		Constant conditionConstant = condition.optimizedBooleanConstant();
 
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, conditionConstant == NotAConstant);
 
@@ -134,7 +134,7 @@ public class ConditionalExpression extends OperatorExpression {
 			return;
 		}
 		Constant cst = condition.constant;
-		Constant condCst = condition.conditionalConstant();
+		Constant condCst = condition.optimizedBooleanConstant();
 		boolean needTruePart =
 			!(((cst != NotAConstant) && (cst.booleanValue() == false))
 				|| ((condCst != NotAConstant) && (condCst.booleanValue() == false)));
@@ -213,7 +213,7 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		int pc = codeStream.position;
 		Constant cst = condition.constant;
-		Constant condCst = condition.conditionalConstant();
+		Constant condCst = condition.optimizedBooleanConstant();
 		boolean needTruePart =
 			!(((cst != NotAConstant) && (cst.booleanValue() == false))
 				|| ((condCst != NotAConstant) && (condCst.booleanValue() == false)));

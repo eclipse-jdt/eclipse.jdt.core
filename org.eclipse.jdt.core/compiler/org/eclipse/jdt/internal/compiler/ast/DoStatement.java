@@ -50,7 +50,7 @@ public class DoStatement extends Statement {
 				currentScope);
 
 		Constant conditionConstant = condition.constant;
-		Constant conditionalConstant = condition.conditionalConstant();
+		Constant conditionalConstant = condition.optimizedBooleanConstant();
 		boolean isFalseCondition =
 			((conditionConstant != NotAConstant)
 				&& (conditionConstant.booleanValue() == false))

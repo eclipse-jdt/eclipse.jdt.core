@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -26,7 +25,7 @@ public class NullLiteral extends MagicLiteral {
 
 	public void computeConstant() {
 	
-		constant = Constant.fromValue(null);
+		constant = NotAConstant; 
 	}
 
 	/**

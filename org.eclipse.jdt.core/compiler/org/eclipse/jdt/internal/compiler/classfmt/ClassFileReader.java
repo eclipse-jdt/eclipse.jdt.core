@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.NullConstant;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -711,8 +710,6 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 				return currentConstant.booleanValue() != otherConstant.booleanValue();
 			case TypeIds.T_String :
 				return !currentConstant.stringValue().equals(otherConstant.stringValue());
-			case TypeIds.T_null :
-				return otherConstant != NullConstant.Default;
 		}
 	}
 	return false;

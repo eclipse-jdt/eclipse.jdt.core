@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Constant implements TypeIds, OperatorIds {
+	
 	public static final Constant NotAConstant = new DoubleConstant(Double.NaN);
 
 	public static final IntConstant Zero = new IntConstant(0);
@@ -53,7 +54,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_undefined<<4)+T_boolean 	 : return NotAConstant;   
 	//	    case (T_undefined<<4)+T_char  		 : return NotAConstant;   
 	//	    case (T_undefined<<4)+T_int  		 : return NotAConstant;   
-	//	    case (T_undefined<<4)+T_null  		 : return NotAConstant;   
 		
 	//	    case (T_byte<<4)+T_undefined  	 : return NotAConstant;   
 		    case (T_byte<<4)+T_byte  		 : return this;  
@@ -67,7 +67,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_byte<<4)+T_boolean  	 : return NotAConstant;   
 		    case (T_byte<<4)+T_char  		 : return Constant.fromValue((byte)this.charValue());    
 		    case (T_byte<<4)+T_int  		 : return Constant.fromValue((byte)this.intValue());    
-	//	    case (T_byte<<4)+T_null  		 : return NotAConstant;   
 	
 	//	    case (T_long<<4)+T_undefined  	 : return NotAConstant;   
 		    case (T_long<<4)+T_byte  		 : return Constant.fromValue((long)this.byteValue()); 
@@ -81,7 +80,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_long<<4)+T_boolean  	 : return NotAConstant;   
 		    case (T_long<<4)+T_char  		 : return Constant.fromValue((long)this.charValue()); 
 		    case (T_long<<4)+T_int  		 : return Constant.fromValue((long)this.intValue()); 
-	//	    case (T_long<<4)+T_null  		 : return NotAConstant;   
 	
 	//	    case (T_short<<4)+T_undefined  	 : return NotAConstant;   
 		    case (T_short<<4)+T_byte  		 : return Constant.fromValue((short)this.byteValue());
@@ -95,7 +93,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_short<<4)+T_boolean 	 : return NotAConstant;   
 		    case (T_short<<4)+T_char  		 : return Constant.fromValue((short)this.charValue());  
 		    case (T_short<<4)+T_int  		 : return Constant.fromValue((short)this.intValue());  
-	//	    case (T_short<<4)+T_null  		 : return NotAConstant;   
 	
 	//	    case (T_void<<4)+T_undefined  	 : return NotAConstant;   
 	//	    case (T_void<<4)+T_byte  		 : return NotAConstant;   
@@ -109,7 +106,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_void<<4)+T_boolean  	 : return NotAConstant;   
 	//	    case (T_void<<4)+T_char  		 : return NotAConstant;   
 	//	    case (T_void<<4)+T_int  		 : return NotAConstant;   
-	//	    case (T_void<<4)+T_null  		 : return NotAConstant;   
 	
 	//	    case (T_String<<4)+T_undefined   : return NotAConstant;   
 	//	    case (T_String<<4)+T_byte  		 : return NotAConstant;   
@@ -123,7 +119,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_String<<4)+T_boolean 	 : return NotAConstant;   
 	//	    case (T_String<<4)+T_char  		 : return NotAConstant;   
 	//	    case (T_String<<4)+T_int  		 : return NotAConstant;   
-	//	    case (T_String<<4)+T_null  		 : return NotAConstant;   
 	
 	//	    case (T_Object<<4)+T_undefined   	: return NotAConstant;   
 	//	    case (T_Object<<4)+T_byte  		 	: return NotAConstant;   
@@ -137,7 +132,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_Object<<4)+T_boolean 		: return NotAConstant;   
 	//	    case (T_Object<<4)+T_char  		 	: return NotAConstant;   
 	//	    case (T_Object<<4)+T_int  			: return NotAConstant;   
-		    case (T_Object<<4)+T_null  		 	: return this;   
 	
 	//	    case (T_double<<4)+T_undefined  	: return NotAConstant;   
 		    case (T_double<<4)+T_byte  		 	: return Constant.fromValue((double)this.byteValue());   
@@ -151,7 +145,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_double<<4)+T_boolean  		: return NotAConstant;   
 		    case (T_double<<4)+T_char  		 	: return Constant.fromValue((double)this.charValue());   
 		    case (T_double<<4)+T_int  			: return Constant.fromValue((double)this.intValue());  
-	//	    case (T_double<<4)+T_null  		 	: return NotAConstant;   
 	
 	//	    case (T_float<<4)+T_undefined  	 : return NotAConstant;   
 		    case (T_float<<4)+T_byte  		 : return Constant.fromValue((float)this.byteValue());   
@@ -165,7 +158,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_float<<4)+T_boolean 	 : return NotAConstant;   
 		    case (T_float<<4)+T_char  		 : return Constant.fromValue((float)this.charValue());   
 		    case (T_float<<4)+T_int  		 : return Constant.fromValue((float)this.intValue());   
-	//	    case (T_float<<4)+T_null  		 : return NotAConstant;   
 	
 	//	    case (T_boolean<<4)+T_undefined  		 : return NotAConstant;   
 	//	    case (T_boolean<<4)+T_byte  			 : return NotAConstant;   
@@ -179,7 +171,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 		    case (T_boolean<<4)+T_boolean  			 : return this;  
 	//	    case (T_boolean<<4)+T_char  			 : return NotAConstant;   
 	//	    case (T_boolean<<4)+T_int  				 : return NotAConstant;   
-	//	    case (T_boolean<<4)+T_null  			 : return NotAConstant;   
 		
 	//	    case (T_char<<4)+T_undefined  	 : return NotAConstant;   
 		    case (T_char<<4)+T_byte  		 : return Constant.fromValue((char)this.byteValue());  
@@ -193,7 +184,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_char<<4)+T_boolean  	 : return NotAConstant;   
 		    case (T_char<<4)+T_char  		 : return this;  
 		    case (T_char<<4)+T_int  		 : return Constant.fromValue((char)this.intValue());  
-	//	    case (T_char<<4)+T_null  		 : return NotAConstant;   
 		
 	//	    case (T_int<<4)+T_undefined  	 : return NotAConstant;   
 		    case (T_int<<4)+T_byte  		 : return Constant.fromValue((int)this.byteValue());  
@@ -207,21 +197,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_int<<4)+T_boolean  	 	 : return NotAConstant;   
 		    case (T_int<<4)+T_char  		 : return Constant.fromValue((int)this.charValue());  
 		    case (T_int<<4)+T_int  		 	 : return this;  
-	//	    case (T_int<<4)+T_null  		 : return NotAConstant;   
 	
-	//	    case (T_null<<4)+T_undefined  		 : return NotAConstant;   
-	//	    case (T_null<<4)+T_byte  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_long  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_short  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_void  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_String  		 	 : return NotAConstant;   
-	//	    case (T_null<<4)+T_Object  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_double  		 	 : return NotAConstant;   
-	//	    case (T_null<<4)+T_float  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_boolean  		 : return NotAConstant;   
-	//	    case (T_null<<4)+T_char  			 : return NotAConstant;   
-	//	    case (T_null<<4)+T_int  			 : return NotAConstant;   
-		    case (T_null<<4)+T_null  			 : return this;
 		}
 	
 		return NotAConstant;
@@ -1271,7 +1247,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
-					case T_null:	return NotAConstant; //(26138) return Constant.fromValue(left.stringValue() + right.stringValue()); 
 					case T_boolean:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;	
@@ -1285,7 +1260,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
-					case T_null:	return NotAConstant; //(26138) return Constant.fromValue(left.stringValue() + right.stringValue()); 
 				}
 				
 			}
@@ -1579,7 +1553,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 
 	public static Constant fromValue(String value) {
 		
-		if (value == null) return NullConstant.Default;
 		return new StringConstant(value);
 	}
 

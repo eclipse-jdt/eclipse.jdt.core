@@ -76,7 +76,7 @@ public class IfStatement extends Statement {
 			thenFlowInfo =
 				((((cst = condition.constant) != NotAConstant)
 					&& (cst.booleanValue() == false))
-					|| (((cst = condition.conditionalConstant()) != NotAConstant)
+					|| (((cst = condition.optimizedBooleanConstant()) != NotAConstant)
 						&& (cst.booleanValue() == false)))
 					? (flowInfo.initsWhenTrue().copy().markAsFakeReachable(true))
 					: flowInfo.initsWhenTrue().copy();
@@ -98,7 +98,7 @@ public class IfStatement extends Statement {
 			Constant cst;
 			elseFlowInfo =
 				((((cst = condition.constant) != NotAConstant) && (cst.booleanValue() == true))
-					|| (((cst = condition.conditionalConstant()) != NotAConstant)
+					|| (((cst = condition.optimizedBooleanConstant()) != NotAConstant)
 						&& (cst.booleanValue() == true)))
 					? (flowInfo.initsWhenFalse().copy().markAsFakeReachable(true))
 					: flowInfo.initsWhenFalse().copy();
@@ -156,32 +156,28 @@ public class IfStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachableMASK) == 0) {
+		if ((this.bits & IsReachableMASK) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
 		Label endifLabel = new Label(codeStream);
 
 		// optimizing the then/else part code gen
-		Constant cst, condCst;
-		boolean hasThenPart =
-			!((((cst = condition.constant) != NotAConstant)
-				&& (cst.booleanValue() == false))
-				|| (thenStatement == null)
-				|| (thenStatement.isEmptyBlock())
-				|| (((condCst = condition.conditionalConstant()) != NotAConstant)
-					&& (condCst.booleanValue() == false)));
+		Constant cst;
+		boolean hasThenPart = 
+			!(((cst = this.condition.optimizedBooleanConstant()) != NotAConstant
+					&& cst.booleanValue() == false)
+				|| this.thenStatement == null
+				|| this.thenStatement.isEmptyBlock());
 		boolean hasElsePart =
-			!(((cst != NotAConstant) && (cst.booleanValue() == true))
-				|| (elseStatement == null)
-				|| (elseStatement.isEmptyBlock())
-				|| (((condCst = condition.conditionalConstant()) != NotAConstant)
-					&& (condCst.booleanValue() == true)));
+			!((cst != NotAConstant && cst.booleanValue() == true)
+				|| this.elseStatement == null
+				|| this.elseStatement.isEmptyBlock());
 
 		if (hasThenPart) {
 			Label falseLabel;
 			// generate boolean condition
-			condition.generateOptimizedBoolean(
+			this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
 				null,
@@ -195,10 +191,10 @@ public class IfStatement extends Statement {
 				codeStream.addDefinitelyAssignedVariables(currentScope, thenInitStateIndex);
 			}
 			// generate then statement
-			thenStatement.generateCode(currentScope, codeStream);
+			this.thenStatement.generateCode(currentScope, codeStream);
 			// jump around the else statement
 			if (hasElsePart && !thenExit) {
-				thenStatement.branchChainTo(endifLabel);
+				this.thenStatement.branchChainTo(endifLabel);
 				int position = codeStream.position;
 				codeStream.goto_(endifLabel);
 				codeStream.updateLastRecordedEndPC(position);
@@ -208,7 +204,7 @@ public class IfStatement extends Statement {
 		} else {
 			if (hasElsePart) {
 				// generate boolean condition
-				condition.generateOptimizedBoolean(
+				this.condition.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
 					endifLabel,
@@ -216,7 +212,7 @@ public class IfStatement extends Statement {
 					true);
 			} else {
 				// generate condition side-effects
-				condition.generateCode(currentScope, codeStream, false);
+				this.condition.generateCode(currentScope, codeStream, false);
 				codeStream.recordPositionsFrom(pc, this.sourceStart);
 			}
 		}
@@ -229,7 +225,7 @@ public class IfStatement extends Statement {
 					elseInitStateIndex);
 				codeStream.addDefinitelyAssignedVariables(currentScope, elseInitStateIndex);
 			}
-			elseStatement.generateCode(currentScope, codeStream);
+			this.elseStatement.generateCode(currentScope, codeStream);
 		}
 		endifLabel.place();
 		// May loose some local variable initializations : affecting the local variable attributes

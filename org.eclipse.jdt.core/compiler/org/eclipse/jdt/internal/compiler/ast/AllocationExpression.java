@@ -26,7 +26,6 @@ public class AllocationExpression
 	MethodBinding syntheticAccessor;
 
 	public AllocationExpression() {
-		super();
 	}
 
 	public FlowInfo analyseCode(

@@ -31,7 +31,7 @@ public class AND_AND_Expression extends BinaryExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant opConstant = left.conditionalConstant();
+		Constant opConstant = left.optimizedBooleanConstant();
 		if (opConstant != NotAConstant) {
 			if (opConstant.booleanValue() == true) {
 				// TRUE && anything
@@ -123,13 +123,13 @@ public class AND_AND_Expression extends BinaryExpression {
 		Label trueLabel,
 		Label falseLabel,
 		boolean valueRequired) {
-		if ((constant != Constant.NotAConstant) && (constant.typeID() == T_boolean)) {
+		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
 		}
 		int pc = codeStream.position;
 		Constant condConst;
-		if ((condConst = left.conditionalConstant()) != NotAConstant) {
+		if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 			if (condConst.booleanValue() == true) {
 				// <something equivalent to true> && x
 				left.generateOptimizedBoolean(
@@ -178,7 +178,7 @@ public class AND_AND_Expression extends BinaryExpression {
 			}
 			return;
 		}
-		if ((condConst = right.conditionalConstant()) != NotAConstant) {
+		if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 			if (condConst.booleanValue() == true) {
 				// x && <something equivalent to true>
 				if ((bits & OnlyValueRequiredMASK) != 0) {

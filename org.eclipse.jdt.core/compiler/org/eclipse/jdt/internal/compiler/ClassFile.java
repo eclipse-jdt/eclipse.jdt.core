@@ -446,8 +446,7 @@ public class ClassFile
 		int fieldAttributeOffset = contentsOffset;
 		contentsOffset += 2;
 		// 4.7.2 only static constant fields get a ConstantAttribute
-		if (fieldBinding.constant != Constant.NotAConstant
-			&& fieldBinding.constant.typeID() != T_null) {
+		if (fieldBinding.constant != Constant.NotAConstant){
 			// Now we generate the constant attribute corresponding to the fieldBinding
 			int constantValueNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.ConstantValueName);

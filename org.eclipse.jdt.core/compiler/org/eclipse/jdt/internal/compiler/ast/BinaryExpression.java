@@ -46,34 +46,34 @@ public class BinaryExpression extends OperatorExpression {
 	public void computeConstant(BlockScope scope, int leftId, int rightId) {
 
 		//compute the constant when valid
-		if ((left.constant != Constant.NotAConstant)
-			&& (right.constant != Constant.NotAConstant)) {
+		if ((this.left.constant != Constant.NotAConstant)
+			&& (this.right.constant != Constant.NotAConstant)) {
 			try {
-				constant =
+				this.constant =
 					Constant.computeConstantOperation(
-						left.constant,
+						this.left.constant,
 						leftId,
-						(bits & OperatorMASK) >> OperatorSHIFT,
-						right.constant,
+						(this.bits & OperatorMASK) >> OperatorSHIFT,
+						this.right.constant,
 						rightId);
 			} catch (ArithmeticException e) {
-				constant = Constant.NotAConstant;
+				this.constant = Constant.NotAConstant;
 				// 1.2 no longer throws an exception at compile-time
 				//scope.problemReporter().compileTimeConstantThrowsArithmeticException(this);
 			}
 		} else {
-			constant = Constant.NotAConstant;
+			this.constant = Constant.NotAConstant;
 			//add some work for the boolean operators & |  
-			optimizedBooleanConstant(
+			this.optimizedBooleanConstant(
 				leftId,
-				(bits & OperatorMASK) >> OperatorSHIFT,
+				(this.bits & OperatorMASK) >> OperatorSHIFT,
 				rightId);
 		}
 	}
 
-	public Constant conditionalConstant() {
+	public Constant optimizedBooleanConstant() {
 
-		return optimizedBooleanConstant == null ? constant : optimizedBooleanConstant;
+		return this.optimizedBooleanConstant == null ? this.constant : this.optimizedBooleanConstant;
 	}
 
 	/**
@@ -1146,7 +1146,7 @@ public class BinaryExpression extends OperatorExpression {
 		int pc = codeStream.position;
 		Constant condConst;
 		if ((left.implicitConversion & 0xF) == T_boolean) {
-			if ((condConst = left.conditionalConstant()) != NotAConstant) {
+			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> & x
 					left.generateOptimizedBoolean(
@@ -1193,7 +1193,7 @@ public class BinaryExpression extends OperatorExpression {
 				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
-			if ((condConst = right.conditionalConstant()) != NotAConstant) {
+			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x & <something equivalent to true>
 					if ((bits & OnlyValueRequiredMASK) != 0) {
@@ -1278,7 +1278,7 @@ public class BinaryExpression extends OperatorExpression {
 		int pc = codeStream.position;
 		Constant condConst;
 		if ((left.implicitConversion & 0xF) == T_boolean) {
-			if ((condConst = left.conditionalConstant()) != NotAConstant) {
+			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> | x
 					left.generateOptimizedBoolean(
@@ -1324,7 +1324,7 @@ public class BinaryExpression extends OperatorExpression {
 				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
-			if ((condConst = right.conditionalConstant()) != NotAConstant) {
+			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x | <something equivalent to true>
 					left.generateOptimizedBoolean(
@@ -1408,7 +1408,7 @@ public class BinaryExpression extends OperatorExpression {
 		int pc = codeStream.position;
 		Constant condConst;
 		if ((left.implicitConversion & 0xF) == T_boolean) {
-			if ((condConst = left.conditionalConstant()) != NotAConstant) {
+			if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// <something equivalent to true> ^ x
 					left.generateOptimizedBoolean(
@@ -1445,7 +1445,7 @@ public class BinaryExpression extends OperatorExpression {
 				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
-			if ((condConst = right.conditionalConstant()) != NotAConstant) {
+			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x ^ <something equivalent to true>
 					left.generateOptimizedBoolean(
@@ -1591,19 +1591,19 @@ public class BinaryExpression extends OperatorExpression {
 					return;
 			case AND_AND :
 				Constant cst;
-				if ((cst = left.conditionalConstant()) != NotAConstant) {
+				if ((cst = left.optimizedBooleanConstant()) != NotAConstant) {
 					if (cst.booleanValue() == false) { // left is equivalent to false
 						optimizedBooleanConstant = cst; // constant(false)
 						return;
 					} else { //left is equivalent to true
-						if ((cst = right.conditionalConstant()) != NotAConstant) {
+						if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
 							optimizedBooleanConstant = cst;
 							// the conditional result is equivalent to the right conditional value
 						}
 						return;
 					}
 				}
-				if ((cst = right.conditionalConstant()) != NotAConstant) {
+				if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
 					if (cst.booleanValue() == false) { // right is equivalent to false
 						optimizedBooleanConstant = cst; // constant(false)
 					}
@@ -1613,18 +1613,18 @@ public class BinaryExpression extends OperatorExpression {
 				if ((leftId != T_boolean) || (rightId != T_boolean))
 					return;
 			case OR_OR :
-				if ((cst = left.conditionalConstant()) != NotAConstant) {
+				if ((cst = left.optimizedBooleanConstant()) != NotAConstant) {
 					if (cst.booleanValue() == true) { // left is equivalent to true
 						optimizedBooleanConstant = cst; // constant(true)
 						return;
 					} else { //left is equivalent to false
-						if ((cst = right.conditionalConstant()) != NotAConstant) {
+						if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
 							optimizedBooleanConstant = cst;
 						}
 						return;
 					}
 				}
-				if ((cst = right.conditionalConstant()) != NotAConstant) {
+				if ((cst = right.optimizedBooleanConstant()) != NotAConstant) {
 					if (cst.booleanValue() == true) { // right is equivalent to true
 						optimizedBooleanConstant = cst; // constant(true)
 					}

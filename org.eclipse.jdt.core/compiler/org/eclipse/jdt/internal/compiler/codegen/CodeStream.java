@@ -1484,18 +1484,8 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 		case T_double :
 			generateInlinedValue(constant.doubleValue());
 			break;
-		case T_String :
-			if (constant.typeID() != T_null) {
-				ldc(constant.stringValue());
-			} else {
-				aconst_null();
-			} 
-			break;
-		default : //reference object (constant can be from T_null or T_String)
-			if (constant.typeID() == T_String)
-				ldc(constant.stringValue());
-			else
-				aconst_null();
+		default : //String or Object
+			ldc(constant.stringValue());
 	}
 }
 /**

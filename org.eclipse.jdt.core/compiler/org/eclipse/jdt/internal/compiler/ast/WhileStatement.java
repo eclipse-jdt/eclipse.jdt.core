@@ -39,7 +39,7 @@ public class WhileStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		breakLabel = new Label();
-		continueLabel = new Label();
+		continueLabel = new Label(); // TODO: could optimize also case where optimizedBooleanConstant is available
 
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
