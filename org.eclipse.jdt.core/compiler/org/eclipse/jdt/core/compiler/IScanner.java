@@ -21,7 +21,7 @@ package org.eclipse.jdt.core.compiler;
   * 
   * When encountering lexical errors, an <code>InvalidInputException</code> is thrown.
   * 
-  * @see ToolFactory
+  * @see org.eclipse.jdt.core.ToolFactory
   * @see ITerminalSymbols
   * @since 2.0
   */

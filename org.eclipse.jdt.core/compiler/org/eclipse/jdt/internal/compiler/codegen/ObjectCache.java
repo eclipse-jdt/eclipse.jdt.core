@@ -43,7 +43,6 @@ public void clear() {
  *
  * @param char[] key the key that we are looking for
  * @return boolean
- * @see ConstantPoolCache#contains
  */
 public boolean containsKey(Object key) {
 	int index = hashCode(key);
@@ -59,7 +58,6 @@ public boolean containsKey(Object key) {
  * @param key <CODE>char[]</CODE> the specified key
  * @return int the element for the key or -1 if the key is not
  *  defined in the hash table.
- * @see ConstantPoolCache#put
  */
 public int get(Object key) {
 	int index = hashCode(key);
@@ -86,7 +84,6 @@ public int hashCode(Object key) {
  * 
  * @param key <CODE>Object</CODE> the specified key in the hashtable
  * @param value <CODE>int</CODE> the specified element
- * @see ConstantPoolCache#get
  * @return int the old value of the key, or -1 if it did not have one.
  */
 public int put(Object key, int value) { 
@@ -130,7 +127,7 @@ public int size() {
 /**
  * Converts to a rather lengthy String.
  *
- * return String the ascii representation of the receiver
+ * @return String the ascii representation of the receiver
  */
 public String toString() {
 	int max = size();

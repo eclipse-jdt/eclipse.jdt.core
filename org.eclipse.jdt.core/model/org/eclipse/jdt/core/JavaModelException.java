@@ -34,7 +34,6 @@ public class JavaModelException extends CoreException {
  * @param exception the <code>Throwable</code>
  * @param code one of the Java-specific status codes declared in
  *   <code>IJavaModelStatusConstants</code>
- * @return the new Java model exception
  * @see IJavaModelStatusConstants
  * @see org.eclipse.core.runtime.IStatus#ERROR
  */
@@ -47,7 +46,6 @@ public JavaModelException(Throwable e, int code) {
  * <code>JavaModelException(exception,IJavaModelStatusConstants.CORE_EXCEPTION</code>.
  *
  * @param exception the <code>CoreException</code>
- * @return the new Java model exception
  */
 public JavaModelException(CoreException exception) {
 	super(exception.getStatus());
@@ -57,7 +55,6 @@ public JavaModelException(CoreException exception) {
  * Creates a Java model exception for the given Java-specific status object.
  *
  * @param status the Java-specific status object
- * @return the new Java model exception
  */
 public JavaModelException(IJavaModelStatus status) {
 	super(status);

@@ -63,7 +63,10 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 * @param classFileBytes the raw bytes of the .class file
 	 * @param decodingFlags the decoding flags
 	 * 
-	 * @see org.eclipse.jdt.core.util.DecodingFlag
+	 * @see IClassFileReader#ALL
+	 * @see IClassFileReader#CLASSFILE_ATTRIBUTES
+	 * @see IClassFileReader#CONSTANT_POOL
+	 * @see IClassFileReader#FIELD_INFOS
 	 */
 	public ClassFileReader(byte[] classFileBytes, int decodingFlags) throws ClassFormatException {
 	

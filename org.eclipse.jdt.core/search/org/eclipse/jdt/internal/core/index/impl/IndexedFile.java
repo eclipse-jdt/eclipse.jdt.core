@@ -68,7 +68,7 @@ public class IndexedFile implements IQueryResult {
 	/**
 	 * Returns the path represented by pathString converted back to a path relative to the local file system.
 	 *
-	 * @parame pathString the path to convert:
+	 * @param pathString the path to convert:
 	 * <ul>
 	 *		<li>an absolute IPath (relative to the workspace root) if the path represents a resource in the 
 	 *			workspace

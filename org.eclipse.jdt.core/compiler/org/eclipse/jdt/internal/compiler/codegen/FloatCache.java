@@ -42,7 +42,6 @@ public void clear() {
  *
  * @param key <CODE>float</CODE> the key that we are looking for
  * @return boolean
- * @see ConstantPoolCache#contains
  */
 public boolean containsKey(float key) {
 	if (key == 0.0f) {
@@ -70,7 +69,6 @@ public boolean containsKey(float key) {
  * @param key <CODE>float</CODE> the specified key
  * @return int the element for the key or -1 if the key is not
  *  defined in the hash table.
- * @see ConstantPoolCache#put
  */
 public int get(float key) {
 	if (key == 0.0f) {
@@ -115,7 +113,7 @@ public int put(float key, int value) {
 /**
  * Converts to a rather lengthy String.
  *
- * return String the ascii representation of the receiver
+ * @return String the ascii representation of the receiver
  */
 public String toString() {
 	int max = elementSize;

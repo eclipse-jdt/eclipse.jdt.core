@@ -21,8 +21,7 @@ import java.util.Enumeration;
  * <p>This implementation is NOT thread-safe.  Synchronization wrappers would
  * have to be added to ensure atomic insertions and deletions from the cache.
  *
- * @see LRUCacheEntry
- * @see ILRUCacheable
+ * @see org.eclipse.jdt.internal.core.index.impl.ILRUCacheable
  */
 public class LRUCache implements Cloneable {
 

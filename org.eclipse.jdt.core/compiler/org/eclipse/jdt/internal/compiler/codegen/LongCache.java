@@ -44,7 +44,6 @@ public void clear() {
  *
  * @param key <CODE>long</CODE> the key that we are looking for
  * @return boolean
- * @see ConstantPoolCache#contains
  */
 public boolean containsKey(long key) {
 	int index = hash(key);
@@ -60,7 +59,6 @@ public boolean containsKey(long key) {
  * @param key <CODE>long</CODE> the specified key
  * @return int the element for the key or -1 if the key is not
  *  defined in the hash table.
- * @see ConstantPoolCache#put
  */
 public int get(long key) {
 	int index = hash(key);
@@ -75,7 +73,6 @@ public int get(long key) {
  * Return a hashcode for the value of the key parameter.
  * @param key long
  * @return int the hash code corresponding to the key value
- * @see ConstantPoolCache#put
  */
 public int hash(long key) {
 	return ((int) key & 0x7FFFFFFF) % keyTable.length;
@@ -133,7 +130,7 @@ public int size() {
 /**
  * Converts to a rather lengthy String.
  *
- * return String the ascii representation of the receiver
+ * @return String the ascii representation of the receiver
  */
 public String toString() {
 	int max = size();

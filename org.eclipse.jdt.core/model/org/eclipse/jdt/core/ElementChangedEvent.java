@@ -24,15 +24,15 @@ public class ElementChangedEvent extends EventObject {
 	 * Event type constant (bit mask) indicating an after-the-fact 
 	 * report of creations, deletions, and modifications
 	 * to one or more Java element(s) expressed as a hierarchical
-	 * java element delta as returned by <code>getDelta</code>.
+	 * java element delta as returned by <code>getDelta()</code>.
 	 *
 	 * Note: this notification occurs during the corresponding POST_CHANGE
 	 * resource change notification, and contains a full delta accounting for
 	 * any JavaModel operation  and/or resource change.
 	 *
 	 * @see IJavaElementDelta
-	 * @see IResourceChangeEvent
-	 * @see #getDelta
+	 * @see org.eclipse.core.resources.IResourceChangeEvent
+	 * @see #getDelta()
 	 * @since 2.0
 	 */
 	public static final int POST_CHANGE = 1;
@@ -52,8 +52,8 @@ public class ElementChangedEvent extends EventObject {
 	 * fully consistent once the POST_CHANGE notification has occured).
 	 * 
 	 * @see IJavaElementDelta
-	 * @see IResourceChangeEvent
-	 * @see #getDelta
+	 * @see org.eclipse.core.resources.IResourceChangeEvent
+	 * @see #getDelta()
 	 * @since 2.0
 	 */
 	public static final int PRE_AUTO_BUILD = 2;
@@ -68,8 +68,8 @@ public class ElementChangedEvent extends EventObject {
 	 * operation.
 	 *
 	 * @see IJavaElementDelta
-	 * @see IResourceChangeEvent
-	 * @see #getDelta
+	 * @see org.eclipse.core.resources.IResourceChangeEvent
+	 * @see #getDelta()
 	 * @since 2.0
 	 */
 	public static final int 	POST_RECONCILE = 4;	

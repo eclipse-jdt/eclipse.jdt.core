@@ -5,9 +5,12 @@ package org.eclipse.jdt.internal.eval;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.classfmt.*;
-import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * An environment that wraps the client's name environment.
@@ -26,7 +29,7 @@ public CodeSnippetEnvironment(INameEnvironment env, EvaluationContext context) {
 	this.context = context;
 }
 /**
- * @see INameEnvironment
+ * @see INameEnvironment#findType(char[][])
  */
 public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 	NameEnvironmentAnswer result = this.env.findType(compoundTypeName);
@@ -59,7 +62,7 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 	return null;
 }
 /**
- * @see INameEnvironment.
+ * @see INameEnvironment#findType(char[], char[][])
  */
 public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	NameEnvironmentAnswer result = this.env.findType(typeName, packageName);
@@ -69,7 +72,7 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	return findType(CharOperation.arrayConcat(packageName, typeName));
 }
 /**
- * @see INameEnvironment.
+ * @see INameEnvironment#isPackage(char[][], char[])
  */
 public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 	return this.env.isPackage(parentPackageName, packageName);

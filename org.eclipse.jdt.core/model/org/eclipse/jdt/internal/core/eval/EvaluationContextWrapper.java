@@ -37,7 +37,7 @@ public EvaluationContextWrapper(EvaluationContext context, JavaProject project) 
 	this.project = project;
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#allVariables
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#allVariables()
  */
 public IGlobalVariable[] allVariables() {
 	GlobalVariable[] vars = this.context.allVariables();
@@ -56,7 +56,7 @@ protected void checkBuilderState() throws JavaModelException {
 	return;
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String codeSnippet, int position, ICompletionRequestor requestor)
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, ICompletionRequestor)
  */
 public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor) throws JavaModelException {
 	this.context.complete(
@@ -68,7 +68,7 @@ public void codeComplete(String codeSnippet, int position, ICompletionRequestor 
 	);
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String codeSnippet, int offset, int length)
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String, int, int)
  */
 public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) throws JavaModelException {
 	SelectionRequestor requestor= new SelectionRequestor(this.project.getNameLookup(), null); // null because there is no need to look inside the code snippet itself
@@ -83,7 +83,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 	return requestor.getElements();
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#deleteVariable(IGlobalVariable variable)
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#deleteVariable(IGlobalVariable)
  */
 public void deleteVariable(IGlobalVariable variable) {
 	if (variable instanceof GlobalVariableWrapper) {
@@ -94,7 +94,7 @@ public void deleteVariable(IGlobalVariable variable) {
 	}
 }
 /**
- * @see IEvaluationContext#evaluateCodeSnippet(String codeSnippet, String[] localVariableTypeNames, String[] localVariableNames, int[] localVariableModifiers, IType declaringType, boolean isStatic, boolean isConstructorCall, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor)
+ * @see IEvaluationContext#evaluateCodeSnippet(String, String[], String[], int[], IType, boolean, boolean, ICodeSnippetRequestor, IProgressMonitor)
  */
 public void evaluateCodeSnippet(
 	String codeSnippet, 
@@ -169,7 +169,7 @@ public void evaluateCodeSnippet(
 	}
 }
 /**
- * @see IEvaluationContext#evaluateCodeSnippet
+ * @see IEvaluationContext#evaluateCodeSnippet(String, ICodeSnippetRequestor, IProgressMonitor)
  */
 public void evaluateCodeSnippet(String codeSnippet, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor) throws JavaModelException {
 
@@ -189,7 +189,7 @@ public void evaluateCodeSnippet(String codeSnippet, ICodeSnippetRequestor reques
 	}
 }
 /**
- * @see IEvaluationContext#evaluateVariable
+ * @see IEvaluationContext#evaluateVariable(IGlobalVariable, ICodeSnippetRequestor, IProgressMonitor)
  */
 public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor requestor, IProgressMonitor progressMonitor) throws JavaModelException {
 
@@ -216,7 +216,7 @@ protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
 }
 
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#getImports
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#getImports()
  */
 public String[] getImports() {
 	char[][] imports = this.context.getImports();
@@ -240,7 +240,7 @@ protected IRequestor getInfrastructureEvaluationRequestor(ICodeSnippetRequestor 
 	return new RequestorWrapper(requestor);
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#getPackageName
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#getPackageName()
  */
 public String getPackageName() {
 	return new String(this.context.getPackageName());
@@ -252,7 +252,7 @@ protected IProblemFactory getProblemFactory() throws JavaModelException {
 	return ProblemFactory.getProblemFactory(Locale.getDefault());
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#getProject
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#getProject()
  */
 public IJavaProject getProject() {
 	return this.project;
@@ -264,7 +264,7 @@ protected void handleInstallException(InstallException e) throws JavaModelExcept
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, e.toString()));
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#newVariable
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#newVariable(String, String, String)
  */
 public IGlobalVariable newVariable(String typeName, String name, String initializer) {
 	GlobalVariable newVar = 
@@ -277,7 +277,7 @@ public IGlobalVariable newVariable(String typeName, String name, String initiali
 	return new GlobalVariableWrapper(newVar);
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#setImports
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#setImports(String[])
  */
 public void setImports(String[] imports) {
 	int length = imports.length;
@@ -288,13 +288,13 @@ public void setImports(String[] imports) {
 	this.context.setImports(result);
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#setPackageName
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#setPackageName(String)
  */
 public void setPackageName(String packageName) {
 	this.context.setPackageName(packageName.toCharArray());
 }
 /**
- * @see IEvaluationContext#validateImports
+ * @see IEvaluationContext#validateImports(ICodeSnippetRequestor)
  */
 public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelException {
 	
@@ -310,7 +310,7 @@ public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelExc
 	}
 }
 /**
- * @see IEvaluationContext#codeComplete(String codeSnippet, int position, ICodeCompletionRequestor requestor)
+ * @see IEvaluationContext#codeComplete(String, int, ICodeCompletionRequestor)
  * @deprecated - use codeComplete(String, int, ICompletionRequestor) instead
  */
 public void codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {

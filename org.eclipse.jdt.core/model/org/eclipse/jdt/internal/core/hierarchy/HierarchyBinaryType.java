@@ -4,8 +4,12 @@ package org.eclipse.jdt.internal.core.hierarchy;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
@@ -189,7 +193,7 @@ public String toString() {
 }
 
 /**
- * @see org.eclipse.jdt.internal.compiler.env.IBinaryType.
+ * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
  */
 public char[] sourceFileName() {
 	return null;

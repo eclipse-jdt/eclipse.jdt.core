@@ -42,7 +42,6 @@ public void clear() {
  *
  * @param key <CODE>double</CODE> the key that we are looking for
  * @return boolean
- * @see ConstantPoolCache#contains
  */
 public boolean containsKey(double key) {
 	if (key == 0.0) {
@@ -70,7 +69,6 @@ public boolean containsKey(double key) {
  * @param key <CODE>double</CODE> the specified key
  * @return int the element for the key or -1 if the key is not
  *  defined in the hash table.
- * @see ConstantPoolCache#put
  */
 public int get(double key) {
 	if (key == 0.0) {
@@ -115,7 +113,7 @@ public int put(double key, int value) {
 /**
  * Converts to a rather lengthy String.
  *
- * return String the ascii representation of the receiver
+ * @return String the ascii representation of the receiver
  */
 public String toString() {
 	int max = elementSize;

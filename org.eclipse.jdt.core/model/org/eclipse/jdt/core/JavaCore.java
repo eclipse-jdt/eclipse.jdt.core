@@ -156,7 +156,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * For finer control of the notification, use <code>addElementChangedListener(IElementChangedListener,int)</code>
 	 * which allows to specify a different eventMask.
 	 * 
-	 * @see ElementChangeEvent
+	 * @see ElementChangedEvent
 	 * @param listener the listener
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener) {
@@ -184,9 +184,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * @param listener the listener
 	 * @param eventMask the bit-wise OR of all event types of interest to the listener
-	 * @see IElementChangeListener
-	 * @see ElementChangeEvent
-	 * @see #removeElementChangedListener(IElementChangedListener listener)
+	 * @see IElementChangedListener
+	 * @see ElementChangedEvent
+	 * @see #removeElementChangedListener(IElementChangedListener)
 	 * @since 2.0
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener, int eventMask) {

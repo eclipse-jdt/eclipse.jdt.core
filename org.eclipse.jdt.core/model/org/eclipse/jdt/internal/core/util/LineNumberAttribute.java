@@ -55,7 +55,7 @@ public class LineNumberAttribute
 	}
 
 	/**
-	 * @see IClassFileAttribute#getAttributeName()
+	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
 	 */
 	public char[] getAttributeName() {
 		return IAttributeNamesConstants.LINE_NUMBER;

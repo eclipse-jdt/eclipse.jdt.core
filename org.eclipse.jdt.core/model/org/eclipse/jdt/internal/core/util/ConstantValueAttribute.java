@@ -47,7 +47,7 @@ public class ConstantValueAttribute
 	}
 
 	/**
-	 * @see IClassFileAttribute#getAttributeName()
+	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
 	 */
 	public char[] getAttributeName() {
 		return IAttributeNamesConstants.CONSTANT_VALUE;

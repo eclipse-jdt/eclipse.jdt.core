@@ -20,8 +20,7 @@ import java.util.Hashtable;
  * <p>This implementation is NOT thread-safe.  Synchronization wrappers would
  * have to be added to ensure atomic insertions and deletions from the cache.
  *
- * @see LRUCacheEntry
- * @see ILRUCacheable
+ * @see org.eclipse.jdt.internal.core.util.ILRUCacheable
  */
 public class LRUCache implements Cloneable {
 

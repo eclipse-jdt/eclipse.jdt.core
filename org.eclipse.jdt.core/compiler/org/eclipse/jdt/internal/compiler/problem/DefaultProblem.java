@@ -128,7 +128,7 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 
 	/**
 	 * Answer the type of problem.
-	 * @see org.eclipse.jdt.internal.compiler.problem.IProblem
+	 * @see org.eclipse.jdt.core.compiler.IProblem#getID()
 	 * @return int
 	 */
 	public int getID() {

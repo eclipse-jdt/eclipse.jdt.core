@@ -62,49 +62,49 @@ public class InnerClassesAttributeEntry
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getAccessFlags()
+	 * @see IInnerClassesAttributeEntry#getAccessFlags()
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getInnerClassName()
+	 * @see IInnerClassesAttributeEntry#getInnerClassName()
 	 */
 	public char[] getInnerClassName() {
 		return this.innerClassName;
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getInnerClassNameIndex()
+	 * @see IInnerClassesAttributeEntry#getInnerClassNameIndex()
 	 */
 	public int getInnerClassNameIndex() {
 		return this.innerClassNameIndex;
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getInnerName()
+	 * @see IInnerClassesAttributeEntry#getInnerName()
 	 */
 	public char[] getInnerName() {
 		return this.innerName;
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getInnerNameIndex()
+	 * @see IInnerClassesAttributeEntry#getInnerNameIndex()
 	 */
 	public int getInnerNameIndex() {
 		return this.innerNameIndex;
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getOuterClassName()
+	 * @see IInnerClassesAttributeEntry#getOuterClassName()
 	 */
 	public char[] getOuterClassName() {
 		return this.outerClassName;
 	}
 
 	/**
-	 * @see IInnerClassesAttribute#getOuterClassNameIndex()
+	 * @see IInnerClassesAttributeEntry#getOuterClassNameIndex()
 	 */
 	public int getOuterClassNameIndex() {
 		return this.outerClassNameIndex;

@@ -77,7 +77,7 @@ public class ExceptionAttribute extends ClassFileAttribute implements IException
 	}
 
 	/**
-	 * @see IClassFileAttribute#getAttributeName()
+	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
 	 */
 	public char[] getAttributeName() {
 		return IAttributeNamesConstants.EXCEPTIONS;

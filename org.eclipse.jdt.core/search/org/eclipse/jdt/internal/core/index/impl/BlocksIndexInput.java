@@ -159,7 +159,7 @@ public class BlocksIndexInput extends IndexInput {
 		setFirstWord();
 	}
 	/**
-	 * @see IndexInput#moveToNextFile
+	 * @see IndexInput#moveToNextFile()
 	 */
 	public void moveToNextFile() throws IOException {
 		filePosition++;
