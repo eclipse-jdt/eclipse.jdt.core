@@ -2662,7 +2662,7 @@ public final class CompletionEngine
 			
 			if(sourceType != null) {
 				ISourceMethod[] sourceMethods = sourceType.getMethods();
-				int len = sourceMethods == null ? 0 : sourceMethods.length;
+				int len = sourceMethods.length;
 				for(int i = 0; i < len ; i++){
 					ISourceMethod sourceMethod = sourceMethods[i];
 					char[][] argTypeNames = sourceMethod.getArgumentTypeNames();

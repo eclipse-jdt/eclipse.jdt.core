@@ -125,7 +125,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			this.unit.currentPackage =
 				createImportReference(sourceType.getPackageName(), start, end, false, AccDefault);
 		ISourceImport[]  sourceImports = sourceType.getImports();
-		int importCount = sourceImports == null ? 0 : sourceImports.length;
+		int importCount = sourceImports.length;
 		this.unit.imports = new ImportReference[importCount];
 		for (int i = 0; i < importCount; i++) {
 			ISourceImport sourceImport = sourceImports[i];
@@ -384,7 +384,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 		/* convert type parameters */
 		char[][] typeParameterNames = sourceType.getTypeParameterNames();
-		if (typeParameterNames != null && typeParameterNames.length > 0) { // TODO (jerome) fix once ISourceType's spec & SourceTypeElementInfo match
+		if (typeParameterNames.length > 0) {
 			int parameterCount = typeParameterNames.length;
 			char[][][] typeParameterBounds = sourceType.getTypeParameterBounds();
 			type.typeParameters = new TypeParameter[parameterCount];
@@ -407,8 +407,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		/* convert member types */
 		if ((this.flags & MEMBER_TYPE) != 0) {
 			ISourceType[] sourceMemberTypes = sourceType.getMemberTypes();
-			int sourceMemberTypeCount =
-				sourceMemberTypes == null ? 0 : sourceMemberTypes.length;
+			int sourceMemberTypeCount = sourceMemberTypes.length;
 			type.memberTypes = new TypeDeclaration[sourceMemberTypeCount];
 			for (int i = 0; i < sourceMemberTypeCount; i++) {
 				type.memberTypes[i] = convert(sourceMemberTypes[i], compilationResult);
@@ -426,7 +425,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int sourceFieldCount = 0;
 		if ((this.flags & FIELD) != 0) {
 			sourceFields = sourceType.getFields();
-			sourceFieldCount = sourceFields == null ? 0 : sourceFields.length;
+			sourceFieldCount = sourceFields.length;
 		}
 		int length = initializerCount + sourceFieldCount;
 		if (length > 0) {
@@ -446,7 +445,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		if (needConstructor || needMethod) {
 			
 			ISourceMethod[] sourceMethods = sourceType.getMethods();
-			int sourceMethodCount = sourceMethods == null ? 0 : sourceMethods.length;
+			int sourceMethodCount = sourceMethods.length;
 	
 			/* source type has a constructor ?           */
 			/* by default, we assume that one is needed. */

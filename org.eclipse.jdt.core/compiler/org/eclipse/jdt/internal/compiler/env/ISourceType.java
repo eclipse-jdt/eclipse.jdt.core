@@ -29,14 +29,14 @@ int getDeclarationSourceStart();
 ISourceType getEnclosingType();
 
 /**
- * Answer the receiver's fields or null if the array is empty.
+ * Answer the receiver's fields.
  *
  * NOTE: Multiple fields with the same name can exist in the result.
  */
 ISourceField[] getFields();
 
 /**
- * Answer the receiver's imports or null if the array is empty.
+ * Answer the receiver's imports.
  *
  * An import is a qualified, dot separated name.
  * For example, java.util.Hashtable or java.lang.*.
@@ -55,13 +55,12 @@ ISourceImport[] getImports();
 char[][] getInterfaceNames();
 
 /**
- * Answer the receiver's member types
- * or null if the array is empty.
+ * Answer the receiver's member types.
  */
 ISourceType[] getMemberTypes();
 
 /**
- * Answer the receiver's methods or null if the array is empty.
+ * Answer the receiver's methods.
  *
  * NOTE: Multiple methods with the same name & parameter types can exist in the result.
  */
@@ -99,13 +98,11 @@ char[] getPackageName();
  */
 char[] getSuperclassName();
 /**
- * Answer the names of the receiver's type parameters
- * or null if the array is empty.
- */
-char[][] getTypeParameterNames();
-/**
- * Answer the array of bound names of the receiver's type parameters
- * or null if the array is empty.
+ * Answer the array of bound names of the receiver's type parameters.
  */
 char[][][] getTypeParameterBounds();
+/**
+ * Answer the names of the receiver's type parameters.
+ */
+char[][] getTypeParameterNames();
 }
