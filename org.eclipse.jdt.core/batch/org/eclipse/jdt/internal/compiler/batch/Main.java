@@ -1295,6 +1295,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					IProblem[] problems = compilationResult.getAllProblems();
 					int count = problems.length;
 					int localErrorCount = 0;
+					char[] unitSource = compilationResult.compilationUnit.getContents();
 					for (int i = 0; i < count; i++) {
 						if (problems[i] != null) {
 							Main.this.globalProblemsCount++;
@@ -1316,8 +1317,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								Main.bind("requestor.in", new String(problems[i].getOriginatingFileName()))); //$NON-NLS-1$
 							try {
 								Main.this.err.println(
-									((DefaultProblem) problems[i]).errorReportSource(
-										compilationResult.compilationUnit));
+									((DefaultProblem) problems[i]).errorReportSource(unitSource));
 								Main.this.err.println(problems[i].getMessage());
 							} catch (Exception e) {
 								Main.this.err.println(

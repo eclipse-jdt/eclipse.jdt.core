@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblem implements ProblemSeverities, IProblem {
@@ -42,8 +41,8 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		this.endPosition = endPosition;
 		this.line = line;
 	}
-
-	public String errorReportSource(ICompilationUnit compilationUnit) {
+	//TODO should use StringBuffer.append(char[], int, int) instead of creating subarrays
+	public String errorReportSource(char[] unitSource) {
 		//extra from the source the innacurate     token
 		//and "highlight" it using some underneath ^^^^^
 		//put some context around too.
@@ -58,35 +57,34 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		final char SPACE = '\u0020';
 		final char MARK = '^';
 		final char TAB = '\t';
-		char[] source = compilationUnit.getContents();
 		//the next code tries to underline the token.....
 		//it assumes (for a good display) that token source does not
 		//contain any \r \n. This is false on statements ! 
 		//(the code still works but the display is not optimal !)
 
 		//compute the how-much-char we are displaying around the inaccurate token
-		int begin = startPosition >= source.length ? source.length - 1 : startPosition;
+		int begin = startPosition >= unitSource.length ? unitSource.length - 1 : startPosition;
 		int relativeStart = 0;
-		int end = endPosition >= source.length ? source.length - 1 : endPosition;
+		int end = endPosition >= unitSource.length ? unitSource.length - 1 : endPosition;
 		int relativeEnd = 0;
 		label : for (relativeStart = 0;; relativeStart++) {
 			if (begin == 0)
 				break label;
-			if ((source[begin - 1] == '\n') || (source[begin - 1] == '\r'))
+			if ((unitSource[begin - 1] == '\n') || (unitSource[begin - 1] == '\r'))
 				break label;
 			begin--;
 		}
 		label : for (relativeEnd = 0;; relativeEnd++) {
-			if ((end + 1) >= source.length)
+			if ((end + 1) >= unitSource.length)
 				break label;
-			if ((source[end + 1] == '\r') || (source[end + 1] == '\n')) {
+			if ((unitSource[end + 1] == '\r') || (unitSource[end + 1] == '\n')) {
 				break label;
 			}
 			end++;
 		}
 		//extract the message form the source
 		char[] extract = new char[end - begin + 1];
-		System.arraycopy(source, begin, extract, 0, extract.length);
+		System.arraycopy(unitSource, begin, extract, 0, extract.length);
 		char c;
 		//remove all SPACE and TAB that begin the error message...
 		int trimLeftIndex = 0;
@@ -110,7 +108,7 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		}
 		//mark the error position
 		for (int i = startPosition;
-			i <= (endPosition >= source.length ? source.length - 1 : endPosition);
+			i <= (endPosition >= unitSource.length ? unitSource.length - 1 : endPosition);
 			i++)
 			underneath[pos++] = MARK;
 		//resize underneathto remove 'null' chars

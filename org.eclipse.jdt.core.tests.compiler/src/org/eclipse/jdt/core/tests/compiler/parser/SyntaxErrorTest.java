@@ -54,6 +54,7 @@ public void checkParse(
 		IProblem[] problems = compilationResult.getAllProblems();
 		int count = problems.length;
 		int problemCount = 0;
+		char[] unitSource = compilationResult.compilationUnit.getContents();
 		for (int i = 0; i < count; i++) { 
 			if (problems[i] != null) {
 				if (problemCount == 0)
@@ -62,7 +63,7 @@ public void checkParse(
 				buffer.append(problemCount + (problems[i].isError() ? ". ERROR" : ". WARNING"));
 				buffer.append(" in " + new String(problems[i].getOriginatingFileName()).replace('/', '\\'));
 				try {
-					buffer.append(((DefaultProblem)problems[i]).errorReportSource(compilationResult.compilationUnit));
+					buffer.append(((DefaultProblem)problems[i]).errorReportSource(unitSource));
 					buffer.append("\n");
 					buffer.append(problems[i].getMessage());
 					buffer.append("\n");

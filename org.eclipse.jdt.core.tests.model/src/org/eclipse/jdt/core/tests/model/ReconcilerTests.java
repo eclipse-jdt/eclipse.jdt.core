@@ -35,8 +35,9 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void acceptProblem(IProblem problem) {
 			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
 			problems.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
+			char[] unitSource = ((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)(workingCopy == null ? cu : workingCopy)).getContents();
 			try {
-				problems.append(((DefaultProblem)problem).errorReportSource((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)(workingCopy == null ? cu : workingCopy)));
+				problems.append(((DefaultProblem)problem).errorReportSource(unitSource));
 				problems.append("\n");
 				problems.append(problem.getMessage());
 				problems.append("\n");
