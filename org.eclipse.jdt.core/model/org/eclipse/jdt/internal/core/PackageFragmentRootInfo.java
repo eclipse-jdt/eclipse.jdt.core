@@ -47,13 +47,14 @@ public PackageFragmentRootInfo() {
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-private Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder) throws JavaModelException {
+private Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder, char[][] exclusionPatterns) throws JavaModelException {
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
 		IResource[] members = folder.members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];
+			if (Util.isExcluded(member, exclusionPatterns)) continue;
 			if (member.getType() == IResource.FILE) {
 				String fileName = member.getName();
 				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
@@ -89,13 +90,17 @@ private Object[] computeFolderNonJavaResources(JavaProject project, IContainer f
  * 
  * @exception JavaModelException  The resource associated with this package fragment root does not exist
  */
-private Object[] computeNonJavaResources(IJavaProject project, IResource underlyingResource) {
+private Object[] computeNonJavaResources(IJavaProject project, IResource underlyingResource, PackageFragmentRoot handle) {
 	Object[] nonJavaResources = NO_NON_JAVA_RESOURCES;
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
 		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
-			nonJavaResources = computeFolderNonJavaResources((JavaProject)project, (IContainer) underlyingResource);
+			nonJavaResources = 
+				computeFolderNonJavaResources(
+					(JavaProject)project, 
+					(IContainer) underlyingResource,  
+					handle.getExclusionPatterns());
 		}
 	} catch (JavaModelException e) {
 	}
@@ -104,10 +109,10 @@ private Object[] computeNonJavaResources(IJavaProject project, IResource underly
 /**
  * Returns an array of non-java resources contained in the receiver.
  */
-synchronized Object[] getNonJavaResources(IJavaProject project, IResource underlyingResource) {
+synchronized Object[] getNonJavaResources(IJavaProject project, IResource underlyingResource, PackageFragmentRoot handle) {
 	Object[] nonJavaResources = fNonJavaResources;
 	if (nonJavaResources == null) {
-		nonJavaResources = this.computeNonJavaResources(project, underlyingResource);
+		nonJavaResources = this.computeNonJavaResources(project, underlyingResource, handle);
 		fNonJavaResources = nonJavaResources;
 	}
 	return nonJavaResources;

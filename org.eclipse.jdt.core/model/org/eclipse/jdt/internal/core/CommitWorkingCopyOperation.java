@@ -102,7 +102,12 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 				// force opening so that the delta builder can get the old info
 				original.open(null);
 			}
-			JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(original);
+			JavaElementDeltaBuilder deltaBuilder;
+			if (Util.isExcluded(original)) {
+				deltaBuilder = null;
+			} else {
+				deltaBuilder = new JavaElementDeltaBuilder(original);
+			}
 		
 			// save the cu
 			IBuffer originalBuffer = original.getBuffer();
@@ -127,12 +132,14 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 			copy.makeConsistent(this);
 			worked(1);
 		
-			// build the deltas
-			deltaBuilder.buildDeltas();
-		
-			// add the deltas to the list of deltas created during this operation
-			if (deltaBuilder.delta != null) {
-				addDelta(deltaBuilder.delta);
+			if (deltaBuilder != null) {
+				// build the deltas
+				deltaBuilder.buildDeltas();
+			
+				// add the deltas to the list of deltas created during this operation
+				if (deltaBuilder.delta != null) {
+					addDelta(deltaBuilder.delta);
+				}
 			}
 			worked(1);
 		} finally {	

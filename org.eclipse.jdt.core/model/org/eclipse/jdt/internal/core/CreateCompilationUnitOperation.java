@@ -89,7 +89,8 @@ protected void executeOperation() throws JavaModelException {
 				buffer.setContents(fSource);
 				unit.save(new NullProgressMonitor(), false);
 				fResultElements = new IJavaElement[] {unit};
-				if (unit.getParent().exists()) {
+				if (!Util.isExcluded(unit)
+						&& unit.getParent().exists()) {
 					for (int i = 0; i < fResultElements.length; i++) {
 						delta.changed(fResultElements[i], IJavaElementDelta.F_CONTENT);
 					}
@@ -104,7 +105,8 @@ protected void executeOperation() throws JavaModelException {
 				InputStream stream = new ByteArrayInputStream(encoding == null ? fSource.getBytes() : fSource.getBytes(encoding));
 				createFile(folder, unit.getElementName(), stream, false);
 				fResultElements = new IJavaElement[] {unit};
-				if (unit.getParent().exists()) {
+				if (!Util.isExcluded(unit)
+						&& unit.getParent().exists()) {
 					for (int i = 0; i < fResultElements.length; i++) {
 						delta.added(fResultElements[i]);
 					}

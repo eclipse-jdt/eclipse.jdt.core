@@ -38,13 +38,14 @@ public PackageFragmentInfo() {
  * <p>Package fragments which are in a jar only recognize .class files (
  * @see JarPackageFragment).
  */
-private Object[] computeNonJavaResources(IResource resource) {
+private Object[] computeNonJavaResources(IResource resource, char[][] exclusionPatterns) {
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try{
 		IResource[] members = ((IContainer) resource).members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];
+			if (Util.isExcluded(child, exclusionPatterns)) continue;
 			if (child.getType() == IResource.FILE) {
 				String fileName = child.getName();
 				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
@@ -90,10 +91,10 @@ boolean containsJavaResources() {
 /**
  * Returns an array of non-java resources contained in the receiver.
  */
-Object[] getNonJavaResources(IResource underlyingResource) {
+Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot rootHandle) {
 	Object[] nonJavaResources = fNonJavaResources;
 	if (nonJavaResources == null) {
-		nonJavaResources = computeNonJavaResources(underlyingResource);
+		nonJavaResources = computeNonJavaResources(underlyingResource, rootHandle.getExclusionPatterns());
 		fNonJavaResources = nonJavaResources;
 	}
 	return nonJavaResources;

@@ -212,7 +212,7 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		// We don't want to show non java resources of the default package (see PR #1G58NB8)
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
 	} else {
-		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getResource());
+		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getResource(), (PackageFragmentRoot)getPackageFragmentRoot());
 	}
 }
 /**

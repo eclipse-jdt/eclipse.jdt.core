@@ -65,13 +65,14 @@ public CreatePackageFragmentOperation(IPackageFragmentRoot parentElement, String
  * @exception JavaModelException if the operation is unable to complete
  */
 protected void executeOperation() throws JavaModelException {
-	JavaElementDelta delta = newJavaElementDelta();
+	JavaElementDelta delta = null;
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
 	String[] names = Signature.getSimpleNames(fName);
 	beginTask(Util.bind("operation.createPackageFragmentProgress"), names.length); //$NON-NLS-1$
 	IContainer parentFolder = (IContainer) root.getResource();
 	String sideEffectPackageName = ""; //$NON-NLS-1$
 	ArrayList resultElements = new ArrayList(names.length);
+	char[][] exclusionPatterns = ((PackageFragmentRoot)root).getExclusionPatterns();
 	int i;
 	for (i = 0; i < names.length; i++) {
 		String subFolderName = names[i];
@@ -81,7 +82,12 @@ protected void executeOperation() throws JavaModelException {
 			createFolder(parentFolder, subFolderName, fForce);
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			IPackageFragment addedFrag = root.getPackageFragment(sideEffectPackageName);
-			delta.added(addedFrag);
+			if (!Util.isExcluded(subFolder, exclusionPatterns)) {
+				if (delta == null) {
+					delta = newJavaElementDelta();
+				}
+				delta.added(addedFrag);
+			}
 			resultElements.add(addedFrag);
 		} else {
 			parentFolder = (IContainer) subFolder;
@@ -92,7 +98,9 @@ protected void executeOperation() throws JavaModelException {
 	if (resultElements.size() > 0) {
 		fResultElements = new IJavaElement[resultElements.size()];
 		resultElements.toArray(fResultElements);
-		addDelta(delta);
+		if (delta != null) {
+			addDelta(delta);
+		}
 	}
 	done();
 }

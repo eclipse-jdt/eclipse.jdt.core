@@ -157,15 +157,15 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 					this.setAttribute("hasModifiedResource", "true");
 				worked(1);
 				fResultElements = generateResultHandles();
-				if (!isWorkingCopy) { // if unit is working copy, then save will have already fired the delta
-					if (unit.getParent().exists()) {
-						for (int i = 0; i < fResultElements.length; i++) {
-							delta.added(fResultElements[i]);
-						}
-						addDelta(delta);
-					} // else unit is created outside classpath
-					  // non-java resource delta will be notified by delta processor
-				}
+				if (!isWorkingCopy // if unit is working copy, then save will have already fired the delta
+						&& !Util.isExcluded(unit)
+						&& unit.getParent().exists()) {
+					for (int i = 0; i < fResultElements.length; i++) {
+						delta.added(fResultElements[i]);
+					}
+					addDelta(delta);
+				} // else unit is created outside classpath
+				  // non-java resource delta will be notified by delta processor
 			}
 		} finally {
 			done();

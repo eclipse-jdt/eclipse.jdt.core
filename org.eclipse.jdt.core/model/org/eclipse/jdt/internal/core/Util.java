@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaConventions;
@@ -1065,6 +1066,28 @@ public static String bind(String id, String binding1, String binding2) {
 			if (c != SUFFIX_class[i] && c != SUFFIX_CLASS[i]) return false;
 		}
 		return true;		
+	}
+	/*
+	 * Returns whether the given java element is exluded from its classpath.	 */
+	public static final boolean isExcluded(IJavaElement element) {
+		switch (element.getElementType()) {
+			case IJavaElement.JAVA_PROJECT:
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+			case IJavaElement.CLASS_FILE:
+				// projects, pkg fragment root and class files are never excluded
+				return false;
+			case IJavaElement.PACKAGE_FRAGMENT:
+			case IJavaElement.COMPILATION_UNIT:
+				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				char[][] exclusionPatterns = root.getExclusionPatterns();
+				IResource resource = element.getResource();
+				return resource != null && Util.isExcluded(resource, exclusionPatterns);
+			default:
+				// everything in a compilation unit
+				IJavaElement cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
+				if (cu == null) return false;
+				return isExcluded(cu);
+		}
 	}
 	/*
 	 * Returns whether the given resource matches one of the exclusion patterns.

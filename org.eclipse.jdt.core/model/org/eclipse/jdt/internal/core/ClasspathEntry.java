@@ -129,9 +129,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			for (int i = 0; i < length; i++) {
 				IPath fullPath = prefixPath, pattern;
 				if (!(pattern = exclusionPatterns[i]).isAbsolute()) { // add leading ** to relative fragment
-					fullPath.append("**/"); //$NON-NLS-1$
+					fullPath = fullPath.append("**/"); //$NON-NLS-1$
 				}
-				fullPath.append(pattern);
+				fullPath = fullPath.append(pattern);
 				this.fullCharExclusionPatterns[i] = fullPath.toString().toCharArray();
 			}
 		}

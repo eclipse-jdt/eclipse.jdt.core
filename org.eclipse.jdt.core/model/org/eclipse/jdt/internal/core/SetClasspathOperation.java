@@ -627,8 +627,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 		while (iter.hasNext()){
 			IPackageFragment frag= (IPackageFragment)iter.next();
 			((IPackageFragmentRoot)frag.getParent()).close();
-			delta.added(frag);
-			deltaToFire = true;
+			if (!Util.isExcluded(frag)) {
+				delta.added(frag);
+				deltaToFire = true;
+			}
 		}
 	
 		// see if this will cause any package fragments to be removed
@@ -637,8 +639,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 		while (iter.hasNext()){
 			IPackageFragment frag= (IPackageFragment)iter.next();
 			((IPackageFragmentRoot)frag.getParent()).close();
-			delta.removed(frag);
-			deltaToFire = true;
+			if (!Util.isExcluded(frag)) {
+				delta.removed(frag);
+				deltaToFire = true;
+			}
 		}
 		
 		project.getJavaProjectElementInfo().setOutputLocation(this.newOutputLocation);

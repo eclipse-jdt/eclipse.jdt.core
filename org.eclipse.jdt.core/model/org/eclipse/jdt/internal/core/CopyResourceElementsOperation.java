@@ -130,9 +130,10 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	 */
 	private void createNeededPackageFragments(IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
 		IContainer parentFolder = (IContainer) root.getResource();
-		JavaElementDelta projectDelta = getDeltaFor(root.getJavaProject());
+		JavaElementDelta projectDelta = null;
 		String[] names = Signature.getSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
+		char[][] exclusionsPatterns = ((PackageFragmentRoot)root).getExclusionPatterns();
 		for (int i = 0; i < names.length; i++) {
 			String subFolderName = names[i];
 			sideEffectPackageName.append(subFolderName);
@@ -144,7 +145,11 @@ public class CopyResourceElementsOperation extends MultiOperation {
 				}
 				parentFolder = parentFolder.getFolder(new Path(subFolderName));
 				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
-				if (i < names.length - 1) { // all but the last one are side effect packages
+				if (i < names.length - 1 // all but the last one are side effect packages
+						&& !org.eclipse.jdt.internal.core.Util.isExcluded(subFolder, exclusionsPatterns)) { 
+					if (projectDelta == null) {
+						projectDelta = getDeltaFor(root.getJavaProject());
+					}
 					projectDelta.added(sideEffectPackage);
 				}
 				fCreatedElements.add(sideEffectPackage);
@@ -185,6 +190,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	 * 	 
 	 */
 	protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinationElement, boolean isMove) {
+		if (org.eclipse.jdt.internal.core.Util.isExcluded(destinationElement)) return;
 		IJavaProject destProject = destinationElement.getJavaProject();
 		if (isMove) {
 			IJavaProject sourceProject = sourceElement.getJavaProject();

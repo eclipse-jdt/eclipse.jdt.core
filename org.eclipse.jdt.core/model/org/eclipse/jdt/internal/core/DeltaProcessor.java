@@ -712,7 +712,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					elementType != IJavaElement.JAVA_PROJECT && movedFromType == IJavaElement.JAVA_PROJECT ? 
 						null : // outside classpath
 						this.createElement(movedFromRes, movedFromType, null); // pass null for the project in case the element is moving to another project
-				if (movedFromElement == null) {
+				if (movedFromElement == null || Util.isExcluded(movedFromElement)) {
 					// moved from outside classpath
 					fCurrentDelta.added(element);
 				} else {
@@ -813,7 +813,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				elementType != IJavaElement.JAVA_PROJECT && movedToType == IJavaElement.JAVA_PROJECT ? 
 					null : // outside classpath
 					this.createElement(movedToRes, movedToType, null); // pass null for the project in case the element is moving to another project
-			if (movedToElement == null) {
+			if (movedToElement == null || Util.isExcluded(movedToElement)) {
 				// moved outside classpath
 				fCurrentDelta.removed(element);
 			} else {

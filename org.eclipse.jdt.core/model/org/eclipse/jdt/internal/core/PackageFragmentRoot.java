@@ -182,7 +182,12 @@ public boolean exists() {
  * Returns the exclusion patterns from the classpath entry associated with this root. */
 char[][] getExclusionPatterns() {
 	try {
-		return ((ClasspathEntry)getRawClasspathEntry()).fulExclusionPatternChars();
+		ClasspathEntry entry = (ClasspathEntry)getRawClasspathEntry();
+		if (entry == null) {
+			return null;
+		} else {
+			return entry.fulExclusionPatternChars();
+		}
 	} catch (JavaModelException e) { 
 		return null;
 	}
@@ -211,7 +216,7 @@ public int getKind() throws JavaModelException {
  * Returns an array of non-java resources contained in the receiver.
  */
 public Object[] getNonJavaResources() throws JavaModelException {
-	return ((PackageFragmentRootInfo) getElementInfo()).getNonJavaResources(getJavaProject(), getResource());
+	return ((PackageFragmentRootInfo) getElementInfo()).getNonJavaResources(getJavaProject(), getResource(), this);
 }
 /**
  * @see IPackageFragmentRoot
