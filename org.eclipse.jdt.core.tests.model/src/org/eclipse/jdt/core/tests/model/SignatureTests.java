@@ -406,6 +406,69 @@ public void testGetTypeParameterBounds() {
 /**
  * @see Signature
  */
+public void testGetTypeArguments1() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QT;\n",
+		Signature.getTypeArguments("QList<QT;>;")
+	);
+}
+
+public void testGetTypeArguments2() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QT;\n" +
+		"QU;\n",
+		Signature.getTypeArguments("QX<QT;QU;>;")
+	);
+}
+
+public void testGetTypeArguments3() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"*\n",
+		Signature.getTypeArguments("QX<*>;")
+	);
+}
+
+public void testGetTypeArguments4() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"+QE;\n" +
+		"-QS;\n",
+		Signature.getTypeArguments("QX<+QE;-QS;>;")
+	);
+}
+
+public void testGetTypeArguments5() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"QList<QT;>;\n" +
+		"QMap<QU;QABC<QT;>;>;\n",
+		Signature.getTypeArguments("QX<QList<QT;>;QMap<QU;QABC<QT;>;>;>;")
+	);
+}
+
+/**
+ * @see Signature
+ */
+public void testGetTypeErasure1() {
+	assertEquals(
+		"QList;",
+		Signature.getTypeErasure("QList<QT;>;")
+	);
+}
+
+public void testGetTypeErasure2() {
+	assertEquals(
+		"QList;",
+		Signature.getTypeErasure("QList;")
+	);
+}
+
+/**
+ * @see Signature
+ */
 public void testGetSimpleName() {
 	assertEquals("Signature#getSimpleName is not correct 1", "Object",
 			Signature.getSimpleName("java.lang.Object"));

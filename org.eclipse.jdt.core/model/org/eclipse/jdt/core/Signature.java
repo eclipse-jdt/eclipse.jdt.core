@@ -1444,6 +1444,88 @@ public static char[][] getThrownExceptionTypes(char[] methodSignature) throws Il
 }
 
 /**
+ * Extracts the type argument signatures from the given parameterized type signature.
+ *
+ * @param parameterizedTypeSignature the parameterized type signature
+ * @return the signatures of the type arguments
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect, or if it is not a parameterized type
+ * 
+ * @since 3.1
+ */
+public static char[][] getTypeArguments(char[] parameterizedTypeSignature) throws IllegalArgumentException {
+	int start = CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature);
+	if (start == -1) throw new IllegalArgumentException();
+	ArrayList args = new ArrayList();
+	int p = start + 1;
+	while (true) {
+		if (p >= parameterizedTypeSignature.length) {
+			throw new IllegalArgumentException();
+		}
+		char c = parameterizedTypeSignature[p];
+		if (c == C_GENERIC_END) {
+			int size = args.size();
+			char[][] result = new char[size][];
+			args.toArray(result);
+			return result;
+		}
+		int e = scanTypeArgumentSignature(parameterizedTypeSignature, p);
+		args.add(CharOperation.subarray(parameterizedTypeSignature, p, e+1));
+		p = e + 1;
+	}
+}
+
+/**
+ * Extracts the type argument signatures from the given parameterized type signature.
+ *
+ * @param parameterizedTypeSignature the parameterized type signature
+ * @return the signatures of the type arguments
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect, or if it has no type arguments
+ * 
+ * @since 3.1
+ */
+public static String[] getTypeArguments(String parameterizedTypeSignature) throws IllegalArgumentException {
+	char[][] args = getTypeArguments(parameterizedTypeSignature.toCharArray());
+	return CharOperation.toStrings(args);
+}
+
+/**
+ * Extracts the type erasure signature from the given parameterized type signature.
+ * Returns the given type signature if it is not parameterized.
+ * 
+ * @param parameterizedTypeSignature the parameterized type signature
+ * @return the signature of the type erasure
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * 
+ * @since 3.1
+ */
+public static char[] getTypeErasure(char[] parameterizedTypeSignature) throws IllegalArgumentException {
+	int genericStart = CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature);
+	if (genericStart == -1) return parameterizedTypeSignature;
+	char[] result = new char[genericStart+1];
+	System.arraycopy(parameterizedTypeSignature, 0, result, 0, genericStart);
+	result[genericStart] = C_SEMICOLON;
+	return result;
+}
+
+/**
+ * Extracts the type erasure signature from the given parameterized type signature.
+ * Returns the given type signature if it is not parameterized.
+ * 
+ * @param parameterizedTypeSignature the parameterized type signature
+ * @return the signature of the type erasure
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * 
+ * @since 3.1
+ */
+public static String getTypeErasure(String parameterizedTypeSignature) throws IllegalArgumentException {
+	return new String(getTypeErasure(parameterizedTypeSignature.toCharArray()));
+}
+
+/**
  * Extracts the type parameter signatures from the given method or type signature. 
  * The method or type signature is expected to be dot-based.
  *
