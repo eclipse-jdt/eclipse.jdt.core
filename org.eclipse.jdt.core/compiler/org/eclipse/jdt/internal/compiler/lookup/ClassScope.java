@@ -798,6 +798,7 @@ public class ClassScope extends Scope {
 	        
 	        //TODO ignore parameter bounds for now
 	        typeVariable.superclass = getJavaLangObject();
+	        typeVariable.superInterfaces = NoSuperInterfaces;
 	        // set firstBound to the binding of the first explicit bound in parameter declaration
 	       	typeVariable.firstBound = null; // first bound used to compute erasure
 	    }

@@ -357,7 +357,7 @@ public class ClassFile
 				constantPool.literalIndex(AttributeNamesConstants.SignatureName);
 			contents[contentsOffset++] = (byte) (signatureAttributeNameIndex >> 8);
 			contents[contentsOffset++] = (byte) signatureAttributeNameIndex;
-			// the length of a deprecated attribute is equals to 0
+			// the length of a signature attribute is equals to 2
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
