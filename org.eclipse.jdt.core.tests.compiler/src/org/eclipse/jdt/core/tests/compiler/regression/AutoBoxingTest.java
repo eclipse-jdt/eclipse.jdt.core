@@ -2778,4 +2778,85 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n"
         );
     }          
-}
+    // conditional operator: bool ? Integer : Integer --> Integer (identical operand types)
+    // but   bool ? Integer : Short --> unboxed int
+    public void test097() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"    public static void main(String args[]) {\n" + 
+				"        Integer i = 1;\n" + 
+				"        Integer j = 2;\n" + 
+				"        Short s = 3;\n" + 
+				"        foo(args != null ? i : j);\n" + 
+				"        foo(args != null ? i : s);\n" + 
+				"    }\n" + 
+				"    static void foo(int i) {\n" + 
+				"        System.out.print(\"[int:\"+i+\"]\");\n" + 
+				"    }\n" + 
+				"    static void foo(Integer i) {\n" + 
+				"        System.out.print(\"[Integer:\"+i+\"]\");\n" + 
+				"    }\n" + 
+				"}\n"
+            },
+			"[Integer:1][int:1]"
+        );
+    }
+    // conditional operator: bool ? Integer : Integer --> Integer (identical operand types)
+    // but   bool ? Integer : Short --> unboxed int
+    // check autoboxing warnings
+    public void test098() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"    public static void main(String args[]) {\n" + 
+				"        Integer i = 1;\n" + 
+				"        Integer j = 2;\n" + 
+				"        Short s = 3;\n" + 
+				"        foo(args != null ? i : j);\n" + 
+				"        foo(args != null ? i : s);\n" + 
+				"		 Zork z;\n" +
+				"    }\n" + 
+				"    static void foo(int i) {\n" + 
+				"        System.out.print(\"[int:\"+i+\"]\");\n" + 
+				"    }\n" + 
+				"    static void foo(Integer i) {\n" + 
+				"        System.out.print(\"[Integer:\"+i+\"]\");\n" + 
+				"    }\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Integer i = 1;\n" + 
+			"	            ^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	Integer j = 2;\n" + 
+			"	            ^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	Short s = 3;\n" + 
+			"	          ^\n" + 
+			"The expression of type int is boxed into Short\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	foo(args != null ? i : s);\n" + 
+			"	                   ^\n" + 
+			"The expression of type Integer is unboxed into int\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 7)\n" + 
+			"	foo(args != null ? i : s);\n" + 
+			"	                       ^\n" + 
+			"The expression of type Short is unboxed into int\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+        );
+    }}
