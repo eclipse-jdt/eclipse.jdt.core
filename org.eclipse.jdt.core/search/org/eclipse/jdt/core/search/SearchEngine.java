@@ -227,7 +227,7 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  * <br>
  *	Examples:
  *	<ul>
- * 		<li>search for case insensitive references to <code>Object</code>:
+ * 	<li>search for case insensitive references to <code>Object</code>:
  *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code></li>
  *  	<li>search for case sensitive references to exact <code>Object()</code> constructor:
  *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code></li>
