@@ -196,7 +196,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 /**
  * Reports the match of the given qualified name reference.
  */
-private void matchReportReference(QualifiedNameReference qNameRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	char[][] tokens = null;
 	Binding binding = qNameRef.binding;
 	TypeBinding typeBinding = null;
@@ -235,7 +235,7 @@ private void matchReportReference(QualifiedNameReference qNameRef, IJavaElement 
 /**
  * Reports the match of the given qualified type reference.
  */
-private void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	char[][] tokens = null;
 	TypeBinding typeBinding = qTypeRef.binding;
 	if (typeBinding instanceof ArrayBinding) {
@@ -432,7 +432,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 /**
  * Reports the match of the given array type reference.
  */
-private void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	char[][] tokens = this.simpleName == null ? NO_CHAR_CHAR : new char[][] {this.simpleName};
 	locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, tokens, element, accuracy);
 }

@@ -54,11 +54,14 @@ public class MatchLocator implements ITypeRequestor {
 	public IJavaSearchScope scope;
 
 	public MatchLocatorParser parser;
+	public NameLookup nameLookup;
 	public LookupEnvironment lookupEnvironment;
 	public HashtableOfObject parsedUnits;
 	private MatchingOpenableSet matchingOpenables;
 	private MatchingOpenable currentMatchingOpenable;
 	public HandleFactory handleFactory;
+
+	private static char[] EMPTY_FILE_NAME = new char[0];
 
 	public MatchLocator(
 		SearchPattern pattern,
@@ -483,23 +486,71 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 				}
 			}
 	}
+public IType lookupType(TypeBinding typeBinding) {
+	char[] packageName = typeBinding.qualifiedPackageName();
+	char[] typeName = typeBinding.qualifiedSourceName();
+	IPackageFragment[] pkgs = 
+		this.nameLookup.findPackageFragments(
+			(packageName == null || packageName.length == 0) ? 
+				IPackageFragment.DEFAULT_PACKAGE_NAME : 
+				new String(packageName), 
+			false);
+	// iterate type lookup in each package fragment
+	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
+		IType type = 
+			this.nameLookup.findType(
+				new String(typeName), 
+				pkgs[i], 
+				false, 
+				typeBinding.isClass() ?
+					NameLookup.ACCEPT_CLASSES:
+					NameLookup.ACCEPT_INTERFACES);
+		if (type != null) return type;	
+	}
+	return null;
+}
 	public void report(
 		int sourceStart,
 		int sourceEnd,
 		IJavaElement element,
 		int accuracy)
 		throws CoreException {
+
 		if (this.scope.encloses(element)) {
-			this.collector.accept(
+			this.report(
 				this.getCurrentResource(),
 				sourceStart,
-				sourceEnd + 1,
+				sourceEnd,
 				element,
 				accuracy);
 		}
 	}
+	public void report(
+		IResource resource,
+		int sourceStart,
+		int sourceEnd,
+		IJavaElement element,
+		int accuracy)
+		throws CoreException {
+
+		this.collector.accept(
+			resource,
+			sourceStart,
+			sourceEnd + 1,
+			element,
+			accuracy);
+	}
 
 	public void reportBinaryMatch(
+		IMember binaryMember,
+		IBinaryType info,
+		int accuracy)
+		throws CoreException, JavaModelException {
+			
+		this.reportBinaryMatch(null, binaryMember, info, accuracy);
+	}
+	public void reportBinaryMatch(
+		IResource resource,
 		IMember binaryMember,
 		IBinaryType info,
 		int accuracy)
@@ -518,7 +569,11 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		}
 		int startIndex = range.getOffset();
 		int endIndex = startIndex + range.getLength() - 1;
-		this.report(startIndex, endIndex, binaryMember, accuracy);
+		if (resource == null) {
+			this.report(startIndex, endIndex, binaryMember, accuracy);
+		} else {
+			this.report(resource, startIndex, endIndex, binaryMember, accuracy);
+		}
 	}
 
 	/**
@@ -884,8 +939,93 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
 		this.parsedUnits = new HashtableOfObject(10);
 		this.pattern.initializePolymorphicSearch(this, project, this.collector.getProgressMonitor());
+		this.nameLookup = project.getNameLookup();
 	}
 
+	public CompilationUnitDeclaration dietParse(final char[] source) {
+		// source unit
+		ICompilationUnit sourceUnit = new ICompilationUnit() {
+			public char[] getContents() {
+				return source;
+			}
+			public char[] getFileName() {
+				return EMPTY_FILE_NAME; // not used
+			}
+			public char[] getMainTypeName() {
+				return null; // don't need to check if main type name == compilation unit name
+			}
+		};
+		
+		// diet parse
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);  
+		return this.parser.dietParse(sourceUnit, compilationResult);
+	}
+	
+	public char[] findSource(ClassFile classFile) {
+		char[] source = null; 
+		try {
+			SourceMapper sourceMapper = classFile.getSourceMapper();
+			if (sourceMapper != null) {
+				source = sourceMapper.findSource(classFile.getType());
+			}
+			if (source == null) {
+				// default to opening the class file
+				String sourceFromBuffer = classFile.getSource();
+				if (sourceFromBuffer != null) {
+					source = sourceFromBuffer.toCharArray();
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+		return source;
+	}
+public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFile, IResource resource) throws CoreException {
+	BinaryType binaryType = (BinaryType)classFile.getType();
+	if (classFile.isOpen()) {
+		// reuse the info from the java model cache
+		return (IBinaryType)binaryType.getRawInfo();
+	} else {
+		// create a temporary info
+		IBinaryType info;
+		try {
+			IJavaElement pkg = classFile.getParent();
+			PackageFragmentRoot root = (PackageFragmentRoot)pkg.getParent();
+			if (root.isArchive()) {
+				// class file in a jar
+				String pkgPath = pkg.getElementName().replace('.', '/');
+				String classFilePath = 
+					(pkgPath.length() > 0) ?
+						pkgPath + "/" + classFile.getElementName() : //$NON-NLS-1$
+						classFile.getElementName();
+				ZipFile zipFile = null;
+				try {
+					zipFile = ((JarPackageFragmentRoot)root).getJar();
+					info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(
+						zipFile,
+						classFilePath);
+				} finally {
+					if (zipFile != null) {
+						try {
+							zipFile.close();
+						} catch (IOException e) {
+							// ignore 
+						}
+					}
+				}
+			} else {
+				// class file in a directory
+				String osPath = resource.getFullPath().toOSString();
+				info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
+			}
+			return info;
+		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+			//e.printStackTrace();
+			return null;
+		} catch (java.io.IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+	}
+}
 	protected Openable getCurrentOpenable() {
 		return this.currentMatchingOpenable.openable;
 	}

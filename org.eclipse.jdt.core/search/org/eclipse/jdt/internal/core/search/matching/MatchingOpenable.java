@@ -23,7 +23,6 @@ import java.io.*;
 import java.util.zip.ZipFile;
 
 public class MatchingOpenable {
-	private static char[] EMPTY_FILE_NAME = new char[0];
 	private MatchLocator locator;
 	public IResource resource;
 	public Openable openable;
@@ -55,36 +54,21 @@ public void buildTypeBindings() {
 	if (openable instanceof CompilationUnit) {
 		this.buildTypeBindings(this.getSource());
 	} else if (openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		try {
-			char[] source = null; 
-			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)openable;
-			SourceMapper sourceMapper = classFile.getSourceMapper();
-			if (sourceMapper != null) {
-				source = sourceMapper.findSource(classFile.getType());
+		char[] source = this.locator.findSource((org.eclipse.jdt.internal.core.ClassFile)openable); 
+		if (source != null) {
+			this.buildTypeBindings(source);
+			
+			// try to use the main type's class file as the openable
+			TypeDeclaration[] types = this.parsedUnit.types;
+			if (types != null && types.length > 0) {
+				String simpleTypeName = new String(types[0].name);
+				IPackageFragment parent = (IPackageFragment)openable.getParent();
+				org.eclipse.jdt.core.IClassFile mainTypeClassFile = 
+					parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
+				if (mainTypeClassFile.exists()) {
+					this.openable = (Openable)mainTypeClassFile;
+				} 
 			}
-			if (source == null) {
-				// default to opening the class file
-				String sourceFromBuffer = classFile.getSource();
-				if (sourceFromBuffer != null) {
-					source = sourceFromBuffer.toCharArray();
-				}
-			}
-			if (source != null) {
-				this.buildTypeBindings(source);
-				
-				// try to use the main type's class file as the openable
-				TypeDeclaration[] types = this.parsedUnit.types;
-				if (types != null && types.length > 0) {
-					String simpleTypeName = new String(types[0].name);
-					IPackageFragment parent = (IPackageFragment)openable.getParent();
-					org.eclipse.jdt.core.IClassFile mainTypeClassFile = 
-						parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
-					if (mainTypeClassFile.exists()) {
-						this.openable = (Openable)mainTypeClassFile;
-					} 
-				}
-			}
-		} catch (JavaModelException e) {
 		}
 	}
 }
@@ -113,23 +97,9 @@ private void buildTypeBindings(final char[] source) {
 
 	this.parsedUnit = (CompilationUnitDeclaration)this.locator.parsedUnits.get(qualifiedName);
 	if (this.parsedUnit == null) {
-		// source unit
-		ICompilationUnit sourceUnit = new ICompilationUnit() {
-			public char[] getContents() {
-				return source;
-			}
-			public char[] getFileName() {
-				return EMPTY_FILE_NAME; // not used
-			}
-			public char[] getMainTypeName() {
-				return null; // don't need to check if main type name == compilation unit name
-			}
-		};
-		
 		// diet parse
-		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);  
-		this.parsedUnit = this.locator.parser.dietParse(sourceUnit, compilationResult);
-
+		this.parsedUnit = this.locator.dietParse(source);
+		
 		// initial type binding creation
 		this.locator.lookupEnvironment.buildTypeBindings(this.parsedUnit);
 	} else {
@@ -182,54 +152,12 @@ public void locateMatches() throws CoreException {
  */
 private void locateMatchesInClassFile() throws CoreException, JavaModelException {
 	org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-	BinaryType binaryType = (BinaryType)classFile.getType();
-	IBinaryType info;
-	if (classFile.isOpen()) {
-		// reuse the info from the java model cache
-		info = (IBinaryType)binaryType.getRawInfo();
-	} else {
-		// create a temporary info
-		try {
-			IJavaElement pkg = classFile.getParent();
-			PackageFragmentRoot root = (PackageFragmentRoot)pkg.getParent();
-			if (root.isArchive()) {
-				// class file in a jar
-				String pkgPath = pkg.getElementName().replace('.', '/');
-				String classFilePath = 
-					(pkgPath.length() > 0) ?
-						pkgPath + "/" + classFile.getElementName() : //$NON-NLS-1$
-						classFile.getElementName();
-				ZipFile zipFile = null;
-				try {
-					zipFile = ((JarPackageFragmentRoot)root).getJar();
-					info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(
-						zipFile,
-						classFilePath);
-				} finally {
-					if (zipFile != null) {
-						try {
-							zipFile.close();
-						} catch (IOException e) {
-							// ignore 
-						}
-					}
-				}
-			} else {
-				// class file in a directory
-				String osPath = this.resource.getFullPath().toOSString();
-				info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
-			}
-		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-			//e.printStackTrace();
-			return;
-		} catch (java.io.IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		}
-	}
+	IBinaryType info = this.locator.getBinaryInfo(classFile, this.resource);
 	if (info == null) 
 		return; // unable to go further
 
 	// check class definition
+	BinaryType binaryType = (BinaryType)classFile.getType();
 	if (this.locator.pattern.matchesBinary(info, null)) {
 		this.locator.reportBinaryMatch(binaryType, info, IJavaSearchResultCollector.EXACT_MATCH);
 	}
