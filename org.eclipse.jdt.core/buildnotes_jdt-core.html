@@ -43,6 +43,15 @@ Eclipse SDK 3.0M8 Build - ?th February 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added following APIs to <code>org.eclipse.jdt.core.dom.CompilationUnit</code>:
+<ul>
+<li><code>getCommentList()</code>: Returns a list of the comments encountered while parsing the compilation unit.</li>
+<li><code>getExtendedStartPosition(ASTNode)</code>: Returns the extended start position for a given DOM/AST node.
+This extended position takes into account node leading comments.</li>
+<li><code>getExtendedLength(ASTNode)</code>: Returns the extended length for a given DOM/AST node.
+This extended length takes into account node trailing comments.</li>
+</li>
+</ul>
 <li>Added API <code>FieldReferenceMatch.isReadAccess()</code> and <code>isWriteAccess()</code>.
 <li>Added API <code>JavaCore.run(IWorkspaceRunnable action, ISchedulingRule rule, IProgressMonitor monitor)</code> 
 	 to control the scheduling rule during a Java batch operation.
@@ -59,7 +68,11 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48337">48337</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53276">53276</a>
+[DOM Comments] Wrong text element length when containing '\' character
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52908">52908</a>
+[DOM Comments] Wrong text element positions when starting/ending with { or }
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48337">48337</a>
 [Search] FieldReferenceMatch should report read/write access 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52691">52691</a>
 Add batch compiler option for maxProblemsPerUnit

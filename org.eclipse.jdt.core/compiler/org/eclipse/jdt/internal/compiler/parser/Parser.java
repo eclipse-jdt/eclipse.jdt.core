@@ -5695,6 +5695,10 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	/* scanner initialization */
 	this.scanner.setSource(source);
 	this.scanner.resetTo(offset, offset + length - 1);
+	if (this.javadocParser != null && this.javadocParser.checkDocComment) {
+		this.javadocParser.scanner.setSource(source);
+		this.javadocParser.scanner.resetTo(offset, offset + length - 1);
+	}
 
 	/* type declaration should be parsed as member type declaration */	
 	this.nestedType = 1;

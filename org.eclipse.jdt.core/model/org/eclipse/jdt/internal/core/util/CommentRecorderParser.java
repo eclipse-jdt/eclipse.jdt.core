@@ -82,7 +82,67 @@ public class CommentRecorderParser extends Parser {
 
 	}
 
-	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeClassHeader()
+	 */
+	protected void consumeClassHeader() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeClassHeader();
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeEmptyClassMemberDeclaration()
+	 */
+	protected void consumeEmptyClassMemberDeclaration() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeEmptyClassMemberDeclaration();
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeEmptyTypeDeclaration()
+	 */
+	protected void consumeEmptyTypeDeclaration() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeEmptyTypeDeclaration();
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeInterfaceHeader()
+	 */
+	protected void consumeInterfaceHeader() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeInterfaceHeader();
+	}
+
+	/**
+	 * Insure that start position is always positive.
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#containsComment(int, int)
+	 */
+	public boolean containsComment(int sourceStart, int sourceEnd) {
+		int iComment = this.scanner.commentPtr;
+		for (; iComment >= 0; iComment--) {
+			int commentStart = this.scanner.commentStarts[iComment];
+			if (commentStart < 0) {
+				commentStart = -commentStart;
+			}
+			// ignore comments before start
+			if (commentStart < sourceStart) continue;
+			// ignore comments after end
+			if (commentStart > sourceEnd) continue;
+			return true;
+		}
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#endParse(int)
+	 */
+	protected CompilationUnitDeclaration endParse(int act) {
+		CompilationUnitDeclaration unit = super.endParse(act);
+		if (unit.comments == null) {
+			pushOnCommentsStack(0, this.scanner.commentPtr);
+			unit.comments = getCommentsPositions();
+		}
+		return unit;
+	}
+
 	/* (non-Javadoc)
 	 * Save all source comments currently stored before flushing them.
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#flushCommentsDefinedPriorTo(int)
@@ -131,6 +191,41 @@ public class CommentRecorderParser extends Parser {
 	}
 
 	/*
+	 * Build a n*2 matrix of comments positions.
+	 * For each position, 0 is for start position and 1 for end position of the comment.
+	 */
+	public int[][] getCommentsPositions() {
+		int[][] positions = new int[this.commentPtr+1][2];
+		for (int i = 0, max = this.commentPtr; i <= max; i++){
+			positions[i][0] = this.commentStarts[i];
+			positions[i][1] = this.commentStops[i];
+		}
+		return positions;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
+	 */
+	public void initialize() {
+		super.initialize();
+		this.commentPtr = -1;
+	}
+	
+	/* (non-Javadoc)
+	 * Create and store a specific comment recorder scanner.
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initializeScanner()
+	 */
+	public void initializeScanner() {
+		this.scanner = new CommentRecorderScanner(
+				false /*comment*/, 
+				false /*whitespace*/, 
+				this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
+				this.options.sourceLevel /*sourceLevel*/, 
+				this.options.taskTags/*taskTags*/,
+				this.options.taskPriorites/*taskPriorities*/);
+	}
+
+	/*
 	 * Push all stored comments in stack.
 	 */
 	private void pushOnCommentsStack(int start, int end) {
@@ -166,72 +261,5 @@ public class CommentRecorderParser extends Parser {
 	protected void resetModifiers() {
 		pushOnCommentsStack(0, this.scanner.commentPtr);
 		super.resetModifiers();
-	}
-
-	/**
-	 * Insure that start position is always positive.
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#containsComment(int, int)
-	 */
-	public boolean containsComment(int sourceStart, int sourceEnd) {
-		int iComment = this.scanner.commentPtr;
-		for (; iComment >= 0; iComment--) {
-			int commentStart = this.scanner.commentStarts[iComment];
-			if (commentStart < 0) {
-				commentStart = -commentStart;
-			}
-			// ignore comments before start
-			if (commentStart < sourceStart) continue;
-			// ignore comments after end
-			if (commentStart > sourceEnd) continue;
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	 * Build a n*2 matrix of comments positions.
-	 * For each position, 0 is for start position and 1 for end position of the comment.
-	 */
-	public int[][] getCommentsPositions() {
-		int[][] positions = new int[this.commentPtr+1][2];
-		for (int i = 0, max = this.commentPtr; i <= max; i++){
-			positions[i][0] = this.commentStarts[i];
-			positions[i][1] = this.commentStops[i];
-		}
-		return positions;
-	}
-	
-	/* (non-Javadoc)
-	 * Create and store a specific DOM scanner.
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initializeScanner()
-	 */
-	public void initializeScanner() {
-		this.scanner = new CommentRecorderScanner(
-				false /*comment*/, 
-				false /*whitespace*/, 
-				this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
-				this.options.sourceLevel /*sourceLevel*/, 
-				this.options.taskTags/*taskTags*/,
-				this.options.taskPriorites/*taskPriorities*/);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
-	 */
-	public void initialize() {
-		super.initialize();
-		this.commentPtr = -1;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#endParse(int)
-	 */
-	protected CompilationUnitDeclaration endParse(int act) {
-		CompilationUnitDeclaration unit = super.endParse(act);
-		if (unit.comments == null) {
-			pushOnCommentsStack(0, this.scanner.commentPtr);
-			unit.comments = getCommentsPositions();
-		}
-		return unit;
 	}
 }

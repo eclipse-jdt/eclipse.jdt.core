@@ -16,7 +16,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 /**
  * Java compilation unit AST node type. This is the type of the root of an AST.
@@ -106,7 +108,7 @@ public class CompilationUnit extends ASTNode {
 	 * @deprecated 
 	 * TBD (jeem) - remove when getCommentTable() goes away
 	 */
-	private Comment[] optionalCommentTable = null;
+	Comment[] optionalCommentTable = null;
 	
 	/**
 	 * The comment list (element type: <code>Comment</code>, 
@@ -164,7 +166,9 @@ public class CompilationUnit extends ASTNode {
 	 * Problems reported by the compiler during parsing or name resolution.
 	 */
 	private IProblem[] problems = EMPTY_PROBLEMS;
-	 
+	
+	private DefaultCommentMapper commentMapper;
+	
 	/**
 	 * Sets the line end table for this compilation unit.
 	 * If <code>lineEndTable[i] == p</code> then line number <code>i+1</code> 
@@ -433,6 +437,44 @@ public class CompilationUnit extends ASTNode {
 	 */
 	public ASTNode findDeclaringNode(String key) {
 		return this.ast.getBindingResolver().findDeclaringNode(key);
+	}
+	
+	DefaultCommentMapper getCommentMapper() {
+		return this.commentMapper;
+	}
+
+	void initCommentMapper(Scanner scanner) {
+		this.commentMapper = new DefaultCommentMapper(this.optionalCommentTable);
+		this.commentMapper.initialize(this, scanner);
+	}
+
+	/**
+	 * Return extended start position of a given node.
+	 * @param node The node
+	 * @return start positon including node leading comments
+	 */
+	public int getExtendedStartPosition(ASTNode node) {
+		int startPosition= node.getStartPosition();
+		Comment[] leadingComments = this.commentMapper.getLeadingComments(node);
+		if (leadingComments != null) {
+			startPosition = leadingComments[0].getStartPosition();
+		}
+		return startPosition;
+	}
+
+	/**
+	 * Return extended length of a given node.
+	 * @param node
+	 * @return length including node leading and trailing comments
+	 */
+	public int getExtendedLength(ASTNode node) {
+		int end = node.getStartPosition() + node.getLength() - 1;
+		Comment[] trailingComments = this.commentMapper.getTrailingComments(node);
+		if (trailingComments != null) {
+			Comment lastComment = trailingComments[trailingComments.length-1];
+			end = lastComment.getStartPosition() + lastComment.getLength() - 1;
+		}
+		return end - getExtendedStartPosition(node) + 1;
 	}
 		
 	/**
