@@ -1731,7 +1731,7 @@ public final class JavaCore extends Plugin {
 	 *    should not go beyond "1.3" level.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
 	 *     - possible values:   { "1.3", "1.4", "1.5" }
-	 *     - default:           "1.3"
+	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
