@@ -215,7 +215,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				new Path[] {new Path(getExternalPath() + File.separator + "converterJclMin.jar"), new Path(getExternalPath() + File.separator + "converterJclMinsrc.zip"), new Path("")},
+				new Path[] {new Path(getExternalPath() + "converterJclMin.jar"), new Path(getExternalPath() + "converterJclMinsrc.zip"), new Path("")},
 				null);
 		}		
 		

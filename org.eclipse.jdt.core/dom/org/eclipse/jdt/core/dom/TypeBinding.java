@@ -96,12 +96,14 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
 	 */
 	private IClassFile getClassFile(char[] fileName) {
-		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
-		int lastSlash = CharOperation.lastIndexOf('/', slashSeparatedFileName);
-		if (lastSlash == -1) return null;
-		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash);
+		int lastSlash = CharOperation.lastIndexOf('/', fileName);
+		if (lastSlash == -1) 
+			lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
+		if (lastSlash == -1)
+			return null;
+		IPackageFragment pkg = getPackageFragment(fileName, lastSlash);
 		if (pkg == null) return null;
-		char[] simpleName = CharOperation.subarray(slashSeparatedFileName, lastSlash+1, slashSeparatedFileName.length);
+		char[] simpleName = CharOperation.subarray(fileName, lastSlash+1, fileName.length);
 		return pkg.getClassFile(new String(simpleName));
 	}
 	

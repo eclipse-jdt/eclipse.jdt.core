@@ -2088,7 +2088,7 @@ public void testInvalidExternalClassFolder() throws CoreException {
  */
 public void testInvalidExternalJar() throws CoreException {
 	try {
-		String jarPath = getExternalPath() + File.separator + "nonExisting.jar";
+		String jarPath = getExternalPath() + "nonExisting.jar";
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {jarPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
@@ -3042,7 +3042,7 @@ public void testBug55992a() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
 	
-		IPath path = new Path(getExternalPath()+"/jclMin.jar");
+		IPath path = getExternalJCLPath();
 		IPath sourceAttachmentPath = new Path("jclMin.zip");
 		JavaCore.setClasspathVariables(
 			new String[] {"TEST_LIB", "TEST_SRC"},

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.File;
-
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IResource;
@@ -147,7 +145,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	}
 
 	IPath getIndexLocation() {
-		return new Path(getExternalPath() + File.separator + "test.index");
+		return new Path(getExternalPath() + "test.index");
 	}
 	
 	/*

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected IPath getConverterJCLPath(String compliance) {
-		return new Path(getExternalPath() + File.separator + "converterJclMin" + compliance + ".jar"); //$NON-NLS-1$
+		return new Path(getExternalPath() + "converterJclMin" + compliance + ".jar"); //$NON-NLS-1$
 	}
 
 	protected IPath getConverterJCLSourcePath() {
@@ -49,7 +48,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected IPath getConverterJCLSourcePath(String compliance) {
-		return new Path(getExternalPath() + File.separator + "converterJclMin" + compliance + "src.zip"); //$NON-NLS-1$
+		return new Path(getExternalPath() + "converterJclMin" + compliance + "src.zip"); //$NON-NLS-1$
 	}
 
 	protected IPath getConverterJCLRootSourcePath() {

@@ -954,7 +954,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			int kind = entry.getEntryKind();
 			
 			// Build some common strings for status message
-			boolean isProjectRelative = entryPath.segment(0).toString().equals(projectName);
+			boolean isProjectRelative = projectName.equals(entryPath.segment(0));
 			String entryPathMsg = isProjectRelative ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
 	
 			// complain if duplicate path
@@ -1037,7 +1037,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			int kind = entry.getEntryKind();
 
 			// Build some common strings for status message
-			boolean isProjectRelative = entryPath.segment(0).toString().equals(projectName);
+			boolean isProjectRelative = projectName.equals(entryPath.segment(0));
 			String entryPathMsg = isProjectRelative ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
 	
 			if (kind == IClasspathEntry.CPE_SOURCE) {
@@ -1049,7 +1049,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					if (otherEntry == entry) continue;
 
 					// Build some common strings for status message
-					boolean opStartsWithProject = otherEntry.getPath().segment(0).toString().equals(projectName);
+					boolean opStartsWithProject = projectName.equals(otherEntry.getPath().segment(0));
 					String otherPathMsg = opStartsWithProject ? otherEntry.getPath().removeFirstSegments(1).toString() : otherEntry.getPath().makeRelative().toString();
 	
 					switch (otherEntry.getEntryKind()) {
@@ -1087,7 +1087,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 		// Build some common strings for status message
 		String projectName = project.getElementName();
-		boolean pathStartsWithProject = path.segment(0).toString().equals(projectName);
+		boolean pathStartsWithProject = projectName.equals(path.segment(0));
 		String entryPathMsg = pathStartsWithProject ? path.removeFirstSegments(1).makeRelative().toString() : path.toString();
 	
 		switch(entry.getEntryKind()){
