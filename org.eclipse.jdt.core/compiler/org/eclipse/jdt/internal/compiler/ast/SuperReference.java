@@ -54,7 +54,7 @@ public class SuperReference extends ThisReference {
 		if (!checkAccess(scope.methodScope()))
 			return null;
 		SourceTypeBinding enclosingTb = scope.enclosingSourceType();
-		if (scope.isJavaLangObject(enclosingTb)) {
+		if (enclosingTb.id == T_Object) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}

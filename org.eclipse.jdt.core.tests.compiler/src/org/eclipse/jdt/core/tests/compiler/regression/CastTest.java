@@ -1102,6 +1102,204 @@ public void test032() {
 		},
 	"SUCCESS");
 }
+
+/*
+ * unused cast diagnosis
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=54763
+ */
+public void test033() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String [] args) {\n" + 
+			"        List list = (List) new ArrayList();\n" + 
+			"        list = (List) new ArrayList();\n" + 
+			"        \n" + 
+			"        String s = (String) \"hello\";\n" + 
+			"        s += (List) new ArrayList();\n" + 
+			"        \n" + 
+			"        ArrayList alist = new ArrayList();\n" + 
+			"        List list2 = (List) alist;\n" + 
+			"        list2 = (List) alist;\n" + 
+			"        \n" + 
+			"        String s2 = (String) \"hello\";\n" + 
+			"        s2 += (List) alist;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	List list = (List) new ArrayList();\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	list = (List) new ArrayList();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	String s = (String) \"hello\";\n" + 
+		"	           ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	s += (List) new ArrayList();\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 13)\n" + 
+		"	List list2 = (List) alist;\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 14)\n" + 
+		"	list2 = (List) alist;\n" + 
+		"	        ^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 16)\n" + 
+		"	String s2 = (String) \"hello\";\n" + 
+		"	            ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 17)\n" + 
+		"	s2 += (List) alist;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+/*
+ * check non insertion of checkcast for unnecessary cast to interfaces
+ * (same test case as test033)
+ */
+public void test034() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String [] args) {\n" + 
+			"        List list = (List) new ArrayList();\n" + 
+			"        list = (List) new ArrayList();\n" + 
+			"        \n" + 
+			"        String s = (String) \"hello\";\n" + 
+			"        s += (List) new ArrayList();\n" + 
+			"        \n" + 
+			"        ArrayList alist = new ArrayList();\n" + 
+			"        List list2 = (List) alist;\n" + 
+			"        list2 = (List) alist;\n" + 
+			"        \n" + 
+			"        String s2 = (String) \"hello\";\n" + 
+			"        s2 += (List) alist;\n" + 
+			"       System.out.println(\"SUCCESS\");\n" +
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String actualOutput = null;
+	try {
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue("ClassFormatException", false);
+	} catch (IOException e) {
+		assertTrue("IOException", false);
+	}
+
+	String expectedOutput =
+		"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+		"  public static void main(String[] args);\n" + 
+		"    /* Stack: 3, Locals: 6 */\n" + 
+		"    Code attribute:\n" + 
+		"       0  new #17 java.util.ArrayList\n" + 
+		"       3  dup\n" + 
+		"       4  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"       7  astore_1\n" + 
+		"       8  new #17 java.util.ArrayList\n" + 
+		"      11  dup\n" + 
+		"      12  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"      15  astore_1\n" + 
+		"      16  ldc #20 <String \"hello\">\n" + 
+		"      18  astore_2\n" + 
+		"      19  new #22 java.lang.StringBuffer\n" + 
+		"      22  dup\n" + 
+		"      23  aload_2\n" + 
+		"      24  invokestatic #28 <Method java.lang.String#valueOf(java.lang.Object arg) java.lang.String>\n" + 
+		"      27  invokespecial #31 <Constructor java.lang.StringBuffer(java.lang.String arg)>\n" + 
+		"      30  new #17 java.util.ArrayList\n" + 
+		"      33  dup\n" + 
+		"      34  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"      37  invokevirtual #35 <Method java.lang.StringBuffer#append(java.lang.Object arg) java.lang.StringBuffer>\n" + 
+		"      40  invokevirtual #39 <Method java.lang.StringBuffer#toString() java.lang.String>\n" + 
+		"      43  astore_2\n" + 
+		"      44  new #17 java.util.ArrayList\n" + 
+		"      47  dup\n" + 
+		"      48  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"      51  astore_3\n" + 
+		"      52  aload_3\n" + 
+		"      53  astore 4\n" + 
+		"      55  aload_3\n" + 
+		"      56  astore 4\n" + 
+		"      58  ldc #20 <String \"hello\">\n" + 
+		"      60  astore 5\n" + 
+		"      62  new #22 java.lang.StringBuffer\n" + 
+		"      65  dup\n" + 
+		"      66  aload 5\n" + 
+		"      68  invokestatic #28 <Method java.lang.String#valueOf(java.lang.Object arg) java.lang.String>\n" + 
+		"      71  invokespecial #31 <Constructor java.lang.StringBuffer(java.lang.String arg)>\n" + 
+		"      74  aload_3\n" + 
+		"      75  invokevirtual #35 <Method java.lang.StringBuffer#append(java.lang.Object arg) java.lang.StringBuffer>\n" + 
+		"      78  invokevirtual #39 <Method java.lang.StringBuffer#toString() java.lang.String>\n" + 
+		"      81  astore 5\n" + 
+		"      83  getstatic #45 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"      86  ldc #47 <String \"SUCCESS\">\n" + 
+		"      88  invokevirtual #52 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"      91  return\n" + 
+		"\n" + 
+		"    Line number attribute:\n" + 
+		"      [pc: 0, line: 6]\n" + 
+		"      [pc: 8, line: 7]\n" + 
+		"      [pc: 16, line: 9]\n" + 
+		"      [pc: 19, line: 10]\n" + 
+		"      [pc: 44, line: 12]\n" + 
+		"      [pc: 52, line: 13]\n" + 
+		"      [pc: 55, line: 14]\n" + 
+		"      [pc: 58, line: 16]\n" + 
+		"      [pc: 62, line: 17]\n" + 
+		"      [pc: 83, line: 18]\n" + 
+		"      [pc: 91, line: 19]\n" + 
+		"    Local variable table attribute:\n" + 
+		"      [pc: 0, pc: 92] local: args index: 0 type: java/lang/String[]\n" + 
+		"      [pc: 8, pc: 92] local: list index: 1 type: java/util/List\n" + 
+		"      [pc: 19, pc: 92] local: s index: 2 type: java/lang/String\n" + 
+		"      [pc: 52, pc: 92] local: alist index: 3 type: java/util/ArrayList\n" + 
+		"      [pc: 55, pc: 92] local: list2 index: 4 type: java/util/List\n" + 
+		"      [pc: 62, pc: 92] local: s2 index: 5 type: java/lang/String\n" + 
+		"  \n" + 
+		"}";
+	if (actualOutput.indexOf(expectedOutput) == -1){
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+}
 public static Class testClass() {
 	return CastTest.class;
 }

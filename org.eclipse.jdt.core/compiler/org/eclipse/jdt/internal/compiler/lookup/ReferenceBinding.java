@@ -194,6 +194,8 @@ public void computeId() {
 	if (!CharOperation.equals(LANG, compoundName[1])) {
 		if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
 			id = T_JavaIoPrintStream;
+		else if (CharOperation.equals(JAVA_IO_SERIALIZABLE, compoundName))
+		    id = T_JavaIoSerializable;
 		return;
 	}
 
@@ -218,6 +220,8 @@ public void computeId() {
 				id = T_JavaLangClass;
 			else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
 				id = T_JavaLangClassNotFoundException;
+			else if (CharOperation.equals(typeName, JAVA_LANG_CLONEABLE[2]))
+			    id = T_JavaLangCloneable;
 			return;
 		case 'D' :
 			if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))

@@ -72,7 +72,6 @@ public boolean isCompatibleWith(TypeBinding right) {
 	if (this == right)
 		return true;
 
-	char[][] rightName;
 	if (right.isArrayType()) {
 		ArrayBinding rightArray = (ArrayBinding) right;
 		if (rightArray.leafComponentType.isBaseType())
@@ -81,21 +80,18 @@ public boolean isCompatibleWith(TypeBinding right) {
 			return leafComponentType.isCompatibleWith(rightArray.leafComponentType);
 		if (dimensions < rightArray.dimensions)
 			return false; // cannot assign 'String[]' into 'Object[][]' but can assign 'byte[][]' into 'Object[]'
-		rightName = ((ReferenceBinding) rightArray.leafComponentType).compoundName;
 	} else {
 		if (right.isBaseType())
 			return false;
-		rightName = ((ReferenceBinding) right).compoundName;
 	}
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.
-
-	if (CharOperation.equals(rightName, JAVA_LANG_OBJECT))
-		return true;
-	if (CharOperation.equals(rightName, JAVA_LANG_CLONEABLE))
-		return true;
-	if (CharOperation.equals(rightName, JAVA_IO_SERIALIZABLE))
-		return true;
+	switch (right.leafComponentType().id) {
+	    case T_JavaLangObject :
+	    case T_JavaLangCloneable :
+	    case T_JavaIoSerializable :
+	        return true;
+	}
 	return false;
 }
 

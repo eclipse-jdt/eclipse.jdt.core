@@ -580,7 +580,7 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperclass() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		if (isJavaLangObject(sourceType)) { // handle the case of redefining java.lang.Object up front
+		if (sourceType.id == T_Object) { // handle the case of redefining java.lang.Object up front
 			sourceType.superclass = null;
 			sourceType.superInterfaces = NoSuperInterfaces;
 			if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
@@ -628,7 +628,7 @@ public class ClassScope extends Scope {
 		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null)
 			return true;
-		if (isJavaLangObject(sourceType)) // already handled the case of redefining java.lang.Object
+		if (sourceType.id == T_Object) // already handled the case of redefining java.lang.Object
 			return true;
 
 		boolean noProblems = true;

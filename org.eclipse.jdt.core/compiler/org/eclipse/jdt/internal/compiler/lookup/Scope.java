@@ -1601,18 +1601,6 @@ public abstract class Scope
 		return false;
 	}
 	
-	public final boolean isJavaIoSerializable(TypeBinding tb) {
-		return tb == getJavaIoSerializable();
-	}
-
-	public final boolean isJavaLangCloneable(TypeBinding tb) {
-		return tb == getJavaLangCloneable();
-	}
-
-	public final boolean isJavaLangObject(TypeBinding type) {
-		return type.id == T_JavaLangObject;
-	}
-
 	public final MethodScope methodScope() {
 		Scope scope = this;
 		do {

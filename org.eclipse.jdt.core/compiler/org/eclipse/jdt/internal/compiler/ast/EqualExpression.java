@@ -90,12 +90,12 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 			return false;
 		}
 		if (castType.isClass()) { //------(castTb.isClass) expressionTb.isArray ---------------	
-			if (scope.isJavaLangObject(castType))
+			if (castType.id == T_Object)
 				return true;
 			return false;
 		}
 		if (castType.isInterface()) { //------- (castTb.isInterface) expressionTb.isArray -----------
-			if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
+			if (castType.id == T_JavaLangCloneable || castType.id == T_JavaIoSerializable) {
 				return true;
 			}
 			return false;
@@ -119,7 +119,7 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 
 	if (expressionType.isClass()) {
 		if (castType.isArrayType()) { // ---- (castTb.isArray) expressionTb.isClass -------
-			if (scope.isJavaLangObject(expressionType))
+			if (expressionType.id == T_Object)
 				return true;
 		}
 		if (castType.isBaseType()) {
@@ -136,20 +136,19 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 			}
 		}
 		if (castType.isInterface()) { // ----- (castTb.isInterface) expressionTb.isClass -------  
-			if (((ReferenceBinding) expressionType).isFinal()) { //no subclass for expressionTb, thus compile-time check is valid
-				if (expressionType.isCompatibleWith(castType))
-					return true;
-				return false;
-			} else {
+			if (expressionType.isCompatibleWith(castType))
+				return true;		    
+			if (!((ReferenceBinding) expressionType).isFinal()) {
 				return true;
 			}
+			//no subclass for expressionTb, thus compile-time check is valid			
 		}
 
 		return false;
 	}
 	if (expressionType.isInterface()) {
 		if (castType.isArrayType()) { // ----- (castTb.isArray) expressionTb.isInterface ------
-			if (scope.isJavaLangCloneable(expressionType) || scope.isJavaIoSerializable(expressionType))
+			if (expressionType.id == T_JavaLangCloneable || expressionType.id == T_JavaIoSerializable)
 				//potential runtime error
 				{
 				return true;
@@ -160,7 +159,7 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 			return false;
 		}
 		if (castType.isClass()) { // ----- (castTb.isClass) expressionTb.isInterface --------
-			if (scope.isJavaLangObject(castType))
+			if (castType.id == T_Object)
 				return true;
 			if (((ReferenceBinding) castType).isFinal()) { //no subclass for castTb, thus compile-time check is valid
 				if (castType.isCompatibleWith(expressionType)) {
@@ -171,7 +170,9 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 			return true;
 		}
 		if (castType.isInterface()) { // ----- (castTb.isInterface) expressionTb.isInterface -------
-			if (Scope.compareTypes(castType, expressionType) == NotRelated) {
+			if (expressionType.isCompatibleWith(castType))
+				return true;
+			if (!castType.isCompatibleWith(expressionType)) {
 				MethodBinding[] castTbMethods = ((ReferenceBinding) castType).methods();
 				int castTbMethodsLength = castTbMethods.length;
 				MethodBinding[] expressionTbMethods = ((ReferenceBinding) expressionType).methods();
@@ -190,10 +191,8 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 			}
 			return true;
 		}
-
 		return false;
 	}
-
 	return false;
 }
 public final void computeConstant(TypeBinding leftType, TypeBinding rightType) {
