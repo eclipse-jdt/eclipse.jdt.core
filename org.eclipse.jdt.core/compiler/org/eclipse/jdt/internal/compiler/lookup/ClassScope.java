@@ -544,76 +544,60 @@ public class ClassScope extends Scope {
 	private void checkForInheritedMemberTypes(SourceTypeBinding sourceType) {
 		// search up the hierarchy of the sourceType to see if any superType defines a member type
 		// when no member types are defined, tag the sourceType & each superType with the HasNoMemberTypes bit
+		// assumes super types have already been checked & tagged
 		ReferenceBinding currentType = sourceType;
 		ReferenceBinding[][] interfacesToVisit = null;
 		int lastPosition = -1;
 		do {
-			if ((currentType.tagBits & HasNoMemberTypes) != 0)
-				break; // already know it has no inherited member types, can stop looking up
-				// TODO (kent) why not simply return ? to avoid re-tagging at bottom
 			if (currentType.hasMemberTypes()) // avoid resolving member types eagerly
-				return; // has member types
+				return;
+
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != NoSuperInterfaces) {
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
 				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(
-						interfacesToVisit,
-						0,
-						interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-						0,
-						lastPosition);
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
 			}
-		} while ((currentType = currentType.superclass()) != null);
+		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
 
-		boolean hasMembers = false;
 		if (interfacesToVisit != null) {
-			done : for (int i = 0; i <= lastPosition; i++) {
+			// contains the interfaces between the sourceType and any superclass, which was tagged as having no member types
+			boolean needToTag = false;
+			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & InterfaceVisited) == 0) { // if interface as not already been visited
-						anInterface.tagBits |= InterfaceVisited;
-						if ((anInterface.tagBits & HasNoMemberTypes) != 0)
-							continue; // already know it has no inherited member types
-						if (anInterface.memberTypes() != NoMemberTypes) {
-							hasMembers = true;
-							break done;
-						}
+					if ((anInterface.tagBits & HasNoMemberTypes) == 0) { // skip interface if it already knows it has no member types
+						if (anInterface.hasMemberTypes()) // avoid resolving member types eagerly
+							return;
 
+						needToTag = true;
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
 						if (itsInterfaces != NoSuperInterfaces) {
 							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
-									lastPosition);
+								System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 							interfacesToVisit[lastPosition] = itsInterfaces;
 						}
 					}
 				}
 			}
 
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					interfaces[j].tagBits &= ~InterfaceVisited;
-					if (!hasMembers)
+			if (needToTag) {
+				for (int i = 0; i <= lastPosition; i++) {
+					ReferenceBinding[] interfaces = interfacesToVisit[i];
+					for (int j = 0, length = interfaces.length; j < length; j++)
 						interfaces[j].tagBits |= HasNoMemberTypes;
 				}
 			}
 		}
 
-		if (!hasMembers) {
-			currentType = sourceType;
-			do {
-				currentType.tagBits |= HasNoMemberTypes;
-			} while ((currentType = currentType.superclass()) != null);
-		}
+		// tag the sourceType and all of its superclasses, unless they have already been tagged
+		currentType = sourceType;
+		do {
+			currentType.tagBits |= HasNoMemberTypes;
+		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
 	}
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
 	private void  checkParameterizedTypeBounds() {
