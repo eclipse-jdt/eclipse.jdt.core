@@ -2475,11 +2475,14 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
 			
-		if (containerPath == null || containerPath.segmentCount() < 1) {
+		if (containerPath == null) {
+			Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
+		}
+		if (containerPath.segmentCount() < 1) {
 			Assert.isTrue(
 				false,
 				"Illegal classpath container path: \'" + containerPath.makeRelative().toString() + "\', must have at least one segment (containerID+hints)"); //$NON-NLS-1$//$NON-NLS-2$
-		}
+		}		
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
@@ -2912,8 +2915,11 @@ public final class JavaCore extends Plugin {
 		IPath variableSourceAttachmentPath,
 		IPath variableSourceAttachmentRootPath,
 		boolean isExported) {
-			
-		if (variablePath == null || variablePath.segmentCount() < 1) {
+
+		if (variablePath == null) {
+			Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
+		}		
+		if (variablePath.segmentCount() < 1) {
 			Assert.isTrue(
 				false,
 				"Illegal classpath variable path: \'" + variablePath.makeRelative().toString() + "\', must have at least one segment"); //$NON-NLS-1$//$NON-NLS-2$
