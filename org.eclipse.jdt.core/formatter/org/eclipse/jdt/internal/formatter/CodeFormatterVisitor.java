@@ -469,11 +469,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		final int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 		if (newLineBeforeChunk > 0) {
-			this.scribe.printNewLines(newLineBeforeChunk);
+			this.scribe.printEmptyLines(newLineBeforeChunk);
 		}
 		final int newLinesBeforeMethod = this.preferences.blank_lines_before_method;
 		if (newLinesBeforeMethod > 0) {
-			this.scribe.printNewLines(newLinesBeforeMethod);
+			this.scribe.printEmptyLines(newLinesBeforeMethod);
 		} else if (this.scribe.line != 0 || this.scribe.column != 1) {
 			this.scribe.printNewLine();
 		}
@@ -484,11 +484,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 		if (newLineBeforeChunk > 0) {
-			this.scribe.printNewLines(newLineBeforeChunk);
+			this.scribe.printEmptyLines(newLineBeforeChunk);
 		}
 		final int newLinesBeforeField = this.preferences.blank_lines_before_field;
 		if (newLinesBeforeField > 0) {
-			this.scribe.printNewLines(newLinesBeforeField);
+			this.scribe.printEmptyLines(newLinesBeforeField);
 		}
 		Alignment fieldAlignment = this.scribe.getAlignment("typeMembers");	//$NON-NLS-1$
 	
@@ -550,11 +550,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 		if (newLineBeforeChunk > 0) {
-			this.scribe.printNewLines(newLineBeforeChunk);
+			this.scribe.printEmptyLines(newLineBeforeChunk);
 		}
 		final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
 		if (newLinesBeforeMember > 0) {
-			this.scribe.printNewLines(newLinesBeforeMember);
+			this.scribe.printEmptyLines(newLinesBeforeMember);
 		}
 		memberTypeDeclaration.traverse(this, scope);
 	}
@@ -563,11 +563,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 		if (newLineBeforeChunk > 0) {
-			this.scribe.printNewLines(newLineBeforeChunk);
+			this.scribe.printEmptyLines(newLineBeforeChunk);
 		}
 		final int newLinesBeforeField = this.preferences.blank_lines_before_field;
 		if (newLinesBeforeField > 0) {
-			this.scribe.printNewLines(newLinesBeforeField);
+			this.scribe.printEmptyLines(newLinesBeforeField);
 		}
 		Alignment fieldAlignment = this.scribe.getAlignment("typeMembers");	//$NON-NLS-1$
 	
@@ -1197,7 +1197,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						} else if (member instanceof Initializer) {
 							int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
 							if (newLineBeforeChunk > 0) {
-								this.scribe.printNewLines(newLineBeforeChunk);
+								this.scribe.printEmptyLines(newLineBeforeChunk);
 							}
 							Initializer initializer = (Initializer) member;
 							if (initializer.isStatic()) {
@@ -1984,7 +1984,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			// dump the package keyword
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
 			if (blankLinesBeforePackage > 0) {
-				this.scribe.printNewLines(blankLinesBeforePackage);
+				this.scribe.printEmptyLines(blankLinesBeforePackage - 1); // we substract 1, because this is the first line 
 			}
 			this.scribe.printComment();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamepackage);
@@ -1994,7 +1994,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printTrailingComment();
 			int blankLinesAfterPackage = this.preferences.blank_lines_after_package;
 			if (blankLinesAfterPackage > 0) {
-				this.scribe.printNewLines(blankLinesAfterPackage);
+				this.scribe.printEmptyLines(blankLinesAfterPackage);
 			} else {
 				this.scribe.printNewLine();
 			}			
@@ -2009,7 +2009,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (imports != null) {
 			int blankLinesBeforeImports = this.preferences.blank_lines_before_imports;
 			if (blankLinesBeforeImports > 0) {
-				this.scribe.printNewLines(blankLinesBeforeImports);
+				this.scribe.printEmptyLines(blankLinesBeforeImports);
 			}
 			int importLength = imports.length;
 			for (int i = 0; i < importLength; i++) {
@@ -2018,7 +2018,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			
 			int blankLinesAfterImports = this.preferences.blank_lines_after_imports;
 			if (blankLinesAfterImports > 0) {
-				this.scribe.printNewLines(blankLinesAfterImports);
+				this.scribe.printEmptyLines(blankLinesAfterImports);
 			}
 		}
 
@@ -2194,7 +2194,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.indent();			
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.number_of_blank_lines_to_insert_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
-				this.scribe.printNewLines(numberOfBlankLinesAtBeginningOfMethodBody);
+				this.scribe.printEmptyLines(numberOfBlankLinesAtBeginningOfMethodBody);
 			}
 			if (constructorDeclaration.constructorCall != null && !constructorDeclaration.constructorCall.isImplicitSuper()) {
 				this.scribe.printNewLine();
@@ -2935,7 +2935,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.indent();			
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.number_of_blank_lines_to_insert_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
-				this.scribe.printNewLines(numberOfBlankLinesAtBeginningOfMethodBody);
+				this.scribe.printEmptyLines(numberOfBlankLinesAtBeginningOfMethodBody);
 			}
 			final Statement[] statements = methodDeclaration.statements;
 			if (statements != null) {

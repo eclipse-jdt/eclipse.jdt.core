@@ -238,10 +238,10 @@ public class Scribe {
 	private void preserveEmptyLines(int count) {
 		if (count > 0) {
 			if (this.formatter.preferences.preserve_user_linebreaks) {
-				this.printNewLines(count);
+				this.printEmptyLines(count);
 			} else if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
-				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve + 1);
-				this.printNewLines(linesToPreserve);
+				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
+				this.printEmptyLines(linesToPreserve);
 			}
 		}
 	}
@@ -355,12 +355,7 @@ public class Scribe {
 							}
 						}
 						if (count > 1) {
-							if (hasLineComment) {
-								// the line comment consumed the line break
-								preserveEmptyLines(count - 1);
-							} else {
-								preserveEmptyLines(count);
-							}
+							preserveEmptyLines(count - 1);
 						} else if (count == 1) {
 							if (hasLineComment) {
 								preserveEmptyLines(1);
@@ -529,19 +524,38 @@ public class Scribe {
 		column = 1;
 		needSpace = false;
 	}
-	public void printNewLines(int linesNumber) {
-		if ((lastNumberOfNewLines - 1) >= linesNumber) {
-			// there is no need to add new lines
-			return;
+	public void printEmptyLines(int linesNumber) {
+		if (lastNumberOfNewLines == 0) {
+			linesNumber++; // add an extra line breaks
+			for (int i = 0; i < linesNumber; i++) {
+				this.buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += linesNumber;
+			line += linesNumber;
+			column = 1;
+			needSpace = false;
+		} else if (lastNumberOfNewLines == 1) {
+			for (int i = 0; i < linesNumber; i++) {
+				this.buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += linesNumber;
+			line += linesNumber;
+			column = 1;
+			needSpace = false;
+		} else {
+			if ((lastNumberOfNewLines - 1) >= linesNumber) {
+				// there is no need to add new lines
+				return;
+			}
+			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
+			for (int i = 0; i < realNewLineNumber; i++) {
+				this.buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += realNewLineNumber;
+			line += realNewLineNumber;
+			column = 1;
+			needSpace = false;
 		}
-		final int realNewLineNumber = lastNumberOfNewLines != 0 ? linesNumber - lastNumberOfNewLines + 1 : linesNumber;
-		for (int i = 0; i < realNewLineNumber; i++) {
-			this.buffer.append(this.lineSeparator);
-		}
-		lastNumberOfNewLines += realNewLineNumber;
-		line += realNewLineNumber;
-		column = 1;
-		needSpace = false;
 	}
 	
 	public void printNextToken(int expectedTokenType){
@@ -684,11 +698,7 @@ public class Scribe {
 						}
 						currentTokenStartPosition = this.scanner.currentPosition;						
 						if (count > 1) {
-							if (hasLineComment) {
-								preserveEmptyLines(count - 1);
-							} else {
-								preserveEmptyLines(count);
-							}
+							preserveEmptyLines(count);
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						} else if (count == 1) {
