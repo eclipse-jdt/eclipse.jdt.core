@@ -2150,7 +2150,7 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(20);
 	//denseCycleDetection(100);
 }
-public void _testNoCycleDetection() throws CoreException { //TODO: reenable post 2.1
+public void testNoCycleDetection() throws CoreException {
 	noCycleDetection(5, false);
 	noCycleDetection(10, false);
 	noCycleDetection(20, false);
@@ -2188,8 +2188,8 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
 
-//	final long[] start = new long[1];
-//	final long[] time = new long[1];
+	final long[] start = new long[1];
+	final long[] time = new long[1];
 	
 
 	try {
@@ -2214,16 +2214,16 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
-//					long start = System.currentTimeMillis(); // time spent in individual CP setting
+					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-//					time[0] += System.currentTimeMillis() - start;
+					time[0] += System.currentTimeMillis() - innerStart;
 				};
-//				start[0] = System.currentTimeMillis(); // time spent in delta refresh
+				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}
 		}, 
 		null);
-//		time[0] += System.currentTimeMillis()-start[0];
-//		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms");
+		time[0] += System.currentTimeMillis()-start[0];
+		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms");
 		
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
@@ -2231,12 +2231,17 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		}
 		
 	} finally {
-		if (projects != null){
-			for (int i = 0; i < numberOfParticipants; i++){
-				if (projects[i] != null)
-					this.deleteProject(projects[i].getElementName());
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				if (projects != null){
+					for (int i = 0; i < numberOfParticipants; i++){
+						if (projects[i] != null)
+							deleteProject(projects[i].getElementName());
+					}
+				}
 			}
-		}
+		},
+		null);
 	}
 }
 /*
@@ -2276,9 +2281,9 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
-					long start = System.currentTimeMillis(); // time spent in individual CP setting
+					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-					time[0] += System.currentTimeMillis() - start;
+					time[0] += System.currentTimeMillis() - innerStart;
 				}
 				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}
@@ -2293,12 +2298,17 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 		}
 		
 	} finally {
-		if (projects != null){
-			for (int i = 0; i < numberOfParticipants; i++){
-				if (projects[i] != null)
-					this.deleteProject(projects[i].getElementName());
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				if (projects != null){
+					for (int i = 0; i < numberOfParticipants; i++){
+						if (projects[i] != null)
+							deleteProject(projects[i].getElementName());
+					}
+				}
 			}
-		}
+		},
+		null);
 	}
 }
 
