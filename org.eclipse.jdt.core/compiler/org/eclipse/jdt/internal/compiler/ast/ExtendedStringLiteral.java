@@ -8,7 +8,7 @@ import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ExtendedStringLiteral extends StringLiteral {
-	private static final int INIT_SIZE = 30;
+	
 public ExtendedStringLiteral(StringLiteral str, CharLiteral character) {
 	//build a string+char literal
 

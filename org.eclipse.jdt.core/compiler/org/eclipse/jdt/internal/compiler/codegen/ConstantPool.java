@@ -4,8 +4,6 @@ package org.eclipse.jdt.internal.compiler.codegen;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.io.*;
-
 import org.eclipse.jdt.internal.compiler.ClassFile;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;

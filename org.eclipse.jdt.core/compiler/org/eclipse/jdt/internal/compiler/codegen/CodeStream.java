@@ -4,9 +4,6 @@ package org.eclipse.jdt.internal.compiler.codegen;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.io.*;
-import java.util.*;
-
 import org.eclipse.jdt.internal.compiler.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -14,8 +11,6 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.*;
 
 public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, BaseTypes, TypeConstants, TypeIds {
 	// It will be responsible for the following items.

@@ -6,7 +6,6 @@ package org.eclipse.jdt.internal.compiler.classfmt;
  */
 import org.eclipse.jdt.internal.compiler.env.*;
 
-import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -17,10 +16,9 @@ public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Attrib
 	private int accessFlags;
 	private char[] name;
 	private char[] signature;
-	private int attributesCount;
 	private int attributeBytes;
 	static private final char[][] noException = new char[0][0];
-	private int decodeIndex;
+
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]

@@ -3,8 +3,6 @@ package org.eclipse.jdt.internal.compiler.env;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.*;
-
 public interface IBinaryNestedType {
 /**
  * Answer the resolved name of the enclosing type in the

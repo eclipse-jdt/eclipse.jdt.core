@@ -5,11 +5,9 @@ package org.eclipse.jdt.internal.compiler.ast;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class TryStatement extends Statement {
 	public Block tryBlock;

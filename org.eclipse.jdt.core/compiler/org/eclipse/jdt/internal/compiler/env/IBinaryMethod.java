@@ -3,8 +3,6 @@ package org.eclipse.jdt.internal.compiler.env;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.*;
-
 // clinit methods (synthetics too?) can be returned from IBinaryType>>getMethods()
 // BUT do not have to be... the compiler will ignore them when building the binding.
 // The synthetic argument of a member type's constructor (ie. the first arg of a non-static

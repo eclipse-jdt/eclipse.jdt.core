@@ -156,7 +156,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	FieldBinding fieldBinding = (FieldBinding) binding;
 	MethodScope methodScope = scope.methodScope();
 	if (methodScope.enclosingSourceType() == fieldBinding.declaringClass
-		&& methodScope.fieldDeclarationIndex != methodScope.NotInFieldDecl
+		&& methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl
 		&& fieldBinding.id >= methodScope.fieldDeclarationIndex) {
 		if ((!fieldBinding.isStatic() || methodScope.isStatic)
 			&& this.indexOfFirstFieldBinding == 1)
@@ -563,7 +563,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					FieldBinding fieldBinding = (FieldBinding) binding;
 					MethodScope methodScope = scope.methodScope() ;
 					if (methodScope.enclosingSourceType() == fieldBinding.declaringClass
-						&& methodScope.fieldDeclarationIndex != methodScope.NotInFieldDecl
+						&& methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl
 						&& fieldBinding.id >= methodScope.fieldDeclarationIndex) {
 							if ((!fieldBinding.isStatic() || methodScope.isStatic) && this.indexOfFirstFieldBinding == 1)
 								scope.problemReporter().forwardReference(this,0,scope.enclosingSourceType());

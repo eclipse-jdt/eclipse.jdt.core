@@ -3,8 +3,6 @@ package org.eclipse.jdt.internal.compiler.codegen;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.*;
-
 public class FloatCache {
 	private float keyTable[];
 	private int valueTable[];

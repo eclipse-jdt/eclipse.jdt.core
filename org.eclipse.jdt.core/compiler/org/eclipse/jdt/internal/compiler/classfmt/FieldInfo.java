@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -18,7 +17,6 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
 	private int accessFlags;
 	private char[] name;
 	private char[] signature;
-	private int attributesCount;
 	private int attributeBytes;
 /**
  * @param classFileBytes byte[]

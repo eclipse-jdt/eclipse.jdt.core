@@ -3,8 +3,6 @@ package org.eclipse.jdt.internal.compiler.codegen;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.problem.*;
-
 public class CaseLabel extends Label {
 	public int instructionPosition = POS_NOT_SET;
 	public int backwardsBranch = POS_NOT_SET;

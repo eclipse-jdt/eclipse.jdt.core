@@ -3,8 +3,6 @@ package org.eclipse.jdt.internal.compiler.ast;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.*;
-
 public interface OperatorIds {
 	public static final int AND_AND = 0;
 	public static final int OR_OR = 1;
