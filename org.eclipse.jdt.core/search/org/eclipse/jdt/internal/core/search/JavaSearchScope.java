@@ -180,9 +180,13 @@ private boolean encloses(IPath path) {
 				return true;
 			}
 		} else {
+			// if not looking at subfolders, this scope encloses the given path 
+			// if this path is a direct child of the scope's ressource
+			// or if this path is the scope's resource (see bug 13919 Declaration for package not found if scope is not project)
 			IPath scopePath = this.paths[i];
 			if (scopePath.isPrefixOf(path) 
-				&& (scopePath.segmentCount() == path.segmentCount() - 1)) {
+				&& ((scopePath.segmentCount() == path.segmentCount() - 1)
+					|| (scopePath.segmentCount() == path.segmentCount()))) {
 				return true;
 			}
 		}
