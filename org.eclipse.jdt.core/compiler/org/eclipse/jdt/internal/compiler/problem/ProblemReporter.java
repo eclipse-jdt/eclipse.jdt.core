@@ -1465,12 +1465,18 @@ public void illegalModifierForInterface(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalModifierForInterfaceField(ReferenceBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {new String(fieldDecl.name)};
+public void illegalModifierForInterfaceField(FieldDeclaration fieldDecl) {
+	String name = new String(fieldDecl.name);
 	this.handle(
 		IProblem.IllegalModifierForInterfaceField,
-		arguments,
-		arguments,
+		new String[] {
+			new String(fieldDecl.binding.declaringClass.readableName()),
+			name,
+		},		
+		new String[] {
+			new String(fieldDecl.binding.declaringClass.shortReadableName()),
+			name,
+		},		
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
@@ -1535,6 +1541,22 @@ public void illegalModifierForAnnotationMemberType(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalModifierForAnnotationField(FieldDeclaration fieldDecl) {
+	String name = new String(fieldDecl.name);
+	this.handle(
+		IProblem.IllegalModifierForAnnotationField,
+		new String[] {
+			new String(fieldDecl.binding.declaringClass.readableName()),
+			name,
+		},		
+		new String[] {
+			new String(fieldDecl.binding.declaringClass.shortReadableName()),
+			name,
+		},		
+		fieldDecl.sourceStart,
+		fieldDecl.sourceEnd);
+}
+
 public void illegalModifierForAnnotationMember(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.IllegalModifierForAnnotationMethod,

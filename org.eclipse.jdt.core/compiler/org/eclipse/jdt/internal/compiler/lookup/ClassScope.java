@@ -548,8 +548,13 @@ public class ClassScope extends Scope {
 			modifiers |= expectedValue;
 
 			// and then check that they are the only ones
-			if ((modifiers & AccJustFlag) != expectedValue)
-				problemReporter().illegalModifierForInterfaceField(fieldBinding.declaringClass, fieldDecl);
+			if ((modifiers & AccJustFlag) != expectedValue) {
+				if ((fieldBinding.declaringClass.modifiers  & AccAnnotation) != 0) {
+					problemReporter().illegalModifierForAnnotationField(fieldDecl);
+				} else {
+					problemReporter().illegalModifierForInterfaceField(fieldDecl);
+				}
+			}
 			fieldBinding.modifiers = modifiers;
 			return;
 		} else if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {

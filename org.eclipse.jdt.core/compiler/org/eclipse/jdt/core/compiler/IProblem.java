@@ -993,7 +993,8 @@ public interface IProblem {
 	int AnnotationValueMustBeConstant = Internal + 613;
 	/** @since 3.1 */
 	int AnnotationFieldNeedConstantInitialization = Internal + 614;
-
+	/** @since 3.1 */
+	int IllegalModifierForAnnotationField = Internal + 615;
 
 	/**
 	 * Corrupted binaries

@@ -947,7 +947,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"----------\n");
 	}		
 	
-	// check annotation array member initializer
+	// check annotation array field initializer
 	public void test040() {
 		this.runNegativeTest(
 			new String[] {
@@ -965,7 +965,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"----------\n");
 	}		
 	
-	// check annotation array member initializer
+	// check annotation array field initializer
 	public void test041() {
 		this.runNegativeTest(
 			new String[] {
@@ -983,7 +983,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"----------\n");
 	}			
 	
-	// check annotation array member initializer
+	// check annotation array field initializer
 	public void test042() {
 		this.runConformTest(
 			new String[] {
@@ -994,4 +994,38 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 		"");
 	}		
+	
+	// check annotation field initializer
+	public void test043() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	int value;\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\r\n" + 
+		"	int value;\r\n" + 
+		"	    ^^^^^\n" + 
+		"The annotation field X.value must be initialized with a constant expression\n" + 
+		"----------\n");
+	}
+	
+	// check annotation field initializer
+	public void test044() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	protected int value = 0;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	protected int value = 0;\n" + 
+			"	              ^^^^^\n" + 
+			"Illegal modifier for the annotation field X.value; only public, static & final are permitted\n" + 
+			"----------\n");
+	}			
 }
