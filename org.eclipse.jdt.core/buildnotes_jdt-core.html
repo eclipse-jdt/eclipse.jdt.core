@@ -25,15 +25,14 @@ What's new in this drop</h2>
  * 
  * @param monitor - a progress monitor used to report progress
  * @exception JavaModelException in one of the corresponding situation:
- * <ul>
- *    <li> an exception occurs while accessing project resources </li>
- * </ul>
+ *    - an exception occurs while accessing project resources 
  * 
  * @see IJavaElementDelta
  * @since 2.0
  */
 void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
 </pre>
+<li>Added flag for notifying a JAR content change during Java delta notification: <code>IJavaElementDelta#F_ARCHIVE_CONTENT_CHANGED</code></li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
