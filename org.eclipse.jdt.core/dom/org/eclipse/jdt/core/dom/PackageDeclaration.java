@@ -15,12 +15,12 @@ import java.util.List;
 
 /**
  * Package declaration AST node type.
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * PackageDeclaration:
  *    <b>package</b> Name <b>;</b>
  * </pre>
- * For 3.0 (corresponding to JLS3), annotations and doc comment
+ * For JLS3, annotations and doc comment
  * were added:
  * <pre>
  * PackageDeclaration:
@@ -39,7 +39,7 @@ public class PackageDeclaration extends ASTNode {
 		new ChildPropertyDescriptor(PackageDeclaration.class, "javadoc", Javadoc.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "annotations" structural property of this node type (added in 3.0 API).
+	 * The "annotations" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY = 
@@ -108,7 +108,7 @@ public class PackageDeclaration extends ASTNode {
 
 	/**
 	 * The annotations (element type: <code>Annotation</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -227,7 +227,7 @@ public class PackageDeclaration extends ASTNode {
 	
 	/**
 	 * Returns the live ordered list of annotations of this 
-	 * package declaration (added in 3.0 API).
+	 * package declaration (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -238,7 +238,7 @@ public class PackageDeclaration extends ASTNode {
 	 * @return the live list of annotations
 	 *    (element type: <code>Annotation</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List annotations() {
@@ -254,7 +254,7 @@ public class PackageDeclaration extends ASTNode {
 	 * 
 	 * @return the doc comment node, or <code>null</code> if none
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public Javadoc getJavadoc() {
@@ -271,7 +271,7 @@ public class PackageDeclaration extends ASTNode {
 	 * @param docComment the doc comment node, or <code>null</code> if none
 	 * @exception IllegalArgumentException if the doc comment string is invalid
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public void setJavadoc(Javadoc docComment) {

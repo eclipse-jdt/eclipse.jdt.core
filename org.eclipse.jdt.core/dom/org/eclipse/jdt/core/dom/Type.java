@@ -127,7 +127,8 @@ public abstract class Type extends ASTNode {
 	 * The first form is preferred when "A" is known to be a type. However, a 
 	 * parser cannot always determine this. Clients should be prepared to handle
 	 * either rather than make assumptions. (Note also that the first form
-	 * became possible as of 3.0; only the second form existed in 2.0 and 2.1.)
+	 * became possible as of JLS3; only the second form existed in the 
+	 * JLS2 API.)
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a qualified type, and 

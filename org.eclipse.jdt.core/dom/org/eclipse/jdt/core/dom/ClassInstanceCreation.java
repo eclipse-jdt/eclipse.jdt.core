@@ -15,14 +15,14 @@ import java.util.List;
 
 /**
  * Class instance creation expression AST node type.
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * ClassInstanceCreation:
  *        [ Expression <b>.</b> ] <b>new</b> Name
  *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  *            [ AnonymousClassDeclaration ]
  * </pre>
- * For 3.0 (corresponding to JLS3), type arguments are added
+ * For JLS3, type arguments are added
  * and the type name is generalized to a type so that parameterized
  * types can be instantiated:
  * <pre>
@@ -52,8 +52,8 @@ import java.util.List;
  * The first form is preferred when "A" is known to be a type (as opposed
  * to a package). However, a parser cannot always determine this. Clients
  * should be prepared to handle either rather than make assumptions.
- * (Note also that the first form became possible as of 3.0; only the second
- * form existed in 2.0 and 2.1.)
+ * (Note also that the first form became possible as of JLS2; only the second
+ * form existed in JLS2.)
  * </p>
  * 
  * @since 2.0
@@ -61,7 +61,7 @@ import java.util.List;
 public class ClassInstanceCreation extends Expression {
 
 	/**
-	 * The "typeArguments" structural property of this node type (added in 3.0 API).
+	 * The "typeArguments" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY = 
@@ -75,15 +75,15 @@ public class ClassInstanceCreation extends Expression {
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "name" structural property of this node type (2.0 API only).
+	 * The "name" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #TYPE_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #TYPE_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "type" structural property of this node type (added in 3.0 API).
+	 * The "type" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
@@ -162,7 +162,7 @@ public class ClassInstanceCreation extends Expression {
 	
 	/**
 	 * The type arguments (element type: <code>Type</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -170,7 +170,7 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * The type name; lazily initialized; defaults to a unspecified,
-	 * legal type name. Not used in 3.0.
+	 * legal type name. Not used in JLS3.
 	 */
 	private Name typeName = null;
 	
@@ -367,7 +367,7 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * Returns the live ordered list of type arguments of this class
-	 * instance creation (added in 3.0 API).
+	 * instance creation (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -378,7 +378,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the live list of type arguments
 	 *    (element type: <code>Type</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List typeArguments() {
@@ -391,13 +391,13 @@ public class ClassInstanceCreation extends Expression {
 	
     /**
 	 * Returns the name of the type instantiated in this class instance 
-	 * creation expression (2.0 API only).
+	 * creation expression (JLS2 API only).
 	 * 
 	 * @return the type name node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getName() {
 	    supportedOnlyIn2();
 		if (this.typeName == null) {
@@ -415,7 +415,7 @@ public class ClassInstanceCreation extends Expression {
 	
 	/**
 	 * Sets the name of the type instantiated in this class instance 
-	 * creation expression (2.0 API only).
+	 * creation expression (JLS2 API only).
 	 * 
 	 * @param name the new type name
 	 * @exception IllegalArgumentException if:
@@ -424,9 +424,9 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node already has a parent</li>`
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem ) deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setName(Name name) {
 	    supportedOnlyIn2();
 		if (name == null) {
@@ -440,11 +440,11 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * Returns the type instantiated in this class instance creation
-	 * expression (added in 3.0 API).
+	 * expression (added in JLS3 API).
 	 * 
 	 * @return the type node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public Type getType() {
@@ -464,7 +464,7 @@ public class ClassInstanceCreation extends Expression {
 	
 	/**
 	 * Sets the type instantiated in this class instance creation
-	 * expression (added in 3.0 API).
+	 * expression (added in JLS3 API).
 	 * 
 	 * @param name the new type
 	 * @exception IllegalArgumentException if:
@@ -473,7 +473,7 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node already has a parent</li>`
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public void setType(Type type) {
@@ -550,9 +550,9 @@ public class ClassInstanceCreation extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		// n.b. type == null for ast.API_LEVEL == 2.0
-		// n.b. typeArguments == null for ast.API_LEVEL == 2.0
-		// n.b. typeName == null for ast.API_LEVEL >= 3.0
+		// n.b. type == null for ast.API_LEVEL == JLS2
+		// n.b. typeArguments == null for ast.API_LEVEL == JLS2
+		// n.b. typeName == null for ast.API_LEVEL >= JLS3
 		return 
 			memSize()
 			+ (this.typeName == null ? 0 : getName().treeSize())

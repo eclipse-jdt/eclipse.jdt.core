@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Enum declaration AST node type (added in 3.0 API).
+ * Enum declaration AST node type (added in JLS3 API).
  *
  * <pre>
  * EnumDeclaration:
@@ -53,7 +53,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		internalJavadocPropertyFactory(EnumDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type (added in JLS3 API).
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
 		internalModifiers2PropertyFactory(EnumDeclaration.class);
@@ -197,7 +197,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 * Method declared on BodyDeclaration.
 	 */
 	final SimplePropertyDescriptor internalModifiersProperty() {
-		// this property will not be asked for (node type did not exist in 2.0)
+		// this property will not be asked for (node type did not exist in JLS2)
 		return null;
 	}
 

@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type parameter node (added in 3.0 API).
+ * Type parameter node (added in JLS3 API).
  * <pre>
  * TypeParameter:
  *    TypeVariable [ <b>extends</b> Type { <b>&</b> Type } ]

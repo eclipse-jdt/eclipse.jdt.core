@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Member value pair node (added in 3.0 API). Member value pairs appear in annotations.
+ * Member value pair node (added in JLS3 API). Member value pairs appear in annotations.
  * <p>
  * <pre>
  * MemberValuePair:

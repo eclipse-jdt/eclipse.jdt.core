@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Method declaration AST node type. A method declaration
  * is the union of a method declaration and a constructor declaration.
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * MethodDeclaration:
  *    [ Javadoc ] { Modifier } ( Type | <b>void</b> ) Identifier <b>(</b>
@@ -30,7 +30,7 @@ import java.util.List;
  * 			 { <b>,</b> FormalParameter } ] <b>)</b>
  *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
  * </pre>
- * For 3.0 (corresponding to JLS3), type parameters and reified modifiers
+ * For JLS3, type parameters and reified modifiers
  * (and annotations) were added:
  * <pre>
  * MethodDeclaration:
@@ -70,15 +70,15 @@ public class MethodDeclaration extends BodyDeclaration {
 		internalJavadocPropertyFactory(MethodDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(MethodDeclaration.class);
 	
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
@@ -99,15 +99,15 @@ public class MethodDeclaration extends BodyDeclaration {
 		new ChildPropertyDescriptor(MethodDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "returnType" structural property of this node type (2.0 API only).
+	 * The "returnType" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = 
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "returnType2" structural property of this node type (added in 3.0 API).
+	 * The "returnType2" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE2_PROPERTY = 
@@ -121,7 +121,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "typeParameters" structural property of this node type (added in 3.0 API).
+	 * The "typeParameters" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY = 
@@ -230,21 +230,21 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * The return type.
-	 * 2.0 bahevior: lazily initialized; defaults to void.
-	 * 3.0 behavior; lazily initialized; defaults to void; null allowed.
+	 * JLS2 behevior: lazily initialized; defaults to void.
+	 * JLS3 behavior; lazily initialized; defaults to void; null allowed.
 	 * Note that this field is ignored for constructor declarations.
 	 */
 	private Type returnType = null;
 	
 	/**
 	 * Indicated whether the return type has been initialized.
-	 * @sicne 3.0
+	 * @since 3.0
 	 */
 	private boolean returnType2Initialized = false;
 	
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -525,7 +525,7 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Returns the live ordered list of type parameters of this method
-	 * declaration (added in 3.0 API). This list is non-empty for parameterized methods.
+	 * declaration (added in JLS3 API). This list is non-empty for parameterized methods.
 	 * <p>
 	 * Note that these children are not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons
@@ -542,7 +542,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return the live list of type parameters
 	 *    (element type: <code>TypeParameter</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List typeParameters() {
@@ -609,7 +609,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * Returns whether this method declaration declares a
-	 * variable arity method (added in 3.0 API). The convenience method checks
+	 * variable arity method (added in JLS3 API). The convenience method checks
 	 * whether the last parameter is so marked.
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
@@ -621,7 +621,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return <code>true</code> if this is a variable arity method declaration,
 	 *    and <code>false</code> otherwise
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @see SingleVariableDeclaration#isVarargs()
 	 * @since 3.0
 	 */ 
@@ -651,7 +651,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * Returns the return type of the method declared in this method 
-	 * declaration, exclusive of any extra array dimensions (2.0 API only). 
+	 * declaration, exclusive of any extra array dimensions (JLS2 API only). 
 	 * This is one of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
@@ -662,9 +662,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the return type, possibly the void primitive type
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
 	public Type getReturnType() {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
@@ -682,7 +682,7 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Sets the return type of the method declared in this method declaration
-	 * to the given type, exclusive of any extra array dimensions (2.0 API only). This is one
+	 * to the given type, exclusive of any extra array dimensions (JLS2 API only). This is one
 	 * of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
@@ -696,9 +696,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
 	public void setReturnType(Type type) {
 	    supportedOnlyIn2();
 		if (type == null) {
@@ -712,20 +712,20 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Returns the return type of the method declared in this method 
-	 * declaration, exclusive of any extra array dimensions (added in 3.0 API). 
+	 * declaration, exclusive of any extra array dimensions (added in JLS3 API). 
 	 * This is one of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
 	 * (although, if present, it does still figure in subtree equality comparisons
 	 * and visits), and is devoid of the binding information ordinarily
-	 * available. In the 2.0 API, the return type is mandatory. 
-	 * In the 3.0 API, the return type is optional.
+	 * available. In the JLS2 API, the return type is mandatory. 
+	 * In the JLS3 API, the return type is optional.
 	 * </p>
 	 * 
 	 * @return the return type, possibly the void primitive type,
 	 * or <code>null</code> if none
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public Type getReturnType2() {
@@ -746,19 +746,19 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Sets the return type of the method declared in this method declaration
-	 * to the given type, exclusive of any extra array dimensions (added in 3.0 API).
+	 * to the given type, exclusive of any extra array dimensions (added in JLS3 API).
 	 * This is one of the few places where the void type is meaningful.
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons and visits).
-	 * In the 2.0 API, the return type is mandatory. 
-	 * In the 3.0 API, the return type is optional.
+	 * In the JLS2 API, the return type is mandatory. 
+	 * In the JLS3 API, the return type is optional.
 	 * </p>
 	 * 
 	 * @param type the new return type, possibly the void primitive type,
 	 * or <code>null</code> if none
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>

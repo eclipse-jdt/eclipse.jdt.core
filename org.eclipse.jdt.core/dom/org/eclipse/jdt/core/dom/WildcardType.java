@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type node for a wildcard type (added in 3.0 API).
+ * Type node for a wildcard type (added in JLS3 API).
  * <pre>
  * WildcardType:
  *    <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ] 

@@ -19,12 +19,12 @@ import java.util.List;
  * declaration nodes are used in a limited number of places, including formal
  * parameter lists and catch clauses. They are not used for field declarations
  * and regular variable declaration statements.
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * SingleVariableDeclaration:
  *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
- * For 3.0 (corresponding to JLS3), the modifier flags were replaced by
+ * For JLS3, the modifier flags were replaced by
  * a list of modifier nodes (intermixed with annotations), and the variable arity
  * indicator was added:
  * <pre>
@@ -37,15 +37,15 @@ import java.util.List;
 public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
-	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
@@ -66,7 +66,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "varargs" structural property of this node type (added in 3.0 API).
+	 * The "varargs" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor VARARGS_PROPERTY = 
@@ -141,7 +141,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			
 	/**
 	 * The extended modifiers (element type: <code>IExtendedModifier</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * 
 	 * @since 3.0
@@ -350,7 +350,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
 	 * Returns the live ordered list of modifiers and annotations
-	 * of this declaration (added in 3.0 API).
+	 * of this declaration (added in JLS3 API).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable and formal parameter declarations.
@@ -359,7 +359,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List modifiers() {
@@ -373,7 +373,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * In the 3.0 API, this method is a convenience method that
+	 * In the JLS3 API, this method is a convenience method that
 	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
@@ -383,10 +383,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	public int getModifiers() {
 		// more efficient than checking getAST().API_LEVEL
 		if (this.modifiers == null) {
-			// 2.0 behavior - bona fide property
+			// JLS2 behavior - bona fide property
 			return this.modifierFlags;
 		} else {
-			// 3.0 behavior - convenient method
+			// JLS3 behavior - convenient method
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
 			int computedModifierFlags = Modifier.NONE;
@@ -401,7 +401,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
+	 * Sets the modifiers explicitly specified on this declaration (JLS2 API only).
 	 * <p>
 	 * The following modifiers are meaningful for fields: public, private, protected,
 	 * static, final, volatile, and transient. For local variable and formal
@@ -410,10 +410,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 * @see Modifier
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>modifiers()</code> which contains a list of  a <code>Modifier</code> nodes.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of  a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);
@@ -494,7 +494,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 
 	/**
 	 * Returns whether this declaration declares the last parameter of
-	 * a variable arity method (added in 3.0 API).
+	 * a variable arity method (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -505,7 +505,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return <code>true</code> if this is a variable arity parameter declaration,
 	 *    and <code>false</code> otherwise
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public boolean isVarargs() {
@@ -518,7 +518,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
 	 * Sets whether this declaration declares the last parameter of
-	 * a variable arity method (added in 3.0 API).
+	 * a variable arity method (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE

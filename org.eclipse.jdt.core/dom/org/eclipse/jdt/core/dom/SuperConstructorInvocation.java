@@ -15,12 +15,12 @@ import java.util.List;
 
 /**
  * Super constructor invocation statement AST node type.
- * For 2.0 (corresponding to JLS2): * <pre>
+ * For JLS2: * <pre>
  * SuperConstructorInvocation:
  *     [ Expression <b>.</b> ] <b>super</b>
  *         <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> <b>;</b>
  * </pre>
- * For 3.0 (corresponding to JLS3), type arguments are added:
+ * For JLS3, type arguments are added:
  * <pre>
  * SuperConstructorInvocation:
  *     [ Expression <b>.</b> ]
@@ -40,7 +40,7 @@ public class SuperConstructorInvocation extends Statement {
 		new ChildPropertyDescriptor(SuperConstructorInvocation.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "typeArguments" structural property of this node type (added in 3.0 API).
+	 * The "typeArguments" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY = 
@@ -108,7 +108,7 @@ public class SuperConstructorInvocation extends Statement {
 	
 	/**
 	 * The type arguments (element type: <code>Type</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -251,7 +251,7 @@ public class SuperConstructorInvocation extends Statement {
 
 	/**
 	 * Returns the live ordered list of type arguments of this constructor
-	 * invocation (added in 3.0 API).
+	 * invocation (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -262,7 +262,7 @@ public class SuperConstructorInvocation extends Statement {
 	 * @return the live list of type arguments
 	 *    (element type: <code>Type</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List typeArguments() {

@@ -45,15 +45,15 @@ public class FieldDeclaration extends BodyDeclaration {
 		internalJavadocPropertyFactory(FieldDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(FieldDeclaration.class);
 	
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 

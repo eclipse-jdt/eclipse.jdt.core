@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Annotation type declaration AST node type (added in 3.0 API).
+ * Annotation type declaration AST node type (added in JLS3 API).
  * <pre>
  * AnnotationTypeDeclaration:
  *   [ Javadoc ] { ExtendedModifier } <b>@</b> <b>interface</b> Identifier
@@ -184,7 +184,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 	 * Method declared on BodyDeclaration.
 	 */
 	final SimplePropertyDescriptor internalModifiersProperty() {
-		// this property will not be asked for (node type did not exist in 2.0)
+		// this property will not be asked for (node type did not exist in JLS2)
 		return null;
 	}
 
