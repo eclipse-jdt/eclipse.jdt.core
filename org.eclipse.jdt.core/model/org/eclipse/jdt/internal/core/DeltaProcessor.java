@@ -2293,15 +2293,25 @@ public class DeltaProcessor {
 						} else {
 							pkg = (IPackageFragment)element;
 						}
+						boolean isSource;
+						try {
+							IClasspathEntry entry = ((IPackageFragmentRoot)pkg.getParent()).getRawClasspathEntry();
+							isSource = entry.getEntryKind() == IClasspathEntry.CPE_SOURCE;
+						} catch (JavaModelException e) {
+							// project does not exist: cannot happen
+							isSource = false;
+						}
 						IResourceDelta[] children = delta.getAffectedChildren();
 						for (int i = 0, length = children.length; i < length; i++) {
 							IResourceDelta child = children[i];
 							IResource resource = child.getResource();
 							if (resource instanceof IFile) {
 								String name = resource.getName();
-								if (Util.isJavaFileName(name)) {
-									Openable cu = (Openable)pkg.getCompilationUnit(name);
-									this.updateIndex(cu, child);
+								if (isSource) {
+									if (Util.isJavaFileName(name)) {
+										Openable cu = (Openable)pkg.getCompilationUnit(name);
+										this.updateIndex(cu, child);
+									}
 								} else if (Util.isClassFileName(name)) {
 									Openable classFile = (Openable)pkg.getClassFile(name);
 									this.updateIndex(classFile, child);
