@@ -231,7 +231,7 @@ public void cleanup() {
 void createFolder(IContainer folder, IProject p) throws CoreException {
 	if (!folder.exists()) {
 		IContainer parent = folder.getParent();
-		if (p.getFullPath() != parent.getFullPath())
+		if (!p.getFullPath().equals(parent.getFullPath()))
 			createFolder(parent, p);
 		((IFolder) folder).create(true, true, null);
 	}
