@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				}
 			}
 		} else {
-			suite.addTest(new FormatterRegressionTests("test320"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test325"));  //$NON-NLS-1$
 		}
 		return suite;
 	}
