@@ -17,6 +17,8 @@ import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -31,6 +33,7 @@ public class IteratorForStatement extends Statement {
 	
 	public Expression collection;
 	public LocalDeclaration localDeclaration;
+	public int localDeclarationImplicitWidening = -1;
 
 	public Statement action;
 	
@@ -176,6 +179,7 @@ public class IteratorForStatement extends Statement {
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
 					codeStream.iaload();
+					codeStream.generateImplicitConversion(this.localDeclarationImplicitWidening);
 					codeStream.store(this.localDeclaration.binding, false);
 					break;
 				case RAW_ITERABLE :
@@ -248,10 +252,14 @@ public class IteratorForStatement extends Statement {
 		// use the scope that will hold the init declarations
 		scope = new BlockScope(upperScope);
 		localDeclaration.resolve(scope);
+		TypeBinding elementType = localDeclaration.type.resolvedType;
 		TypeBinding collectionType = collection.resolveType(scope);
 		// TODO need to handle java.lang.Iterable and java.lang.Iterable<E>
 		if (collectionType.isArrayType()) {
 			this.kind = ARRAY;
+			TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
+			// in case we need to do a conversion
+			this.localDeclarationImplicitWidening = (elementType.id << 4) + collectionElementType.id;
 		}
 /*		if (collectionType.isRawIterable()) {
 			this.kind = RAW_ITERABLE;
