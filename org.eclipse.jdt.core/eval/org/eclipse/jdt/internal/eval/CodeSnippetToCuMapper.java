@@ -263,7 +263,7 @@ public int getEvaluationType(int lineNumber) {
  * Returns the import defined at the given line number. 
  */
 public char[] getImport(int lineNumber) {
-	int importStartLine = this.lineNumberOffset - 2 - this.imports.length;
+	int importStartLine = this.lineNumberOffset - 1 - this.imports.length;
 	return this.imports[lineNumber - importStartLine];
 }
 /**
