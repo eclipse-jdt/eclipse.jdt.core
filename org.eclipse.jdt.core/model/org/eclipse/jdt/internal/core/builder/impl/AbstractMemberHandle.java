@@ -33,7 +33,7 @@ public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl im
 			try {
 				((TypeImpl)parameterTypes[i]).appendSignature(sb, true);
 			} catch (ClassCastException e) {
-				throw new StateSpecificException(Util.bind("build.incompatibleParameterTypes"/*nonNLS*/));
+				throw new StateSpecificException("Incompatible parameter types"/*nonNLS*/);
 			}
 		}
 		sb.append(')');
