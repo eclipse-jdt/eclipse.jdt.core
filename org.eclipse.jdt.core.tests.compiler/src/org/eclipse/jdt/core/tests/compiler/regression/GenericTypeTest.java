@@ -10816,5 +10816,59 @@ class C extends B implements IDoubles {
 			"SUCCESS");	
 	}			
 
+	// 74178
+	public void test410() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"public void write(List<? super Exception> list) {\n" + 
+				"	\n" + 
+				"  list.add(new RuntimeException());             // JDT works, Javac works\n" + 
+				"  list.add(new IllegalMonitorStateException()); // JDT works, Javac works\n" + 
+				"  Exception exc = new Exception();\n" + 
+				"  list.add(exc);                                // both works\n" + 
+				"  list.add(new Object());                       // JDT works, Javac fails\n" + 
+				"  list.add(new Throwable());                    // JDT works, Javac fails\n" + 
+				"  list.add(new Exception());                    // both works\n" + 
+				"}\n" + 
+				"}",
+			},
+			"");	
+	}			
 	
+	// 78015 
+	public void test411() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" + 
+				"    void m1(T t);\n" + 
+				"    void m2(T t);\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {};\n" + 
+				"\n" + 
+				"class B implements I<A> {\n" + 
+				"    public void m1(A a) {\n" + 
+				"    	System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    public void m2(A a) {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        m(new B());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void m(I<A> x) {\n" + 
+				"        x.m1(null);\n" + 
+				"    }\n" + 
+				"}",
+			},
+			"SUCCESS");	
+	}		
 }

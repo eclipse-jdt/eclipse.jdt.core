@@ -418,25 +418,28 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
 	if (!isClass()) return null; // only classes get bridge methods
-	if (inheritedMethodToBridge.returnType.erasure() == localTargetMethod.returnType.erasure())
-		if (inheritedMethodToBridge.areParameterErasuresEqual(localTargetMethod))
+	if (inheritedMethodToBridge.returnType.erasure() == localTargetMethod.returnType.erasure()
+				&& inheritedMethodToBridge.areParameterErasuresEqual(localTargetMethod)) {
 			return null; // do not need bridge method
-
+	}
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
 	}
 	if (synthetics[METHOD_EMUL] == null) {
 		synthetics[METHOD_EMUL] = new HashMap(5);
 	} else {
-		// TODO (philippe) MethodBindings do not implement equals() so how do we prevent adding 2 'equal' inherited methods?
 		// check to see if there is another equivalent inheritedMethod already added
 		Iterator synthMethods = synthetics[METHOD_EMUL].keySet().iterator();
 		while (synthMethods.hasNext()) {
-			Object method = synthMethods.next();
-			if (method instanceof MethodBinding)
-				if (inheritedMethodToBridge.returnType.erasure() == ((MethodBinding) method).returnType.erasure())
-					if (inheritedMethodToBridge.areParameterErasuresEqual((MethodBinding) method))
-						return null;
+			Object synthetic = synthMethods.next();
+			if (synthetic instanceof MethodBinding) {
+				MethodBinding method = (MethodBinding) synthetic;
+				if (CharOperation.equals(inheritedMethodToBridge.selector, method.selector)
+						&& inheritedMethodToBridge.returnType.erasure() == method.returnType.erasure()
+						&& inheritedMethodToBridge.areParameterErasuresEqual(method)) {
+					return null;
+				}
+			}
 		}
 	}
 
