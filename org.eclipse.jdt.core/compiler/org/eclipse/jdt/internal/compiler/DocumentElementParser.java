@@ -482,6 +482,8 @@ protected void consumeEnterVariable() {
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
 			declaration.type = TypeReference.baseTypeReference(-baseType, dimension);
+			declaration.type.sourceStart = type.sourceStart;
+			declaration.type.sourceEnd = type.sourceEnd;
 		} else {
 			declaration.type = type.copyDims(dimension);
 		}
@@ -999,12 +1001,18 @@ This variable is a type reference and dim will be its dimensions*/
 					identifierStack[identifierPtr], 
 					dim, 
 					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceEnd = intStack[intPtr--];
 			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--;
+				ref.sourceEnd = endPosition;
+			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
@@ -1016,10 +1024,12 @@ This variable is a type reference and dim will be its dimensions*/
 				positions, 
 				0, 
 				length); 
-			if (dim == 0)
+			if (dim == 0) {
 				ref = new QualifiedTypeReference(tokens, positions);
-			else
+			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
 		}
 	};
 	return ref;
@@ -1301,12 +1311,18 @@ protected TypeReference typeReference(
 					identifierStack[localIdentifierPtr], 
 					dim, 
 					identifierPositionStack[localIdentifierPtr--]); 
+			ref.sourceEnd = endPosition;				
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceEnd = intStack[localIntPtr--];
 			ref.sourceStart = intStack[localIntPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[localIntPtr--];
+			} else {
+				localIntPtr--;
+				ref.sourceEnd = endPosition;
+			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			localIdentifierPtr -= length;

@@ -1166,11 +1166,11 @@ protected void consumeAssignment() {
 						expressionStack[expressionPtr] ,
 						expressionStack[expressionPtr+1], 
 						op,
-						endStatementPosition)	:
+						scanner.startPosition - 1)	:
 					new Assignment(
 						expressionStack[expressionPtr] ,
 						expressionStack[expressionPtr+1],
-						endStatementPosition);
+						scanner.startPosition - 1);
 			return;
 		}
 	}
@@ -1180,11 +1180,11 @@ protected void consumeAssignment() {
 				expressionStack[expressionPtr] ,
 				expressionStack[expressionPtr+1], 
 				op,
-				endPosition)	:
+				scanner.startPosition - 1)	:
 			new Assignment(
 				expressionStack[expressionPtr] ,
 				expressionStack[expressionPtr+1],
-				endPosition);
+				scanner.startPosition - 1);
 }
 protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '='
@@ -1873,8 +1873,10 @@ protected void consumeEnterVariable() {
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
 			int typeSourceStart = type.sourceStart();
+			int typeSourceEnd = type.sourceEnd();
 			type = TypeReference.baseTypeReference(-baseType, dimension);
 			type.sourceStart = typeSourceStart;
+			type.sourceEnd = typeSourceEnd;
 			declaration.type = type;
 		} else {
 			declaration.type = type.copyDims(dimension);
@@ -3594,16 +3596,27 @@ protected void consumeStatementFor() {
 				length); 
 		}
 	};
-
-	pushOnAstStack(
-		new ForStatement(
-			inits, 
-			cond, 
-			updates, 
-			action, 
-			scope, 
-			intStack[intPtr--], 
-			endStatementPosition)); 
+	if (action instanceof Block) {
+		pushOnAstStack(
+			new ForStatement(
+				inits, 
+				cond, 
+				updates, 
+				action, 
+				scope, 
+				intStack[intPtr--], 
+				endStatementPosition)); 
+	} else {
+		pushOnAstStack(
+			new ForStatement(
+				inits, 
+				cond, 
+				updates, 
+				action, 
+				scope, 
+				intStack[intPtr--], 
+				endPosition)); 
+	}
 }
 protected void consumeStatementIfNoElse() {
 	// IfThenStatement ::=  'if' '(' Expression ')' Statement
@@ -3617,15 +3630,25 @@ protected void consumeStatementIfNoElse() {
 				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
-				endStatementPosition); 
+				endPosition); 
 	} else {
 		expressionLengthPtr--;
-		astStack[astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
-				intStack[intPtr--], 
-				endStatementPosition); 
+		Statement thenStatement = (Statement) astStack[astPtr];
+		if (thenStatement instanceof Block) {
+			astStack[astPtr] = 
+				new IfStatement(
+					expressionStack[expressionPtr--], 
+					thenStatement, 
+					intStack[intPtr--], 
+					endStatementPosition); 
+		} else {
+			astStack[astPtr] = 
+				new IfStatement(
+					expressionStack[expressionPtr--], 
+					thenStatement, 
+					intStack[intPtr--], 
+					endPosition); 
+		}
 	}
 }
 protected void consumeStatementIfWithElse() {
@@ -3638,22 +3661,47 @@ protected void consumeStatementIfWithElse() {
 	if (((lengthT = astLengthStack[astLengthPtr]) != 0) && (lengthE != 0)) {
 		expressionLengthPtr--;
 		//optimize the push/pop
-		astStack[--astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
-				(Statement) astStack[astPtr + 1], 
-				intStack[intPtr--], 
-				endStatementPosition); 
+		Statement elseStatement = (Statement) astStack[astPtr];
+		if (elseStatement instanceof Block) {
+			astStack[--astPtr] = 
+				new IfStatement(
+					expressionStack[expressionPtr--], 
+					(Statement) astStack[astPtr], 
+					elseStatement, 
+					intStack[intPtr--], 
+					endStatementPosition); 
+		} else {
+			astStack[--astPtr] = 
+				new IfStatement(
+					expressionStack[expressionPtr--], 
+					(Statement) astStack[astPtr], 
+					elseStatement, 
+					intStack[intPtr--], 
+					endPosition); 
+		}
 	} else {
 		astLengthPtr--; //second decrement
 		expressionLengthPtr--;
-		pushOnAstStack(new IfStatement(expressionStack[expressionPtr--],
 		//here only one of lengthE/T can be different 0
-		(lengthT == 0) ? Block.None : (Statement) astStack[astPtr--], 
-			(lengthE == 0) ? Block.None : (Statement) astStack[astPtr--], 
-			intStack[intPtr--], 
-			endStatementPosition)); 
+		Statement thenStatement = (lengthT == 0) ? Block.None : (Statement) astStack[astPtr--];
+		Statement elseStatement = (lengthE == 0) ? Block.None : (Statement) astStack[astPtr--];
+		if (elseStatement instanceof Block) {
+			pushOnAstStack(
+				new IfStatement(
+					expressionStack[expressionPtr--],
+					thenStatement,
+					elseStatement,
+					intStack[intPtr--],
+					endStatementPosition));	
+		} else {
+			pushOnAstStack(
+				new IfStatement(
+					expressionStack[expressionPtr--],
+					thenStatement,
+					elseStatement,
+					intStack[intPtr--],
+					endPosition));	
+		}			
 	}
 }
 protected void consumeStatementLabel() {
@@ -3798,15 +3846,26 @@ protected void consumeStatementWhile() {
 				expressionStack[expressionPtr--], 
 				null, 
 				intStack[intPtr--], 
-				endStatementPosition); 
+				endPosition); 
 	} else {
+		Statement action = (Statement) astStack[astPtr];
 		expressionLengthPtr--;
-		astStack[astPtr] = 
-			new WhileStatement(
-				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
-				intStack[intPtr--], 
-				endStatementPosition); 
+		if (action instanceof Block) {
+			astStack[astPtr] = 
+				new WhileStatement(
+					expressionStack[expressionPtr--], 
+					action, 
+					intStack[intPtr--], 
+					endStatementPosition); 
+		} else {
+			astStack[astPtr] = 
+				new WhileStatement(
+					expressionStack[expressionPtr--], 
+					action, 
+					intStack[intPtr--], 
+					endPosition); 
+		
+		}
 	}
 }
 protected void consumeStaticInitializer() {
@@ -3925,6 +3984,7 @@ protected void consumeToken(int type) {
 
 		case TokenNamevoid :
 			pushIdentifier(-T_void);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);
 			break;
 			//push a default dimension while void is not part of the primitive
@@ -3933,34 +3993,42 @@ protected void consumeToken(int type) {
 
 		case TokenNameboolean :
 			pushIdentifier(-T_boolean);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);		
 			break;
 		case TokenNamebyte :
 			pushIdentifier(-T_byte);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamechar :
 			pushIdentifier(-T_char);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamedouble :
 			pushIdentifier(-T_double);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamefloat :
 			pushIdentifier(-T_float);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNameint :
 			pushIdentifier(-T_int);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamelong :
 			pushIdentifier(-T_long);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNameshort :
 			pushIdentifier(-T_short);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 
@@ -4511,11 +4579,18 @@ This variable is a type reference and dim will be its dimensions*/
 					identifierStack[identifierPtr], 
 					dim, 
 					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;			
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
 			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--;
+				ref.sourceEnd = endPosition;
+			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
@@ -4527,10 +4602,12 @@ This variable is a type reference and dim will be its dimensions*/
 				positions, 
 				0, 
 				length); 
-			if (dim == 0)
+			if (dim == 0) {
 				ref = new QualifiedTypeReference(tokens, positions);
-			else
+			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
 		}
 	};
 	return ref;

@@ -332,6 +332,7 @@ public TypeReference getTypeReference(int dim) {
 					identifierStack[identifierPtr], 
 					dim, 
 					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;
 			if (reportReferenceInfo) {
 				requestor.acceptTypeReference(ref.token, ref.sourceStart);
 			}
@@ -341,6 +342,12 @@ public TypeReference getTypeReference(int dim) {
 		if (length < 0) { //flag for precompiled type reference on base types
 			TypeReference ref = TypeReference.baseTypeReference(-length, dim);
 			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--; // no need to use this position as it is an array
+				ref.sourceEnd = endPosition;
+			}
 			return ref;
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
@@ -362,6 +369,7 @@ public TypeReference getTypeReference(int dim) {
 			} else {
 				ArrayQualifiedTypeReference ref = 
 					new ArrayQualifiedTypeReference(tokens, dim, positions); 
+				ref.sourceEnd = endPosition;					
 				if (reportReferenceInfo) {
 					requestor.acceptTypeReference(ref.tokens, ref.sourceStart(), ref.sourceEnd());
 				}
@@ -1054,12 +1062,19 @@ private TypeReference typeReference(
 				new ArrayTypeReference(
 					identifierStack[localIdentifierPtr], 
 					dim, 
-					identifierPositionStack[localIdentifierPtr--]); 
+					identifierPositionStack[localIdentifierPtr--]);
+			ref.sourceEnd = endPosition;			 
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
 			ref.sourceStart = intStack[localIntPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[localIntPtr--];
+			} else {
+				localIntPtr--;
+				ref.sourceEnd = endPosition;
+			}	
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			localIdentifierPtr -= length;
@@ -1071,10 +1086,12 @@ private TypeReference typeReference(
 				positions, 
 				0, 
 				length); 
-			if (dim == 0)
+			if (dim == 0)  {
 				ref = new QualifiedTypeReference(tokens, positions);
-			else
+			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
 		}
 	};
 	return ref;
