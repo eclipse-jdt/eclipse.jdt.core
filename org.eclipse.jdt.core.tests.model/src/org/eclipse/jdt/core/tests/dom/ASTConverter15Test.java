@@ -2879,7 +2879,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			workingCopy = getWorkingCopy("/Converter15/src/ThrowAwayMethod.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
-				workingCopy);
+				workingCopy,
+				false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		} finally {
 			if (workingCopy != null)
@@ -2900,7 +2901,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"   /*start*/<T> void foo(NonExisting arg) {\n" + 
 				"   }/*end*/\n" + 
 				"}",
-				workingCopy);
+				workingCopy,
+				false);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			assertEquals(
 				null,
