@@ -2688,7 +2688,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"true");
 	}
 	
-	// Add null check for empty array initializer
+	// check handling of empty array initializer
 	public void test086() {
 		this.runConformTest(
 			new String[] {
@@ -2699,4 +2699,23 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"");
 	}
+	
+	// check type targeting annotation also allowed for annotation type
+	public void test087() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"\n" + 
+				"@Target(TYPE)\n" + 
+				"@interface Annot {\n" + 
+				"}\n" + 
+				"\n" + 
+				"@Annot\n" + 
+				"public @interface X {\n" + 
+				"}\n"
+			},
+			"");
+	}	
 }
