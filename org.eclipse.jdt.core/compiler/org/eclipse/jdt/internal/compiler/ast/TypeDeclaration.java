@@ -632,30 +632,15 @@ public boolean isInterface() {
 	
 	return (modifiers & AccInterface) != 0;
 }
+
+/**
+ * A <clinit> will be requested as soon as static fields or assertions are present. It will be eliminated during
+ * classfile creation if no bytecode was actually produced based on some optimizations/compiler settings.
+ */
 public final boolean needClassInitMethod() {
-	//the real test is next code but the test on NotAConstant is
-	//not valid UNTIL the TC has runned :-( .....
-	//More, the binding hasn't been done.....:-(....
-
-	//Thus the idea is therefore to generate a <clint> when some static
-	//fields exist. If it has no statement, it will not be generated
-
-	/*--------------------------------------------------
-	if ( fields == null ) return false;
-	for( int i = fields.length ; --i>= 0;){
-	FieldDeclaration field = fields[i];
-	if (field.binding.isStatic())
-	{if ( (field.binding.isFinal()) && (field.initialization == null) ) return true ;
-	if ( !field.isField()) return true ; //initializer are not-isField()
-	if ( (field.initialization != null) && (field.binding.constant == NotAConstant) ) return true ;}}
-	
-	return false ;}
-	----------------------------------------------------*/
-	if ((this.bits & AddAssertionMASK) != 0) {
-		return true;
-	}
-	if (fields == null)
-		return false;
+	// always need a <clinit> when assertions are present
+	if ((this.bits & AddAssertionMASK) != 0) return true;
+	if (fields == null) return false;
 	if (isInterface()) return true; // fields are implicitly statics
 	for (int i = fields.length; --i >= 0;) {
 		FieldDeclaration field = fields[i];
