@@ -44,6 +44,12 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	public void resolveStatements() {
 
 		super.resolveStatements();
+		if (this.arguments != null) {
+			scope.problemReporter().annotationMembersCannotHaveParameters(this);
+		}
+		if (this.typeParameters != null) {
+			scope.problemReporter().annotationMembersCannotHaveTypeParameters(this);
+		}
 		TypeBinding returnTypeBinding = this.binding.returnType;
 		if (returnTypeBinding != null) {
 				

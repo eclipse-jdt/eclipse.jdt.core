@@ -997,6 +997,14 @@ public interface IProblem {
 	int IllegalModifierForAnnotationField = Internal + 615;
 	/** @since 3.1 */
 	int AnnotationCannotOverrideMethod = MethodRelated + 616;
+	/** @since 3.1 */
+	int AnnotationMembersCannotHaveParameters = Syntax + Internal + 617;
+	/** @since 3.1 */
+	int AnnotationMembersCannotHaveTypeParameters = Syntax + Internal + 618;
+	/** @since 3.1 */
+	int AnnotationTypeDeclarationCannotHaveSuperclass = Syntax + Internal + 619;
+	/** @since 3.1 */
+	int AnnotationTypeDeclarationCannotHaveSuperinterfaces = Syntax + Internal + 620;
 
 	/**
 	 * Corrupted binaries

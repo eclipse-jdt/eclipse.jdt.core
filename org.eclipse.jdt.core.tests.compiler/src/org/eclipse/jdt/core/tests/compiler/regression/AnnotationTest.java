@@ -32,7 +32,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 74 };
+//		TESTS_NUMBERS = new int[] { 7 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -128,7 +128,6 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}		
 
 	// check annotation type cannot have superclass
-	// TODO (olivier) unoptimal syntax error -> annotation type cannot extends/implements other types?
 	public void test005() {
 		this.runNegativeTest(
 			new String[] {
@@ -139,18 +138,12 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in Foo.java (at line 1)\n" + 
 			"	public @interface Foo extends Object {\n" + 
-			"	       ^\n" + 
-			"Syntax error on token \"@\", Identifier expected after this token\n" + 
-			"----------\n" + 
-			"2. ERROR in Foo.java (at line 1)\n" + 
-			"	public @interface Foo extends Object {\n" + 
-			"	                              ^^^^^^\n" + 
-			"The type Object cannot be a superinterface of Foo; a superinterface must be an interface\n" + 
+			"	                  ^^^\n" + 
+			"Annotation type declaration cannot have an explicit superclass\n" + 
 			"----------\n");
 	}		
 
 	// check annotation type cannot have superinterfaces
-	// TODO (olivier) unoptimal syntax error -> annotation type cannot extends/implements other types?
 	public void test006() {
 		this.runNegativeTest(
 			new String[] {
@@ -161,8 +154,8 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in Foo.java (at line 1)\n" + 
 			"	public @interface Foo implements Cloneable {\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Syntax error on tokens, ClassHeaderName expected instead\n" + 
+			"	                  ^^^\n" + 
+			"Annotation type declaration cannot have explicit superinterfaces\n" + 
 			"----------\n");
 	}		
 
@@ -179,17 +172,12 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in Foo.java (at line 2)\n" + 
 			"	String value(int i);\n" + 
-			"	            ^\n" + 
-			"Syntax error on token \"(\", ; expected\n" + 
-			"----------\n" + 
-			"2. ERROR in Foo.java (at line 2)\n" + 
-			"	String value(int i);\n" + 
-			"	                  ^\n" + 
-			"Syntax error on token \")\", delete this token\n" + 
+			"	       ^^^^^\n" + 
+			"Annotation attributes cannot have parameters\n" + 
 			"----------\n");
 	}			
 
-	// TODO (olivier) unoptimal syntax error -> annotation method cannot be generic?
+	// annotation method cannot be generic?
 	public void test008() {
 		this.runNegativeTest(
 			new String[] {
@@ -199,15 +187,15 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in Foo.java (at line 1)\n" + 
-			"	public @interface Foo {\n" + 
-			"	                      ^\n" + 
-			"Syntax error on token \"{\", Type expected after this token\n" + 
+			"1. ERROR in Foo.java (at line 2)\n" + 
+			"	<T> T value();\n" + 
+			"	    ^\n" + 
+			"Invalid type T for the annotation attribute Foo.value; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
 			"----------\n" + 
 			"2. ERROR in Foo.java (at line 2)\n" + 
 			"	<T> T value();\n" + 
 			"	      ^^^^^\n" + 
-			"Syntax error on token \"value\", delete this token\n" + 
+			"Annotation attributes cannot be generic\n" + 
 			"----------\n");
 	}			
 
@@ -242,11 +230,6 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
-			"	value();\n" + 
-			"	^^^^^\n" + 
-			"Syntax error on token \"value\", Identifier expected after this token\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
 			"	value();\n" + 
 			"	^^^^^^^\n" + 
 			"Return type for the method is missing\n" + 

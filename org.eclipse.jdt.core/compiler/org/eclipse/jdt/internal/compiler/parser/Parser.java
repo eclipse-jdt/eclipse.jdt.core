@@ -1144,6 +1144,68 @@ protected void consumeAnnotationTypeMemberDeclarationHeader() {
 			length); 
 	}
 
+	//arguments
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+		System.arraycopy(
+			this.astStack, 
+			this.astPtr + 1, 
+			annotationTypeMemberDeclaration.arguments = new Argument[length], 
+			0, 
+			length); 
+	}
+
+	//highlight starts at selector start
+	annotationTypeMemberDeclaration.sourceStart = (int) (selectorSource >>> 32);
+	annotationTypeMemberDeclaration.sourceEnd = (int) selectorSource;
+	
+	annotationTypeMemberDeclaration.bodyStart = this.rParenPos + 1;	
+	pushOnAstStack(annotationTypeMemberDeclaration);
+}
+protected void consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters() {
+	// AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' ')'
+	AnnotationMethodDeclaration annotationTypeMemberDeclaration = new AnnotationMethodDeclaration(this.compilationUnit.compilationResult);
+
+	//name
+	annotationTypeMemberDeclaration.selector = this.identifierStack[this.identifierPtr];
+	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
+	//type
+	annotationTypeMemberDeclaration.returnType = getTypeReference(this.intStack[this.intPtr--]);
+
+	// consume type parameters
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, annotationTypeMemberDeclaration.typeParameters = new TypeParameter[length], 0, length);
+
+	//modifiers
+	annotationTypeMemberDeclaration.declarationSourceStart = this.intStack[this.intPtr--];
+	annotationTypeMemberDeclaration.modifiers = this.intStack[this.intPtr--] | AccSemicolonBody;
+	// javadoc
+	annotationTypeMemberDeclaration.javadoc = this.javadoc;
+	this.javadoc = null;
+	// consume annotations
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			annotationTypeMemberDeclaration.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
+
+	//arguments
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+		System.arraycopy(
+			this.astStack, 
+			this.astPtr + 1, 
+			annotationTypeMemberDeclaration.arguments = new Argument[length], 
+			0, 
+			length); 
+	}
+
 	//highlight starts at selector start
 	annotationTypeMemberDeclaration.sourceStart = (int) (selectorSource >>> 32);
 	annotationTypeMemberDeclaration.sourceEnd = (int) selectorSource;
@@ -1410,7 +1472,6 @@ protected void consumeBinaryExpression(int op) {
 			}
 			break;
 		case LESS :
-			// TODO (olivier) bug 67790 remove once DOMParser is activated
 			this.intPtr--;
 			this.expressionStack[this.expressionPtr] = 
 				new BinaryExpression(
@@ -1530,7 +1591,6 @@ protected void consumeBinaryExpressionWithName(int op) {
 			}
 			break;
 		case LESS :
-			// TODO (olivier) bug 67790 remove once DOMParser is activated
 			this.intPtr--;
 			this.expressionStack[this.expressionPtr] = 
 				new BinaryExpression(
@@ -1611,7 +1671,6 @@ protected void consumeCastExpressionWithGenericsArray() {
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 	
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = getTypeReference(dim));
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = this.intStack[this.intPtr--]) + 1;
@@ -1713,7 +1772,6 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	TypeReference rightSide = getTypeReference(0);
 	
 	ParameterizedQualifiedTypeReference qualifiedParameterizedTypeReference = computeQualifiedGenericsFromRightSide(rightSide, dim);
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = qualifiedParameterizedTypeReference);
 	castType.sourceEnd = end - 1;
@@ -2006,7 +2064,6 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
-		// TODO  (olivier) bug 67790 remove once DOMParser is activated
 		intPtr--;
 
 		//the default constructor with the correct number of argument
@@ -2069,7 +2126,6 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
-		// TODO (olivier) bug 67790 remove once DOMParser is activated
 		intPtr--;
 		
 		//the default constructor with the correct number of argument
@@ -3176,7 +3232,6 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 	length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, ecc.typeArguments = new TypeReference[length], 0, length);
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	ecc.typeArgumentsSourceStart = this.intStack[intPtr--];
 
 	switch (flag) {
@@ -4022,7 +4077,6 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 	
 	m.receiver = getUnspecifiedReference();
@@ -4057,7 +4111,6 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 
 	m.receiver = this.expressionStack[this.expressionPtr];
@@ -4091,7 +4144,6 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 
 	m.receiver = new SuperReference(m.sourceStart, this.endPosition);
@@ -6006,66 +6058,70 @@ protected void consumeRule(int act) {
 			break;
  
     case 653 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationHeader ::= Modifiersopt"); }  //$NON-NLS-1$
+		    consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters() ;  
+			break;
+ 
+    case 654 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationHeader ::= Modifiersopt"); }  //$NON-NLS-1$
 		    consumeAnnotationTypeMemberDeclarationHeader() ;  
 			break;
  
-    case 654 : if (DEBUG) { System.out.println("AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt"); }  //$NON-NLS-1$
+    case 655 : if (DEBUG) { System.out.println("AnnotationTypeMemberHeaderExtendedDims ::= Dimsopt"); }  //$NON-NLS-1$
 		    consumeAnnotationTypeMemberHeaderExtendedDims() ;  
 			break;
  
-    case 655 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::=..."); }  //$NON-NLS-1$
+    case 656 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclaration ::=..."); }  //$NON-NLS-1$
 		    consumeAnnotationTypeMemberDeclaration() ;  
 			break;
  
-    case 658 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
+    case 660 : if (DEBUG) { System.out.println("DefaultValueopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyDefaultValue() ;  
 			break;
  
-    case 664 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
+    case 666 : if (DEBUG) { System.out.println("NormalAnnotation ::= AT Name LPAREN MemberValuePairsopt"); }  //$NON-NLS-1$
 		    consumeNormalAnnotation() ;  
 			break;
  
-    case 665 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
+    case 667 : if (DEBUG) { System.out.println("MemberValuePairsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyMemberValuePairsopt() ;  
 			break;
  
-    case 668 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
+    case 670 : if (DEBUG) { System.out.println("MemberValuePairs ::= MemberValuePairs COMMA..."); }  //$NON-NLS-1$
 		    consumeMemberValuePairs() ;  
 			break;
  
-    case 669 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
+    case 671 : if (DEBUG) { System.out.println("MemberValuePair ::= SimpleName EQUAL MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValuePair() ;  
 			break;
  
-    case 671 : if (DEBUG) { System.out.println("MemberValue ::= Name"); }  //$NON-NLS-1$
+    case 673 : if (DEBUG) { System.out.println("MemberValue ::= Name"); }  //$NON-NLS-1$
 		    consumeMemberValueAsName() ;  
 			break;
  
-    case 674 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
-		    consumeMemberValueArrayInitializer() ;  
-			break;
- 
-    case 675 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
-		    consumeMemberValueArrayInitializer() ;  
-			break;
- 
     case 676 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
-		    consumeEmptyMemberValueArrayInitializer() ;  
+		    consumeMemberValueArrayInitializer() ;  
 			break;
  
     case 677 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
+		    consumeMemberValueArrayInitializer() ;  
+			break;
+ 
+    case 678 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
 		    consumeEmptyMemberValueArrayInitializer() ;  
 			break;
  
-    case 679 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
+    case 679 : if (DEBUG) { System.out.println("MemberValueArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
+		    consumeEmptyMemberValueArrayInitializer() ;  
+			break;
+ 
+    case 681 : if (DEBUG) { System.out.println("MemberValues ::= MemberValues COMMA MemberValue"); }  //$NON-NLS-1$
 		    consumeMemberValues() ;  
 			break;
  
-    case 680 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
+    case 682 : if (DEBUG) { System.out.println("MarkerAnnotation ::= AT Name"); }  //$NON-NLS-1$
 		    consumeMarkerAnnotation() ;  
 			break;
  
-    case 681 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
+    case 683 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AT Name LPAREN MemberValue..."); }  //$NON-NLS-1$
 		    consumeSingleMemberAnnotation() ;  
 			break;
  
@@ -6846,7 +6902,6 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.startPosition);
 			pushOnIntStack(this.scanner.currentPosition - 1);
 			break;
-		// TODO (olivier) bug 67790 remove once DOMParser is activated
 		case TokenNameLESS :
 			pushOnIntStack(this.scanner.startPosition);
 			break;
@@ -6915,18 +6970,15 @@ protected void consumeTypeArgumentList3() {
 protected void consumeTypeArgumentReferenceType1() {
 	concatGenericsLists();
 	pushOnGenericsStack(getTypeReference(0));	
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 }
 protected void consumeTypeArgumentReferenceType2() {
 	concatGenericsLists();
 	pushOnGenericsStack(getTypeReference(0));	
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 }
 protected void consumeTypeArguments() {
 	concatGenericsLists();
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
@@ -7026,7 +7078,6 @@ protected void consumeTypeParameterList1() {
 	concatGenericsLists();
 }
 protected void consumeTypeParameters() {
-	// TODO (olivier) bug 67790 remove once DOMParser is activated
 	intPtr--;
 	if(options.sourceLevel < ClassFileConstants.JDK1_5&&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {

@@ -335,9 +335,11 @@ Header -> ArrayCreationHeader
 
 Header1 -> Header
 Header1 -> ConstructorHeader
+/:$readableName Header1:/
 
 Header2 -> Header
 Header2 -> EnumConstantHeader
+/:$readableName Header2:/
 
 CatchHeader ::= 'catch' '(' FormalParameter ')' '{'
 /.$putCase consumeCatchHeader(); $break ./
@@ -2035,7 +2037,7 @@ AnnotationTypeDeclarationHeader ::= '@' PushModifiersForHeader interface Identif
 /:$readableName AnnotationTypeDeclarationHeader:/
 /:$compliance 1.5:/
 
-AnnotationTypeDeclaration ::= AnnotationTypeDeclarationHeader AnnotationTypeBody
+AnnotationTypeDeclaration ::= AnnotationTypeDeclarationHeader ClassHeaderExtendsopt ClassHeaderImplementsopt AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$readableName AnnotationTypeDeclaration:/
 /:$compliance 1.5:/
@@ -2058,7 +2060,12 @@ AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations Annotation
 /:$readableName AnnotationTypeMemberDeclarations:/
 /:$compliance 1.5:/
 
-AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' ')'
+AnnotationTypeMemberDeclarationHeader ::= Modifiersopt TypeParameters Type Identifier '(' FormalParameterListopt ')'
+/.$putCase consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters() ; $break ./
+/:$readableName AnnotationTypeMemberDeclarationHeader:/
+/:$compliance 1.5:/
+
+AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' FormalParameterListopt ')'
 /.$putCase consumeAnnotationTypeMemberDeclarationHeader() ; $break ./
 /:$readableName AnnotationTypeMemberDeclarationHeader:/
 /:$compliance 1.5:/
@@ -2072,6 +2079,8 @@ AnnotationTypeMemberDeclaration ::= AnnotationTypeMemberDeclarationHeader Annota
 /.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> ConstantDeclaration
+/:$compliance 1.5:/
+AnnotationTypeMemberDeclaration -> ConstructorDeclaration
 /:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> TypeDeclaration
 /:$readableName AnnotationTypeMemberDeclaration:/

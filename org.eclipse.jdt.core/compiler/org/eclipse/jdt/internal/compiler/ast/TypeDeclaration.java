@@ -978,6 +978,15 @@ public class TypeDeclaration
 			if (needSerialVersion) {
 				this.scope.problemReporter().missingSerialVersion(this);
 			}
+			// check extends/implements for annotation type
+			if (getKind() == IGenericType.ANNOTATION_TYPE) {
+				if (this.superclass != null) {
+					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperclass(this);
+				}
+				if (this.superInterfaces != null) {
+					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperinterfaces(this);
+				}
+			}
 			// check enum abstract methods
 			if (getKind() == IGenericType.ENUM && this.binding.isAbstract()) {
 				if (!hasEnumConstants || hasEnumConstantsWithoutBody) {

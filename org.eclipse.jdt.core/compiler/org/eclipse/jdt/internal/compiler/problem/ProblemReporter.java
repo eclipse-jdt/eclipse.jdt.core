@@ -161,6 +161,38 @@ public void annotationFieldNeedConstantInitialization(FieldDeclaration fieldDecl
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
+public void annotationMembersCannotHaveParameters(AnnotationMethodDeclaration annotationMethodDeclaration) {
+	this.handle(
+		IProblem.AnnotationMembersCannotHaveParameters,
+		NoArgument,
+		NoArgument,
+		annotationMethodDeclaration.sourceStart,
+		annotationMethodDeclaration.sourceEnd);
+}
+public void annotationMembersCannotHaveTypeParameters(AnnotationMethodDeclaration annotationMethodDeclaration) {
+	this.handle(
+		IProblem.AnnotationMembersCannotHaveTypeParameters,
+		NoArgument,
+		NoArgument,
+		annotationMethodDeclaration.sourceStart,
+		annotationMethodDeclaration.sourceEnd);
+}
+public void annotationTypeDeclarationCannotHaveSuperclass(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.AnnotationTypeDeclarationCannotHaveSuperclass,
+		NoArgument,
+		NoArgument,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
+}
+public void annotationTypeDeclarationCannotHaveSuperinterfaces(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.AnnotationTypeDeclarationCannotHaveSuperinterfaces,
+		NoArgument,
+		NoArgument,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
+}
 public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[] name, Expression value) {
 	String str = new String(name);
 	this.handle(
