@@ -828,24 +828,6 @@ public interface IProblem {
 	int DuplicateMethodErasure = TypeRelated + 527;
 	/** @since 3.0 */
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
-
-	/**
-	 * 1.5 source level errors
-	 */
-	/** @since 3.0 */
-    int InvalidUsageOfTypeParameters = Syntax + Internal + 540;
-    /** @since 3.0 */
-    int InvalidUsageOfStaticImports = Syntax + Internal + 541;
-    /** @since 3.0 */
-    int InvalidUsageOfForeachStatements = Syntax + Internal + 542;
-    /** @since 3.0 */
-    int InvalidUsageOfTypeArguments = Syntax + Internal + 543;
-    /** @since 3.0 */
-    int InvalidUsageOfEnumDeclarations = Syntax + Internal + 544;
-    /** @since 3.0 */
-    int InvalidUsageOfVarargs = Syntax + Internal + 545;
-    /** @since 3.0 */
-    int InvalidUsageOfAnnotations = Syntax + Internal + 545;
     
 	/**
 	 * Foreach
@@ -854,4 +836,22 @@ public interface IProblem {
 	int IncompatibleTypesInForeach = TypeRelated + 550;	
 	/** @since 3.0 */
 	int InvalidTypeForCollection = Internal + 551;
+	
+	/**
+	 * 1.5 source level errors
+	 */
+	/** @since 3.0 */
+    int InvalidUsageOfTypeParameters = Syntax + Internal + 560;
+    /** @since 3.0 */
+    int InvalidUsageOfStaticImports = Syntax + Internal + 561;
+    /** @since 3.0 */
+    int InvalidUsageOfForeachStatements = Syntax + Internal + 562;
+    /** @since 3.0 */
+    int InvalidUsageOfTypeArguments = Syntax + Internal + 563;
+    /** @since 3.0 */
+    int InvalidUsageOfEnumDeclarations = Syntax + Internal + 564;
+    /** @since 3.0 */
+    int InvalidUsageOfVarargs = Syntax + Internal + 565;
+    /** @since 3.0 */
+    int InvalidUsageOfAnnotations = Syntax + Internal + 565;
 }
