@@ -3614,4 +3614,18 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"B cannot be resolved to a type\n" + 
 			"----------\n");
 	}			
+	// 57784: test generic method
+	public void test127() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        java.util.Arrays.asList(new Object[] {\"1\"});\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
 }
