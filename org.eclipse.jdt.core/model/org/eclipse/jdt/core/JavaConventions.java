@@ -1,25 +1,25 @@
 package org.eclipse.jdt.core;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
  
-
+
 import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
-
+
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
+
 import java.util.StringTokenizer;
-
+
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.core.runtime.*;
 import java.io.File;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.core.resources.*;
-
+
 /**
  * Provides methods for checking Java-specific conventions such as name syntax.
  * <p>
@@ -225,7 +225,7 @@ public static IStatus validateJavaTypeName(String name) {
 		String type = name.substring(index + 1).trim();
 		scannedID = scannedIdentifier(type);
 	}
-
+
 	if (scannedID != null) {
 		if (CharOperation.contains('$', scannedID)) {
 			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.dollarName"/*nonNLS*/), null);
@@ -295,5 +295,5 @@ public static IStatus validatePackageName(String name) {
 	}
 	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK"/*nonNLS*/, null);
 }
-
+
 }

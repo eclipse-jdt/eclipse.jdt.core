@@ -558,7 +558,7 @@ public static Hashtable getDefaultOptions(){
 	defaultOptions.put(COMPILER_PB_UNUSED_LOCAL,						IGNORE);
 	defaultOptions.put(COMPILER_PB_UNUSED_PARAMETER,					IGNORE);
 	defaultOptions.put(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION,			IGNORE);
-	defaultOptions.put(COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL,		WARNING);
+	defaultOptions.put(COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL,		IGNORE);
 	
 	// JavaCore settings
 	defaultOptions.put(CORE_JAVA_BUILD_ORDER,							IGNORE);
