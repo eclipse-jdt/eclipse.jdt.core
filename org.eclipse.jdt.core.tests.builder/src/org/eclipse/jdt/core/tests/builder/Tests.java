@@ -382,6 +382,13 @@ public class Tests extends TestCase {
 		env.resetWorkspace();
 		
 	}
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception {
+		env.resetWorkspace();
+	}
+
 	
 	public static Test suite() {
 		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
