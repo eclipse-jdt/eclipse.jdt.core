@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
@@ -31,28 +32,28 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  * <p>
  * This class is not intended to be subclassed.
  * </p>
- * @see ASTRewrite#getListRewrite(ASTNode, org.eclipse.jdt.core.dom.ChildListPropertyDescriptor)
+ * @see ASTRewrite#getListRewrite(ASTNode, ChildListPropertyDescriptor)
  * @since 3.0
  */
 public final class ListRewrite {
 	
-	private ASTNode fParent;
-	private StructuralPropertyDescriptor fChildProperty;
-	private ASTRewrite fRewriter;
+	private ASTNode parent;
+	private StructuralPropertyDescriptor childProperty;
+	private ASTRewrite rewriter;
 
 
 	/* package*/ ListRewrite(ASTRewrite rewriter, ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		fRewriter= rewriter;
-		fParent= parent;
-		fChildProperty= childProperty;
+		this.rewriter= rewriter;
+		this.parent= parent;
+		this.childProperty= childProperty;
 	}
 	
 	private RewriteEventStore getRewriteStore() {
-		return fRewriter.getRewriteEventStore();
+		return this.rewriter.getRewriteEventStore();
 	}
 	
 	private ListRewriteEvent getEvent() {
-		return getRewriteStore().getListEvent(fParent, fChildProperty, true);
+		return getRewriteStore().getListEvent(this.parent, this.childProperty, true);
 	}
 	
 	/**
@@ -139,7 +140,7 @@ public final class ListRewrite {
 		if (index == -1) {
 			throw new IllegalArgumentException("Node does not exist"); //$NON-NLS-1$
 		}
-		insertAt(node, index + 1, editGroup);
+		internalInsertAt(node, index + 1, true, editGroup);
 	}
 	
 	/**
@@ -172,7 +173,7 @@ public final class ListRewrite {
 		if (index == -1) {
 			throw new IllegalArgumentException("Node does not exist"); //$NON-NLS-1$
 		}
-		insertAt(node, index, editGroup);
+		internalInsertAt(node, index, false, editGroup);
 	}
 	
 	/**
@@ -189,7 +190,10 @@ public final class ListRewrite {
      * @see #insertAt(ASTNode, int, TextEditGroup)
 	 */
 	public void insertFirst(ASTNode node, TextEditGroup editGroup) {
-		insertAt(node, 0, editGroup);
+		if (node == null) { 
+			throw new IllegalArgumentException();
+		}
+		internalInsertAt(node, 0, false, editGroup);
 	}
 	
 	/**
@@ -206,7 +210,10 @@ public final class ListRewrite {
      * @see #insertAt(ASTNode, int, TextEditGroup)
 	 */
 	public void insertLast(ASTNode node, TextEditGroup editGroup) {
-		insertAt(node, -1, editGroup);
+		if (node == null) { 
+			throw new IllegalArgumentException();
+		}
+		internalInsertAt(node, -1, true, editGroup);
 	}
 
 	/**
@@ -237,23 +244,28 @@ public final class ListRewrite {
 		if (node == null) { 
 			throw new IllegalArgumentException();
 		}
+		internalInsertAt(node, index, isInsertBoundToPreviousByDefault(node), editGroup);
+	}
+	
+	private void internalInsertAt(ASTNode node, int index, boolean boundToPrevious, TextEditGroup editGroup) {
 		RewriteEvent event= getEvent().insert(node, index);
-		if (isInsertBoundToPreviousByDefault(node)) {
+		if (boundToPrevious) {
 			getRewriteStore().setInsertBoundToPrevious(node);
 		}
 		if (editGroup != null) {
 			getRewriteStore().setEventEditGroup(event, editGroup);
-		}
+		}		
 	}
+	
 	
 	private ASTNode createTargetNode(ASTNode first, ASTNode last, boolean isMove) {
 		if (first == null || last == null) {
 			throw new IllegalArgumentException();
 		}
 		//validateIsInsideAST(node);
-		CopySourceInfo info= getRewriteStore().markAsRangeCopySource(fParent, fChildProperty, first, last, isMove);
+		CopySourceInfo info= getRewriteStore().markAsRangeCopySource(parent, childProperty, first, last, isMove);
 	
-		NodeInfoStore nodeStore= fRewriter.getNodeStore();
+		NodeInfoStore nodeStore= this.rewriter.getNodeStore();
 		ASTNode placeholder= nodeStore.newPlaceholderNode(first.getNodeType()); // revisit: could use list type
 		if (placeholder == null) {
 			throw new IllegalArgumentException("Creating a target node is not supported for nodes of type" + first.getClass().getName()); //$NON-NLS-1$
@@ -279,7 +291,7 @@ public final class ListRewrite {
 	 */
 	public final ASTNode createCopyTarget(ASTNode first, ASTNode last) {
 		if (first == last) {
-			return fRewriter.createCopyTarget(first);
+			return this.rewriter.createCopyTarget(first);
 		} else {
 			return createTargetNode(first, last, false);
 		}

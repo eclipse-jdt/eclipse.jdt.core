@@ -19,6 +19,7 @@ import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.jface.text.IDocument;
 
+import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -27,10 +28,10 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
+import org.eclipse.jdt.internal.core.dom.rewrite.GenericVisitor;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
-import org.eclipse.jdt.internal.core.dom.rewrite.RewriteRuntimeException;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 
@@ -68,10 +69,10 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
 public class ASTRewrite {
 
 	/** root node for the rewrite: Only nodes under this root are accepted */
-	private AST fAST;
+	private AST ast;
 
-	private final RewriteEventStore fEventStore;
-	private final NodeInfoStore fNodeStore;
+	private final RewriteEventStore eventStore;
+	private final NodeInfoStore nodeStore;
 	
 	/* TODO (martin/david) - You get more flexibility to evolve an API class
 	 * by declaring a public static factory method as API and keeping
@@ -83,9 +84,9 @@ public class ASTRewrite {
 	 * @param ast the AST being rewritten
 	 */
 	public ASTRewrite(AST ast) {
-		fAST= ast;
-		fEventStore= new RewriteEventStore();
-		fNodeStore= new NodeInfoStore(ast);
+		this.ast= ast;
+		this.eventStore= new RewriteEventStore();
+		this.nodeStore= new NodeInfoStore(ast);
 	}
 	
 	/**
@@ -94,15 +95,15 @@ public class ASTRewrite {
 	 * @return the AST the rewrite was set up on
 	 */
 	public AST getAST() {
-		return fAST;
+		return this.ast;
 	}
 			
-	/* package */ RewriteEventStore getRewriteEventStore() {
-		return fEventStore;
+	/* package */ final RewriteEventStore getRewriteEventStore() {
+		return this.eventStore;
 	}
 	
-	/* package */ NodeInfoStore getNodeStore() {
-		return fNodeStore;
+	/* package */ final NodeInfoStore getNodeStore() {
+		return this.nodeStore;
 	}
 	
 	/**
@@ -124,27 +125,25 @@ public class ASTRewrite {
 	 * or <code>null</code> to use the standard global options
 	 * {@link JavaCore#getOptions() JavaCore.getOptions()}
 	 * @return text edit object describing the changes to the
-	 * document corresponding to the chnages recorded by this rewriter
-	 * @throws RewriteException 
-	 * TODO (martin/david) - eliminate RewriteException in favor of an unchecked exception
+	 * document corresponding to the changes recorded by this rewriter
+	 * @throws IllegalArgumentException An <code>IllegalArgumentException</code>
+	 * is thrown if the document passed does not correspond to the AST that is rewritten. 
 	 */
-	public TextEdit rewriteAST(IDocument document, Map options) throws RewriteException {
-		// TODO (martin/david) - check arguments on entry to API methods
-//		if (document == null) {
-//			throw new IllegalArgumentException();
-//		}
+	public TextEdit rewriteAST(IDocument document, Map options) throws IllegalArgumentException {
+		if (document == null) {
+			throw new IllegalArgumentException();
+		}
 		TextEdit result= new MultiTextEdit();
 		
 		ASTNode rootNode= getRootNode();
 		if (rootNode != null) {
-			fEventStore.markMovedNodesRemoved();
-			try {
-				CompilationUnit astRoot= (CompilationUnit) rootNode.getRoot();
-				ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, astRoot, result, fEventStore, fNodeStore, options);
-				rootNode.accept(visitor);
-			} catch (RewriteRuntimeException e) {
-				throw new RewriteException(e.getCause());
-			}
+			validateASTNotModified(rootNode);
+			
+			getRewriteEventStore().markMovedNodesRemoved();
+
+			CompilationUnit astRoot= (CompilationUnit) rootNode.getRoot();
+			ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, astRoot, result, this.eventStore, this.nodeStore, options);
+			rootNode.accept(visitor); // throws IllegalArgumentException
 		}
 		return result;
 	}
@@ -154,7 +153,7 @@ public class ASTRewrite {
 		int start= -1;
 		int end= -1;
 		
-		for (Iterator iter= fEventStore.getChangeRootIterator(); iter.hasNext();) {
+		for (Iterator iter= getRewriteEventStore().getChangeRootIterator(); iter.hasNext();) {
 			ASTNode curr= (ASTNode) iter.next();
 			if (!RewriteEventStore.isNewNode(curr)) {
 				int currStart= curr.getStartPosition();
@@ -185,7 +184,18 @@ public class ASTRewrite {
 			}
 		}
 		return node;
-
+	}
+	
+	private void validateASTNotModified(ASTNode root) throws IllegalArgumentException {
+		GenericVisitor isModifiedVisitor= new GenericVisitor() {
+			protected boolean visitNode(ASTNode node) {
+				if ((node.getFlags() & ASTNode.ORIGINAL) != 0) {
+					throw new IllegalArgumentException("The AST that is rewritten must not be modified."); //$NON-NLS-1$
+				}
+				return true;
+			}
+		};
+		root.accept(isModifiedVisitor);
 	}
 		
 	/**
@@ -196,7 +206,7 @@ public class ASTRewrite {
 	 * @param node the node being removed
 	 * @param editGroup the edit group in which to collect the corresponding
 	 * text edits, or <code>null</code> if ungrouped
-	 * @throws IllegalArgumentException if the node is null, or if the nodeis not
+	 * @throws IllegalArgumentException if the node is null, or if the node is not
 	 * part of this rewriter's AST, or if the described modification is invalid
 	 * (such as removing a required node)
 	 */
@@ -215,7 +225,7 @@ public class ASTRewrite {
 	/**
 	 * Replaces the given node in this rewriter. The replacement node
 	 * must either be brand new (not part of the original AST) or a placeholder
-	 * node (for example, one created by {@link #createCopyNode(ASTNode)}
+	 * node (for example, one created by {@link #createCopyTarget(ASTNode)}
 	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been replaced.
@@ -269,10 +279,10 @@ public class ASTRewrite {
 		validateIsInsideAST(node);
 		validatePropertyType(property, value);
 
-		NodeRewriteEvent nodeEvent= fEventStore.getNodeEvent(node, property, true);
+		NodeRewriteEvent nodeEvent= this.eventStore.getNodeEvent(node, property, true);
 		nodeEvent.setNewValue(value);
 		if (editGroup != null) {
-			fEventStore.setEventEditGroup(nodeEvent, editGroup);
+			this.eventStore.setEventEditGroup(nodeEvent, editGroup);
 		}
 	}
 
@@ -314,10 +324,10 @@ public class ASTRewrite {
 		if (node == null) {
 			throw new IllegalArgumentException();
 		}
-		TextEditGroup group= fEventStore.getTrackedNodeData(node);
+		TextEditGroup group= this.eventStore.getTrackedNodeData(node);
 		if (group == null) {
 			group= new TextEditGroup("internal"); //$NON-NLS-1$
-			fEventStore.setTrackedNodeData(node, group);
+			this.eventStore.setTrackedNodeData(node, group);
 		}
 		return new TrackedNodePosition(group, node);
 	}	
@@ -374,12 +384,12 @@ public class ASTRewrite {
 		if (code == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode placeholder= fNodeStore.newPlaceholderNode(nodeType);
+		ASTNode placeholder= getNodeStore().newPlaceholderNode(nodeType);
 		if (placeholder == null) {
 			throw new IllegalArgumentException("String placeholder is not supported for type" + nodeType); //$NON-NLS-1$
 		}
 		
-		fNodeStore.markAsStringPlaceholder(placeholder, code);
+		getNodeStore().markAsStringPlaceholder(placeholder, code);
 		return placeholder;
 	}
 	
@@ -388,13 +398,13 @@ public class ASTRewrite {
 			throw new IllegalArgumentException();
 		}
 		validateIsInsideAST(node);
-		CopySourceInfo info= fEventStore.markAsCopySource(node.getParent(), node.getLocationInParent(), node, isMove);
+		CopySourceInfo info= getRewriteEventStore().markAsCopySource(node.getParent(), node.getLocationInParent(), node, isMove);
 	
-		ASTNode placeholder= fNodeStore.newPlaceholderNode(node.getNodeType());
+		ASTNode placeholder= getNodeStore().newPlaceholderNode(node.getNodeType());
 		if (placeholder == null) {
 			throw new IllegalArgumentException("Creating a target node is not supported for nodes of type" + node.getClass().getName()); //$NON-NLS-1$
 		}
-		fNodeStore.markAsCopyTarget(placeholder, info);
+		getNodeStore().markAsCopyTarget(placeholder, info);
 		
 		return placeholder;		
 	}
@@ -441,8 +451,8 @@ public class ASTRewrite {
 		StringBuffer buf= new StringBuffer();
 		buf.append("Events:\n"); //$NON-NLS-1$
 		// be extra careful of uninitialized or mangled instances
-		if (fEventStore != null) {
-			buf.append(fEventStore.toString());
+		if (this.eventStore != null) {
+			buf.append(this.eventStore.toString());
 		}
 		return buf.toString();
 	}
