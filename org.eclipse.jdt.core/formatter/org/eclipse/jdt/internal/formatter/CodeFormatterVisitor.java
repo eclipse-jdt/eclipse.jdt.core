@@ -2579,6 +2579,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(TerminalTokens.TokenNameelse, true);
 			if (this.preferences.insert_new_line_in_control_statements) {
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			}
 			if (elseStatement instanceof Block) {
 				elseStatement.traverse(this, scope);
