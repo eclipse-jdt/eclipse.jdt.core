@@ -230,7 +230,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
@@ -287,7 +287,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
@@ -298,22 +298,18 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return this.newCodeFormatter.format(source, expression);
 	}
 	
-	private CodeFormatterVisitor createCodeFormatterVisitor(int offset, int length, String source) {
-		return new CodeFormatterVisitor(this.preferences, options, offset, length);
-	}
-
 	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = createCodeFormatterVisitor(offset, length, source);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return  this.newCodeFormatter.format(source, constructorDeclaration);
 	}
