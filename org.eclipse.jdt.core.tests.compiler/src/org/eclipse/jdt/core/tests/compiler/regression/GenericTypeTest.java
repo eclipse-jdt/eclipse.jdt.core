@@ -242,7 +242,7 @@ public void test009() {
 		"1. ERROR in Object.java (at line 1)\n" + 
 		"	package java.lang;\n" + 
 		"	^\n" + 
-		"The type java.lang.Object cannot be declared as generic\n" + 
+		"The type java.lang.Object cannot be declared as a generic\n" + 
 		"----------\n");
 }
 
@@ -261,7 +261,7 @@ public void test010() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	new X<Foo>();\n" + 
 		"	      ^^^\n" + 
-		"The type argument Foo does not satisfy the parameter T bound: \'Object & Comparable\' in type X<T>\n" + 
+		"Type mismatch: Cannot convert from Foo to the bounded parameter <T extends Object & Comparable> of the type X<T>\n" + 
 		"----------\n");
 }
 
