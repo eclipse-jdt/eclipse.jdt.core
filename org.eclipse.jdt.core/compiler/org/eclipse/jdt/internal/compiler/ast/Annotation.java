@@ -126,6 +126,7 @@ public abstract class Annotation extends Expression {
 				if (valuePair == null) continue nextPair;
 				char[] memberName = valuePair.name;
 				if (CharOperation.equals(memberName, selector)) {
+					valuePair.binding = method;
 					usedValuePairs[j] = null; // consumed
 					foundValue = true;
 					boolean foundDuplicate = false;
@@ -133,6 +134,7 @@ public abstract class Annotation extends Expression {
 						if (CharOperation.equals(usedValuePairs[k].name, selector)) {
 							foundDuplicate = true;
 							scope.problemReporter().duplicateAnnotationValue(annotationType, usedValuePairs[k]);
+							usedValuePairs[k].binding = method;
 							usedValuePairs[k] = null;
 						}
 					}

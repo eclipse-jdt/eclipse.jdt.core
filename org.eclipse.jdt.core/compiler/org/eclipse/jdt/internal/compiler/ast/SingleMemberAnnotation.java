@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -23,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class SingleMemberAnnotation extends Annotation {
 	
 	public Expression memberValue;
+	public MethodBinding memberBinding;
 
 	public SingleMemberAnnotation(TypeReference type, int sourceStart) {
 		this.type = type;
@@ -35,10 +37,11 @@ public class SingleMemberAnnotation extends Annotation {
 		if (super.internalResolveType(annotationType, scope) == null)
 			return null;
 		
+		MemberValuePair pair = new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue) ;
 		checkMemberValues(
-				new MemberValuePair[] {
-					new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue) }, 
+				new MemberValuePair[] { pair }, 
 				scope);
+		this.memberBinding = pair.binding;
 		return this.resolvedType;
 	}
 	

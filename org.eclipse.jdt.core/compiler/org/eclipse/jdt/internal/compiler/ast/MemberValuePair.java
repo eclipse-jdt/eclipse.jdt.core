@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 
 /**
  * MemberValuePair node
@@ -22,6 +23,7 @@ public class MemberValuePair extends ASTNode {
 	
 	public char[] name;
 	public Expression value;
+	public MethodBinding binding;
 	
 	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
 		this.name = token;
