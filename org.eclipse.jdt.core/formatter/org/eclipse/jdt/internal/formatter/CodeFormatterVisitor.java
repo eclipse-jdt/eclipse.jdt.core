@@ -3277,10 +3277,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		int operator = prefixExpression.operator == OperatorIds.PLUS 
 			? TerminalTokens.TokenNamePLUS_PLUS : TerminalTokens.TokenNameMINUS_MINUS;
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_prefix_operator);
-		prefixExpression.lhs.traverse(this, scope);
 		if (this.preferences.insert_space_after_prefix_operator) {
 			this.scribe.space();
 		}
+		prefixExpression.lhs.traverse(this, scope);
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(prefixExpression, numberOfParens);
 		}

@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test356"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test358"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -180,7 +180,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 					start = i + 1;
 			}
 		}
-		return (String[]) arrayList.toArray(new String[arrayList.size()]);
+		final int size = arrayList.size();
+		if (size == 0) {
+			return new String[] { s };
+		} else {
+			return (String[]) arrayList.toArray(new String[size]);
+		}
 	}
 
 	private void runTest(String packageName, String compilationUnitName) {
@@ -3857,4 +3862,32 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test356", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47801
+	 * @deprecated
+	 */
+	public void test357() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_PREFIX_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_CONVERT_OLD_TO_NEW, DefaultCodeFormatterConstants.FALSE);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test357", "A.java", CodeFormatter.K_EXPRESSION);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47801
+	 * @deprecated
+	 */
+	public void test358() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_PREFIX_OPERATOR, JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_CONVERT_OLD_TO_NEW, DefaultCodeFormatterConstants.FALSE);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test358", "A.java", CodeFormatter.K_EXPRESSION);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
 }
