@@ -133,7 +133,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * dimensions, respectively.
 	 * </p>
 	 * 
-	 * @return the number of extra array dimensions
+	 * @since 2.0
 	 */ 
 	public int getExtraDimensions() {
 		return extraArrayDimensions;
@@ -142,9 +142,14 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	/**
 	 * Sets the number of extra array dimensions this variable has over
 	 * and above the type specified in the enclosing declaration.
+	 * <p>
+	 * For example, in the AST for <code>int[] i, j[], k[][]</code> the 
+	 * variable declaration fragments for the variables <code>i</code>,
+	 * <code>j</code>, and <code>k</code>, have 0, 1, and 2 extra array
+	 * dimensions, respectively.
+	 * </p>
 	 * 
-	 * @param dimensions the number of extra array dimensions
-	 * @exception IllegalArgumentException if the number of dimensions is negative
+	 * @since 2.0
 	 */ 
 	public void setExtraDimensions(int dimensions) {
 		if (dimensions < 0) {

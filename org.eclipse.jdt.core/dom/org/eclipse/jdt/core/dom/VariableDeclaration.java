@@ -61,6 +61,42 @@ public abstract class VariableDeclaration extends ASTNode {
 	public abstract void setName(SimpleName variableName);
 
 	/**
+	 * Returns the number of extra array dimensions over and above the 
+	 * explicitly-specified type.
+	 * <p>
+	 * For example, <code>int x[][]</code> has a type of 
+	 * <code>int</code> and two extra array dimensions; 
+	 * <code>int[][] x</code> has a type of <code>int[][]</code>
+	 * and zero extra array dimensions. The two constructs have different
+	 * ASTs, even though there are really syntactic variants of the same
+	 * variable declaration.
+	 * </p>
+	 * 
+	 * @return the number of extra array dimensions
+	 * @since 2.1
+	 */ 
+	public abstract int getExtraDimensions();
+
+	/**
+	 * Sets the number of extra array dimensions over and above the 
+	 * explicitly-specified type.
+	 * <p>
+	 * For example, <code>int x[][]</code> has a type of 
+	 * <code>int</code> and two extra array dimensions; 
+	 * <code>int[][] x</code> has a type of <code>int[][]</code>
+	 * and zero extra array dimensions. The two constructs have different
+	 * ASTs, even though there are really syntactic variants of the same
+	 * variable declaration.
+	 * </p>
+	 * 
+	 * @param dimensions the number of array dimensions
+	 * @exception IllegalArgumentException if the number of dimensions is
+	 *    negative
+	 * @since 2.1
+	 */ 
+	public abstract void setExtraDimensions(int dimensions);
+
+	/**
 	 * Returns the initializer of this variable declaration, or 
 	 * <code>null</code> if there is none.
 	 * 

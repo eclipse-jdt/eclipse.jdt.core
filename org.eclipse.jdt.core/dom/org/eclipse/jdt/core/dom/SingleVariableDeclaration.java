@@ -217,40 +217,16 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		this.type = type;
 	}
 
-	/**
-	 * Returns the number of extra array dimensions over and above the 
-	 * explicitly-specified type.
-	 * <p>
-	 * For example, <code>int x[][]</code> has a type of 
-	 * <code>int</code> and two extra array dimensions; 
-	 * <code>int[][] x</code> has a type of <code>int[][]</code>
-	 * and zero extra array dimensions. The two constructs have different
-	 * ASTs, even though there are really syntactic variants of the same
-	 * variable declaration.
-	 * </p>
-	 * 
-	 * @return the number of extra array dimensions
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 * @since 2.1
 	 */ 
 	public int getExtraDimensions() {
 		return extraArrayDimensions;
 	}
 
-	/**
-	 * Sets the number of extra array dimensions over and above the 
-	 * explicitly-specified type.
-	 * <p>
-	 * For example, <code>int x[][]</code> has a type of 
-	 * <code>int</code> and two extra array dimensions; 
-	 * <code>int[][] x</code> has a type of <code>int[][]</code>
-	 * and zero extra array dimensions. The two constructs have different
-	 * ASTs, even though there are really syntactic variants of the same
-	 * variable declaration.
-	 * </p>
-	 * 
-	 * @param dimensions the number of array dimensions
-	 * @exception IllegalArgumentException if the number of dimensions is
-	 *    negative
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
 	 * @since 2.1
 	 */ 
 	public void setExtraDimensions(int dimensions) {
