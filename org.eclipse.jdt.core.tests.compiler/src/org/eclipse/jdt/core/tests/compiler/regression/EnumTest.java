@@ -1589,7 +1589,7 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"abstract public enum X extends java.lang.Enum {\n"; 
+			"public abstract enum X extends java.lang.Enum {\n"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));

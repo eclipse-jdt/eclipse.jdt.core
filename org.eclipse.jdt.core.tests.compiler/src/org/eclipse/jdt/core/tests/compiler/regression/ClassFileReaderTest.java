@@ -2717,7 +2717,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"}";
 		String expectedOutput =
 			"// Compiled from I.java (version 1.2 : 46.0, no super bit)\n" + 
-			"abstract public interface I extends java.lang.Object {\n" + 
+			"public abstract interface I extends java.lang.Object {\n" + 
 			"  Constant pool:\n" + 
 			"    constant #1 utf8: I\n" + 
 			"    constant #2 class: #1 I\n" + 

@@ -43,80 +43,29 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	private static final String VERSION_UNKNOWN = "unknown";//$NON-NLS-1$
 
+	private boolean appendModifier(StringBuffer buffer, int accessFlags, int modifierConstant, String modifier, boolean firstModifier) {
+		if ((accessFlags & modifierConstant) != 0) {		
+			if (!firstModifier) {
+				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+			}
+			if (firstModifier) {
+				firstModifier = false;
+			}
+			buffer.append(modifier);
+		}
+		return firstModifier;
+	}
+	
 	private void decodeModifiersForField(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
-		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("final"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PRIVATE) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("private"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PROTECTED) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("protected"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("public"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_STATIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("static"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_TRANSIENT) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("transient"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_VOLATILE) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("volatile"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_ENUM) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("enum"); //$NON-NLS-1$
-		}
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_VOLATILE, "volatile", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ENUM, "enum", firstModifier); //$NON-NLS-1$
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
@@ -124,60 +73,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private final void decodeModifiersForInnerClasses(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
-		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("public"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PRIVATE) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("private"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PROTECTED) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("protected"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_STATIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("static"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("final"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_ABSTRACT) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("abstract"); //$NON-NLS-1$
-		}
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
@@ -185,96 +86,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private final void decodeModifiersForMethod(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
-		if ((accessFlags & IModifierConstants.ACC_ABSTRACT) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("abstract"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("final"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_NATIVE) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("native"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PRIVATE) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("private"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PROTECTED) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("protected"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("public"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_STATIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("static"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_STRICT) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("strictfp"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_SYNCHRONIZED) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("synchronized"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_BRIDGE) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("bridge"); //$NON-NLS-1$
-		}		
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_SYNCHRONIZED, "synchronized", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_NATIVE, "native", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STRICT, "strictfp", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_BRIDGE, "bridge", firstModifier); //$NON-NLS-1$
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
@@ -282,33 +103,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private final void decodeModifiersForType(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
-		if ((accessFlags & IModifierConstants.ACC_ABSTRACT) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("abstract"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("final"); //$NON-NLS-1$
-		}
-		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
-			if (!firstModifier) {
-				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append("public"); //$NON-NLS-1$
-		}
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
