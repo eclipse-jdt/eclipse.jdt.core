@@ -665,14 +665,14 @@ public class TypeDeclaration
 					if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 						initializerScope.problemReporter().initializerMustCompleteNormally(field);
 						nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-					}
+					} 
 				}
 			}
 		}
 		if (memberTypes != null) {
 			for (int i = 0, count = memberTypes.length; i < count; i++) {
 				if (flowContext != null){ // local type
-					memberTypes[i].analyseCode(scope, flowContext, nonStaticFieldInfo.copy());
+					memberTypes[i].analyseCode(scope, flowContext, nonStaticFieldInfo.copy().setReachMode(flowInfo.reachMode())); // reset reach mode in case initializers did abrupt completely
 				} else {
 					memberTypes[i].analyseCode(scope);
 				}
@@ -689,10 +689,10 @@ public class TypeDeclaration
 					if (method.isStatic()) { // <clinit>
 						method.analyseCode(
 							scope, 
-							staticInitializerContext, 
-							staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
+							staticInitializerContext,  
+							staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo).setReachMode(flowInfo.reachMode()));  // reset reach mode in case initializers did abrupt completely
 					} else { // constructor
-						method.analyseCode(scope, initializerContext, constructorInfo.copy());
+						method.analyseCode(scope, initializerContext, constructorInfo.copy().setReachMode(flowInfo.reachMode())); // reset reach mode in case initializers did abrupt completely
 					}
 				} else { // regular method
 					method.analyseCode(scope, null, flowInfo.copy());
