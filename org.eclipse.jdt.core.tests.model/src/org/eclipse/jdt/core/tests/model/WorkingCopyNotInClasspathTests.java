@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
@@ -28,8 +30,6 @@ public class WorkingCopyNotInClasspathTests extends ModifyingResourceTests {
 public WorkingCopyNotInClasspathTests(String name) {
 	super(name);
 }
-
-
 
 public static Test suite() {
 	return new Suite(WorkingCopyNotInClasspathTests.class);
@@ -117,6 +117,23 @@ public void testParentExistence() throws CoreException {
 	assertTrue("Working copy's parent should not exist", !this.workingCopy.getParent().exists());
 }
 /*
+ * Ensures that a working copy created on a non-existing project can be reconciled.
+ * (regression test for bug 40322 Error creating new Java projects)
+ */
+public void testReconcileNonExistingProject() throws CoreException {
+	ICompilationUnit wc = null;
+	try {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFile file = root.getProject("NonExisting").getFile("A.java");
+		wc = JavaCore.createCompilationUnitFrom(file).getWorkingCopy(null);
+		wc.reconcile();
+	} finally {
+		if (wc != null) {
+			wc.destroy();
+		}
+	}
+}
+/*
  * Ensure that a working copy created on a .java file in a simple project can be opened.
  * (regression test for bug 33748 Cannot open working copy on .java file in simple project)
  */
@@ -158,7 +175,6 @@ public void testOriginalParentExistence() throws CoreException {
 		"Original compilation unit's parent should not exist", 
 		!this.workingCopy.getOriginalElement().getParent().exists());
 }
-
 public void testIsOpen() throws CoreException {
 	assertTrue("Working copy should be open", this.workingCopy.isOpen());
 }
