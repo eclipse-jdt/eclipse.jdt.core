@@ -531,13 +531,8 @@ class NaiveASTFlattener extends ASTVisitor {
 			}
 			this.buffer.append(")");//$NON-NLS-1$
 		}
-		if (!node.bodyDeclarations().isEmpty()) {
-			this.buffer.append("{");//$NON-NLS-1$
-			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-				BodyDeclaration d = (BodyDeclaration) it.next();
-				d.accept(this);
-			}
-			this.buffer.append("}\n");//$NON-NLS-1$
+		if (node.getAnonymousClassDeclaration() != null) {
+			node.getAnonymousClassDeclaration().accept(this);
 		}
 		return false;
 	}

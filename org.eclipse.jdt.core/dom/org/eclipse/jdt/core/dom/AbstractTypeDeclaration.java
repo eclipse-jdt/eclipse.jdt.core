@@ -190,17 +190,18 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 * Returns whether this type declaration is a type member.
 	 * <p>
 	 * Note that this is a convenience method that simply checks whether
-	 * this node's parent is a type declaration node, an anonymous 
-	 * class declaration, or an enumeration constant declaration.
+	 * this node's parent is a type declaration node or an anonymous 
+	 * class declaration.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this type declaration is a child of
-	 *   a type declaration node, a class instance creation node, or an
-	 *   enum constant declaration, and <code>false</code> otherwise
+	 *   a type declaration node or an anonymous class declaration node,
+	 *   and <code>false</code> otherwise
 	 * @since 2.0 (originally declared on <code>TypeDeclaration</code>)
 	 */
 	public boolean isMemberTypeDeclaration() {
 		ASTNode parent = getParent();
+		// TODO (jeem) - after 3.1 M4 remove mention of EnumConstantDeclaration
 		return (parent instanceof AbstractTypeDeclaration)
 			|| (parent instanceof AnonymousClassDeclaration)
 			|| (parent instanceof EnumConstantDeclaration);

@@ -779,8 +779,11 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.arguments(), o.arguments())
 				&& safeSubtreeListMatch(
-					node.bodyDeclarations(),
-					o.bodyDeclarations()));
+					node.obsoleteBodyDeclarations(),
+					o.obsoleteBodyDeclarations()))
+				&& safeSubtreeMatch(
+					node.getAnonymousClassDeclaration(),
+					o.getAnonymousClassDeclaration());
 	}
 	
 	/**

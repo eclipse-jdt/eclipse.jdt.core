@@ -1556,7 +1556,7 @@ public final class AST {
 	 * Creates an unparented enum constant declaration node owned by this AST.
 	 * The name of the constant is an unspecified, but legal, name; 
 	 * no doc comment; no modifiers or annotations; no arguments; 
-	 * and an empty class body.
+	 * and does not declare an anonymous class.
 	 * 
 	 * @return a new unparented enum constant declaration node
 	 * @exception UnsupportedOperationException if this operation is used in

@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Anonymous class declaration AST node type. This type of node appears
+ * Anonymous class declaration AST node type. For JLS2, this type of node appears
  * only as a child on a class instance creation expression.
+ * For JLS3, this type of node appears may also appear as the child of
+ * an enum constant declaration.
  *
  * <pre>
  * AnonymousClassDeclaration:
@@ -23,6 +25,7 @@ import java.util.List;
  * </pre>
  * 
  * @see ClassInstanceCreation
+ * @see EnumConstantDeclaration
  * @since 2.0
  */
 public class AnonymousClassDeclaration extends ASTNode {
