@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
-import org.eclipse.jdt.internal.codeassist.complete.*;
 
 public class CompletionParser extends AssistParser {
 
@@ -28,8 +27,9 @@ public class CompletionParser extends AssistParser {
 
 	public int cursorLocation;
 	public char[][] labels; // the visible labels up to the cursor location
-
-
+	public AstNode assistNodeParent; // the parent node of assist node
+	public boolean assistNodeIsInterface;
+	public boolean assistNodeIsClass;
 	/* the following fields are internal flags */
 	
 	boolean betweenNewAndLeftBraket; // whether we are between the keyword 'new' and the following left braket, ie. '[', '(' or '{'
@@ -568,6 +568,13 @@ protected void consumeCaseLabel() {
 	}
 	super.consumeCaseLabel();
 }
+protected void consumeClassHeaderExtends() {
+	super.consumeClassHeaderExtends();
+	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	if(assistNode == typeDecl.superclass) {
+		assistNodeIsClass = true;
+	}
+}
 protected void consumeConditionalExpression(int op) {
 	Expression valueIfTrue = this.expressionStack[this.expressionPtr - 1];
 	if (valueIfTrue instanceof SingleNameReference || valueIfTrue instanceof QualifiedNameReference) {
@@ -657,7 +664,12 @@ protected void consumeFormalParameter() {
 		listLength++;
 	} 	
 }
-
+protected void consumeInterfaceType() {
+	super.consumeInterfaceType();
+	if(assistNode == astStack[astPtr]) {
+		assistNodeIsInterface = true;
+	}
+}
 protected void consumeMethodHeaderName() {
 	if (this.indexOfAssistIdentifier() < 0) {
 		super.consumeMethodHeaderName();

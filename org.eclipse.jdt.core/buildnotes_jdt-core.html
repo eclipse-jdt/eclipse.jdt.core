@@ -16,6 +16,17 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+	<li>If the completion is inside a super type in type declaration header then the relevance grow
+		when the type have the correct nature :
+		<ul>
+			<li> After <code>extends</code> keyword of a class header the relevance grow if the type is a class.
+			</li>
+			<li> After <code>implements</code> keyword of a class header the relevance grow if the type is an interface.
+			</li>
+			<li> After <code>extends</code> keyword of an interface header the relevance grow if the type is an interface.
+			</li>
+		</ul>
+	</li>
 	<li>The background indexer now recovers from internal crash. If this happens, 
 	    a new thread is created and a consistency check is done on all indexes.
 	</li>
