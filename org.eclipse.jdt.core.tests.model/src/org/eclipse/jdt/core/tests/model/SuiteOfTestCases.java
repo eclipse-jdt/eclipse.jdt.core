@@ -47,8 +47,9 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 				for (int i = 0, length = fields.length; i < length; i++) {
 					Field field = fields[i];
 					
-					// skip static fields
-					if (Modifier.isStatic(field.getModifiers())) continue;
+					// skip static and final fields
+					int modifiers = field.getModifiers();
+					if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) continue;
 					
 					// make the field accessible
 					field.setAccessible(true);
