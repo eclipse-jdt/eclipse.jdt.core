@@ -50,18 +50,28 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			ASTNode node = findNode(cu, this.markerInfos[++this.index]);
 			if (node != null && !(node instanceof CompilationUnit)) {
 				IBinding binding = null;
-				if (node instanceof PackageDeclaration) {
-					binding = ((PackageDeclaration) node).resolveBinding();
-				} else if (node instanceof TypeDeclaration) {
-					binding = ((TypeDeclaration) node).resolveBinding();
-				} else if (node instanceof AnonymousClassDeclaration) {
-					binding = ((AnonymousClassDeclaration) node).resolveBinding();
-				} else if (node instanceof TypeDeclarationStatement) {
-					binding = ((TypeDeclarationStatement) node).resolveBinding();
-				} else if (node instanceof MethodDeclaration) {
-					binding = ((MethodDeclaration) node).resolveBinding();
-				} else if (node instanceof MethodInvocation) {
-					binding = ((MethodInvocation) node).resolveMethodBinding();
+				switch (node.getNodeType()) {
+					case ASTNode.PACKAGE_DECLARATION:
+						binding = ((PackageDeclaration) node).resolveBinding();
+						break;
+					case ASTNode.TYPE_DECLARATION:
+						binding = ((TypeDeclaration) node).resolveBinding();
+						break;
+					case ASTNode.ANONYMOUS_CLASS_DECLARATION:
+						binding = ((AnonymousClassDeclaration) node).resolveBinding();
+						break;
+					case ASTNode.TYPE_DECLARATION_STATEMENT:
+						binding = ((TypeDeclarationStatement) node).resolveBinding();
+						break;
+					case ASTNode.METHOD_DECLARATION:
+						binding = ((MethodDeclaration) node).resolveBinding();
+						break;
+					case ASTNode.METHOD_INVOCATION:
+						binding = ((MethodInvocation) node).resolveMethodBinding();
+						break;
+					case ASTNode.TYPE_PARAMETER:
+						binding = ((TypeParameter) node).resolveBinding();
+						break;
 				}
 				this.bindingKey = binding == null ? null : binding.getKey();
 			}
@@ -1218,4 +1228,21 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			bindings);
 	}
 	
+	/*
+	 * Ensures that a type parameter binding can be created using its key in batch creation.
+	 * (regression test for bug 87050 ASTParser#createASTs(..) cannot resolve method type parameter binding from key)
+	 */
+	public void test058() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  </*start*/T/*end*/> void foo(T t) {\n" +
+				"  }" +
+				"}",
+			}, 
+			"Lp1/X;.foo<T:Ljava/lang/Object;>(TT;)V:TT;");
+	}
+
 }

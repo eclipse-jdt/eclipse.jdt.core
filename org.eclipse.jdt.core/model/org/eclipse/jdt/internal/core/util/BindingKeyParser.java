@@ -103,7 +103,13 @@ public class BindingKeyParser {
 			return this.index+1 < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
 		}
 		
-		boolean isAtTypeVariableStart() {
+		boolean isAtMethodTypeVariableStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == ':';
+		}
+
+		boolean isAtTypeTypeVariableStart() {
 			return 
 				this.index+3 < this.source.length
 				&& this.source[this.index+3] == ':';
@@ -243,9 +249,27 @@ public class BindingKeyParser {
 		
 		void skipMethodSignature() {
 			this.start = this.index;
-			char currentChar;
-			while (this.index < this.source.length && (currentChar = this.source[this.index]) != '#' && currentChar != '%')
+			int braket = 0;
+			while (this.index < this.source.length) {
+				switch (this.source[this.index]) {
+					case '#':
+					case '%':
+						return;
+					case ':':
+						if (braket == 0)
+							return;
+						break;
+					case '<':
+					case '(':
+						braket++;
+						break;
+					case '>':
+					case ')':
+						braket--;
+						break;
+				}
 				this.index++;
+			}
 		}
 		
 		void skipParametersEnd() {
@@ -462,13 +486,17 @@ public class BindingKeyParser {
  					parseMethod();
  					if (this.scanner.isAtLocalVariableStart()) {
  						parseLocalVariable();
- 					}
- 					break;
+ 					} else if (this.scanner.isAtMethodTypeVariableStart()) {
+						parseTypeVariable();
+					}
+			 		break;
  				default:
  					malformedKey();
  					return;
 			}
-		} else if (this.scanner.isAtTypeVariableStart()) {
+		} else if (this.scanner.isAtTypeTypeVariableStart()) {
+		 	// skip ";>"
+		 	this.scanner.skipParametersEnd();
 			parseTypeVariable();
 		}
 	}
@@ -602,8 +630,6 @@ public class BindingKeyParser {
 	}
 	
 	private void parseTypeVariable() {
-	 	// skip ";>"
-	 	this.scanner.skipParametersEnd();
 		if (this.scanner.nextToken() != Scanner.TYPE) {
 			malformedKey();
 			return;
