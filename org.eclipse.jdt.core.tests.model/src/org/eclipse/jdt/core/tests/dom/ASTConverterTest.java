@@ -8953,7 +8953,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNull(binding);
 	}
 	/**
-	 * ForStatement ==> ForStatement
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
 	 */
 	public void test0357() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0357", "Test.java");
