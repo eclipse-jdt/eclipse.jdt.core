@@ -913,7 +913,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_Compliance)) <= ClassFileConstants.JDK1_3) {
+					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) <= ClassFileConstants.JDK1_3) {
 						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 					}
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -1205,15 +1205,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		// target must be 1.4 if source is 1.4
-		if (CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
-				&& CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
+		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
+				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 		}
 
 		// target cannot be 1.4 if compliance is 1.3
-		if (CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
-				&& CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK1_4
+		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
+				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
