@@ -22,5 +22,4 @@ public class FieldDeclarationMatch extends JavaSearchMatch {
 	public FieldDeclarationMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
 		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
 	}
-
 }

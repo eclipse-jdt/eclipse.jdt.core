@@ -303,7 +303,7 @@ IJavaSearchScope getJavaSearchScope() {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	
+
 	this.javaProject = setUpJavaProject("JavaSearch");
 }
 public void tearDownSuite() throws Exception {
