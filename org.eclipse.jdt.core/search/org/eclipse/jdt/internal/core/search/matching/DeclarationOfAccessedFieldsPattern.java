@@ -14,29 +14,17 @@ import java.util.HashSet;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldReference;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 public class DeclarationOfAccessedFieldsPattern extends FieldPattern {
 
-HashSet knownFields;
-IJavaElement enclosingElement;
+protected HashSet knownFields;
+protected IJavaElement enclosingElement;
 
 public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
 	super(
@@ -54,7 +42,6 @@ public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
 	this.mustResolve = true;
 	this.knownFields = new HashSet();
 }
-
 /**
  * @see SearchPattern#matchReportReference
  */
@@ -69,21 +56,17 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	if (element == null) return;
 	
 	if (reference instanceof FieldReference) {
-		this.reportDeclaration(((FieldReference)reference).binding, locator);
+		this.reportDeclaration(((FieldReference) reference).binding, locator);
 	} else if (reference instanceof QualifiedNameReference) {
-		QualifiedNameReference qNameRef = (QualifiedNameReference)reference;
+		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		Binding binding = qNameRef.binding;
-		if (binding instanceof FieldBinding) {
+		if (binding instanceof FieldBinding)
 			this.reportDeclaration((FieldBinding)binding, locator);
-		} 
 		int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
-		for (int i = 0; i < otherMax; i++){
+		for (int i = 0; i < otherMax; i++)
 			this.reportDeclaration(qNameRef.otherBindings[i], locator);
-		}
 	} else if (reference instanceof SingleNameReference) {
-		this.reportDeclaration(
-			(FieldBinding)((SingleNameReference)reference).binding, 
-			locator);
+		this.reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator);
 	}
 }
 private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) throws CoreException {
@@ -93,21 +76,22 @@ private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) 
 	ReferenceBinding declaringClass = fieldBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);
 	if (type == null) return; // case of a secondary type
+
 	char[] bindingName = fieldBinding.name;
 	IField field = type.getField(new String(bindingName));
 	if (this.knownFields.contains(field)) return;
+
 	this.knownFields.add(field);
 	IResource resource = type.getResource();
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {
-		if (resource == null) {
+		if (resource == null)
 			resource = type.getJavaProject().getProject();
-		}
-		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
+		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile) type.getClassFile(), resource);
 		locator.reportBinaryMatch(resource, field, info, IJavaSearchResultCollector.EXACT_MATCH);
 	} else {
-		ClassScope scope = ((SourceTypeBinding)declaringClass).scope;
+		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;
 			FieldDeclaration fieldDecl = null;
@@ -118,9 +102,8 @@ private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) 
 					break;
 				}
 			} 
-			if (fieldDecl != null) {
+			if (fieldDecl != null)
 				locator.report(resource, fieldDecl.sourceStart, fieldDecl.sourceEnd, field, IJavaSearchResultCollector.EXACT_MATCH);
-			}
 		}
 	}
 }

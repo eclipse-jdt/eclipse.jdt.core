@@ -122,6 +122,20 @@ protected char[] indexEntryPrefix() {
 		isCaseSensitive);
 }
 /**
+ * @see SearchPattern#matchContainer()
+ */
+protected int matchContainer() {
+	if (this.findReferences) // handles both declarations + references & just references
+		return 
+			COMPILATION_UNIT // implicit constructor call: case of Y extends X and Y doesn't define any constructor
+			| CLASS // implicit constructor call: case of constructor declaration with no explicit super call
+			| METHOD // reference in another constructor
+			| FIELD; // anonymous in a field initializer
+
+	// declarations are only found in Class
+	return CLASS;
+}
+/**
  * @see SearchPattern#matchesBinary(Object, Object)
  */
 public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
@@ -151,20 +165,6 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 				return false;
 	}
 	return true;
-}
-/**
- * @see SearchPattern#matchContainer()
- */
-protected int matchContainer() {
-	if (this.findReferences) // handles both declarations + references & just references
-		return 
-			COMPILATION_UNIT // implicit constructor call: case of Y extends X and Y doesn't define any constructor
-			| CLASS // implicit constructor call: case of constructor declaration with no explicit super call
-			| METHOD // reference in another constructor
-			| FIELD; // anonymous in a field initializer
-
-	// declarations are only found in Class
-	return CLASS;
 }
 /**
  * @see SearchPattern#matchIndexEntry
