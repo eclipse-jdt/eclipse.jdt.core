@@ -41,7 +41,8 @@ import org.eclipse.jdt.internal.core.Util;
  * @since 2.0
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
-	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
+	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; String logFileName;
+	//$NON-NLS-1$
 	/**
 	 * Performs a compile using the JDT batch compiler 
 	 */
@@ -55,7 +56,11 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new PrintWriter(System.err), new Boolean(true)});
 			Method compile = c.getMethod("compile", new Class[] {String[].class}); //$NON-NLS-1$
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
-			return ((Boolean) result).booleanValue();
+			final boolean resultValue = ((Boolean) result).booleanValue();
+			if (!resultValue && verbose) {
+				System.out.println(Util.bind("ant.jdtadapter.error.compilationFailed", this.logFileName));
+			}
+			return resultValue;
 		} catch (ClassNotFoundException cnfe) {
 			throw new BuildException(Util.bind("ant.jdtadapter.error.missingJDTCompiler")); //$NON-NLS-1$
 		} catch (Exception ex) {
@@ -232,7 +237,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 * extra option allowed by the Eclipse compiler
 			 */
 			cmd.createArgument().setValue("-log"); //$NON-NLS-1$
-			cmd.createArgument().setValue(destDir.getAbsolutePath() + ".log"); //$NON-NLS-1$
+			logFileName = destDir.getAbsolutePath() + ".log";
+			cmd.createArgument().setValue(logFileName); //$NON-NLS-1$
 		}
 
 		/*
