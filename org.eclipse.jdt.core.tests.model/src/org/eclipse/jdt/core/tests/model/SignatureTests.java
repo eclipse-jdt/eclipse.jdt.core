@@ -449,6 +449,18 @@ public void testGetTypeArguments5() {
 	);
 }
 
+/*
+ * getTypeArguments() on a raw type
+ * (regression test for bug 73671 [1.5] Signature.getTypeArguments should also tolerate normal types)
+ */
+public void testGetTypeArguments6() {
+	assertStringsEqual(
+		"Unexpected type arguments",
+		"",
+		Signature.getTypeArguments("QList;")
+	);
+}
+
 /**
  * @see Signature
  */

@@ -1433,18 +1433,19 @@ public static char[][] getThrownExceptionTypes(char[] methodSignature) throws Il
 }
 
 /**
- * Extracts the type argument signatures from the given parameterized type signature.
+ * Extracts the type argument signatures from the given type signature.
+ * Returns an empty array if the type signature is not a parameterized type signature.
  *
  * @param parameterizedTypeSignature the parameterized type signature
  * @return the signatures of the type arguments
- * @exception IllegalArgumentException if the signature is syntactically
- *   incorrect, or if it is not a parameterized type
+ * @exception IllegalArgumentException if the signature is syntactically incorrect
  * 
  * @since 3.1
  */
 public static char[][] getTypeArguments(char[] parameterizedTypeSignature) throws IllegalArgumentException {
 	int start = CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature);
-	if (start == -1) throw new IllegalArgumentException();
+	if (start == -1) 
+		return CharOperation.NO_CHAR_CHAR;
 	ArrayList args = new ArrayList();
 	int p = start + 1;
 	while (true) {
@@ -1465,12 +1466,12 @@ public static char[][] getTypeArguments(char[] parameterizedTypeSignature) throw
 }
 
 /**
- * Extracts the type argument signatures from the given parameterized type signature.
+ * Extracts the type argument signatures from the given type signature.
+ * Returns an empty array if the type signature is not a parameterized type signature.
  *
  * @param parameterizedTypeSignature the parameterized type signature
  * @return the signatures of the type arguments
- * @exception IllegalArgumentException if the signature is syntactically
- *   incorrect, or if it has no type arguments
+ * @exception IllegalArgumentException if the signature is syntactically incorrect
  * 
  * @since 3.1
  */
