@@ -55,10 +55,10 @@ public class KeyToSignature extends BindingKeyParser {
 	
 	public void consumeMethod(char[] selector, char[] methodSignature) {
 		this.arguments = new ArrayList();
-		this.signature = new StringBuffer();
+/*		this.signature = new StringBuffer();
 		CharOperation.replace(methodSignature, '/', '.');
 		this.signature.append(methodSignature);
-	}
+*/	}
 	
 	public void consumeMemberType(char[] simpleTypeName) {
 		this.signature.append('$');
