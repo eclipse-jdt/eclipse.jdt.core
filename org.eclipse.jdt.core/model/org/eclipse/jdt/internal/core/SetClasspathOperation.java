@@ -288,7 +288,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 				IPackageFragmentRoot[] pkgFragmentRoots = null;
 				if (removedRoots != null) {
-					pkgFragmentRoots = new IPackageFragmentRoot[] {(IPackageFragmentRoot) removedRoots.get(oldResolvedPath[i].getPath())};
+					IPackageFragmentRoot removedRoot = (IPackageFragmentRoot)  removedRoots.get(oldResolvedPath[i].getPath());
+					if (removedRoot != null) { // use old root if any (could be none if entry wasn't bound)
+						pkgFragmentRoots = new IPackageFragmentRoot[] { removedRoot };
+					}
 				}
 				if (pkgFragmentRoots == null) {
 					pkgFragmentRoots = project.computePackageFragmentRoots(oldResolvedPath[i]);
