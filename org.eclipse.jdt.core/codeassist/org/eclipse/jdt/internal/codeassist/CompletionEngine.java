@@ -2130,11 +2130,10 @@ public final class CompletionEngine
 	}
 
 	// Helper method for private void findVariableNames(char[] name, TypeReference type )
-	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames){
+	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames, boolean forArray){
 			if(sourceName == null || sourceName.length == 0)
 				return;
-			
-			if(CharOperation.endsWith(sourceName, new char[]{'[' ,']'})) {
+			if(forArray) {
 				sourceName = CharOperation.subarray(sourceName, 0, sourceName.length - 2);
 			}
 
@@ -2176,7 +2175,7 @@ public final class CompletionEngine
 			}
 			
 			// compute variable name for non base type
-			char[][] names = computeNames(sourceName);
+			char[][] names = computeNames(sourceName, forArray);
 			next : for(int i = 0 ; i < names.length ; i++){
 				name = names[i];
 				
@@ -2223,7 +2222,8 @@ public final class CompletionEngine
 				tb.qualifiedPackageName(),
 				tb.qualifiedSourceName(),
 				tb.sourceName(),
-				excludeNames);
+				excludeNames,
+				type.dimensions() != 0);
 		} else {
 			char[][] typeName = type.getTypeName();
 			findVariableName(
@@ -2231,7 +2231,8 @@ public final class CompletionEngine
 				NoChar,
 				CharOperation.concatWith(typeName, '.'),
 				typeName[typeName.length - 1],
-				excludeNames);
+				excludeNames,
+				type.dimensions() != 0);
 		}
 	}
 	
@@ -2315,7 +2316,7 @@ public final class CompletionEngine
 		return name;
 	}
 	
-	private char[][] computeNames(char[] sourceName){
+	private char[][] computeNames(char[] sourceName, boolean forArray){
 		char[][] names = new char[5][];
 		int nameCount = 0;
 		boolean previousIsUpperCase = false;
@@ -2328,6 +2329,13 @@ public final class CompletionEngine
 						System.arraycopy(names, 0, names = new char[nameCount * 2][], 0, nameCount);
 					}
 					name[0] = Character.toLowerCase(name[0]);
+					
+					if(forArray) {
+						int length = name.length;
+						System.arraycopy(name, 0, name = new char[length + 1], 0, length);
+						name[length] = 's';
+					}
+					
 					names[nameCount++] = name;
 				}
 			}

@@ -19,10 +19,12 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	public ClassScope scope;
 
-	// Synthetics are separated into 3 categories: methods, fields and class literals
+	// Synthetics are separated into 4 categories: methods, fields, class literals and changed declaring class bindings
 	public final static int METHOD = 0;
 	public final static int FIELD = 1;
 	public final static int CLASS_LITERAL = 2;
+	public final static int CHANGED_DECLARING_CLASS = 3;
+	
 	Hashtable[] synthetics;
 protected SourceTypeBinding() {
 }
@@ -89,9 +91,12 @@ public void addDefaultAbstractMethods() {
 
 public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
 	if (synthetics == null) {
-		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+		synthetics = new Hashtable[4];
 	}
-
+	if (synthetics[FIELD] == null) {
+		synthetics[FIELD] = new Hashtable(5);
+	}
+	
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get(actualOuterLocalVariable);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
@@ -132,8 +137,12 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 */
 
 public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
+
 	if (synthetics == null) {
-		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[FIELD] == null) {
+		synthetics[FIELD] = new Hashtable(5);
 	}
 
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get(enclosingType);
@@ -168,8 +177,12 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 */
 
 public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockScope) {
+
 	if (synthetics == null) {
-		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[CLASS_LITERAL] == null) {
+		synthetics[CLASS_LITERAL] = new Hashtable(5);
 	}
 
 	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
@@ -203,11 +216,14 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScope blockScope) {
+
 	if (synthetics == null) {
-		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[FIELD] == null) {
+		synthetics[FIELD] = new Hashtable(5);
 	}
 
-	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get("assertionEmulation"); //$NON-NLS-1$
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
@@ -248,8 +264,12 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 */
 
 public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
+
 	if (synthetics == null) {
-		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[METHOD] == null) {
+		synthetics[METHOD] = new Hashtable(5);
 	}
 
 	SyntheticAccessMethodBinding accessMethod = null;
@@ -271,8 +291,12 @@ public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField,
 */
 
 public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMethod) {
+
 	if (synthetics == null) {
-		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[METHOD] == null) {
+		synthetics[METHOD] = new Hashtable(5);
 	}
 
 	SyntheticAccessMethodBinding accessMethod = (SyntheticAccessMethodBinding) synthetics[METHOD].get(targetMethod);
@@ -536,15 +560,59 @@ public MethodBinding[] getMethods(char[] selector) {
 */
 
 public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
-	if (synthetics == null) return null;
-
+	
+	if (synthetics == null || synthetics[FIELD] == null) return null;
 	return (FieldBinding) synthetics[FIELD].get(actualOuterLocalVariable);
 }
 public ReferenceBinding[] memberTypes() {
 	return memberTypes;
 }
-// NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
+public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 
+	if (synthetics == null) {
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[CHANGED_DECLARING_CLASS] == null) {
+		synthetics[CHANGED_DECLARING_CLASS] = new Hashtable(5);
+	}
+
+	Hashtable fieldMap = (Hashtable) synthetics[CHANGED_DECLARING_CLASS].get(targetField);
+	if (fieldMap == null) {
+		fieldMap = new Hashtable(5);
+		synthetics[CHANGED_DECLARING_CLASS].put(targetField, fieldMap);
+	}
+	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
+	if (updatedField == null){
+		updatedField = new FieldBinding(targetField, newDeclaringClass);
+		fieldMap.put(newDeclaringClass, updatedField);
+	}
+	return updatedField;
+}
+
+public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
+
+	if (synthetics == null) {
+		synthetics = new Hashtable[4];
+	}
+	if (synthetics[CHANGED_DECLARING_CLASS] == null) {
+		synthetics[CHANGED_DECLARING_CLASS] = new Hashtable(5);
+	}
+
+
+	Hashtable methodMap = (Hashtable) synthetics[CHANGED_DECLARING_CLASS].get(targetMethod);
+	if (methodMap == null) {
+		methodMap = new Hashtable(5);
+		synthetics[CHANGED_DECLARING_CLASS].put(targetMethod, methodMap);
+	}
+	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
+	if (updatedMethod == null){
+		updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);
+		methodMap.put(newDeclaringClass, updatedMethod);
+	}
+	return updatedMethod;
+}
+
+// NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
 	if ((modifiers & AccUnresolved) == 0)
 		return methods;
@@ -724,7 +792,8 @@ public ReferenceBinding[] superInterfaces() {
 	return superInterfaces;
 }
 public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
-	if (synthetics == null || synthetics[METHOD].size() == 0) return null;
+	
+	if (synthetics == null || synthetics[METHOD] == null || synthetics[METHOD].size() == 0) return null;
 
 	// difficult to compute size up front because of the embedded arrays so assume there is only 1
 	int index = 0;
@@ -763,23 +832,30 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
  * Answer the collection of synthetic fields to append into the classfile
  */
 public FieldBinding[] syntheticFields() {
+	
 	if (synthetics == null) return null;
 
-	int fieldSize = synthetics[FIELD].size();
-	int literalSize = synthetics[CLASS_LITERAL].size();
-	FieldBinding[] bindings = new FieldBinding[fieldSize + literalSize];
+	int fieldSize = synthetics[FIELD] == null ? 0 : synthetics[FIELD].size();
+	int literalSize = synthetics[CLASS_LITERAL] == null ? 0 :synthetics[CLASS_LITERAL].size();
+	int totalSize = fieldSize + literalSize;
+	if (totalSize == 0) return null;
+	FieldBinding[] bindings = new FieldBinding[totalSize];
 
 	// add innerclass synthetics
-	Enumeration elements = synthetics[FIELD].elements();
-	for (int i = 0; i < fieldSize; i++) {
-		SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
-		bindings[synthBinding.index] = synthBinding;
+	if (synthetics[FIELD] != null){
+		Enumeration elements = synthetics[FIELD].elements();
+		for (int i = 0; i < fieldSize; i++) {
+			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
+			bindings[synthBinding.index] = synthBinding;
+		}
 	}
 	// add class literal synthetics
-	elements = synthetics[CLASS_LITERAL].elements();
-	for (int i = 0; i < literalSize; i++) {
-		SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
-		bindings[fieldSize+synthBinding.index] = synthBinding;
+	if (synthetics[CLASS_LITERAL] != null){
+		Enumeration elements = synthetics[CLASS_LITERAL].elements();
+		for (int i = 0; i < literalSize; i++) {
+			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
+			bindings[fieldSize+synthBinding.index] = synthBinding;
+		}
 	}
 	return bindings;
 }
@@ -863,9 +939,8 @@ void verifyMethods(MethodVerifier verifier) {
 */
 
 public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, BlockScope scope, boolean onlyExactMatch) {
-	if (synthetics == null)
-		return null;
 
+	if (synthetics == null || synthetics[FIELD] == null) return null;
 	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);
 	if (field != null) return field;
 
