@@ -222,7 +222,7 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 				if (ze != null) {
 					byte contents[] = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 					String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-					info = new ClassFileReader(contents, fileName.toCharArray());
+					info = new ClassFileReader(contents, fileName.toCharArray(), true/*fully initialize so as to not keep a reference to the byte array*/);
 				}
 			} finally {
 				JavaModelManager.getJavaModelManager().closeZipFile(zip);
@@ -249,7 +249,7 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	} else {
 		byte[] contents = Util.getResourceContentsAsByteArray(file);
 		try {
-			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray());
+			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), true/*fully initialize so as to not keep a reference to the byte array*/);
 		} catch (ClassFormatException cfe) {
 			//the structure remains unknown
 			return null;
