@@ -742,6 +742,29 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method inside an annotation is correct.
+	 * (regression test for bug 83300 [1.5] ClassCastException in #getJavaElement() on binding of annotation element)
+	 */
+	public void testMethod6() throws JavaModelException {
+		ASTNode node = buildAST(
+			"@X(/*start*/value/*end*/=\"Hello\", count=-1)\n" + 
+			"@interface X {\n" + 
+			"    String value();\n" + 
+			"    int count();\n" + 
+			"}"
+		);
+		IBinding binding = ((SimpleName) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"value() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a package is correct.
 	 */
 	public void testPackage1() throws CoreException {

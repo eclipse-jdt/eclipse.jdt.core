@@ -149,19 +149,26 @@ class MethodBinding implements IMethodBinding {
 		IType declaringType = (IType) getDeclaringClass().getJavaElement();
 		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-		MethodDeclaration methodDeclaration = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
-		if (methodDeclaration != null) {
-			ArrayList parameterSignatures = new ArrayList();
-			Iterator iterator = methodDeclaration.parameters().iterator();
-			while (iterator.hasNext()) {
-				SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
-				Type type = parameter.getType();
-				parameterSignatures.add(Util.getSignature(type));
+		ASTNode node = (ASTNode) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
+		if (node != null) {
+			if (node instanceof MethodDeclaration) {
+				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+				ArrayList parameterSignatures = new ArrayList();
+				Iterator iterator = methodDeclaration.parameters().iterator();
+				while (iterator.hasNext()) {
+					SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
+					Type type = parameter.getType();
+					parameterSignatures.add(Util.getSignature(type));
+				}
+				int parameterCount = parameterSignatures.size();
+				String[] parameters = new String[parameterCount];
+				parameterSignatures.toArray(parameters);
+				return declaringType.getMethod(getName(), parameters);
+			} else {
+				// annotation type member declaration
+				AnnotationTypeMemberDeclaration typeMemberDeclaration = (AnnotationTypeMemberDeclaration) node;
+				return declaringType.getMethod(typeMemberDeclaration.getName().getIdentifier(), new String[0]); // annotation type members don't have parameters
 			}
-			int parameterCount = parameterSignatures.size();
-			String[] parameters = new String[parameterCount];
-			parameterSignatures.toArray(parameters);
-			return declaringType.getMethod(getName(), parameters);
 		} else {
 			// case of method not in the created AST
 			String selector = getName();
