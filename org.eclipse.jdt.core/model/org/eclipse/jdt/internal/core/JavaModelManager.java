@@ -884,6 +884,9 @@ public void mergeDeltas() {
 		if (!cpElement.getNodeName().equalsIgnoreCase("variables")) { //$NON-NLS-1$
 			return;
 		}
+		ArrayList variableNamesList = new ArrayList();
+		ArrayList variablePathsList = new ArrayList();
+		
 		NodeList list= cpElement.getChildNodes();
 		int length= list.getLength();
 		for (int i= 0; i < length; ++i) {
@@ -892,15 +895,20 @@ public void mergeDeltas() {
 			if (type == Node.ELEMENT_NODE) {
 				Element element= (Element) node;
 				if (element.getNodeName().equalsIgnoreCase("variable")) { //$NON-NLS-1$
-					String varName = element.getAttribute("name"); //$NON-NLS-1$
-					String varPath = element.getAttribute("path"); //$NON-NLS-1$
-					try {
-						JavaCore.setClasspathVariable(varName, new Path(varPath), null);
-					} catch(JavaModelException e){
-					} catch(RuntimeException e){
-					}
+					variableNamesList.add(element.getAttribute("name")); //$NON-NLS-1$
+					variablePathsList.add(new Path(element.getAttribute("path"))); //$NON-NLS-1$
 				}
 			}
+		}
+		// set all variables at once
+		try {
+			String[] variableNames = new String[variableNamesList.size()];
+			variableNamesList.toArray(variableNames);
+			IPath[] variablePaths = new IPath[variablePathsList.size()];
+			variablePathsList.toArray(variablePaths);
+			JavaCore.setClasspathVariables(variableNames, variablePaths, null);
+		} catch(JavaModelException e){
+		} catch(RuntimeException e){
 		}
 	}
 	

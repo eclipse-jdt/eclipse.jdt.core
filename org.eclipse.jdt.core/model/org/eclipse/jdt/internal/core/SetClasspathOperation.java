@@ -109,7 +109,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 * Sets the classpath of the pre-specified project.
 	 */
 	protected void executeOperation() throws JavaModelException {
-	
+
 		if (this.newRawPath != ReuseClasspath){
 			updateClasspath();
 		}

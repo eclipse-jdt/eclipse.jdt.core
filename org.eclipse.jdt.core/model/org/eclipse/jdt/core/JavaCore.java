@@ -878,7 +878,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IProgressMonitor monitor) {
 
 		try {
-			updateVariableValue(variableName, null, monitor);
+			updateVariableValues(new String[]{ variableName}, new IPath[]{ null }, monitor);
 		} catch (JavaModelException e) {
 		}
 	}
@@ -917,13 +917,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Sets the value of the given classpath variable.
-	 * The path must have at least one segment.
+	 * The path must not be null.
 	 * <p>
 	 * This functionality cannot be used while the resource tree is locked.
 	 * <p>
 	 * Classpath variable values are persisted locally to the workspace, and 
 	 * are preserved from session to session.
 	 * <p>
+	 * Updating a variable with the same value has no effect.
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @param path the path
@@ -937,7 +938,35 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		throws JavaModelException {
 
 		Assert.isTrue(path != null, Util.bind("classpath.nullVariablePath" )); //$NON-NLS-1$
-		updateVariableValue(variableName, path, monitor);
+		setClasspathVariables(new String[]{variableName}, new IPath[]{ path }, monitor);
+	}
+
+	/**
+	 * Sets the values of all the given classpath variables at once.
+	 * Null paths can be used to request corresponding variable removal.
+	 * <p>
+	 * This functionality cannot be used while the resource tree is locked.
+	 * <p>
+	 * Classpath variable values are persisted locally to the workspace, and 
+	 * are preserved from session to session.
+	 * <p>
+	 * Updating a variable with the same value has no effect.
+	 * 
+	 * @param variableNames - an array of names for the updated classpath variables
+	 * @param variablePaths - an array of path updates for the modified classpath variables (null
+	 *       meaning that the corresponding value will be removed
+	 * @param monitor a monitor to report progress
+	 * @see #getClasspathVariable
+	 * @since 2.0
+	 */
+	public static void setClasspathVariables(
+		String[] variableNames,
+		IPath[] paths,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		Assert.isTrue(variableNames.length == paths.length, Util.bind("classpath.mismatchNamePath" )); //$NON-NLS-1$
+		updateVariableValues(variableNames, paths, monitor);
 	}
 
 	/* (non-Javadoc)
@@ -1051,47 +1080,90 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Internal updating of a variable value (null path meaning removal).
+	 * Internal updating of a variable values (null path meaning removal), allowing to change multiple variable values at once.
 	 */
-	private static void updateVariableValue(
-		String variableName,
-		IPath path,
-		IProgressMonitor monitor)
-		throws JavaModelException {
+	private static void updateVariableValues(
+		String[] variableNames,
+		IPath[] variablePaths,
+		IProgressMonitor monitor) throws JavaModelException {
 
+		if (monitor != null && monitor.isCanceled()) return;
+		
+		int varLength = variableNames.length;
+		
 		// gather classpath information for updating
 		HashMap affectedProjects = new HashMap(5);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		try {
-			IJavaModel model = manager.getJavaModel();
-			if (model != null) {
-				IJavaProject[] projects = model.getJavaProjects();
-				nextProject : for (int i = 0, max = projects.length; i < max; i++) {
-					IClasspathEntry[] entries = projects[i].getRawClasspath();
-					for (int j = 0, cplength = entries.length; j < cplength; j++) {
-						IClasspathEntry oldEntry = entries[j];
-						if (oldEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+		IJavaModel model = manager.getJavaModel();
+
+		// filter out unmodified variables
+		int discardCount = 0;
+		for (int i = 0; i < varLength; i++){
+			IPath oldPath = (IPath)Variables.get(variableNames[i]);
+			if (oldPath != null && oldPath.equals(variablePaths[i])){
+				variableNames[i] = null;
+				discardCount++;
+			}
+		}
+		if (discardCount > 0){
+			if (discardCount == varLength) return;
+			int changedLength = varLength - discardCount;
+			String[] changedVariableNames = new String[changedLength];
+			IPath[] changedVariablePaths = new IPath[changedLength];
+			for (int i = 0, index = 0; i < varLength; i++){
+				if (variableNames[i] != null){
+					changedVariableNames[index] = variableNames[i];
+					changedVariablePaths[index] = variablePaths[i];
+					index++;
+				}
+			}
+			variableNames = changedVariableNames;
+			variablePaths = changedVariablePaths;
+			varLength = changedLength;
+		}
+		
+		if (monitor != null && monitor.isCanceled()) return;
+
+		if (model != null) {
+			IJavaProject[] projects = model.getJavaProjects();
+			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
+				IJavaProject project = projects[i];
+						
+				// check to see if any of the modified variables is present on the classpath
+				IClasspathEntry[] classpath = project.getRawClasspath();
+				for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+					
+					IClasspathEntry entry = classpath[j];
+					for (int k = 0; k < varLength; k++){
+
+						String variableName = variableNames[k];						
+						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
+
 							IPath sourcePath, sourceRootPath;
-							if (oldEntry.getPath().segment(0).equals(variableName)
-								|| ((sourcePath = oldEntry.getSourceAttachmentPath()) != null
-									&& sourcePath.segment(0).equals(variableName))
-								|| ((sourceRootPath = oldEntry.getSourceAttachmentRootPath()) != null
-									&& sourceRootPath.segment(0).equals(variableName))) {
-								affectedProjects.put(projects[i], ((JavaProject)projects[i]).getExpandedClasspath(true));
+							if (entry.getPath().segment(0).equals(variableName)
+										|| ((sourcePath = entry.getSourceAttachmentPath()) != null	&& sourcePath.segment(0).equals(variableName))
+										|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& sourceRootPath.segment(0).equals(variableName))) {
+											
+								affectedProjects.put(project, ((JavaProject)project).getExpandedClasspath(true));
 								continue nextProject;
 							}
-						}
+						}												
 					}
 				}
 			}
-		} catch (JavaModelException e) {
 		}
-		if (path == null) {
-			Variables.remove(variableName);
-		} else {
-			// new variable value is assigned
-			Variables.put(variableName, path);
+		// update variables
+		for (int i = 0; i < varLength; i++){
+			IPath path = variablePaths[i];
+			if (path == null) {
+				Variables.remove(variableNames[i]);
+			} else {
+				// new variable value is assigned
+				Variables.put(variableNames[i], path);
+			}
 		}
+				
+		// update affected project classpaths
 		if (!affectedProjects.isEmpty()) {
 			boolean wasFiring = manager.isFiring();
 			try {
@@ -1100,6 +1172,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				// propagate classpath change
 				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
 				while (projectsToUpdate.hasNext()) {
+
+					if (monitor != null && monitor.isCanceled()) return;
+
 					JavaProject project = (JavaProject) projectsToUpdate.next();
 					project
 						.setRawClasspath(
@@ -1120,7 +1195,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			}
 		}
 	}
-
+	
 	/**
 	 * Sets the current table of options. All and only the options explicitly included in the given table 
 	 * are remembered; all previous option settings are forgotten, including ones not explicitly
