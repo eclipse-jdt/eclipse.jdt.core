@@ -17,7 +17,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.core.ICodeFormatter;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.formatter.impl.SplitLine;
  * <li>Use the method <code>void format(aString)</code>
  * on this instance to format <code>aString</code>.
  * It will return the formatted string.</ul>
+ * @deprecated 
 */
 public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 

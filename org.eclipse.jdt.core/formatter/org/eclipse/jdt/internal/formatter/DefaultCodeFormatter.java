@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -27,13 +26,9 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-// TODO (olivier) remove dependency onto ICodeFormatter
-public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatter {
+public class DefaultCodeFormatter extends CodeFormatter {
 
 	public static final boolean DEBUG = false;
 
@@ -217,31 +212,6 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return null;
 	}
 	
-	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(String, int, int[], String)
-	 */
-	public String format(
-		String source,
-		int indentationLevel,
-		int[] positions,
-		String lineSeparator) {
-		
-		TextEdit textEdit = probeFormatting(source, indentationLevel, lineSeparator, 0, source.length());
-		if (textEdit == null) {
-			return source;
-		} else {
-			Document document = new Document(source);
-			try {
-				textEdit.apply(document, TextEdit.UPDATE_REGIONS);
-			} catch (MalformedTreeException e) {
-				e.printStackTrace();
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
-			return document.get();
-		}
-	}
-
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
 		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
@@ -285,7 +255,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 	}
 
-	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	protected TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
 		Expression expression = parseExpression(source.toCharArray(), this.options);
 		
 		if (expression != null) {

@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -35,8 +36,11 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
-import org.eclipse.jdt.internal.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
@@ -56,6 +60,7 @@ public class ToolFactory {
 	 * @return an instance of a code formatter
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createDefaultCodeFormatter(Map)
+	 * @deprecated - should use #createCodeFormatter(Map) instead. Extension point is discontinued
 	 */
 	public static ICodeFormatter createCodeFormatter(){
 		
@@ -85,6 +90,21 @@ public class ToolFactory {
 	}
 
 	/**
+	 * Create an instance of the built-in code formatter. 
+	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
+	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
+	 * 	the current settings from <code>JavaCore#getOptions</code>.
+	 * @return an instance of the built-in code formatter
+	 * @see CodeFormatter
+	 * @see JavaCore#getOptions()
+	 * @since 3.0
+	 */
+	public static CodeFormatter createCodeFormatter(Map options){
+		if (options == null) options = JavaCore.getOptions();
+		return new DefaultCodeFormatter(options);
+	}
+
+	/**
 	 * Create an instance of the built-in code formatter. A code formatter implementation can be contributed via the 
 	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory will 
 	 * default to using the default code formatter.
@@ -96,6 +116,7 @@ public class ToolFactory {
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createCodeFormatter()
 	 * @see JavaCore#getOptions()
+	 * @deprecated - use #createCodeFormatter(Map) instead
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
 		final String NEW_CODE_FORMATTER_ACTIVATION = JavaCore.PLUGIN_ID + ".newformatter.activation"; //$NON-NLS-1$
@@ -104,10 +125,39 @@ public class ToolFactory {
 		
 		ICodeFormatter codeFormatter;
 		if (JavaCore.ENABLED.equals(newFormatterActivation)) {
-			codeFormatter = new DefaultCodeFormatter(options);
+			class CompatibleCodeFormatter extends DefaultCodeFormatter implements ICodeFormatter {
+				CompatibleCodeFormatter(Map settings) {
+					super(settings);
+				}
+				/**
+				 * @see org.eclipse.jdt.core.ICodeFormatter#format(String, int, int[], String)
+				 */
+				public String format(
+					String source,
+					int indentationLevel,
+					int[] positions,
+					String lineSeparator) {
+					
+					TextEdit textEdit = probeFormatting(source, indentationLevel, lineSeparator, 0, source.length());
+					if (textEdit == null) {
+						return source;
+					} else {
+						Document document = new Document(source);
+						try {
+							textEdit.apply(document, TextEdit.UPDATE_REGIONS);
+						} catch (MalformedTreeException e) {
+							e.printStackTrace();
+						} catch (BadLocationException e) {
+							e.printStackTrace();
+						}
+						return document.get();
+					}
+				}			
+			}
+			codeFormatter = new CompatibleCodeFormatter(options);
 		} else {
 			if (options == null) options = JavaCore.getOptions();
-			codeFormatter = new CodeFormatter(options);
+			codeFormatter = new org.eclipse.jdt.internal.formatter.CodeFormatter(options);
 		}
 		return codeFormatter;
 	}
