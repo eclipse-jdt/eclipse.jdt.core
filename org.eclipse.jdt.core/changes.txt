@@ -129,6 +129,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GELSDQ: ITPJUI:WINNT - JDOM: IType.createMethod does not insert nicely for inner types
   1GF67VL: ITPJUI:WIN98 - DCR - CodeCompletion - Code-assist for listener methods
   1GFK8YT: ITPJUI:ALL - Rename CU A.B.java to AB.java fails (NPE)
   1GD06J6: ITPJUI:WIN98 - Code assist should qualify fields if needed.
