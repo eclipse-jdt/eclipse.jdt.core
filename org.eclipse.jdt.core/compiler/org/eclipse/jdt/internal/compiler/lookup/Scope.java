@@ -2753,18 +2753,6 @@ public abstract class Scope
 			for (int i = 0, max = 1; i < max; i++) {
 				currentType = (ReferenceBinding) typesToVisit.get(i);
 				TypeBinding itsSuperclass = currentType.superclass();
-				if (itsSuperclass != null) {
-					TypeBinding itsSuperclassErasure = itsSuperclass.erasure();
-					if (!typesToVisit.contains(itsSuperclassErasure)) {
-						if (itsSuperclassErasure != itsSuperclass) {
-							ArrayList someInvocations = new ArrayList(1);
-							someInvocations.add(itsSuperclass);
-							allInvocations.put(itsSuperclassErasure, someInvocations);
-						}
-						typesToVisit.add(itsSuperclassErasure);
-						max++;
-					}
-				}
 				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 				for (int j = 0, count = itsInterfaces.length; j < count; j++) {
 					TypeBinding itsInterface = itsInterfaces[j];
@@ -2779,11 +2767,24 @@ public abstract class Scope
 						max++;
 					}
 				}
+				if (itsSuperclass != null) {
+					TypeBinding itsSuperclassErasure = itsSuperclass.erasure();
+					if (!typesToVisit.contains(itsSuperclassErasure)) {
+						if (itsSuperclassErasure != itsSuperclass) {
+							ArrayList someInvocations = new ArrayList(1);
+							someInvocations.add(itsSuperclass);
+							allInvocations.put(itsSuperclassErasure, someInvocations);
+						}
+						typesToVisit.add(itsSuperclassErasure);
+						max++;
+					}
+				}
 			}
 			superLength = typesToVisit.size();
 			superTypes = new TypeBinding[superLength];
 			typesToVisit.toArray(superTypes);
 		}
+		
 		int remaining = superLength;
 		nextOtherType: for (int i = indexOfFirst+1; i < length; i++) {
 			TypeBinding otherType = types[i];
