@@ -199,17 +199,16 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	return synthField;
 }
 
-/* Add a new synthetic field for a class literal access.
+/* Add a new synthetic field for the emulation of the assert statement.
 *	Answer the new field or the existing field if one already existed.
 */
-
 public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScope blockScope) {
 	if (synthetics == null) {
 		synthetics = new Hashtable[] { new Hashtable(5), new Hashtable(5), new Hashtable(5) };
 	}
 
 	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
-	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get(BooleanBinding);
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD].get("assertionEmulation"/*nonNLS*/);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			"$assertionsDisabled"/*nonNLS*/.toCharArray(),
@@ -218,7 +217,7 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 			this,
 			Constant.NotAConstant,
 			0);
-		synthetics[FIELD].put(BooleanBinding, synthField);
+		synthetics[FIELD].put("assertionEmulation"/*nonNLS*/, synthField);
 	}
 	// ensure there is not already such a field defined by the user
 	// ensure there is not already such a field defined by the user

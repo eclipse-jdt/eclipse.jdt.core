@@ -1389,6 +1389,9 @@ protected void consumeClassDeclaration() {
 	}
 
 	//always add <clinit> (will be remove at code gen time if empty)
+	if (this.scanner.containsAssertKeyword) {
+		typeDecl.bits |= Statement.AddAssertionMASK;
+	}
 	typeDecl.addClinit();
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }
@@ -2127,6 +2130,9 @@ protected void consumeInterfaceDeclaration() {
 	typeDecl.checkConstructors(this);
 	
 	//always add <clinit> (will be remove at code gen time if empty)
+	if (this.scanner.containsAssertKeyword) {
+		typeDecl.bits |= Statement.AddAssertionMASK;
+	}
 	typeDecl.addClinit();
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 }

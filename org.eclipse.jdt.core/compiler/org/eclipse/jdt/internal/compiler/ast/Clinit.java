@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 public class Clinit extends AbstractMethodDeclaration {
 	public final static char[] ConstantPoolName = "<clinit>"/*nonNLS*/.toCharArray();
 	
-	private boolean activateAssertionEmulation = false;
 	private FieldBinding assertionSyntheticFieldBinding = null;
 	private FieldBinding classLiteralSyntheticField = null;
 	
@@ -89,7 +88,7 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 
 		// 1.4 feature
 		// This has to be done before any other initialization
-		if (this.activateAssertionEmulation) {
+		if (this.assertionSyntheticFieldBinding != null) {
 			// generate code related to the activation of assertion for this class
 			codeStream.generateClassLiteralAccessForType(classScope.enclosingSourceType(), classLiteralSyntheticField);
 			codeStream.invokeJavaLangClassDesiredAssertionStatus();
@@ -173,12 +172,11 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) 
 }
 
 public void addSupportForAssertion(FieldBinding assertionSyntheticFieldBinding) {
-	this.activateAssertionEmulation = true;
 	this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
 	// 1.4 feature
 	// we need to add the field right now, because the field infos are generated before the methods
 	SourceTypeBinding sourceType = this.scope.outerMostMethodScope().enclosingSourceType();
-	classLiteralSyntheticField = sourceType.addSyntheticField(sourceType, scope);
+	this.classLiteralSyntheticField = sourceType.addSyntheticField(sourceType, scope);
 }
 
 }

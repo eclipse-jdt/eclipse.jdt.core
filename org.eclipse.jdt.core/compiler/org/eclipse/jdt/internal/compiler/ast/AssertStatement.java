@@ -15,7 +15,6 @@ public class AssertStatement extends Statement {
 
 	// for local variable attribute
 	int preAssertInitStateIndex = -1;
-	private boolean activateCodeGeneration = false;
 	private FieldBinding assertionSyntheticFieldBinding;
 	
 	public AssertStatement(
@@ -62,29 +61,7 @@ public class AssertStatement extends Statement {
 		if (constant != NotAConstant && constant.booleanValue() == true) {
 			return flowInfo;
 		}
-		activateCodeGeneration = true;
-		SourceTypeBinding sourceTypeBinding = currentScope.outerMostMethodScope().enclosingSourceType();
-		assertionSyntheticFieldBinding = sourceTypeBinding.addSyntheticField(this, currentScope);
-		TypeDeclaration typeDeclaration = currentScope.outerMostClassScope().referenceType();
-		typeDeclaration.emulationAssertionSupport = true;
-		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-		Clinit clinit = null;
-		for (int i = 0, max = methods.length; i < max; i++) {
-			AbstractMethodDeclaration method = methods[i];
-			if (method.isClinit()) {
-				// this is the clinit
-				clinit = (Clinit) method;
-			}
-		}
-		if (clinit == null) {
-			typeDeclaration.addClinit();
-			methods = typeDeclaration.methods;
-			clinit = (Clinit) methods[0];
-			// need to initialize the scope of the clinit
-			clinit.resolve(currentScope.outerMostClassScope());
-			clinit.needFreeReturn = true;
-		}
-		clinit.addSupportForAssertion(assertionSyntheticFieldBinding);
+		manageSyntheticAccessIfNecessary(currentScope);
 		return flowInfo;
 	}
 
@@ -95,7 +72,7 @@ public class AssertStatement extends Statement {
 		int pc = codeStream.position, divergePC;
 	
 		//  codegen here
-		if (activateCodeGeneration) {
+		if (this.assertionSyntheticFieldBinding != null) {
 			Label assertionActivationLabel = new Label(codeStream);
 			codeStream.getstatic(this.assertionSyntheticFieldBinding);
 			codeStream.ifne(assertionActivationLabel);
@@ -142,4 +119,24 @@ public class AssertStatement extends Statement {
 		}
 		visitor.endVisit(this, scope);
 	}	
+	
+	public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
+		ClassScope outerMostClassScope = currentScope.outerMostClassScope();
+		SourceTypeBinding sourceTypeBinding = outerMostClassScope.enclosingSourceType();
+		this.assertionSyntheticFieldBinding = sourceTypeBinding.addSyntheticField(this, currentScope);
+		TypeDeclaration typeDeclaration = outerMostClassScope.referenceType();
+		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+		Clinit clinit = null;
+		for (int i = 0, max = methods.length; i < max; i++) {
+			AbstractMethodDeclaration method = methods[i];
+			if (method.isClinit()) {
+				// this is the clinit
+				clinit = (Clinit) method;
+			}
+		}
+		if (clinit != null) {
+			// should always be the case
+			clinit.addSupportForAssertion(assertionSyntheticFieldBinding);
+		}
+	}
 }

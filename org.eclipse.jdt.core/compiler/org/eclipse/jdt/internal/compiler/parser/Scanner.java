@@ -21,6 +21,7 @@ public class Scanner implements TerminalSymbols {
 	// 1.4 feature
 	public boolean assertMode;
 	public boolean useAssertAsAnIndentifier = false;
+	public boolean containsAssertKeyword = false;
 	
 	public boolean recordLineSeparator;
 	public char currentCharacter;
@@ -1988,6 +1989,7 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 						&& (data[++index] == 'r')
 						&& (data[++index] == 't')) {
 							if (assertMode) {
+								containsAssertKeyword = true;
 								return TokenNameassert;
 							} else {
 								useAssertAsAnIndentifier = true;
@@ -2670,6 +2672,7 @@ public final void setSourceBuffer(char[] sourceString){
 	source = sourceString;
 	startPosition = -1;
 	initialPosition = currentPosition = 0;
+	containsAssertKeyword = false;
 	if (source == null) {
 		source = new char[0];
 	}

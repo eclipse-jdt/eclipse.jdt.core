@@ -79,4 +79,6 @@ public interface QualifiedNamesConstants {
 	char[] AssertionErrorObjectConstrSignature = "(Ljava/lang/Object;)V"/*nonNLS*/.toCharArray();
 	char[] DesiredAssertionStatus = "desiredAssertionStatus"/*nonNLS*/.toCharArray();
 	char[] DesiredAssertionStatusSignature = "()Z"/*nonNLS*/.toCharArray();
+	char[] ShortConstrSignature = "(S)V"/*nonNLS*/.toCharArray();
+	char[] ByteConstrSignature = "(B)V"/*nonNLS*/.toCharArray();
 }

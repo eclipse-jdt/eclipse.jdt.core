@@ -428,7 +428,14 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;
-		
+		case UseAssertAsAnIdentifier :
+			if ((errorThreshold & AssertUsedAsAnIdentifier) != 0){
+				return Error;
+			}
+			if ((warningThreshold & AssertUsedAsAnIdentifier) != 0){
+				return Warning;
+			}
+			return Ignore;		
 		default:
 			return Error;
 	}
@@ -2160,7 +2167,6 @@ public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 	this.handle(
 		UseAssertAsAnIdentifier,
 		new String[0],
-		Warning,
 		sourceStart,
 		sourceEnd);	
 }

@@ -20,4 +20,5 @@ public interface ConfigurableProblems {
 	final int TemporaryWarning = 0x40000;
 	final int AccessEmulation = 0x80000;
 	final int NonExternalizedString = 0x100000;
+	final int AssertUsedAsAnIdentifier = 0x200000;
 }

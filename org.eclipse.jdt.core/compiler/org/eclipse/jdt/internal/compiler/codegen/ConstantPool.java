@@ -276,23 +276,57 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 					case 1:
 						switch(methodBinding.parameters[0].id) {
 							case T_String :
-								return CONSTR_STRING_METHOD_NAME_AND_TYPE;	
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.StringConstructorSignature)) {
+									return CONSTR_STRING_METHOD_NAME_AND_TYPE;	
+								} else {
+									return -1;
+								}
 							case T_Object :
-								return CONSTR_OBJECT_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorObjectConstrSignature)) {
+									return CONSTR_OBJECT_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 							case T_int :
 							case T_byte :
 							case T_short :
-								return CONSTR_INT_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorIntConstrSignature)
+									|| CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.ShortConstrSignature)
+									|| CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.ByteConstrSignature)) {
+									return CONSTR_INT_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 							case T_char :
-								return CONSTR_CHAR_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorCharConstrSignature)) {
+									return CONSTR_CHAR_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 							case T_boolean :
-								return CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorBooleanConstrSignature)) {
+									return CONSTR_BOOLEAN_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 							case T_float :
-								return CONSTR_FLOAT_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorFloatConstrSignature)) {
+									return CONSTR_FLOAT_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 							case T_double :
-								return CONSTR_DOUBLE_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorDoubleConstrSignature)) {
+									return CONSTR_DOUBLE_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 							case T_long :
-								return CONSTR_LONG_METHOD_NAME_AND_TYPE;
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorLongConstrSignature)) {
+									return CONSTR_LONG_METHOD_NAME_AND_TYPE;
+								} else {
+									return -1;
+								}
 						}
 					case 0:
 						if (methodBinding.signature().length == 3) {
