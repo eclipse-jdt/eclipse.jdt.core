@@ -250,7 +250,6 @@ public char[] genericSignature() {
 	if ((this.modifiers & AccGenericSignature) == 0) return null;
 	StringBuffer sig = new StringBuffer(10);
 	if (this.typeVariables != NoTypeVariables) {
-		sig = new StringBuffer(10);
 		sig.append('<');
 		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
 			sig.append(this.typeVariables[i].genericSignature());

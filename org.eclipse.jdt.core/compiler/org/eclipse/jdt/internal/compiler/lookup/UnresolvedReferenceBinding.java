@@ -53,7 +53,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 	return targetType;
 }
 void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment) {
-	if (this.resolvedType == targetType) return;
+	if (this.resolvedType == targetType) return; // already resolved
 
 	// targetType may be a source or binary type
 	this.resolvedType = targetType;

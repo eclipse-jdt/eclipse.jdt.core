@@ -217,9 +217,9 @@ public String getProgramClass() {
 public LocalVirtualMachine[] getRunningVirtualMachines() {
 	// Select the VMs that are actually running
 	Vector actuallyRunning = new Vector();
-	Enumeration enum = this.runningVMs.elements();
-	while (enum.hasMoreElements()) {
-		LocalVirtualMachine vm = (LocalVirtualMachine)enum.nextElement();
+	Enumeration en = this.runningVMs.elements();
+	while (en.hasMoreElements()) {
+		LocalVirtualMachine vm = (LocalVirtualMachine)en.nextElement();
 		if (vm.isRunning())
 			actuallyRunning.addElement(vm);
 	}
