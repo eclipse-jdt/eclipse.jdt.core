@@ -1896,6 +1896,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			String value = (String)newOptions.get(key);
 			preferences.setValue(key, value);
 		}
+		
+		// persist options
+		getPlugin().savePluginPreferences();
 	}
 	
 	/**
@@ -1907,6 +1910,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public void shutdown() {
 
+		savePluginPreferences();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaProcessor);
 		workspace.removeSaveParticipant(this);

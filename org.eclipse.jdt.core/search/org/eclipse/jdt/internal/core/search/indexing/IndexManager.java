@@ -437,6 +437,7 @@ public void saveIndexes(){
 }
 
 public void shutdown() {
+	
 	HashMap keepingIndexesPaths = new HashMap();
 	IndexSelector indexSelector = new IndexSelector(new JavaWorkspaceScope(), null, this);
 	IIndex[] selectedIndexes = indexSelector.getIndexes();
@@ -448,7 +449,8 @@ public void shutdown() {
 	if (indexesDirectory.isDirectory()) {
 		File[] indexesFiles = indexesDirectory.listFiles();
 		for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
-			if (keepingIndexesPaths.get(indexesFiles[i].getAbsolutePath()) == null) {
+			String fileName = indexesFiles[i].getAbsolutePath();
+			if (fileName.toLowerCase().endsWith(".index") && keepingIndexesPaths.get(fileName) == null) {
 				if (VERBOSE) {
 					JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
 				}
