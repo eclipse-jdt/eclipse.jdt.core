@@ -29,7 +29,7 @@ protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
 protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
 
 public static char[] createIndexKey(char[] fieldName) {
-	return encodeIndexKey(fieldName, R_EXACT_MATCH);
+	return fieldName;
 }
 
 public FieldPattern(
@@ -59,7 +59,7 @@ public SearchPattern getBlankPattern() {
 	return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[] getIndexKey() {
-	return encodeIndexKey(this.name, getMatchMode());
+	return this.name;
 }
 public char[][] getMatchCategories() {
 	if (this.findReferences)

@@ -51,11 +51,11 @@ public SearchPattern getBlankPattern() {
 }
 public char[] getIndexKey() {
 	if (this.simpleName != null)
-		return encodeIndexKey(this.simpleName, getMatchMode());
+		return this.simpleName;
 
 	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
 	if (this.currentSegment >= 0) 
-		return encodeIndexKey(this.segments[this.currentSegment], getMatchMode());
+		return this.segments[this.currentSegment];
 	return null;
 }
 public char[][] getMatchCategories() {

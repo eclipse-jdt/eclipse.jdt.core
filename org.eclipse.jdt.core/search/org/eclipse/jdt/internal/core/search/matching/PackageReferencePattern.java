@@ -49,7 +49,7 @@ public SearchPattern getBlankPattern() {
 public char[] getIndexKey() {
 	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
 	if (this.currentSegment >= 0) 
-		return encodeIndexKey(this.segments[this.currentSegment], getMatchMode());
+		return this.segments[this.currentSegment];
 	return null;
 }
 public char[][] getMatchCategories() {
