@@ -1167,4 +1167,28 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveMember(org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration)
+	 */
+	IVariableBinding resolveMember(AnnotationTypeMemberDeclaration member) {
+		// TODO (olivier) - missing implementation
+		return super.resolveMember(member);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveType(org.eclipse.jdt.core.dom.AnnotationTypeDeclaration)
+	 */
+	ITypeBinding resolveType(AnnotationTypeDeclaration type) {
+		// TODO (olivier) - missing implementation
+		return super.resolveType(type);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveVariable(org.eclipse.jdt.core.dom.EnumConstantDeclaration)
+	 */
+	IVariableBinding resolveVariable(EnumConstantDeclaration enumConstant) {
+		// TODO (olivier) - missing implementation
+		return super.resolveVariable(enumConstant);
+	}
 }
