@@ -83,6 +83,10 @@ public class JavaProject
 	 * Name of file containing custom project preferences
 	 */
 	public static final String PREF_FILENAME = ".jprefs";  //$NON-NLS-1$
+	
+	/**
+	 * Value of the project's raw classpath if the .classpath file contains invalid entries.	 */
+	public static final IClasspathEntry[] INVALID_CLASSPATH = new IClasspathEntry[0];
 
 	/**
 	 * Returns a canonicalized path from the given external path.
@@ -863,6 +867,13 @@ public class JavaProject
 							"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 							+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 					}
+				} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
+					if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
+						Util.log(e, 
+							"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+							+"/.classpath, will be marked as invalid"); //$NON-NLS-1$
+					}
+					classpath = INVALID_CLASSPATH;
 				}
 
 				// extract out the output location
@@ -885,6 +896,15 @@ public class JavaProject
 				if (classpath == null) {
 					classpath = defaultClasspath();
 				}
+				
+				/* Disable validate: classpath can contain CP variables and container that need to be resolved 
+				// validate classpath and output location
+				if (classpath != INVALID_CLASSPATH
+						&& !JavaConventions.validateClasspath(this, classpath, outputLocation).isOK()) {
+					classpath = INVALID_CLASSPATH;
+				}
+				*/
+
 				setRawClasspath0(classpath);
 
 				// only valid if reaches here				
@@ -1167,6 +1187,12 @@ public class JavaProject
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
 			}
+		} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
+			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
+			}
 		}
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
@@ -1394,7 +1420,15 @@ public class JavaProject
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 			}
+		} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
+			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will be marked as invalid"); //$NON-NLS-1$
+			}
+			classpath = INVALID_CLASSPATH;
 		}
+		
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
 			IClasspathEntry entry = classpath[classpath.length - 1];
@@ -1404,10 +1438,17 @@ public class JavaProject
 				classpath = copy;
 			}
 		}
-		if (classpath != null) {
-			return classpath;
+		if (classpath == null) {
+			return defaultClasspath();
 		}
-		return defaultClasspath();
+		/* Disable validate: classpath can contain CP variables and container that need to be resolved 
+		if (classpath != INVALID_CLASSPATH
+				&& !JavaConventions.validateClasspath(this, classpath, outputLocation).isOK()) {
+			classpath = INVALID_CLASSPATH;
+		}
+		*/
+		perProjectInfo.classpath = classpath;
+		return classpath;
 	}
 
 	/**
@@ -1970,6 +2011,9 @@ public class JavaProject
 									null,
 									false));
 							break;
+							
+						default:
+							throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", cpeElementKind)); //$NON-NLS-1$
 					}
 				}
 			}

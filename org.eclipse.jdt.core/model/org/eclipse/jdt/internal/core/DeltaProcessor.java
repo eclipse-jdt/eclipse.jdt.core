@@ -1273,8 +1273,10 @@ private JavaModelException newInvalidElementType() {
 					}
 					if (fileEntries == null)
 						break; // could not read, ignore 
-					if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries))
+					if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries)) {
+						wasSuccessful = true;
 						break;
+					}
 		
 					// will force an update of the classpath/output location based on the file information
 					// extract out the output location
@@ -1310,17 +1312,28 @@ private JavaModelException newInvalidElementType() {
 					break;
 				} catch (JavaModelException e) { // CP failed validation
 					if (project.getProject().isAccessible()) {
-						// TODO: (jbl) need to distinguish scenario where .classpath file couldn't be written out
-						project.createClasspathProblemMarker(
-								Util.bind("classpath.invalidClasspathInClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
-								IMarker.SEVERITY_ERROR,
-								false,	//  cycle error
-								true);	//	file format error					
+						if (e.getJavaModelStatus().getException() instanceof CoreException) {
+							// happens if the .classpath could not be written to disk
+							project.createClasspathProblemMarker(
+									Util.bind("classpath.couldNotWriteClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
+									IMarker.SEVERITY_ERROR,
+									false,	//  cycle error
+									true);	//	file format error		
+						} else {
+							project.createClasspathProblemMarker(
+									Util.bind("classpath.invalidClasspathInClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
+									IMarker.SEVERITY_ERROR,
+									false,	//  cycle error
+									true);	//	file format error		
+						}			
 					}
 					break;
 				} finally {
-					if (!wasSuccessful){ 
-						// TODO: (jbl) rename the .classpath file into .classpath_invalid
+					if (!wasSuccessful) { 
+						try {
+							project.setRawClasspath0(JavaProject.INVALID_CLASSPATH);
+						} catch (JavaModelException e) {
+						}
 					}
 				}
 		}

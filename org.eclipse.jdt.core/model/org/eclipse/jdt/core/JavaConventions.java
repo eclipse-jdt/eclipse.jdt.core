@@ -517,11 +517,12 @@ public final class JavaConventions {
 					IClasspathEntry otherEntry = classpath[j];
 					if (otherEntry == null) continue;
 					int otherKind = otherEntry.getEntryKind();
+					IPath otherPath = otherEntry.getPath();
 					if (entry != otherEntry 
 						&& (otherKind == IClasspathEntry.CPE_SOURCE 
 								|| (otherKind == IClasspathEntry.CPE_LIBRARY 
-										&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherEntry.getPath().lastSegment())))){
-						if (otherEntry.getPath().isPrefixOf(entryPath)){
+										&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherPath.lastSegment())))){
+						if (otherPath.isPrefixOf(entryPath) && !otherPath.equals(entryPath)) {
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
 						}
 					}

@@ -460,6 +460,7 @@ private void initializeBuilder() throws CoreException {
 }
 
 private boolean isWorthBuilding() throws CoreException {
+	
 	boolean abortBuilds = JavaCore.ABORT.equals(this.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true));
 	if (!abortBuilds) return true;
 
@@ -467,11 +468,17 @@ private boolean isWorthBuilding() throws CoreException {
 	IMarker[] markers =
 		currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
 	boolean buildPathHasError = false;
-	for (int i = 0, length = markers.length; i < length; i++) {
-		IMarker marker = markers[i];
-		if (((Integer)marker.getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR) {
-			buildPathHasError = true;
-			break;
+	IClasspathEntry[] classpath = null;
+	if (this.javaProject != null && (classpath = this.javaProject.getRawClasspath()) == JavaProject.INVALID_CLASSPATH) {
+		// the .classpath file could not be read
+		buildPathHasError = true;
+	} else {
+		for (int i = 0, length = markers.length; i < length; i++) {
+			IMarker marker = markers[i];
+			if (((Integer)marker.getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR) {
+				buildPathHasError = true;
+				break;
+			}
 		}
 	}
 	if (buildPathHasError) {
@@ -479,7 +486,10 @@ private boolean isWorthBuilding() throws CoreException {
 			System.out.println("Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
 
 		// remove all existing class files... causes all dependent projects to do the same
-		new BatchImageBuilder(this).scrubOutputFolder();
+		// only if the .classpath file could be read
+		if (classpath != JavaProject.INVALID_CLASSPATH) {
+			new BatchImageBuilder(this).scrubOutputFolder();
+		}
 
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 
@@ -507,7 +517,10 @@ private boolean isWorthBuilding() throws CoreException {
 					+ " was not built"); //$NON-NLS-1$
 
 			// remove all existing class files... causes all dependent projects to do the same
-			new BatchImageBuilder(this).scrubOutputFolder();
+			// only if the .classpath file could be read
+			if (prereqProject.getRawClasspath() != JavaProject.INVALID_CLASSPATH) {
+				new BatchImageBuilder(this).scrubOutputFolder();
+			}
 
 			removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
