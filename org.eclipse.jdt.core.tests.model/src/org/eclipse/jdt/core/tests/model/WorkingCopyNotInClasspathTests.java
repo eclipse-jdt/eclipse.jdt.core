@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Map;
-
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
@@ -19,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.Util;
 
@@ -166,12 +165,22 @@ public void testIsOnClasspath() throws CoreException {
 			"package junit.test;\n" +
 			"public class X {\n" +
 			"}";
-		IFile file = this.createFile("/P1/src/junit/test/X.java", source);
+		IFile file = this.createFile("/SimpleProject/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
-		assertTrue("working copy shouldn't be on classpath (1/2)", workingCopy.getJavaProject().isOnClasspath(workingCopy));
-		Map options = workingCopy.getJavaProject().getOptions(true); // bug 31799
-		assertTrue("working copy should still not be on classpath (2/2)", workingCopy.getJavaProject().isOnClasspath(workingCopy));
+		try {
+			workingCopy.getJavaProject().isOnClasspath(workingCopy);
+			// shouldn't reach that far, since isOnClasspath should throw an exception (not present)
+			assertTrue("working copy shouldn't answer to isOnClasspath (1/2)", false);
+		} catch(JavaModelException e) {
+		}
+		workingCopy.getJavaProject().getOptions(true); // bug 31799
+		try {
+			workingCopy.getJavaProject().isOnClasspath(workingCopy);
+			// shouldn't reach that far, since isOnClasspath should throw an exception (not present)
+			assertTrue("working copy should dstill not answer to isOnClasspath (2/2)", false);
+		} catch(JavaModelException e) {
+		}
 		
 	} finally {
 		if (workingCopy != null) workingCopy.destroy();
