@@ -619,6 +619,20 @@ public abstract class ASTNode {
 	public static final int QUALIFIED_TYPE = 67;
 	
 	/**
+	 * Node type constant indicating a node of type 
+	 * <code>WildcardType</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see WildcardType
+	 * @since 3.0
+	 */
+	public static final int WILDCARD_TYPE = 68;
+	
+	/**
 	 * Owning AST.
 	 */
 	private final AST owner;

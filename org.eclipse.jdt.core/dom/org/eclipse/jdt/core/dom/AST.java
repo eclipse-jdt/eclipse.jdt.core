@@ -1415,6 +1415,30 @@ public final class AST {
 		result.setName(name);
 		return result;
 	}
+	
+	/**
+	 * Creates and returns a new unparented wildcard type node with no 
+	 * type bound.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented wildcard type node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @since 3.0
+	 */
+	public WildcardType newWildcardType() {
+		WildcardType result = new WildcardType(this);
+		return result;
+	}
+
 	//=============================== DECLARATIONS ===========================
 	/**
 	 * Creates an unparented compilation unit node owned by this AST.

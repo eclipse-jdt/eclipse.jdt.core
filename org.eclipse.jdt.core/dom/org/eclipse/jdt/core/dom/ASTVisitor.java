@@ -375,6 +375,19 @@ public abstract class ASTVisitor {
 	public boolean visit(WhileStatement node) {
 		return true;
 	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(WildcardType node) {
+		return true;
+	}
 
 	public void endVisit(AnonymousClassDeclaration node) {
 		// default implementation: do nothing
@@ -459,6 +472,7 @@ public abstract class ASTVisitor {
 	 * @since 3.0
 	 */
 	public void endVisit(EnumConstantDeclaration node) {
+		// default implementation: do nothing
 	}	
 	public void endVisit(ExpressionStatement node) {
 		// default implementation: do nothing
@@ -519,6 +533,7 @@ public abstract class ASTVisitor {
 	 * @since 3.0
 	 */
 	public void endVisit(ParameterizedType node) {
+		// default implementation: do nothing
 	}	
 	public void endVisit(ParenthesizedExpression node) {
 		// default implementation: do nothing
@@ -546,6 +561,7 @@ public abstract class ASTVisitor {
 	 * @since 3.0
 	 */
 	public void endVisit(QualifiedType node) {
+		// default implementation: do nothing
 	}	
 	public void endVisit(ReturnStatement node) {
 		// default implementation: do nothing
@@ -606,7 +622,8 @@ public abstract class ASTVisitor {
 	 * @since 3.0
 	 */
 	public void endVisit(TypeParameter node) {
- 	}
+		// default implementation: do nothing
+	}
 	public void endVisit(SingleVariableDeclaration node) {
 		// default implementation: do nothing
 	}
@@ -620,6 +637,19 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 	public void endVisit(WhileStatement node) {
+		// default implementation: do nothing
+	}
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(WildcardType node) {
 		// default implementation: do nothing
 	}
 }

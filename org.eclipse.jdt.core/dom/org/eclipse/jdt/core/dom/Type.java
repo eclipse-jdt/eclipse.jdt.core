@@ -14,8 +14,10 @@ package org.eclipse.jdt.core.dom;
 /**
  * Abstract base class of all type AST node types. A type node represents a 
  * reference to a primitive type (including void), to an array type, or to a
- * simple named type (or type variable), to a qualified type, or to a
- * parameterized type.
+ * simple named type (or type variable), to a qualified type, to a
+ * parameterized type, or to a wildcard type. Note that not all of these
+ * are meaningful in all contexts; for example, a wildcard type is only
+ * meaningful in the type argument position of a parameterized type.
  * <p>
  * <pre>
  * Type:
@@ -24,6 +26,7 @@ package org.eclipse.jdt.core.dom;
  *    SimpleType
  *    QualifiedType
  *    ParameterizedType
+ *    WildcardType
  * PrimitiveType:
  *    <b>byte</b>
  *    <b>short</b>
@@ -42,6 +45,8 @@ package org.eclipse.jdt.core.dom;
  *    Name <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * QualifiedType:
  *    Type <b>.</b> SimpleName
+ * WildcardType:
+ *    <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ] 
  * </pre>
  * </p>
  * <p>
@@ -149,6 +154,28 @@ public abstract class Type extends ASTNode {
 	 */
 	public final boolean isQualifiedType() {
 		return (this instanceof QualifiedType);
+	}
+
+	/**
+	 * Returns whether this type is a wildcard type
+	 * (<code>WildcardType</code>).
+	 * <p>
+	 * Note that a wildcard type is only meaningful as a 
+	 * type argument of a <code>ParameterizedType</code> node.
+	 * </p>
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is a wildcard type, and 
+	 *    <code>false</code> otherwise
+	 * @since 3.0
+	 */
+	public final boolean isWildcardType() {
+		return (this instanceof WildcardType);
 	}
 
 	/**

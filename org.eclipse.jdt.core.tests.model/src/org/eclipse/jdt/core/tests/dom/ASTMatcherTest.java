@@ -416,6 +416,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(WhileStatement node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(WildcardType node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 	}
 	
 	/**
@@ -514,11 +517,19 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	public void testParameterizedType() {
 		ParameterizedType x1 = ast.newParameterizedType(ast.newSimpleName("X")); //$NON-NLS-1$
+		x1.typeArguments().add(T1);
+		x1.typeArguments().add(T2);
 		basicMatch(x1);
 	}
 
 	public void testQualifiedType() {
 		Type x1 = ast.newQualifiedType(T1, N1);
+		basicMatch(x1);
+	}
+
+	public void testWildcardType() {
+		WildcardType x1 = ast.newWildcardType();
+		x1.setBound(T1, true);
 		basicMatch(x1);
 	}
 

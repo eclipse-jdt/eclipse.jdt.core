@@ -1074,6 +1074,24 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(WildcardType)
+	 * @since 3.0
+	 */
+	public boolean visit(WildcardType node) {
+		buffer.append("?");//$NON-NLS-1$
+		Type bound = node.getBound();
+		if (bound != null) {
+			if (node.isUpperBound()) {
+				buffer.append(" extends ");//$NON-NLS-1$
+			} else {
+				buffer.append(" super ");//$NON-NLS-1$
+			}
+			bound.accept(this);
+		}
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(WhileStatement)
 	 */
 	public boolean visit(WhileStatement node) {

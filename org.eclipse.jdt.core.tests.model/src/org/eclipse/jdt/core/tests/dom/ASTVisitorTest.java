@@ -241,6 +241,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.append(node.getPrimitiveTypeCode().toString());
 			b.append("tP)"); //$NON-NLS-1$
 		}
+		public boolean visit(ParameterizedType node) {
+			b.append("(tM"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(ParameterizedType node) {
+			b.append("tM)"); //$NON-NLS-1$
+		}
 		public boolean visit(QualifiedType node) {
 			b.append("(tQ"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -248,7 +255,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public void endVisit(QualifiedType node) {
 			b.append("tQ)"); //$NON-NLS-1$
 		}
-
+		public boolean visit(WildcardType node) {
+			b.append("(tW"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(WildcardType node) {
+			b.append("tW)"); //$NON-NLS-1$
+		}
+		
 		// EXPRESSIONS and STATEMENTS
 
 
@@ -560,14 +574,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.append("PD)"); //$NON-NLS-1$
 		}
 
-		public boolean visit(ParameterizedType node) {
-			b.append("(tM"); //$NON-NLS-1$
-			return isVisitingChildren();
-		}
-		public void endVisit(ParameterizedType node) {
-			b.append("tM)"); //$NON-NLS-1$
-		}
-
 		public boolean visit(ParenthesizedExpression node) {
 			b.append("(ePA"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -757,7 +763,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public void endVisit(WhileStatement node) {
 			b.append("sWH)"); //$NON-NLS-1$
 		}
-		
+
 		public void preVisit(ASTNode node) {
 			b.append("["); //$NON-NLS-1$
 		}
@@ -836,6 +842,16 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(tQ"+T1S+N1S+"tQ)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	public void testWildcardType() {
+		WildcardType x1 = ast.newWildcardType();
+		x1.setBound(T1, true);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(tW"+T1S+"tW)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
 	// EXPRESSIONS and STATEMENTS
 
 	public void testArrayAccess() {
@@ -1418,19 +1434,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(eTL"+T1S+"eTL)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	public void testTypeParameter() {
-		TypeParameter x1 = ast.newTypeParameter();
-		x1.setName(N1);
-		x1.typeBounds().add(PT1);
-		x1.typeBounds().add(T1);
-		x1.typeBounds().add(T2);
-		TestVisitor v1 = new TestVisitor();
-		b.setLength(0);
-		x1.accept(v1);
-		String result = b.toString();
-		assertTrue(result.equals("[(tTP"+N1S+PT1S+T1S+T2S+"tTP)]")); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
 	public void testVariableDeclaration() {
 		SingleVariableDeclaration x1 = ast.newSingleVariableDeclaration();
 		x1.setType(T1);
@@ -1482,7 +1485,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(sWH"+E1S+S1S+"sWH)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
+	
 	public void testPrePost() {
 		SimpleName n1 = ast.newSimpleName("a"); //$NON-NLS-1$
 		SimpleName n2 = ast.newSimpleName("b"); //$NON-NLS-1$
