@@ -335,6 +335,18 @@ public abstract class ASTVisitor {
 	public void endVisit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(PostfixExpression postfixExpression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -786,6 +798,18 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(PostfixExpression postfixExpression, BlockScope scope) {
