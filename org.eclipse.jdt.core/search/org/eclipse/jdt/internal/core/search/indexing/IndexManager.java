@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.Index;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
@@ -423,7 +424,30 @@ public synchronized void removeIndexFamily(IPath path) {
  * Remove the content of the given source folder from the index.
  */
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder) {
-	this.request(new RemoveFolderFromIndex(sourceFolder.toString(), javaProject.getProject().getFullPath(), this));
+		try {
+			/* ensure no concurrent write access to index */
+			IPath indexPath = javaProject.getPath();
+			IIndex index = this.getIndex(indexPath, true, /*reuse index file*/ false /*create if none*/);
+			if (index == null) return;
+			ReadWriteMonitor monitor = this.getMonitorFor(index);
+			if (monitor == null) return; // index got deleted since acquired
+
+			try {
+				monitor.enterRead(); // ask permission to read
+				IQueryResult[] results = index.queryInDocumentNames(sourceFolder.toString());
+				// all file names belonging to the folder or its subfolders
+				for (int i = 0, max = results == null ? 0 : results.length; i < max; i++)
+					// TODO: Should not remove excluded resources
+					this.remove(results[i].getPath(), indexPath); // write lock will be acquired by the remove operation
+			} finally {
+				monitor.exitRead(); // free read lock
+			}
+		} catch (IOException e) {
+			if (JobManager.VERBOSE) {
+				JobManager.verbose("-> failed to remove " + sourceFolder.toString() + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				e.printStackTrace();
+			}
+		}
 }
 /**
  * Flush current state
