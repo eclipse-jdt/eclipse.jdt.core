@@ -30,64 +30,52 @@ public class Continue extends BranchStatement {
 		// to each of the traversed try statements, so that execution will terminate properly.
 
 		// lookup the label, this should answer the returnContext
-		FlowContext targetContext;
-		if (label == null) {
-			targetContext = flowContext.getTargetContextForDefaultContinue();
-		} else {
-			targetContext = flowContext.getTargetContextForContinueLabel(label);
-		}
+		FlowContext targetContext = (label == null)
+				? flowContext.getTargetContextForDefaultContinue()
+				: flowContext.getTargetContextForContinueLabel(label);
+
 		if (targetContext == null) {
 			if (label == null) {
 				currentScope.problemReporter().invalidContinue(this);
 			} else {
-				currentScope.problemReporter().undefinedLabel(this); // need to improve
+				currentScope.problemReporter().undefinedLabel(this); 
 			}
-		} else {
-			if (targetContext == FlowContext.NotContinuableContext) {
-				currentScope.problemReporter().invalidContinue(this);
-				return FlowInfo.DeadEnd;
-			}
-			targetLabel = targetContext.continueLabel();
-			targetContext.recordContinueFrom(flowInfo);
-			FlowContext traversedContext = flowContext;
-			int subIndex = 0, maxSub = 5;
-			subroutines = new AstNode[maxSub];
-			while (true) {
-				AstNode sub;
-				if ((sub = traversedContext.subRoutine()) != null) {
-					if (subIndex == maxSub) {
-						System.arraycopy(
-							subroutines,
-							0,
-							(subroutines = new AstNode[maxSub *= 2]),
-							0,
-							subIndex);
-						// grow
-					}
-					subroutines[subIndex++] = sub;
-					if (sub.cannotReturn()) {
-						break;
-					}
-				}
-				// remember the initialization at this
-				// point for dealing with blank final variables.
-				traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+			return flowInfo; // pretend it did not continue since no actual target			
+		} 
 
-				if (traversedContext == targetContext) {
+		if (targetContext == FlowContext.NotContinuableContext) {
+			currentScope.problemReporter().invalidContinue(this);
+			return flowInfo; // pretend it did not continue since no actual target
+		}
+		targetLabel = targetContext.continueLabel();
+		targetContext.recordContinueFrom(flowInfo);
+		FlowContext traversedContext = flowContext;
+		int subIndex = 0, maxSub = 5;
+		subroutines = new AstNode[maxSub];
+		while (true) {
+			AstNode sub;
+			if ((sub = traversedContext.subRoutine()) != null) {
+				if (subIndex == maxSub) {
+					System.arraycopy(subroutines, 0, (subroutines = new AstNode[maxSub*=2]), 0, subIndex); // grow
+				}
+				subroutines[subIndex++] = sub;
+				if (sub.cannotReturn()) {
 					break;
-				} else {
-					traversedContext = traversedContext.parent;
 				}
 			}
-			// resize subroutines
-			if (subIndex != maxSub) {
-				System.arraycopy(
-					subroutines,
-					0,
-					(subroutines = new AstNode[subIndex]),
-					0,
-					subIndex);
+			// remember the initialization at this
+			// point for dealing with blank final variables.
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+
+			if (traversedContext == targetContext) {
+				break;
+			} else {
+				traversedContext = traversedContext.parent;
 			}
+		}
+		// resize subroutines
+		if (subIndex != maxSub) {
+			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
 		}
 		return FlowInfo.DeadEnd;
 	}
@@ -95,9 +83,9 @@ public class Continue extends BranchStatement {
 	public String toString(int tab) {
 
 		String s = tabString(tab);
-		s = s + "continue "; //$NON-NLS-1$
+		s += "continue "; //$NON-NLS-1$
 		if (label != null)
-			s = s + new String(label);
+			s += new String(label);
 		return s;
 	}
 

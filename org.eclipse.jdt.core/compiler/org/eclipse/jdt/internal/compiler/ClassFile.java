@@ -2084,7 +2084,7 @@ public class ClassFile
 				ReferenceBinding declaringClass = binding.declaringClass;
 				if (declaringClass.isNestedType()) {
 					NestedTypeBinding methodDeclaringClass = (NestedTypeBinding) declaringClass;
-					argSize = methodDeclaringClass.syntheticArgumentsOffset;
+					argSize = methodDeclaringClass.enclosingInstancesSlotSize;
 					SyntheticArgumentBinding[] syntheticArguments;
 					if ((syntheticArguments = methodDeclaringClass.syntheticEnclosingInstances())
 						!= null) {

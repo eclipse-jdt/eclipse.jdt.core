@@ -2108,7 +2108,9 @@ public void nestedClassCannotDeclareInterface(TypeDeclaration typeDecl) {
 public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, AstNode location) {
 	String[] arguments = new String[]{ new String(local.name) };
 	this.handle(
-		IProblem.TooManyArgumentSlots,
+		local instanceof SyntheticArgumentBinding
+			? IProblem.TooManySyntheticArgumentSlots
+			: IProblem.TooManyArgumentSlots,
 		arguments,
 		arguments,
 		Abort | Error,

@@ -31,9 +31,7 @@ public class FlowContext implements TypeConstants {
 	public AstNode associatedNode;
 	public FlowContext parent;
 
-	public final static FlowContext NotContinuableContext =
-
-		new FlowContext(null, null);
+	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
 		
 	public FlowContext(FlowContext parent, AstNode associatedNode) {
 
@@ -337,7 +335,7 @@ public class FlowContext implements TypeConstants {
 			if (current.isNonReturningContext()) {
 				lastNonReturningSubRoutine = current;
 			}
-			if (current.isBreakable()) {
+			if (current.isBreakable() && current.labelName() == null) {
 				if (lastNonReturningSubRoutine == null) {
 					return current;
 				} else {

@@ -29,60 +29,48 @@ public class Break extends BranchStatement {
 		// to each of the traversed try statements, so that execution will terminate properly.
 
 		// lookup the label, this should answer the returnContext
-		FlowContext targetContext;
-		if (label == null) {
-			targetContext = flowContext.getTargetContextForDefaultBreak();
-		} else {
-			targetContext = flowContext.getTargetContextForBreakLabel(label);
-		}
+		FlowContext targetContext = (label == null) 
+			? flowContext.getTargetContextForDefaultBreak()
+			: flowContext.getTargetContextForBreakLabel(label);
+
 		if (targetContext == null) {
 			if (label == null) {
 				currentScope.problemReporter().invalidBreak(this);
 			} else {
-				currentScope.problemReporter().undefinedLabel(this); // need to improve
+				currentScope.problemReporter().undefinedLabel(this); 
 			}
-		} else {
-			targetLabel = targetContext.breakLabel();
-			targetContext.recordBreakFrom(flowInfo);
-			FlowContext traversedContext = flowContext;
-			int subIndex = 0, maxSub = 5;
-			subroutines = new AstNode[maxSub];
-			while (true) {
-				AstNode sub;
-				if ((sub = traversedContext.subRoutine()) != null) {
-					if (subIndex == maxSub) {
-						System.arraycopy(
-							subroutines,
-							0,
-							(subroutines = new AstNode[maxSub *= 2]),
-							0,
-							subIndex);
-						// grow
-					}
-					subroutines[subIndex++] = sub;
-					if (sub.cannotReturn()) {
-						break;
-					}
+			return flowInfo; // pretend it did not break since no actual target
+		}
+		
+		targetLabel = targetContext.breakLabel();
+		targetContext.recordBreakFrom(flowInfo);
+		FlowContext traversedContext = flowContext;
+		int subIndex = 0, maxSub = 5;
+		subroutines = new AstNode[maxSub];
+		while (true) {
+			AstNode sub;
+			if ((sub = traversedContext.subRoutine()) != null) {
+				if (subIndex == maxSub) {
+					System.arraycopy(subroutines, 0, (subroutines = new AstNode[maxSub*=2]), 0, subIndex); // grow
 				}
-				// remember the initialization at this
-				// point for dealing with blank final variables.
-				traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
-
-				if (traversedContext == targetContext) {
+				subroutines[subIndex++] = sub;
+				if (sub.cannotReturn()) {
 					break;
-				} else {
-					traversedContext = traversedContext.parent;
 				}
 			}
-			// resize subroutines
-			if (subIndex != maxSub) {
-				System.arraycopy(
-					subroutines,
-					0,
-					(subroutines = new AstNode[subIndex]),
-					0,
-					subIndex);
+			// remember the initialization at this
+			// point for dealing with blank final variables.
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+
+			if (traversedContext == targetContext) {
+				break;
+			} else {
+				traversedContext = traversedContext.parent;
 			}
+		}
+		// resize subroutines
+		if (subIndex != maxSub) {
+			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
 		}
 		return FlowInfo.DeadEnd;
 	}
@@ -90,9 +78,9 @@ public class Break extends BranchStatement {
 	public String toString(int tab) {
 
 		String s = tabString(tab);
-		s = s + "break "; //$NON-NLS-1$
+		s += "break "; //$NON-NLS-1$
 		if (label != null)
-			s = s + new String(label);
+			s += new String(label);
 		return s;
 	}
 	

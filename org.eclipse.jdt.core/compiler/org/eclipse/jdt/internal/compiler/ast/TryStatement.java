@@ -246,8 +246,7 @@ public class TryStatement extends Statement {
 		if (tryBlockHasSomeCode) {
 			for (int i = 0; i < maxCatches; i++) {
 				boolean preserveCurrentHandler =
-					(preserveExceptionHandler[i
-						/ ExceptionHandlingFlowContext.BitCacheSize]
+					(preserveExceptionHandler[i	/ ExceptionHandlingFlowContext.BitCacheSize]
 							& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize)))
 						!= 0;
 				if (preserveCurrentHandler) {
@@ -265,8 +264,7 @@ public class TryStatement extends Statement {
 			} else {
 				for (int i = 0; i < maxCatches; i++) {
 					boolean preserveCurrentHandler =
-						(preserveExceptionHandler[i
-							/ ExceptionHandlingFlowContext.BitCacheSize]
+						(preserveExceptionHandler[i / ExceptionHandlingFlowContext.BitCacheSize]
 								& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize)))
 							!= 0;
 					if (preserveCurrentHandler) {
@@ -403,7 +401,7 @@ public class TryStatement extends Statement {
 			// provision for returning and forcing the finally block to run
 			MethodScope methodScope = scope.methodScope();
 
-			// the type does not matter as long as its not a normal base type
+			// the type does not matter as long as it is not a base type
 			this.returnAddressVariable =
 				new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 			finallyScope.addLocalVariable(returnAddressVariable);

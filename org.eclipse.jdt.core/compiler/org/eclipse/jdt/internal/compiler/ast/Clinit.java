@@ -147,7 +147,7 @@ public class Clinit extends AbstractMethodDeclaration {
 		TypeDeclaration declaringType = classScope.referenceContext;
 
 		// initialize local positions - including initializer scope.
-		scope.computeLocalVariablePositions(0, codeStream); // should not be necessary
+//		scope.computeLocalVariablePositions(0, codeStream); // TODO: should not be necessary
 		MethodScope staticInitializerScope = declaringType.staticInitializerScope;
 		staticInitializerScope.computeLocalVariablePositions(0, codeStream);
 		// offset by the argument size

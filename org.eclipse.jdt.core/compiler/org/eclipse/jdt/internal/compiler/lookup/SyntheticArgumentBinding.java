@@ -29,6 +29,7 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 		this.isArgument = true;
 		this.useFlag = USED;
 	}
+	
 	// if the argument is mapping to an outer local variable, this denotes the outer actual variable
 	public LocalVariableBinding actualOuterLocalVariable;
 	// if the argument has a matching synthetic field
@@ -36,21 +37,25 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 
 	final static char[] OuterLocalPrefix = { 'v', 'a', 'l', '$' };
 	final static char[] EnclosingInstancePrefix = { 't', 'h', 'i', 's', '$' };
-public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable) {
-	super(
-		CharOperation.concat(OuterLocalPrefix, actualOuterLocalVariable.name), 
-		actualOuterLocalVariable.type, 
-		AccFinal,
-		true);
-	this.actualOuterLocalVariable = actualOuterLocalVariable;
-}
-public SyntheticArgumentBinding(ReferenceBinding enclosingType) {
-	super(
-		CharOperation.concat(
-			SyntheticArgumentBinding.EnclosingInstancePrefix,
-			String.valueOf(enclosingType.depth()).toCharArray()),
-		enclosingType, 
-		AccFinal,
-		true);
-}
+	
+	public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable) {
+
+		super(
+			CharOperation.concat(OuterLocalPrefix, actualOuterLocalVariable.name), 
+			actualOuterLocalVariable.type, 
+			AccFinal,
+			true);
+		this.actualOuterLocalVariable = actualOuterLocalVariable;
+	}
+
+	public SyntheticArgumentBinding(ReferenceBinding enclosingType) {
+
+		super(
+			CharOperation.concat(
+				SyntheticArgumentBinding.EnclosingInstancePrefix,
+				String.valueOf(enclosingType.depth()).toCharArray()),
+			enclosingType, 
+			AccFinal,
+			true);
+	}
 }

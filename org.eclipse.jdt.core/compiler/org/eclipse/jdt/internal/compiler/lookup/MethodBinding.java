@@ -360,33 +360,36 @@ protected final void selector(char[] selector) {
 	this.selector = selector;
 	this.signature = null;
 }
+
 /* Answer the receiver's signature.
 *
 * NOTE: This method should only be used during/after code gen.
 * The signature is cached so if the signature of the return type or any parameter
 * type changes, the cached state is invalid.
 */
-
 public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	if (signature != null)
 		return signature;
 
 	StringBuffer buffer = new StringBuffer(parameters.length + 1 * 20);
 	buffer.append('(');
-	if (isConstructorRelated() && declaringClass.isNestedType()) {
+	boolean considerSynthetics = isConstructorRelated() && declaringClass.isNestedType();
+	if (considerSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
 		int count = syntheticArgumentTypes == null ? 0 : syntheticArgumentTypes.length;
 		for (int i = 0; i < count; i++)
 			buffer.append(syntheticArgumentTypes[i].signature());
-		SyntheticArgumentBinding[] syntheticArguments = declaringClass.syntheticOuterLocalVariables();
-		count = syntheticArguments == null ? 0 : syntheticArguments.length;
-		for (int i = 0; i < count; i++)
-			buffer.append(syntheticArguments[i].type.signature());
 	}
 	if (parameters != NoParameters)
 		for (int i = 0, length = parameters.length; i < length; i++)
 			buffer.append(parameters[i].signature());
+	if (considerSynthetics) {
+		SyntheticArgumentBinding[] syntheticOuterArguments = declaringClass.syntheticOuterLocalVariables();
+		int count = syntheticOuterArguments == null ? 0 : syntheticOuterArguments.length;
+		for (int i = 0; i < count; i++)
+			buffer.append(syntheticOuterArguments[i].type.signature());
+	}
 	buffer.append(')');
 	buffer.append(returnType.signature());
 	return signature = buffer.toString().toCharArray();

@@ -84,10 +84,13 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			}
 			// propagate to statements
 			if (statements != null) {
+				boolean didAlreadyComplain = false;
 				for (int i = 0, count = statements.length; i < count; i++) {
 					Statement stat;
-					if (!flowInfo.complainIfUnreachable((stat = statements[i]), scope)) {
+					if (!flowInfo.complainIfUnreachable(stat = statements[i], scope, didAlreadyComplain)) {
 						flowInfo = stat.analyseCode(scope, constructorContext, flowInfo);
+					} else {
+						didAlreadyComplain = true;
 					}
 				}
 			}
@@ -221,13 +224,20 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			// initialize local positions - including initializer scope.
 			ReferenceBinding declaringClass = binding.declaringClass;
 
-			int argSize = 0;
-			scope.computeLocalVariablePositions(// consider synthetic arguments if any
-			argSize =
-				declaringClass.isNestedType()
-					? ((NestedTypeBinding) declaringClass).syntheticArgumentsOffset
-					: 1,
-				codeStream);
+			int argSlotSize = 1; // this==aload0
+			
+			if (declaringClass.isNestedType()){
+				NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
+				this.scope.extraSyntheticArguments = nestedType.syntheticOuterLocalVariables();
+				scope.computeLocalVariablePositions(// consider synthetic arguments if any
+					nestedType.enclosingInstancesSlotSize + 1,
+					codeStream);
+				argSlotSize += nestedType.enclosingInstancesSlotSize;
+				argSlotSize += nestedType.outerLocalVariablesSlotSize;
+			} else {
+				scope.computeLocalVariablePositions(1,  codeStream);
+			}
+				
 			if (arguments != null) {
 				for (int i = 0, max = arguments.length; i < max; i++) {
 					// arguments initialization for local variable debug attributes
@@ -236,14 +246,15 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 					argBinding.recordInitializationStartPC(0);
 					TypeBinding argType;
 					if ((argType = argBinding.type) == LongBinding || (argType == DoubleBinding)) {
-						argSize += 2;
+						argSlotSize += 2;
 					} else {
-						argSize++;
+						argSlotSize++;
 					}
 				}
 			}
+			
 			MethodScope initializerScope = declaringType.initializerScope;
-			initializerScope.computeLocalVariablePositions(argSize, codeStream); // offset by the argument size (since not linked to method scope)
+			initializerScope.computeLocalVariablePositions(argSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
 			boolean needFieldInitializations = constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This;
 

@@ -10,11 +10,13 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -28,17 +30,15 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class MethodScope extends BlockScope {
 
 	public ReferenceContext referenceContext;
-	public boolean needToCompactLocalVariables;
 	public boolean isStatic; // method modifier or initializer one
 
-	//fields used in the TC process (no real meaning)
+	//fields used during name resolution
 	public static final int NotInFieldDecl = -1; //must be a negative value 
-	public boolean isConstructorCall = false; //modified on the fly by the TC
-	public int fieldDeclarationIndex = NotInFieldDecl;
-	//modified on the fly by the TC
+	public boolean isConstructorCall = false; 
+	public int fieldDeclarationIndex = NotInFieldDecl; 
 
+	// flow analysis
 	public int analysisIndex; // for setting flow-analysis id
-
 	public boolean isPropagatingInnerClassEmulation;
 
 	// for local variables table attributes
@@ -46,10 +46,10 @@ public class MethodScope extends BlockScope {
 	public long[] definiteInits = new long[4];
 	public long[][] extraDefiniteInits = new long[4][];
 
-	public MethodScope(
-		ClassScope parent,
-		ReferenceContext context,
-		boolean isStatic) {
+	// inner-emulation
+	public SyntheticArgumentBinding[] extraSyntheticArguments;
+	
+	public MethodScope(ClassScope parent, ReferenceContext context, boolean isStatic) {
 
 		super(METHOD_SCOPE, parent);
 		locals = new LocalVariableBinding[5];
@@ -213,6 +213,65 @@ public class MethodScope extends BlockScope {
 		methodBinding.modifiers = modifiers;
 	}
 	
+	/* Compute variable positions in scopes given an initial position offset
+	 * ignoring unused local variables.
+	 * 
+	 * Deal with arguments here, locals and subscopes are processed in BlockScope method
+	 */
+	public void computeLocalVariablePositions(int initOffset, CodeStream codeStream) {
+
+		this.offset = initOffset;
+		this.maxOffset = initOffset;
+
+		// manage arguments	
+		int ilocal = 0, maxLocals = this.localIndex;	
+		while (ilocal < maxLocals) {
+			LocalVariableBinding local = locals[ilocal];
+			if (local == null || !local.isArgument) break; // done with arguments
+
+			// do not report fake used variable
+			if (local.useFlag == LocalVariableBinding.UNUSED
+				&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+				this.problemReporter().unusedArgument(local.declaration);
+			}
+
+			// record user-defined argument for attribute generation
+			codeStream.record(local); 
+
+			// assign variable position
+			local.resolvedPosition = this.offset;
+
+			// check for too many arguments/local variables
+			if (this.offset > 0xFF) { // no more than 255 words of arguments
+				this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
+			}
+
+			if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
+				this.offset += 2;
+			} else {
+				this.offset++;
+			}
+			ilocal++;
+		}
+		
+		// sneak in extra argument before other local variables
+		if (extraSyntheticArguments != null) {
+			for (int iarg = 0, maxArguments = extraSyntheticArguments.length; iarg < maxArguments; iarg++){
+				SyntheticArgumentBinding argument = extraSyntheticArguments[iarg];
+				argument.resolvedPosition = this.offset;
+				if (this.offset > 0xFF) { // no more than 255 words of arguments
+					this.problemReporter().noMoreAvailableSpaceForArgument(argument, (AstNode)this.referenceContext); 
+				}
+				if ((argument.type == LongBinding) || (argument.type == DoubleBinding)){
+					this.offset += 2;
+				} else {
+					this.offset++;
+				}
+			}
+		}
+		this.computeLocalVariablePositions(ilocal, this.offset, codeStream);
+	}
+
 	/* Error management:
 	 * 		keep null for all the errors that prevent the method to be created
 	 * 		otherwise return a correct method binding (but without the element

@@ -96,10 +96,13 @@ public abstract class AbstractMethodDeclaration
 
 			// propagate to statements
 			if (statements != null) {
+				boolean didAlreadyComplain = false;
 				for (int i = 0, count = statements.length; i < count; i++) {
 					Statement stat;
-					if (!flowInfo.complainIfUnreachable((stat = statements[i]), scope)) {
+					if (!flowInfo.complainIfUnreachable((stat = statements[i]), scope, didAlreadyComplain)) {
 						flowInfo = stat.analyseCode(scope, methodContext, flowInfo);
+					} else {
+						didAlreadyComplain = true;
 					}
 				}
 			}
@@ -251,7 +254,7 @@ public abstract class AbstractMethodDeclaration
 			CodeStream codeStream = classFile.codeStream;
 			codeStream.reset(this, classFile);
 			// initialize local positions
-			scope.computeLocalVariablePositions(binding.isStatic() ? 0 : 1, codeStream);
+			this.scope.computeLocalVariablePositions(binding.isStatic() ? 0 : 1, codeStream);
 
 			// arguments initialization for local variable debug attributes
 			if (arguments != null) {

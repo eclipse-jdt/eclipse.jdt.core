@@ -46,19 +46,26 @@ public void generateCode(
 		// better highlight for allocation: display the type individually
 		codeStream.recordPositionsFrom(pc, type.sourceStart);
 
-		// handling innerclass instance allocation
+		// handling innerclass instance allocation - enclosing instance arguments
 		if (allocatedType.isNestedType()) {
-			codeStream.generateSyntheticArgumentValues(
-				currentScope, 
-				allocatedType, 
-				enclosingInstance(), 
-				this); 
+			codeStream.generateSyntheticEnclosingInstanceValues(
+				currentScope,
+				allocatedType,
+				enclosingInstance(),
+				this);
 		}
 		// generate the arguments for constructor
 		if (arguments != null) {
 			for (int i = 0, count = arguments.length; i < count; i++) {
 				arguments[i].generateCode(currentScope, codeStream, true);
 			}
+		}
+		// handling innerclass instance allocation - outer local arguments
+		if (allocatedType.isNestedType()) {
+			codeStream.generateSyntheticOuterArgumentValues(
+				currentScope,
+				allocatedType,
+				this);
 		}
 		// invoke constructor
 		codeStream.invokespecial(binding);

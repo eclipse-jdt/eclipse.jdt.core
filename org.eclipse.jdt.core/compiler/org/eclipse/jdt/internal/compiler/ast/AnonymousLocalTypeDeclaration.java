@@ -87,7 +87,7 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 				inheritedConstructorBinding.thrownExceptions, //exceptions
 				binding); //declaringClass
 				
-		cd.scope = new MethodScope(scope, this, true);
+		cd.scope = new MethodScope(scope, cd, true);
 		cd.bindArguments();
 		cd.constructorCall.resolve(cd.scope);
 

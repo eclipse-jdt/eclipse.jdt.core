@@ -1832,10 +1832,10 @@ public void generateStringAppend(BlockScope blockScope, Expression oper1, Expres
 	this.invokeStringBufferToString();
 }
 /**
- * Code responsible to generate the suitable code to supply values for the synthetic arguments of
- * a constructor invocation of a nested type.
+ * Code responsible to generate the suitable code to supply values for the synthetic enclosing
+ * instance arguments of a constructor invocation of a nested type.
  */
-public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBinding targetType, Expression enclosingInstance, AstNode invocationSite) {
+public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, ReferenceBinding targetType, Expression enclosingInstance, AstNode invocationSite) {
 
 	// perform some emulation work in case there is some and we are inside a local type only
 	boolean hasExtraEnclosingInstance = enclosingInstance != null;
@@ -1869,6 +1869,15 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
 		}
 	}
+}
+
+/**
+ * Code responsible to generate the suitable code to supply values for the synthetic outer local
+ * variable arguments of a constructor invocation of a nested type.
+ * (bug 26122) - synthetic values for outer locals must be passed after user arguments, e.g. new X(i = 1){}
+ */
+public void generateSyntheticOuterArgumentValues(BlockScope currentScope, ReferenceBinding targetType, AstNode invocationSite) {
+
 	// generate the synthetic outer arguments then
 	SyntheticArgumentBinding syntheticArguments[];
 	if ((syntheticArguments = targetType.syntheticOuterLocalVariables()) != null) {
@@ -1883,6 +1892,7 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 		}
 	}
 }
+
 /**
  * @param parameters org.eclipse.jdt.internal.compiler.lookup.TypeBinding[]
  * @param constructorBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding

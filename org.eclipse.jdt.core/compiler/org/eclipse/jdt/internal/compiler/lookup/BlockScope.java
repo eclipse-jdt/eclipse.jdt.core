@@ -188,27 +188,20 @@ public class BlockScope extends Scope {
 	/* Compute variable positions in scopes given an initial position offset
 	 * ignoring unused local variables.
 	 * 
-	 * Special treatment to have Try secret return address variables located at non
-	 * colliding positions. Return addresses are allocated inside finally block, which allocation
-	 * positions are shifted behind all of the try block and the catch blocks.
+	 * No argument is expected here (ilocal is the first non-argument local of the outermost scope)
+	 * Arguments are managed by the MethodScope method
 	 */
-	public void computeLocalVariablePositions(
-		int initOffset,
-		CodeStream codeStream) {
+	void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeStream) {
 
 		this.offset = initOffset;
 		this.maxOffset = initOffset;
 
 		// local variable init
-		int ilocal = 0, maxLocals = 0, localsLength = locals.length;
-		while ((maxLocals < localsLength) && (locals[maxLocals] != null))
-			maxLocals++;
-		boolean hasMoreVariables = maxLocals > 0;
+		int maxLocals = this.localIndex;
+		boolean hasMoreVariables = ilocal < maxLocals;
 
 		// scope init
-		int iscope = 0, maxScopes = 0, subscopesLength = subscopes.length;
-		while ((maxScopes < subscopesLength) && (subscopes[maxScopes] != null))
-			maxScopes++;
+		int iscope = 0, maxScopes = this.scopeIndex;
 		boolean hasMoreScopes = maxScopes > 0;
 
 		// iterate scopes and variables in parallel
@@ -219,42 +212,38 @@ public class BlockScope extends Scope {
 				if (subscopes[iscope] instanceof BlockScope) {
 					BlockScope subscope = (BlockScope) subscopes[iscope];
 					int subOffset = subscope.shiftScopes == null ? this.offset : subscope.maxShiftedOffset();
-					subscope.computeLocalVariablePositions(subOffset, codeStream);
+					subscope.computeLocalVariablePositions(0, subOffset, codeStream);
 					if (subscope.maxOffset > this.maxOffset)
 						this.maxOffset = subscope.maxOffset;
 				}
 				hasMoreScopes = ++iscope < maxScopes;
 			} else {
+				
 				// consider variable first
-				LocalVariableBinding local = locals[ilocal];
-
+				LocalVariableBinding local = locals[ilocal]; // if no local at all, will be locals[ilocal]==null
+				
 				// check if variable is actually used, and may force it to be preserved
-				boolean generatesLocal =
-					(local.useFlag == LocalVariableBinding.USED && (local.constant == Constant.NotAConstant)) || local.isArgument;
+				boolean generateCurrentLocalVar = (local.useFlag == LocalVariableBinding.USED && (local.constant == Constant.NotAConstant));
 					
 				// do not report fake used variable
 				if (local.useFlag == LocalVariableBinding.UNUSED
 					&& (local.declaration != null) // unused (and non secret) local
 					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
 						
-					if (local.isArgument) // method argument
-						this.problemReporter().unusedArgument(local.declaration);
-					else if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
+					if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
 						this.problemReporter().unusedLocalVariable(local.declaration);
 				}
 				
-				// need to preserve unread variables ?
-				if (!generatesLocal) {
-					if (local.declaration != null
-						&& environment().options.preserveAllLocalVariables) {
-							
-						generatesLocal = true; // force it to be preserved in the generated code
+				// could be optimized out, but does need to preserve unread variables ?
+				if (!generateCurrentLocalVar) {
+					if (local.declaration != null && environment().options.preserveAllLocalVariables) {
+						generateCurrentLocalVar = true; // force it to be preserved in the generated code
 						local.useFlag = LocalVariableBinding.USED;
 					}
 				}
 				
 				// allocate variable
-				if (generatesLocal) {
+				if (generateCurrentLocalVar) {
 
 					if (local.declaration != null) {
 						codeStream.record(local); // record user-defined local variables for attribute generation
@@ -262,20 +251,11 @@ public class BlockScope extends Scope {
 					// assign variable position
 					local.resolvedPosition = this.offset;
 
-					// check for too many arguments/local variables
-					if (local.isArgument) {
-						if (this.offset > 0xFF) { // no more than 255 words of arguments
-							this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
-						}
-					} else {
-						if (this.offset > 0xFFFF) { // no more than 65535 words of locals
-							this.problemReporter().noMoreAvailableSpaceForLocal(
-								local, 
-								local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
-						}
+					if (this.offset > 0xFFFF) { // no more than 65535 words of locals
+						this.problemReporter().noMoreAvailableSpaceForLocal(
+							local, 
+							local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
 					}
-
-					// increment offset
 					if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
 						this.offset += 2;
 					} else {

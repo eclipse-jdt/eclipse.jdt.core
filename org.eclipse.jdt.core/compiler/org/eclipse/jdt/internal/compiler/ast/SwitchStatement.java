@@ -51,19 +51,21 @@ public class SwitchStatement extends Statement {
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 		int caseIndex = 0;
 		if (statements != null) {
+			boolean didAlreadyComplain = false;
 			for (int i = 0, max = statements.length; i < max; i++) {
 				Statement statement = statements[i];
-				if ((caseIndex < caseCount)
-					&& (statement == cases[caseIndex])) { // statements[i] is a case or a default case
+				if ((caseIndex < caseCount) && (statement == cases[caseIndex])) { // statement is a case
 					caseIndex++;
 					caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
-				} else {
-					if (statement == defaultCase) {
-						caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
-					}
+					didAlreadyComplain = false; // reset complaint
+				} else if (statement == defaultCase) { // statement is the default case
+					caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
+					didAlreadyComplain = false; // reset complaint
 				}
-				if (!caseInits.complainIfUnreachable(statement, scope)) {
+				if (!caseInits.complainIfUnreachable(statement, scope, didAlreadyComplain)) {
 					caseInits = statement.analyseCode(scope, switchContext, caseInits);
+				} else {
+					didAlreadyComplain = true;
 				}
 			}
 		}

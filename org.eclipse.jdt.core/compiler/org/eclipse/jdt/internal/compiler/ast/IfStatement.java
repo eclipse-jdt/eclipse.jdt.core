@@ -83,7 +83,7 @@ public class IfStatement extends Statement {
 			// Save info for code gen
 			thenInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(thenFlowInfo);
-			if (!thenFlowInfo.complainIfUnreachable(thenStatement, currentScope)) {
+			if (!thenFlowInfo.complainIfUnreachable(thenStatement, currentScope, false)) {
 				thenFlowInfo =
 					thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
 			}
@@ -105,7 +105,7 @@ public class IfStatement extends Statement {
 			// Save info for code gen
 			elseInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(elseFlowInfo);
-			if (!elseFlowInfo.complainIfUnreachable(elseStatement, currentScope)) {
+			if (!elseFlowInfo.complainIfUnreachable(elseStatement, currentScope, false)) {
 				elseFlowInfo =
 					elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
 			}
@@ -130,7 +130,7 @@ public class IfStatement extends Statement {
 			// IF (FALSE)
 			if ((condition.constant != NotAConstant)
 				&& (condition.constant.booleanValue() == false)) {
-				if (elseFlowInfo.isDeadEnd()) {
+				if (elseFlowInfo == FlowInfo.DeadEnd) {
 					mergedInfo = thenFlowInfo.markAsFakeReachable(true);
 					mergedInitStateIndex =
 						currentScope.methodScope().recordInitializationStates(mergedInfo);

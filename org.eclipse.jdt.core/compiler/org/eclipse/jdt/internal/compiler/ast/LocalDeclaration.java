@@ -44,7 +44,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		FlowInfo flowInfo) {
 
 		// record variable initialization if any
-		if (!flowInfo.isDeadEnd() && !flowInfo.isFakeReachable()) {
+		if (flowInfo != FlowInfo.DeadEnd && !flowInfo.isFakeReachable()) {
 			bits |= IsLocalDeclarationReachableMASK; // only set if actually reached
 		}
 		if (initialization == null)

@@ -804,12 +804,9 @@ public class TypeDeclaration
 	 */
 	public void generateCode(BlockScope blockScope, CodeStream codeStream) {
 
-		if (hasBeenGenerated)
-			return;
+		if (hasBeenGenerated) return;
 		int pc = codeStream.position;
-		if (binding != null) {
-			((NestedTypeBinding) binding).computeSyntheticArgumentsOffset();
-		}
+		if (binding != null) ((NestedTypeBinding) binding).computeSyntheticArgumentSlotSizes();
 		generateCode(codeStream.classFile);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
@@ -819,9 +816,8 @@ public class TypeDeclaration
 	 */
 	public void generateCode(ClassScope classScope, ClassFile enclosingClassFile) {
 
-		if (hasBeenGenerated)
-			return;
-		((NestedTypeBinding) binding).computeSyntheticArgumentsOffset();
+		if (hasBeenGenerated) return;
+		if (binding != null) ((NestedTypeBinding) binding).computeSyntheticArgumentSlotSizes();
 		generateCode(enclosingClassFile);
 	}
 

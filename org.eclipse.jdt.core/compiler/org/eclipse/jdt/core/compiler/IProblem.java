@@ -12,6 +12,8 @@
  *                                 NonStaticAccessToStaticMethod
  *                                 Task
  *                                 NoOpAssignment
+ *     IBM Corporation - added the following constants
+ * 								   TooManySyntheticArgumentSlots
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -202,6 +204,8 @@ public interface IProblem {
 	int BytecodeExceeds64KLimitForClinit = Internal + 64;
 	int TooManyArgumentSlots = Internal + 65;
 	int TooManyLocalVariableSlots = Internal + 66;
+	/** @since 2.1 */
+	int TooManySyntheticArgumentSlots = Internal + 67;
 
 	// fields
 	int UndefinedField = FieldRelated + 70;

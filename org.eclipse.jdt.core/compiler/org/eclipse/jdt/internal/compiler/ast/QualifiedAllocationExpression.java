@@ -91,10 +91,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// better highlight for allocation: display the type individually
 		codeStream.recordPositionsFrom(pc, type.sourceStart);
 
-		// handling innerclass instance allocation
+		// handling innerclass instance allocation - enclosing instance arguments
 		if (allocatedType.isNestedType()) {
-			// make sure its name is computed before arguments, since may be necessary for argument emulation
-			codeStream.generateSyntheticArgumentValues(
+			codeStream.generateSyntheticEnclosingInstanceValues(
 				currentScope,
 				allocatedType,
 				enclosingInstance(),
@@ -106,6 +105,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				arguments[i].generateCode(currentScope, codeStream, true);
 			}
 		}
+		// handling innerclass instance allocation - outer local arguments
+		if (allocatedType.isNestedType()) {
+			codeStream.generateSyntheticOuterArgumentValues(
+				currentScope,
+				allocatedType,
+				this);
+		}
+		
 		// invoke constructor
 		if (syntheticAccessor == null) {
 			codeStream.invokespecial(binding);

@@ -102,9 +102,10 @@ public class ExplicitConstructorCall
 			codeStream.aload_0();
 
 			// handling innerclass constructor invocation
-			ReferenceBinding targetType;
-			if ((targetType = binding.declaringClass).isNestedType()) {
-				codeStream.generateSyntheticArgumentValues(
+			ReferenceBinding targetType = binding.declaringClass;
+			// handling innerclass instance allocation - enclosing instance arguments
+			if (targetType.isNestedType()) {
+				codeStream.generateSyntheticEnclosingInstanceValues(
 					currentScope,
 					targetType,
 					discardEnclosingInstance ? null : qualification,
@@ -115,6 +116,13 @@ public class ExplicitConstructorCall
 				for (int i = 0, max = arguments.length; i < max; i++) {
 					arguments[i].generateCode(currentScope, codeStream, true);
 				}
+			}
+			// handling innerclass instance allocation - outer local arguments
+			if (targetType.isNestedType()) {
+				codeStream.generateSyntheticOuterArgumentValues(
+					currentScope,
+					targetType,
+					this);
 			}
 			if (syntheticAccessor != null) {
 				// synthetic accessor got some extra arguments appended to its signature, which need values

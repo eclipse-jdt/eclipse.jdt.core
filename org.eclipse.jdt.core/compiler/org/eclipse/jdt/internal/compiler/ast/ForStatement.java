@@ -114,7 +114,7 @@ public class ForStatement extends Statement {
 				actionInfo = conditionIsInlinedToFalse
 					? FlowInfo.DeadEnd  // unreachable when condition inlined to false
 					: initsWhenTrue.copy();
-			if (!actionInfo.complainIfUnreachable(action, scope)) {
+			if (!actionInfo.complainIfUnreachable(action, scope, false)) {
 				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
 			}
 
