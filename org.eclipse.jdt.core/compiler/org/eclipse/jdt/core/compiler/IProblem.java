@@ -808,66 +808,66 @@ public interface IProblem {
 	/**
 	 * Generics
 	 */
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int DuplicateTypeVariable = Internal + 520;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int IllegalTypeVariableSuperReference = Internal + 521;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int TypeVariableReferenceFromStaticContext = Internal + 522;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int ObjectCannotBeGeneric = Internal + 523;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int NonGenericType = TypeRelated + 524;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int IncorrectArityForParameterizedType = TypeRelated + 525;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int TypeArgumentMismatch = TypeRelated + 526;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int DuplicateMethodErasure = TypeRelated + 527;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int BoundsMustBeAnInterface = TypeRelated + 529;	
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int UnsafeRawConstructorInvocation = TypeRelated + 530;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int UnsafeRawMethodInvocation = TypeRelated + 531;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int UnsafeRawExpressionAssignment = TypeRelated + 532;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int UnsafeConstructorWithRawArguments = TypeRelated + 533;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int UnsafeMethodWithRawArguments = TypeRelated + 534;
-    /** @since 3.0 */
+    /** @since 3.1 */
 	int UnsafeRawVariableAssignment = TypeRelated + 535;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int IllegalArrayOfParameterizedType = TypeRelated + 536;
 	
 
 	/**
 	 * Foreach
 	 */
-	/** @since 3.0 */	
+	/** @since 3.1 */	
 	int IncompatibleTypesInForeach = TypeRelated + 550;	
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int InvalidTypeForCollection = Internal + 551;
 	
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)
 	 */
-	/** @since 3.0 */
+	/** @since 3.1 */
     int InvalidUsageOfTypeParameters = Syntax + Internal + 560;
-    /** @since 3.0 */
+    /** @since 3.1 */
     int InvalidUsageOfStaticImports = Syntax + Internal + 561;
-    /** @since 3.0 */
+    /** @since 3.1 */
     int InvalidUsageOfForeachStatements = Syntax + Internal + 562;
-    /** @since 3.0 */
+    /** @since 3.1 */
     int InvalidUsageOfTypeArguments = Syntax + Internal + 563;
-    /** @since 3.0 */
+    /** @since 3.1 */
     int InvalidUsageOfEnumDeclarations = Syntax + Internal + 564;
-    /** @since 3.0 */
+    /** @since 3.1 */
     int InvalidUsageOfVarargs = Syntax + Internal + 565;
-    /** @since 3.0 */
+    /** @since 3.1 */
     int InvalidUsageOfAnnotations = Syntax + Internal + 565;
     
     /**
