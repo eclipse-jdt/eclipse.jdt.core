@@ -283,11 +283,14 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	class TypeResolveRequestor implements ISelectionRequestor {
 		String[][] answers = null;
 		void acceptType(String[] answer){
-			if (answers == null) answers = new String[][]{ answer };
-			// grow
-			int length = answers.length;
-			System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
-			answers[length] = answer;
+			if (answers == null) {
+				answers = new String[][]{ answer };
+			} else {
+				// grow
+				int length = answers.length;
+				System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
+				answers[length] = answer;
+			}
 		}
 		public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
 			acceptType(new String[]  { new String(packageName), new String(className) });
