@@ -141,7 +141,7 @@ public final class NamingConventions {
 
 	/**
 	 * Remove prefix and suffix from an argument name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the argument.
 	 * @param argumentName argument's name.
 	 * @return char[] the name without prefix and suffix.
@@ -156,7 +156,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Remove prefix and suffix from an argument name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the argument.
 	 * @param argumentName argument's name.
 	 * @return String the name without prefix and suffix.
@@ -167,7 +167,7 @@ public final class NamingConventions {
 
 	/**
 	 * Remove prefix and suffix from a field name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the field.
 	 * @param fieldName field's name.
 	 * @param modifiers field's modifiers as defined by the class
@@ -186,7 +186,7 @@ public final class NamingConventions {
 
 	/**
 	 * Remove prefix and suffix from a field name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the field.
 	 * @param fieldName field's name.
 	 * @param modifiers field's modifiers as defined by the class
@@ -199,7 +199,7 @@ public final class NamingConventions {
 	}
 	/**
 	 * Remove prefix and suffix from a local variable name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the variable.
 	 * @param localName variable's name.
 	 * @return char[] the name without prefix and suffix.
@@ -214,7 +214,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Remove prefix and suffix from a local variable name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the variable.
 	 * @param localName variable's name.
 	 * @return String the name without prefix and suffix.
@@ -224,7 +224,7 @@ public final class NamingConventions {
 	}
 	/**
 	 * Suggest names for an argument. The name is computed from argument's type.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the argument.
 	 * @param packageName package of the argument's type.
 	 * @param qualifiedTypeName argument's type.
@@ -251,7 +251,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Suggest names for an argument. The name is computed from argument's type.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the argument.
 	 * @param packageName package of the argument's type.
 	 * @param qualifiedTypeName argument's type.
@@ -271,7 +271,7 @@ public final class NamingConventions {
 	}
 	/**
 	 * Suggest names for a field. The name is computed from field's type.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the field.
 	 * @param packageName package of the field's type.
 	 * @param qualifiedTypeName field's type.
@@ -303,7 +303,7 @@ public final class NamingConventions {
 
 	/**
 	 * Suggest names for a field. The name is computed from field's type.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the field.
 	 * @param packageName package of the field's type.
 	 * @param qualifiedTypeName field's type.
@@ -328,7 +328,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Suggest names for a local variable. The name is computed from variable's type.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the variable.
 	 * @param packageName package of the variable's type.
 	 * @param qualifiedTypeName variable's type.
@@ -355,7 +355,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Suggest names for a local variable. The name is computed from variable's type.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param javaProject project which contains the variable.
 	 * @param packageName package of the variable's type.
 	 * @param qualifiedTypeName variable's type.
@@ -497,7 +497,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Suggest name for a getter method. The name is computed from field's name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -531,7 +531,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Suggest name for a getter method. The name is computed from field's name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -553,7 +553,7 @@ public final class NamingConventions {
 	}
 	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -564,13 +564,14 @@ public final class NamingConventions {
 	 * 
 	 * @see Flags
 	 * @deprecated use instead suggestSetterName(IJavaProject, char[], int, boolean, char[][])
+	 * TODO: (david) remove once jdt/ui has converted
 	 */
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, char[][] excludedNames) {
 		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
 	}
 	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -609,7 +610,7 @@ public final class NamingConventions {
 	
 	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
@@ -620,13 +621,14 @@ public final class NamingConventions {
 	 * 
 	 * @see Flags
 	 * @deprecated use instead suggestSetterName(IJavaProject, String, int, boolean, String[])
+	 * TODO: (david) remove once jdt/ui has converted
 	 */
 	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {
 		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
 	}
 	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
-	 * 
+	 * TODO: (david) should explain better, provide example
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
 	 * @param modifiers field's modifiers as defined by the class
