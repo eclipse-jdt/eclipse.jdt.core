@@ -357,9 +357,9 @@ public abstract class AbstractMethodDeclaration
 	public void resolveStatements() {
 
 		if (statements != null) {
-			int i = 0, length = statements.length;
-			while (i < length)
-				statements[i++].resolve(scope);
+			for (int i = 0, length = statements.length; i < length; i++) {
+				statements[i].resolve(scope);
+			}
 		}
 	}
 

@@ -104,9 +104,9 @@ public class Block extends Statement {
 				explicitDeclarations == 0
 					? upperScope
 					: new BlockScope(upperScope, explicitDeclarations);
-			int i = 0, length = statements.length;
-			while (i < length)
-				statements[i++].resolve(scope);
+			for (int i = 0, length = statements.length; i < length; i++) {
+				statements[i].resolve(scope);
+			}
 		}
 	}
 
@@ -115,9 +115,9 @@ public class Block extends Statement {
 		// this optimized resolve(...) is sent only on none empty blocks
 		scope = givenScope;
 		if (statements != null) {
-			int i = 0, length = statements.length;
-			while (i < length)
-				statements[i++].resolve(scope);
+			for (int i = 0, length = statements.length; i < length; i++) {
+				statements[i].resolve(scope);
+			}
 		}
 	}
 
@@ -127,8 +127,7 @@ public class Block extends Statement {
 
 		if (visitor.visit(this, blockScope)) {
 			if (statements != null) {
-				int statementLength = statements.length;
-				for (int i = 0; i < statementLength; i++)
+				for (int i = 0, length = statements.length; i < length; i++)
 					statements[i].traverse(visitor, scope);
 			}
 		}
