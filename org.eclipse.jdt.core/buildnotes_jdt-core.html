@@ -38,6 +38,9 @@ Eclipse SDK 2.1 Build - ? September 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new API findDeclaringNode(String) on CompilationUnit. This new method should be used to retrieve ASTNode
+declared in another compilation unit. See javadoc for further details or bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23734">23734</a>.
+</li>
 <li> New APIs added onto IJavaProject to enable project custom options. Project custom options are persisted into a file ".jprefs" 
 located inside the project metadata JDT/Core plugin location. Project can be specified custom options, and inherit global ones from JavaCore.
 At this point, it is unclear whether we will attempt to share these custom properties (like .classpath file).
@@ -121,7 +124,9 @@ At this point, it is unclear whether we will attempt to share these custom prope
 	</li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23979">23979</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23734">23734</a>
+AST: CompilationUnit.findDeclaringNode only finds bindings from its own ast
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23979">23979</a>
 Build Path page reports cycle even if there is none
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=20881">20881</a>
 "organize imports" does not find an import statement "add import" does. [code manipulation]

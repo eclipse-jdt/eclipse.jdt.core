@@ -45,6 +45,11 @@ class DefaultBindingResolver extends BindingResolver {
 	Map bindingsToAstNodes;
 	
 	/**
+	 * This map is used to get an ast node from its binding key.
+	 */
+	Map bindingKeysToAstNodes;
+	
+	/**
 	 * This map is used to get a binding from its ast node
 	 */
 	Map astNodesToBindings;
@@ -68,6 +73,7 @@ class DefaultBindingResolver extends BindingResolver {
 		this.bindingsToAstNodes = new HashMap();
 		this.astNodesToBindings = new HashMap();
 		this.astNodesToBlockScope = new HashMap();
+		this.bindingKeysToAstNodes = new HashMap();
 	}
 	
 	/**
@@ -327,6 +333,10 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				}
 				this.bindingsToAstNodes.put(typeBinding, type);
+				String key = typeBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, type);				
+				}
 				return typeBinding;
 			}
 		}
@@ -345,6 +355,10 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				}
 				this.bindingsToAstNodes.put(methodBinding, method);
+				String key = methodBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, method);				
+				}
 				return methodBinding;
 			}
 		}
@@ -364,6 +378,10 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				}
 				this.bindingsToAstNodes.put(variableBinding, variable);
+				String key = variableBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, variable);				
+				}
 				return variableBinding;
 			}
 			IVariableBinding variableBinding = this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding);
@@ -371,6 +389,10 @@ class DefaultBindingResolver extends BindingResolver {
 				return null;
 			}
 			this.bindingsToAstNodes.put(variableBinding, variable);
+			String key = variableBinding.getKey();
+			if (key != null) {
+				this.bindingKeysToAstNodes.put(key, variable);				
+			}
 			return variableBinding;
 		}
 		return null;
@@ -387,6 +409,10 @@ class DefaultBindingResolver extends BindingResolver {
 				return null;
 			}
 			this.bindingsToAstNodes.put(variableBinding, variable);
+			String key = variableBinding.getKey();
+			if (key != null) {
+				this.bindingKeysToAstNodes.put(key, variable);				
+			}
 			return variableBinding;
 		}
 		return null;
@@ -404,7 +430,6 @@ class DefaultBindingResolver extends BindingResolver {
 					if (typeBinding == null) {
 						return null;
 					}
-					this.bindingsToAstNodes.put(typeBinding, expression);
 					return typeBinding;
 				}
 			} else {
@@ -543,7 +568,6 @@ class DefaultBindingResolver extends BindingResolver {
 						if (packageBinding == null) {
 							return null;
 						}
-						this.bindingsToAstNodes.put(packageBinding, importDeclaration);
 						return packageBinding;
 					} else {
 						// if it is not a package, it has to be a type
@@ -551,7 +575,6 @@ class DefaultBindingResolver extends BindingResolver {
 						if (typeBinding == null) {
 							return null;
 						}
-						this.bindingsToAstNodes.put(typeBinding, importDeclaration);
 						return typeBinding;
 					}
 				}
@@ -562,7 +585,6 @@ class DefaultBindingResolver extends BindingResolver {
 					if (typeBinding == null) {
 						return null;
 					}
-					this.bindingsToAstNodes.put(typeBinding, importDeclaration);
 					return typeBinding;
 				}
 			}
@@ -584,6 +606,10 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				}
 				this.bindingsToAstNodes.put(packageBinding, pkg);
+				String key = packageBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, pkg);				
+				}
 				return packageBinding;
 			}
 		}
@@ -599,6 +625,14 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}
+	
+	ASTNode findDeclaringNode(String bindingKey) {
+		if (bindingKey == null) {
+			return null;
+		}
+		return (ASTNode) this.bindingKeysToAstNodes.get(bindingKey);
+	}
+		
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -747,6 +781,10 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				}
 				this.bindingsToAstNodes.put(typeBinding, type);
+				String key = typeBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, type);				
+				}
 				return typeBinding;
 			}
 		}

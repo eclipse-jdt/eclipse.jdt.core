@@ -399,6 +399,21 @@ class BindingResolver {
 	}
 
 	/**
+	 * Finds the corresponding AST node from which the given binding key originated.
+	 * 
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param bindingKey the binding key
+	 * @return the corresponding node where the bindings is declared, 
+	 *    or <code>null</code> if none
+	 */
+	ASTNode findDeclaringNode(String bindingKey) {
+		return null;
+	}
+	
+	/**
 	 * Returns the new type binding corresponding to the given old type binding.
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>.

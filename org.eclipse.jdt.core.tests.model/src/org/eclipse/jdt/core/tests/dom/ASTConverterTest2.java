@@ -36,7 +36,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest2("test0413"));
+//		suite.addTest(new ASTConverterTest2("test0414"));
 		return suite;
 	}
 	/**
@@ -434,5 +434,46 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNull("Got a binding", binding);
 	}
 
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23734
+	 */
+	public void test0414() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0414", "A.java");
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length);
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		ASTNode declaringNode = unit.findDeclaringNode(typeBinding);
+		assertNull("Got a declaring node", declaringNode);
+
+		node = getASTNode(unit, 0, 1);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration2 = (MethodDeclaration) node;
+		Type type2 = methodDeclaration2.getReturnType();
+		ITypeBinding typeBinding2 = type2.resolveBinding();
+		assertNotNull("No type binding", typeBinding2);
+		ASTNode declaringNode2 = unit.findDeclaringNode(typeBinding2);
+		assertNotNull("No declaring node", declaringNode2);
+
+		ICompilationUnit sourceUnit2 = getCompilationUnit("Converter" , "", "test0414", "B.java");
+		
+		result = runConversion(sourceUnit2, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit2 = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit2.getProblems().length);
+		ASTNode declaringNode3 = unit2.findDeclaringNode(typeBinding);
+		assertNull("Got a declaring node", declaringNode3);
+		
+		ASTNode declaringNode4 = unit2.findDeclaringNode(typeBinding.getKey());
+		assertNotNull("No declaring node", declaringNode4);
+	}
 }
 
