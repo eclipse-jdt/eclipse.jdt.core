@@ -80,41 +80,41 @@ class ASTConverter {
 	
 	public PackageDeclaration convertPackage(ImportReference importReference) {
 		PackageDeclaration packageDeclaration = this.ast.newPackageDeclaration();
-		this.ast.getBindingResolver().store(packageDeclaration, importReference);
-		// set the name (qualified or simple name is handled by newName(String[]))
 		char[][] tokens = importReference.tokens;
 		int length = importReference.tokens.length;
-		String[] identifiers = new String[length];
-		for (int index = 0; index < length; index++) {
-			identifiers[index] = new String(tokens[index]);
-		} 
-		Name packageName = this.ast.newName(identifiers);
-		
-		// set the positions of each name subpart
 		long[] positions = importReference.sourcePositions;
-		packageName.setSourceRange((int)(positions[0]>>>32), (int)(positions[length - 1] & 0xFFFFFFFF) - (int)(positions[0]>>>32) + 1);
-			// create the actual package declaration
-		packageDeclaration.setName(packageName);
+		int start = (int)(positions[0]>>>32);
+		int end = (int)(positions[length - 1] & 0xFFFFFFFF);
+		Name name = null;
+		if (length > 1) {
+			name = setQualifiedNameNameAndSourceRanges(tokens, positions, importReference);
+		} else {
+			name = this.ast.newSimpleName(new String(tokens[0]));
+			name.setSourceRange(start, end - start + 1);
+		}
 		packageDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
+		packageDeclaration.setName(name);
 		return packageDeclaration;
 	}
 	
 	public ImportDeclaration convertImport(ImportReference importReference) {
 		ImportDeclaration importDeclaration = this.ast.newImportDeclaration();
-		// set the name (qualified or simple name is handled by newName(String[]))
+		boolean onDemand = importReference.onDemand;
 		char[][] tokens = importReference.tokens;
 		int length = importReference.tokens.length;
-		String[] identifiers = new String[length];
-		for (int index = 0; index < length; index++) {
-			identifiers[index] = new String(tokens[index]);
-		} 
-		Name packageName = this.ast.newName(identifiers);
 		long[] positions = importReference.sourcePositions;
-		packageName.setSourceRange((int)(positions[0]>>>32), (int)(positions[length - 1] & 0xFFFFFFFF) - (int)(positions[0]>>>32) + 1);
-		// create the actual package declaration
-		importDeclaration.setName(packageName);
+		Name name = null;
+		if (length > 1) {
+			name = setQualifiedNameNameAndSourceRanges(tokens, positions, importReference);
+		} else {
+			name = this.ast.newSimpleName(new String(tokens[0]));
+			int start = (int)(positions[0]>>>32);
+			int end = (int)(positions[0] & 0xFFFFFFFF);
+			name.setSourceRange(start, end - start + 1);
+		}
 		importDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
-		importDeclaration.setOnDemand(importReference.onDemand);
+		importDeclaration.setName(name);
+		importDeclaration.setOnDemand(onDemand);
 		return importDeclaration;
 	}
 
@@ -256,8 +256,8 @@ class ASTConverter {
 		return name;
 	}
 	
-	public Name convert(SingleNameReference nameReference) {
-		Name name = this.ast.newName(new String[] {new String(nameReference.token)});		
+	public SimpleName convert(SingleNameReference nameReference) {
+		SimpleName name = this.ast.newSimpleName(new String(nameReference.token));		
 		if (this.resolveBindings) {
 			recordNodes(name, nameReference);
 		}
@@ -267,8 +267,12 @@ class ASTConverter {
 
 	public Name convert(QualifiedNameReference nameReference) {
 		char[][] typeName = nameReference.tokens;
+		long[] positions = scanAllIdentifiersPositions(nameReference.sourceStart, nameReference.sourceEnd, typeName.length);
+		return setQualifiedNameNameAndSourceRanges(typeName, positions, nameReference);
+	}
+
+	private QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, AstNode node) {
 		int length = typeName.length;
-		long[] positions = scanAllIdentifiersPositions(nameReference.sourceStart, nameReference.sourceEnd, length);
 		SimpleName firstToken = this.ast.newSimpleName(new String(typeName[0]));
 		int start0 = (int)(positions[0]>>>32);
 		int start = start0;
@@ -290,15 +294,15 @@ class ASTConverter {
 			qualifiedName.setSourceRange(start0, end - start0 + 1);
 		}
 		if (this.resolveBindings && newPart != null) {
-			recordNodes(newPart, nameReference);
+			recordNodes(newPart, node);
 		}
 		QualifiedName name = qualifiedName;
 		if (this.resolveBindings) {
-			recordNodes(name, nameReference);
+			recordNodes(name, node);
 		}
 		return name;
 	}
-
+	
 	public Expression convert(ThisReference reference) {
 		if (reference instanceof QualifiedThisReference) {
 			return convert((QualifiedThisReference) reference);
@@ -478,6 +482,9 @@ class ASTConverter {
 					SimpleType simpleType = this.ast.newSimpleType(simpleName);
 					simpleType.setSourceRange(sourceStart, length);
 					type = this.ast.newArrayType(simpleType, dimensions);
+					if (this.resolveBindings) {
+						this.recordNodes(simpleName, typeReference);
+					}
 				}
 			} else {
 				if (isPrimitiveType(name)) {
@@ -486,6 +493,9 @@ class ASTConverter {
 					SimpleName simpleName = this.ast.newSimpleName(new String(name));
 					simpleName.setSourceRange(sourceStart, length);
 					type = this.ast.newSimpleType(simpleName);
+					if (this.resolveBindings) {
+						this.recordNodes(simpleName, typeReference);
+					}
 				}
 			}
 		} else {
