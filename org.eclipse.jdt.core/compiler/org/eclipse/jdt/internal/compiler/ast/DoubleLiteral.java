@@ -30,7 +30,7 @@ public void computeConstant() {
 
 	if (computedValue.doubleValue() > Double.MAX_VALUE) return ; //may be Infinity
 	if (computedValue.doubleValue() < Double.MIN_VALUE)
-	{	//only a true 0 can be made of zeros :-)
+	{	//only a true 0 can be made of zeros
 		//2.00000000000000000e-324 is illegal .... 
 		label :
 			for (int i=0;i<source.length;i++)

@@ -2100,7 +2100,7 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 	//first dispatch on the first char.
 	//then the length. If there are several
 	//keywors with the same length AND the same first char, then do another
-	//disptach on the second char :-)...cool....but fast !
+	//dispatch on the second char 
 	useAssertAsAnIndentifier = false;
 	while (getNextCharAsJavaIdentifierPart()) {};
 

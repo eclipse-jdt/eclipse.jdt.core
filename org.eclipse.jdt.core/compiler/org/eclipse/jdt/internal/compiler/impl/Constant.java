@@ -31,7 +31,6 @@ public final Constant castTo(int conversionToTargetType){
 	//the cast is an int of the form
 	// (castId<<4)+typeId (in order to follow the
 	//user written style (cast)expression ....
-	//This method assumes that the TC is done (correctly :-)
 
 	if (this == NotAConstant) return NotAConstant ;
 	switch(conversionToTargetType){

@@ -338,10 +338,10 @@ public class FieldReference extends Reference implements InvocationSite {
 				: typeDecl.initializerScope;
 
 		if (implicitReceiver) { //Determine if the ref is legal in the current class of the field
-			//i.e. not a forward reference .... (they are allowed when the receiver is explicit ! ... Please don't ask me why !...yet another java mystery...)
+			//i.e. not a forward reference .... 
 			if (fieldScope.fieldDeclarationIndex == MethodScope.NotInFieldDecl) {
 				// no field is currently being analysed in typeDecl
-				fieldDecl.resolve(fieldScope); //side effect on binding :-) ... 
+				fieldDecl.resolve(fieldScope); //side effect on binding 
 				return binding.constant;
 			}
 			//We are re-entering the same class fields analysing
@@ -352,19 +352,19 @@ public class FieldReference extends Reference implements InvocationSite {
 				referenceScope.problemReporter().forwardReference(reference, indexInQualification, typeBinding);
 				return NotAConstant;
 			}
-			fieldDecl.resolve(fieldScope); //side effect on binding :-) ... 
+			fieldDecl.resolve(fieldScope); //side effect on binding 
 			return binding.constant;
 		}
 		//the field reference is explicity. It has to be a "simple" like field reference to get the
 		//constant propagation. For example in Packahe.Type.field1.field2 , field1 may have its
 		//constant having a propagation where field2 is always not propagating its
 		if (indexInQualification == 0) {
-			fieldDecl.resolve(fieldScope); //side effect on binding :-) ... 
+			fieldDecl.resolve(fieldScope); //side effect on binding ... 
 			return binding.constant;
 		}
 		// Side-effect on the field binding may not be propagated out for the qualified reference
 		// unless it occurs in first place of the name sequence
-		fieldDecl.resolve(fieldScope); //side effect on binding :-) ... 
+		fieldDecl.resolve(fieldScope); //side effect on binding ... 
 		//see previous comment for the cast that should always be valid
 		QualifiedNameReference qualifiedReference = (QualifiedNameReference) reference;
 		if (indexInQualification == (qualifiedReference.indexOfFirstFieldBinding - 1)) {

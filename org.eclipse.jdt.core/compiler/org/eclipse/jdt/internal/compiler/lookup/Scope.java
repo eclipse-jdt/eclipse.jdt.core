@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -1158,17 +1159,52 @@ public abstract class Scope
 		return false;
 	}
 
-	public final boolean isJavaIoSerializable(TypeBinding tb) {
-		//a first -none optimized version-...:-)....
-		//please modify as needed
+	public boolean isInsideDeprecatedCode(){
+		switch(kind){
+			case Scope.BLOCK_SCOPE :
+			case Scope.METHOD_SCOPE :
+				MethodScope methodScope = methodScope();
+				if (!methodScope.isInsideInitializer()){
+					// check method modifiers to see if deprecated
+					MethodBinding context = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
+					if (context != null && context.isViewedAsDeprecated()) {
+						return true;
+					}
+				} else {
+					SourceTypeBinding type = ((BlockScope)this).referenceType().binding;
 
+					// inside field declaration ? check field modifier to see if deprecated
+					if (methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl) {
+						for (int i = 0; i < type.fields.length; i++){
+							if (type.fields[i].id == methodScope.fieldDeclarationIndex) {
+								// currently inside this field initialization
+								if (type.fields[i].isViewedAsDeprecated()){
+									return true;
+								}
+								break;
+							}
+						}
+					}
+					if (type != null && type.isViewedAsDeprecated()) {
+						return true;
+					}
+				}
+				break;
+			case Scope.CLASS_SCOPE :
+				ReferenceBinding context = ((BlockScope)this).referenceType().binding;
+				if (context != null && context.isViewedAsDeprecated()) {
+					return true;
+				}
+				break;
+		}
+		return false;
+	}
+	
+	public final boolean isJavaIoSerializable(TypeBinding tb) {
 		return tb == getJavaIoSerializable();
 	}
 
 	public final boolean isJavaLangCloneable(TypeBinding tb) {
-		//a first -none optimized version-...:-)....
-		//please modify as needed
-
 		return tb == getJavaLangCloneable();
 	}
 
