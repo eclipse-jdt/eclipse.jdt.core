@@ -29,7 +29,7 @@ public FieldReference(char[] source , long pos) {
 		//by default the position are the one of the field (not true for super access)
 		sourceStart = (int) (pos>>>32) ;
 		sourceEnd = (int) (pos & 0x00000000FFFFFFFFL);
-
+		bits |= BindingIds.FIELD;
 	
 }
 public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {

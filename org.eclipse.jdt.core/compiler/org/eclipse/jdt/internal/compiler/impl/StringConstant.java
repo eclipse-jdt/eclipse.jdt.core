@@ -12,10 +12,13 @@ public StringConstant(String value) {
 	this.value = value ;
 }
 public boolean compileTimeEqual(StringConstant right){
-	//String are intermed in th compiler==>thus if two string constant
+	//String are intermed in the compiler==>thus if two string constant
 	//get to be compared, it is an equal on the vale which is done
-
-	return true ;}
+	if (this.value == null) {
+		return right.value == null;
+	}
+	return this.value.equals(right.value);
+}
 public String stringValue() {
 	//spec 15.17.11
 
