@@ -65,9 +65,15 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * <li>{@link #getDeclarationSignature()} -
 	 * the type signature of the type being implemented or subclassed
 	 * </li>
+	 * <li>{@link #getDeclarationUniqueKey()} -
+	 * the type unique key of the type being implemented or subclassed
 	 * </li>
 	 * <li>{@link #getSignature()} -
 	 * the method signature of the constructor that is referenced
+	 * </li>
+	 * <li>{@link #getUniqueKey()} -
+	 * the method unique key of the constructor that is referenced
+	 * if the declaring type is not an interface
 	 * </li>
 	 * <li>{@link #getFlags()} -
 	 * the modifiers flags of the constructor that is referenced
@@ -216,12 +222,20 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * the type signature of the type that declares the
 	 * method that is being overridden or implemented
 	 * </li>
+	 * <li>{@link #getDeclarationUniqueKey()} -
+	 * the unique of the type that declares the
+	 * method that is being overridden or implemented
+	 * </li>
 	 * <li>{@link #getName()} -
 	 * the simple name of the method that is being overridden
 	 * or implemented
 	 * </li>
 	 * <li>{@link #getSignature()} -
 	 * the method signature of the method that is being
+	 * overridden or implemented
+	 * </li>
+	 * <li>{@link #getUniqueKey()} -
+	 * the method unique key of the method that is being
 	 * overridden or implemented
 	 * </li>
 	 * <li>{@link #getFlags()} -
@@ -423,6 +437,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	private char[] declarationSignature = null;
 	
 	/**
+	 * Unique key of the relevant package or type declaration
+	 * in the context, or <code>null</code> if none.
+	 * Defaults to null.
+	 */
+	private char[] declarationUniqueKey = null;
+	
+	/**
 	 * Simple name of the method, field,
 	 * member, or variable relevant in the context, or
 	 * <code>null</code> if none.
@@ -436,6 +457,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Defaults to null.
 	 */
 	private char[] signature = null;
+	
+	/**
+	 * Unique of the method, field type, member type,
+	 * relevant in the context, or <code>null</code> if none.
+	 * Defaults to null.
+	 */
+	private char[] uniqueKey = null;
 	
 	/**
 	 * Modifier flags relevant in the context, or
@@ -776,6 +804,31 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	}
 	
 	/**
+	 * Returns the unique key of the relevant
+	 * declaration in the context, or <code>null</code> if none.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - unique key
+	 * of the type that is being subclassed or implemented</li>
+	 * 	<li><code>METHOD_DECLARATION</code> - unique key
+	 * of the type that declares the method that is being
+	 * implemented or overridden</li>
+	 * </ul>
+	 * For kinds of completion proposals, this method returns
+	 * <code>null</code>. Clients must not modify the array
+	 * returned.
+	 * </p>
+	 * 
+	 * @return a unique key, or <code>null</code> if none
+	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, IProgressMonitor)
+	 */
+	public char[] getDeclarationUniqueKey() {
+		return this.declarationUniqueKey;
+	}
+	
+	/**
 	 * Sets the type or package signature of the relevant
 	 * declaration in the context, or <code>null</code> if none.
 	 * <p>
@@ -791,6 +844,24 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	public void setDeclarationSignature(char[] signature) {
 		this.declarationSignature = signature;
+	}
+	
+	/**
+	 * Sets the type or package unique of the relevant
+	 * declaration in the context, or <code>null</code> if none.
+	 * <p>
+	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
+	 * 
+	 * @param key the type or package unique key, or
+	 * <code>null</code> if none
+	 */
+	public void setDeclarationUniqueKey(char[] key) {
+		this.declarationUniqueKey = key;
 	}
 	
 	/**
@@ -876,6 +947,31 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	public char[] getSignature() {
 		return this.signature;
+	}
+	
+	/**
+	 * Returns the unique key relevant in the context,
+	 * or <code>null</code> if none.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - method unique key
+	 * of the constructor that is being invoked, or <code>null</code> if
+	 * the declaring type is an interface</li>
+	 * 	<li><code>METHOD_DECLARATION</code> - method unique key
+	 * of the method that is being implemented or overridden</li>
+	 * </ul>
+	 * For kinds of completion proposals, this method returns
+	 * <code>null</code>. Clients must not modify the array
+	 * returned.
+	 * </p>
+	 * 
+	 * @return the unique key, or <code>null</code> if none
+	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, IProgressMonitor)
+	 */
+	public char[] getUniqueKey() {
+		return this.uniqueKey;
 	}
 	
 //	/**
@@ -1098,6 +1194,23 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	public void setSignature(char[] signature) {
 		this.signature = signature;
+	}
+	
+	/**
+	 * Sets the unique key of the method, field type, member type,
+	 * relevant in the context, or <code>null</code> if none.
+	 * <p>
+	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
+	 * 
+	 * @param key the unique key, or <code>null</code> if none
+	 */
+	public void setUniqueKey(char[] key) {
+		this.uniqueKey = key;
 	}
 	
 	/**

@@ -21,15 +21,19 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	
 	private Vector proposals = new Vector();
 	private boolean showParamterNames;
+	private boolean showUniqueKeys;
 	
 	public boolean fDebug = false;
 
 	public CompletionTestsRequestor2() {
-		this(false);
+		this(false, false);
 	}
-	
 	public CompletionTestsRequestor2(boolean showParamterNames) {
+		this(showParamterNames, false);
+	}
+	public CompletionTestsRequestor2(boolean showParamterNames, boolean showUniqueKeys) {
 		this.showParamterNames = showParamterNames;
+		this.showUniqueKeys = showUniqueKeys;
 	}
 
 	public void accept(CompletionProposal proposal) {
@@ -108,6 +112,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(proposal.getDeclarationSignature() == null ? NULL_LITERAL : proposal.getDeclarationSignature());  
 		buffer.append(", ");
 		buffer.append(proposal.getSignature() == null ? NULL_LITERAL : proposal.getSignature());
+		if(this.showUniqueKeys) {
+			buffer.append(", ");
+			buffer.append(proposal.getDeclarationUniqueKey() == null ? NULL_LITERAL : proposal.getDeclarationUniqueKey());
+			buffer.append(", ");
+			buffer.append(proposal.getUniqueKey() == null ? NULL_LITERAL : proposal.getUniqueKey());
+		}
 		buffer.append(", ");
 		buffer.append(proposal.getName() == null ? NULL_LITERAL : proposal.getName());
 		if(this.showParamterNames) {
