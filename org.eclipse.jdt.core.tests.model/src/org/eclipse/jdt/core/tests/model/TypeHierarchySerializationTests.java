@@ -155,29 +155,6 @@ private static void testFocusHierarchy(IType type, IJavaProject project) throws 
 	
 	compare(type.getFullyQualifiedName(), h1, h2);
 }
-public void _testSpecial() throws JavaModelException {
-
-	ICompilationUnit cu = getCompilationUnit(PROJECTNAME, "src", "p2", "Y.java");
-	IType type = cu.getType("Y");
-	ITypeHierarchy h1 = type.newTypeHierarchy(project, null);
-
-//	IPackageFragmentRoot root = project.getPackageFragmentRoot(project.getProject().getFile("lib.jar"));
-//	IRegion region = JavaCore.newRegion();
-//	region.add(root);
-//	ITypeHierarchy h = project.newTypeHierarchy(region, null);
-
-	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	h1.store(outputStream, null);
-	
-	//System.out.println(outputStream.toString());
-	
-	byte[] bytes = outputStream.toByteArray();
-	ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-	ITypeHierarchy h2 = type.loadTypeHierachy(inputStream, null);
-	
-	
-	compare(type.getFullyQualifiedName(), h1, h2);
-}
 public void test001() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit(PROJECTNAME, "src", "p1", "X.java");
 	IType type = cu.getType("X");
