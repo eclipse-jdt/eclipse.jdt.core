@@ -933,6 +933,7 @@ public class Scribe {
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasWhitespaces = false;
 			boolean hasComment = false;
+			boolean hasLineComment = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNameWHITESPACE :
@@ -952,7 +953,18 @@ public class Scribe {
 									count++;
 							}
 						}
-						if (count >= 1) {
+						if (hasLineComment) {
+							if (count >= 1) {
+								currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+								this.preserveEmptyLines(count, currentTokenStartPosition);
+								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
+								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
+								return;
+							} else {
+								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+								return;
+							}
+						} else if (count >= 1) {
 							if (hasComment) {
 								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
@@ -970,8 +982,8 @@ public class Scribe {
 						}
 						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-						return;
+						hasLineComment = true;
+						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 						if (hasWhitespaces) {
 							space(this.scanner.getCurrentTokenStartPosition());
