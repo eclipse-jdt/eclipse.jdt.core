@@ -988,4 +988,16 @@ public void testLocalNameForClassFile() throws JavaModelException {
 			elements
 	);
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42365
+ */
+public void testMethodDeclarationInInterface() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInInterface.java");
+	IJavaElement[] elements = codeSelect(cu, "foo", "foo");
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo() [in QI [in QI.class [in <default> [in jj.jar [in Resolve]]]]]",
+			elements
+	);
+}
 }
