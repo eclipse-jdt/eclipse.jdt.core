@@ -26,7 +26,6 @@ STREAM: 2.0
   1GK7U6C: ITPJCORE:WIN2000 - JCK 1.4 - Overriding instance and class methods
   1GK7MHO: ITPJCORE:WIN2000 - JCK 1.4 - Adding a String field that has the same name as a String field of a superclass
   1GK7MEQ: ITPJCORE:WIN2000 - JCK 1.4 - null literal in throw statement
-  1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
 
   DA
   ================================================================================
@@ -107,7 +106,6 @@ STREAM: 2.0
   1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
   1GHW0G1: ITPJCORE:WINNT - JCK 1.4  - illegal simple name imports
   1GHW0DF: ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
-  1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
       
 **********************************************************************************
 *** HEAD CONTENT *****************************************************************
@@ -118,6 +116,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
   1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
   1GKB28A: ITPJCORE:WIN2000 - Compiler accepts incorrect code
   1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump
