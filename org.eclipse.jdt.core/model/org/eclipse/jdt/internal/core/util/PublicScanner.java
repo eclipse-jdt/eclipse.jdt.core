@@ -757,6 +757,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 				return false;
 			}
 			// Unicode 4 detection
+			char high = this.currentCharacter;
 			char low = (char) getNextChar();
 			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
 				// illegal low surrogate
@@ -764,7 +765,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 				this.withoutUnicodePtr = temp2;
 				return false;
 			}
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.currentCharacter, low);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(high, low);
 		}
 		else if (this.currentCharacter >= LOW_SURROGATE_MIN_VALUE && this.currentCharacter <= LOW_SURROGATE_MAX_VALUE) {
 			this.currentPosition = temp;
@@ -1393,12 +1394,13 @@ public int getNextToken() throws InvalidInputException {
 							throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 						}
 						// Unicode 4 detection
+						char high = this.currentCharacter;
 						char low = (char) getNextChar();
 						if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
 							// illegal low surrogate
 							throw new InvalidInputException(INVALID_LOW_SURROGATE);
 						}
-						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.currentCharacter, low);
+						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(high, low);
 					}
 					else if (this.currentCharacter >= LOW_SURROGATE_MIN_VALUE && this.currentCharacter <= LOW_SURROGATE_MAX_VALUE) {
 						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
@@ -1760,12 +1762,13 @@ public final void jumpOverMethodBody() {
 								throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 							}
 							// Unicode 4 detection
+							char high = this.currentCharacter;
 							char low = (char) getNextChar();
 							if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
 								// illegal low surrogate
 								throw new InvalidInputException(INVALID_LOW_SURROGATE);
 							}
-							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.currentCharacter, low);
+							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(high, low);
 						}
 						else if (this.currentCharacter >= LOW_SURROGATE_MIN_VALUE && this.currentCharacter <= LOW_SURROGATE_MAX_VALUE) {
 							if (this.complianceLevel < ClassFileConstants.JDK1_5) {
