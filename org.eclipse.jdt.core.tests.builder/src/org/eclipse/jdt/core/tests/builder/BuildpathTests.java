@@ -257,22 +257,22 @@ public class BuildpathTests extends Tests {
 		//----------------------------
 		//           Step 2
 		//----------------------------	
-		StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		buffer.append("<classpath>\n");
-		buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n");
-		buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change
+		StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
+		buffer.append("<classpath>\n"); //$NON-NLS-1$
+		buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
+		buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change //$NON-NLS-1$
 		String[] classlibs = Util.getJavaClassLibs();
 		for (int i = 0; i < classlibs.length; i++) {
-			buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n");
+			buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n");
-		buffer.append("</classpath>");
+		buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n"); //$NON-NLS-1$
+		buffer.append("</classpath>"); //$NON-NLS-1$
 		boolean wasAutoBuilding = env.isAutoBuilding();
 		try {
 			// turn autobuild on
 			env.setAutoBuilding(true);
 			// write new .classpath, will trigger autobuild
-			env.addFile(projectPath, ".classpath", buffer.toString());
+			env.addFile(projectPath, ".classpath", buffer.toString()); //$NON-NLS-1$
 			// ensures the builder did see the classpath change
 			env.waitForAutoBuild();
 			expectingNoProblems();
