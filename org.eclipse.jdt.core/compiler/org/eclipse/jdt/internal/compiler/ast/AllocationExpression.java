@@ -241,6 +241,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			checkParameterizedAllocation: {
 				if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
 					ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
+					if (currentType == null) return null;
 					do {
 						// isStatic() is answering true for toplevel types
 						if ((currentType.modifiers & AccStatic) != 0) break checkParameterizedAllocation;

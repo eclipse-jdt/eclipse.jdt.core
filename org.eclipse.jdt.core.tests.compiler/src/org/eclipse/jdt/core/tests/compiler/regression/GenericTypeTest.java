@@ -12465,4 +12465,30 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type safety: The expression of type List[] needs unchecked conversion to conform to List<Integer>[]\n" + 
 			"----------\n");
 	}		
+
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82547
+	public void test465() {
+		this.runNegativeTest(
+			new String[] {
+				"Cla.java",
+				"class Cla<T> {\n" + 
+				"    T getT() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    void m() {\n" + 
+				"        String s= new Cla<String>.getT();\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Cla.java (at line 7)\n" + 
+			"	String s= new Cla<String>.getT();\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"Cla.getT cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
+
+
 }
