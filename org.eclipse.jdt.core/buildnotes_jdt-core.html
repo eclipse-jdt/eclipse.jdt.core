@@ -16,7 +16,8 @@ Eclipse SDK Build 200205? - ?th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>JavaModel no longer hides exceptions occurring while reading the .classpath file (except when attempting to reconcile its change). </li>
+<li>Added API to retrieve cached flags on type hierarchies (see <code>ITypeHierarchy#getCachedFlags(IType)</code>). Note that these
+flags can help answering both isClass/isInterface queries as well (see <code>Flags.isInterface(int)</code></li>
 <li>Added API to trigger a Java model refresh with respect to external JARs: <code>IJavaModel#refreshExternalJARs</code>. </li>
 <pre>
 /**
