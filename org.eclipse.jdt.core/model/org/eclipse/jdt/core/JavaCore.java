@@ -152,7 +152,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #removeElementChangeListener
 	 *	@since 2.0
 	 */
-	public static void addElementChangedListener(IElementChangedListener listener, int eventMask ) {
+	public static void addElementChangedListener(IElementChangedListener listener, int eventMask) {
 		JavaModelManager.getJavaModelManager().addElementChangedListener(listener, eventMask);
 	}
 

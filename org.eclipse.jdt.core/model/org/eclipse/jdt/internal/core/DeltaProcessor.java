@@ -64,6 +64,11 @@ public class DeltaProcessor {
 	 * using the various get*(...) to push it. */
 	Openable currentElement;
 	
+	/*
+	 * The type of the current event being processed (see ChangedElementEvent)
+	 */
+	int currentEventType;
+	
 	HashSet projectsToUpdate = new HashSet();
 
 	static final IJavaElementDelta[] NO_DELTA = new IJavaElementDelta[0];
@@ -737,9 +742,10 @@ private JavaModelException newInvalidElementType() {
 	 * the corresponding set of <code>IJavaElementDelta</code>, rooted in the
 	 * relevant <code>JavaModel</code>s.
 	 */
-	public IJavaElementDelta[] processResourceDelta(IResourceDelta changes) {
+	public IJavaElementDelta[] processResourceDelta(IResourceDelta changes, int eventType) {
 
 		try {
+			this.currentEventType = eventType;
 			IJavaModel model = JavaModelManager.getJavaModel(ResourcesPlugin.getWorkspace());
 			if (!model.isOpen()) {
 				// force opening of java model so that java element delta are reported

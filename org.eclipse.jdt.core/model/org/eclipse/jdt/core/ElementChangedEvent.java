@@ -27,7 +27,8 @@ public class ElementChangedEvent extends EventObject {
 	 * java element delta as returned by <code>getDelta</code>.
 	 *
 	 * Note: this notification occurs during the corresponding POST_CHANGE
-	 * resource change notification.
+	 * resource change notification, and contains a full delta accounting for
+	 * any JavaModel operation  and/or resource change.
 	 *
 	 * @see IJavaElementDelta
 	 * @see IResourceChangeEvent
@@ -43,8 +44,13 @@ public class ElementChangedEvent extends EventObject {
 	 * java element delta as returned by <code>getDelta</code>.
 	 *
 	 * Note: this notification occurs during the corresponding PRE_AUTO_BUILD
-	 * resource change notification.
-	 *
+	 * resource change notification. The delta which is notified here only contains
+	 * information relative to the previous JavaModel operations (i.e. ignores the
+	 * possible resources which have changed outside Java operations). In
+	 * particular, it is possible that the JavaModel be inconsistent with respect to
+	 * resources which got modified outside JavaModel operations (it will only be
+	 * fully consistent once the POST_CHANGE notification has occured).
+	 * 
 	 * @see IJavaElementDelta
 	 * @see IResourceChangeEvent
 	 * @see #getDelta

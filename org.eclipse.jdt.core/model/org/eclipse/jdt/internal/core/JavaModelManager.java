@@ -1051,7 +1051,6 @@ public void mergeDeltas() {
 		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
-			int javaEventType;
 			
 			switch(event.getType()){
 				case IResourceChangeEvent.PRE_DELETE :
@@ -1069,32 +1068,28 @@ public void mergeDeltas() {
 						this.checkProjectBeingAdded(delta);
 						DeltaProcessor.performPreBuildCheck(delta, null); // will close project if affected by the property file change
 					}
-					javaEventType = ElementChangedEvent.PRE_AUTO_BUILD;
+					// only fire already computed deltas (resource ones will be processed in post change only)
+					fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
 					break;
 					
 				case IResourceChangeEvent.POST_CHANGE :
-					javaEventType = ElementChangedEvent.POST_CHANGE;
-					break;
-					
-				default : // unhandled event
-					return;
+					if (delta != null) {
+						try {
+							IJavaElementDelta[] translatedDeltas = fDeltaProcessor.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
+							if (translatedDeltas.length > 0) {
+								for (int i= 0; i < translatedDeltas.length; i++) {
+									registerJavaModelDelta(translatedDeltas[i]);
+								}
+							}
+							fire(null, ElementChangedEvent.POST_CHANGE);
+						} finally {
+							// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
+							if (!fProjectsBeingDeleted.isEmpty()) {
+								fProjectsBeingDeleted= new ArrayList(1);
+							}
+						}			
+					}		
 			}
-			if (delta != null) {
-				try {
-					IJavaElementDelta[] translatedDeltas = fDeltaProcessor.processResourceDelta(delta);
-					if (translatedDeltas.length > 0) {
-						for (int i= 0; i < translatedDeltas.length; i++) {
-							registerJavaModelDelta(translatedDeltas[i]);
-						}
-					}
-					fire(null, javaEventType);
-				} finally {
-					// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
-					if (javaEventType == ElementChangedEvent.POST_CHANGE && !fProjectsBeingDeleted.isEmpty()) {
-						fProjectsBeingDeleted= new ArrayList(1);
-					}
-				}			
-			}		
 		}
 	}
 	
