@@ -91,7 +91,7 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
-protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
+protected void classInstanceCreation(boolean alwaysQualified) {
 	
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
@@ -103,7 +103,7 @@ protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArg
 		&& (astStack[astPtr] == null)) {
 
 		if (this.indexOfAssistIdentifier() < 0) {
-			super.classInstanceCreation(alwaysQualified, hasTypeArguments);
+			super.classInstanceCreation(alwaysQualified);
 			return;
 		}
 		QualifiedAllocationExpression alloc;
@@ -125,10 +125,7 @@ protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArg
 		char [] oldIdent = this.assistIdentifier();
 		this.setAssistIdentifier(null);			
 		alloc.type = getTypeReference(0);
-		if (hasTypeArguments) {
-			// handle type arguments
-			astPtr -= astLengthStack[astLengthPtr--];
-		}
+
 		this.setAssistIdentifier(oldIdent);
 		
 		//the default constructor with the correct number of argument
@@ -144,7 +141,7 @@ protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArg
 		}
 		this.isOrphanCompletionNode = true;
 	} else {
-		super.classInstanceCreation(alwaysQualified, hasTypeArguments);
+		super.classInstanceCreation(alwaysQualified);
 	}
 }
 protected void consumeArrayCreationExpressionWithoutInitializer() {

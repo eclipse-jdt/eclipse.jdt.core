@@ -137,8 +137,8 @@ public void checkAnnotation() {
 		}
 	}
 }
-protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
-	super.classInstanceCreation(alwaysQualified, hasTypeArguments);
+protected void classInstanceCreation(boolean alwaysQualified) {
+	super.classInstanceCreation(alwaysQualified);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
 }
 protected void consumeAssignment() {

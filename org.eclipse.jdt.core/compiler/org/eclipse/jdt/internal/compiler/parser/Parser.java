@@ -807,7 +807,7 @@ protected void checkNonNLSAfterBodyEnd(int declarationEnd){
 		}
 	}
 }
-protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArguments) {
+protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
@@ -837,9 +837,66 @@ protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArg
 		}
 		alloc.type = getTypeReference(0);
 		
-		if (hasTypeArguments) {
-			// handle type arguments
-			astPtr -= astLengthStack[astLengthPtr--];
+		//the default constructor with the correct number of argument
+		//will be created and added by the TC (see createsInternalConstructorWithBinding)
+		alloc.sourceStart = intStack[intPtr--];
+		pushOnExpressionStack(alloc);
+	} else {
+		dispatchDeclarationInto(length);
+		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
+		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
+		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
+		if (anonymousTypeDeclaration.allocation != null) {
+			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
+		}
+		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
+			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}
+		astPtr--;
+		astLengthPtr--;
+
+		// mark initializers with local type mark if needed
+		markInitializersWithLocalType(anonymousTypeDeclaration);
+	}
+}
+protected void classInstanceCreationWithTypeArguments(boolean alwaysQualified) {
+	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
+	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+
+	// ClassBodyopt produces a null item on the astStak if it produces NO class body
+	// An empty class body produces a 0 on the length stack.....
+
+	AllocationExpression alloc;
+	int length;
+	if (((length = astLengthStack[astLengthPtr--]) == 1)
+		&& (astStack[astPtr] == null)) {
+		//NO ClassBody
+		astPtr--;
+		if (alwaysQualified) {
+			alloc = new ParameterizedQualifiedAllocationExpression();
+		} else {
+			alloc = new ParameterizedAllocationExpression();
+		}
+		alloc.sourceEnd = endPosition; //the position has been stored explicitly
+
+		if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
+			expressionPtr -= length;
+			System.arraycopy(
+				expressionStack, 
+				expressionPtr + 1, 
+				alloc.arguments = new Expression[length], 
+				0, 
+				length); 
+		}
+		alloc.type = getTypeReference(0);
+
+		length = astLengthStack[astLengthPtr--];
+		astPtr -= length;
+		if (alwaysQualified) {
+			System.arraycopy(astStack, astPtr + 1, ((ParameterizedAllocationExpression) alloc).typeArguments = new TypeReference[length], 0, length);
+		} else {
+			System.arraycopy(astStack, astPtr + 1, ((ParameterizedQualifiedAllocationExpression) alloc).typeArguments = new TypeReference[length], 0, length);
 		}
 		
 		//the default constructor with the correct number of argument
@@ -860,11 +917,10 @@ protected void classInstanceCreation(boolean alwaysQualified, boolean hasTypeArg
 		astPtr--;
 		astLengthPtr--;
 
-		if (hasTypeArguments) {
-			// handle type arguments
-			astPtr -= astLengthStack[astLengthPtr--];
-		}
-
+		// TODO need to handle type arguments
+		length = astLengthStack[astLengthPtr--];
+		astPtr -= length;
+		
 		// mark initializers with local type mark if needed
 		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
@@ -1537,11 +1593,11 @@ protected void consumeClassHeaderNameWithTypeParameters() {
 }
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
-	classInstanceCreation(false, false);
+	classInstanceCreation(false);
 }
 protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
-	classInstanceCreation(false, true);
+	classInstanceCreationWithTypeArguments(false);
 }
 protected void consumeClassInstanceCreationExpressionName() {
 	// ClassInstanceCreationExpressionName ::= Name '.'
@@ -1551,7 +1607,7 @@ protected void consumeClassInstanceCreationExpressionQualified() {
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 
-	classInstanceCreation(true, false); //  <-- push the Qualifed....
+	classInstanceCreation(true); //  <-- push the Qualifed....
 
 	expressionLengthPtr--;
 	QualifiedAllocationExpression qae = 
@@ -1564,7 +1620,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
 
-	classInstanceCreation(true, true); //  <-- push the Qualifed....
+	classInstanceCreationWithTypeArguments(true); //  <-- push the Qualifed....
 
 	expressionLengthPtr--;
 	QualifiedAllocationExpression qae = 
@@ -2255,27 +2311,25 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 	ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
 	*/
 	int startPosition = intStack[intPtr--];
-	ExplicitConstructorCall ecc = new ExplicitConstructorCall(recFlag);
+	ParameterizedExplicitConstructorCall ecc = new ParameterizedExplicitConstructorCall(recFlag);
 	int length;
 	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
 		expressionPtr -= length;
 		System.arraycopy(expressionStack, expressionPtr + 1, ecc.arguments = new Expression[length], 0, length);
 	}
+	length = astLengthStack[astLengthPtr--];
+	astPtr -= length;
+	System.arraycopy(astStack, astPtr + 1, ecc.typeArguments = new TypeReference[length], 0, length);
+
 	switch (flag) {
 		case 0 :
 			ecc.sourceStart = startPosition;
-			// handle type arguments
-			astPtr -= astLengthStack[astLengthPtr--];
 			break;
 		case 1 :
-			// handle type arguments
-			astPtr -= astLengthStack[astLengthPtr--];
 			expressionLengthPtr--;
 			ecc.sourceStart = (ecc.qualification = expressionStack[expressionPtr--]).sourceStart;
 			break;
 		case 2 :
-			// handle type arguments
-			astPtr -= astLengthStack[astLengthPtr--];
 			ecc.sourceStart = (ecc.qualification = getUnspecifiedReferenceOptimized()).sourceStart;
 			break;
 	}
@@ -3024,14 +3078,16 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 
 	// when the name is only an identifier...we have a message send to "this" (implicit)
 
-	MessageSend m = newMessageSend();
+	ParameterizedMessageSend m = newMessageSendWithTypeArguments();
 	m.sourceEnd = rParenPos;
 	m.sourceStart = 
 		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
 	m.selector = identifierStack[identifierPtr--];
 
 	// handle type arguments
-	astPtr -= astLengthStack[astLengthPtr--];
+	int length = astLengthStack[astLengthPtr--];
+	astPtr -= length;
+	System.arraycopy(astStack, astPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 	
 	if (identifierLengthStack[identifierLengthPtr] == 1) {
 		m.receiver = ThisReference.implicitThis();
@@ -3061,14 +3117,16 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	//optimize the push/pop
 	//MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 
-	MessageSend m = newMessageSend();
+	ParameterizedMessageSend m = newMessageSendWithTypeArguments();
 	m.sourceStart = 
 		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
 	m.selector = identifierStack[identifierPtr--];
 	identifierLengthPtr--;
 	
 	// handle type arguments
-	astPtr -= astLengthStack[astLengthPtr--];
+	int length = astLengthStack[astLengthPtr--];
+	astPtr -= length;
+	System.arraycopy(astStack, astPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 
 	m.receiver = expressionStack[expressionPtr];
 	m.sourceStart = m.receiver.sourceStart;
@@ -3090,7 +3148,7 @@ protected void consumeMethodInvocationSuper() {
 protected void consumeMethodInvocationSuperWithTypeArguments() {
 	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 
-	MessageSend m = newMessageSend();
+	ParameterizedMessageSend m = newMessageSendWithTypeArguments();
 	m.sourceStart = intStack[intPtr--];
 	m.sourceEnd = rParenPos;
 	m.nameSourcePosition = identifierPositionStack[identifierPtr];
@@ -3098,7 +3156,9 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	identifierLengthPtr--;
 	
 	// handle type arguments
-	astPtr -= astLengthStack[astLengthPtr--];
+	int length = astLengthStack[astLengthPtr--];
+	astPtr -= length;
+	System.arraycopy(astStack, astPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 
 	m.receiver = new SuperReference(m.sourceStart, endPosition);
 	pushOnExpressionStack(m);
@@ -6709,6 +6769,20 @@ protected MessageSend newMessageSend() {
 	// the arguments are on the expression stack
 
 	MessageSend m = new MessageSend();
+	int length;
+	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
+		expressionPtr -= length;
+		System.arraycopy(
+			expressionStack, 
+			expressionPtr + 1, 
+			m.arguments = new Expression[length], 
+			0, 
+			length); 
+	}
+	return m;
+}
+protected ParameterizedMessageSend newMessageSendWithTypeArguments() {
+	ParameterizedMessageSend m = new ParameterizedMessageSend();
 	int length;
 	if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
 		expressionPtr -= length;
