@@ -11,7 +11,7 @@ Contributors:
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of a field info as described in the the JVM 
+ * Description of a field info as described in the JVM 
  * specifications.
  *  
  * @since 2.0

@@ -32,7 +32,7 @@ public interface IJavaSearchScope {
  * to the JAR (if it is an external JAR), or the workspace relative <code>IPath</code>
  * to the JAR (if it is an internal JAR), 
  * the second path is the path to the resource inside the JAR.
- * @return whether the resourse is enclosed by this scope
+ * @return whether the resource is enclosed by this scope
  */
 public boolean encloses(String resourcePath);
 /**
@@ -70,8 +70,8 @@ boolean includesClasspaths();
  * in folders or within JARs).
  * 
  * @param includesBinaries whether this scope contains any <code>.class</code> files
- * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) with the package fragement
- * 				root that correspond to the binaries instead
+ * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) with the package fragment
+ * 				roots that correspond to the binaries instead
  */
 public void setIncludesBinaries(boolean includesBinaries);
 /**

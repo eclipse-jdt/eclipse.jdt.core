@@ -59,10 +59,10 @@ public SearchEngine() {
  * Creates a new search engine with a list of working copies that will take precedence over 
  * their original compilation units in the subsequent search operations.
  * <p>
- * Note that passing an empty working copy will be as if the orignal compilation
+ * Note that passing an empty working copy will be as if the original compilation
  * unit had been deleted.
  * 
- * @param workingCopies the working copies that take precdence over their original compilation units
+ * @param workingCopies the working copies that take precedence over their original compilation units
  * @since 2.0
  */
 public SearchEngine(IWorkingCopy[] workingCopies) {
@@ -186,7 +186,7 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code>
  *  	<li>search for case sensitive references to exact <code>Object()</code> constructor:
  *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code>
- *  	<li>search for implementors of <code>java.lang.Runnable</code>:
+ *  	<li>search for implementers of <code>java.lang.Runnable</code>:
  *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code>
  * @param searchFor determines the nature of the searched elements
  *	<ul>
@@ -290,8 +290,8 @@ private IWorkingCopy[] getWorkingCopies(IJavaElement element) {
 /**
  * Searches for the Java element determined by the given signature. The signature
  * can be incomplete. For example, a call like 
- * <code>search(ws,"run()",METHOD,REFERENCES,col)</code>
- * searchs for all references to the method <code>run</code>.
+ * <code>search(ws, "run()", METHOD,REFERENCES, col)</code>
+ * searches for all references to the method <code>run</code>.
  *
  * Note that by default the pattern will be case insensitive. For specifying case s
  * sensitive search, use <code>search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);</code>
@@ -432,7 +432,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
  * @param workspace the workspace to search in
  * @param packageName the full name of the package of the searched types, or a prefix for this
  *						package, or a wild-carded string for this package.
- * @param typeName the dot-separated qualied name of the searched type (the qualification include
+ * @param typeName the dot-separated qualified name of the searched type (the qualification include
  *					the enclosing types if the searched type is a member type), or a prefix
  *					for this type, or a wild-carded string for this type.
  * @param matchMode one of
@@ -443,7 +443,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
  *			of the searched types.
  *		<li><code>IJavaSearchConstants.PATTERN_MATCH</code> if the package name and type name contain wild-cards.
  * </ul>
- * @param isCaseSensitive whether the search should be case senistive
+ * @param isCaseSensitive whether the search should be case sensitive
  * @param searchFor one of
  * <ul>
  * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only
@@ -455,7 +455,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
  * @param waitingPolicy one of
  * <ul>
  *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately
- *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be canceled if the
+ *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
  *			underlying indexer has not finished indexing the workspace
  *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
  *			underlying indexer to finish indexing the workspace

@@ -56,7 +56,7 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	IExceptionTableEntry[] getExceptionTable();
 	
 	/**
-	 * Answer back the array of bytes which represents all the opcodes as described
+	 * Answer back the array of bytes, which represents all the opcodes as described
 	 * in the JVM specifications.
 	 * 
 	 * @return byte[]

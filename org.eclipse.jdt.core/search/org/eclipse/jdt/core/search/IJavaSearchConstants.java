@@ -84,13 +84,13 @@ public interface IJavaSearchConstants {
 	 * The search result is a reference.
 	 * Can be used in conjunction with any of the nature of searched elements
 	 * so as to better narrow down the search.
-	 * References can contain implementors since they are more generic kind
+	 * References can contain implementers since they are more generic kind
 	 * of matches.
 	 */
 	int REFERENCES= 2;
 
 	/**
-	 * The search result is a declaration, a reference, or an implementor 
+	 * The search result is a declaration, a reference, or an implementer 
 	 * of an interface.
 	 * Can be used in conjunction with any of the nature of searched elements
 	 * so as to better narrow down the search.
@@ -138,7 +138,7 @@ public interface IJavaSearchConstants {
 	 */
 	int PREFIX_MATCH = 1;
 	/**
-	 * The search pattern contains one or more wild-cards ('*') where a 
+	 * The search pattern contains one or more wild cards ('*') where a 
 	 * wild-card can replace 0 or more characters in the search result.
 	 */
 	int PATTERN_MATCH = 2;
@@ -148,7 +148,7 @@ public interface IJavaSearchConstants {
 	
 	/**
 	 * The search pattern matches the search result only
-	 * if case are the same.
+	 * if cases are the same.
 	 */
 	boolean CASE_SENSITIVE = true;
 	/**
