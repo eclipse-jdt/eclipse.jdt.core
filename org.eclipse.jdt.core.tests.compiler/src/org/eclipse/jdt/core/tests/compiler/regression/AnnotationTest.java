@@ -3089,6 +3089,62 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	        ^^^^^^^\n" + 
 			"Element cannot be resolved\n" + 
 			"----------\n");
-	}	
-	
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80964
+	public void _test102() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  @TestAnnotation(testAttribute = \"test\") class A {\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    System.out.print(A.class.isAnnotationPresent(TestAnnotation.class));\n" +
+				"  }\n" +
+				"}",
+				"TestAnnotation.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) public @interface\n" +
+				"TestAnnotation {\n" +
+				"    String testAttribute();\n" +
+				"}\n"
+			},
+			"true");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80964
+	public void _test103() {
+		this.runConformTest(
+			new String[] {
+				"TestAnnotation.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) public @interface\n" +
+				"TestAnnotation {\n" +
+				"    String testAttribute();\n" +
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  @TestAnnotation(testAttribute = \"test\") class A {\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    System.out.print(A.class.isAnnotationPresent(TestAnnotation.class));\n" +
+				"  }\n" +
+				"}",
+			},
+			"true",
+			null,
+			false,
+			null);
+	}
 }
