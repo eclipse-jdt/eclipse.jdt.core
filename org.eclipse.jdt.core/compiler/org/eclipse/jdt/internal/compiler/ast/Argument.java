@@ -30,7 +30,7 @@ public class Argument extends LocalDeclaration {
 		} else {
 			scope.addLocalVariable(
 				this.binding =
-					new LocalVariableBinding(this.name, typeBinding, modifierFlag, true));
+					new LocalVariableBinding(this, typeBinding, modifierFlag, true));
 			//true stand for argument instead of just local
 			if (typeBinding != null && isTypeUseDeprecated(typeBinding, scope))
 				scope.problemReporter().deprecatedType(typeBinding, this.type);
@@ -53,7 +53,7 @@ public class Argument extends LocalDeclaration {
 			scope.problemReporter().redefineArgument(this);
 			return null;
 		}
-		binding = new LocalVariableBinding(this, tb, modifiers);
+		binding = new LocalVariableBinding(this, tb, modifiers, true);
 		scope.addLocalVariable(binding);
 		binding.constant = NotAConstant;
 		return tb;

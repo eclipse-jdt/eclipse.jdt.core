@@ -387,6 +387,7 @@ public interface IProblem {
 	int ArgumentTypeCannotBeVoidArray = MethodRelated + 365;
 	int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
 	int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
+	int DuplicateModifierForArgument = MethodRelated + 368;
 
 	//	int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
 	int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370

@@ -633,9 +633,11 @@ public void duplicateModifierForType(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void duplicateModifierForVariable(LocalDeclaration localDecl) {
+public void duplicateModifierForVariable(LocalDeclaration localDecl, boolean complainForArgument) {
 	this.handle(
-		IProblem.DuplicateModifierForVariable,
+		complainForArgument
+			?  IProblem.DuplicateModifierForArgument 
+			: IProblem.DuplicateModifierForVariable,
 		new String[] {localDecl.name()},
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
@@ -891,13 +893,7 @@ public void illegalModifierCombinationFinalVolatileForField(ReferenceBinding typ
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void illegalModifierForArgument(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, Argument arg) {
-	this.handle(
-		IProblem.IllegalModifierForArgument,
-		new String[] {new String(type.sourceName()), new String(methodDecl.selector), arg.name()},
-		arg.sourceStart,
-		arg.sourceEnd);
-}
+
 public void illegalModifierForClass(SourceTypeBinding type) {
 	this.handle(
 		IProblem.IllegalModifierForClass,
@@ -961,9 +957,11 @@ public void illegalModifierForMethod(ReferenceBinding type, AbstractMethodDeclar
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void illegalModifierForVariable(LocalDeclaration localDecl) {
+public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	this.handle(
-		IProblem.IllegalModifierForVariable,
+		complainAsArgument
+			? IProblem.IllegalModifierForArgument
+			: IProblem.IllegalModifierForVariable,
 		new String[] {localDecl.name()},
 		localDecl.sourceStart,
 		localDecl.sourceEnd);

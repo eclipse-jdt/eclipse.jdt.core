@@ -20,7 +20,8 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 public class SyntheticArgumentBinding extends LocalVariableBinding {
 
-	{	this.isArgument = true;
+	{	
+		this.isArgument = true;
 		this.used = true;
 	}
 	// if the argument is mapping to an outer local variable, this denotes the outer actual variable
@@ -34,7 +35,8 @@ public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable) {
 	super(
 		CharOperation.concat(OuterLocalPrefix, actualOuterLocalVariable.name), 
 		actualOuterLocalVariable.type, 
-		AccFinal);
+		AccFinal,
+		true);
 	this.actualOuterLocalVariable = actualOuterLocalVariable;
 }
 public SyntheticArgumentBinding(ReferenceBinding enclosingType) {
@@ -43,6 +45,7 @@ public SyntheticArgumentBinding(ReferenceBinding enclosingType) {
 			SyntheticArgumentBinding.EnclosingInstancePrefix,
 			String.valueOf(enclosingType.depth()).toCharArray()),
 		enclosingType, 
-		AccFinal);
+		AccFinal,
+		true);
 }
 }

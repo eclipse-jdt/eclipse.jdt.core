@@ -156,14 +156,15 @@ public class BlockScope extends Scope {
 	private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 
 		int modifiers = varBinding.modifiers;
-		if ((modifiers & AccAlternateModifierProblem) != 0)
-			problemReporter().duplicateModifierForVariable(varBinding.declaration);
-
+		if ((modifiers & AccAlternateModifierProblem) != 0 && varBinding.declaration != null){
+			problemReporter().duplicateModifierForVariable(varBinding.declaration, this instanceof MethodScope);
+		}
 		int realModifiers = modifiers & AccJustFlag;
+		
 		int unexpectedModifiers = ~AccFinal;
-		if ((realModifiers & unexpectedModifiers) != 0)
-			problemReporter().illegalModifierForVariable(varBinding.declaration);
-
+		if ((realModifiers & unexpectedModifiers) != 0 && varBinding.declaration != null){ 
+			problemReporter().illegalModifierForVariable(varBinding.declaration, this instanceof MethodScope);
+		}
 		varBinding.modifiers = modifiers;
 	}
 

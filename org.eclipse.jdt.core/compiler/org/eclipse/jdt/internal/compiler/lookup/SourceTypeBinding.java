@@ -807,11 +807,6 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
 				foundArgProblem = true;
 			}
-			// check the modifiers for argument. Only final is authorized.
-			if ((arg.modifiers & ~AccFinal) != 0) {
-				methodDecl.scope.problemReporter().illegalModifierForArgument(this, methodDecl, arg);
-				foundArgProblem = true;
-			}
 		}
 	}
 

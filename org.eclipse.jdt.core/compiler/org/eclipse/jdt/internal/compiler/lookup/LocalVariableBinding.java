@@ -17,9 +17,8 @@ public class LocalVariableBinding extends VariableBinding {
 
 	public int[] initializationPCs;
 	public int initializationCount = 0;
-public LocalVariableBinding(char[] name, TypeBinding type, int modifiers) {
-	this(name, type, modifiers, false);
-}
+
+// for synthetic local variables	
 public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
 	this.name = name;
 	this.type = type;
@@ -27,8 +26,10 @@ public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolea
 	if (this.isArgument = isArgument)
 		this.constant = Constant.NotAConstant;
 }
-public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers) {
-	this(declaration.name, type, modifiers, false);
+
+// regular local variable or argument
+public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, boolean isArgument) {
+	this(declaration.name, type, modifiers, isArgument);
 	this.declaration = declaration;
 }
 /* API

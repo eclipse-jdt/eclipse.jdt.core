@@ -396,7 +396,7 @@ public class TryStatement extends Statement {
 			MethodScope methodScope = scope.methodScope();
 
 			returnAddressVariable =
-				new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), 0);
+				new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 			// the type does not matter as long as its not a normal base type
 			methodScope.addLocalVariable(returnAddressVariable);
 			returnAddressVariable.constant = NotAConstant; // not inlinable
@@ -404,7 +404,7 @@ public class TryStatement extends Statement {
 
 			finallyScope = new BlockScope(scope);
 			this.anyExceptionVariable =
-				new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), 0);
+				new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
 			finallyScope.addLocalVariable(this.anyExceptionVariable);
 			this.anyExceptionVariable.constant = NotAConstant; // not inlinable
 
@@ -418,7 +418,8 @@ public class TryStatement extends Statement {
 							new LocalVariableBinding(
 								SecretLocalDeclarationName,
 								methodReturnType,
-								AccDefault);
+								AccDefault,
+								false);
 						finallyScope.addLocalVariable(this.secretReturnValue);
 						this.secretReturnValue.constant = NotAConstant; // not inlinable
 					}

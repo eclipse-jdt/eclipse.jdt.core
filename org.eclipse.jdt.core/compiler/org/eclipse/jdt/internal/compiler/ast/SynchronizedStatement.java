@@ -134,10 +134,10 @@ public class SynchronizedStatement extends Statement {
 				break;
 			case (T_null) :
 				scope.problemReporter().invalidNullToSynchronize(expression);
-				break;
+				break; 
 		}
 		//continue even on errors in order to have the TC done into the statements
-		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, 0);
+		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, AccDefault, false);
 		scope.addLocalVariable(synchroVariable);
 		synchroVariable.constant = NotAConstant; // not inlinable
 		expression.implicitWidening(type, type);
