@@ -49,10 +49,18 @@ public class SignatureWrapper {
 		this.start = this.end + 1; // skip ';'
 		return this.end;
 	}
-	public void skip(char delimiter) {
-		int index = CharOperation.indexOf(delimiter, this.signature, this.start) + 1;
-		if (index > 0)
-			this.start = index;
+	public char[] nextWord() {
+		this.end = CharOperation.indexOf(';', this.signature, this.start);
+		if (this.bracket <= this.start) // already know it if its > start
+			this.bracket = CharOperation.indexOf('<', this.signature, this.start);
+		int dot = CharOperation.indexOf('.', this.signature, this.start);
+
+		if (this.bracket > this.start && this.bracket < this.end)
+			this.end = this.bracket;
+		if (dot > this.start && dot < this.end)
+			this.end = dot;
+
+		return CharOperation.subarray(this.signature, this.start, this.start = this.end); // skip word
 	}
 	public String toString() {
 		return new String(this.signature) + " @ " + this.start; //$NON-NLS-1$

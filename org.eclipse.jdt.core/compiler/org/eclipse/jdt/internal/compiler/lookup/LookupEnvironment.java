@@ -541,6 +541,17 @@ public ReferenceBinding getType(char[][] compoundName) {
 		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
 	return referenceBinding;
 }
+private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
+	java.util.ArrayList args = new java.util.ArrayList(2);
+	int rank = 0;
+	do {
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, rank++));
+	} while (wrapper.signature[wrapper.start] != '>');
+	wrapper.start++; // skip '>'
+	TypeBinding[] typeArguments = new TypeBinding[args.size()];
+	args.toArray(typeArguments);
+	return typeArguments;
+}
 /* Answer the type corresponding to the name from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an
 * unresolved type is returned which must be resolved before used.
@@ -664,18 +675,25 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), true);
 	if (wrapper.end != wrapper.bracket)
 		return dimension == 0 ? type : createArrayType(type, dimension);
+
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
 	ReferenceBinding actualType = (ReferenceBinding) type;
-
-	java.util.ArrayList args = new java.util.ArrayList(2);
-	int rank = 0;
-	do {
-		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, rank++));
-	} while (wrapper.signature[wrapper.start] != '>');
-	wrapper.start += 2; // skip '>' and ';'
-	TypeBinding[] typeArguments = new TypeBinding[args.size()];
-	args.toArray(typeArguments);
+	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType);
 	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
+
+	while (wrapper.signature[wrapper.start] == '.') {
+		wrapper.start++; // skip '.'
+		char[] memberName = wrapper.nextWord();
+		ReferenceBinding memberType = parameterizedType.type.getMemberType(memberName);
+		if (wrapper.signature[wrapper.start] == '<') {
+			wrapper.start++; // skip '<'
+			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType);
+		} else {
+			typeArguments = null;
+		}
+		parameterizedType = createParameterizedType(memberType, typeArguments, parameterizedType);
+	}
+	wrapper.start++; // skip ';'
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
 TypeBinding getTypeFromVariantTypeSignature(

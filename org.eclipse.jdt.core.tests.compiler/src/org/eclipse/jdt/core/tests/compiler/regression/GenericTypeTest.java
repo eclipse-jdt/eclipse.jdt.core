@@ -3438,7 +3438,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"    void foo2(X.MX.MMX<X> mx) {\n" + 
 				"    }\n" + 
-				"    void foo3(X<X.MX<Runnable>.MMX<Iterable<String>> mx) {\n" + 
+				"    void foo3(X<X.MX<Runnable>.MMX<Iterable<String>>> mx) {\n" + 
 				"    }\n" + 
 				"    \n" + 
 				"    class MX <MT> {\n" + 
