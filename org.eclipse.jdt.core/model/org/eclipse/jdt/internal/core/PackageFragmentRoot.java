@@ -491,8 +491,9 @@ public int getKind() throws JavaModelException {
  */
 public String getJdkLevel() {
 	try {
-		switch(getKind()) {
-			case IPackageFragmentRoot.K_BINARY:
+		IClasspathEntry classpathEntry = getRawClasspathEntry();
+		switch(classpathEntry.getEntryKind()) {
+			case IClasspathEntry.CPE_LIBRARY:
 				ClassFileReader reader = null;
 				if (isArchive()) {
 					// root is a jar file or a zip file
