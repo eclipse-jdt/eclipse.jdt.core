@@ -26,6 +26,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     public TypeBinding[] typeArguments; 
     private LookupEnvironment environment;
     public boolean inferredReturnType;
+    public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
     
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
@@ -42,6 +43,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
 	    this.returnType = this.substitute(originalMethod.returnType);
+	    this.wasInferred = true;// resulting from method invocation inferrence
 	}
 	/**
 	 * Create raw generic method for raw type (double substitution from type vars with raw type arguments, and erasure of method variables)
@@ -72,6 +74,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.returnType = this.substitute(isStatic 
 	    									? originalMethod.returnType // no substitution if original was static
 	    									: rawType.substitute(originalMethod.returnType));
+	    this.wasInferred = false; // not resulting from method invocation inferrence
 	}
 	
 	/**
@@ -134,6 +137,26 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		}
 
 		return methodSubstitute;
+	}
+
+	/**
+	 * Returns true if some parameters got substituted.
+	 * NOTE: generic method invocation delegates to its declaring method (could be a parameterized one)
+	 */
+	public boolean hasSubstitutedParameters() {
+		// generic parameterized method can represent either an invocation or a raw generic method
+		if (this.wasInferred) 
+			return this.originalMethod.hasSubstitutedParameters();
+		return super.hasSubstitutedParameters();
+	}
+	/**
+	 * Returns true if the return type got substituted.
+	 * NOTE: generic method invocation delegates to its declaring method (could be a parameterized one)
+	 */
+	public boolean hasSubstitutedReturnType() {
+		if (this.wasInferred) 
+			return this.originalMethod.hasSubstitutedReturnType();
+		return super.hasSubstitutedReturnType();
 	}
 	
 	public void inferFromExpectedType(TypeBinding expectedType, Scope scope) {

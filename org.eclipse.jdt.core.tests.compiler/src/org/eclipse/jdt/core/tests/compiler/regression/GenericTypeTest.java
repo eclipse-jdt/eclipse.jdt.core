@@ -8805,22 +8805,21 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"	public <Type> Type myMethod(Object obj, Class type) {\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
-				"	public static <Type> Type myMethod2(Object obj, Class type) {\n" + 
+				"	public static <Type> Type myStaticMethod(Object obj, Class type) {\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
 				"}\n" + 
-				"/* This is the class that will not save or compile */\n" + 
 				"public class X {\n" + 
 				"    public IMyInterface getThis() {\n" + 
 				"		if (true)\n" + 
 				"			return new MyClass().myMethod(this, IMyInterface.class);\n" + 
 				"		else\n" + 
-				"			return MyClass.myMethod2(this, IMyInterface.class);\n" + 
+				"			return MyClass.myStaticMethod(this, IMyInterface.class);\n" + 
 				"    }\n" + 
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 16)\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
 			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
@@ -8925,6 +8924,118 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");
 	}
+	//77142 - check no raw unsafe warning is issued when accessing generic method from raw type
+	public void test342() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"class MyClass<T> {\n" + 
+				"		 \n" + 
+				"		 private T thing;\n" + 
+				"       { Zork z; }\n" +
+				"		 \n" + 
+				"		 public\n" + 
+				"		 MyClass(T thing) {\n" + 
+				"		 		 this.thing = thing;\n" + 
+				"		 }\n" + 
+				"		 \n" + 
+				"		 public static <U> MyClass<U>\n" + 
+				"		 factoryMakeMyClass(U thing)		 {\n" + 
+				"		 		 return new MyClass<U>(thing);\n" + 
+				"		 }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class External {\n" + 
+				"\n" + 
+				"		 public static <U> MyClass<U>\n" + 
+				"		 factoryMakeMyClass(U thing)		 {\n" + 
+				"		 		 return new MyClass<U>(thing);\n" + 
+				"		 }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"		 public static void\n" + 
+				"		 test()\n" + 
+				"		 {\n" + 
+				"		 		 // No problem with this line:\n" + 
+				"		 		 MyClass<String> foo = External.factoryMakeMyClass(\"hi\");\n" + 
+				"		 		 \n" + 
+				"		 		 // This line gives me an error:\n" + 
+				"		 		 // Type mismatch: cannot convert from MyClass<Object> to MyClass<String>\n" + 
+				"		 		 MyClass<String> bar = MyClass.factoryMakeMyClass(\"hi\");\n" + 
+				"		 		 MyClass<String> bar2 = MyClass.<String>factoryMakeMyClass(\"hi\");\n" + 
+				"		 }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 4)\n" + 
+			"	{ Zork z; }\n" + 
+			"	  ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//74588
+	public void test343() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Number> {\n" + 
+				"    T m;\n" + 
+				"\n" + 
+				"    class Y<T> {\n" + 
+				"        void test() {\n" + 
+				"            new Y<Integer>() {\n" + 
+				"                void test() {\n" + 
+				"                    System.out.println(X.this.m);\n" + 
+				"                }\n" + 
+				"            }.test();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n",
+			},
+			"");
+	}
+	// checking scenario where generic type and method share the same type parameter name
+	// TODO (kent) we should better describe that the override is invalid due to type parameter bound mismatch
+	public void test344() {
+		this.runNegativeTest(
+			new String[] {	
+				"X.java",
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"public abstract class X<T extends Runnable> {\n" + 
+				"	\n" + 
+				"	public abstract <T extends Exception> T bar(T t);\n" + 
+				"\n" + 
+				"	static void foo(X x) {\n" + 
+				"		x.<Exception>bar(null);\n" + 
+				"		\n" + 
+				"		class R implements Runnable {\n" + 
+				"			public void run() {\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		X<R> xr = new X<R>(){  \n" + 
+				"			public <T> T bar(T t) { \n" + 
+				"				return t; \n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		IOException e = xr.bar(new IOException());\n" + 
+				"	}\n" + 
+				"}\n"		
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	x.<Exception>bar(null);\n" + 
+			"	             ^^^\n" + 
+			"The method bar(Exception) of raw type X is no more generic; it cannot be parameterized with arguments <Exception>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	X<R> xr = new X<R>(){  \n" + 
+			"	              ^^^^^^\n" + 
+			"Class must implement the inherited abstract method X<R>.bar(T)\n" + 
+			"----------\n");
+	}
 	//74594
 	// TODO (kent) reenable once addressed
 	public void _test345() {
@@ -9028,4 +9139,45 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}",
 			},
 			"4");
-	}	}
+	}	
+	// checking scenario where generic type and method share the same type parameter name
+	// TODO (kent) we shouldn't be issuing a warning for method override unchecked conversion
+	public void test348() {
+		this.runNegativeTest(
+			new String[] {	
+				"X.java",
+				"import java.io.IOException;\n" + 
+				"\n" + 
+				"public abstract class X<T extends Runnable> {\n" + 
+				"	\n" + 
+				"	public abstract <T extends Exception> T bar(T t);\n" + 
+				"\n" + 
+				"	static void foo(X x) {\n" + 
+				"		x.<Exception>bar(null);\n" + 
+				"		\n" + 
+				"		class R implements Runnable {\n" + 
+				"			public void run() {\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		X<R> xr = new X<R>(){  \n" + 
+				"			public <T extends Exception> T bar(T t) { \n" + 
+				"				return t; \n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		IOException e = xr.bar(new IOException());\n" + 
+				"	}\n" + 
+				"}\n"		
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	x.<Exception>bar(null);\n" + 
+			"	             ^^^\n" + 
+			"The method bar(Exception) of raw type X is no more generic; it cannot be parameterized with arguments <Exception>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	public <T extends Exception> T bar(T t) { \n" + 
+			"	                             ^\n" + 
+			"Type safety: The return type T of the method bar(T) of type new X<R>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
+			"----------\n");
+	}	
+}

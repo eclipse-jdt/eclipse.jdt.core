@@ -234,10 +234,11 @@ public abstract class Scope
 			parameters = method.parameters; // reacquire them after type inference has performed
 		} else if (genericTypeArguments != null) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
-				if (method.declaringClass.isRawType())
+				if (!((ParameterizedGenericMethodBinding)method).wasInferred) {
 					// attempt to invoke generic method of raw type with type hints <String>foo()
 					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeArgumentsForRawGenericMethod);
-			} else {
+				}
+		} else {
 				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeParameterArityMismatch);
 			}
 		}
