@@ -300,7 +300,7 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		if (valueIfTrueType == valueIfFalseType) { // harmed the implicit conversion 
 			valueIfTrue.computeConversion(scope, valueIfTrueType, valueIfTrueType);
-			valueIfFalse.implicitConversion = valueIfTrue.implicitConversion;
+			valueIfFalse.computeConversion(scope, valueIfFalseType, valueIfFalseType);
 			if (valueIfTrueType == BooleanBinding) {
 				this.optimizedIfTrueConstant = valueIfTrue.optimizedBooleanConstant();
 				this.optimizedIfFalseConstant = valueIfFalse.optimizedBooleanConstant();
@@ -393,8 +393,9 @@ public class ConditionalExpression extends OperatorExpression {
 		// 1.5 addition: allow most common type 
 		if (scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
-//			TypeBinding commonType = scope.mostSpecificCommonType(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			if (commonType != null) {
+				valueIfTrue.computeConversion(scope, commonType, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, commonType, valueIfFalseType);
 				return this.resolvedType = commonType;
 			}
 		}
