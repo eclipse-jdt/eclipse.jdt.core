@@ -25,7 +25,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
     private TypeBinding[] typeArguments; 
     private LookupEnvironment environment;
-    public boolean inferredReturnType;
     
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
@@ -131,9 +130,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (mostSpecificSubstitute != VoidBinding) 
 				this.typeArguments[i] = mostSpecificSubstitute;
 		}
-		TypeBinding oldReturnType = this.returnType;
 		this.returnType = this.substitute(this.returnType);
-		this.inferredReturnType = this.returnType != oldReturnType;
 	    this.parameters = Scope.substitute(this, this.parameters);
 	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
 	}
