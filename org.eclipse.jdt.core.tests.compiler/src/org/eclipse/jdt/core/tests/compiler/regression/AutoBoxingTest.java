@@ -2999,4 +2999,138 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
+	public void test102() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Cla<A> {\n" + 
+				"	A val;\n" + 
+				"	public Cla(A x) { val = x; }\n" + 
+				"	A getVal() { return val; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	void proc0(Cla<Long> b0) {\n" + 
+				"		final Long t1 = b0.getVal();\n" + 
+				"		System.out.print(t1);\n" + 
+				"		final long t2 = b0.getVal();\n" + 
+				"		System.out.print(t2);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void proc1(Cla<? extends Long> obj) {\n" + 
+				"		final Long t3 = obj.getVal();\n" + 
+				"		System.out.print(t3);\n" + 
+				"		final long t4 = obj.getVal();\n" + 
+				"		System.out.print(t4);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	<U extends Long> void proc2(Cla<U> obj) {\n" + 
+				"		final Long t5 = obj.getVal();\n" + 
+				"		System.out.print(t5);\n" + 
+				"		final long t6 = obj.getVal();\n" + 
+				"		System.out.println(t6);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.proc0(new Cla<Long>(0l));\n" + 
+				"		x.proc1(new Cla<Long>(1l));\n" + 
+				"		x.proc2(new Cla<Long>(2l));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"001122");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801 - variation (check warnings)
+	public void test103() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Cla<A> {\n" + 
+				"	Zork z;\n" +
+				"	A val;\n" + 
+				"	public Cla(A x) { val = x; }\n" + 
+				"	A getVal() { return val; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	void proc0(Cla<Long> b0) {\n" + 
+				"		final Long t1 = b0.getVal();\n" + 
+				"		System.out.print(t1);\n" + 
+				"		final long t2 = b0.getVal();\n" + 
+				"		System.out.print(t2);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void proc1(Cla<? extends Long> obj) {\n" + 
+				"		final Long t3 = obj.getVal();\n" + 
+				"		System.out.print(t3);\n" + 
+				"		final long t4 = obj.getVal();\n" + 
+				"		System.out.print(t4);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	<U extends Long> void proc2(Cla<U> obj) {\n" + 
+				"		final Long t5 = obj.getVal();\n" + 
+				"		System.out.print(t5);\n" + 
+				"		final long t6 = obj.getVal();\n" + 
+				"		System.out.printltn(t6);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.proc0(new Cla<Long>(0l));\n" + 
+				"		x.proc1(new Cla<Long>(1l));\n" + 
+				"		x.proc2(new Cla<Long>(2l));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
+			"	final long t2 = b0.getVal();\n" + 
+			"	                ^^^^^^^^^^^\n" + 
+			"The expression of type Long is unboxed into long\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 20)\n" + 
+			"	final long t4 = obj.getVal();\n" + 
+			"	                ^^^^^^^^^^^^\n" + 
+			"The expression of type ? extends Long is unboxed into long\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 24)\n" + 
+			"	<U extends Long> void proc2(Cla<U> obj) {\n" + 
+			"	           ^^^^\n" + 
+			"The type parameter U should not be bounded by the final type Long. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 27)\n" + 
+			"	final long t6 = obj.getVal();\n" + 
+			"	                ^^^^^^^^^^^^\n" + 
+			"The expression of type U is unboxed into long\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 28)\n" + 
+			"	System.out.printltn(t6);\n" + 
+			"	           ^^^^^^^^\n" + 
+			"The method printltn(long) is undefined for the type PrintStream\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 33)\n" + 
+			"	x.proc0(new Cla<Long>(0l));\n" + 
+			"	                      ^^\n" + 
+			"The expression of type long is boxed into Long\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 34)\n" + 
+			"	x.proc1(new Cla<Long>(1l));\n" + 
+			"	                      ^^\n" + 
+			"The expression of type long is boxed into Long\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 35)\n" + 
+			"	x.proc2(new Cla<Long>(2l));\n" + 
+			"	                      ^^\n" + 
+			"The expression of type long is boxed into Long\n" + 
+			"----------\n");
+	}
 }

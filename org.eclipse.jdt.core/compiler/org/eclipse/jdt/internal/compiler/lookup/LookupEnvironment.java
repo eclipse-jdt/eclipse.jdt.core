@@ -304,6 +304,29 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
 	}
+	// allow indirect unboxing conversion for wildcards and type parameters
+	switch (type.kind()) {
+		case Binding.WILDCARD_TYPE :
+		case Binding.TYPE_PARAMETER :
+			switch (type.erasure().id) {
+				case TypeIds.T_JavaLangBoolean :
+					return BooleanBinding;
+				case TypeIds.T_JavaLangByte :
+					return ByteBinding;
+				case TypeIds.T_JavaLangCharacter :
+					return CharBinding;
+				case TypeIds.T_JavaLangShort :
+					return ShortBinding;
+				case TypeIds.T_JavaLangDouble :
+					return DoubleBinding;
+				case TypeIds.T_JavaLangFloat :
+					return FloatBinding;
+				case TypeIds.T_JavaLangInteger :
+					return IntBinding;
+				case TypeIds.T_JavaLangLong :
+					return LongBinding;
+			}
+	}
 	return type;
 }	
 private PackageBinding computePackageFrom(char[][] constantPoolName) {
