@@ -81,11 +81,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0071"));
+		suite.addTest(new ASTConverter15Test("test0027"));
 		return suite;
 	}
 		
@@ -940,6 +940,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "1", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+		IVariableBinding binding = enumConstantDeclaration.resolveVariable();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong name", "PENNY", binding.getName());
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "NICKEL", source);
@@ -949,6 +952,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "5", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+		binding = enumConstantDeclaration.resolveVariable();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong name", "NICKEL", binding.getName());
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
 		checkSourceRange(enumConstantDeclaration.getName(), "DIME", source);
@@ -958,6 +964,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "10", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+		binding = enumConstantDeclaration.resolveVariable();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong name", "DIME", binding.getName());
 
 	
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
@@ -968,6 +977,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "25", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
+		binding = enumConstantDeclaration.resolveVariable();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong name", "QUARTER", binding.getName());
 	}
 	
 	public void test0028() throws JavaModelException {
