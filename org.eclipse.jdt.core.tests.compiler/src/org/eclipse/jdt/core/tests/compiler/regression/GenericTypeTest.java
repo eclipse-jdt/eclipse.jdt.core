@@ -8414,5 +8414,242 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"should also report illegal construct on init of j field");
 	}
-
+	// wildcard captures bound and variable superinterfaces
+	public void test327() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends IFoo> {\n" + 
+				"	\n" + 
+				"	T element() { return null; }\n" + 
+				"	void baz(X<? extends IBar> x) {\n" + 
+				"		x.element().foo();\n" + 
+				"		x.element().bar();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IFoo {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n"
+			},
+			"");
+	}
+	// wildcard captures bound and variable superinterfaces
+	public void test328() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends IFoo> {\n" + 
+				"	T element;\n" + 
+				"	X(T element) { \n" + 
+				"		this.element = element; \n" + 
+				"	}\n" + 
+				"	static void baz(X<? extends IBar> x) {\n" + 
+				"		x.element.foo();\n" + 
+				"		x.element.bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<Foo> x1 = new X<Foo>(new Foo());\n" + 
+				"		baz(x1);\n" + 
+				"		X<Bar> x2 = new X<Bar>(new Bar());\n" + 
+				"		baz(x2);\n" + 
+				"		X<FooBar> x3 = new X<FooBar>(new FooBar());\n" + 
+				"		baz(x3);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IFoo {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"class Foo implements IFoo {\n" + 
+				"	public void foo() {\n" + 
+				"		System.out.print(\"FOO\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Bar implements IBar {\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class FooBar extends Foo implements IBar {\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	baz(x1);\n" + 
+			"	^^^\n" + 
+			"The method baz(X<? extends IBar>) in the type X<T> is not applicable for the arguments (X<Foo>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\n" + 
+			"	X<Bar> x2 = new X<Bar>(new Bar());\n" + 
+			"	  ^^^\n" + 
+			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <T extends IFoo> of the type X<T>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	X<Bar> x2 = new X<Bar>(new Bar());\n" + 
+			"	                  ^^^\n" + 
+			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <T extends IFoo> of the type X<T>\n" + 
+			"----------\n");
+	}	
+	// wildcard captures bound and variable superinterfaces
+	public void _test329() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends IFoo> {\n" + 
+				"	T element;\n" + 
+				"	X(T element) { \n" + 
+				"		this.element = element; \n" + 
+				"	}\n" + 
+				"	static void baz(X<? extends IBar> x) {\n" + 
+				"		x.element.foo();\n" + 
+				"		x.element.bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<FooBar> x3 = new X<FooBar>(new FooBar());\n" + 
+				"		baz(x3);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IFoo {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"class FooBar implements IFoo, IBar {\n" + 
+				"	public void foo() {\n" + 
+				"		System.out.print(\"FOO\");\n" + 
+				"	}\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"FOOBAR");
+	}	
+	// wildcard captures bound superclass and variable superclass
+	public void test330() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Foo> {\n" + 
+				"	T element;\n" + 
+				"	X(T element) { \n" + 
+				"		this.element = element; \n" + 
+				"	}\n" + 
+				"	static void baz(X<? extends FooBar> x) {\n" + 
+				"		x.element.foo();\n" + 
+				"		x.element.bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<FooBar> x3 = new X<FooBar>(new FooBar());\n" + 
+				"		baz(x3);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"class Foo {\n" + 
+				"	public void foo() {\n" + 
+				"		System.out.print(\"FOO\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class FooBar extends Foo implements IBar {\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"FOOBAR");
+	}		
+	// wildcard captures bound superclass and variable superclass
+	public void _test331() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Foo> {\n" + 
+				"	T element;\n" + 
+				"	X(T element) { \n" + 
+				"		this.element = element; \n" + 
+				"	}\n" + 
+				"	static void baz(X<? extends IBar> x) {\n" + 
+				"		x.element.foo();\n" + 
+				"		x.element.bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<FooBar> x3 = new X<FooBar>(new FooBar());\n" + 
+				"		baz(x3);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"class Foo {\n" + 
+				"	public void foo() {\n" + 
+				"		System.out.print(\"FOO\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class FooBar extends Foo implements IBar {\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"FOOBAR");
+	}		
+	// wildcard considers bound superclass or variable superclass
+	public void test332() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Foo> {\n" + 
+				"	T element;\n" + 
+				"	X(T element) { \n" + 
+				"		this.element = element; \n" + 
+				"	}\n" + 
+				"	static void baz(X<? extends IBar> x) {\n" + // captures Foo & IBar
+				"		x.element.foo();\n" + 
+				"		x.element.bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		baz(new X<FooBar>(new FooBar()));\n" + 
+				"		baz(new X<Bar>(new Bar()));\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Bar implements IBar {\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Foo {\n" + 
+				"	public void foo() {\n" + 
+				"		System.out.print(\"FOO\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class FooBar extends Foo implements IBar {\n" + 
+				"	public void bar() {\n" + 
+				"		System.out.print(\"BAR\");\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	baz(new X<Bar>(new Bar()));\n" + 
+		"	          ^^^\n" + 
+		"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <T extends Foo> of the type X<T>\n" + 
+		"----------\n");
+	}
 }
