@@ -499,7 +499,9 @@ public static String createMethodSignature(String[] parameterTypes, String retur
  */
 public static char[] createCharArrayTypeParameterSignature(char[] typeParameterName, char[][] boundSignatures) {
 	int length = boundSignatures.length;
-	if (length == 0) return typeParameterName;
+	if (length == 0) {
+		return CharOperation.append(typeParameterName, C_COLON); // param signature with no bounds still gets trailing colon
+	}
 	int boundsSize = 0;
 	for (int i = 0; i < length; i++) {
 		boundsSize += boundSignatures[i].length + 1;
@@ -1393,8 +1395,8 @@ public static String getTypeVariable(String formalTypeParameterSignature) throws
 public static char[] getTypeVariable(char[] formalTypeParameterSignature) throws IllegalArgumentException {
 	int p = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
 	if (p < 0) {
-		// no ":" means there was no bounds
-		return formalTypeParameterSignature;
+		// no ":" means can't be a formal type parameter signature
+		throw new IllegalArgumentException();
 	}
 	return CharOperation.subarray(formalTypeParameterSignature, 0, p);
 }
@@ -1413,8 +1415,8 @@ public static char[] getTypeVariable(char[] formalTypeParameterSignature) throws
 public static char[][] getTypeParameterBounds(char[] formalTypeParameterSignature) throws IllegalArgumentException {
 	int p1 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
 	if (p1 < 0) {
-		// no ":" means there was no bounds
-		return CharOperation.NO_CHAR_CHAR;
+		// no ":" means can't be a formal type parameter signature
+		throw new IllegalArgumentException();
 	}
 	if (p1 == formalTypeParameterSignature.length - 1) {
 		// no class or interface bounds
