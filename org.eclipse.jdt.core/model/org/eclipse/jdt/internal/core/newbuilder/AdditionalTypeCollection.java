@@ -9,7 +9,7 @@ public class AdditionalTypeCollection extends ReferenceCollection {
 
 char[][] additionalTypeNames;
 
-public AdditionalTypeCollection(char[][] additionalTypeNames, char[][][] qualifiedReferences, char[][] simpleNameReferences) {
+protected AdditionalTypeCollection(char[][] additionalTypeNames, char[][][] qualifiedReferences, char[][] simpleNameReferences) {
 	super(qualifiedReferences, simpleNameReferences);
 	this.additionalTypeNames = additionalTypeNames; // do not bother interning member type names (ie. 'A$M')
 }

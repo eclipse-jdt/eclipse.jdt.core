@@ -135,11 +135,11 @@ public static ClasspathLocation[] computeLocations(
 	return classpathLocations;
 }
 
-static String assembleName(char[] fileName, char[][] packageName, char separator) {
+public static String assembleName(char[] fileName, char[][] packageName, char separator) {
 	return new String(CharOperation.concatWith(packageName, fileName, separator));
 }
 
-static String assembleName(String fileName, char[][] packageName, char separator) {
+public static String assembleName(String fileName, char[][] packageName, char separator) {
 	return new String(
 		CharOperation.concatWith(
 			packageName,
@@ -185,7 +185,7 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 public void reset() {
 }
 
-void setNames(String[] initialTypeNames, String[] additionalSourceFilenames) {
+public void setNames(String[] initialTypeNames, String[] additionalSourceFilenames) {
 	this.initialTypeNames = initialTypeNames;
 	this.additionalSourceFilenames = additionalSourceFilenames;
 	for (int i = 0, length = classpathLocations.length; i < length; i++) {

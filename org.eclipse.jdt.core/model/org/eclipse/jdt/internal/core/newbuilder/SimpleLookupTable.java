@@ -15,9 +15,8 @@ public final class SimpleLookupTable implements Cloneable {
 // to avoid using Enumerations, walk the individual tables skipping nulls
 public Object keyTable[];
 public Object valueTable[];
-
-int elementSize; // number of elements in the table
-int threshold;
+public int elementSize; // number of elements in the table
+public int threshold;
 
 public SimpleLookupTable() {
 	this(13);

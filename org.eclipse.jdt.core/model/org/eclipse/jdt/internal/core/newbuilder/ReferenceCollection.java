@@ -15,7 +15,7 @@ public class ReferenceCollection {
 char[][][] qualifiedReferences; // contains no simple names as in just 'a' which is kept in simpleNameReferences instead
 char[][] simpleNameReferences;
 
-public ReferenceCollection(char[][][] qualifiedReferences, char[][] simpleNameReferences) {
+protected ReferenceCollection(char[][][] qualifiedReferences, char[][] simpleNameReferences) {
 	this.qualifiedReferences = internQualifiedNames(qualifiedReferences);
 	this.simpleNameReferences = internSimpleNames(simpleNameReferences, true);
 }

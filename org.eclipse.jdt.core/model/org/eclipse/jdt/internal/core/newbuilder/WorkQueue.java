@@ -9,8 +9,6 @@ import java.util.*;
 
 public class WorkQueue {
 
-// WHY does the builder not hold onto a single array list itself?
-// IS there real value in knowing the compiled list?
 ArrayList needsCompileList;
 ArrayList compiledList;
 
