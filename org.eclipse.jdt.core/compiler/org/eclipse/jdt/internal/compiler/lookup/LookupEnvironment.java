@@ -320,14 +320,13 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 		// TODO (kent) suspect the check below is no longer required, since we should not be requesting a binary which is already in the cache
 		if (cachedType.isBinaryBinding()) // sanity check before the cast... at this point the cache should ONLY contain unresolved types
 			return (BinaryTypeBinding) cachedType;
-		this.updateCaches((UnresolvedReferenceBinding)cachedType, binaryBinding);
+
+		((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
 	}
+
 	packageBinding.addType(binaryBinding);
 	setAccessRestriction(binaryBinding, accessRestriction);
 	binaryBinding.cachePartsFrom(binaryType, needFieldsAndMethods);
-	if (cachedType != null) { // update reference to unresolved binding after having read classfile (knows whether generic for raw conversion)
-		((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
-	}
 	return binaryBinding;
 }
 /* Used to create packages from the package statement.

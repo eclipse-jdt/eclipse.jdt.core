@@ -105,7 +105,11 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.environment = environment;
 	this.fPackage = packageBinding;
 	this.fileName = binaryType.getFileName();
-	this.typeVariables = NoTypeVariables;
+
+	char[] typeSignature = environment.options.sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
+	this.typeVariables = typeSignature != null && typeSignature.length > 0 && typeSignature[0] == '<'
+		? null // is initialized in cachePartsFrom (called from LookupEnvironment.createBinaryTypeFrom())... must set to null so isGenericType() answers true
+		: NoTypeVariables;
 
 	// source name must be one name without "$".
 	char[] possibleSourceName = this.compoundName[this.compoundName.length - 1];
@@ -172,11 +176,11 @@ public int bindingType() {
 }	
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
-	
 	// default initialization for super-interfaces early, in case some aborting compilation error occurs,
 	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
+	this.typeVariables = NoTypeVariables;
 	this.superInterfaces = NoSuperInterfaces;
-	
+
 	// need enclosing type to access type variables
 	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
 	if (enclosingTypeName != null) {
