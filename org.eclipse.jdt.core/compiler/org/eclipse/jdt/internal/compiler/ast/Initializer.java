@@ -91,8 +91,10 @@ public class Initializer extends FieldDeclaration {
 	
 	public void resolve(MethodScope scope) {
 
-		int previous = scope.lastVisibleFieldID;
+	    FieldBinding previousField = scope.initializedField;
+		int previousFieldID = scope.lastVisibleFieldID;
 		try {
+		    scope.initializedField = null;
 			scope.lastVisibleFieldID = lastVisibleFieldID;
 			if (isStatic()) {
 				ReferenceBinding declaringType = scope.enclosingSourceType();
@@ -103,7 +105,8 @@ public class Initializer extends FieldDeclaration {
 			}
 			block.resolve(scope);
 		} finally {
-			scope.lastVisibleFieldID = previous;
+		    scope.initializedField = previousField;
+			scope.lastVisibleFieldID = previousFieldID;
 		}
 	}
 
