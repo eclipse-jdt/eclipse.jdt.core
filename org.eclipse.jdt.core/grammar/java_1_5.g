@@ -18,7 +18,8 @@
 --Usefull macros helping reading/writing semantic actions
 $Define 
 $putCase 
-/.    case $rule_number : // System.out.println("$rule_text");  //$NON-NLS-1$
+-- /.    case $rule_number : // System.out.println("$rule_text");  //$NON-NLS-1$
+/.    case $rule_number : if (DEBUG) { System.out.println("$rule_text"); }  //$NON-NLS-1$
 		   ./
 
 $break
@@ -96,6 +97,7 @@ $Terminals
 	DOT
 	EQUAL
 	AT
+	ELLIPSIS
 
 --    BodyMarker
 
@@ -123,7 +125,6 @@ $Alias
 	'>>>=' ::= UNSIGNED_RIGHT_SHIFT_EQUAL
 	'||'   ::= OR_OR
 	'&&'   ::= AND_AND
-
 	'+'    ::= PLUS
 	'-'    ::= MINUS
 	'!'    ::= NOT
@@ -149,6 +150,7 @@ $Alias
 	'.'    ::= DOT
 	'='    ::= EQUAL
 	'@'	   ::= AT
+	'...'  ::= ELLIPSIS
 	
 $Start
 	Goal
@@ -444,13 +446,14 @@ ClassMemberDeclaration -> MethodDeclaration
 ClassMemberDeclaration -> ClassDeclaration
 --1.1 feature
 ClassMemberDeclaration -> InterfaceDeclaration
+-- 1.5 feature
+ClassMemberDeclaration -> EnumDeclaration
 /:$readableName ClassMemberDeclaration:/
 
 -- Empty declarations are not valid Java ClassMemberDeclarations.
 -- However, since the current (2/14/97) Java compiler accepts them 
 -- (in fact, some of the official tests contain this erroneous
 -- syntax)
-
 GenericMethodDeclaration -> MethodDeclaration
 GenericMethodDeclaration -> ConstructorDeclaration
 /:$readableName GenericMethodDeclaration:/
@@ -569,6 +572,8 @@ FormalParameterList ::= FormalParameterList ',' FormalParameter
 
 --1.1 feature
 FormalParameter ::= Modifiersopt Type VariableDeclaratorId
+/.$putCase consumeFormalParameter(); $break ./
+FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
 /.$putCase consumeFormalParameter(); $break ./
 /:$readableName FormalParameter:/
 
@@ -1052,7 +1057,7 @@ ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' Clas
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' LESS TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' '<' TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 
 ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
@@ -1063,7 +1068,7 @@ ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' Si
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' LESS TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' '<' TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
@@ -1135,6 +1140,9 @@ FieldAccess ::= 'super' '.' 'Identifier'
 /:$readableName FieldAccess:/
 
 MethodInvocation ::= Name '(' ArgumentListopt ')'
+/.$putCase consumeMethodInvocationName(); $break ./
+
+MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationName(); $break ./
 
 MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
@@ -1539,7 +1547,7 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 -----------------------------------------------
 -- 1.5 features : generics
 -----------------------------------------------
-TypeArguments ::= LESS TypeArgumentList1
+TypeArguments ::= '<' TypeArgumentList1
 /.$putCase consumeTypeArguments(); $break ./
 /:$readableName TypeArguments:/
 
@@ -1563,7 +1571,7 @@ TypeArgument1 -> Wildcard1
 
 ReferenceType1 ::= ReferenceType '>'
 /.$putCase consumeReferenceType1(); $break ./
-ReferenceType1 ::= ClassOrInterface LESS TypeArgumentList2
+ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
 /.$putCase consumeReferenceType1(); $break ./
 /:$readableName ReferenceType1:/
 
@@ -1578,7 +1586,7 @@ TypeArgument2 -> Wildcard2
 
 ReferenceType2 ::= ReferenceType '>>'
 /.$putCase consumeReferenceType2(); $break ./
-ReferenceType2 ::= ClassOrInterface LESS TypeArgumentList3
+ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
 /.$putCase consumeReferenceType2(); $break ./
 /:$readableName ReferenceType2:/
 
@@ -1646,7 +1654,7 @@ WildcardBounds3 ::= 'super' ReferenceType3
 /.$putCase consumeWildcardBounds3(); $break ./
 /:$readableName WildcardBound3:/
 
-TypeParameters ::= LESS TypeParameterList1
+TypeParameters ::= '<' TypeParameterList1
 /.$putCase consumeTypeParameters(); $break ./
 /:$readableName TypeParameters:/
 
@@ -1681,7 +1689,7 @@ TypeParameter1 ::= Identifier '>'
 /.$putCase consumeTypeParameter1(); $break ./
 TypeParameter1 ::= Identifier 'extends' ReferenceType1
 /.$putCase consumeTypeParameter1(); $break ./
-TypeParameter1 ::= Identifier 'extends' ReferenceType1 AdditionalBoundList1
+TypeParameter1 ::= Identifier 'extends' ReferenceType AdditionalBoundList1
 /.$putCase consumeTypeParameter1(); $break ./
 /:$readableName TypeParameter1:/
 
@@ -1963,8 +1971,7 @@ LEFT_SHIFT_EQUAL ::=    '<<='
 RIGHT_SHIFT_EQUAL ::=    '>>='  
 UNSIGNED_RIGHT_SHIFT_EQUAL ::=    '>>>=' 
 OR_OR ::=    '||'   
-AND_AND ::=    '&&'   
-
+AND_AND ::=    '&&'
 PLUS ::=    '+'    
 MINUS ::=    '-'    
 NOT ::=    '!'    
