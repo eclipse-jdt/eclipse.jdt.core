@@ -28,11 +28,11 @@
 <tr>
 	<td ALIGN=RIGHT VALIGN=TOP WIDTH="2%"><img SRC="http://dev.eclipse.org/images/Adarrow.gif" NOSAVE BORDER=0 height=16 width=16></td>
 	<td WIDTH="98%"><b>Where to get the grammar</b><br>
-	<blockquote>The latest grammar is always located in the grammar() method of the Parser class. Go to the org.eclipse.jdt.core plugins
+	<blockquote>The latest grammar is always located in the <code>grammar()</code> method of the <code>Parser</code> class. Go to the org.eclipse.jdt.core plugins
 	directory (<font color="#3366FF">eclipse\plugins\org.eclipse.jdt.core</font> where eclipse is the root of your eclipse installation) and open the 
 	<font color="#3366FF">jdtcoresrc.zip</font> file. Then search for the <font color="#3366FF">Parser.java</font> inside the
-	folder <font color="#3366FF">org\eclipse\jdt\internal\compiler\parser\</font>. You need to look for the method called
-	grammar(). Then copy its contents from: 
+	folder <font color="#3366FF">org\eclipse\jdt\internal\compiler\parser\</font>. You need to look for the method named
+	<code>grammar()</code>. Then copy its contents from: 
 <PRE>--main options
 %options ACTION, AN=JavaAction.java, GP=java, 
 ....
@@ -40,7 +40,7 @@ $end
 -- need a carriage return after the $end
 </PRE>
 	into a file called <font color="#3366FF">java.g</font>. It is important to add a carriage return at the end of the last line.
-	You can save this file where you want. Let's say you save it in d:\temp.
+	You can save this file where you want, we will assume from thereon you saved it in <code>d:\temp\</code>.
 	</blockquote>
 	</p>
 	</td>
@@ -49,7 +49,7 @@ $end
 	<td ALIGN=RIGHT VALIGN=TOP WIDTH="2%"><img SRC="http://dev.eclipse.org/images/Adarrow.gif" NOSAVE BORDER=0 height=16 width=16></td>
 	<td WIDTH="98%"><b>What to do with these files and update the parser class...</b><br>
 	<blockquote>
- Let's say your lpg.exe or jikespg.exe is located in d:\lpg.
+Assuming, the LPG executable (<code>lpg.exe</code> or <code>jikespg.exe</code>) is located inside <code>d:\lpg</code>.
  <ol>
  <li>First in a console, run:
  <PRE>
@@ -150,7 +150,7 @@ Escaped symbol $error is an invalid C variable.
  </tr>
  <tr>
 <th VALIGN=top align=left>javasym.java</th>
- <td>This is the contents of the class org.eclipse.jdt.internal.compiler.parser.TerminalSymbols. You need to replace:<br>
+ <td>This is the contents of the class org.eclipse.jdt.core.compiler.ITerminalSymbols. You need to replace:<br>
  <ul>
  <li>TokenName$eof with TokenNameEOF</li>
  <li>TokenName$error with TokenNameERROR</li>
