@@ -165,6 +165,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionAfterCase2"));
 	suite.addTest(new CompletionTests("testCompletionToplevelType1"));
 	suite.addTest(new CompletionTests("testCompletionLocalType1"));
+	suite.addTest(new CompletionTests("testCompletionType1"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8260,6 +8261,20 @@ public void testCompletionLocalType1() throws JavaModelException {
 
 	assertEquals(
 		"element:ZZZZ    completion:ZZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void testCompletionType1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionType1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "CT1";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:CT1    completion:CT1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n"+
+		"element:CT1    completion:q2.CT1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 }

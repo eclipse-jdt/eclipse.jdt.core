@@ -106,7 +106,8 @@ public abstract class Engine implements ITypeRequestor {
 										return true;
 									}
 								} else {
-									if(CharOperation.equals(CharOperation.lastSegment(imports[j].readableName(), '.'), typeName)) {
+									if(CharOperation.equals(CharOperation.lastSegment(imports[j].readableName(), '.'), typeName)
+										&& !CharOperation.equals(imports[j].compoundName, CharOperation.splitOn('.', readableTypeName))) {
 										return true;	
 									}
 								}
