@@ -7191,6 +7191,7 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.thrownExceptions = c.thrownExceptions;
 	m.explicitDeclarations = c.explicitDeclarations;
 	m.returnType = null;
+	m.javadoc = c.javadoc;
 	return m;
 }
 protected TypeReference copyDims(TypeReference typeRef, int dim) {

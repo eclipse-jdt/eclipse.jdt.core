@@ -111,7 +111,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug80257"));
+		suite.addTest(new ASTConverterJavadocTest("testBug80221"));
 		return suite;
 	}
 
@@ -1391,70 +1391,70 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50781
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50781"
 	 */
 	public void test002() throws JavaModelException {
 		verifyComments("test002");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50784
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50784"
 	 */
 	public void test003() throws JavaModelException {
 		verifyComments("test003");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50785
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50785"
 	 */
 	public void test004() throws JavaModelException {
 		verifyComments("test004");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50838
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50838"
 	 */
 	public void test005() throws JavaModelException {
 		verifyComments("test005");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
 	public void test006() throws JavaModelException {
 		verifyComments("test006");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
 	public void test007() throws JavaModelException {
 		verifyComments("test007");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
 	public void test008() throws JavaModelException {
 		verifyComments("test008");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50877"
 	 */
 	public void test009() throws JavaModelException {
 		verifyComments("test009");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50880
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50880"
 	 */
 	public void test010() throws JavaModelException {
 		verifyComments("test010");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47396
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=47396"
 	 */
 	public void test011() throws JavaModelException {
 		problems = new StringBuffer();
@@ -1464,14 +1464,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50938
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50938"
 	 */
 	public void test012() throws JavaModelException {
 		verifyComments("test012");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51104
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51104"
 	 */
 	public void test013() throws JavaModelException {
 		verifyComments("test013");
@@ -1549,7 +1549,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 	/**
 	 * Verify DefaultCommentMapper heuristic to get leading and trailing comments
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53445
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53445"
 	 */
 	public void test100() throws JavaModelException {
 		verifyMapper("test100", 16, new int[] {2,7,8,15});
@@ -1580,7 +1580,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=54776
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=54776"
 	 */
 	public void testBug54776() throws JavaModelException {
 		sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug54776", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1613,7 +1613,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=55221
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=55221"
 	 */
 	public void testBug55221a() throws JavaModelException {
 		sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.a", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1826,14 +1826,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48489
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=48489"
 	 */
 	public void testBug48489() throws JavaModelException {
 		verifyComments("testBug48489");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50898
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=50898"
 	 */
 	public void testBug50898() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug50898", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1842,7 +1842,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51226
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51226"
 	 */
 	public void testBug51226() throws JavaModelException {
 		ICompilationUnit[] units = getCompilationUnits("Converter" , "src", "javadoc.testBug51226"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -1869,14 +1869,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51241
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51241"
 	 */
 	public void testBug51241() throws JavaModelException {
 		verifyComments("testBug51241");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51363
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51363"
 	 */
 	public void testBug51363() throws JavaModelException {
 		sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug51363", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1902,42 +1902,42 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51476
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51476"
 	 */
 	public void testBug51476() throws JavaModelException {
 		verifyComments("testBug51476");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51478
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51478"
 	 */
 	public void testBug51478() throws JavaModelException {
 		verifyComments("testBug51478");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51508
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51508"
 	 */
 	public void testBug51508() throws JavaModelException {
 		verifyComments("testBug51508");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51650
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51650"
 	 */
 	public void testBug51650() throws JavaModelException {
 		verifyComments("testBug51650");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51770
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51770"
 	 */
 	public void testBug51770() throws JavaModelException {
 		verifyComments("testBug51770");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52908
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=52908"
 	 */
 	public void testBug52908() throws JavaModelException {
 		verifyComments("testBug52908");
@@ -1950,14 +1950,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53276
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53276"
 	 */
 	public void testBug53276() throws JavaModelException {
 		verifyComments("testBug53276");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53075
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53075"
 	 */
 	public void testBug53075() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug53075", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1977,14 +1977,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53757
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=53757"
 	 */
 	public void testBug53757() throws JavaModelException {
 		verifyComments("testBug53757");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600"
 	 */
 	public void testBug51600() throws JavaModelException {
 		verifyComments("testBug51600");
@@ -2038,14 +2038,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63044
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=63044"
 	 */
 	public void testBug63044() throws JavaModelException {
 		verifyComments("testBug63044");
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660"
 	 */
 	public void testBug51660() throws JavaModelException {
 		stopOnFailure = false;
@@ -2136,80 +2136,80 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Test fix for bug 65174: Spurious "Javadoc: Missing reference" error
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174">65174</a>
+	 * Bug 65174: Spurious "Javadoc: Missing reference" error
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174"
 	 */
 	public void testBug65174() throws JavaModelException {
 		verifyComments("testBug65174");
 	}
 
 	/**
-	 * Test fix for bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253">65253</a>
+	 * Bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253"
 	 */
 	public void testBug65253() throws JavaModelException {
 		verifyComments("testBug65253");
 	}
 
 	/**
-	 * Test fix for bug 65288: Javadoc: tag gets mangled when javadoc closing on same line without whitespace
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65288">65288</a>
+	 * Bug 65288: Javadoc: tag gets mangled when javadoc closing on same line without whitespace
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65288"
 	 */
 	public void testBug65288() throws JavaModelException {
 		verifyComments("testBug65288");
 	}
 
 	/**
-	 * Test fix for bug 68017: Javadoc processing does not detect missing argument to @return
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017">68017</a>
+	 * Bug 68017: Javadoc processing does not detect missing argument to @return
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017"
 	 */
 	public void testBug68017() throws JavaModelException {
 		verifyComments("testBug68017");
 	}
 
 	/**
-	 * Test fix for bug 68025: Javadoc processing does not detect some wrong links
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025">68025</a>
+	 * Bug 68025: Javadoc processing does not detect some wrong links
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025"
 	 */
 	public void testBug68025() throws JavaModelException {
 		verifyComments("testBug68025");
 	}
 
 	/**
-	 * Test fix for bug 69272: [Javadoc] Invalid malformed reference (missing separator)
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272">69272</a>
+	 * Bug 69272: [Javadoc] Invalid malformed reference (missing separator)
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272"
 	 */
 	public void testBug69272() throws JavaModelException {
 		verifyComments("testBug69272");
 	}
 
 	/**
-	 * Test fix for bug 69275: [Javadoc] Invalid warning on @see link
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275">69275</a>
+	 * Bug 69275: [Javadoc] Invalid warning on @see link
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275"
 	 */
 	public void testBug69275() throws JavaModelException {
 		verifyComments("testBug69275");
 	}
 
 	/**
-	 * Test fix for bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302">69302</a>
+	 * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302"
 	 */
 	public void testBug69302() throws JavaModelException {
 		verifyComments("testBug69302");
 	}
 
 	/**
-	 * Test fix for bug 68726: [Javadoc] Target attribute in @see link triggers warning
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
+	 * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726"
 	 */
 	public void testBug68726() throws JavaModelException {
 		verifyComments("testBug68726");
 	}
 
 	/**
-	 * Test fix for bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
+	 * Bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
 	 */
 	public void testBug70892_JLS2() throws JavaModelException {
 		int level = astLevel;
@@ -2225,53 +2225,32 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Test fix for bug 51911: [Javadoc] @see method w/out ()
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911">51911</a>
+	 * Bug 51911: [Javadoc] @see method w/out ()
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911"
 	 */
 	public void testBug51911() throws JavaModelException {
 		verifyComments("testBug51911");
 	}
 
 	/**
-	 * Test fix for bug 73348: [Javadoc] Missing description for return tag is not always warned
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348">73348</a>
+	 * Bug 73348: [Javadoc] Missing description for return tag is not always warned
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348"
 	 */
 	public void testBug73348() throws JavaModelException {
 		verifyComments("testBug73348");
 	}
 
 	/**
-	 * Test fix for bug 77644: [dom] AST node extended positions may be wrong while moving
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77644">77644</a>
+	 * Bug 77644: [dom] AST node extended positions may be wrong while moving
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=77644"
 	 */
 	public void testBug77644() throws JavaModelException {
 		verifyComments("testBug77644");
 	}
 
 	/**
-	 * Regression test for bug 79904: [1.5][dom][javadoc] TagElement range not complete for type parameter tags
-	 */
-	public void testBug79904() throws JavaModelException {
-		workingCopies = new ICompilationUnit[1];
-		astLevel = AST.JLS3;
-		workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
-			"package javadoc.b79904;\n" +
-			"/**\n" + 
-			" * @param <E>\n" + 
-			" * @see Object\n" + 
-			" */\n" + 
-			"public class Test<E> {\n" + 
-			"	/**\n" + 
-			"	 * @param t\n" + 
-			"	 * @param <T>\n" + 
-			"	 */\n" + 
-			"	<T> void foo(T t) {}\n" + 
-			"}\n");
-		verifyWorkingCopiesComments();
-	}
-
-	/**
-	 * Regression test for bug 79809: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
+	 * Bug 79809: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79809"
 	 */
 	public void testBug79809() throws JavaModelException {
 		workingCopies = new ICompilationUnit[1];
@@ -2310,8 +2289,52 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
+	 * Bug 79904: [1.5][dom][javadoc] TagElement range not complete for type parameter tags
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79904"
+	 */
+	public void testBug79904() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
+			"package javadoc.b79904;\n" +
+			"/**\n" + 
+			" * @param <E>\n" + 
+			" * @see Object\n" + 
+			" */\n" + 
+			"public class Test<E> {\n" + 
+			"	/**\n" + 
+			"	 * @param t\n" + 
+			"	 * @param <T>\n" + 
+			"	 */\n" + 
+			"	<T> void foo(T t) {}\n" + 
+			"}\n");
+		verifyWorkingCopiesComments();
+	}
+
+	/**
+	 * Bug 80221: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80221"
+	 */
+	public void testBug80221() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b80221/Test.java",
+			"package javadoc.b80221;\n" +
+			"public class Test {\n" + 
+			"	/**\n" + 
+			"	 * @see Object Unknown: ref is not resolved due to compile error...\n" + 
+			"	 */\n" + 
+			"	public foo() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		verifyWorkingCopiesComments();
+	}
+
+	/**
 	 * Bug 80257: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
-	 * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=80257
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
 	 */
 	public void testBug80257() throws JavaModelException {
 		workingCopies = new ICompilationUnit[1];
