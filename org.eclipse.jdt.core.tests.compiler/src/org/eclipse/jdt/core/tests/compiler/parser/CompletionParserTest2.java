@@ -7263,8 +7263,8 @@ public void test0129(){
 		"  }\n" +
 		"  void foo() {\n" +
 		"    Object local;\n" +
-		"    double bar;\n" ++
-		"    <CompleteOnName:zzz>];\n" +
+		"    double bar;\n" +
+		"    <CompleteOnName:zzz>;\n" +
 		"  }\n" +
 		"}\n";
 
