@@ -36,15 +36,15 @@ public SortCompilationUnitElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
-	this.createFolder("/P/src/p");
+	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
 	this.sortUnit(unit, expectedResult, true);
 }
 
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
-	debug(unit, "BEFORE");
+	debug(unit, "BEFORE"); //$NON-NLS-1$
 	if (testPositions) {
 		char[] initialSource = unit.getSource().toCharArray();
 		int[] positions = new int[initialSource.length];
@@ -53,9 +53,9 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 		}
 		CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new int[][] { positions }, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
 		String sortedSource = unit.getBuffer().getContents();
-		assertEquals("Different output", sortedSource, expectedResult);
+		assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
 		for (int i = 0, max = positions.length; i < max; i++) {
-			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], initialSource[i], expectedResult.charAt(positions[i]));
+			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], initialSource[i], expectedResult.charAt(positions[i])); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
 		CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
@@ -63,18 +63,18 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 		if (expectedResult == null || expectedResult.length() == 0) {
 			System.out.println(sortedSource);
 		} else {
-			assertEquals("Different output", sortedSource, expectedResult);
+			assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
 		}
 	}
-	debug(unit, "AFTER");
+	debug(unit, "AFTER"); //$NON-NLS-1$
 }
 
 private void debug(ICompilationUnit unit, String id) throws JavaModelException {
 	String source = unit.getBuffer().getContents();
 	if (DEBUG) {
-		System.out.println("========================== " + id + " =============================="); //$NON-NLS-1$
+		System.out.println("========================== " + id + " =============================="); //$NON-NLS-1$ //$NON-NLS-2$
 		System.out.println(source);
-		System.out.println("========================== " + id + " =============================="); //$NON-NLS-1$
+		System.out.println("========================== " + id + " =============================="); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 
@@ -85,17 +85,17 @@ public static Test suite() {
 		Class c = SortCompilationUnitElementsTests.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) {
+			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new SortCompilationUnitElementsTests(methods[i].getName()));
 			}
 		}
 	} else {
-		suite.addTest(new SortCompilationUnitElementsTests("test011"));
+		suite.addTest(new SortCompilationUnitElementsTests("test011")); //$NON-NLS-1$
 	}	
 	return suite;
 }
 public void tearDownSuite() throws Exception {
-	this.deleteProject("P");
+	this.deleteProject("P"); //$NON-NLS-1$
 	super.tearDownSuite();
 }
 /**
@@ -104,98 +104,98 @@ public void tearDownSuite() throws Exception {
 public void test001() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"/**\n" +
-			" *\n" +
-			" */\n" +
-			"package p;\n" +
-			"public class X {\n" +
-			"	\n" +
-			"	static class D {\n" +
-			"		String toString() {\n" +
-			"			return \"HELLO\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"	// start of static field declaration\n" +
-			"\n" +
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +
-			"	void bar(int i) {\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		\n\n" +
-			"		class E {\n" +
-			"			void bar7() {\n" +
-			"				System.out.println();\n" +
-			"			}\n" +
-			"			void bar9() {}\n" +
-			"			void bar2() {}\n" +
-			"		}\n" +
-			"		Object o = new E();\n" +
-			"		System.out.println(o);\n" +
-			"		class C {\n" +
-			"			void bar6() {}\n" +
-			"			void bar4() {}\n" +
-			"			void bar5() {}\n" +
-			"		}\n" +
-			"	}\n\n" +
-			"	Object b1 = null, a1 = new Object() {\n" +
-			"		void bar2() {\n" +
-			"		}\n" +
-			"		void bar() {\n" +
-			"		}\n" +
-			"		void bar4() {\n" +
-			"			System.out.println();\n" +
-			"		}\n" +
-			"		void bar3() {\n" +
-			"		}\n" +
-			"	}, c1 = null; // end of multiple field declaration\n" +
-			"	// end of class X\n" +
-			"}\n" + 
-			"// end of compilation unit\n"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"/**\n" + //$NON-NLS-1$
+			" *\n" + //$NON-NLS-1$
+			" */\n" + //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	static class D {\n" + //$NON-NLS-1$
+			"		String toString() {\n" + //$NON-NLS-1$
+			"			return \"HELLO\";\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	// start of static field declaration\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
+			"	void bar(int i) {\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void bar() {\n" + //$NON-NLS-1$
+			"		\n\n" + //$NON-NLS-1$
+			"		class E {\n" + //$NON-NLS-1$
+			"			void bar7() {\n" + //$NON-NLS-1$
+			"				System.out.println();\n" + //$NON-NLS-1$
+			"			}\n" + //$NON-NLS-1$
+			"			void bar9() {}\n" + //$NON-NLS-1$
+			"			void bar2() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		Object o = new E();\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n\n" + //$NON-NLS-1$
+			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
+			"		void bar2() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar4() {\n" + //$NON-NLS-1$
+			"			System.out.println();\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar3() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
+			"	// end of class X\n" + //$NON-NLS-1$
+			"}\n" +  //$NON-NLS-1$
+			"// end of compilation unit\n" //$NON-NLS-1$
 		);
-		String expectedResult = "/**\n" +			" *\n" +			" */\n" +			"package p;\n" +			"public class X {\n" +			"	\n" +			"	static class D {\n" +			"		String toString() {\n" +			"			return \"HELLO\";\n" +			"		}\n" +			"	}\n" +			"	// start of static field declaration\n" +			"\n" +			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +			"\n" +			"	Object b1 = null, a1 = new Object() {\n" +			"		void bar() {\n" +			"		}\n" +			"		void bar2() {\n" +			"		}\n" +			"		void bar3() {\n" +			"		}\n" +			"		void bar4() {\n" +			"			System.out.println();\n" +			"		}\n" +			"	}, c1 = null; // end of multiple field declaration\n" +			"	void bar() {\n" +			"		\n" +			"\n" +			"		class E {\n" +			"			void bar2() {}\n" +			"			void bar7() {\n" +			"				System.out.println();\n" +			"			}\n" +			"			void bar9() {}\n" +			"		}\n" +			"		Object o = new E();\n" +			"		System.out.println(o);\n" +			"		class C {\n" +			"			void bar4() {}\n" +			"			void bar5() {}\n" +			"			void bar6() {}\n" +			"		}\n" +			"	}\n" +			"	void bar(int i) {\n" +			"	}\n" +			"	// end of class X\n" +			"}\n" +			"// end of compilation unit\n";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "/**\n" + //$NON-NLS-1$			" *\n" + //$NON-NLS-1$			" */\n" + //$NON-NLS-1$			"package p;\n" + //$NON-NLS-1$			"public class X {\n" + //$NON-NLS-1$			"	\n" + //$NON-NLS-1$			"	static class D {\n" + //$NON-NLS-1$			"		String toString() {\n" + //$NON-NLS-1$			"			return \"HELLO\";\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	// start of static field declaration\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$			"		void bar() {\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		void bar2() {\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		void bar3() {\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		void bar4() {\n" + //$NON-NLS-1$			"			System.out.println();\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$			"	void bar() {\n" + //$NON-NLS-1$			"		\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"		class E {\n" + //$NON-NLS-1$			"			void bar2() {}\n" + //$NON-NLS-1$			"			void bar7() {\n" + //$NON-NLS-1$			"				System.out.println();\n" + //$NON-NLS-1$			"			}\n" + //$NON-NLS-1$			"			void bar9() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		Object o = new E();\n" + //$NON-NLS-1$			"		System.out.println(o);\n" + //$NON-NLS-1$			"		class C {\n" + //$NON-NLS-1$			"			void bar4() {}\n" + //$NON-NLS-1$			"			void bar5() {}\n" + //$NON-NLS-1$			"			void bar6() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	void bar(int i) {\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	// end of class X\n" + //$NON-NLS-1$			"}\n" + //$NON-NLS-1$			"// end of compilation unit\n"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test002() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	\n" +
-			"	class D {\n" +
-			"		String toString() {\n" +
-			"			return \"HELLO\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"	int i, j, k;\n" +
-			"	Object bar() {\n" +
-			"		System.out.println();\n" +
-			"		Object o = new Object() {    };\n" +
-			"		System.out.println(o);\n" +
-			"		class C {\n" +
-			"			void bar6() {}\n" +
-			"			void bar4() {}\n" +
-			"			void bar5() {}\n" +
-			"		}\n" +
-			"		return new C();\n" +
-			"	}\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		Object o = new Object() {        };\n" +
-			"		System.out.println(o);\n" +
-			"		return o;\n" +
-			"	}\n" +
-			"	Object a1 = new Object() { }, o1 = null;\n" +
-			"}"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	class D {\n" + //$NON-NLS-1$
+			"		String toString() {\n" + //$NON-NLS-1$
+			"			return \"HELLO\";\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	int i, j, k;\n" + //$NON-NLS-1$
+			"	Object bar() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		return new C();\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		Object o = new Object() {        };\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		return o;\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	Object a1 = new Object() { }, o1 = null;\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
 		);
-		String expectedSource = "package p;\n" +			"public class X {\n" +			"	\n" +			"	class D {\n" +			"		String toString() {\n" +			"			return \"HELLO\";\n" +			"		}\n" +			"	}\n" +			"	Object a1 = new Object() { }, o1 = null;\n" +			"	int i, j, k;\n" +			"	Object bar() {\n" +			"		System.out.println();\n" +			"		Object o = new Object() {    };\n" +			"		System.out.println(o);\n" +			"		class C {\n" +			"			void bar4() {}\n" +			"			void bar5() {}\n" +			"			void bar6() {}\n" +			"		}\n" +			"		return new C();\n" +			"	}\n" +			"	Object bar3() {\n" +			"		System.out.println();\n" +			"		Object o = new Object() {        };\n" +			"		System.out.println(o);\n" +			"		return o;\n" +			"	}\n" +			"}";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource);
+		String expectedSource = "package p;\n" + //$NON-NLS-1$			"public class X {\n" + //$NON-NLS-1$			"	\n" + //$NON-NLS-1$			"	class D {\n" + //$NON-NLS-1$			"		String toString() {\n" + //$NON-NLS-1$			"			return \"HELLO\";\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	Object a1 = new Object() { }, o1 = null;\n" + //$NON-NLS-1$			"	int i, j, k;\n" + //$NON-NLS-1$			"	Object bar() {\n" + //$NON-NLS-1$			"		System.out.println();\n" + //$NON-NLS-1$			"		Object o = new Object() {    };\n" + //$NON-NLS-1$			"		System.out.println(o);\n" + //$NON-NLS-1$			"		class C {\n" + //$NON-NLS-1$			"			void bar4() {}\n" + //$NON-NLS-1$			"			void bar5() {}\n" + //$NON-NLS-1$			"			void bar6() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		return new C();\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	Object bar3() {\n" + //$NON-NLS-1$			"		System.out.println();\n" + //$NON-NLS-1$			"		Object o = new Object() {        };\n" + //$NON-NLS-1$			"		System.out.println(o);\n" + //$NON-NLS-1$			"		return o;\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -204,59 +204,59 @@ public void test002() throws CoreException {
 public void test003() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"/**\n" +
-			" *\n" +
-			" */\n" +
-			"package p;\n" +
-			"public class X extends java.lang.Object implements java.util.Cloneable {\n" +
-			"	\n" +
-			"	class D {\n" +
-			"		String toString() {\n" +
-			"			return \"HELLO\";\n" +
-			"		}\n" +
-			"	}\n" +			"\n" +
-			"	// start of field declaration\n" +
-			"\n" +
-			"	int i, j = 3, /*     */ k = 4;// end of field declaration\n" +
-			"	void bar(final int i[]) {\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		\n\n" +
-			"		class E {\n" +
-			"			void bar7() {\n" +
-			"				System.out.println();\n" +
-			"			}\n" +
-			"			void bar9() {}\n" +
-			"			void bar2() {}\n" +
-			"		}\n" +
-			"		Object o = new E();\n" +
-			"		System.out.println(o);\n" +
-			"		class C {\n" +
-			"			void bar6() {}\n" +
-			"			void bar4() {}\n" +
-			"			void bar5() {}\n" +
-			"		}\n" +
-			"	}\n\n" +
-			"	Object b1[] = null, a1 = new Object() {\n" +
-			"		void bar2(int[] j) {\n" +
-			"		}\n" +
-			"		void bar() {\n" +
-			"		}\n" +
-			"		void bar4() {\n" +
-			"			System.out.println();\n" +
-			"		}\n" +
-			"		void bar3() {\n" +
-			"		}\n" +
-			"	}, c1 = null; // end of multiple field declaration\n" +
-			"	// end of class X\n" +
-			"}\n" + 
-			"// end of compilation unit\n"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"/**\n" + //$NON-NLS-1$
+			" *\n" + //$NON-NLS-1$
+			" */\n" + //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	class D {\n" + //$NON-NLS-1$
+			"		String toString() {\n" + //$NON-NLS-1$
+			"			return \"HELLO\";\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$
+			"	// start of field declaration\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	int i, j = 3, /*     */ k = 4;// end of field declaration\n" + //$NON-NLS-1$
+			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void bar() {\n" + //$NON-NLS-1$
+			"		\n\n" + //$NON-NLS-1$
+			"		class E {\n" + //$NON-NLS-1$
+			"			void bar7() {\n" + //$NON-NLS-1$
+			"				System.out.println();\n" + //$NON-NLS-1$
+			"			}\n" + //$NON-NLS-1$
+			"			void bar9() {}\n" + //$NON-NLS-1$
+			"			void bar2() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		Object o = new E();\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n\n" + //$NON-NLS-1$
+			"	Object b1[] = null, a1 = new Object() {\n" + //$NON-NLS-1$
+			"		void bar2(int[] j) {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar4() {\n" + //$NON-NLS-1$
+			"			System.out.println();\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar3() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
+			"	// end of class X\n" + //$NON-NLS-1$
+			"}\n" +  //$NON-NLS-1$
+			"// end of compilation unit\n" //$NON-NLS-1$
 		);
-		String expectedResult = "/**\n" +			" *\n" +			" */\n" +			"package p;\n" +			"public class X extends java.lang.Object implements java.util.Cloneable {\n" +			"	\n" +			"	class D {\n" +			"		String toString() {\n" +			"			return \"HELLO\";\n" +			"		}\n" +			"	}\n" +			"\n" +			"	Object b1[] = null, a1 = new Object() {\n" +			"		void bar() {\n" +			"		}\n" +			"		void bar2(int[] j) {\n" +			"		}\n" +			"		void bar3() {\n" +			"		}\n" +			"		void bar4() {\n" +			"			System.out.println();\n" +			"		}\n" +			"	}, c1 = null; // end of multiple field declaration\n" +			"\n" +			"	// start of field declaration\n" +			"\n" +			"	int i, j = 3, /*     */ k = 4;// end of field declaration\n" +			"	void bar() {\n" +			"		\n" +			"\n" +			"		class E {\n" +			"			void bar2() {}\n" +			"			void bar7() {\n" +			"				System.out.println();\n" +			"			}\n" +			"			void bar9() {}\n" +			"		}\n" +			"		Object o = new E();\n" +			"		System.out.println(o);\n" +			"		class C {\n" +			"			void bar4() {}\n" +			"			void bar5() {}\n" +			"			void bar6() {}\n" +			"		}\n" +			"	}\n" +			"	void bar(final int i[]) {\n" +			"	}\n" +			"	// end of class X\n" +			"}\n" +			"// end of compilation unit\n";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "/**\n" + //$NON-NLS-1$			" *\n" + //$NON-NLS-1$			" */\n" + //$NON-NLS-1$			"package p;\n" + //$NON-NLS-1$			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$			"	\n" + //$NON-NLS-1$			"	class D {\n" + //$NON-NLS-1$			"		String toString() {\n" + //$NON-NLS-1$			"			return \"HELLO\";\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	Object b1[] = null, a1 = new Object() {\n" + //$NON-NLS-1$			"		void bar() {\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		void bar2(int[] j) {\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		void bar3() {\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		void bar4() {\n" + //$NON-NLS-1$			"			System.out.println();\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	// start of field declaration\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	int i, j = 3, /*     */ k = 4;// end of field declaration\n" + //$NON-NLS-1$			"	void bar() {\n" + //$NON-NLS-1$			"		\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"		class E {\n" + //$NON-NLS-1$			"			void bar2() {}\n" + //$NON-NLS-1$			"			void bar7() {\n" + //$NON-NLS-1$			"				System.out.println();\n" + //$NON-NLS-1$			"			}\n" + //$NON-NLS-1$			"			void bar9() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		Object o = new E();\n" + //$NON-NLS-1$			"		System.out.println(o);\n" + //$NON-NLS-1$			"		class C {\n" + //$NON-NLS-1$			"			void bar4() {}\n" + //$NON-NLS-1$			"			void bar5() {}\n" + //$NON-NLS-1$			"			void bar6() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	void bar(final int i[]) {\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	// end of class X\n" + //$NON-NLS-1$			"}\n" + //$NON-NLS-1$			"// end of compilation unit\n"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -265,168 +265,168 @@ public void test003() throws CoreException {
 public void test004() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"/**\n" +
-			" *\n" +
-			" */\n" +
-			"package p;\n" +
-			"public class X extends java.lang.Object implements java.util.Cloneable {\n" +
-			"	\n" +
-			"	class D {\n" +
-			"		String toString() {\n" +
-			"			return \"HELLO\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"\n" +
-			"	// start of method declaration\n" +
-			"\n" +
-			"	void bar(final int i[]) {\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		\n\n" +
-			"		class E {\n" +
-			"			Object bar7() {\n" +
-			"				return new Object() {\n" +
-			"					void bar9() {}\n" +
-			"					void bar2() {}\n" +
-			"				};\n" +
-			"			}\n" +
-			"			void bar9() {}\n" +
-			"			void bar2() {}\n" +
-			"		}\n" +
-			"		Object o = new E();\n" +
-			"		System.out.println(o);\n" +
-			"		class C {\n" +
-			"			void bar6() {}\n" +
-			"			void bar4() {}\n" +
-			"			void bar5() {}\n" +
-			"		}\n" +
-			"	}\n\n" +
-			"	// end of class X\n" +
-			"}\n" + 
-			"// end of compilation unit\n"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"/**\n" + //$NON-NLS-1$
+			" *\n" + //$NON-NLS-1$
+			" */\n" + //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	class D {\n" + //$NON-NLS-1$
+			"		String toString() {\n" + //$NON-NLS-1$
+			"			return \"HELLO\";\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	// start of method declaration\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	void bar(final int i[]) {\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void bar() {\n" + //$NON-NLS-1$
+			"		\n\n" + //$NON-NLS-1$
+			"		class E {\n" + //$NON-NLS-1$
+			"			Object bar7() {\n" + //$NON-NLS-1$
+			"				return new Object() {\n" + //$NON-NLS-1$
+			"					void bar9() {}\n" + //$NON-NLS-1$
+			"					void bar2() {}\n" + //$NON-NLS-1$
+			"				};\n" + //$NON-NLS-1$
+			"			}\n" + //$NON-NLS-1$
+			"			void bar9() {}\n" + //$NON-NLS-1$
+			"			void bar2() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		Object o = new E();\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n\n" + //$NON-NLS-1$
+			"	// end of class X\n" + //$NON-NLS-1$
+			"}\n" +  //$NON-NLS-1$
+			"// end of compilation unit\n" //$NON-NLS-1$
 		);
-		String expectedResult = "/**\n" +			" *\n" +			" */\n" +			"package p;\n" +			"public class X extends java.lang.Object implements java.util.Cloneable {\n" +			"	\n" +			"	class D {\n" +			"		String toString() {\n" +			"			return \"HELLO\";\n" +			"		}\n" +			"	}\n" +			"	void bar() {\n" +			"		\n" +			"\n" +			"		class E {\n" +			"			void bar2() {}\n" +			"			Object bar7() {\n" +			"				return new Object() {\n" +			"					void bar2() {}\n" +			"					void bar9() {}\n" +			"				};\n" +			"			}\n" +			"			void bar9() {}\n" +			"		}\n" +			"		Object o = new E();\n" +			"		System.out.println(o);\n" +			"		class C {\n" +			"			void bar4() {}\n" +			"			void bar5() {}\n" +			"			void bar6() {}\n" +			"		}\n" +			"	}\n" +			"\n" +			"	// start of method declaration\n" +			"\n" +			"	void bar(final int i[]) {\n" +			"	}\n" +			"\n" +			"	// end of class X\n" +			"}\n" +			"// end of compilation unit\n";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "/**\n" + //$NON-NLS-1$			" *\n" + //$NON-NLS-1$			" */\n" + //$NON-NLS-1$			"package p;\n" + //$NON-NLS-1$			"public class X extends java.lang.Object implements java.util.Cloneable {\n" + //$NON-NLS-1$			"	\n" + //$NON-NLS-1$			"	class D {\n" + //$NON-NLS-1$			"		String toString() {\n" + //$NON-NLS-1$			"			return \"HELLO\";\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"	void bar() {\n" + //$NON-NLS-1$			"		\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"		class E {\n" + //$NON-NLS-1$			"			void bar2() {}\n" + //$NON-NLS-1$			"			Object bar7() {\n" + //$NON-NLS-1$			"				return new Object() {\n" + //$NON-NLS-1$			"					void bar2() {}\n" + //$NON-NLS-1$			"					void bar9() {}\n" + //$NON-NLS-1$			"				};\n" + //$NON-NLS-1$			"			}\n" + //$NON-NLS-1$			"			void bar9() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"		Object o = new E();\n" + //$NON-NLS-1$			"		System.out.println(o);\n" + //$NON-NLS-1$			"		class C {\n" + //$NON-NLS-1$			"			void bar4() {}\n" + //$NON-NLS-1$			"			void bar5() {}\n" + //$NON-NLS-1$			"			void bar6() {}\n" + //$NON-NLS-1$			"		}\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	// start of method declaration\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	void bar(final int i[]) {\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"\n" + //$NON-NLS-1$			"	// end of class X\n" + //$NON-NLS-1$			"}\n" + //$NON-NLS-1$			"// end of compilation unit\n"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test005() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		Object o = new Object() {        };\n" +
-			"		System.out.println(o);\n" +
-			"		return o;\n" +
-			"	}\n" +
-			"}"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		Object o = new Object() {        };\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		return o;\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
 		);
-		String expectedResult = "package p;\n" +			"public class X {\n" +			"	Object bar3() {\n" +			"		System.out.println();\n" +			"		Object o = new Object() {        };\n" +			"		System.out.println(o);\n" +			"		return o;\n" +			"	}\n" +			"}";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "package p;\n" + //$NON-NLS-1$			"public class X {\n" + //$NON-NLS-1$			"	Object bar3() {\n" + //$NON-NLS-1$			"		System.out.println();\n" + //$NON-NLS-1$			"		Object o = new Object() {        };\n" + //$NON-NLS-1$			"		System.out.println(o);\n" + //$NON-NLS-1$			"		return o;\n" + //$NON-NLS-1$			"	}\n" + //$NON-NLS-1$			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test006() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		return new Object() {\n" +
-			"			public void bar6() {}\n" +
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
-			"			void bar5() {}\n" +
-			"       };\n" +
-			"	}\n" +
-			"}"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		return new Object() {\n" + //$NON-NLS-1$
+			"			public void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"       };\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
 		);
-		String expectedResult = "package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		return new Object() {\n" +
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
-			"			void bar5() {}\n" +
-			"			public void bar6() {}\n" +
-			"       };\n" +
-			"	}\n" +
-			"}";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		return new Object() {\n" + //$NON-NLS-1$
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"			public void bar6() {}\n" + //$NON-NLS-1$
+			"       };\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test007() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		return new Object() {\n" +
-			"			public static void bar6() {}\n" +
-			"			void bar5() {}\n" +
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
-			"       };\n" +
-			"	}\n" +
-			"}"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		return new Object() {\n" + //$NON-NLS-1$
+			"			public static void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
+			"       };\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
 		);
-		String expectedResult = "package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		return new Object() {\n" +
-			"			public static void bar6() {}\n" +
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
-			"			void bar5() {}\n" +
-			"       };\n" +
-			"	}\n" +
-			"}";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		return new Object() {\n" + //$NON-NLS-1$
+			"			public static void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"       };\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 
 public void test008() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		return new Object() {\n" +
-			"			public static void bar6() {}\n" +
-			"			void bar5() {}\n" +
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
-			"       };\n" +
-			"	}\n" +
-			"}"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		return new Object() {\n" + //$NON-NLS-1$
+			"			public static void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
+			"       };\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
 		);
-		String expectedResult = "package p;\n" +
-			"public class X {\n" +
-			"	Object bar3() {\n" +
-			"		System.out.println();\n" +
-			"		return new Object() {\n" +
-			"			public static void bar6() {}\n" +
-			"			void bar4() throws IOException, Exception, NullPointerException {}\n" +
-			"			void bar5() {}\n" +
-			"       };\n" +
-			"	}\n" +
-			"}";
-		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult);
+		String expectedResult = "package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		return new Object() {\n" + //$NON-NLS-1$
+			"			public static void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() throws IOException, Exception, NullPointerException {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"       };\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 /**
@@ -435,135 +435,135 @@ public void test008() throws CoreException {
 public void test009() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/X.java",
-			"/**\n" +
-			" *\n" +
-			" */\n" +
-			"package p;\n" +
-			"public class X {\n" +
-			"	\n" +
-			"	static class D {\n" +
-			"		String toString() {\n" +
-			"			return \"HELLO\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"	// start of static field declaration\n" +
-			"\n" +
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +
-			"	void bar(int i) {\n" +
-			"	}\n" +
-			"	void bar() {\n" +
-			"		\n\n" +
-			"		class E {\n" +
-			"			void bar7() {\n" +
-			"				System.out.println();\n" +
-			"			}\n" +
-			"			void bar9() {}\n" +
-			"			void bar2() {}\n" +
-			"		}\n" +
-			"		Object o = new E();\n" +
-			"		System.out.println(o);\n" +
-			"		class C {\n" +
-			"			void bar6() {}\n" +
-			"			void bar4() {}\n" +
-			"			void bar5() {}\n" +
-			"		}\n" +
-			"	}\n\n" +
-			"	Object b1 = null, a1 = new Object() {\n" +
-			"		void bar2() {\n" +
-			"		}\n" +
-			"		void bar() {\n" +
-			"		}\n" +
-			"		void bar4() {\n" +
-			"			System.out.println();\n" +
-			"		}\n" +
-			"		void bar3() {\n" +
-			"		}\n" +
-			"	}, c1 = null; // end of multiple field declaration\n" +
-			"	// end of class X\n" +
-			"}\n" + 
-			"// end of compilation unit\n"
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"/**\n" + //$NON-NLS-1$
+			" *\n" + //$NON-NLS-1$
+			" */\n" + //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	static class D {\n" + //$NON-NLS-1$
+			"		String toString() {\n" + //$NON-NLS-1$
+			"			return \"HELLO\";\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	// start of static field declaration\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
+			"	void bar(int i) {\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void bar() {\n" + //$NON-NLS-1$
+			"		\n\n" + //$NON-NLS-1$
+			"		class E {\n" + //$NON-NLS-1$
+			"			void bar7() {\n" + //$NON-NLS-1$
+			"				System.out.println();\n" + //$NON-NLS-1$
+			"			}\n" + //$NON-NLS-1$
+			"			void bar9() {}\n" + //$NON-NLS-1$
+			"			void bar2() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		Object o = new E();\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n\n" + //$NON-NLS-1$
+			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
+			"		void bar2() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar4() {\n" + //$NON-NLS-1$
+			"			System.out.println();\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar3() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
+			"	// end of class X\n" + //$NON-NLS-1$
+			"}\n" +  //$NON-NLS-1$
+			"// end of compilation unit\n" //$NON-NLS-1$
 		);
-		String expectedResult = "/**\n" +
-			" *\n" +
-			" */\n" +
-			"package p;\n" +
-			"public class X {\n" +
-			"	\n" +
-			"	static class D {\n" +
-			"		String toString() {\n" +
-			"			return \"HELLO\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"	// start of static field declaration\n" +
-			"\n" +
-			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" +
-			"\n" +
-			"	Object b1 = null, a1 = new Object() {\n" +
-			"		void bar() {\n" +
-			"		}\n" +
-			"		void bar2() {\n" +
-			"		}\n" +
-			"		void bar3() {\n" +
-			"		}\n" +
-			"		void bar4() {\n" +
-			"			System.out.println();\n" +
-			"		}\n" +
-			"	}, c1 = null; // end of multiple field declaration\n" +
-			"	void bar() {\n" +
-			"		\n" +
-			"\n" +
-			"		class E {\n" +
-			"			void bar2() {}\n" +
-			"			void bar7() {\n" +
-			"				System.out.println();\n" +
-			"			}\n" +
-			"			void bar9() {}\n" +
-			"		}\n" +
-			"		Object o = new E();\n" +
-			"		System.out.println(o);\n" +
-			"		class C {\n" +
-			"			void bar4() {}\n" +
-			"			void bar5() {}\n" +
-			"			void bar6() {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"	void bar(int i) {\n" +
-			"	}\n" +
-			"	// end of class X\n" +
-			"}\n" +
-			"// end of compilation unit\n";
-		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java");
+		String expectedResult = "/**\n" + //$NON-NLS-1$
+			" *\n" + //$NON-NLS-1$
+			" */\n" + //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	static class D {\n" + //$NON-NLS-1$
+			"		String toString() {\n" + //$NON-NLS-1$
+			"			return \"HELLO\";\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	// start of static field declaration\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	static int i, j = 3, /*     */ k = 4;// end of static field declaration\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"	Object b1 = null, a1 = new Object() {\n" + //$NON-NLS-1$
+			"		void bar() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar2() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar3() {\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		void bar4() {\n" + //$NON-NLS-1$
+			"			System.out.println();\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}, c1 = null; // end of multiple field declaration\n" + //$NON-NLS-1$
+			"	void bar() {\n" + //$NON-NLS-1$
+			"		\n" + //$NON-NLS-1$
+			"\n" + //$NON-NLS-1$
+			"		class E {\n" + //$NON-NLS-1$
+			"			void bar2() {}\n" + //$NON-NLS-1$
+			"			void bar7() {\n" + //$NON-NLS-1$
+			"				System.out.println();\n" + //$NON-NLS-1$
+			"			}\n" + //$NON-NLS-1$
+			"			void bar9() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		Object o = new E();\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void bar(int i) {\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	// end of class X\n" + //$NON-NLS-1$
+			"}\n" + //$NON-NLS-1$
+			"// end of compilation unit\n"; //$NON-NLS-1$
+		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
 /*		int[] positions = new int[] { 529 };
 		int[] expectedPositions = new int[] { 288 };
 		sortUnit(unit, positions, expectedResult, expectedPositions);*/
 		sortUnit(unit, expectedResult, false);		
 	} finally {
-		this.deleteFile("/P/src/p/X.java");
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
 }
 public void test010() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/SuperReference.java",
-			"public class SuperReference extends ThisReference {\r\n" +			"	\r\n" +			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" +			"	super(sourceStart, sourceEnd);\r\n" +			"}\r\n" +			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" +			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" +			"}\r\n" +			"public boolean isImplicitThis() {\r\n" +			"	\r\n" +			"	return false;\r\n" +			"}\r\n" +			"public boolean isSuper() {\r\n" +			"	\r\n" +			"	return true;\r\n" +			"}\r\n" +			"public boolean isThis() {\r\n" +			"	\r\n" +			"	return false ;\r\n" +			"}\r\n" +			"public TypeBinding resolveType(BlockScope scope) {\r\n" +			"	constant = NotAConstant;\r\n" +			"	if (!checkAccess(scope.methodScope()))\r\n" +			"		return null;\r\n" +			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" +			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" +			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" +			"		return null;\r\n" +			"	}\r\n" +			"	return this.resolvedType = enclosingTb.superclass;\r\n" +			"}\r\n" +			"public String toStringExpression(){\r\n" +			"\r\n" +			"	return \"super\"; //$NON-NLS-1$\r\n" +			"	\r\n" +			"}\r\n" +			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" +			"	visitor.visit(this, blockScope);\r\n" +			"	visitor.endVisit(this, blockScope);\r\n" +			"}\r\n" +			"}"
+			"/P/src/SuperReference.java", //$NON-NLS-1$
+			"public class SuperReference extends ThisReference {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" + //$NON-NLS-1$			"	super(sourceStart, sourceEnd);\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" + //$NON-NLS-1$			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public boolean isImplicitThis() {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"	return false;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public boolean isSuper() {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"	return true;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public boolean isThis() {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"	return false ;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public TypeBinding resolveType(BlockScope scope) {\r\n" + //$NON-NLS-1$			"	constant = NotAConstant;\r\n" + //$NON-NLS-1$			"	if (!checkAccess(scope.methodScope()))\r\n" + //$NON-NLS-1$			"		return null;\r\n" + //$NON-NLS-1$			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" + //$NON-NLS-1$			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" + //$NON-NLS-1$			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" + //$NON-NLS-1$			"		return null;\r\n" + //$NON-NLS-1$			"	}\r\n" + //$NON-NLS-1$			"	return this.resolvedType = enclosingTb.superclass;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public String toStringExpression(){\r\n" + //$NON-NLS-1$			"\r\n" + //$NON-NLS-1$			"	return \"super\"; //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" + //$NON-NLS-1$			"	visitor.visit(this, blockScope);\r\n" + //$NON-NLS-1$			"	visitor.endVisit(this, blockScope);\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"}" //$NON-NLS-1$
 		);
-		String expectedResult = "public class SuperReference extends ThisReference {\r\n" +			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" +			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" +			"}\r\n" +			"	\r\n" +			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" +			"	super(sourceStart, sourceEnd);\r\n" +			"}\r\n" +			"public boolean isImplicitThis() {\r\n" +			"	\r\n" +			"	return false;\r\n" +			"}\r\n" +			"public boolean isSuper() {\r\n" +			"	\r\n" +			"	return true;\r\n" +			"}\r\n" +			"public boolean isThis() {\r\n" +			"	\r\n" +			"	return false ;\r\n" +			"}\r\n" +			"public TypeBinding resolveType(BlockScope scope) {\r\n" +			"	constant = NotAConstant;\r\n" +			"	if (!checkAccess(scope.methodScope()))\r\n" +			"		return null;\r\n" +			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" +			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" +			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" +			"		return null;\r\n" +			"	}\r\n" +			"	return this.resolvedType = enclosingTb.superclass;\r\n" +			"}\r\n" +			"public String toStringExpression(){\r\n" +			"\r\n" +			"	return \"super\"; //$NON-NLS-1$\r\n" +			"	\r\n" +			"}\r\n" +			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" +			"	visitor.visit(this, blockScope);\r\n" +			"	visitor.endVisit(this, blockScope);\r\n" +			"}\r\n" +			"}";
-		sortUnit(this.getCompilationUnit("/P/src/SuperReference.java"), expectedResult);
+		String expectedResult = "public class SuperReference extends ThisReference {\r\n" + //$NON-NLS-1$			"public static ExplicitConstructorCall implicitSuperConstructorCall() {\r\n" + //$NON-NLS-1$			"	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"public SuperReference(int sourceStart, int sourceEnd) {\r\n" + //$NON-NLS-1$			"	super(sourceStart, sourceEnd);\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public boolean isImplicitThis() {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"	return false;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public boolean isSuper() {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"	return true;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public boolean isThis() {\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"	return false ;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public TypeBinding resolveType(BlockScope scope) {\r\n" + //$NON-NLS-1$			"	constant = NotAConstant;\r\n" + //$NON-NLS-1$			"	if (!checkAccess(scope.methodScope()))\r\n" + //$NON-NLS-1$			"		return null;\r\n" + //$NON-NLS-1$			"	SourceTypeBinding enclosingTb = scope.enclosingSourceType();\r\n" + //$NON-NLS-1$			"	if (scope.isJavaLangObject(enclosingTb)) {\r\n" + //$NON-NLS-1$			"		scope.problemReporter().cannotUseSuperInJavaLangObject(this);\r\n" + //$NON-NLS-1$			"		return null;\r\n" + //$NON-NLS-1$			"	}\r\n" + //$NON-NLS-1$			"	return this.resolvedType = enclosingTb.superclass;\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public String toStringExpression(){\r\n" + //$NON-NLS-1$			"\r\n" + //$NON-NLS-1$			"	return \"super\"; //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {\r\n" + //$NON-NLS-1$			"	visitor.visit(this, blockScope);\r\n" + //$NON-NLS-1$			"	visitor.endVisit(this, blockScope);\r\n" + //$NON-NLS-1$			"}\r\n" + //$NON-NLS-1$			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/SuperReference.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/SuperReference.java");
+		this.deleteFile("/P/src/SuperReference.java"); //$NON-NLS-1$
 	}
 }
 public void test011() throws CoreException {
 	try {
 		this.createFile(
-			"/P/src/p/BaseTypes.java",
-			"/*******************************************************************************\r\n" +			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" +			" * All rights reserved. This program and the accompanying materials \r\n" +			" * are made available under the terms of the Common Public License v0.5 \r\n" +			" * which accompanies this distribution, and is available at\r\n" +			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" +			" * \r\n" +			" * Contributors:\r\n" +			" *     IBM Corporation - initial API and implementation\r\n" +			" ******************************************************************************/\r\n" +			"package p;\r\n" +			"\r\n" +			"public interface BaseTypes {\r\n" +			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" +			"}\r\n"
+			"/P/src/p/BaseTypes.java", //$NON-NLS-1$
+			"/*******************************************************************************\r\n" + //$NON-NLS-1$			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" + //$NON-NLS-1$			" * All rights reserved. This program and the accompanying materials \r\n" + //$NON-NLS-1$			" * are made available under the terms of the Common Public License v0.5 \r\n" + //$NON-NLS-1$			" * which accompanies this distribution, and is available at\r\n" + //$NON-NLS-1$			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" + //$NON-NLS-1$			" * \r\n" + //$NON-NLS-1$			" * Contributors:\r\n" + //$NON-NLS-1$			" *     IBM Corporation - initial API and implementation\r\n" + //$NON-NLS-1$			" ******************************************************************************/\r\n" + //$NON-NLS-1$			"package p;\r\n" + //$NON-NLS-1$			"\r\n" + //$NON-NLS-1$			"public interface BaseTypes {\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"}\r\n" //$NON-NLS-1$
 		);
-		String expectedResult = "/*******************************************************************************\r\n" +			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" +			" * All rights reserved. This program and the accompanying materials \r\n" +			" * are made available under the terms of the Common Public License v0.5 \r\n" +			" * which accompanies this distribution, and is available at\r\n" +			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" +			" * \r\n" +			" * Contributors:\r\n" +			" *     IBM Corporation - initial API and implementation\r\n" +			" ******************************************************************************/\r\n" +			"package p;\r\n" +			"\r\n" +			"public interface BaseTypes {\r\n" +			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" +			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" +			"}\r\n";
-		sortUnit(this.getCompilationUnit("/P/src/p/BaseTypes.java"), expectedResult);
+		String expectedResult = "/*******************************************************************************\r\n" + //$NON-NLS-1$			" * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.\r\n" + //$NON-NLS-1$			" * All rights reserved. This program and the accompanying materials \r\n" + //$NON-NLS-1$			" * are made available under the terms of the Common Public License v0.5 \r\n" + //$NON-NLS-1$			" * which accompanies this distribution, and is available at\r\n" + //$NON-NLS-1$			" * http://www.eclipse.org/legal/cpl-v05.html\r\n" + //$NON-NLS-1$			" * \r\n" + //$NON-NLS-1$			" * Contributors:\r\n" + //$NON-NLS-1$			" *     IBM Corporation - initial API and implementation\r\n" + //$NON-NLS-1$			" ******************************************************************************/\r\n" + //$NON-NLS-1$			"package p;\r\n" + //$NON-NLS-1$			"\r\n" + //$NON-NLS-1$			"public interface BaseTypes {\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding BooleanBinding = new BaseTypeBinding(TypeIds.T_boolean, \"boolean\".toCharArray(), new char[] {'Z'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding ByteBinding = new BaseTypeBinding(TypeIds.T_byte, \"byte\".toCharArray(), new char[] {'B'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding CharBinding = new BaseTypeBinding(TypeIds.T_char, \"char\".toCharArray(), new char[] {'C'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding DoubleBinding = new BaseTypeBinding(TypeIds.T_double, \"double\".toCharArray(), new char[] {'D'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding FloatBinding = new BaseTypeBinding(TypeIds.T_float, \"float\".toCharArray(), new char[] {'F'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, \"int\".toCharArray(), new char[] {'I'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding LongBinding = new BaseTypeBinding(TypeIds.T_long, \"long\".toCharArray(), new char[] {'J'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding NullBinding = new BaseTypeBinding(TypeIds.T_null, \"null\".toCharArray(), new char[] {'N'}); //N stands for null even if it is never internally used //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding ShortBinding = new BaseTypeBinding(TypeIds.T_short, \"short\".toCharArray(), new char[] {'S'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"	final BaseTypeBinding VoidBinding = new BaseTypeBinding(TypeIds.T_void, \"void\".toCharArray(), new char[] {'V'}); //$NON-NLS-1$\r\n" + //$NON-NLS-1$			"}\r\n"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/BaseTypes.java"), expectedResult); //$NON-NLS-1$
 	} finally {
-		this.deleteFile("/P/src/p/BaseTypes.java");
+		this.deleteFile("/P/src/p/BaseTypes.java"); //$NON-NLS-1$
 	}
 }
 
