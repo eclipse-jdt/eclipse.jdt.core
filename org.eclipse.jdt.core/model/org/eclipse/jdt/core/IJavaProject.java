@@ -447,19 +447,22 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	boolean hasClasspathCycle(IClasspathEntry[] entries);
 	/**
-	 * Returns whether the given element is on the classpath of this project.
+	 * Returns whether the given element is on the classpath of this project, 
+	 * i.e. referenced from a classpath entry, and not explicitly excluded using an 
+	 * exclusion pattern (as defined by <code>IClasspathEntry#getExclusionPatterns()</code>.
 	 * 
 	 * @param element the given element
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return true if the given element is on the classpath of this project, false otherwise
+	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @since 2.0
 	 */
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	/**
-	 * Returns whether the given resource is on the classpath of this project.
-	 * Returns false if the resource is explicitely excluded from the classpath or 
-	 * is not on the classpath.
+	 * Returns whether the given resource is on the classpath of this project,
+	 * i.e. referenced from a classpath entry, and not explicitly excluded using an 
+	 * exclusion pattern (as defined by <code>IClasspathEntry#getExclusionPatterns()</code>.
 	 * 
 	 * @param element the given element
 	 * @exception JavaModelException if this project does not exist or if an
