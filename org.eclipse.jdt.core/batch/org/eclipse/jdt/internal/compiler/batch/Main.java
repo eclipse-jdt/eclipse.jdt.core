@@ -66,7 +66,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		
 		public void close() {
-			if (log != null) {
+			if (this.log != null) {
 				this.log.close();
 			}
 		}
