@@ -108,7 +108,9 @@ public abstract class SearchParticipant {
 	 * {@link #addIndexEntry(char[], char[], SearchDocument)} as many times as
 	 * needed to add index entries to the index. If delegating to another
 	 * participant, it should use the original index location (and not the
-	 * delegatee's one).
+	 * delegatee's one). In the particular case of delegating to the default
+	 * search participant (see {@link SearchEngine#getDefaultSearchParticipant()}),
+	 * the provided document's path must be a path ending with '.java' or a '.class'.
 	 * <p>
 	 * The given index location must represent a path in the file system to a file that
 	 * either already exists or is going to be created. If it exists, it must be an index file,
