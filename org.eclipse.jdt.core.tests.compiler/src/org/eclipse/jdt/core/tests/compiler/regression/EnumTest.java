@@ -1310,7 +1310,9 @@ public class EnumTest extends AbstractComparisonTest {
 			}
 		);
 	}
-	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78321
+	 */
 	public void test045() {
 		this.runConformTest(
 			new String[] {
