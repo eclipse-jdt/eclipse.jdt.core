@@ -122,7 +122,14 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 		return false;
 	}
 }
-private void computeIndexes() {
+/*
+ *  Compute index list, which may trigger some index recreation work.
+ *  Only cache available indexes if all of them were ready (if not, next call will recompute from scratch)
+ */
+private IIndex[] computeIndexes() {
+	
+	boolean areAllIndexesReady = true;
+	
 	ArrayList indexesInScope = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -139,17 +146,22 @@ private void computeIndexes() {
 		}
 		if (projectOrJarFocus == null || canSeeFocus(projectOrJarFocus, this.isPolymorphicSearch, path)) {
 			IIndex index = this.indexManager.getIndex(path, true /*reuse index file*/, false /*do not create if none*/);
+			if (index == null) areAllIndexesReady = false;
 			if (index != null && indexesInScope.indexOf(index) == -1) {
 				indexesInScope.add(index);
 			}
 		}
 	}
-	this.indexes = new IIndex[indexesInScope.size()];
-	indexesInScope.toArray(this.indexes);
+	IIndex[] availableIndexes = new IIndex[indexesInScope.size()];
+	indexesInScope.toArray(availableIndexes);
+
+	// only cache available indexes if all of them were ready (if not, next call will recompute)
+	if (areAllIndexesReady) this.indexes = availableIndexes;
+	return availableIndexes;
 }
 public IIndex[] getIndexes() {
 	if (this.indexes == null) {
-		this.computeIndexes();
+		return this.computeIndexes(); // if some indexes aren't ready, the index list won't be cached into 'indexes' slot
 	}
 	return this.indexes;
 }
