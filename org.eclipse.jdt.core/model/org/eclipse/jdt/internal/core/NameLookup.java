@@ -317,6 +317,7 @@ public class NameLookup implements SuffixConstants {
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch) {
 		if (partialMatch) {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
+			IPackageFragment[] oneFragment = null;
 			ArrayList pkgs = null;
 			Object[][] keys = this.packageFragments.keyTable;
 			for (int i = 0, length = keys.length; i < length; i++) {
@@ -325,12 +326,20 @@ public class NameLookup implements SuffixConstants {
 					IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.valueTable[i];
 					for (int j = 0, length2 = roots.length; j < length2; j++) {
 						PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
-						if (pkgs == null) pkgs = new ArrayList();
-						pkgs.add(root.getPackageFragment(pkgName));					
+						IPackageFragment pkg = root.getPackageFragment(pkgName);
+						if (oneFragment == null) {
+							oneFragment = new IPackageFragment[] {pkg};
+						} else {
+							if (pkgs == null) {
+								pkgs = new ArrayList();
+								pkgs.add(oneFragment[0]);
+							}
+							pkgs.add(pkg);
+						}
 					}
 				}
 			}
-			if (pkgs == null) return null;
+			if (pkgs == null) return oneFragment;
 			int resultLength = pkgs.size();
 			IPackageFragment[] result = new IPackageFragment[resultLength];
 			pkgs.toArray(result);
