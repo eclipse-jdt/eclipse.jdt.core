@@ -1983,4 +1983,62 @@ public void test0090() throws JavaModelException {
 	);
 
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86971
+public void test0091() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/test0091/MyAnnot.java",
+				"package test0091;\n" +
+				"public @interface MyAnnot {\n" +
+				"}");
+		
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0091/Test.java",
+				"package test0091;\n" +
+				"@MyAnnot\n" +
+				"public class Test {\n" +
+				"}",
+				"@MyAnnot");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"MyAnnot {key=Ltest0091/MyAnnot;} [in [Working copy] MyAnnot.java [in test0091 [in src2 [in Resolve]]]]",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86971
+public void test0092() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/test0092/MyAnnot.java",
+				"package test0092;\n" +
+				"public @interface MyAnnot {\n" +
+				"}");
+		
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0092/Test.java",
+				"package test0092;\n" +
+				"@MyAnnot @MyAnnot\n" +
+				"public class Test {\n" +
+				"}",
+				"MyAnnot @MyAnnot");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
 }
