@@ -5261,4 +5261,75 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Bound mismatch: The generic method foo(T, U) of type X is not applicable for the arguments (String, X) since the type X is not a valid substitute for the bounded parameter <U extends String>\n" + 
 			"----------\n");
 	}			
+	// invalid type argument arity for parameterized message send
+	public void test187() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	<T, U extends String> T foo(T t, U u) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new X().<String>foo(\"SUCCESS\", null));\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	<T, U extends String> T foo(T t, U u) {\n" + 
+			"	              ^^^^^^\n" + 
+			"The type parameter U should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(new X().<String>foo(\"SUCCESS\", null));\n" + 
+			"	                                   ^^^\n" + 
+			"Incorrect number of arguments for generic method <T, U>foo(T, U) of type X; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	}				
+	// parameterized invocation of non generic method with incorrect argument count
+	public void test188() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	void foo() {\n" + 
+				"		return;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new X().<String>foo(\"SUCCESS\", null));\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(new X().<String>foo(\"SUCCESS\", null));\n" + 
+			"	                                   ^^^\n" + 
+			"The method foo() in the type X is not applicable for the arguments (String, null)\n" + 
+			"----------\n");
+	}
+	// parameterized invocation of non generic method
+	public void test189() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	void foo() {\n" + 
+				"		return;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new X().<String>foo());\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(new X().<String>foo());\n" + 
+			"	                                   ^^^\n" + 
+			"The method foo() of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	}		
 }

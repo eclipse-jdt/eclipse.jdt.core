@@ -891,32 +891,36 @@ public interface IProblem {
 	int IllegalInstanceofParameterizedType = Internal + 548;
 	/** @since 3.1 */
 	int IllegalInstanceofTypeParameter = Internal + 549;
+	/** @since 3.1 */
+	int NonGenericMethod = TypeRelated + 550;
+	/** @since 3.1 */
+	int IncorrectArityForParameterizedMethod = TypeRelated + 551;
 	
 	/**
 	 * Foreach
 	 */
 	/** @since 3.1 */	
-	int IncompatibleTypesInForeach = TypeRelated + 550;	
+	int IncompatibleTypesInForeach = TypeRelated + 580;	
 	/** @since 3.1 */
-	int InvalidTypeForCollection = Internal + 551;
+	int InvalidTypeForCollection = Internal + 581;
 	
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)
 	 */
 	/** @since 3.1 */
-    int InvalidUsageOfTypeParameters = Syntax + Internal + 560;
+    int InvalidUsageOfTypeParameters = Syntax + Internal + 590;
     /** @since 3.1 */
-    int InvalidUsageOfStaticImports = Syntax + Internal + 561;
+    int InvalidUsageOfStaticImports = Syntax + Internal + 591;
     /** @since 3.1 */
-    int InvalidUsageOfForeachStatements = Syntax + Internal + 562;
+    int InvalidUsageOfForeachStatements = Syntax + Internal + 592;
     /** @since 3.1 */
-    int InvalidUsageOfTypeArguments = Syntax + Internal + 563;
+    int InvalidUsageOfTypeArguments = Syntax + Internal + 593;
     /** @since 3.1 */
-    int InvalidUsageOfEnumDeclarations = Syntax + Internal + 564;
+    int InvalidUsageOfEnumDeclarations = Syntax + Internal + 594;
     /** @since 3.1 */
-    int InvalidUsageOfVarargs = Syntax + Internal + 565;
+    int InvalidUsageOfVarargs = Syntax + Internal + 595;
     /** @since 3.1 */
-    int InvalidUsageOfAnnotations = Syntax + Internal + 565;
+    int InvalidUsageOfAnnotations = Syntax + Internal + 596;
     
     /**
      * Annotation

@@ -22,4 +22,5 @@ public interface ProblemReasons {
 	final int ReceiverTypeNotVisible = 8;
 	final int IllegalSuperTypeVariable = 9;
 	final int ParameterBoundMismatch = 10; // for generic method
+	final int TypeParameterArityMismatch = 11; // for generic method
 }

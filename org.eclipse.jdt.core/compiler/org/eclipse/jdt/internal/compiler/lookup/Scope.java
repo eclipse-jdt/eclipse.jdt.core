@@ -80,8 +80,11 @@ public abstract class Scope
 	 */
 	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite) {
 
+		boolean isParameterizedInvocation = invocationSite instanceof ParameterizedMessageSend;
 		TypeBinding[] parameters = method.parameters;
-		if (parameters == arguments && (method.returnType.tagBits & HasTypeVariable) == 0)
+		if (parameters == arguments 
+				&& (method.returnType.tagBits & HasTypeVariable) == 0 
+				&& !isParameterizedInvocation)
 			return method;
 
 		int argLength = arguments.length;
@@ -89,11 +92,15 @@ public abstract class Scope
 			return null; // incompatible
 
 		TypeVariableBinding[] typeVariables = method.typeVariables;
-		if (typeVariables != NoTypeVariables || (!(method instanceof ParameterizedGenericMethodBinding) && invocationSite instanceof ParameterizedMessageSend)) { // generic method
+		if (typeVariables != NoTypeVariables) { // generic method
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
 			parameters = method.parameters; // reacquire them after type inference has performed
+		} else if (isParameterizedInvocation && !(method instanceof ParameterizedGenericMethodBinding)) {
+			ParameterizedMessageSend parameterizedMsg = (ParameterizedMessageSend) invocationSite;
+			TypeBinding[] substitutes = parameterizedMsg.typeArgumentTypes;
+			return new ProblemMethodBinding(method, method.selector, substitutes, TypeParameterArityMismatch);
 		}
 		
 		argumentCompatibility: {
@@ -422,7 +429,7 @@ public abstract class Scope
 			        return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
 			    }
 			    // targeting a generic method could find an exact match with variable return type
-			    if (exactMethod.typeVariables != NoTypeVariables)
+			    if (exactMethod.typeVariables != NoTypeVariables || invocationSite instanceof ParameterizedMessageSend)
 			    	exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
 				return exactMethod;
 			}

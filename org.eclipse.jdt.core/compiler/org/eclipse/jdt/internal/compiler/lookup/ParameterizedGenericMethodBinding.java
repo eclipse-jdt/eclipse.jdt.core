@@ -57,7 +57,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			ParameterizedMessageSend parameterizedMsg = (ParameterizedMessageSend) invocationSite;
 			substitutes = parameterizedMsg.typeArgumentTypes;
 			if (substitutes.length != typeVariables.length) {
-				return null; // incompatible TODO (philippe) should answer problem
+		        // incompatible due to wrong arity
+		        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, TypeParameterArityMismatch);
 			}
 			methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
 		} else {
@@ -203,6 +204,4 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         }
         return originalType;
     }
-
-    
 }

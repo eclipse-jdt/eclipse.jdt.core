@@ -2051,7 +2051,45 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				        parameterBoundAsString(typeParameter, true) },
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);		    
-			return;		    
+			return;
+		case TypeParameterArityMismatch :
+			problemMethod = (ProblemMethodBinding) method;
+			shownMethod = problemMethod.closestMatch;
+			if (shownMethod.typeVariables == TypeConstants.NoTypeVariables) {
+				this.handle(
+					IProblem.NonGenericMethod ,
+					new String[] { 
+					        new String(shownMethod.selector),
+					        parametersAsString(shownMethod.parameters, false), 
+					        new String(shownMethod.declaringClass.readableName()), 
+					        parametersAsString(method.parameters, false) },
+					new String[] { 
+					        new String(shownMethod.selector),
+					        parametersAsString(shownMethod.parameters, true), 
+					        new String(shownMethod.declaringClass.shortReadableName()), 
+					        parametersAsString(method.parameters, true) },
+					(int) (messageSend.nameSourcePosition >>> 32),
+					(int) messageSend.nameSourcePosition);		    
+			} else {
+				this.handle(
+					IProblem.IncorrectArityForParameterizedMethod  ,
+					new String[] { 
+					        new String(shownMethod.selector),
+					        parametersAsString(shownMethod.parameters, false), 
+					        new String(shownMethod.declaringClass.readableName()), 
+							parametersAsString(shownMethod.typeVariables, false),
+					        parametersAsString(method.parameters, false) },
+					new String[] { 
+					        new String(shownMethod.selector),
+					        parametersAsString(shownMethod.parameters, true), 
+					        new String(shownMethod.declaringClass.shortReadableName()), 
+							parametersAsString(shownMethod.typeVariables, true),
+					        parametersAsString(method.parameters, true) },
+					(int) (messageSend.nameSourcePosition >>> 32),
+					(int) messageSend.nameSourcePosition);		    
+			}
+			return;
+			
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
