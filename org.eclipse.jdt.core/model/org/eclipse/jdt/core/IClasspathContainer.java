@@ -89,13 +89,14 @@ public interface IClasspathContainer {
     int getKind();
 
 	/**
-	 * Answers the container path this container maps to.
-	 * A container path is a segment path, formed by an ID segment followed with a clue segment.
+	 * Answers the container path identifying this container.
+	 * A container path is a 2-segments path, formed by an ID segment followed with a clue segment.
 	 * This container ID is used in conjunction with the  clue for resolving to this container.
-	 * Note that the container ID may also identify a<code>ClasspathContainerInitializer</code>
+	 * <p>
+	 * The container ID is also used to identify a<code>ClasspathContainerInitializer</code>
 	 * registered on the extension point "org.eclipse.jdt.core.classpathContainerInitializer", which can
 	 * be invoked if needing to resolve the container before it is explicitely set.
-	 * 
+	 * <p>
 	 * @return IPath - the container path that is associated with this container
 	 */	
     IPath getPath();

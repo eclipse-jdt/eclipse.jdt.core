@@ -57,15 +57,22 @@ import org.eclipse.core.runtime.IPath;
  *		It is also possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>)
  * 	which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
  * 	After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>
- * TOFIX
- *  <li> A named classpath container, which can be resolved into a set of classpath entries. 
- *		Entries of this kind are  associated with the <code>CPE_CONTAINER</code> constant.  
- * 	The path associated with this entry is used to identify a container which will exclusively be
- * 	resolved by a <code>ClasspathContainerInitializer</code> registered as an extension to the
- * 	extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
+ * 
+ *  <li> A named classpath container identified by a 2-segments path.
+ *     A classpath container provides a way to indirectly reference a set of classpath entries through
+ *     a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
+ *     be used to describe a complex library composed of multiple JARs, projects or classpath variables,
+ *     considering also that containers can be mapped differently on each project. Several projects can
+ *     reference the same generic container path, but have each of them actually bound to a different
+ *     container object.
+ *     The containerPath is a 2-segments path, formed by an ID segment followed with a clue segment 
+ *     that may be used for resolving this container reference. If no container was ever recorded for this 
+ *     container path onto this project (using <code>setClasspathContainer</code>, then a 
+ *     <code>ClasspathContainerInitializer</code> will be activated if any was registered for this container 
+ *     ID onto the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
  * 	A classpath container entry can be resolved explicitly using <code>JavaCore#getClasspathContainer</code>
- * 	and the resulting entries can contain any non-container entry. In particular, it may contain variable entries which
- * 	in turn needs to be resolved before being directly used. 
+ * 	and the resulting container entries can contain any non-container entry. In particular, it may contain variable
+ *     entries which in turn needs to be resolved before being directly used. 
  * 	<br> Also note that the container resolution APIs include an IJavaProject argument, so as to allow the same
  * 	container path to be interpreted in different ways for different projects. </li>
  * </ul>
@@ -178,7 +185,10 @@ public interface IClasspathEntry {
 	 *		path without the variable.</li>
 	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the path of the entry
 	 * 	is the name of the classpath container, which can be bound indirectly to a set of classpath 
-	 * 	entries after resolution (also see <code>IClasspathContainer</code>. </li>
+	 * 	entries after resolution. The containerPath is a 2-segments path, formed by an ID segment 
+	 *     followed with a clue segment that may be used for resolving this container reference 
+	 *     (also see <code>IClasspathContainer</code>).
+	 * </li>
 	 * </ul>
 	 *
 	 * @return the path of this classpath entry

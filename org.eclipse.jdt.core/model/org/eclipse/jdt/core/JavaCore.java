@@ -275,12 +275,22 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/** 
-	 * Answers the set of classpath entries corresponding to a given container for a specific project.
-	 * Indeed, classpath containers can have a different meaning in different project, according to the behavior
-	 * of the <code>ClasspathContainerInitializer</code> which got involved for resolving this container.
+	 * Answers the project specific value for a given classpath container.
 	 * In case this container path could not be resolved, then will answer <code>null</code>.
-	 * <p>
 	 * Both the container path and the project context are supposed to be non-null.
+	 * <p>
+	 * The containerPath is a 2-segments path, formed by an ID segment followed with a clue segment 
+	 * that may be used for resolution. If no container was ever recorded for this container path onto this project
+	 * (using <code>setClasspathContainer</code>, then a <code>ClasspathContainerInitializer</code>
+	 * will be activated if any was registered for this container ID onto the extension point
+	 * "org.eclipse.jdt.core.classpathContainerInitializer".
+	 * <p>
+	 * A classpath container provides a way to indirectly reference a set of classpath entries through
+	 * a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
+	 * be used to describe a complex library composed of multiple JARs, projects or classpath variables,
+	 * considering also that containers can be mapped differently on each project. Several projects can
+	 * reference the same generic container path, but have each of them actually bound to a different
+	 * container object.
 	 * <p>
 	 * The set of entries associated with a classpath container may contain any of the following:
 	 * <ul>
@@ -289,13 +299,22 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
 	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
 	 * </ul>
-	 * A classpath container cannot reference further classpath containers.
+	 * In particular, a classpath container cannot reference further classpath containers.
+	 * <p>
+	 * There is no assumption that the returned container must answer the exact same containerPath
+	 * when requested <code>IClasspathContainer#getPath</code>. 
+	 * Indeed, the containerPath is just an indication for resolving it to an actual container object.
+	 * <p>
+	 * Classpath container values are persisted locally to the workspace, but 
+	 * are not preserved from a session to another. It is thus highly recommended to register a 
+	 * <code>ClasspathContainerInitializer</code> for each referenced container 
+	 * (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
 	 * <p>
 	 * @param containerPath - the name of the container which needs to be resolved
-	 * @param changeScope - a specific project (IJavaProject) in which the container is being resolved
+	 * @param project - a specific project in which the container is being resolved
 	 * 
 	 * @exception JavaModelException if an exception occurred while resolving the container, or if the resolved container
-	 *   contains illegal entries (further container entries or null entries).	 
+	 *   contains illegal entries (contains CPE_CONTAINER entries or null entries).	 
 	 * 
 	 * @since 2.0
 	 */
@@ -733,8 +752,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *		projects in addition to the output location
 	 * @return a new container classpath entry
 	 * 
-	 * @see JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)
-	 * @see JavaCore#classpathContainerChanged(IPath, IJavaElement, IProgressMonitor)
+	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
+	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @see JavaCore#newContainerEntry(IPath, boolean)
 	 * @since 2.0
 	 */
@@ -1094,33 +1113,47 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		JavaModelManager.getJavaModelManager().removeElementChangedListener(listener);
 	}
 
-	/** TOFIX
-	 * Notification of a classpath container change. This notification must be performed
-	 * by client code which did register some classpath container initializers, whenever 
-	 * changes in container need to be reflected onto the JavaModel.
+	/** 
+	 * Bind a container reference path to some actual containers (<code>IClasspathContainer</code>).
+	 * This API must be invoked whenever changes in container need to be reflected onto the JavaModel.
+	 * Containers can have distinct values in different projects, therefore this API considers a
+	 * set of projects with their respective containers.
 	 * <p>
-	 * In reaction to this notification, the JavaModel will be updated to reflect the new
-	 * state of the updated container. Note that the update can be scoped to either
-	 * a given project or the entire Java model according to the affectedElement argument.
-	 * This is symetric to container resolution which enables project specific resolution.
+	 * <code>containerPath</code> is the path under which these values can be referenced through
+	 * container classpath entries (<code>IClasspathEntry#CPE_CONTAINER</code>). A container path 
+	 * is a 2-segments path, formed by an ID segment followed with a clue segment. The container ID
+	 * is used to identify a<code>ClasspathContainerInitializer</code> registered on the extension point 
+	 * "org.eclipse.jdt.core.classpathContainerInitializer".
+	 * <p>
+	 * There is no assumption that each individual container value passed in argument 
+	 * (<code>respectiveContainers</code>) must answer the exact same path when requested 
+	 * <code>IClasspathContainer#getPath</code>. 
+	 * Indeed, the containerPath is just an indication for resolving it to an actual container object. It can be 
+	 * delegated to a <code>ClasspathContainerInitializer</code>, which can be activated through the extension
+	 * point "org.eclipse.jdt.core.ClasspathContainerInitializer"). 
+	 * <p>
+	 * In reaction to changing container values, the JavaModel will be updated to reflect the new
+	 * state of the updated container. 
 	 * <p>
 	 * This functionality cannot be used while the resource tree is locked.
 	 * <p>
-	 * Classpath container states are persisted locally to the workspace, and 
-	 * are preserved from session to session.
+	 * Classpath container values are persisted locally to the workspace, but 
+	 * are not preserved from a session to another. It is thus highly recommended to register a 
+	 * <code>ClasspathContainerInitializer</code> for each referenced container 
+	 * (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
 	 * <p>
-	 * When notifying a container change, the corresponding container initializer should
-	 * in turn expect to be activated so as to resolve the updated container path.
 	 * 
-	 * @param containerPath - the name of the container which is being updated
-	 * @param affectedElement - the scope of the change, either a specific project (IJavaProject)
-	 *     or the entire JavaModel (IJavaModel).
+	 * @param containerPath - the name of the container reference which is being updated
+	 * @param affectedProjects - the set of projects for which this container is being bound
+	 * @param respectiveContainers - the set of respective containers for the affected projects
 	 * @param monitor a monitor to report progress
 	 * 
 	 * @see #getClasspathContainer(IPath, IJavaProject)
 	 * @since 2.0
 	 */
-	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] newContainers, IProgressMonitor monitor) throws JavaModelException {
+	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
+
+		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
 
 		if (monitor != null && monitor.isCanceled()) return;
 
@@ -1135,7 +1168,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			if (monitor != null && monitor.isCanceled()) return;
 
 			IJavaProject affectedProject = affectedProjects[i];
-			IClasspathContainer newContainer = newContainers[i];
+			IClasspathContainer newContainer = respectiveContainers[i];
 			
 			IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
 			boolean found = false;
@@ -1156,7 +1189,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				JavaModelManager.Containers.put(affectedProject, perProjectContainers);
 			} else {
 				IClasspathContainer oldContainer = (IClasspathContainer) perProjectContainers.get(containerPath);
-				if (oldContainer != null && oldContainer.equals(newContainers[i])){
+				if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){
 					affectedProjects[i] = null; // filter out this project - container did not change
 					continue;
 				}
