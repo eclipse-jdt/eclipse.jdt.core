@@ -49,21 +49,23 @@ protected void attachOrphanCompletionNode(){
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
+	
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
 	// An empty class body produces a 0 on the length stack.....
 
-	if (this.indexOfAssistIdentifier() < 0) {
-		super.classInstanceCreation(alwaysQualified);
-		return;
-	} 
-	QualifiedAllocationExpression alloc;
 	int length;
-	if (((length = astLengthStack[astLengthPtr--]) == 1)
+	if (((length = astLengthStack[astLengthPtr]) == 1)
 		&& (astStack[astPtr] == null)) {
-		//NO ClassBody
+
+		if (this.indexOfAssistIdentifier() < 0) {
+			super.classInstanceCreation(alwaysQualified);
+			return;
+		}
+		QualifiedAllocationExpression alloc;
 		astPtr--;
+		astLengthPtr--;
 		alloc = new SelectionOnQualifiedAllocationExpression();
 		alloc.sourceEnd = endPosition; //the position has been stored explicitly
 
@@ -94,8 +96,11 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 			this.lastIgnoredToken = -1;	
 		}
 		this.isOrphanCompletionNode = true;
+	} else {
+		super.classInstanceCreation(alwaysQualified);
 	}
 }
+
 protected void consumeArrayCreationExpression() {
 	// ArrayCreationExpression ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializeropt
 	// ArrayCreationExpression ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializeropt
@@ -505,6 +510,7 @@ protected MessageSend newMessageSend() {
 		this.restartRecovery	= true;	// force to restart in recovery mode
 		this.lastIgnoredToken = -1;	
 	}
+	
 	this.isOrphanCompletionNode = true;
 	return messageSend;
 }
