@@ -323,6 +323,10 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				}
 			}
+		} else if (type.isPrimitiveType()) {
+			if (((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.VOID) {
+				return this.getTypeBinding(BaseTypeBinding.VoidBinding);
+			}
 		}
 		return null;
 	}
