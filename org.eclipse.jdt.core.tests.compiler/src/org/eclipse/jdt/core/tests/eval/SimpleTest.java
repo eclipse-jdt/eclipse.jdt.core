@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.GlobalVariable;

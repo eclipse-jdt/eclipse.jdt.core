@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 import junit.framework.*;
 

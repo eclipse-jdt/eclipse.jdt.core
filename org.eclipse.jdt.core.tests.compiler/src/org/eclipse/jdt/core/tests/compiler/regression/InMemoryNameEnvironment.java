@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class InMemoryNameEnvironment implements INameEnvironment {

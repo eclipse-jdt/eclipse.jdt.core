@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Base class for Java image builder tests
