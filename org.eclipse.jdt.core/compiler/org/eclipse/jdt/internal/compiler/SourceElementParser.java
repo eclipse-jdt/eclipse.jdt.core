@@ -315,7 +315,6 @@ protected FieldDeclaration createFieldDeclaration(Expression initialization, cha
 	return new SourceFieldDeclaration(null, name, sourceStart, sourceEnd);
 }
 protected CompilationUnitDeclaration endParse(int act) {
-
 	if (sourceType != null) {
 		if (sourceType.isInterface()) {
 			consumeInterfaceDeclaration();
@@ -325,10 +324,8 @@ protected CompilationUnitDeclaration endParse(int act) {
 	}
 	if (compilationUnit != null) {
 		CompilationUnitDeclaration result = super.endParse(act);
-		notifySourceElementRequestor();
 		return result;
 	} else {
-		notifySourceElementRequestor();
 		return null;
 	}		
 }
@@ -512,8 +509,8 @@ private boolean isLocalDeclaration() {
 /*
  * Update the bodyStart of the corresponding parse node
  */
-public void notifySourceElementRequestor() {
-	if (compilationUnit == null) {
+public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) {
+	if (parsedUnit == null) {
 		// when we parse a single type member declaration the compilation unit is null, but we still
 		// want to be able to notify the requestor on the created ast node
 		if (astStack[0] instanceof AbstractMethodDeclaration) {
@@ -532,9 +529,9 @@ public void notifySourceElementRequestor() {
 		if (scanner.initialPosition == 0) {
 			requestor.enterCompilationUnit();
 		}
-		ImportReference currentPackage = compilationUnit.currentPackage;
-		ImportReference[] imports = compilationUnit.imports;
-		TypeDeclaration[] types = compilationUnit.types;
+		ImportReference currentPackage = parsedUnit.currentPackage;
+		ImportReference[] imports = parsedUnit.imports;
+		TypeDeclaration[] types = parsedUnit.types;
 		length = 
 			(currentPackage == null ? 0 : 1) 
 			+ (imports == null ? 0 : imports.length)
@@ -555,7 +552,7 @@ public void notifySourceElementRequestor() {
 			}
 		}
 	} else {
-		TypeDeclaration[] types = compilationUnit.types;
+		TypeDeclaration[] types = parsedUnit.types;
 		if (types != null) {
 			length = types.length;
 			nodes = new AstNode[length];
@@ -572,7 +569,7 @@ public void notifySourceElementRequestor() {
 			AstNode node = nodes[i];
 			if (node instanceof ImportReference) {
 				ImportReference importRef = (ImportReference)node;
-				if (node == compilationUnit.currentPackage) {
+				if (node == parsedUnit.currentPackage) {
 					notifySourceElementRequestor(importRef, true);
 				} else {
 					notifySourceElementRequestor(importRef, false);
@@ -584,8 +581,8 @@ public void notifySourceElementRequestor() {
 	}
 	
 	if (sourceType == null){
-		if (scanner.eofPosition >= compilationUnit.sourceEnd) {
-			requestor.exitCompilationUnit(compilationUnit.sourceEnd);
+		if (scanner.eofPosition >= parsedUnit.sourceEnd) {
+			requestor.exitCompilationUnit(parsedUnit.sourceEnd);
 		}
 	}
 }
@@ -941,9 +938,15 @@ public void parseCompilationUnit(
 		unknownRefsCounter = 0;
 	}
 	try {
-		diet = !needReferenceInfo;
+		diet = true;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
-		parse(unit, compilationUnitResult, start, end);
+		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult, start, end);
+		if (needReferenceInfo){
+			diet = false;
+			this.getMethodBodies(parsedUnit);
+		}		
+		this.scanner.resetTo(start, end);
+		notifySourceElementRequestor(parsedUnit);
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
@@ -955,7 +958,6 @@ public void parseCompilationUnit(
 public void parseCompilationUnit(
 	ICompilationUnit unit, 
 	boolean needReferenceInfo) {
-
 	boolean old = diet;
 	if (needReferenceInfo) {
 		unknownRefs = new NameReference[10];
@@ -963,10 +965,22 @@ public void parseCompilationUnit(
 	}
 		
 	try {
-		diet = !needReferenceInfo;
+/*		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
-		parse(unit, compilationUnitResult);
+		parse(unit, compilationUnitResult);		
+*/		diet = true;
+		reportReferenceInfo = needReferenceInfo;
+		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
+		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
+		int initialStart = this.scanner.initialPosition;
+		int initialEnd = this.scanner.eofPosition;
+		if (needReferenceInfo){
+			diet = false;
+			this.getMethodBodies(parsedUnit);
+		}
+		this.scanner.resetTo(initialStart, initialEnd);
+		notifySourceElementRequestor(parsedUnit);
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
@@ -981,7 +995,6 @@ public void parseTypeMemberDeclarations(
 	int start, 
 	int end, 
 	boolean needReferenceInfo) {
-
 	boolean old = diet;
 	if (needReferenceInfo) {
 		unknownRefs = new NameReference[10];
@@ -993,7 +1006,6 @@ public void parseTypeMemberDeclarations(
 		reportReferenceInfo = needReferenceInfo;
 		CompilationResult compilationUnitResult = 
 			new CompilationResult(sourceUnit, 0, 0); 
-
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
 				new ISourceType[]{sourceType}, 
@@ -1003,9 +1015,7 @@ public void parseTypeMemberDeclarations(
 				compilationUnitResult); 
 		if ((unit == null) || (unit.types == null) || (unit.types.length != 1))
 			return;
-
 		this.sourceType = sourceType;
-
 		try {
 			/* automaton initialization */
 			initialize();
@@ -1015,12 +1025,12 @@ public void parseTypeMemberDeclarations(
 			scanner.resetTo(start, end);
 			/* unit creation */
 			referenceContext = compilationUnit = unit;
-
 			/* initialize the astStacl */
 			// the compilationUnitDeclaration should contain exactly one type
 			pushOnAstStack(unit.types[0]);
 			/* run automaton */
 			parse();
+			notifySourceElementRequestor(unit);
 		} finally {
 			unit = compilationUnit;
 			compilationUnit = null; // reset parser
@@ -1059,6 +1069,7 @@ public void parseTypeMemberDeclarations(
 		// the compilationUnitDeclaration should contain exactly one type
 		/* run automaton */
 		parse();
+		notifySourceElementRequestor((CompilationUnitDeclaration)null);
 	} catch (AbortCompilation e) {
 	} finally {
 		diet = old;
