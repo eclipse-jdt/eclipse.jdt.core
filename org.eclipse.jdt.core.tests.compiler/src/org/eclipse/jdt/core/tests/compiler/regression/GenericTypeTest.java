@@ -12967,4 +12967,57 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (? super Integer)\n" + 
 			"----------\n");
 	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83799
+	public void test482() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public final class X {\n" + 
+				"	public <T> void testEquals(final String x, T one, T two) {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <T1, T2> void testEqualsAlt(final String x, T1 one, T2 two) {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public interface Fooey {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public interface Bar extends Fooey {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public interface GenericFooey<T> {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public interface GenericBar<T> extends GenericFooey<T> {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void testGeneric() {\n" + 
+				"		testEquals(\"Should work\", new GenericBar<Long>() {\n" + 
+				"		}, new GenericBar<Long>() {\n" + 
+				"		});\n" + 
+				"		final GenericBar<Long> child = new GenericBar<Long>() {\n" + 
+				"		};\n" + 
+				"		final GenericFooey<Long> parent = child;\n" + 
+				"		testEquals(\"Doesn\'t work but should\", child, parent); // this\n" + 
+				"		// fails\n" + 
+				"		// but should work it\'s identical to next line.\n" + 
+				"		testEquals(\"Doesn\'t work but should\", (GenericFooey<Long>) child, parent);\n" + 
+				"		testEqualsAlt(\"Should work\", child, parent);\n" + 
+				"	}\n" + 
+				"	public void test() {\n" + 
+				"		testEquals(\"Should work\", new Bar() {\n" + 
+				"		}, new Bar() {\n" + 
+				"		});\n" + 
+				"		final Bar child = new Bar() {\n" + 
+				"		};\n" + 
+				"		final Fooey parent = child;\n" + 
+				"		testEquals(\"Doesn\'t work but should\", child, parent);\n" + 
+				"		testEquals(\"Doesn\'t work but should\", (Fooey) child, parent);\n" + 
+				"		testEqualsAlt(\"Should work\", child, parent);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}			
 }
