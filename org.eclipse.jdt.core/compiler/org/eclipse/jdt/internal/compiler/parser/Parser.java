@@ -3549,7 +3549,8 @@ protected void consumeStatementDo() {
 
 	//optimize the push/pop
 	Statement action = (Statement) astStack[astPtr];
-	if (action instanceof EmptyStatement) {
+	if (action instanceof EmptyStatement
+		&& problemReporter.options.complianceLevel <= CompilerOptions.JDK1_3) {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
 			new DoStatement(
@@ -3584,7 +3585,8 @@ protected void consumeStatementFor() {
 	//statements
 	astLengthPtr--; // we need to consume it
 	action = (Statement) astStack[astPtr--];
-	if (action instanceof EmptyStatement) {
+	if (action instanceof EmptyStatement
+		&& problemReporter.options.complianceLevel <= CompilerOptions.JDK1_3) {
 		action = null;
 	}
 
@@ -3855,7 +3857,8 @@ protected void consumeStatementWhile() {
 				intStack[intPtr--], 
 				endStatementPosition); 
 	} else {
-		if (action instanceof EmptyStatement) {
+		if (action instanceof EmptyStatement
+			&& problemReporter.options.complianceLevel <= CompilerOptions.JDK1_3) {
 			astStack[astPtr] = 
 				new WhileStatement(
 					expressionStack[expressionPtr--], 
