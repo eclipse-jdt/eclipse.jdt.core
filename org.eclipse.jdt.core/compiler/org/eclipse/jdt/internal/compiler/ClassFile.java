@@ -659,7 +659,6 @@ public class ClassFile
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
-		
 		// Code attribute
 		attributeNumber++;
 		int codeAttributeOffset = contentsOffset;
