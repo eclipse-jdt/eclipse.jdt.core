@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 /** 
  * Element info for IMethod elements. 
  */
-public class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
+public abstract class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
 	
 	protected char[] selector;
 
@@ -43,12 +43,6 @@ public class SourceMethodElementInfo extends MemberElementInfo implements ISourc
 	protected char[][] argumentTypeNames;
 
 	/**
-	 * Return type name for this method. The return type of
-	 * constructors is equivalent to void.
-	 */
-	protected char[] returnType;
-
-	/**
 	 * A collection of type names of the exceptions this
 	 * method throws, or an empty collection if this method
 	 * does not declare to throw any exceptions. A name is a simple
@@ -57,43 +51,22 @@ public class SourceMethodElementInfo extends MemberElementInfo implements ISourc
 	 */
 	protected char[][] exceptionTypes;
 
-	/**
-	 * Constructor flag.
-	 */
-	protected boolean isConstructor= false;
-	
 	/*
 	 * The type parameters of this source type. Empty if none.
 	 */
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
 	
-	/*
-	 * The positions of a default member value of an annotation member.
-	 * These are {-1, -1} if the method is not an annotation method.
-	 * These are {0, -1} if the method is an annotation method with no default value.
-	 * Otherwise these are the start and end (inclusive) of the expression representing the default value.
-	 */
-	protected int defaultValueStart;
-	protected int defaultValueEnd;
-
-
 public char[][] getArgumentNames() {
 	return this.argumentNames;
 }
 public char[][] getArgumentTypeNames() {
 	return this.argumentTypeNames;
 }
-public char[] getDefaultValueSource(char[] cuSource) {
-	if (this.defaultValueStart == 0 && this.defaultValueEnd == 0) 
-		return null;
-	return CharOperation.subarray(cuSource, this.defaultValueStart, this.defaultValueEnd+1);
-}
 public char[][] getExceptionTypeNames() {
 	return this.exceptionTypes;
 }
-public char[] getReturnTypeName() {
-	return this.returnType;
-}
+public abstract char[] getReturnTypeName();
+
 public char[] getSelector() {
 	return this.selector;
 }
@@ -103,7 +76,7 @@ protected String getSignature() {
 	for (int i = 0; i < this.argumentTypeNames.length; ++i) {
 		paramSignatures[i] = Signature.createTypeSignature(this.argumentTypeNames[i], false);
 	}
-	return Signature.createMethodSignature(paramSignatures, Signature.createTypeSignature(this.returnType, false));
+	return Signature.createMethodSignature(paramSignatures, Signature.createTypeSignature(getReturnTypeName(), false));
 }
 public char[][][] getTypeParameterBounds() {
 	int length = this.typeParameters.length;
@@ -127,25 +100,16 @@ public char[][] getTypeParameterNames() {
 	}
 	return typeParameterNames;
 }
-public boolean isConstructor() {
-	return this.isConstructor;
-}
-public boolean isAnnotationMethod() {
-	return this.defaultValueStart != -1;
-}
+public abstract boolean isConstructor();
+public abstract boolean isAnnotationMethod();
 protected void setArgumentNames(char[][] names) {
 	this.argumentNames = names;
 }
 protected void setArgumentTypeNames(char[][] types) {
 	this.argumentTypeNames = types;
 }
-protected void setConstructor(boolean isConstructor) {
-	this.isConstructor = isConstructor;
-}
 protected void setExceptionTypeNames(char[][] types) {
 	this.exceptionTypes = types;
 }
-protected void setReturnType(char[] type) {
-	this.returnType = type;
-}
+protected abstract void setReturnType(char[] type);
 }

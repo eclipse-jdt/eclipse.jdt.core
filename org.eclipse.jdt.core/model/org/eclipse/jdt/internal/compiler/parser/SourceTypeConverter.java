@@ -295,7 +295,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 				/* conversion of default value */
 				if ((this.flags & FIELD_INITIALIZATION) != 0) {
-					char[] defaultValueSource = methodInfo.getDefaultValueSource(this.source.getContents());
+					char[] defaultValueSource = ((SourceAnnotationMethodInfo) methodInfo).getDefaultValueSource(this.source.getContents());
 					if (defaultValueSource != null) {
 						if (this.parser == null) {
 							this.parser = new Parser(this.problemReporter, true);
