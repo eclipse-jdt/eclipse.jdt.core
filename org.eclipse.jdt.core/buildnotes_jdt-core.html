@@ -47,6 +47,18 @@ Eclipse SDK 3.1M6 - ?nd February 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added optional compiler diagnosis to flag incomplete enum switch statements.
+Corresponding problem ID is: <code>IProblem.MissingEnumConstantCase</code>
+<pre>
+* COMPILER / Reporting Incomplete Enum Switch
+*    When enabled, the compiler will issue an error or a warning whenever an enum constant has
+*    no corresponding case label in an enum switch statement
+*    type has no case label matching an enum constant.
+*     - option id:        "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
 <li>Added API <code>org.eclipse.jdt.core.dom.CompilationUnit#getJavaElement()</code> to retrieve the compilation unit
      or class file the compilation unit node was created from.
 </li>
@@ -102,7 +114,9 @@ Corresponding problem ID is: <code>IProblem.MissingOverrideAnnotation</code>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83693">83693</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68825">68825</a>
+[compiler][1.5] detect not-exhaustive enum switches
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83693">83693</a>
 [1.5][search] References to methods/constructors: do ranges include parameter lists?
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=81377">81377</a>
 [1.5][search] Semantics of search for methods with generics

@@ -436,6 +436,12 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
+	public static final String COMPILER_PB_INCOMPLETE_ENUM_SWITCH = PLUGIN_ID + ".compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
 	public static final String COMPILER_PB_INCONSISTENT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -1880,6 +1886,14 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning whenever encountering a method
 	 *    declaration which overrides a superclass method but has no @Override annotation.
 	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"                               
+	 * 
+	 * COMPILER / Reporting Incomplete Enum Switch
+	 *    When enabled, the compiler will issue an error or a warning whenever an enum constant has
+	 *    no corresponding case label in an enum switch statement
+	 *    type has no case label matching an enum constant.
+	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"                               
 	 * 	

@@ -14,8 +14,10 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SwitchStatement extends Statement {
 
@@ -221,6 +223,7 @@ public class SwitchStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 	
 	    try {
+			boolean isEnumSwitch = false;
 			TypeBinding expressionType = expression.resolveType(upperScope);
 			if (expressionType == null)
 				return;
@@ -232,6 +235,7 @@ public class SwitchStatement extends Statement {
 					if (expressionType.isCompatibleWith(IntBinding))
 						break checkType;
 				} else if (expressionType.isEnum()) {
+					isEnumSwitch = true;
 					break checkType;
 				} else if (upperScope.isBoxingCompatibleWith(expressionType, IntBinding)) {
 					expression.computeConversion(upperScope, IntBinding, expressionType);
@@ -289,6 +293,23 @@ public class SwitchStatement extends Statement {
 			} else {
 				if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
+				}
+			}
+			// for enum switch, check if all constants are accounted for (if no default) 
+			if (isEnumSwitch && defaultCase == null 
+					&& scope.environment().options.getSeverity(CompilerOptions.IncompleteEnumSwitch) != ProblemSeverities.Ignore
+					&& caseCount != ((ReferenceBinding)expressionType).enumConstantCount()) {
+				FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
+				for (int i = 0, max = enumFields.length; i <max; i++) {
+					FieldBinding enumConstant = enumFields[i];
+					if ((enumConstant.modifiers & AccEnum) == 0) continue;
+					findConstant : {
+						for (int j = 0; j < caseCount; j++) {
+							if (enumConstant.id == this.constants[j]) break findConstant;
+						}
+						// enum constant did not get referenced from switch
+						scope.problemReporter().missingEnumConstantCase(this, enumConstant);
+					}
 				}
 			}
 	    } finally {

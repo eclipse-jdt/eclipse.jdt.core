@@ -1078,7 +1078,9 @@ public interface IProblem {
 	int EnumSwitchCannotTargetField = FieldRelated + 759;
 	/** @since 3.1 */
 	int IllegalModifierForEnumConstructor = MethodRelated + 760;
-
+	/** @since 3.1 */
+	int MissingEnumConstantCase = FieldRelated + 761;
+	
 	/**
 	 * Var args
 	 */

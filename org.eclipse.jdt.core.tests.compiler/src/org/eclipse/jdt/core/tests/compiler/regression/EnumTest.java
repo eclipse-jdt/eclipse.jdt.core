@@ -1770,7 +1770,22 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	switch (x) {\n" + 
+			"	        ^\n" + 
+			"The enum constant X.A has no corresponding case label\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	switch (x) {\n" + 
+			"	        ^\n" + 
+			"The enum constant X.C has no corresponding case label\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	switch (x) {\n" + 
+			"	        ^\n" + 
+			"The enum constant X.B has no corresponding case label\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
 			"	case D:\n" + 
 			"	     ^\n" + 
 			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
@@ -1798,7 +1813,22 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	switch (x) {\n" + 
+			"	        ^\n" + 
+			"The enum constant X.A has no corresponding case label\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	switch (x) {\n" + 
+			"	        ^\n" + 
+			"The enum constant X.C has no corresponding case label\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	switch (x) {\n" + 
+			"	        ^\n" + 
+			"The enum constant X.B has no corresponding case label\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
 			"	case X.D:\n" + 
 			"	     ^^^\n" + 
 			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
