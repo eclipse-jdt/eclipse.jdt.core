@@ -349,16 +349,22 @@ protected void toStringName(StringBuffer buffer, int flags) {
 	if (parameters != null && (length = parameters.length) > 0) {
 		boolean isVarargs = Flags.isVarargs(flags);
 		for (int i = 0; i < length; i++) {
-			if (i < length - 1) {
-				buffer.append(Signature.toString(parameters[i]));
-				buffer.append(", "); //$NON-NLS-1$
-			} else if (isVarargs) {
-				// remove array from signature
-				String parameter = parameters[i].substring(1);
-				buffer.append(Signature.toString(parameter));
-				buffer.append(" ..."); //$NON-NLS-1$
-			} else {
-				buffer.append(Signature.toString(parameters[i]));
+			try {
+				if (i < length - 1) {
+					buffer.append(Signature.toString(parameters[i]));
+					buffer.append(", "); //$NON-NLS-1$
+				} else if (isVarargs) {
+					// remove array from signature
+					String parameter = parameters[i].substring(1);
+					buffer.append(Signature.toString(parameter));
+					buffer.append(" ..."); //$NON-NLS-1$
+				} else {
+					buffer.append(Signature.toString(parameters[i]));
+				}
+			} catch (IllegalArgumentException e) {
+				// parameter signature is malformed
+				buffer.append("*** invalid signature: "); //$NON-NLS-1$
+				buffer.append(parameters[i]);
 			}
 		}
 	}
