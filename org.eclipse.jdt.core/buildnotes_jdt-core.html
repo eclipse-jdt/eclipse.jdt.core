@@ -42,6 +42,17 @@ Eclipse SDK 3.0 Build - ?th July 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added optional compiler diagnosis for predicate method declaring thrown exceptions
+(matching problem ID is <code>IProblem.PredicateThrowingException</code>)
+<pre>
+* COMPILER / Reporting Predicate Declaring Thrown Exceptions
+*    When enabled, the compiler will issue an error or a warning when a boolean method declaration 
+*    (aka predicate) is specifying a clause for thrown exceptions. Usually, predicates should only return
+*    a boolean value and not raise exceptions.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.predicateThrowingException"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
 <li> Added optional compiler diagnosis for indirect references to static members (matching problem IDs are:
 <code>IProblem.IndirectAccessToStaticField</code>, <code>IProblem.IndirectAccessToStaticMethod</code>, <code>IProblem.IndirectAccessToStaticType</code>).
 <pre>
