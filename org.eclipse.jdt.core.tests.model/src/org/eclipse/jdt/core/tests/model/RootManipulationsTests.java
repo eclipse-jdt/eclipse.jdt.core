@@ -248,6 +248,8 @@ public void testCopySourceFolder4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN}\n" + 
+			"	src1[*]: {REORDERED IN CLASSPATH}\n" + 
+			"	src2[*]: {REORDERED IN CLASSPATH}\n" + 
 			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -265,6 +267,7 @@ public void testCopySourceFolder4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta (2)",
 			"P2[*]: {CHILDREN}\n" + 
+			"	src2[*]: {REORDERED IN CLASSPATH}\n" + 
 			"	src3[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -755,6 +758,8 @@ public void testMoveSourceFolder4() throws CoreException {
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
+			"	src1[*]: {REORDERED IN CLASSPATH}\n" + 
+			"	src2[*]: {REORDERED IN CLASSPATH}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
@@ -800,6 +805,7 @@ public void testMoveSourceFolder5() throws CoreException {
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
+			"	src2[*]: {REORDERED IN CLASSPATH}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);

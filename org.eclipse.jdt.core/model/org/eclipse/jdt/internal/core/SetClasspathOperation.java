@@ -277,7 +277,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		boolean hasDelta = false;
 		int oldLength = oldResolvedPath.length;
 		int newLength = newResolvedPath.length;
-		boolean oldResolvedPathLongest = oldLength >= newLength;
 			
 		final IndexManager indexManager = manager.getIndexManager();
 		Map oldRoots = null;
@@ -300,7 +299,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				oldRoots.put(root.getPath(), root);
 			}
 		}
-		for (int i = 0; i < oldResolvedPath.length; i++) {
+		for (int i = 0; i < oldLength; i++) {
 			
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
 			if (index == -1) {
@@ -365,7 +364,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					continue; 
 				}				
 				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
-				if (oldResolvedPathLongest && index != i) { //reordering of the classpath
+				if (index != i) { //reordering of the classpath
 						addClasspathDeltas(
 							project.computePackageFragmentRoots(oldResolvedPath[i]),
 							IJavaElementDelta.F_CLASSPATH_REORDER,
@@ -399,7 +398,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 		}
 
-		for (int i = 0; i < newResolvedPath.length; i++) {
+		for (int i = 0; i < newLength; i++) {
 
 			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
@@ -421,7 +420,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 						case IClasspathEntry.CPE_LIBRARY:
 							boolean pathHasChanged = true;
 							final IPath newPath = newResolvedPath[i].getPath();
-							for (int j = 0; j < oldResolvedPath.length; j++) {
+							for (int j = 0; j < oldLength; j++) {
 								IClasspathEntry oldEntry = oldResolvedPath[j];
 								if (oldEntry.getPath().equals(newPath)) {
 									pathHasChanged = false;
