@@ -310,7 +310,7 @@ public class JavaProject
 					IResource member = workspaceRoot.findMember(entry.getPath()); 
 					if (member != null && member.getType() == IResource.PROJECT){ // double check if bound to project (23977)
 						IProject projRsc = (IProject) member;
-						if (projRsc.isOpen()) {				
+						if (JavaProject.hasJavaNature(projRsc)) {				
 							JavaProject project = (JavaProject) JavaCore.create(projRsc);
 							project.computeExpandedClasspath(
 								initialProject, 
@@ -448,7 +448,7 @@ public class JavaProject
 				IResource member = workspaceRoot.findMember(entryPath);
 				if (member != null && member.getType() == IResource.PROJECT){// double check if bound to project (23977)
 					IProject requiredProjectRsc = (IProject) member;
-					if (requiredProjectRsc.exists() && requiredProjectRsc.isOpen()){ // special builder binary output
+					if (JavaProject.hasJavaNature(requiredProjectRsc)){ // special builder binary output
 						rootIDs.add(rootID);
 						JavaProject requiredProject = (JavaProject)JavaCore.create(requiredProjectRsc);
 						requiredProject.computePackageFragmentRoots(

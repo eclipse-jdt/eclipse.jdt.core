@@ -131,16 +131,12 @@ protected boolean generateInfos(
 
 	JavaModelManager.getJavaModelManager().putInfo(this, info);
 	// determine my children
-	try {
-		IProject[] projects = this.getWorkspace().getRoot().getProjects();
-		for (int i = 0, max = projects.length; i < max; i++) {
-			IProject project = projects[i];
-			if (project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
-				info.addChild(getJavaProject(project));
-			}
+	IProject[] projects = this.getWorkspace().getRoot().getProjects();
+	for (int i = 0, max = projects.length; i < max; i++) {
+		IProject project = projects[i];
+		if (JavaProject.hasJavaNature(project)) {
+			info.addChild(getJavaProject(project));
 		}
-	} catch (CoreException e) {
-		throw new JavaModelException(e);
 	}
 	return true;
 }

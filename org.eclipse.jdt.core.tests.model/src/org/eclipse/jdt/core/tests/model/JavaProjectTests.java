@@ -78,6 +78,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testFindElementCompilationUnit"));
 	suite.addTest(new JavaProjectTests("testFindElementCompilationUnitDefaultPackage"));
 	suite.addTest(new JavaProjectTests("testFindElementInvalidPath"));
+	suite.addTest(new JavaProjectTests("testFindElementPrereqSimpleProject"));
 	suite.addTest(new JavaProjectTests("testProjectClose"));
 	suite.addTest(new JavaProjectTests("testPackageFragmentRenameAndCreate"));
 	suite.addTest(new JavaProjectTests("testFolderWithDotName"));
@@ -321,6 +322,25 @@ public void testFindElementPackage() throws JavaModelException {
 	IJavaElement element= project.findElement(new Path("x/y"));
 	assertTrue("package not found" , element != null && element.getElementType() == IJavaElement.PACKAGE_FRAGMENT
 		&& element.getElementName().equals("x.y"));
+}
+/**
+ * Test that a class can be found even if the project prereq a simple project
+ * (regression test for bug 28434 Open Type broken when workspace has build path problems)
+ */
+public void testFindElementPrereqSimpleProject() throws CoreException {
+	try {
+		this.createProject("R");
+		IJavaProject project = this.createJavaProject("J", new String[] {"src"}, new String[] {}, new String[] {"/R"}, "bin");
+		this.createFile(
+			"J/src/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		assertTrue("X.java not found", project.findElement(new Path("X.java")) != null);
+	} finally {
+		this.deleteProject("R");
+		this.deleteProject("J");
+	}
 }
 /**
  * Test that a package fragment root can be found from a classpath entry.

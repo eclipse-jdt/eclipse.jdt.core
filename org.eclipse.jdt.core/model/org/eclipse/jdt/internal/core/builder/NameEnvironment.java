@@ -118,7 +118,7 @@ private void computeClasspathLocations(
 			case IClasspathEntry.CPE_PROJECT :
 				if (!(target instanceof IProject)) continue nextEntry;
 				IProject prereqProject = (IProject) target;
-				if (!prereqProject.isAccessible()) continue nextEntry;
+				if (!JavaProject.hasJavaNature(prereqProject)) continue nextEntry; // if project doesn't have java nature or is not accessible
 
 				JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
 				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getExpandedClasspath(true, true);
