@@ -96,6 +96,12 @@ public class SourceMapper extends ReferenceInfoAdapter implements ISourceElement
 	protected IJavaElement searchedElement;
 
 	/**
+	 * imports references
+	 */
+	private char[][] imports;
+	private int importsCounter;
+	
+	/**
 	 * Enclosing type information
 	 */
 	 IType[] types;
@@ -119,7 +125,14 @@ public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
  * @see ISourceElementRequestor
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {
-	//do nothing
+	if (this.imports == null) {
+		this.imports = new char[5][];
+		this.importsCounter = 0;
+	}
+	if (this.imports.length == this.importsCounter) {
+		System.arraycopy(this.imports, 0, (this.imports = new char[this.importsCounter * 2][]), 0, this.importsCounter);
+	}
+	this.imports[this.importsCounter++] = name;
 }
 /**
  * @see ISourceElementRequestor
@@ -436,6 +449,7 @@ public void mapSource(IType type, char[] contents) {
 public ISourceRange mapSource(IType type, char[] contents, IJavaElement searchedElement) {
 	fType= (BinaryType)type;
 
+	this.imports = null;
 	this.searchedElement = searchedElement;
 	this.types = new IType[1];
 	this.typeDeclarationStarts = new int[1];
@@ -504,5 +518,15 @@ protected byte[] readEntry(ZipFile zip, ZipEntry entry) {
  */
 protected void setSourceRange(IJavaElement element, SourceRange sourceRange, SourceRange nameRange) {
 	fSourceRanges.put(element, new SourceRange[] {sourceRange, nameRange});
+}
+
+/**
+ * Return a char[][] array containing the imports of the attached source for an IType
+ */
+public char[][] getImports() {
+	if (this.imports != null && this.imports.length != this.importsCounter) {
+		System.arraycopy(this.imports, 0, (this.imports = new char[this.importsCounter][]), 0, this.importsCounter);
+	}
+	return this.imports;
 }
 }

@@ -9,7 +9,9 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.*;
@@ -137,6 +139,11 @@ public void evaluateCodeSnippet(
 				}
 				this.context.setImports(importsNames);
 			}
+		} else {
+			// try to retrieve imports from the source
+			SourceMapper sourceMapper = ((ClassFile) declaringType.getClassFile()).getSourceMapper();
+			declaringType.getSource(); // do the mapping and initialize the imports
+			this.context.setImports(sourceMapper.getImports());
 		}
 	}
 	try {
