@@ -375,4 +375,30 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"M.Missing cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+
+	public void test012() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.Math.*;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		System.out.println(max(1, 2));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"2");
+// TODO (kent) must support static methods too... how? cannot hold onto a specific MethodBinding...
+//		this.runConformTest(
+//			new String[] {
+//				"X.java",
+//				"import static java.lang.Math.max;\n" +
+//				"public class X {\n" +
+//				"	public static void main(String[] s) {\n" +
+//				"		System.out.println(max(1, 3));\n" +
+//				"	}\n" +
+//				"}\n",
+//			},
+//			"3");
+	}
 }
