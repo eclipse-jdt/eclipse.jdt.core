@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.search.matching.*;
 
 public abstract class AbstractIndexer implements IIndexConstants {
@@ -67,7 +68,11 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	}
 	public void addEnumDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, ENUM_SUFFIX));
-
+		
+		addIndexEntry(
+			SUPER_REF, 
+			SuperTypeReferencePattern.createIndexKey(
+				modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, TypeConstants.JAVA_LANG_ENUM[2], CLASS_SUFFIX));
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
 				char[] superinterface = erasure(superinterfaces[i]);

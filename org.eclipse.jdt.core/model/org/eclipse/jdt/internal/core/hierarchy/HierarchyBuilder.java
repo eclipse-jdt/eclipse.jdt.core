@@ -194,6 +194,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		// now do the caching
 		switch (suppliedType.getKind()) {
 			case IGenericType.CLASS :
+			case IGenericType.ENUM :
 				if (superHandle == null) {
 					this.hierarchy.addRootClass(typeHandle);
 				} else {
@@ -202,9 +203,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				break;
 			case IGenericType.INTERFACE :
 				this.hierarchy.addInterface(typeHandle);
-				break;
-			case IGenericType.ENUM :
-				// TODO (jerome) add support - enum extends Enum implicitly
 				break;
 			case IGenericType.ANNOTATION_TYPE :
 				break;

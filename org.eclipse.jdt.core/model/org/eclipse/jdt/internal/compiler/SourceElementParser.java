@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -55,12 +58,28 @@ public class SourceElementParser extends CommentRecorderParser {
  * An ast visitor that visits local type declarations.
  */
 public class LocalDeclarationVisitor extends ASTVisitor {
+	ArrayList declaringTypes;
+	public void pushDeclaringType(TypeDeclaration declaringType) {
+		if (this.declaringTypes == null) {
+			this.declaringTypes = new ArrayList();
+		}
+		this.declaringTypes.add(declaringType);
+	}
+	public void popDeclaringType() {
+		this.declaringTypes.remove(this.declaringTypes.size()-1);
+	}
+	public TypeDeclaration peekDeclaringType() {
+		if (this.declaringTypes == null) return null;
+		int size = this.declaringTypes.size();
+		if (size == 0) return null;
+		return (TypeDeclaration) this.declaringTypes.get(size-1);
+	}
 	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-		notifySourceElementRequestor(typeDeclaration, sourceType == null);
+		notifySourceElementRequestor(typeDeclaration, sourceType == null, peekDeclaringType());
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}
 	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
-		notifySourceElementRequestor(typeDeclaration, sourceType == null);
+		notifySourceElementRequestor(typeDeclaration, sourceType == null, peekDeclaringType());
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}	
 }
@@ -886,7 +905,7 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 					notifySourceElementRequestor(importRef, false);
 				}
 			} else { // instanceof TypeDeclaration
-				notifySourceElementRequestor((TypeDeclaration)node, sourceType == null);
+				notifySourceElementRequestor((TypeDeclaration)node, sourceType == null, null);
 			}
 		}
 	}
@@ -1162,7 +1181,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 					fieldDeclaration.sourceStart, 
 					fieldDeclaration.sourceEnd); 
 			}
-			this.visitIfNeeded(fieldDeclaration);
+			this.visitIfNeeded(fieldDeclaration, declaringType);
 			if (isInRange){
 				requestor.exitField(
 					// filter out initializations that are not a constant (simple check)
@@ -1211,7 +1230,7 @@ public void notifySourceElementRequestor(
 			importReference.modifiers); 
 	}
 }
-public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence) {
+public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType) {
    
    // range check
    boolean isInRange = 
@@ -1257,18 +1276,22 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
          case IGenericType.ANNOTATION_TYPE :
             TypeReference superclass = typeDeclaration.superclass;
             if (superclass == null) {
-               if (isInRange){
-                  requestor.enterClass(
-                     typeDeclaration.declarationSourceStart, 
-                     typeDeclaration.modifiers, 
-                     typeDeclaration.name, 
-                     typeDeclaration.sourceStart, 
-                     sourceEnd(typeDeclaration), 
-                     null, 
-                     interfaceNames);
+ 				if (isInRange) {
+ 					int flags =  typeDeclaration.modifiers;
+ 					boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
+ 					if (isEnumInit)
+ 						flags |= AccEnum;
+					requestor.enterClass(
+						typeDeclaration.declarationSourceStart, 
+						flags, 
+						typeDeclaration.name, 
+						typeDeclaration.sourceStart, 
+						sourceEnd(typeDeclaration), 
+						isEnumInit ? declaringType.name : null, 
+						interfaceNames);
                }
             } else {
-               if (isInRange){
+               if (isInRange) {
                   requestor.enterClass(
                      typeDeclaration.declarationSourceStart, 
                      typeDeclaration.modifiers, 
@@ -1380,7 +1403,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
             break;
          case 2 :
             memberTypeIndex++;
-            notifySourceElementRequestor(nextMemberDeclaration, true);
+            notifySourceElementRequestor(nextMemberDeclaration, true, null);
       }
    }
    if (notifyTypePresence){
@@ -1632,11 +1655,16 @@ private void visitIfNeeded(AbstractMethodDeclaration method) {
 	}
 }
 
-private void visitIfNeeded(FieldDeclaration field) {
+private void visitIfNeeded(FieldDeclaration field, TypeDeclaration declaringType) {
 	if (this.localDeclarationVisitor != null 
 		&& (field.bits & ASTNode.HasLocalTypeMASK) != 0) {
 			if (field.initialization != null) {
-				field.initialization.traverse(this.localDeclarationVisitor, (MethodScope) null);
+				try {
+					this.localDeclarationVisitor.pushDeclaringType(declaringType);
+					field.initialization.traverse(this.localDeclarationVisitor, (MethodScope) null);
+				} finally {
+					this.localDeclarationVisitor.popDeclaringType();
+				}
 			}
 	}
 }

@@ -435,11 +435,6 @@ protected void enterType(
 	SourceType handle = handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
-	if (parentInfo instanceof SourceFieldElementInfo && superclass == null && superinterfaces == null) { // case of enum constant init
-		superclass =  parentHandle.getParent().getElementName().toCharArray();
-		modifiers |= Flags.AccEnum;
-	}
-	
 	SourceTypeElementInfo info = new SourceTypeElementInfo();
 	info.setHandle(handle);
 	info.setSourceRangeStart(declarationStart);
