@@ -436,6 +436,12 @@ public IType[] getTypes() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
+	return getSharedWorkingCopy(pm, factory, null);
+}
+/**
+ * @see IWorkingCopy
+ */
+public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
 	WorkingCopy workingCopy = (WorkingCopy)sharedWorkingCopies.get(this);
@@ -448,7 +454,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 
 		return workingCopy;
 	} else {
-		workingCopy = (WorkingCopy)this.getWorkingCopy(pm, factory);
+		workingCopy = (WorkingCopy)this.getWorkingCopy(pm, factory, problemRequestor);
 		sharedWorkingCopies.put(this, workingCopy);
 
 		if (SHARED_WC_VERBOSE) {
