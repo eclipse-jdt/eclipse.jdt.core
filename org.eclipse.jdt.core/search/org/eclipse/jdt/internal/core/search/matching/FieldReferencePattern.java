@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
@@ -31,8 +28,6 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
@@ -81,6 +76,9 @@ public FieldReferencePattern(
 
 	this.needsResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+	requestor.acceptFieldReference(path, decodedName);
+}
 /**
  * Either decode ref/name, fieldRef/name 
  */ 
@@ -91,24 +89,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	int tagLength = currentTag.length;
 	int nameLength = CharOperation.indexOf(SEPARATOR, word, tagLength);
 	if (nameLength < 0) nameLength = size;
-	decodedName = CharOperation.subarray(word, tagLength, nameLength);}
-/**
- * see SearchPattern.feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	if (currentTag == REF) {
-		foundAmbiguousIndexMatches = true;
-	}
-	for (int i = 0, max = references.length; i < max; i++) {
-		int reference = references[i];
-		if (reference != -1) { // if the reference has not been eliminated
-			IndexedFile file = input.getIndexedFile(reference);
-			String path;
-			if (file != null && scope.encloses(path = IndexedFile.convertPath(file.getPath()))) {
-				requestor.acceptFieldReference(path, decodedName);
-			}
-		}
-	}
+	decodedName = CharOperation.subarray(word, tagLength, nameLength);
 }
 protected char[][] getPossibleTags() {
 	if (this.writeAccess && !this.readAccess) {

@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
@@ -34,8 +31,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
@@ -71,6 +66,9 @@ public TypeReferencePattern(
 	
 	this.needsResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+	requestor.acceptTypeReference(path, decodedSimpleName);
+}
 /**
  * Either decode ref/name, typeRef/name or superRef/superName/name
  */ 
@@ -86,21 +84,6 @@ public void decodeIndexEntry(IEntryResult entryResult){
 		this.decodedSegment = CharOperation.subarray(word, tagLength, nameLength);
 	} else {
 		this.decodedSimpleName = CharOperation.subarray(word, tagLength, nameLength);
-	}
-}
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	if (currentTag == REF) {
-		foundAmbiguousIndexMatches = true;
-	}
-	for (int i = 0, max = references.length; i < max; i++) {
-		int reference = references[i];
-		if (reference != -1) { // if the reference has not been eliminated
-			IndexedFile file = input.getIndexedFile(reference);
-			String path;
-			if (file != null && scope.encloses(path = IndexedFile.convertPath(file.getPath()))) {
-				requestor.acceptTypeReference(path, decodedSimpleName);
-			}
-		}
 	}
 }
 protected char[][] getPossibleTags(){

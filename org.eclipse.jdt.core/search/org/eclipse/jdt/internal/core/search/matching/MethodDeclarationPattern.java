@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -24,8 +21,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
@@ -59,6 +54,9 @@ public MethodDeclarationPattern(
 	}	
 	this.needsResolve = this.needsResolve();
 }
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+	requestor.acceptMethodDeclaration(path, decodedSelector, decodedParameterCount);
+}
 public void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
@@ -67,18 +65,6 @@ public void decodeIndexEntry(IEntryResult entryResult){
 
 	decodedParameterCount = Integer.parseInt(new String(word, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
 	decodedSelector = CharOperation.subarray(word, METHOD_DECL.length, lastSeparatorIndex);
-}
-/**
- * see SearchPattern.feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	for (int i = 0, max = references.length; i < max; i++) {
-		IndexedFile file = input.getIndexedFile(references[i]);
-		String path;
-		if (file != null && scope.encloses(path = IndexedFile.convertPath(file.getPath()))) {
-			requestor.acceptMethodDeclaration(path, decodedSelector, decodedParameterCount);
-		}
-	}
 }
 public String getPatternName(){
 	return "MethodDeclarationPattern: "; //$NON-NLS-1$
@@ -107,46 +93,42 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 	if (!(binaryInfo instanceof IBinaryMethod)) return false;
 
 	IBinaryMethod method = (IBinaryMethod)binaryInfo;
-	
-	// selector
-	if (!this.matchesName(this.selector, method.getSelector()))
-		return false;
+	if (!this.matchesName(this.selector, method.getSelector())) return false;
 
 	// declaring type
-	IBinaryType declaringType = (IBinaryType)enclosingBinaryInfo;
-	if (declaringType != null) {
+	if (enclosingBinaryInfo != null && (this.declaringSimpleName != null || this.declaringQualification != null)) {
+		IBinaryType declaringType = (IBinaryType)enclosingBinaryInfo;
 		char[] declaringTypeName = (char[])declaringType.getName().clone();
 		CharOperation.replace(declaringTypeName, '/', '.');
-		if (!this.matchesType(this.declaringSimpleName, this.declaringQualification, declaringTypeName)) {
+		if (!this.matchesType(this.declaringSimpleName, this.declaringQualification, declaringTypeName))
 			return false;
-		}
 	}
 
-	String methodDescriptor = new String(method.getMethodDescriptor()).replace('/', '.');
-
-	// look at return type only if declaring type is not specified
-	if (this.declaringSimpleName == null) {
-		String returnTypeSignature = Signature.toString(Signature.getReturnType(methodDescriptor));
-		if (!this.matchesType(this.returnSimpleName, this.returnQualification, returnTypeSignature.toCharArray())) {
-			return false;
-		}
-	}
-		
 	// parameter types
 	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (parameterCount > -1) {
-		String[] arguments = Signature.getParameterTypes(methodDescriptor);
-		int argumentCount = arguments.length;
-		if (parameterCount != argumentCount)
-			return false;
-		for (int i = 0; i < parameterCount; i++) {
-			char[] qualification = this.parameterQualifications[i];
-			char[] type = this.parameterSimpleNames[i];
-			if (!this.matchesType(type, qualification, Signature.toString(arguments[i]).toCharArray()))
+	if (parameterCount > -1 || this.declaringSimpleName == null) {
+		String methodDescriptor = new String(method.getMethodDescriptor()).replace('/', '.');
+
+		if (parameterCount > -1) {
+			String[] arguments = Signature.getParameterTypes(methodDescriptor);
+			int argumentCount = arguments.length;
+			if (parameterCount != argumentCount) return false;
+			for (int i = 0; i < parameterCount; i++) {
+				char[] qualification = this.parameterQualifications[i];
+				char[] type = this.parameterSimpleNames[i];
+				if (!this.matchesType(type, qualification, Signature.toString(arguments[i]).toCharArray()))
+					return false;
+			}
+		}
+
+		// look at return type only if declaring type is not specified
+		if (this.declaringSimpleName == null) {
+			String returnTypeSignature = Signature.toString(Signature.getReturnType(methodDescriptor));
+			if (!this.matchesType(this.returnSimpleName, this.returnQualification, returnTypeSignature.toCharArray())) {
 				return false;
+			}
 		}
 	}
-
 	return true;
 }
 

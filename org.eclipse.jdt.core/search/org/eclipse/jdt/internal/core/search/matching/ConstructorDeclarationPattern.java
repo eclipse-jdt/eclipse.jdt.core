@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -23,8 +20,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
@@ -37,6 +32,9 @@ public class ConstructorDeclarationPattern extends MethodDeclarationPattern {
 public ConstructorDeclarationPattern(char[] declaringSimpleName, int matchMode, boolean isCaseSensitive, char[] declaringQualification, char[][] parameterQualifications, char[][] parameterSimpleNames) {
 	super(null, matchMode, isCaseSensitive, declaringQualification, declaringSimpleName, null, null, parameterQualifications, parameterSimpleNames);
 }
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+	requestor.acceptConstructorDeclaration(path, decodedTypeName, decodedParameterCount);
+}
 public void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
@@ -45,18 +43,6 @@ public void decodeIndexEntry(IEntryResult entryResult){
 
 	decodedParameterCount = Integer.parseInt(new String(word, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
 	decodedTypeName = CharOperation.subarray(word, CONSTRUCTOR_DECL.length, lastSeparatorIndex);
-}
-/**
- * see SearchPattern.feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	for (int i = 0, max = references.length; i < max; i++) {
-		IndexedFile file = input.getIndexedFile(references[i]);
-		String path;
-		if (file != null && scope.encloses(path = IndexedFile.convertPath(file.getPath()))) {
-			requestor.acceptConstructorDeclaration(path, decodedTypeName, decodedParameterCount);
-		}
-	}
 }
 /**
  * @see SearchPattern#indexEntryPrefix

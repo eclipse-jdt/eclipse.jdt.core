@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.BlocksIndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
+import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -1103,7 +1104,10 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	return searchPattern;
 
 }
-protected abstract void decodeIndexEntry(IEntryResult entryResult);
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+}
+protected void decodeIndexEntry(IEntryResult entryResult) {
+}
 /**
  * Returns the enclosing type names of the given type.
  */
@@ -1134,7 +1138,16 @@ private static char[][] enclosingTypeNames(IType type) {
 /**
  * Feed the requestor according to the current search pattern
  */
-public abstract void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope)  throws IOException ;
+public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
+	for (int i = 0, max = references.length; i < max; i++) {
+		IndexedFile file = input.getIndexedFile(references[i]);
+		if (file != null) {
+			String path = IndexedFile.convertPath(file.getPath());
+			if (scope.encloses(path))
+				acceptPath(requestor, path);
+		}
+	}
+}
 /**
  * Query a given index for matching entries. 
  */
@@ -1162,16 +1175,14 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	if (entries == null) return;
 	
 	/* only select entries which actually match the entire search pattern */
-	for (int i = 0, max = entries.length; i < max; i++){
-
+	for (int i = 0, max = entries.length; i < max; i++) {
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 		/* retrieve and decode entry */	
 		IEntryResult entry = entries[i];
 		decodeIndexEntry(entry);
-		if (matchIndexEntry()){
+		if (matchIndexEntry())
 			feedIndexRequestor(requestor, detailLevel, entry.getFileReferences(), input, scope);
-		}
 	}
 }
 /**
@@ -1180,7 +1191,10 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
  * The more accurate the prefix and the less false hits will have
  * to be eliminated later on.
  */
-public abstract char[] indexEntryPrefix();
+public char[] indexEntryPrefix() {
+	// override with the best prefix possible for the pattern
+	return null;
+}
 /**
  * Check if the given ast node syntactically matches this pattern.
  * If it does, add it to the match set.

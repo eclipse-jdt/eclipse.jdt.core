@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -26,8 +23,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
@@ -65,6 +60,9 @@ public MethodReferencePattern(
 	this.declaringType = declaringType;
 	this.needsResolve = this.needsResolve();
 }
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+	requestor.acceptMethodReference(path, decodedSelector, decodedParameterCount);
+}
 public void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
@@ -73,18 +71,6 @@ public void decodeIndexEntry(IEntryResult entryResult){
 
 	decodedParameterCount = Integer.parseInt(new String(word, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
 	decodedSelector = CharOperation.subarray(word, METHOD_REF.length, lastSeparatorIndex);
-}
-/**
- * see SearchPattern.feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	for (int i = 0, max = references.length; i < max; i++) {
-		IndexedFile file = input.getIndexedFile(references[i]);
-		String path;
-		if (file != null && scope.encloses(path = IndexedFile.convertPath(file.getPath()))) {
-			requestor.acceptMethodReference(path, decodedSelector, decodedParameterCount);
-		}
-	}
 }
 public String getPatternName(){
 	return "MethodReferencePattern: "; //$NON-NLS-1$

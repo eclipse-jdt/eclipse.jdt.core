@@ -15,7 +15,6 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 
@@ -26,29 +25,10 @@ public PackageDeclarationPattern(char[] pkgName, int matchMode, boolean isCaseSe
 	this.pkgName = pkgName;
 }
 /**
- * @see SearchPattern#decodeIndexEntry
- */
-protected void decodeIndexEntry(IEntryResult entryResult) {
-	// not used
-}
-/**
- * @see SearchPattern#feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws java.io.IOException {
-	// not used
-}
-/**
  * see SearchPattern#findMatches
  */
 public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 	// package declarations are not indexed
-}
-/**
- * @see SearchPattern#indexEntryPrefix
- */
-public char[] indexEntryPrefix() {
-	// not used
-	return null;
 }
 /**
  * @see SearchPattern#matchContainer
@@ -63,6 +43,13 @@ protected int matchContainer() {
 protected boolean matchIndexEntry() {
 	// used only in the case of a OrPattern
 	return true;
+}
+/**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	// used only in the case of a OrPattern
+	return ACCURATE_MATCH;
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
@@ -85,13 +72,5 @@ public String toString(){
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$
 	return buffer.toString();
-}
-
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	// used only in the case of a OrPattern
-	return ACCURATE_MATCH;
 }
 }

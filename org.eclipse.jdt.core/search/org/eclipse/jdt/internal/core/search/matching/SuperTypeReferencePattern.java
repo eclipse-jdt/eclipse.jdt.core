@@ -61,6 +61,9 @@ public SuperTypeReferencePattern(
 	
 	this.needsResolve = superQualification != null;
 }
+protected void acceptPath(IIndexSearchRequestor requestor, String path) {
+	requestor.acceptSuperTypeReference(path, decodedQualification, decodedSimpleName, decodedEnclosingTypeName, decodedClassOrInterface, decodedSuperQualification, decodedSuperSimpleName, decodedSuperClassOrInterface, decodedModifiers);
+}
 /*
  * "superRef/Object/java.lang/X/p" represents "class p.X extends java.lang.Object"
  * "superRef/Exception//X/p" represents "class p.X extends Exception"
@@ -101,15 +104,6 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	
 	decodedClassOrInterface = word[slash+1];
 	decodedModifiers = (int)word[slash+2];
-}
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	for (int i = 0, max = references.length; i < max; i++) {
-		IndexedFile file = input.getIndexedFile(references[i]);
-		String path;
-		if (file != null && scope.encloses(path = IndexedFile.convertPath(file.getPath()))) {
-			requestor.acceptSuperTypeReference(path, decodedQualification, decodedSimpleName, decodedEnclosingTypeName, decodedClassOrInterface, decodedSuperQualification, decodedSuperSimpleName, decodedSuperClassOrInterface, decodedModifiers);
-		}
-	}
 }
 /**
  * Query a given index for matching entries. 

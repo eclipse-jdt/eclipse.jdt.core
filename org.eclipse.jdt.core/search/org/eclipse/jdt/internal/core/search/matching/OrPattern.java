@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.IInfoConstants;
@@ -39,49 +38,39 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	this.needsResolve = leftPattern.needsResolve || rightPattern.needsResolve;
 }
 /**
- * see SearchPattern.decodedIndexEntry
- */
-protected void decodeIndexEntry(IEntryResult entry) {
-
-	// will never be directly invoked on a composite pattern
-}
-/**
- * see SearchPattern.feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope)  throws IOException {
-	// will never be directly invoked on a composite pattern
-}
-/**
  * see SearchPattern.findMatches
  */
 public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-	IIndexSearchRequestor orCombiner;
-	if (detailLevel == IInfoConstants.NameInfo) {
-		orCombiner = new OrNameCombiner(requestor);
-	} else {
-		orCombiner = new OrPathCombiner(requestor);
-	}
+	IIndexSearchRequestor orCombiner = 
+		detailLevel == IInfoConstants.NameInfo
+			? (IIndexSearchRequestor) new OrNameCombiner(requestor)
+			: (IIndexSearchRequestor) new OrPathCombiner(requestor);
 	leftPattern.findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
-	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+	if (progressMonitor != null && progressMonitor.isCanceled())
+		throw new OperationCanceledException();
 	rightPattern.findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
 }
 /**
- * see SearchPattern.indexEntryPrefix
+ * see SearchPattern.initializePolymorphicSearch
  */
-public char[] indexEntryPrefix() {
-
-	// will never be directly invoked on a composite pattern
-	return null;
+public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
+	this.leftPattern.initializePolymorphicSearch(locator, progressMonitor);
+	this.rightPattern.initializePolymorphicSearch(locator, progressMonitor);
+}
+/**
+ * see SearchPattern.isPolymorphicSearch
+ */
+public boolean isPolymorphicSearch() {
+	return this.leftPattern.isPolymorphicSearch() || this.rightPattern.isPolymorphicSearch();
 }
 /**
  * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
-	return leftPattern.matchContainer()
-			| rightPattern.matchContainer();
+	return leftPattern.matchContainer() | rightPattern.matchContainer();
 }
 /**
  * @see SearchPattern#matchesBinary
@@ -94,41 +83,8 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
-
-	return this.leftPattern.matchIndexEntry()
-			|| this.rightPattern.matchIndexEntry();
+	return this.leftPattern.matchIndexEntry() || this.rightPattern.matchIndexEntry();
 }
-/**
- * @see SearchPattern#matchReportReference
- */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	int leftLevel = this.leftPattern.matchLevel(reference, true);
-	if (leftLevel == ACCURATE_MATCH || leftLevel == INACCURATE_MATCH) {
-		this.leftPattern.matchReportReference(reference, element, accuracy, locator);
-	} else {
-		this.rightPattern.matchReportReference(reference, element, accuracy, locator);
-	}
-}
-public String toString(){
-	return this.leftPattern.toString() + "\n| " + this.rightPattern.toString(); //$NON-NLS-1$
-}
-
-/**
- * see SearchPattern.initializePolymorphicSearch
- */
-public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
-
-	this.leftPattern.initializePolymorphicSearch(locator, progressMonitor);
-	this.rightPattern.initializePolymorphicSearch(locator, progressMonitor);
-}
-
-/**
- * see SearchPattern.isPolymorphicSearch
- */
-public boolean isPolymorphicSearch() {
-	return this.leftPattern.isPolymorphicSearch() || this.rightPattern.isPolymorphicSearch();
-}
-
 /**
  * @see SearchPattern#matchLevel(AstNode, boolean)
  */
@@ -151,7 +107,6 @@ public int matchLevel(AstNode node, boolean resolve) {
 			return IMPOSSIBLE_MATCH;
 	}
 }
-
 /**
  * @see SearchPattern#matchLevel(Binding)
  */
@@ -173,5 +128,19 @@ public int matchLevel(Binding binding) {
 		default:
 			return IMPOSSIBLE_MATCH;
 	}
+}
+/**
+ * @see SearchPattern#matchReportReference
+ */
+protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	int leftLevel = this.leftPattern.matchLevel(reference, true);
+	if (leftLevel == ACCURATE_MATCH || leftLevel == INACCURATE_MATCH) {
+		this.leftPattern.matchReportReference(reference, element, accuracy, locator);
+	} else {
+		this.rightPattern.matchReportReference(reference, element, accuracy, locator);
+	}
+}
+public String toString(){
+	return this.leftPattern.toString() + "\n| " + this.rightPattern.toString(); //$NON-NLS-1$
 }
 }

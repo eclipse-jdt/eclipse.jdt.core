@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
+import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 
 /**
@@ -25,6 +26,19 @@ import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 public abstract class AndPattern extends SearchPattern {
 public AndPattern(int matchMode, boolean isCaseSensitive) {
 	super(matchMode, isCaseSensitive);
+}
+public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
+	for (int i = 0, max = references.length; i < max; i++) {
+		int reference = references[i];
+		if (reference != -1) { // if the reference has not been eliminated
+			IndexedFile file = input.getIndexedFile(reference);
+			if (file != null) {
+				String path = IndexedFile.convertPath(file.getPath());
+				if (scope.encloses(path))
+					acceptPath(requestor, path);
+			}
+		}
+	}
 }
 /**
  * Query a given index for matching entries. 

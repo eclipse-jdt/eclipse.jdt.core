@@ -26,6 +26,14 @@ public MultipleSearchPattern(int matchMode, boolean isCaseSensitive) {
 	super(matchMode, isCaseSensitive);
 }
 /**
+ * see SearchPattern.feedIndexRequestor
+ */
+public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
+	if (currentTag == REF)
+		foundAmbiguousIndexMatches = true;
+	super.feedIndexRequestor(requestor, detailLevel, references, input, scope);
+}
+/**
  * Query a given index for matching entries. 
  */
 public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
