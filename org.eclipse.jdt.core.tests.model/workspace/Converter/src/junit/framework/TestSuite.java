@@ -2,7 +2,9 @@ package junit.framework;
 
 import java.util.Vector;
 import java.util.Enumeration;
-import java.io.PrintWriter;import java.io.StringWriter;import java.lang.reflect.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.*;
 import java.lang.reflect.Constructor;
 
 /**
