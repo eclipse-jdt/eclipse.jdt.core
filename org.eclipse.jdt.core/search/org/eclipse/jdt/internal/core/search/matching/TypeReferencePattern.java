@@ -120,47 +120,45 @@ protected StringBuffer print(StringBuffer output) {
 	output.append(">"); //$NON-NLS-1$
 	return super.print(output);
 }
-	/*
-	 * Returns the type parameter names of the given type.
-	 */
-	private char[][][] typeParameterNames(IType type) {
-		char[][][] typeParameters = new char[10][][];
-		int ptr = -1;
-		try {
-			IJavaElement parent = type;
-			ITypeParameter[] parameters = null;
-			while (parent != null) {
-				switch(parent.getElementType()) {
-					case IJavaElement.CLASS_FILE:
-						if (++ptr > typeParameters.length) {
-							System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
-						}
-						parameters = ((BinaryType) parent).getTypeParameters();
-						break;
-					case IJavaElement.TYPE:
-						if (++ptr > typeParameters.length) {
-							System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
-						}
-						parameters = ((SourceType) parent).getTypeParameters();
-						break;
-					default:
-						if (ptr <0) return null;
-						if (++ptr < typeParameters.length)
-							System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
-						return typeParameters;
-				}
-				int length = parameters==null ? 0 : parameters.length;
-				if (length > 0) {
-					typeParameters[ptr] = new char[length][];
-					for (int i=0; i<length; i++)
-						typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
-				}
-				parent = parent.getParent();
+/*
+ * Returns the type parameter names of the given type.
+ */
+private char[][][] typeParameterNames(IType type) {
+	char[][][] typeParameters = new char[10][][];
+	int ptr = -1;
+	try {
+		IJavaElement parent = type;
+		ITypeParameter[] parameters = null;
+		boolean hasParameters = false;
+		while (parent != null) {
+			if (parent.getElementType() != IJavaElement.TYPE) {
+				if (!hasParameters) return null;
+				if (++ptr < typeParameters.length)
+					System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
+				return typeParameters;
 			}
+			if (++ptr > typeParameters.length) {
+				System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
+			}
+			IType parentType = (IType) parent;
+			if (parentType.isBinary()) {
+				parameters = ((BinaryType) parent).getTypeParameters();
+			} else {
+				parameters = ((SourceType) parent).getTypeParameters();
+			}
+			int length = parameters==null ? 0 : parameters.length;
+			if (length > 0) {
+				hasParameters = true;
+				typeParameters[ptr] = new char[length][];
+				for (int i=0; i<length; i++)
+					typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+			}
+			parent = parent.getParent();
 		}
-		catch (JavaModelException jme) {
-			return null;
-		}
-		return typeParameters;
 	}
+	catch (JavaModelException jme) {
+		return null;
+	}
+	return typeParameters;
+}
 }

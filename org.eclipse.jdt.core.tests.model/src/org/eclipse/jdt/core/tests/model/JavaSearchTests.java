@@ -337,7 +337,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	// All specified tests which do not belong to the class are skipped...
 	static {
 	//	TESTS_PREFIX =  "testVarargs";
-//		TESTS_NAMES = new String[] { "testAnnotation" };
+//		TESTS_NAMES = new String[] { "testTypeReferenceBug80918" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -3943,14 +3943,14 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			"src/b79860/Y.java b79860.Y [I3]",
 			resultCollector);
 	}
-	
+
 	/**
 	 * Type parameter with class name
 	 * Regression tests for bug 79803: [1.5][search] Search for references to type A reports match for type variable A
 	 */
 	public void testTypeReferenceBug79803() throws CoreException {
 		IType type = getCompilationUnit("JavaSearchBugs", "src", "b79803", "A.java").getType("A");
-		search(type, REFERENCES, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
+		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
 		assertSearchResults(
 			"src/b79803/A.java b79803.A.pa [b79803.A]\n" + 
 			"src/b79803/A.java b79803.A.pa [b79803.A]",
@@ -3964,6 +3964,18 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			"src/b79803/A.java b79803.A.pa [A]",
 			this.resultCollector);
 	}
+
+	/**
+	 * Regression tests for bug 80918: [1.5][search] ClassCastException when searching for references to binary type
+	 */
+	public void testTypeReferenceBug80918() throws CoreException {
+		IType type = getClassFile("JavaSearch", "test20631.jar", "", "X.class").getType();
+		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
+		assertSearchResults(
+			"", // does not expect fin anything, just verify that no CCE happens
+			this.resultCollector);
+	}
+
 	/**
 	 * Search for enumerations
 	 */
