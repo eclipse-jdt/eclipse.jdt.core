@@ -462,7 +462,7 @@ protected void assertDeltas(String message, String expected) {
 		// read source bytes
 		byte[] srcBytes = this.read(src);
 		
-		if (src.getName().endsWith(".java")) {
+		if (convertToIndependantLineDelimiter(src)) {
 			String contents = new String(srcBytes);
 			contents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(contents);
 			srcBytes = contents.getBytes();
@@ -472,6 +472,10 @@ protected void assertDeltas(String message, String expected) {
 		FileOutputStream out = new FileOutputStream(dest);
 		out.write(srcBytes);
 		out.close();
+	}
+	
+	public boolean convertToIndependantLineDelimiter(File file) {
+		return file.getName().endsWith(".java");
 	}
 	
 	/**

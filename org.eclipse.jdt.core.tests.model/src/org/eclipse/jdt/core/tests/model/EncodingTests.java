@@ -118,6 +118,9 @@ public class EncodingTests extends ModifyingResourceTests {
 		}
 	}
 
+	public boolean convertToIndependantLineDelimiter(File file) {
+		return false; // don't convert to indenpendant line delimiter as this make tests fail on linux
+	}
 	/**
 	 * Check that the compilation unit is saved with the proper encoding.
 	 */
