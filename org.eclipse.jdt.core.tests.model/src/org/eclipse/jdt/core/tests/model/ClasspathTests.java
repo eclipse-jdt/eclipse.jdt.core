@@ -2059,6 +2059,53 @@ public void testInvalidExternalClassFolder() throws CoreException {
 	}
 }
 /*
+ * Ensures that a non existing external jar cannot be put on the classpath.
+ */
+public void testInvalidExternalJar() throws CoreException {
+	try {
+		String jarPath = EXTERNAL_JAR_DIR_PATH + File.separator + "nonExisting.jar";
+		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {jarPath}, "bin");
+		assertMarkers(
+			"Unexpected markers",
+			"Project P is missing required library: \'" + jarPath + "\'",
+			proj);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a non existing internal jar cannot be put on the classpath.
+ */
+public void testInvalidInternalJar1() throws CoreException {
+	try {
+		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {"/P/nonExisting.jar"}, "bin");
+		assertMarkers(
+			"Unexpected markers",
+			"Project P is missing required library: \'nonExisting.jar\'",
+			proj);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a file not ending with .jar or .zip cannot be put on the classpath.
+ */
+public void testInvalidInternalJar2() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/existing.txt", "");
+		IJavaProject proj =  createJavaProject("P2", new String[] {}, new String[] {"/P1/existing.txt"}, "bin");
+		assertMarkers(
+			"Unexpected markers",
+			"Illegal type of archive for required library: \'/P1/existing.txt\' in project P2",
+			proj);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
  * Ensures that a non existing source folder cannot be put on the classpath.
  * (regression test for bug 66512 Invalid classpath entry not rejected)
  */
@@ -2068,7 +2115,7 @@ public void testInvalidSourceFolder() throws CoreException {
 		IJavaProject proj = createJavaProject("P2", new String[] {}, new String[] {}, new String[] {"/P1/src1/src2"}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Project P2 is missing required source folder: \'P1/src1/src2\'",
+			"Project P2 is missing required source folder: \'/P1/src1/src2\'",
 			proj);
 	} finally {
 		deleteProject("P1");
