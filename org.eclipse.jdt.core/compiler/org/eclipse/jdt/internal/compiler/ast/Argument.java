@@ -53,7 +53,7 @@ public class Argument extends LocalDeclaration {
 			scope.problemReporter().redefineArgument(this);
 			return null;
 		}
-		binding = new LocalVariableBinding(this, tb, modifiers, true);
+		binding = new LocalVariableBinding(this, tb, modifiers, false); // argument decl, but local var  (i.e. isArgument = false)
 		scope.addLocalVariable(binding);
 		binding.constant = NotAConstant;
 		return tb;

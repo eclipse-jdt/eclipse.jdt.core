@@ -220,7 +220,7 @@ public class BlockScope extends Scope {
 					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
 					if (local.isArgument) // method argument
 						this.problemReporter().unusedArgument(local.declaration);
-					else if (!(local.declaration instanceof Argument)) // catch variable
+					else if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
 						this.problemReporter().unusedLocalVariable(local.declaration);
 				}
 				if (!generatesLocal) {
