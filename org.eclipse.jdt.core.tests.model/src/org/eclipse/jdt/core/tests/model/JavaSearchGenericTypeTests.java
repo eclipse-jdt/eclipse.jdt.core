@@ -1092,7 +1092,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testStringPatternAnyStrings02() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
-		search("*Generic", TYPE, REFERENCES, scope, resultCollector);
+		search("G?ner?c", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java [Generic] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1107,32 +1107,19 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_wld [Generic] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_thr [Generic] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.qgen_run [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [NonGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [NonGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java [Generic] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_obj [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [Generic] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java [Generic] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Generic] EXACT_MATCH\n" + 
@@ -1193,20 +1180,8 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testStringPatternAnyStrings04() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
-		search("*Member*", TYPE, REFERENCES, scope, resultCollector);
+		search("Member*", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_obj [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_thr [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_thr [GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [GenericMember] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_obj [MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric] EXACT_MATCH\n" + 
@@ -1231,6 +1206,80 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Member] EXACT_MATCH",
+			resultCollector);
+	}
+	public void testStringPatternAnyStrings05() throws CoreException {
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", true);
+		search("Generic*<Object>", TYPE, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_obj [GenericMember<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [GenericMember<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [GenericMember<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [GenericMember] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_obj [GenericMember<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [GenericMember<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [GenericMember<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic<? super RuntimeException>] EXACT_MATCH",
+			resultCollector);
+	}
+	public void testStringPatternAnyStrings06() throws CoreException {
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", true);
+		search("Generic<Obj*>", TYPE, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_thr [Generic<? extends Throwable>] POTENTIAL_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.gen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_thr [Generic<? extends Throwable>] POTENTIAL_MATCH\n" + 
+			"src/g1/t/s/ref/R1.java g1.t.s.ref.R1.qgen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [Generic<? extends Throwable>] POTENTIAL_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [Generic<? extends Throwable>] POTENTIAL_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Generic<? extends Throwable>] POTENTIAL_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Generic<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Generic] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Generic<Object>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Generic<? extends Throwable>] POTENTIAL_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Generic<? super RuntimeException>] EXACT_MATCH",
 			resultCollector);
 	}
 
