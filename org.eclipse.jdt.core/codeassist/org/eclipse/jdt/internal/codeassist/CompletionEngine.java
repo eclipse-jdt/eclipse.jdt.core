@@ -2362,7 +2362,9 @@ public final class CompletionEngine
 						
 						requestor.acceptLocalVariable(
 							local.name,
-							NoChar,
+							local.type == null 
+								? NoChar
+								: local.type.qualifiedPackageName(),
 							local.type == null
 								? local.declaration.type.toString().toCharArray()
 								: local.type.qualifiedSourceName(),
