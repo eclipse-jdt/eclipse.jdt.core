@@ -484,7 +484,7 @@ private int literalIndexForField(char[] name, char[] signature) {
 	}
 	return index;
 }
-private int literalIndexForMethod(char[] selector, char[] signature) {
+public int literalIndexForMethod(char[] selector, char[] signature) {
 	int index = getFromNameAndTypeCache(selector, signature);
 	if (index == -1) {
 		// The entry doesn't exit yet

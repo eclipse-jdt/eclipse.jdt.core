@@ -22,4 +22,5 @@ public interface AttributeNamesConstants {
 	final char[] DeprecatedName = new char[] {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd'};
 	final char[] SignatureName = new char[] {'S', 'i', 'g', 'n', 'a', 't', 'u', 'r', 'e'};	
 	final char[] LocalVariableTypeTableName = new char[] {'L', 'o', 'c', 'a', 'l', 'V', 'a', 'r', 'i', 'a', 'b', 'l', 'e', 'T', 'y', 'p', 'e', 'T', 'a', 'b', 'l', 'e'};
+	final char[] EnclosingMethodName = new char[] {'E', 'n', 'c', 'l', 'o', 's', 'i', 'n', 'g', 'M', 'e', 't', 'h', 'o', 'd'};
 }
