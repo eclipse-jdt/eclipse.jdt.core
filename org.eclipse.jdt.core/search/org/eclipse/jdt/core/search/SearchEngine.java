@@ -367,12 +367,9 @@ public class SearchEngine {
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
 	 */
 	public static ISearchPattern createSearchPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
-		int matchMode;
-		if (stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1) {
-			matchMode = IJavaSearchConstants.PATTERN_MATCH;
-		} else {
-			matchMode = IJavaSearchConstants.EXACT_MATCH;
-		}
+		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
+			? SearchPattern.R_PATTERN_MATCH
+			: SearchPattern.R_EXACT_MATCH;
 		return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive);
 	}
 	
@@ -591,11 +588,11 @@ public class SearchEngine {
 	
 		if (patternTypeName != null) {
 			switch(matchMode) {
-				case IJavaSearchConstants.EXACT_MATCH :
+				case SearchPattern.R_EXACT_MATCH :
 					return CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
-				case IJavaSearchConstants.PREFIX_MATCH :
+				case SearchPattern.R_PREFIX_MATCH :
 					return CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
-				case IJavaSearchConstants.PATTERN_MATCH :
+				case SearchPattern.R_PATTERN_MATCH :
 					return CharOperation.match(patternTypeName, typeName, isCaseSensitive);
 			}
 		}

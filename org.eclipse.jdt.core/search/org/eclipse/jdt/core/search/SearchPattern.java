@@ -33,16 +33,16 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	 * Match rule: The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
 	 */
-	public static final int R_EXACT_MATCH = 0;
+	public static final int R_EXACT_MATCH = EXACT_MATCH;
 	/**
 	 * Match rule: The search pattern is a prefix of the search result.
 	 */
-	public static final int R_PREFIX_MATCH = 1;
+	public static final int R_PREFIX_MATCH = PREFIX_MATCH;
 	/**
 	 * Match rule: The search pattern contains one or more wild cards ('*') where a 
 	 * wild-card can replace 0 or more characters in the search result.
 	 */
-	public static final int R_PATTERN_MATCH = 2;
+	public static final int R_PATTERN_MATCH = PATTERN_MATCH;
 	/**
 	 * Match rule: The search pattern contains a regular expression.
 	 */
@@ -746,7 +746,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 				if (lastDot == -1) return null; // invalid import declaration
 				IImportDeclaration importDecl = (IImportDeclaration)element;
 				if (importDecl.isOnDemand()) {
-					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, EXACT_MATCH, CASE_SENSITIVE);
+					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, R_EXACT_MATCH, true);
 				} else {
 					searchPattern = 
 						createTypePattern(
@@ -950,7 +950,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
 			case IJavaElement.PACKAGE_FRAGMENT :
-				searchPattern = createPackagePattern(element.getElementName(), limitTo, EXACT_MATCH, CASE_SENSITIVE);
+				searchPattern = createPackagePattern(element.getElementName(), limitTo, R_EXACT_MATCH, true);
 				break;
 		}
 		if (searchPattern != null)
