@@ -263,7 +263,10 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			if (receiverType == null) {
 				return;
 			}
-
+			// prevent (explicit) super constructor invocation from within enum
+			if (this.accessMode == Super && receiverType.erasure().id == T_JavaLangEnum) {
+				scope.problemReporter().cannotInvokeSuperConstructorInEnum(this, methodScope.referenceMethod().binding);
+			}
 			// qualification should be from the type of the enclosingType
 			if (qualification != null) {
 				if (accessMode != Super) {

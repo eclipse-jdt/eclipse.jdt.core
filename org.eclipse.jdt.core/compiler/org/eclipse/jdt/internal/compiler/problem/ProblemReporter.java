@@ -1083,6 +1083,20 @@ public void errorThisSuperInStatic(ASTNode reference) {
 		reference.sourceStart,
 		reference.sourceEnd);
 }
+public void cannotInvokeSuperConstructorInEnum(ExplicitConstructorCall constructorCall, MethodBinding enumConstructor) {
+	this.handle(
+		IProblem.CannotInvokeSuperConstructorInEnum,
+		new String[] { 
+		        new String(enumConstructor.declaringClass.sourceName()),
+		        typesAsString(enumConstructor.isVarargs(), enumConstructor.parameters, false), 
+		 },
+		new String[] { 
+		        new String(enumConstructor.declaringClass.sourceName()),
+		        typesAsString(enumConstructor.isVarargs(), enumConstructor.parameters, true), 
+		 },
+		constructorCall.sourceStart,
+		constructorCall.sourceEnd);
+}
 public void expressionShouldBeAVariable(Expression expression) {
 	this.handle(
 		IProblem.ExpressionShouldBeAVariable,

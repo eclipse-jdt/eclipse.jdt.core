@@ -1359,7 +1359,7 @@ public class EnumTest extends AbstractComparisonTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914
 	 */
-	public void _test047() {
+	public void test047() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1370,7 +1370,12 @@ public class EnumTest extends AbstractComparisonTest {
 				"	}\n" +
 				"}"
 			},
-			"ERROR"
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	super();\n" + 
+			"	^^^^^^^\n" + 
+			"Cannot invoke super constructor from enum constructor X()\n" + 
+			"----------\n"
 		);
 	}
 	
@@ -1422,6 +1427,28 @@ public class EnumTest extends AbstractComparisonTest {
 			"ERROR"
 		);
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914 - variation
+	 */
+	public void test051() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	BLEU (0) {\n" + 
+				"	}\n" + 
+				"	;\n" + 
+				"	X() {\n" + 
+				"		this(0);\n" + 
+				"	}\n" + 
+				"	X(int i) {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}	
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

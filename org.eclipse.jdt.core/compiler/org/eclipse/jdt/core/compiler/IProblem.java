@@ -1019,6 +1019,8 @@ public interface IProblem {
 	int IllegalQualifiedEnumConstantLabel = FieldRelated + 755;
 	/** @since 3.1 */
 	int CannotExtendEnum = TypeRelated + 756;
+	/** @since 3.1 */
+	int CannotInvokeSuperConstructorInEnum = MethodRelated + 757;
 
 	/**
 	 * Var args
