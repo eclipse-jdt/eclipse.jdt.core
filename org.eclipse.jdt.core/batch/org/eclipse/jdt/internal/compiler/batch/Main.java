@@ -584,7 +584,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	if (filesCount != 0)
 		System.arraycopy(filenames, 0, (filenames = new String[filesCount]), 0, filesCount);
 	if (pathCount == 0) {
-		String classProp = System.getProperty("LFclasspath"); //$NON-NLS-1$
+		String classProp = System.getProperty("DEFAULT_CLASSPATH"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
 			out.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
 			classProp = "."; //$NON-NLS-1$
