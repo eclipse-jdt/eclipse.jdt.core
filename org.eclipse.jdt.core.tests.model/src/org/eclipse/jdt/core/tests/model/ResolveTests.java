@@ -1011,4 +1011,16 @@ public void testMethodDeclarationInInterface() throws JavaModelException {
 			elements
 	);
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=57414
+ */
+public void testEndOfFile() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveEndOfFile.java");
+	IJavaElement[] elements = codeSelectAt(cu, "zzz");
+	assertElementsEqual(
+			"Unexpected elements",
+			"",
+			elements
+	);
+}
 }

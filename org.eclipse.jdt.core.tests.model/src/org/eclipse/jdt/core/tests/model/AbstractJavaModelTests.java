@@ -312,6 +312,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		int length = selection.length();
 		return ((ICodeAssist)sourceReference).codeSelect(start, length);
 	}
+	protected IJavaElement[] codeSelectAt(ISourceReference sourceReference, String selectAt) throws JavaModelException {
+		String str = sourceReference.getSource();
+		int start = str.indexOf(selectAt) + selectAt.length();
+		int length = 0;
+		return ((ICodeAssist)sourceReference).codeSelect(start, length);
+	}
 	/**
 	 * Copy file from src (path to the original file) to dest (path to the destination file).
 	 */
