@@ -319,7 +319,8 @@ public IJavaElement rootedAt(IJavaProject project) {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
 	buffer.append("[Working copy] ");
-	super.toStringInfo(tab, buffer, info);
+	super.toStringInfo(0, buffer, info);
 }
 }

@@ -557,9 +557,7 @@ public String toString() {
  * @private Debugging purposes
  */
 protected void toString(int tab, StringBuffer buffer) {
-	buffer.append(this.tabString(tab));
-	Object info = fgJavaModelManager.getInfo(this);
-	this.toStringInfo(tab, buffer, info);
+	Object info = this.toStringInfo(tab, buffer);
 	if (tab == 0) {
 		this.toStringAncestors(buffer);
 	}
@@ -600,7 +598,16 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 /**
  * @private Debugging purposes
  */
+public Object toStringInfo(int tab, StringBuffer buffer) {
+	Object info = fgJavaModelManager.getInfo(this);
+	this.toStringInfo(tab, buffer, info);
+	return info;
+}
+/**
+ * @private Debugging purposes
+ */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
 	buffer.append(getElementName());
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$

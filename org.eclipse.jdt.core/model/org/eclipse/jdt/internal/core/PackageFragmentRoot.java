@@ -333,6 +333,7 @@ public IJavaElement rootedAt(IJavaProject project) {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
 	if (getElementName().length() == 0) {
 		buffer.append("[project root]"); //$NON-NLS-1$
 	} else {

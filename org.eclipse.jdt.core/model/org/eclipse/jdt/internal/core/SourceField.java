@@ -51,6 +51,7 @@ public String getTypeSignature() throws JavaModelException {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
 	if (info == null) {
 		buffer.append(getElementName());
 		buffer.append(" (not open)"); //$NON-NLS-1$

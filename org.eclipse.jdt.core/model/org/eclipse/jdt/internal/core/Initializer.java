@@ -68,6 +68,7 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
 	if (info == null) {
 		buffer.append("<initializer>"); //$NON-NLS-1$
 		buffer.append(" (not open)"); //$NON-NLS-1$

@@ -308,6 +308,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
 	if (getElementName().length() == 0) {
 		buffer.append("[default]"); //$NON-NLS-1$
 	} else {
