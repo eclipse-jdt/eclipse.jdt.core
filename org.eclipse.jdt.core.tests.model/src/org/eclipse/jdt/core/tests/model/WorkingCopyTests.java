@@ -15,9 +15,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -207,40 +206,7 @@ public WorkingCopyTests(String name) {
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(WorkingCopyTests.class.getName());
-	suite.addTest(new WorkingCopyTests("testCreation"));
-	
-	suite.addTest(new WorkingCopyTests("testContents"));
-	suite.addTest(new WorkingCopyTests("testGeneral"));
-	suite.addTest(new WorkingCopyTests("testOperations"));
-	suite.addTest(new WorkingCopyTests("testMultipleCommit"));
-	suite.addTest(new WorkingCopyTests("testCustomizedBuffer"));
-	suite.addTest(new WorkingCopyTests("testCustomizedBuffer2"));
-	suite.addTest(new WorkingCopyTests("testShared1"));
-	suite.addTest(new WorkingCopyTests("testShared2"));
-	suite.addTest(new WorkingCopyTests("testOnClassFile"));
-	suite.addTest(new WorkingCopyTests("testMoveTypeToAnotherWorkingCopy"));
-
-	suite.addTest(new WorkingCopyTests("testGetOriginalBinaryElement"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalCU"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalElementNotInWorkingCopy"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalField"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalImportDeclaration"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalImportContainer"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalInitializer"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalInnerType"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalInnerField"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalInnerMethod"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalMethod"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalPackageDeclaration"));
-	suite.addTest(new WorkingCopyTests("testGetOriginalType"));
-	suite.addTest(new WorkingCopyTests("testRenameMethod"));
-	suite.addTest(new WorkingCopyTests("testChangeContent"));
-	suite.addTest(new WorkingCopyTests("testChangeContentOfReadOnlyCU"));
-	
-	suite.addTest(new WorkingCopyTests("testNonExistingCU"));
-
-	return suite;
+	return new Suite(WorkingCopyTests.class);
 }
 protected void setUp() {
 	try {
@@ -265,6 +231,8 @@ protected void setUp() {
 			"  {\n" +
 			"    FIELD = File.pathSeparator;\n" +
 			"  }\n" +
+			"  int field1;\n" +
+			"  boolean field2;\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}");
@@ -386,6 +354,34 @@ public void testCustomizedBuffer2() throws JavaModelException {
 		assertTrue("Unexpected buffer", openableCopy.getBuffer() instanceof Buffer);		
 	} finally {
 		customizedCopy.destroy();
+	}
+}
+/*
+ * Test that deleting 2 fields in a JavaCore.run() operation reports the correct delta.
+ * (regression test for bug 32225 incorrect delta after deleting 2 fields)
+ */
+public void testDelete2Fields() throws CoreException {
+	try {
+		startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					IType type = copy.getType("A");
+					IField field1 = type.getField("field1");
+					IField field2 = type.getField("field2");
+					field1.delete(false, monitor);
+					field2.delete(false, monitor);
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected delta",
+			"A[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"	field1[-]: {}\n" + 
+			"	field2[-]: {}"
+		);
+	} finally {
+		stopDeltas();
 	}
 }
 /**
@@ -670,6 +666,8 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 			"  {\n" +
 			"    FIELD = File.pathSeparator;\n" +
 			"  }\n" +
+			"  int field1;\n" +
+			"  boolean field2;\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}\n" +

@@ -170,8 +170,17 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Registers the given reconcile delta with the Java Model Manager.
 	 */
 	protected void addReconcileDelta(IWorkingCopy workingCopy, IJavaElementDelta delta) {
-		// TODO: (jerome) should merge deltas if previous reconcile delta was already registered for this working copy
-		JavaModelManager.getJavaModelManager().reconcileDeltas.put(workingCopy, delta);
+		HashMap reconcileDeltas = JavaModelManager.getJavaModelManager().reconcileDeltas;
+		JavaElementDelta previousDelta = (JavaElementDelta)reconcileDeltas.get(workingCopy);
+		if (previousDelta != null) {
+			IJavaElementDelta[] children = delta.getAffectedChildren();
+			for (int i = 0, length = children.length; i < length; i++) {
+				JavaElementDelta child = (JavaElementDelta)children[i];
+				previousDelta.insertDeltaTree(child.getElement(), child);
+			}
+		} else {
+			reconcileDeltas.put(workingCopy, delta);
+		}
 	}
 	/*
 	 * Deregister the reconcile delta for the given working copy
