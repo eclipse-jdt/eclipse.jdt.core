@@ -51,9 +51,10 @@ public class BlocksIndexInput extends IndexInput {
 	 */
 	public void close() throws IOException {
 		if (opened) {
-			raf.close();
 			summary= null;
 			opened= false;
+			if (raf != null)
+				raf.close();
 		}
 	}
 	/**
