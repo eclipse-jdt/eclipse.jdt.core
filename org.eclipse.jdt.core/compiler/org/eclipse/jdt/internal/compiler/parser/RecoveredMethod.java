@@ -22,9 +22,7 @@ public class RecoveredMethod extends RecoveredElement implements CompilerModifie
 
 	public RecoveredBlock methodBody;
 	public boolean discardBody = true;
-public RecoveredMethod(AbstractMethodDeclaration methodDeclaration, RecoveredElement parent, int bracketBalance){
-	this(methodDeclaration, parent, bracketBalance, null);
-}
+
 public RecoveredMethod(AbstractMethodDeclaration methodDeclaration, RecoveredElement parent, int bracketBalance, Parser parser){
 	super(parent, bracketBalance, parser);
 	this.methodDeclaration = methodDeclaration;
@@ -45,7 +43,11 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalance) {
 	if (methodDeclaration.declarationSourceEnd > 0
 		&& nestedBlockDeclaration.sourceStart
 			> methodDeclaration.declarationSourceEnd){
-		return this.parent.add(nestedBlockDeclaration, bracketBalance);
+				if (this.parent == null){
+					return this; // ignore
+				} else {
+					return this.parent.add(nestedBlockDeclaration, bracketBalance);
+				}
 	}
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -68,8 +70,13 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 		|| (fieldDeclaration.type == null) // initializer
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
 			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
-		return this.parent.add(fieldDeclaration, bracketBalance);
+
+		if (this.parent == null){
+			return this; // ignore
+		} else {
+			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
+			return this.parent.add(fieldDeclaration, bracketBalance);
+		}
 	}
 	/* default behavior is to delegate recording to parent if any,
 	do not consider elements passed the known end (if set)
@@ -97,7 +104,8 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 		it must be belonging to an enclosing type */
 	if (methodDeclaration.declarationSourceEnd != 0 
 		&& localDeclaration.declarationSourceStart > methodDeclaration.declarationSourceEnd){
-		if (parent == null) {
+			
+		if (this.parent == null) {
 			return this; // ignore
 		} else {
 			return this.parent.add(localDeclaration, bracketBalance);
@@ -118,7 +126,8 @@ public RecoveredElement add(Statement statement, int bracketBalance) {
 		it must be belonging to an enclosing type */
 	if (methodDeclaration.declarationSourceEnd != 0 
 		&& statement.sourceStart > methodDeclaration.declarationSourceEnd){
-		if (parent == null) {
+
+		if (this.parent == null) {
 			return this; // ignore
 		} else {
 			return this.parent.add(statement, bracketBalance);
@@ -136,7 +145,8 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 		it must be belonging to an enclosing type */
 	if (methodDeclaration.declarationSourceEnd != 0 
 		&& typeDeclaration.declarationSourceStart > methodDeclaration.declarationSourceEnd){
-		if (parent == null) {
+			
+		if (this.parent == null) {
 			return this; // ignore
 		} else {
 			return this.parent.add(typeDeclaration, bracketBalance);
