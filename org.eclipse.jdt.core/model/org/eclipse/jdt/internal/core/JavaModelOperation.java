@@ -530,9 +530,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * Registers the given action to be run when the outer most java model operation has finished.
 	 * The insertion mode controls whether:
-	 * - the action should replace the last exiting action with the same id (REPLACE_LAST),
+	 * - the action should discard all existing actions with the same id, and be queued at the end (REMOVEALL_APPEND),
 	 * - the action should be ignored if there is already an action with the same id (KEEP_EXISTING),
-	 * - the action should be registered without looking at existing actions (DEFAULT)	 */
+	 * - the action should be queued at the end without looking at existing actions (APPEND)	 */
 	protected void postAction(IPostAction action, int insertionMode) {
 		JavaModelOperation outerMostOp = (JavaModelOperation)getCurrentOperationStack().get(0);
 		IPostAction[] postActions = outerMostOp.actions;
