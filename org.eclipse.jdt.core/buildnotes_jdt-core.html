@@ -11,7 +11,7 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK Build 200203?? - ??th March 2002
+Eclipse SDK Build 200203?? - ??th March 2002 
 <br>Project org.eclipse.jdt.core v_236
 <h2>
 What's new in this drop</h2>
@@ -22,6 +22,7 @@ What's new in this drop</h2>
 		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createScanner</code>), allowing to obtain
 			a scanner (implementing <code>IScanner</code> API). </li>
 	</ul>
+</li>
 <li> Code formatter API
 	<ul>
 		<li>defined code formatter API (see <code>org.eclipse.jdt.core.ICodeFormatter</code>). </li>
@@ -32,6 +33,10 @@ What's new in this drop</h2>
 		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createDefaultFormatter</code>), allowing to obtain
 			a default code formatter (implementing <code>ICodeFormatter</code> API). </li>
 	</ul>
+</li>
+<li> Instead of passing a problem requestor (<code>org.eclipse.jdt.core.IProblemRequestor</code>) to working copy #reconcile(...)
+operation. The problem requestor is passed along at creation time. 
+</li>	
 <li>Internal classes got deprecated (as client code relies on them), since being surfaced:
 	<ul>
 		<li> <code>org.eclipse.jdt.internal.core.parser.InvalidInputException</code> <br>==> <code>org.eclipse.jdt.core.compiler.InvalidInputException</code> </li>
@@ -39,6 +44,7 @@ What's new in this drop</h2>
 	</ul>
 	They will be removed in a subsequent build.
 </ul>
+</li>
 
 <h3>
 Problem Reports Fixed</h3>
