@@ -35,6 +35,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
 	
+	// static variables for subsets tests
+	public static String[] testsNames = null; // list of test names to perform
+	public static int[] testsNumbers = null; // list of test numbers to perform
+	public static int[] testsRange = null; // range of test numbers to perform
+	
+	// infos for invalid results
+	protected int tabs = 2;
+	protected boolean displayName = false;
+	
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
 		public int problemCount;
@@ -131,6 +140,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		super(name);
 	}
 
+	public AbstractJavaModelTests(String name, int tabs) {
+		super(name);
+		this.tabs = tabs;
+	}
+
 	public static Test buildTestSuite(Class evaluationTestClass) {
 		return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
 	}
@@ -155,7 +169,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
-			System.out.print(displayString(actual, 2));
+			if (this.displayName) System.out.println(getName()+" expected result is:");
+			System.out.print(displayString(actual, this.tabs));
 			System.out.println(",");
 		}
 		assertEquals(

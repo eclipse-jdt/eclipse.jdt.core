@@ -23,6 +23,8 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 		
 	public JavaSearchGenericTypeTests(String name) {
 		super(name);
+		this.tabs = 3;
+		this.displayName = true;
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchGenericTypeTests.class);
@@ -30,14 +32,10 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-		// Prefix for names of tests to run
 //		TESTS_PREFIX =  "testStringPatternNestedParam";
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testGenericFieldReferenceAC04" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NAMES = new String[] { "WildcardUnbound" };
 //		TESTS_NUMBERS = new int[] { 8 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		TESTS_RANGE = new int[] { -1, -1 };
+//		TESTS_RANGE = new int[] { 6, -1 };
 	}
 	
 	protected void setUp () throws Exception {
@@ -457,7 +455,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [g3.t.def.GS<? super RuntimeException>.Generic] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testElementPatternNestedParam04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GS.java").getType("NGS").getType("Generic");
 		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
@@ -572,7 +570,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [g3.t.def.GM<g3.t.def.GS<Object>.Generic<?>, g3.t.def.GS<? extends Throwable>.Generic<?>, g3.t.def.GS<? super RuntimeException>.Generic<?>>.Generic] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testElementPatternNestedParam08() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GM.java").getType("NGM").getType("Generic");
 		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
@@ -1085,7 +1083,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleParameterizedStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1104,7 +1102,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleParameterizedStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<Exception>", TYPE, REFERENCES, scope, resultCollector);
@@ -1123,7 +1121,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleParameterizedStringPattern07() throws CoreException {
@@ -1139,7 +1137,6 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 
-	// Search reference to a generic type
 	public void testSingleWildcardExtendsStringPattern01() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
@@ -1226,7 +1223,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleWildcardExtendsStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1236,14 +1233,14 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric<?>] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric<? super RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric<?>] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException>] EXACT_MATCH",
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (sezrch-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleWildcardExtendsStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
@@ -1260,7 +1257,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleWildcardExtendsStringPattern07() throws CoreException {
@@ -1364,7 +1361,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleWildcardSuperStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1374,14 +1371,14 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_exc [MemberGeneric<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_wld [MemberGeneric<?>] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_thr [MemberGeneric<? super RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_exc [MemberGeneric<Exception>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_wld [MemberGeneric<?>] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
+			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleWildcardSuperStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? super Exception>", TYPE, REFERENCES, scope, resultCollector);
@@ -1398,7 +1395,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleWildcardSuperStringPattern07() throws CoreException {
@@ -1526,7 +1523,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleWildcardUnboundStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1547,7 +1544,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testSingleWildcardUnboundStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<?>", TYPE, REFERENCES, scope, resultCollector);
@@ -1568,7 +1565,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric<? extends Throwable>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleWildcardUnboundStringPattern07() throws CoreException {
@@ -1691,7 +1688,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleParameterizedStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception, Exception, RuntimeException>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1710,7 +1707,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleParameterizedStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<Exception, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
@@ -1729,7 +1726,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleParameterizedStringPattern07() throws CoreException {
@@ -1837,7 +1834,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleWildcardExtendsStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception, ? extends Exception, ? extends RuntimeException>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1845,16 +1842,16 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleWildcardExtendsStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? extends Exception, ? extends Exception, ? extends RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
@@ -1871,7 +1868,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleWildcardExtendsStringPattern07() throws CoreException {
@@ -1975,7 +1972,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleWildcardSuperStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception, ? super Exception, ? super RuntimeException>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -1983,16 +1980,16 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_exc [MemberGeneric<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_wld [MemberGeneric<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_run [MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen_thr [MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen [g1.t.m.def.Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_exc [MemberGeneric<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_wld [MemberGeneric<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleWildcardSuperStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? super Exception, ? super Exception, ? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
@@ -2009,7 +2006,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleWildcardSuperStringPattern07() throws CoreException {
@@ -2137,7 +2134,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleWildcardUnboundStringPattern05() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?, ?, ?>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
@@ -2158,7 +2155,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testMultipleWildcardUnboundStringPattern06() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
@@ -2179,7 +2176,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen [g1.t.s.def.Generic.MemberGeneric] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Current limitation of SearchPattern
+	// TODO [search] Current limitation of SearchPattern
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleWildcardUnboundStringPattern07() throws CoreException {
@@ -2278,7 +2275,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g3/t/ref/R2.java g3.t.ref.R2.qgms_obj [g3.t.def.GS<? super java.lang.RuntimeException>.Member] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) Match count is OK but selection is not correct in this peculiar case...
+	// TODO [search] Match count is OK but selection is not correct in this peculiar case...
 	public void testStringPatternNestedParam03() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GS.Generic<? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
@@ -2313,7 +2310,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [Generic<?>] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
+	// TODO [search] try to have a better match selection
 	public void testStringPatternNestedParam04() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("NGS.Generic<?>", TYPE, REFERENCES, scope, resultCollector);
@@ -2402,9 +2399,36 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g3/t/ref/R2.java g3.t.ref.R2.qgsm_obj [g3.t.def.GM<java.lang.Object, java.lang.Exception, java.lang.RuntimeException>.Member] EXACT_MATCH",
 			resultCollector);
 	}
+	// TODO [search] try to have a better match selection
+	// Selection is really nasty in this case as match selection sometimes is "Generic<?>" !!!
 	public void testStringPatternNestedParam07() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
-		search("GM.Member<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
+		search("GM.Generic<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_wld [Generic<?, ?, ?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [Generic<Object, Exception, RuntimeException>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [Generic<?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [Generic<?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_wld [Generic<?, ?, ?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [Generic<?,?,?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [Generic<Object, Exception, RuntimeException>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_wld [Generic<?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [Generic<?>] EXACT_MATCH\n" + 
+			"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [Generic<?>] EXACT_MATCH",
+			resultCollector);
+	}
+	// TODO [search] try to have a better match selection
+	public void testStringPatternNestedParam08() throws CoreException {
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
+		search("GM<?, ?, ?>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgsm_wld [GM<?, ?, ?>.Member] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgsm_www [GM<GM<?, ?, ?>.Member,GM<?, ?, ?>.Member,GM<?, ?, ?>.Member>.Member] EXACT_MATCH\n" + 
@@ -2426,29 +2450,18 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g3/t/ref/R2.java g3.t.ref.R2.qgms_obj [g3.t.def.GM<g3.t.def.GS<java.lang.Object>.Member, g3.t.def.GS<? extends java.lang.Throwable>.Member, g3.t.def.GS<? super java.lang.RuntimeException>.Member>.Member] EXACT_MATCH",
 			resultCollector);
 	}
-	// TODO (search-frederic) try to have a better match selection
-	public void testStringPatternNestedParam08() throws CoreException {
+	public void testStringPatternNestedParam09() throws CoreException {
 		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("NGM.Generic<? extends java.lang.Object, ? extends java.lang.Object, ? extends java.lang.Object>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_wld [Generic<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_www [Generic<NGM.Generic<?, ?, ?>,NGM.Generic<?, ?, ?>,NGM.Generic<?, ?, ?>>] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_www [Generic<?, ?, ?>] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_www [Generic<?, ?, ?>] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_www [Generic<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_obj [Generic<Object, Exception, RuntimeException>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.sgms_wld [Generic<NGS.Generic<?>, NGS.Generic<?>, NGS.Generic<?>>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.sgms_www [Generic<NGS.Generic<?>, NGS.Generic<NGS.Generic<?>>, NGS.Generic<NGS.Generic<NGS.Generic<?>>>>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.sgms_obj [Generic<NGS.Generic<Object>, NGS.Generic<? extends Throwable>, NGS.Generic<? super RuntimeException>>] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_wld [Generic<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_www [Generic<g3.t.def.NGM.Generic<?, ?, ?>, g3.t.def.NGM.Generic<?, ?, ?>, g3.t.def.NGM.Generic<?, ?, ?>>] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_www [Generic<?, ?, ?>] EXACT_MATCH\n" + 
 			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_www [Generic<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_www [Generic<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_obj [Generic<java.lang.Object, java.lang.Exception, java.lang.RuntimeException>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.qgms_wld [Generic<g3.t.def.NGS.Generic<?>, g3.t.def.NGS.Generic<?>, g3.t.def.NGS.Generic<?>>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.qgms_www [Generic<g3.t.def.NGS.Generic<?>, g3.t.def.NGS.Generic<g3.t.def.NGS.Generic<?>>, g3.t.def.NGS.Generic<g3.t.def.NGS.Generic<g3.t.def.NGS.Generic<?>>>>] EXACT_MATCH\n" + 
-			"src/g3/t/ref/R4.java g3.t.ref.R4.qgms_obj [Generic<g3.t.def.NGS.Generic<java.lang.Object>, g3.t.def.NGS.Generic<? extends java.lang.Throwable>, g3.t.def.NGS.Generic<? super java.lang.RuntimeException>>] EXACT_MATCH",
+			"src/g3/t/ref/R4.java g3.t.ref.R4.qgsm_www [Generic<?, ?, ?>] EXACT_MATCH",
 			resultCollector);
 	}
 }

@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
@@ -88,6 +89,10 @@ public long resultCollectorTime = 0;
 // Progress information
 int progressStep;
 int progressWorked;
+
+// Binding resolution and cache
+CompilationUnitScope unitScope;
+SimpleLookupTable bindings;
 
 /**
  * An ast visitor that visits local type declarations.
@@ -512,9 +517,9 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 	String[] parameterTypeSignatures = new String[argCount];
 	for (int i = 0; i < argCount; i++) {
 		TypeReference typeRef = arguments[i].type;
-		char[] typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
-		for (int j = 0, dim = typeRef.dimensions(); j < dim; j++)
-			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+		char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
+//		for (int j = 0, dim = typeRef.dimensions(); j < dim; j++)
+//			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 	}
 	return type.getMethod(new String(method.selector), parameterTypeSignatures);
@@ -680,6 +685,54 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 		this.parser.scanner.lineEnds = oldLineEnds;
 		this.parser.scanner.linePtr = oldLinePtr;
 	}
+}
+protected TypeBinding getType(char[] typeName) {
+	if (this.unitScope == null || typeName == null || typeName.length == 0) return null;
+	// Try to get binding from cache
+	Binding binding = (Binding) this.bindings.get(typeName);
+	if (binding != null) {
+		if (binding instanceof TypeBinding && binding.isValidBinding())
+			return (TypeBinding) binding;
+		return null;
+	}
+	// Get binding from unit scope
+	char[][] compoundName = CharOperation.splitOn('.', typeName);
+	TypeBinding typeBinding = this.unitScope.getType(compoundName, compoundName.length);
+	this.bindings.put(typeName, typeBinding);
+	return typeBinding;
+}
+public MethodBinding getMethodBinding(IMethod method) {
+	if (this.unitScope == null) return null;
+	// Try to get binding from cache
+	Binding binding = (Binding) this.bindings.get(method);
+	if (binding != null) {
+		if (binding instanceof MethodBinding && binding.isValidBinding())
+			return (MethodBinding) binding;
+		return null;
+	}
+	//	Get binding from unit scope
+	MethodBinding methodBinding = null;
+	char[] typeName = method.getDeclaringType().getElementName().toCharArray();
+	TypeBinding declaringTypeBinding = getType(typeName);
+	if (declaringTypeBinding != null) {
+		if (declaringTypeBinding.isArrayType()) {
+			declaringTypeBinding = declaringTypeBinding.leafComponentType();
+		}
+		if (!declaringTypeBinding.isBaseType()) {
+			String[] parameterTypes = method.getParameterTypes();
+			int length = parameterTypes.length;
+			TypeBinding[] parameters = new TypeBinding[length];
+			for (int i=0;  i<length; i++) {
+				parameters[i] = this.unitScope.getType(Signature.toCharArray(parameterTypes[i].toCharArray()));
+			}
+			ReferenceBinding referenceBinding = (ReferenceBinding) declaringTypeBinding;
+			methodBinding = referenceBinding.getExactMethod(method.getElementName().toCharArray(), parameters);
+			this.bindings.put(method, methodBinding);
+			return methodBinding;
+		}
+	}
+	this.bindings.put(method, new ProblemMethodBinding(method.getElementName().toCharArray(), null, ProblemReasons.NotFound));
+	return null;
 }
 protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
 	CompilationResult result = parsedUnit.compilationResult;
@@ -847,6 +900,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 	copies.toArray(this.workingCopies);
 
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	this.bindings = new SimpleLookupTable();
 	try {
 		// optimize access to zip files during search operation
 		manager.cacheZipFiles();
@@ -941,6 +995,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 		if (this.nameEnvironment != null)
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();
+		this.bindings = null;
 	}
 }
 /**
@@ -1312,12 +1367,10 @@ protected void reportAccurateParameterizedTypeReference(ASTNode typeRef, char[] 
 	if (accuracy == -1) return;
 	if (!encloses(element)) return;
 
-	int sourceStart = typeRef.sourceStart;
-//	int sourceEnd = typeRef.sourceEnd;
-	
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
 	scanner.setSource(this.currentPossibleMatch.getContents());
+	int sourceStart = typeRef.sourceStart;
 	int sourceEnd = scanner.eofPosition;
 	scanner.resetTo(sourceStart, sourceEnd);
 
@@ -1513,8 +1566,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve) throws CoreException {
 	MatchingNodeSet nodeSet = this.currentPossibleMatch.nodeSet;
 	if (mustResolve) {
-		CompilationUnitScope unitScope= unit.scope.compilationUnitScope();
-		this.patternLocator.setUnitScope(unitScope);
+		this.unitScope= unit.scope.compilationUnitScope();
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
 		Object[] nodes = nodeSet.possibleMatchingNodesSet.values;
 		for (int i = 0, l = nodes.length; i < l; i++) {
@@ -1535,7 +1587,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 	} else {
-		this.patternLocator.setUnitScope(null);
+		this.unitScope = null;
 	}
 
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found

@@ -199,60 +199,44 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
-public String toString() {
-	StringBuffer buffer = new StringBuffer(20);
+protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
-			buffer.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$
+			output.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
-			buffer.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
+			output.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case ENUM_SUFFIX :
-			buffer.append("EnumDeclarationPattern: pkg<"); //$NON-NLS-1$
+			output.append("EnumDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case ANNOTATION_TYPE_SUFFIX :
-			buffer.append("AnnotationTypeDeclarationPattern: pkg<"); //$NON-NLS-1$
+			output.append("AnnotationTypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		default :
-			buffer.append("TypeDeclarationPattern: pkg<"); //$NON-NLS-1$
+			output.append("TypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 	}
 	if (pkg != null) 
-		buffer.append(pkg);
+		output.append(pkg);
 	else
-		buffer.append("*"); //$NON-NLS-1$
-	buffer.append(">, enclosing<"); //$NON-NLS-1$
+		output.append("*"); //$NON-NLS-1$
+	output.append(">, enclosing<"); //$NON-NLS-1$
 	if (enclosingTypeNames != null) {
 		for (int i = 0; i < enclosingTypeNames.length; i++){
-			buffer.append(enclosingTypeNames[i]);
+			output.append(enclosingTypeNames[i]);
 			if (i < enclosingTypeNames.length - 1)
-				buffer.append('.');
+				output.append('.');
 		}
 	} else {
-		buffer.append("*"); //$NON-NLS-1$
+		output.append("*"); //$NON-NLS-1$
 	}
-	buffer.append(">, type<"); //$NON-NLS-1$
+	output.append(">, type<"); //$NON-NLS-1$
 	if (simpleName != null) 
-		buffer.append(simpleName);
+		output.append(simpleName);
 	else
-		buffer.append("*"); //$NON-NLS-1$
-	buffer.append(">, "); //$NON-NLS-1$
-	switch(getMatchMode()){
-		case R_EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
-			break;
-		case R_PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
-			break;
-		case R_PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
-			break;
-	}
-	if (isCaseSensitive())
-		buffer.append("case sensitive"); //$NON-NLS-1$
-	else
-		buffer.append("case insensitive"); //$NON-NLS-1$
-	return buffer.toString();
+		output.append("*"); //$NON-NLS-1$
+	output.append(">"); //$NON-NLS-1$
+	return super.print(output);
 }
 }

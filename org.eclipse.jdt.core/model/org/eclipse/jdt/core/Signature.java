@@ -1443,12 +1443,24 @@ public static char[][] getThrownExceptionTypes(char[] methodSignature) throws Il
  * @since 3.1
  */
 public static char[][] getTypeArguments(char[] parameterizedTypeSignature) throws IllegalArgumentException {
-	int lastDot = CharOperation.lastIndexOf(C_DOT, parameterizedTypeSignature);
-	int start = lastDot == -1
-		? CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature)
-		: CharOperation.indexOf(C_GENERIC_START, parameterizedTypeSignature, lastDot+1);
-	if (start == -1) 
+	int length = parameterizedTypeSignature.length;
+	if (length < 2 || parameterizedTypeSignature[length-2] != C_GENERIC_END)
+		// cannot have type arguments otherwise signature would end by ">;"
 		return CharOperation.NO_CHAR_CHAR;
+	int count = 1; // start to count generic end/start peers
+	int start = length - 2;
+	while (start >= 0 && count > 0) {
+		switch (parameterizedTypeSignature[--start]) {
+			case C_GENERIC_START:
+				count--;
+				break;
+			case C_GENERIC_END:
+				count++;
+				break;
+		}
+	}
+	if (start < 0) // invalid number of generic start/end
+		throw new IllegalArgumentException();
 	ArrayList args = new ArrayList();
 	int p = start + 1;
 	while (true) {

@@ -20,12 +20,15 @@ public class JavaSearchPattern extends SearchPattern {
 	 * Whether this pattern is case sensitive.
 	 */
 	boolean isCaseSensitive;
-	
+
 	/*
 	 * One of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
 	 */
 	int matchMode;
 	
+	// Type signature for parameterized types search
+	char[] typeSignature;
+
 	protected JavaSearchPattern(int patternKind, int matchRule) {
 		super(matchRule);
 		((InternalSearchPattern)this).kind = patternKind;
@@ -66,5 +69,32 @@ public class JavaSearchPattern extends SearchPattern {
 			}
 		}
 		return false;
+	}
+	protected StringBuffer print(StringBuffer output) {
+		output.append(", "); //$NON-NLS-1$
+		if (this.typeSignature != null) {
+			output.append("signature:\""); //$NON-NLS-1$
+			output.append(this.typeSignature);
+			output.append("\", "); //$NON-NLS-1$
+		}
+		switch(getMatchMode()) {
+			case R_EXACT_MATCH : 
+				output.append("exact match, "); //$NON-NLS-1$
+				break;
+			case R_PREFIX_MATCH :
+				output.append("prefix match, "); //$NON-NLS-1$
+				break;
+			case R_PATTERN_MATCH :
+				output.append("pattern match, "); //$NON-NLS-1$
+				break;
+		}
+		if (isCaseSensitive())
+			output.append("case sensitive"); //$NON-NLS-1$
+		else
+			output.append("case insensitive"); //$NON-NLS-1$
+		return output;
+	}
+	public final String toString() {
+		return print(new StringBuffer(30)).toString();
 	}
 }

@@ -30,13 +30,6 @@ public FieldLocator(FieldPattern pattern) {
 
 	this.isDeclarationOfAccessedFieldsPattern = this.pattern instanceof DeclarationOfAccessedFieldsPattern;
 }
-/*
- * Get binding of type argument from an index position.
- * Delegate this search to the pattern which can cache results.
- */
-protected TypeBinding getTypeNameBinding(int index) {
-	return ((FieldPattern) this.pattern).getTypeNameBinding(index);
-}
 public int match(ASTNode node, MatchingNodeSet nodeSet) {
 	int declarationsLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findReferences) {
@@ -202,7 +195,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 						accuracies[indexOfFirstFieldBinding] = SearchMatch.A_ACCURATE;
 						break;
 					case INACCURATE_MATCH:
-						accuracies[indexOfFirstFieldBinding] = SearchMatch.A_INACCURATE;
+						if (fieldBinding.type.isParameterizedType())
+							accuracies[indexOfFirstFieldBinding] = refineAccuracy(SearchMatch.A_INACCURATE, (ParameterizedTypeBinding) fieldBinding.type, this.pattern.typeSignature, locator);
+						else
+							accuracies[indexOfFirstFieldBinding] = SearchMatch.A_INACCURATE;
 						break;
 					default:
 						accuracies[indexOfFirstFieldBinding] = -1;
@@ -224,8 +220,11 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 							accuracies[i] = SearchMatch.A_ACCURATE;
 							break;
 						case INACCURATE_MATCH:
-							accuracies[i] = SearchMatch.A_INACCURATE;
-							break;
+							if (otherBinding.type.isParameterizedType())
+								accuracies[i] = refineAccuracy(SearchMatch.A_INACCURATE, (ParameterizedTypeBinding) otherBinding.type, this.pattern.typeSignature, locator);
+							else
+								accuracies[i] = SearchMatch.A_INACCURATE;
+								break;
 						default:
 							accuracies[i] = -1;
 					}
@@ -337,13 +336,9 @@ protected int resolveLevelForType(TypeBinding typeBinding) {
 	return resolveLevelForType(
 			fieldPattern.typeSimpleName,
 			fieldPattern.typeQualification,
-			fieldPattern.typeNames,
-			fieldPattern.wildcards,
+			fieldPattern.typeSignature,
 			((InternalSearchPattern)this.pattern).mustResolve,
 			fieldPattern.declaration,
 			typeBinding);
-}
-protected void setUnitScope(CompilationUnitScope unitScope) {
-	((FieldPattern)this.pattern).setUnitScope(unitScope);
 }
 }

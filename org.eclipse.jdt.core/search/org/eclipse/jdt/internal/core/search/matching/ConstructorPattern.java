@@ -136,46 +136,32 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
-public String toString() {
-	StringBuffer buffer = new StringBuffer(20);
+protected StringBuffer print(StringBuffer output) {
 	if (this.findDeclarations) {
-		buffer.append(this.findReferences
+		output.append(this.findReferences
 			? "ConstructorCombinedPattern: " //$NON-NLS-1$
 			: "ConstructorDeclarationPattern: "); //$NON-NLS-1$
 	} else {
-		buffer.append("ConstructorReferencePattern: "); //$NON-NLS-1$
+		output.append("ConstructorReferencePattern: "); //$NON-NLS-1$
 	}
 	if (declaringQualification != null)
-		buffer.append(declaringQualification).append('.');
+		output.append(declaringQualification).append('.');
 	if (declaringSimpleName != null) 
-		buffer.append(declaringSimpleName);
+		output.append(declaringSimpleName);
 	else if (declaringQualification != null)
-		buffer.append("*"); //$NON-NLS-1$
+		output.append("*"); //$NON-NLS-1$
 
-	buffer.append('(');
+	output.append('(');
 	if (parameterSimpleNames == null) {
-		buffer.append("..."); //$NON-NLS-1$
+		output.append("..."); //$NON-NLS-1$
 	} else {
 		for (int i = 0, max = parameterSimpleNames.length; i < max; i++) {
-			if (i > 0) buffer.append(", "); //$NON-NLS-1$
-			if (parameterQualifications[i] != null) buffer.append(parameterQualifications[i]).append('.');
-			if (parameterSimpleNames[i] == null) buffer.append('*'); else buffer.append(parameterSimpleNames[i]);
+			if (i > 0) output.append(", "); //$NON-NLS-1$
+			if (parameterQualifications[i] != null) output.append(parameterQualifications[i]).append('.');
+			if (parameterSimpleNames[i] == null) output.append('*'); else output.append(parameterSimpleNames[i]);
 		}
 	}
-	buffer.append(')');
-	buffer.append(", "); //$NON-NLS-1$
-	switch(getMatchMode()) {
-		case R_EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
-			break;
-		case R_PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
-			break;
-		case R_PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
-			break;
-	}
-	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
-	return buffer.toString();
+	output.append(')');
+	return super.print(output);
 }
 }

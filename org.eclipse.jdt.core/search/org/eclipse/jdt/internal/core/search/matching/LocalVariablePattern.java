@@ -55,29 +55,15 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 			throw new OperationCanceledException();
 	}
 }
-public String toString() {
-	StringBuffer buffer = new StringBuffer(20);
+protected StringBuffer print(StringBuffer output) {
 	if (this.findDeclarations) {
-		buffer.append(this.findReferences
+		output.append(this.findReferences
 			? "LocalVarCombinedPattern: " //$NON-NLS-1$
 			: "LocalVarDeclarationPattern: "); //$NON-NLS-1$
 	} else {
-		buffer.append("LocalVarReferencePattern: "); //$NON-NLS-1$
+		output.append("LocalVarReferencePattern: "); //$NON-NLS-1$
 	}
-	buffer.append(this.localVariable.toStringWithAncestors());
-	buffer.append(", "); //$NON-NLS-1$
-	switch(getMatchMode()) {
-		case R_EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
-			break;
-		case R_PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
-			break;
-		case R_PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
-			break;
-	}
-	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
-	return buffer.toString();
+	output.append(this.localVariable.toStringWithAncestors());
+	return super.print(output);
 }
 }

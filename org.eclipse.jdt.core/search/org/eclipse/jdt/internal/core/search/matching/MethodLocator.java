@@ -137,17 +137,6 @@ protected int matchMethod(MethodBinding method) {
 		}
 	}
 
-	// Try to bind pattern
-	MethodBinding patternMethodBinding = this.pattern.getMethodBinding();
-	boolean boundPattern = patternMethodBinding != null && patternMethodBinding.isValidBinding();
-
-	// verify closest match if pattern was bound
-	// (see bug 70827)
-	if (boundPattern) {
-		if (patternMethodBinding.isPrivate() && patternMethodBinding.declaringClass != method.declaringClass) {
-			return IMPOSSIBLE_MATCH;
-		}
-	}
 	return level;
 }
 /**
@@ -165,6 +154,20 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		if (element != null)
 			reportDeclaration(((MessageSend) reference).binding, locator, declPattern.knownMethods);
 	} else if (this.pattern.findReferences && reference instanceof MessageSend) {
+		IJavaElement focus = ((InternalSearchPattern) this.pattern).focus;
+		// verify closest match if pattern was bound
+		// (see bug 70827)
+		if (focus != null && focus.getElementType() == IJavaElement.METHOD) {
+			MethodBinding patternMethodBinding = locator.getMethodBinding((IMethod) focus);
+			if (patternMethodBinding != null && patternMethodBinding.isValidBinding()) {
+				MethodBinding method = ((MessageSend)reference).binding;
+				if (method != null) {
+					method = method.original();
+					if (method != null && patternMethodBinding.isPrivate() && patternMethodBinding.declaringClass != method.declaringClass)
+						return; // finally the match was not possible
+				}
+			}
+		}
 		int offset = (int) (((MessageSend) reference).nameSourcePosition >>> 32);
 		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, false /*not constructor*/, false/*not synthetic*/, reference);
 		locator.report(match);
@@ -303,9 +306,6 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
 		if (level != IMPOSSIBLE_MATCH) return level;
 	}
 	return IMPOSSIBLE_MATCH;
-}
-protected void setUnitScope(CompilationUnitScope unitScope) {
-	this.pattern.setUnitScope(unitScope);
 }
 public String toString() {
 	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$

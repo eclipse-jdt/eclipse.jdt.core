@@ -311,6 +311,8 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	
 public JavaSearchTests(String name) {
 	super(name);
+	this.tabs = 3;
+	this.displayName = true;
 }
 public static Test suite() {
 	return buildTestSuite(JavaSearchTests.class);
@@ -319,7 +321,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testVarargs";
-//	TESTS_NAMES = new String[] { "Bug77093_String" };
+//	TESTS_NAMES = new String[] { "testMethodReference05" };
 //	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 	}
@@ -370,6 +372,10 @@ IJavaSearchScope getJavaSearchPackageScope(String projectName, String packageNam
 	}
 	return SearchEngine.createJavaSearchScope(searchPackages);
 }
+IJavaSearchScope getJavaSearchCUScope(String projectName, String packageName, String cuName) throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit(projectName, "src", packageName, cuName);
+	return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { cu });
+}
 protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 	new SearchEngine().search(
 		searchPattern, 
@@ -386,19 +392,6 @@ protected void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement
 }
 protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
 	new SearchEngine().searchDeclarationsOfSentMessages(enclosingElement, requestor, null);
-}
-protected void assertSearchResults(String message, String expected, Object collector) {
-	String actual = collector.toString();
-	if (!expected.equals(actual)) {
-		System.out.println(getName()+" expected result is:");
-		System.out.print(displayString(actual, 2));
-		System.out.println(",");
-	}
-	assertEquals(
-		message,
-		expected,
-		actual
-	);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -1495,6 +1488,21 @@ public void testFieldReferenceBug77093() throws CoreException {
 		"src/b77093/X.java b77093.X(Z[][]) [z_arrays]\n" + 
 		"src/b77093/X.java void b77093.X.bar() [z_arrays]\n" + 
 		"src/b77093/X.java void b77093.X.bar() [z_arrays]",
+		resultCollector);
+}
+/**
+ * Regression test for bug 79267: [search] Refactoring of static generic member fails partially
+ */
+public void testFieldReferenceBug79267() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b79267/Test.java").getType("Test");
+	IField field = type.getField("BEFORE");
+	search(field, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	field = type.getField("objectToPrimitiveMap");
+	search(field, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b79267/Test.java b79267.Test.static {} [BEFORE]\n" + 
+		"src/b79267/Test.java b79267.Test.static {} [BEFORE]\n" + 
+		"src/b79267/Test.java b79267.Test.static {} [objectToPrimitiveMap]",
 		resultCollector);
 }
 /**

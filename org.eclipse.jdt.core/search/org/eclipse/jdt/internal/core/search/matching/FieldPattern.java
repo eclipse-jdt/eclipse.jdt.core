@@ -12,8 +12,6 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class FieldPattern extends VariablePattern implements IIndexConstants {
@@ -25,13 +23,9 @@ protected char[] declaringSimpleName;
 // type
 protected char[] typeQualification;
 protected char[] typeSimpleName;
-	
+
 // Additional information for generics search
-CompilationUnitScope unitScope;
 protected boolean declaration;	// show whether the search is based on a declaration or an instance
-protected char[][] typeNames;	// type arguments names storage
-protected TypeBinding[] typeBindings;	// cache for type arguments bindings
-protected int[] wildcards;	// show wildcard kind for each type arguments
 
 protected static char[][] REF_CATEGORIES = { REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
@@ -73,17 +67,15 @@ public FieldPattern(
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
 	char[] typeSimpleName,
-	char[][] typeNames,
-	int[] wildcards,
+	char[] signature,
 	int matchRule) {
 
 	this(findDeclarations, readAccess, writeAccess, name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, matchRule);
 
-	if (typeNames != null) {
-		this.typeNames= typeNames;
-		this.typeBindings = new TypeBinding[typeNames.length];
+	if (signature != null) {
+		this.typeSignature = signature;
+		CharOperation.replace(this.typeSignature, '/', '.');
 	}
-	this.wildcards = wildcards;
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;
@@ -101,23 +93,6 @@ public char[][] getIndexCategories() {
 		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
 }
-/*
- * Get binding of type argument from a class unit scope and its index position.
- * Cache is lazy initialized and if no binding is found, then store a problem binding
- * to avoid making research twice...
- */
-protected TypeBinding getTypeNameBinding(int index) {
-	if (this.typeNames == null || index <0 || index > this.typeNames.length) return null;
-	TypeBinding typeBinding = this.typeBindings[index];
-	if (typeBinding == null) {
-		typeBinding = this.unitScope.getType(this.typeNames[index]);
-		this.typeBindings[index] = typeBinding;
-	} 
-	if (!typeBinding.isValidBinding()) {
-		typeBinding = null;
-	}
-	return typeBinding;
-}
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	return true; // index key is not encoded so query results all match
 }
@@ -127,51 +102,29 @@ protected boolean mustResolve() {
 
 	return super.mustResolve();
 }
-protected void setUnitScope(CompilationUnitScope unitScope) {
-	if (unitScope != this.unitScope) {
-		this.unitScope = unitScope;
-		// reset bindings
-		if (typeNames != null)
-			this.typeBindings = new TypeBinding[typeNames.length];
-	}
-}
-public String toString() {
-	StringBuffer buffer = new StringBuffer(20);
+protected StringBuffer print(StringBuffer output) {
 	if (this.findDeclarations) {
-		buffer.append(this.findReferences
+		output.append(this.findReferences
 			? "FieldCombinedPattern: " //$NON-NLS-1$
 			: "FieldDeclarationPattern: "); //$NON-NLS-1$
 	} else {
-		buffer.append("FieldReferencePattern: "); //$NON-NLS-1$
+		output.append("FieldReferencePattern: "); //$NON-NLS-1$
 	}
-	if (declaringQualification != null) buffer.append(declaringQualification).append('.');
+	if (declaringQualification != null) output.append(declaringQualification).append('.');
 	if (declaringSimpleName != null) 
-		buffer.append(declaringSimpleName).append('.');
-	else if (declaringQualification != null) buffer.append("*."); //$NON-NLS-1$
+		output.append(declaringSimpleName).append('.');
+	else if (declaringQualification != null) output.append("*."); //$NON-NLS-1$
 	if (name == null) {
-		buffer.append("*"); //$NON-NLS-1$
+		output.append("*"); //$NON-NLS-1$
 	} else {
-		buffer.append(name);
+		output.append(name);
 	}
 	if (typeQualification != null) 
-		buffer.append(" --> ").append(typeQualification).append('.'); //$NON-NLS-1$
-	else if (typeSimpleName != null) buffer.append(" --> "); //$NON-NLS-1$
+		output.append(" --> ").append(typeQualification).append('.'); //$NON-NLS-1$
+	else if (typeSimpleName != null) output.append(" --> "); //$NON-NLS-1$
 	if (typeSimpleName != null) 
-		buffer.append(typeSimpleName);
-	else if (typeQualification != null) buffer.append("*"); //$NON-NLS-1$
-	buffer.append(", "); //$NON-NLS-1$
-	switch(getMatchMode()) {
-		case R_EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
-			break;
-		case R_PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
-			break;
-		case R_PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
-			break;
-	}
-	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
-	return buffer.toString();
+		output.append(typeSimpleName);
+	else if (typeQualification != null) output.append("*"); //$NON-NLS-1$
+	return super.print(output);
 }
 }

@@ -233,32 +233,16 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
-public String toString(){
-	StringBuffer buffer = new StringBuffer(20);
-	buffer.append(
+protected StringBuffer print(StringBuffer output) {
+	output.append(
 		this.checkOnlySuperinterfaces
 			? "SuperInterfaceReferencePattern: <" //$NON-NLS-1$
 			: "SuperTypeReferencePattern: <"); //$NON-NLS-1$
 	if (superSimpleName != null) 
-		buffer.append(superSimpleName);
+		output.append(superSimpleName);
 	else
-		buffer.append("*"); //$NON-NLS-1$
-	buffer.append(">, "); //$NON-NLS-1$
-	switch(getMatchMode()) {
-		case R_EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
-			break;
-		case R_PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
-			break;
-		case R_PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
-			break;
-	}
-	if (isCaseSensitive())
-		buffer.append("case sensitive"); //$NON-NLS-1$
-	else
-		buffer.append("case insensitive"); //$NON-NLS-1$
-	return buffer.toString();
+		output.append("*"); //$NON-NLS-1$
+	output.append(">"); //$NON-NLS-1$
+	return super.print(output);
 }
 }

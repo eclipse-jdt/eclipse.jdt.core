@@ -84,7 +84,6 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 	return binding != null ? binding.qualifiedSourceName() : null;
 }
 
-
 public PatternLocator(SearchPattern pattern) {
 	int matchRule = pattern.getMatchRule();
 	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
@@ -311,6 +310,77 @@ public int resolveLevel(ASTNode possibleMatchingNode) {
 	// need to do instance of checks to find out exact type of ASTNode
 	return IMPOSSIBLE_MATCH;
 }
+/*
+ * Refine accuracy for a match.
+ * Typically this happens while search references to parameterized type.
+ * In this case we need locator to be able to resolve type arguments and verify
+ * if binding is compatible with pattern...
+ */
+protected int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, char[] typeSignature, MatchLocator locator) {
+
+	// Try to make accuracy more... accurate
+	if (locator.unitScope != null) {
+		char[][] patternTypeArguments = Signature.getTypeArguments(typeSignature);
+		int patternTypeArgsLength = patternTypeArguments.length;
+		if (patternTypeArgsLength == 0) {
+			TypeBinding enclosingType = parameterizedBinding.enclosingType();
+			if (enclosingType != null && enclosingType.isParameterizedType()) {
+				int idx = CharOperation.lastIndexOf('.', typeSignature);
+				if (idx > 0) {
+					char[] enclosingTypeSignature = new char[idx+1];
+					System.arraycopy(typeSignature, 0, enclosingTypeSignature, 0, idx);
+					enclosingTypeSignature[idx] = Signature.C_SEMICOLON;
+					return refineAccuracy(accuracy, (ParameterizedTypeBinding)enclosingType, enclosingTypeSignature, locator);
+				}
+			}
+			return accuracy;
+		}
+		TypeBinding[] argumentsBinding = parameterizedBinding.arguments;
+		int typeArgumentsLength = argumentsBinding == null ? 0 : argumentsBinding.length;
+		if (patternTypeArgsLength != typeArgumentsLength) return -1;
+		for (int i=0; i<typeArgumentsLength; i++) {
+			char[] patternTypeArgument = patternTypeArguments[i];
+			char wildcard = patternTypeArgument[0];
+			switch (wildcard) {
+				case Signature.C_STAR :
+					// unbound parameter always match
+					continue;
+				case Signature.C_EXTENDS :
+				case Signature.C_SUPER :
+					patternTypeArgument = CharOperation.subarray(patternTypeArgument, 1, patternTypeArgument.length);
+				default :
+					break;
+			}
+			patternTypeArgument = Signature.toCharArray(patternTypeArgument);
+			TypeBinding patternBinding = locator.getType(patternTypeArgument);
+			if (patternBinding != null) {
+				TypeBinding argumentBinding = argumentsBinding[i];
+				// We can bind pattern type name => verify that types are compatible
+				if (argumentBinding == patternBinding) continue;
+				if (argumentBinding.isWildcard()) {
+					TypeBinding bound = ((WildcardBinding) argumentBinding).bound;
+					switch (wildcard) {
+						default : //UNBOUND
+							// unbound always match => skip to next argument
+							continue;
+						case Signature.C_EXTENDS :
+							if (bound == null || bound.isCompatibleWith(patternBinding))
+								// argument type match a subclass of bound => skip to next argument
+								continue;
+							break;
+						case Signature.C_SUPER :
+							if (bound == null || patternBinding.isCompatibleWith(bound))
+								// argument type match a superclass in bound hierarchy => skip to next argument
+								continue;
+							break;
+					}
+				}
+				return -1; // finally the match was impossible
+			}
+		}
+	}
+	return SearchMatch.A_ACCURATE;
+}
 /**
  * Finds out whether the given binding matches this search pattern.
  * Returns ACCURATE_MATCH if it does.
@@ -377,21 +447,21 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
  */
 protected int resolveLevelForType (char[] simpleNamePattern,
 									char[] qualificationPattern,
-									char[][] typeNames,
-									int[] wildcards,
+									char[] patternTypeSignature,
 									boolean mustResolve,
 									boolean declaration,
 									TypeBinding type) {
 	// standard search with no generic additional information must succeed
 	int level = resolveLevelForType(simpleNamePattern, qualificationPattern, type);
 	if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-	if (type == null) return level;
+	if (type == null || patternTypeSignature == null) return level;
 
 	// pattern has no type parameter, return standard result
-	if (typeNames == null || typeNames.length == 0) {
+	char[][] patternTypeArguments = Signature.getTypeArguments(patternTypeSignature);
+	if (patternTypeArguments == null || patternTypeArguments.length == 0) {
 		return level;
 	}
-	
+
 	// pattern has type parameter(s) or type argument(s)
 	boolean isRawType = type.isRawType();
 	if (type.isGenericType()) {
@@ -409,7 +479,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 		if (typeVariables == null || typeVariables.length == 0) {
 			return IMPOSSIBLE_MATCH;
 		}
-		int length = typeNames.length;
+		int length = patternTypeArguments.length;
 		if (typeVariables.length != length) return IMPOSSIBLE_MATCH;
 		// TODO (frederic) do we need to verify each parameter?
 		return level; // we can't do better
@@ -429,7 +499,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 				int lastDot = CharOperation.lastIndexOf('.', qualificationPattern);
 				char[] enclosingQualificationPattern = lastDot==-1 ? null : CharOperation.subarray(qualificationPattern, 0, lastDot);
 				char[] enclosingSimpleNamePattern = lastDot==-1 ? qualificationPattern : CharOperation.subarray(qualificationPattern, lastDot+1, qualificationPattern.length);
-				if (resolveLevelForType(enclosingSimpleNamePattern, enclosingQualificationPattern, typeNames, wildcards, mustResolve, declaration, paramTypeBinding.enclosingType()) == IMPOSSIBLE_MATCH) {
+				if (resolveLevelForType(enclosingSimpleNamePattern, enclosingQualificationPattern, patternTypeSignature, mustResolve, declaration, paramTypeBinding.enclosingType()) == IMPOSSIBLE_MATCH) {
 					return IMPOSSIBLE_MATCH;
 				}
 				return level;
@@ -438,7 +508,7 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 		}
 
 		// type parameters length must match at least specified type names length
-		int length = typeNames.length;
+		int length = patternTypeArguments.length;
 		if (paramTypeBinding.arguments.length != length) return IMPOSSIBLE_MATCH;
 
 		// for generic type declaration, verification is different than for parameterized type
@@ -449,39 +519,25 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 
 		// verify each pattern type parameter
 		nextTypeArgument: for (int i= 0; i<length; i++) {
-			char[] argType = typeNames[i];
+			char[] typeArgument = patternTypeArguments[i];
 			TypeBinding argTypeBinding = paramTypeBinding.arguments[i];
 			// get corresponding pattern wildcard
-			int patternWildcard = wildcards == null ? -1 : wildcards[i];
-			if (patternWildcard == Wildcard.UNBOUND) continue; // unbound parameter always match
-
-			// try to resolve pattern
-			TypeBinding patternBinding = getTypeNameBinding(i);
-			if (patternBinding != null) {
-				// We can bind pattern type name => verify that types are compatible
-				if (argTypeBinding == patternBinding) continue;
-				if (argTypeBinding.isWildcard()) {
-					TypeBinding bound = ((WildcardBinding) argTypeBinding).bound;
-					switch (patternWildcard) {
-						case Wildcard.SUPER:
-							if (bound == null || patternBinding.isCompatibleWith(bound))
-								// argument type is in bound hierarchy => match
-								continue;
-							break;
-						case Wildcard.EXTENDS:
-							if (bound == null || bound.isCompatibleWith(patternBinding))
-								// argument type is a subclass of bound => match
-								continue;
-							break;
-						default: //UNBOUND
-							// there's no bound name => match
-							continue;
-					}
-				}
-				return IMPOSSIBLE_MATCH;
+			switch (patternTypeArguments[i][0]) {
+				case Signature.C_STAR : // unbound parameter always match
+				case Signature.C_SUPER : // needs pattern type parameter binding
+					// skip to next type argument as it will be resolved later
+					continue;
+				case Signature.C_EXTENDS :
+					// remove wildcard from patter type argument
+					typeArgument = CharOperation.subarray(typeArgument, 1, typeArgument.length);
+				default :
+					// no wildcard
+					break;
 			}
-			
-			// pattern hasn't be solved, try to see if names match in hierarchy
+			// get pattern type argument from its signature
+			typeArgument = Signature.toCharArray(typeArgument);
+
+			// Verify that names match...
 			// First if type argument is a wildcard
 			if (argTypeBinding.isWildcard()) {
 				WildcardBinding wildcardBinding = (WildcardBinding) argTypeBinding;
@@ -496,8 +552,8 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 				// try to match name in hierarchy
 				ReferenceBinding boundBinding = (ReferenceBinding) wildcardBinding.bound;
 				while (boundBinding != null) {
-					if (CharOperation.equals(argType, boundBinding.shortReadableName(), this.isCaseSensitive) ||
-						CharOperation.equals(argType, boundBinding.readableName(), this.isCaseSensitive)) {
+					if (CharOperation.equals(typeArgument, boundBinding.shortReadableName(), this.isCaseSensitive) ||
+						CharOperation.equals(typeArgument, boundBinding.readableName(), this.isCaseSensitive)) {
 						// found name in hierarchy => match
 						continue nextTypeArgument;
 					}
@@ -520,14 +576,14 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 			// Compare name
 			if (refBinding == null) {
 				// Based type
-				if (!CharOperation.equals(argType, argTypeBinding.shortReadableName(), this.isCaseSensitive) &&
-					!CharOperation.equals(argType, argTypeBinding.readableName(), this.isCaseSensitive)) {
+				if (!CharOperation.equals(typeArgument, argTypeBinding.shortReadableName(), this.isCaseSensitive) &&
+					!CharOperation.equals(typeArgument, argTypeBinding.readableName(), this.isCaseSensitive)) {
 					return IMPOSSIBLE_MATCH;
 				}
 			} else {
 				while (refBinding != null) {
-					if (CharOperation.equals(argType, refBinding.shortReadableName(), this.isCaseSensitive) ||
-						CharOperation.equals(argType, refBinding.readableName(), this.isCaseSensitive)) {
+					if (CharOperation.equals(typeArgument, refBinding.shortReadableName(), this.isCaseSensitive) ||
+						CharOperation.equals(typeArgument, refBinding.readableName(), this.isCaseSensitive)) {
 						// found name in hierarchy => match
 						continue nextTypeArgument;
 					}

@@ -25,29 +25,13 @@ EntryResult[] queryIn(Index index) {
 	// package declarations are not indexed
 	return null;
 }
-public String toString() {
-	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("PackageDeclarationPattern: <"); //$NON-NLS-1$
+protected StringBuffer print(StringBuffer output) {
+	output.append("PackageDeclarationPattern: <"); //$NON-NLS-1$
 	if (this.pkgName != null) 
-		buffer.append(this.pkgName);
+		output.append(this.pkgName);
 	else
-		buffer.append("*"); //$NON-NLS-1$
-	buffer.append(">, "); //$NON-NLS-1$
-	switch(getMatchMode()) {
-		case R_EXACT_MATCH : 
-			buffer.append("exact match, "); //$NON-NLS-1$
-			break;
-		case R_PREFIX_MATCH :
-			buffer.append("prefix match, "); //$NON-NLS-1$
-			break;
-		case R_PATTERN_MATCH :
-			buffer.append("pattern match, "); //$NON-NLS-1$
-			break;
-	}
-	if (isCaseSensitive())
-		buffer.append("case sensitive"); //$NON-NLS-1$
-	else
-		buffer.append("case insensitive"); //$NON-NLS-1$
-	return buffer.toString();
+		output.append("*"); //$NON-NLS-1$
+	output.append(">"); //$NON-NLS-1$
+	return super.print(output);
 }
 }
