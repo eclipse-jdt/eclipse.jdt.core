@@ -193,6 +193,9 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	try {
 		inCompiler = true;
 		compiler.compile(units);
+	} catch (AbortCompilation ignored) {
+		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
+		// the Compiler failed after the user has chose to cancel... likely due to an OutOfMemory error
 	} finally {
 		inCompiler = false;
 	}
