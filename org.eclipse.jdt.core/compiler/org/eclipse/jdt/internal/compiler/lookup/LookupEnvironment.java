@@ -36,10 +36,10 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
 	private ArrayBinding[][] uniqueArrayBindings;
-	SimpleLookupTable uniqueParameterizedTypeBindings;
+	private SimpleLookupTable uniqueParameterizedTypeBindings;
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
-	
+
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private int lastUnitIndex = -1;
 	private int lastCompletedUnitIndex = -1;
@@ -308,7 +308,7 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 
 		UnresolvedReferenceBinding unresolvedType = (UnresolvedReferenceBinding) cachedType;
 		unresolvedType.resolvedType = binaryBinding;
-		updateArrayCache(unresolvedType, binaryBinding);
+		updateCaches(unresolvedType, binaryBinding);
 	}
 
 	packageBinding.addType(binaryBinding);
@@ -722,7 +722,12 @@ public void reset() {
 	// name environment has a longer life cycle, and must be reset in
 	// the code which created it.
 }
-void updateArrayCache(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+	// TODO (philippe) maybe we should have each UnresolvedReferenceBinding keep track of all the other TypeBindings
+	// that point at it instead of doing all of these walks... if you agree, I'll do that tomorrow
+
+	// walk all the unique collections & replace the unresolvedType with the resolvedType
+	// must prevent 2 entries, 1 containing the unresolvedType and the other containing the resolvedType
 	nextDimension : for (int i = 0, length = uniqueArrayBindings.length; i < length; i++) {
 		ArrayBinding[] arrayBindings = uniqueArrayBindings[i];
 		if (arrayBindings != null) {
@@ -734,6 +739,87 @@ void updateArrayCache(UnresolvedReferenceBinding unresolvedType, ReferenceBindin
 					currentBinding.leafComponentType = resolvedType;
 					continue nextDimension;
 				}
+			}
+		}
+	}
+
+	if (uniqueParameterizedTypeBindings.get(unresolvedType) != null) { // update the key
+		Object[] keys = uniqueParameterizedTypeBindings.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			if (keys[i] == unresolvedType) {
+				keys[i] = resolvedType; // hashCode is based on compoundName so this works
+				break;
+			}
+		}
+	}
+	Object[] values = uniqueParameterizedTypeBindings.valueTable;
+	for (int i = 0, l = values.length; i < l; i++) {
+		if (values[i] != null) {
+			ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[]) values[i];
+			for (int j = 0, m = cachedInfo.length; j < m; j++) {
+				ParameterizedTypeBinding cachedType = cachedInfo[j];
+				if (cachedType.type == unresolvedType)
+					cachedType.type = resolvedType;
+				TypeBinding[] cachedArguments = cachedType.arguments;
+				if (cachedArguments != null)
+					for (int k = 0, n = cachedArguments.length; k < n; k++)
+						if (cachedArguments[k] == unresolvedType)
+							cachedArguments[k] = resolvedType;
+				if (cachedType.superclass == unresolvedType)
+					cachedType.superclass = resolvedType;
+				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
+				if (cachedInterfaces != null)
+					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
+						if (cachedInterfaces[k] == unresolvedType)
+							cachedInterfaces[k] = resolvedType;
+			}
+		}
+	}
+
+// TODO (philippe) do we need these?
+//	if (uniqueRawTypeBindings.get(unresolvedType) != null) { // update the key
+//		Object[] keys = uniqueRawTypeBindings.keyTable;
+//		for (int i = 0, l = keys.length; i < l; i++) {
+//			if (keys[i] == unresolvedType) {
+//				keys[i] = resolvedType; // hashCode is based on compoundName so this works
+//				break;
+//			}
+//		}
+//	}
+//	values = uniqueRawTypeBindings.valueTable;
+//	for (int i = 0, l = values.length; i < l; i++) {
+//		if (values[i] != null) {
+//			RawTypeBinding cachedType = (RawTypeBinding) values[i];
+//			if (cachedType.type == unresolvedType)
+//				cachedType.type = resolvedType;
+//		}
+//	}
+
+	if (uniqueWildcardBindings.get(unresolvedType) != null) { // update the key
+		Object[] keys = uniqueWildcardBindings.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			if (keys[i] == unresolvedType) {
+				keys[i] = resolvedType; // hashCode is based on compoundName so this works
+				break;
+			}
+		}
+	}
+	values = uniqueWildcardBindings.valueTable;
+	for (int i = 0, l = values.length; i < l; i++) {
+		if (values[i] != null) {
+			WildcardBinding[] cachedInfo = (WildcardBinding[]) values[i];
+			for (int j = 0, m = cachedInfo.length; j < m; j++) {
+				WildcardBinding cachedType = cachedInfo[j];
+				if (cachedType == null) continue;
+				if (cachedType.bound == unresolvedType)
+					cachedType.bound = resolvedType;
+				if (cachedType.superclass == unresolvedType)
+					cachedType.superclass = resolvedType;
+				ReferenceBinding[] cachedInterfaces = cachedType.superInterfaces;
+				if (cachedInterfaces != null)
+					for (int k = 0, n = cachedInterfaces.length; k < n; k++)
+						if (cachedInterfaces[k] == unresolvedType)
+							cachedInterfaces[k] = resolvedType;
 			}
 		}
 	}

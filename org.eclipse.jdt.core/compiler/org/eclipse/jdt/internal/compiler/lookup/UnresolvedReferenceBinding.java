@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class UnresolvedReferenceBinding extends ReferenceBinding {
-	ReferenceBinding resolvedType;
+
+ReferenceBinding resolvedType;
+
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
@@ -30,9 +32,11 @@ ReferenceBinding resolve(LookupEnvironment environment) {
 		environmentType = environment.askForType(compoundName);
 	if (environmentType != null && environmentType != this) { // could not resolve any better, error was already reported against it
 		resolvedType = environmentType;
-		environment.updateArrayCache(this, environmentType);
+		// must ensure to update any other type bindings that can contain the resolved type
+		// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
+		environment.updateCaches(this, environmentType);
 		return environmentType; // when found, it replaces the unresolved type in the cache
-	} // TODO (kent) need to update the parameterized/raw & wildcard binding cache as well
+	}
 
 	environment.problemReporter.isClassPathCorrect(compoundName, null);
 	return null; // will not get here since the above error aborts the compilation
