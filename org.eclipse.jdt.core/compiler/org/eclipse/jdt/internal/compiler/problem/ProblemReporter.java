@@ -1197,6 +1197,15 @@ public void illegalAbstractModifierCombinationForMethod(ReferenceBinding type, A
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void illegalClassLiteralForTypeVariable(TypeVariableBinding variable, ASTNode location) {
+	String[] arguments = new String[] { new String(variable.sourceName) };
+	this.handle(
+		IProblem.IllegalClassLiteralForTypeVariable,
+		arguments, 
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode location) {
 	if (checkedType.isTypeVariable()) {
 		this.handle(

@@ -80,6 +80,8 @@ public class ClassLiteralAccess extends Expression {
 			&& ((ArrayBinding) targetType).leafComponentType == VoidBinding) {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			return null;
+		} else if (targetType.isTypeVariable()) {
+			scope.problemReporter().illegalClassLiteralForTypeVariable((TypeVariableBinding)targetType, this);
 		}
 		ReferenceBinding classType = scope.getJavaLangClass();
 		if (classType.isGenericType()) {

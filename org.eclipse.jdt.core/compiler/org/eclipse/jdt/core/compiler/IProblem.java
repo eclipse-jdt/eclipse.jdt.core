@@ -918,6 +918,8 @@ public interface IProblem {
 	int SuperTypeUsingWildcard = TypeRelated + 556;
 	/** @since 3.1 */
 	int GenericTypeCannotExtendThrowable = TypeRelated + 557;
+	/** @since 3.1 */
+	int IllegalClassLiteralForTypeVariable = TypeRelated + 558;
 
 	/**
 	 * Foreach
