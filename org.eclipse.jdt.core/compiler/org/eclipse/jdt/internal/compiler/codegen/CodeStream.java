@@ -260,28 +260,6 @@ public final void anewarray(TypeBinding typeBinding) {
 	}
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
-public void anewarrayJavaLangClass() {
-	// anewarray: java.lang.Class
-	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_anewarray;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_anewarray);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangClass());
-}
-public void anewarrayJavaLangObject() {
-	// anewarray: java.lang.Object
-	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_anewarray;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_anewarray);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangObject());
-}
 final public void areturn() {
 	countLabels = 0;
 	stackDepth--;
@@ -533,16 +511,6 @@ public final void checkcast(TypeBinding typeBinding) {
 		resizeByteArray(OPC_checkcast);
 	}
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
-}
-public final void checkcastJavaLangError() {
-	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_checkcast;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_checkcast);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangError());
 }
 final public void d2f() {
 	countLabels = 0;
@@ -1420,42 +1388,14 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 /**
  * This method returns the exception handler to be able to generate the exception handler
  * attribute.
+ * Returns null if the exception thrown has been inlined.
  */
-final public int[] generateCodeAttributeForProblemMethod(String errorName, String problemMessage) {
-	/**
-	 * Equivalent code:
-	 *	try {
-	 *		throw ((Error) (Class.forName(errorName).getConstructor(new Class[] {Class.forName("java.lang.String")})).newInstance(new Object[] {problemMessage}));
-	 *	} catch (Exception e) {
-	 *		throw (NullPointerException) null;
-	 *	}
-	 */
-	int endPC, handlerPC;
-	ldc(errorName);
-	invokeClassForName();
-	iconst_1();
-	anewarrayJavaLangClass();
+final public void generateCodeAttributeForProblemMethod(String problemMessage) {
+	newJavaLangError();
 	dup();
-	iconst_0();
-	ldc("java.lang.String"); //$NON-NLS-1$
-	invokeClassForName();
-	aastore();
-	invokeConstructorGetConstructor();
-	iconst_1();
-	anewarrayJavaLangObject();
-	dup();
-	iconst_0();
 	ldc(problemMessage);
-	aastore();
-	invokeObjectNewInstance();
-	checkcastJavaLangError();
+	invokeJavaLangErrorConstructor();
 	athrow();
-	endPC = handlerPC = position;
-	pop();
-	aconst_null();
-	athrow();
-	return_();
-	return new int[] {0, endPC, handlerPC};
 }
 public void generateConstant(Constant constant, int implicitConversionCode) {
 	int targetTypeID = implicitConversionCode >> 4;
@@ -2986,18 +2926,6 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassDesiredAssertionStatus());
 }
 
-public void invokeConstructorGetConstructor() {
-	// invokevirtual: java.lang.Class.getConstructor(java.lang.Class[])Ljava.lang.reflect.Constructor;
-	countLabels = 0;
-	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangClassGetConstructor());
-}
 final public void invokeinterface(MethodBinding methodBinding) {
 	// initialized to 1 to take into account this  immediately
 	countLabels = 0;
@@ -3058,19 +2986,6 @@ public void invokeNoClassDefFoundErrorStringConstructor() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundErrorStringConstructor());
 	stackDepth -= 2;
 }
-public void invokeObjectNewInstance() {
-	// invokevirtual: java.lang.reflect.Constructor.newInstance(java.lang.Object[])Ljava.lang.Object;
-	countLabels = 0;
-	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangReflectConstructorNewInstance());
-}
-
 public void invokeObjectGetClass() {
 	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
 	countLabels = 0;

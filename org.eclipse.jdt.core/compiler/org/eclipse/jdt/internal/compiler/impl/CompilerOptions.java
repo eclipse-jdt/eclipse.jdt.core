@@ -168,9 +168,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// indicates whether literal expressions are inlined at parse-time or not
 	public boolean parseLiteralExpressionsAsConstants = true;
 
-	// exception raised for unresolved compile errors
-	public String runtimeExceptionNameForCompileError = "java.lang.Error"; //$NON-NLS-1$
-
 	// max problems per compilation unit
 	public int maxProblemsPerUnit = 100; // no more than 100 problems per default
 	
@@ -914,7 +911,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-verbose : " + (verbose ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
 		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n-task tags: " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,','))));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n-task priorities : " + (this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,',')))); //$NON-NLS-1$ //$NON-NLS-2$

@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -637,18 +636,10 @@ public class ClassFile
 		}
 
 		// return codeStream.generateCodeAttributeForProblemMethod(comp.options.runtimeExceptionNameForCompileError, "")
-		int[] exceptionHandler =
-			codeStream.generateCodeAttributeForProblemMethod(
-				referenceBinding
-					.scope
-					.environment()
-					.options
-					.runtimeExceptionNameForCompileError,
-				problemString);
+		codeStream.generateCodeAttributeForProblemMethod(problemString);
 		attributeNumber++; // code attribute
 		completeCodeAttributeForClinit(
 			codeAttributeOffset,
-			exceptionHandler,
 			referenceBinding
 				.scope
 				.referenceCompilationUnit()
@@ -682,7 +673,6 @@ public class ClassFile
 		attributeNumber++;
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
-		final ProblemReporter problemReporter = method.scope.problemReporter();
 		codeStream.reset(method, this);
 		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
@@ -708,15 +698,11 @@ public class ClassFile
 		}
 
 		// return codeStream.generateCodeAttributeForProblemMethod(comp.options.runtimeExceptionNameForCompileError, "")
-		int[] exceptionHandler =
-			codeStream.generateCodeAttributeForProblemMethod(
-				problemReporter.options.runtimeExceptionNameForCompileError,
-				problemString);
+		codeStream.generateCodeAttributeForProblemMethod(problemString);
 		completeCodeAttributeForProblemMethod(
 			method,
 			methodBinding,
 			codeAttributeOffset,
-			exceptionHandler,
 			((SourceTypeBinding) methodBinding.declaringClass)
 				.scope
 				.referenceCompilationUnit()
@@ -773,7 +759,6 @@ public class ClassFile
 		
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
-		final ProblemReporter problemReporter = method.scope.problemReporter();
 		codeStream.reset(method, this);
 		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
@@ -803,15 +788,11 @@ public class ClassFile
 		}
 
 		// return codeStream.generateCodeAttributeForProblemMethod(comp.options.runtimeExceptionNameForCompileError, "")
-		int[] exceptionHandler =
-			codeStream.generateCodeAttributeForProblemMethod(
-				problemReporter.options.runtimeExceptionNameForCompileError,
-				problemString);
+		codeStream.generateCodeAttributeForProblemMethod(problemString);
 		completeCodeAttributeForProblemMethod(
 			method,
 			methodBinding,
 			codeAttributeOffset,
-			exceptionHandler,
 			((SourceTypeBinding) methodBinding.declaringClass)
 				.scope
 				.referenceCompilationUnit()
@@ -938,21 +919,16 @@ public class ClassFile
 		String problemString = buffer.toString();
 		this.problemLine = problem.getSourceLineNumber();
 		
-		final ProblemReporter problemReporter = methodDeclaration.scope.problemReporter();
 		codeStream.init(this);
 		codeStream.preserveUnusedLocals = true;
 		codeStream.initializeMaxLocals(methodBinding);
 
 		// return codeStream.generateCodeAttributeForProblemMethod(comp.options.runtimeExceptionNameForCompileError, "")
-		int[] exceptionHandler =
-			codeStream.generateCodeAttributeForProblemMethod(
-				problemReporter.options.runtimeExceptionNameForCompileError,
-				problemString);
+		codeStream.generateCodeAttributeForProblemMethod(problemString);
 				
 		completeCodeAttributeForMissingAbstractProblemMethod(
 			methodBinding,
 			codeAttributeOffset,
-			exceptionHandler,
 			compilationResult.lineSeparatorPositions);
 			
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
@@ -964,7 +940,6 @@ public class ClassFile
 	public void completeCodeAttributeForMissingAbstractProblemMethod(
 		MethodBinding binding,
 		int codeAttributeOffset,
-		int[] exceptionHandler,
 		int[] startLineIndexes) {
 		// reinitialize the localContents with the byte modified by the code stream
 		byte[] localContents = contents = codeStream.bCodeStream;
@@ -991,20 +966,10 @@ public class ClassFile
 				0,
 				contentsLength);
 		}
+
 		localContents[localContentsOffset++] = 0;
-		localContents[localContentsOffset++] = 1;
-		int start = exceptionHandler[0];
-		localContents[localContentsOffset++] = (byte) (start >> 8);
-		localContents[localContentsOffset++] = (byte) start;
-		int end = exceptionHandler[1];
-		localContents[localContentsOffset++] = (byte) (end >> 8);
-		localContents[localContentsOffset++] = (byte) end;
-		int handlerPC = exceptionHandler[2];
-		localContents[localContentsOffset++] = (byte) (handlerPC >> 8);
-		localContents[localContentsOffset++] = (byte) handlerPC;
-		int nameIndex = constantPool.literalIndexForJavaLangException();
-		localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-		localContents[localContentsOffset++] = (byte) nameIndex; // debug attributes
+		localContents[localContentsOffset++] = 0;
+		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
@@ -1808,7 +1773,6 @@ public class ClassFile
 	 */
 	public void completeCodeAttributeForClinit(
 		int codeAttributeOffset,
-		int[] exceptionHandler,
 		int[] startLineIndexes) {
 		// reinitialize the contents with the byte modified by the code stream
 		byte[] localContents = contents = codeStream.bCodeStream;
@@ -1844,19 +1808,7 @@ public class ClassFile
 
 		// write the exception table
 		localContents[localContentsOffset++] = 0;
-		localContents[localContentsOffset++] = 1;
-		int start = exceptionHandler[0];
-		localContents[localContentsOffset++] = (byte) (start >> 8);
-		localContents[localContentsOffset++] = (byte) start;
-		int end = exceptionHandler[1];
-		localContents[localContentsOffset++] = (byte) (end >> 8);
-		localContents[localContentsOffset++] = (byte) end;
-		int handlerPC = exceptionHandler[2];
-		localContents[localContentsOffset++] = (byte) (handlerPC >> 8);
-		localContents[localContentsOffset++] = (byte) handlerPC;
-		int nameIndex = constantPool.literalIndexForJavaLangException();
-		localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-		localContents[localContentsOffset++] = (byte) nameIndex;
+		localContents[localContentsOffset++] = 0;
 
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
@@ -1959,7 +1911,6 @@ public class ClassFile
 		AbstractMethodDeclaration method,
 		MethodBinding binding,
 		int codeAttributeOffset,
-		int[] exceptionHandler,
 		int[] startLineIndexes) {
 		// reinitialize the localContents with the byte modified by the code stream
 		byte[] localContents = contents = codeStream.bCodeStream;
@@ -1986,20 +1937,11 @@ public class ClassFile
 				0,
 				contentsLength);
 		}
+
+		// write the exception table
 		localContents[localContentsOffset++] = 0;
-		localContents[localContentsOffset++] = 1;
-		int start = exceptionHandler[0];
-		localContents[localContentsOffset++] = (byte) (start >> 8);
-		localContents[localContentsOffset++] = (byte) start;
-		int end = exceptionHandler[1];
-		localContents[localContentsOffset++] = (byte) (end >> 8);
-		localContents[localContentsOffset++] = (byte) end;
-		int handlerPC = exceptionHandler[2];
-		localContents[localContentsOffset++] = (byte) (handlerPC >> 8);
-		localContents[localContentsOffset++] = (byte) handlerPC;
-		int nameIndex = constantPool.literalIndexForJavaLangException();
-		localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
-		localContents[localContentsOffset++] = (byte) nameIndex; // debug attributes
+		localContents[localContentsOffset++] = 0;
+		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0; // leave two bytes for the attribute_length
 		localContentsOffset += 2; // first we handle the linenumber attribute
@@ -2076,7 +2018,7 @@ public class ClassFile
 				localContents[localContentsOffset++] = 0;
 				localContents[localContentsOffset++] = (byte) (code_length >> 8);
 				localContents[localContentsOffset++] = (byte) code_length;
-				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+				int nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				localContents[localContentsOffset++] = (byte) nameIndex;
 				descriptorIndex =
@@ -2112,7 +2054,7 @@ public class ClassFile
 							localContents[localContentsOffset++] = 0;
 							localContents[localContentsOffset++] = (byte) (code_length >> 8);
 							localContents[localContentsOffset++] = (byte) code_length;
-							nameIndex = constantPool.literalIndex(localVariable.name);
+							int nameIndex = constantPool.literalIndex(localVariable.name);
 							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 							localContents[localContentsOffset++] = (byte) nameIndex;
 							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
@@ -2149,7 +2091,7 @@ public class ClassFile
 						localContents[localContentsOffset++] = 0;
 						localContents[localContentsOffset++] = (byte) (code_length >> 8);
 						localContents[localContentsOffset++] = (byte) code_length;
-						nameIndex = constantPool.literalIndex(arguments[i].name);
+						int nameIndex = constantPool.literalIndex(arguments[i].name);
 						localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						localContents[localContentsOffset++] = (byte) nameIndex;
 						descriptorIndex = constantPool.literalIndex(argumentBinding.signature());
