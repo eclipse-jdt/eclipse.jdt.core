@@ -367,7 +367,7 @@ public void selectType(ISourceType sourceType, char[] typeName) {
 		CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1);
 		CompilationUnitDeclaration parsedUnit = 
 			SourceTypeConverter.buildCompilationUnit(  
-				outerType, 
+				new ISourceType[]{outerType}, 
 				false, // don't need field and methods
 				true, // by default get member types
 				this.parser.problemReporter(),

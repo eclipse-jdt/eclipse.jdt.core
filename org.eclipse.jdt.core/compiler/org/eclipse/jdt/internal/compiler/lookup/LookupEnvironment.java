@@ -68,7 +68,7 @@ public ReferenceBinding askForType(char[][] compoundName) {
 		typeRequestor.accept(answer.getCompilationUnit());
 	else if (answer.isSourceType())
 		// the type was found as a source model
-		typeRequestor.accept(answer.getSourceType(), computePackageFrom(compoundName));
+		typeRequestor.accept(answer.getSourceTypes(), computePackageFrom(compoundName));
 
 	return getCachedType(compoundName);
 }
@@ -94,7 +94,7 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 		typeRequestor.accept(answer.getCompilationUnit());
 	else if (answer.isSourceType())
 		// the type was found as a source model
-		typeRequestor.accept(answer.getSourceType(), packageBinding);
+		typeRequestor.accept(answer.getSourceTypes(), packageBinding);
 
 	return packageBinding.getType0(name);
 }

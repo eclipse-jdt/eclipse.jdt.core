@@ -824,7 +824,7 @@ public void parseTypeMemberDeclarations(
 
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
-				sourceType, 
+				new ISourceType[]{sourceType}, 
 				false,
 				false, 
 				problemReporter(), 
