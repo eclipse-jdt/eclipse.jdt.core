@@ -62,7 +62,7 @@ protected ClassFile(PackageFragment parent, String name) {
 	super(parent);
 	// don't hold on the .class file extension to save memory
 	// also make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
-	this.name = new String(name); 
+	this.name = new String(name.substring(0, name.length() - 6)); // don't hold on the .class file extension to save memory
 	this.checkAutomaticSourceMapping = false;
 }
 
@@ -314,11 +314,11 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 		return null;
 	} else {		
 		String prefix = null;
-		int index = name.indexOf('$');
+		int index = this.name.indexOf('$');
 		if (index > -1) {
-			prefix = name.substring(0, index);
+			prefix = this.name.substring(0, index);
 		} else {
-			prefix = name.substring(0, name.indexOf('.'));
+			prefix = this.name;
 		}
 		
 		
@@ -362,7 +362,7 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 	}
 }
 public String getElementName() {
-	return this.name;
+	return this.name + SuffixConstants.SUFFIX_STRING_class;
 }
 /**
  * @see IJavaElement
@@ -452,9 +452,8 @@ public String getTopLevelTypeName() {
  */
 public IType getType() {
 	if (this.binaryType == null) {
-		// Remove the ".class" from the name of the ClassFile - always works
-		// since constructor fails if name does not end with ".class"
-		String typeName = this.name.substring(0, this.name.lastIndexOf('.'));
+		// Internal class file name doesn't contain ".class" file extension
+		String typeName = this.name;
 		typeName = typeName.substring(typeName.lastIndexOf('.') + 1);
 		int index = typeName.lastIndexOf('$');
 		if (index > -1) {
