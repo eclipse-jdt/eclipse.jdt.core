@@ -812,6 +812,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No name", name);
 		IBinding binding = name.resolveBinding();
 		assertNull("Got a binding", binding);
+		assertNull("Got a binding", superFieldAccess.resolveFieldBinding());
 	}
 
 	/**
@@ -953,6 +954,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong name", "fCoo", simpleName.getIdentifier());
 		IBinding binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding);
+		assertEquals("Wrong binding", IBinding.VARIABLE, binding.getKind());
+		IVariableBinding variableBinding = superFieldAccess.resolveFieldBinding();
+		assertTrue("Different binding", binding == variableBinding);
 	}
 
 	/**
@@ -1724,6 +1728,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IVariableBinding variableBinding = (IVariableBinding) binding;
 		assertEquals("Wrong name", "i", variableBinding.getName());
 		assertEquals("Wrong type", "int", variableBinding.getType().getName());
+		IVariableBinding variableBinding2 = fieldAccess.resolveFieldBinding();
+		assertTrue("different binding", variableBinding == variableBinding2);
 	}	
 
 	/**
