@@ -45,16 +45,16 @@ public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall
 		
 		printIndent(tab, output);
 		output.append("<CompleteOnExplicitConstructorCall:"); //$NON-NLS-1$
-		if (qualification != null) qualification.printExpression(0, output).append('.');
-		if (accessMode == This) {
+		if (this.qualification != null) this.qualification.printExpression(0, output).append('.');
+		if (this.accessMode == This) {
 			output.append("this("); //$NON-NLS-1$
 		} else {
 			output.append("super("); //$NON-NLS-1$
 		}
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
+		if (this.arguments != null) {
+			for (int i = 0; i < this.arguments.length; i++) {
 				if (i > 0) output.append(", "); //$NON-NLS-1$
-				arguments[i].printExpression(0, output);
+				this.arguments[i].printExpression(0, output);
 			}
 		}
 		return output.append(")>;"); //$NON-NLS-1$
@@ -64,13 +64,13 @@ public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall
 
 		ReferenceBinding receiverType = scope.enclosingSourceType();
 		
-		if (arguments != null) {
-			int argsLength = arguments.length;
+		if (this.arguments != null) {
+			int argsLength = this.arguments.length;
 			for (int a = argsLength; --a >= 0;)
-				arguments[a].resolveType(scope);
+				this.arguments[a].resolveType(scope);
 		}
 	
-		if (accessMode != This && receiverType != null) {
+		if (this.accessMode != This && receiverType != null) {
 			if (receiverType.isHierarchyInconsistent())
 				throw new CompletionNodeFound();
 			receiverType = receiverType.superclass();

@@ -45,6 +45,6 @@ public class CompletionOnExceptionReference extends CompletionOnSingleTypeRefere
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		
-		return output.append("<CompleteOnException:").append(token).append('>'); //$NON-NLS-1$
+		return output.append("<CompleteOnException:").append(this.token).append('>'); //$NON-NLS-1$
 	}
 }

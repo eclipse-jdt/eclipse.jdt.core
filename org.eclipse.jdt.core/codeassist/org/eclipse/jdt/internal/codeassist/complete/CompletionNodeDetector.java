@@ -32,11 +32,11 @@ public class CompletionNodeDetector extends ASTVisitor {
 	}
 	
 	public boolean containsCompletionNode() {
-		return result;
+		return this.result;
 	}
 	
 	public ASTNode getCompletionNodeParent() {
-		return parent;
+		return this.parent;
 	}
 	public void endVisit(AllocationExpression allocationExpression, BlockScope scope) {
 		endVisit(allocationExpression);
@@ -268,18 +268,18 @@ public class CompletionNodeDetector extends ASTVisitor {
 	}
 	
 	private void endVisit(ASTNode astNode) {
-		if(result && parent == null && astNode != searchedNode) {
-			if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == searchedNode)
-				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == searchedNode)
-				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == searchedNode)) {
-				parent = astNode;	
+		if(this.result && this.parent == null && astNode != this.searchedNode) {
+			if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == this.searchedNode)
+				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == this.searchedNode)
+				&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)) {
+				this.parent = astNode;	
 			}
 		}
 	}
 	private boolean visit(ASTNode astNode) {
-		if(astNode == searchedNode) {
-			result = true;
+		if(astNode == this.searchedNode) {
+			this.result = true;
 		}
-		return !result;
+		return !this.result;
 	}
 }

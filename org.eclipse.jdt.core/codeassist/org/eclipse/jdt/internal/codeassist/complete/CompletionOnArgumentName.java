@@ -40,11 +40,11 @@ public class CompletionOnArgumentName extends Argument {
 		
 		printIndent(indent, output);
 		output.append("<CompleteOnArgumentName:"); //$NON-NLS-1$
-		if (type != null) type.print(0, output).append(' ');
+		if (this.type != null) this.type.print(0, output).append(' ');
 		output.append(this.realName);
-		if (initialization != null) {
+		if (this.initialization != null) {
 			output.append(" = "); //$NON-NLS-1$
-			initialization.printExpression(0, output);
+			this.initialization.printExpression(0, output);
 		}
 		return output.append('>');
 	}	

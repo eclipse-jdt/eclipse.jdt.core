@@ -19,6 +19,6 @@ public class CompletionOnClassReference extends CompletionOnSingleTypeReference 
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		
-		return output.append("<CompleteOnClass:").append(token).append('>'); //$NON-NLS-1$
+		return output.append("<CompleteOnClass:").append(this.token).append('>'); //$NON-NLS-1$
 	}
 }

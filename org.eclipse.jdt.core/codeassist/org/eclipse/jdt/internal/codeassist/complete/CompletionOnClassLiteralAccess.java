@@ -48,7 +48,7 @@ public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		
 		output.append("<CompleteOnClassLiteralAccess:"); //$NON-NLS-1$
-		return type.print(0, output).append('.').append(completionIdentifier).append('>');
+		return this.type.print(0, output).append('.').append(this.completionIdentifier).append('>');
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
@@ -56,6 +56,6 @@ public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
 		if (super.resolveType(scope) == null)
 			throw new CompletionNodeFound();
 		else
-			throw new CompletionNodeFound(this, targetType, scope);
+			throw new CompletionNodeFound(this, this.targetType, scope);
 	}
 }
