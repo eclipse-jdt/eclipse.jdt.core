@@ -776,6 +776,7 @@ InterfaceMemberDeclaration -> InvalidConstructorDeclaration
 InterfaceMemberDeclaration -> ClassDeclaration
 --1.1 feature
 InterfaceMemberDeclaration -> InterfaceDeclaration
+InterfaceMemberDeclaration -> EnumDeclaration
 /:$readableName InterfaceMemberDeclaration:/
 
 ConstantDeclaration -> FieldDeclaration
@@ -2092,6 +2093,8 @@ MemberValuePair ::= SimpleName '=' MemberValue
 
 MemberValue -> ConditionalExpression_NotName
 /:$compliance 1.5:/
+MemberValue -> Name
+/:$compliance 1.5:/
 MemberValue -> Annotation
 /:$compliance 1.5:/
 MemberValue -> MemberValueArrayInitializer
@@ -2128,9 +2131,9 @@ SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 /.$putCase consumeSingleMemberAnnotation() ; $break ./
 /:$readableName SingleMemberAnnotation:/
 /:$compliance 1.5:/
------------------------------------------------
--- 1.5 features : end of annotation
------------------------------------------------
+--------------------------------------
+-- 1.5 features : end of annotation --
+--------------------------------------
 /.	}
 }./
 
