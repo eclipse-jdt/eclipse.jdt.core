@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -349,14 +350,18 @@ class TypeBinding implements ITypeBinding {
 			}
 		} else if (referenceBinding.isTypeVariable()) {
 			// type parameter
+			final String typeVariableName = new String(referenceBinding.sourceName());
 			Binding declaringElement = ((TypeVariableBinding) referenceBinding).declaringElement;
 			IBinding declaringTypeBinding = null;
-			if (declaringElement instanceof MethodBinding)
+			if (declaringElement instanceof MethodBinding) {
 				declaringTypeBinding = this.resolver.getMethodBinding((MethodBinding) declaringElement);
-			else
+				IMethod declaringMethod = (IMethod) declaringTypeBinding.getJavaElement();
+				return declaringMethod.getTypeParameter(typeVariableName);
+			} else {
 				declaringTypeBinding = this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement);
-			IType declaringType = (IType) declaringTypeBinding.getJavaElement();
-			return declaringType.getTypeParameter(new String(referenceBinding.sourceName()));
+				IType declaringType = (IType) declaringTypeBinding.getJavaElement();
+				return declaringType.getTypeParameter(typeVariableName);
+			}
 		} else {
 			// member or top level type
 			ITypeBinding declaringTypeBinding = getDeclaringClass();
