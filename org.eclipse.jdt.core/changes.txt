@@ -1,6 +1,20 @@
 STREAM: 2.0
 
-What's new in this drop (since 0.9)
+
+What's new in this drop
+==================================================================================
+
+PRs Fixed in this Release
+==================================================================================
+
+PRs Closed in this Release
+==================================================================================
+1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
+
+
+*** BUILD 200 ********************************************************************
+
+What's new in this drop
 ==================================================================================
   * JCK1.3a compliant. 
   * All messages have been externalized. 
@@ -14,7 +28,6 @@ What's new in this drop (since 0.9)
   * Evaluation in binaries is functional
   * Search for references now finds results in binaries. Indexes in old workspaces are recomputed when restarted 
      which may result in longer startup times.
-
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
@@ -91,42 +104,8 @@ PRs Fixed in this Release (since 1.0NL stream)
 1G7A1TL: ITPJCORE:WINNT - DCR - JM - Rules for classpath not specified 
 1FVVWZT: ITPJCORE:ALL - JM - IBinaryType should implement getSourceFileName() 
 
-
-PRs Fixed in 1.0NL stream (since 0.9)
-==================================================================================
-1GJPBON: ITPUI:WIN2000 - Java search won't detect DBCS 
-1GJPCA9: ITPUI:WIN2000 - incorrect reversed text for search hit in Java search 
-1GJLGAK: ITPUI:WIN2000 - Progress message incorrect
-1GJUN99: ITPJCORE:ALL - NL problems in PLUGINUPDATE.XML, BUILD.XML, PLUGIN.XML 
-1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
-1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
-1GH3218: ITPJUI:WIN - mnuemonic problems
-1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
-1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
-1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 
-1GG8IIO: ITPJCORE:ALL - JCK1.3a - icls06602 - Outer class fields in parameters of superconstructor call in inner class 
-1GG8IDR: ITPJCORE:ALL - JCK1.3a - lex05404m1 - an unterminated unicode escape. 
-1GG8I5J: ITPJCORE:ALL - JCK1.3a - icls06308 - Invocation of constructor by this can not be qualified. 
-1GG8HBG: ITPJCORE:ALL - JCK1.3a - dasg10004 - no definitely assigned value before the first expression statement in the incrementation part of a for statement 
-1GG8G7Y: ITPJCORE:ALL - JCK1.3a - exec00202m1 - Huge amount of literals overflows constantpool space. 
-1GG8G4G: ITPJCORE:ALL - JCK1.3a - dasg01003 - definitely assigned value after the boolean operator || when true 
-1GG8BWS: ITPJCORE:ALL - JCK1.3a - dasg00603 - definitely assigned value after the boolean operator && when true 
-1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatus 
-1GEK7SG: ITPJCORE:WIN2000 - CodeCompletion - Code assist failure 
-1GEJDB0: ITPJCORE:WIN2000 - Open on selection doesn't work for types of length 1 
-1GDS4GV: ITPJUI:WIN2000 - Search - implementors of an interface type not found in internal jars 
-1GF6C4M: ITPJUI:WIN2000 - Eval - VerifyError while evaluating expression 
-1GFB94V: ITPJUI:ALL - Deleting a package requires 2 deletes 
-1GFVWDS: ITPJCORE:ALL - Hierarchy - Fail to compute hierarchy on org.eclipse.swt.events.MouseEvent 
-1GF9Y01: ITPCORE:WIN2000 - NPE when deleting everything in a java file and saving it. 
-1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatu
-1GGCQZ3: ITPJCORE:ALL - NL problems in xml fil  
-1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP
-
-
 PRs Closed in this Release
 ==================================================================================
-1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
 1G4GDL3: ITPJUI:WINNT - Outliner, Type Hierarchy - strange members
 1GJY8MH: ITPJCORE:WINNT - No warning marker for use of deprecated members in same class
 1GJWIRA: ITPJCORE:WINNT - ClassCastException occured while compiling in the recovery
@@ -256,3 +235,37 @@ PRs Closed in this Release
 1GF1VHY: ITPJCORE:ALL - JM - validateFieldName/PackageName should warn if uppercase
 1GEMNE8: ITPJCORE:WIN2000 - JM - JDT DeltaProcessor is very eager
 1FVXJPZ: ITPJCORE:WIN2000 - minor- review error messages
+
+
+*** BUILD 135 (1.0 STREAM) *******************************************************
+
+PRs Fixed in 1.0NL stream (since 0.9)
+==================================================================================
+1GJPBON: ITPUI:WIN2000 - Java search won't detect DBCS 
+1GJPCA9: ITPUI:WIN2000 - incorrect reversed text for search hit in Java search 
+1GJLGAK: ITPUI:WIN2000 - Progress message incorrect
+1GJUN99: ITPJCORE:ALL - NL problems in PLUGINUPDATE.XML, BUILD.XML, PLUGIN.XML 
+1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
+1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
+1GH3218: ITPJUI:WIN - mnuemonic problems
+1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
+1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
+1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 
+1GG8IIO: ITPJCORE:ALL - JCK1.3a - icls06602 - Outer class fields in parameters of superconstructor call in inner class 
+1GG8IDR: ITPJCORE:ALL - JCK1.3a - lex05404m1 - an unterminated unicode escape. 
+1GG8I5J: ITPJCORE:ALL - JCK1.3a - icls06308 - Invocation of constructor by this can not be qualified. 
+1GG8HBG: ITPJCORE:ALL - JCK1.3a - dasg10004 - no definitely assigned value before the first expression statement in the incrementation part of a for statement 
+1GG8G7Y: ITPJCORE:ALL - JCK1.3a - exec00202m1 - Huge amount of literals overflows constantpool space. 
+1GG8G4G: ITPJCORE:ALL - JCK1.3a - dasg01003 - definitely assigned value after the boolean operator || when true 
+1GG8BWS: ITPJCORE:ALL - JCK1.3a - dasg00603 - definitely assigned value after the boolean operator && when true 
+1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatus 
+1GEK7SG: ITPJCORE:WIN2000 - CodeCompletion - Code assist failure 
+1GEJDB0: ITPJCORE:WIN2000 - Open on selection doesn't work for types of length 1 
+1GDS4GV: ITPJUI:WIN2000 - Search - implementors of an interface type not found in internal jars 
+1GF6C4M: ITPJUI:WIN2000 - Eval - VerifyError while evaluating expression 
+1GFB94V: ITPJUI:ALL - Deleting a package requires 2 deletes 
+1GFVWDS: ITPJCORE:ALL - Hierarchy - Fail to compute hierarchy on org.eclipse.swt.events.MouseEvent 
+1GF9Y01: ITPCORE:WIN2000 - NPE when deleting everything in a java file and saving it. 
+1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatu
+1GGCQZ3: ITPJCORE:ALL - NL problems in xml fil  
+1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP
