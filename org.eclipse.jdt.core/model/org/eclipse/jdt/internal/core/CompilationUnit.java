@@ -1058,7 +1058,7 @@ public IMarker[] reconcile() throws JavaModelException {
 	return null;
 }
 /**
- * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
+ * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
 	reconcile(false/*don't create AST*/, forceProblemDetection, null/*use primary owner*/, monitor);

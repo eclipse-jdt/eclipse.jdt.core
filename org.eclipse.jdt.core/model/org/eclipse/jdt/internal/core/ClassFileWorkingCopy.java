@@ -530,7 +530,7 @@ public IType findPrimaryType() {
 	}
 	
 	/**
-	 * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
+	 * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
 	 */
 	public void reconcile(
 		boolean forceProblemDetection,

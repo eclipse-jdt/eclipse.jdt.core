@@ -468,40 +468,6 @@ public boolean hasResourceChanged();
 boolean isWorkingCopy();
 
 /**
- * Reconciles the contents of this working copy, and sends out a Java delta
- * notification indicating the nature of the change of the working copy since
- * the last time it was either reconciled or made consistent 
- * (see <code>IOpenable#makeConsistent()</code>).
- * .<p>
- * It performs the reconciliation by locally caching the contents of 
- * the working copy, updating the contents, then creating a delta 
- * over the cached contents and the new contents, and finally firing
- * this delta.
- * <p>
- * The boolean argument allows to force problem detection even if the
- * working copy is already consistent.</p>
- * <p>
- * Compilation problems found in the new contents are notified through the
- * <code>IProblemRequestor</code> interface which was passed at
- * creation, and no longer as transient markers. Therefore this API answers
- * nothing.</p>
- * <p>
- * Note: Since 3.0 added/removed/changed inner types generate change deltas.</p>
- * <p>
- * @param forceProblemDetection boolean indicating whether problem should be recomputed
- *   even if the source hasn't changed.
- * @param monitor a progress monitor
- * @throws JavaModelException if the contents of the original element
- *		cannot be accessed. Reasons include:
- * <ul>
- * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * </ul>
- * @since 3.0
- * @deprecated Use reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor) instead
- * TODO (jerome) remove after M8
- */
-void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
-/**
  * Reconciles the contents of this working copy, sends out a Java delta
  * notification indicating the nature of the change of the working copy since
  * the last time it was either reconciled or made consistent 
