@@ -1838,12 +1838,11 @@ public void generateStringAppend(BlockScope blockScope, Expression oper1, Expres
 public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBinding targetType, Expression enclosingInstance, AstNode invocationSite) {
 
 	// perform some emulation work in case there is some and we are inside a local type only
+	boolean hasExtraEnclosingInstance = enclosingInstance != null;
 	ReferenceBinding[] syntheticArgumentTypes;
 
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
-		boolean hasExtraEnclosingInstance = enclosingInstance != null;
-		
 		ReferenceBinding targetEnclosingType = targetType.isAnonymousType() ? 
 				targetType.superclass().enclosingType() // supplying enclosing instance for the anonymous type's superclass
 				: targetType.enclosingType();
@@ -1853,9 +1852,6 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 			if (hasExtraEnclosingInstance && syntheticArgType == targetEnclosingType) {
 				hasExtraEnclosingInstance = false;
 				enclosingInstance.generateCode(currentScope, this, true);
-				this.dup();
-				this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
-				this.pop();
 			} else {
 				Object[] emulationPath = currentScope.getCompatibleEmulationPath(syntheticArgType);
 				if (emulationPath == null) {
@@ -1869,11 +1865,8 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
 		}
 	} else { // we may still have an enclosing instance to consider
-		if (enclosingInstance != null) {
+		if (hasExtraEnclosingInstance) {
 			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
-			enclosingInstance.generateCode(currentScope, this, true);
-			this.invokeObjectGetClass(); // causes null check for all explicit enclosing instances
-			this.pop();
 		}
 	}
 	// generate the synthetic outer arguments then

@@ -173,30 +173,35 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public void generateSyntheticFieldInitializationsIfNecessary(
 		MethodScope scope,
 		CodeStream codeStream,
-		ReferenceBinding declaringClass) {
+		ReferenceBinding declaringClass,
+		boolean addNullCheckForEnclosingInstance) {
 			
 		if (!declaringClass.isNestedType()) return;
 		
 		NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
-		SyntheticArgumentBinding[] syntheticArgs =
-			nestedType.syntheticEnclosingInstances();
-		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length;
-			i < max;
-			i++) {
-			if (syntheticArgs[i].matchingField != null) {
+		SourceTypeBinding enclosingType = nestedType.enclosingType;
+
+		SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
+		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length; i < max; i++) {
+			SyntheticArgumentBinding syntheticArg;
+			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
 				codeStream.aload_0();
-				codeStream.load(syntheticArgs[i]);
-				codeStream.putfield(syntheticArgs[i].matchingField);
+				codeStream.load(syntheticArg);
+				if (enclosingType == syntheticArg.type && addNullCheckForEnclosingInstance) {
+					codeStream.dup();
+					codeStream.invokeObjectGetClass(); // causes null check
+					codeStream.pop();
+				}
+				codeStream.putfield(syntheticArg.matchingField);
 			}
 		}
 		syntheticArgs = nestedType.syntheticOuterLocalVariables();
-		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length;
-			i < max;
-			i++) {
-			if (syntheticArgs[i].matchingField != null) {
+		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length; i < max; i++) {
+			SyntheticArgumentBinding syntheticArg;
+			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
 				codeStream.aload_0();
-				codeStream.load(syntheticArgs[i]);
-				codeStream.putfield(syntheticArgs[i].matchingField);
+				codeStream.load(syntheticArg);
+				codeStream.putfield(syntheticArg.matchingField);
 			}
 		}
 	}
@@ -242,11 +247,12 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			initializerScope.computeLocalVariablePositions(argSize, codeStream); // offset by the argument size (since not linked to method scope)
 
 			boolean needFieldInitializations = constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This;
+
 			// post 1.4 source level, synthetic initializations occur prior to explicit constructor call
 			boolean preInitSyntheticFields = scope.environment().options.targetJDK >= CompilerOptions.JDK1_4;
 
 			if (needFieldInitializations && preInitSyntheticFields){
-				generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);
+				generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass, true);
 			}			
 			// generate constructor call
 			if (constructorCall != null) {
@@ -255,7 +261,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			// generate field initialization - only if not invoking another constructor call of the same class
 			if (needFieldInitializations) {
 				if (!preInitSyntheticFields){
-					generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);
+					generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass, false);
 				}
 				// generate user field initialization
 				if (declaringType.fields != null) {

@@ -1279,6 +1279,91 @@ public void test33() {
 		},
 		"SyntheticInit BEFORE SuperConstructorCall");
 }
+/*
+ * Initialization of synthetic fields prior to super constructor call - NPE check
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25174
+ */
+public void test34() {
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n"+
+			"	public static void main(String[] arguments) {	\n"+
+			"		new X().new X2();	\n"+
+			"	}	\n"+
+			"	class X1 {	\n"+
+			"		X1(){	\n"+
+			"			this.baz();	\n"+
+			"		}	\n"+
+			"		void baz() {	\n"+
+			"			System.out.println(\"-X1.baz()\");	\n"+
+			"		}	\n"+
+			"	}	\n"+
+			"	class X2 extends X1 {	\n"+
+			"		void baz() {	\n"+
+			"			System.out.print(X.this==null ? \"X.this == null\" : \"X.this != null\");	\n"+
+			"			X1 x1 = X.this.new X1(){	\n"+
+			"				void baz(){	\n"+
+			"					System.out.println(\"-X$1.baz()\");	\n"+
+			"				}	\n"+
+			"			};	\n"+
+			"		}	\n"+
+			"	}	\n"+
+			"}\n",
+		},
+		"X.this != null-X$1.baz()");
+}
+
+public void test35() {
+	this.runConformTest(
+		new String[] {
+			/* p1/X.java */
+			"p1/X.java",
+			"package p1;	\n"+
+			"public class X {	\n"+
+			"	class Y {}	\n"+
+			"	public static void main(String[] arguments) {	\n"+
+			"		try {	\n" +
+			"			X x =null;	\n" +
+			"			x.new Y();	\n" +
+			"			System.out.println(\"FAILED\");	\n" +
+			"		} catch(NullPointerException e){	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n"+
+			"}	\n",
+		},
+		"SUCCESS"
+	);
+}
+
+public void test36() {
+	this.runConformTest(
+		new String[] {
+			/* p1/X.java */
+			"p1/X.java",
+			"package p1;	\n"+
+			"public class X {	\n"+
+			"	class Y {}	\n"+
+			"	static class Z extends Y {	\n"+
+			"		Z (X x){	\n"+
+			"			x.super();	\n" +
+			"		}		\n"+
+			"	}	\n"+
+			"	public static void main(String[] arguments) {	\n"+
+			"		try {	\n" +
+			"			new Z(null);	\n" +
+			"			System.out.println(\"FAILED\");	\n" +
+			"		} catch(NullPointerException e){	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n"+
+			"}	\n",
+		},
+		"SUCCESS"
+	);
+}
 
 public static Class testClass() {
 	return Compliance_1_4.class;
