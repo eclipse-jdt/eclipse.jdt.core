@@ -1976,10 +1976,11 @@ public class Util {
 	 * for the character. 
 	 *
 	 * @param      str   a string to be written.
+	 * @return     the number of bytes written to the stream.
 	 * @exception  IOException  if an I/O error occurs.
 	 * @since      JDK1.0
 	 */
-	public static void writeUTF(OutputStream out, char[] str) throws IOException {
+	public static int writeUTF(OutputStream out, char[] str) throws IOException {
 		int strlen= str.length;
 		int utflen= 0;
 		for (int i= 0; i < strlen; i++) {
@@ -2009,5 +2010,6 @@ public class Util {
 				out.write(0x80 | ((c >> 0) & 0x3F));
 			}
 		}
+		return utflen + 2; // the number of bytes written to the stream
 	}	
 }
