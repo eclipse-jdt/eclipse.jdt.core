@@ -14,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -213,294 +212,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public CompilerOptions(Map settings){
 
 		if (settings == null) return;
-		
-		// filter options which are related to the compiler component
-		Iterator entries = settings.entrySet().iterator();
-		while (entries.hasNext()) {
-			Map.Entry entry = (Map.Entry)entries.next();
-			if (!(entry.getKey() instanceof String)) continue;
-			if (!(entry.getValue() instanceof String)) continue;
-			String optionID = (String) entry.getKey();
-			String optionValue = (String) entry.getValue();
-			
-			// Local variable attribute
-			if(optionID.equals(OPTION_LocalVariableAttribute)){
-				if (optionValue.equals(GENERATE)) {
-					this.produceDebugAttributes |= Vars;
-				} else if (optionValue.equals(DO_NOT_GENERATE)){
-					this.produceDebugAttributes &= ~Vars;
-				}
-				continue;
-			}  
-			// Line number attribute	
-			if(optionID.equals(OPTION_LineNumberAttribute)) {
-				if (optionValue.equals(GENERATE)) {
-					this.produceDebugAttributes |= Lines;
-				} else if (optionValue.equals(DO_NOT_GENERATE)) {
-					this.produceDebugAttributes &= ~Lines;
-				}
-				continue;
-			} 
-			// Source file attribute	
-			if(optionID.equals(OPTION_SourceFileAttribute)) {
-				if (optionValue.equals(GENERATE)) {
-					this.produceDebugAttributes |= Source;
-				} else if (optionValue.equals(DO_NOT_GENERATE)) {
-					this.produceDebugAttributes &= ~Source;
-				}
-				continue;
-			} 
-			// Preserve unused local	
-			if(optionID.equals(OPTION_PreserveUnusedLocal)){
-				if (optionValue.equals(PRESERVE)) {
-					this.preserveAllLocalVariables = true;
-				} else if (optionValue.equals(OPTIMIZE_OUT)) {
-					this.preserveAllLocalVariables = false;
-				}
-				continue;
-			} 
-			// Report unreachable code				
-			if(optionID.equals(OPTION_ReportUnreachableCode)){
-				updateSeverity(UnreachableCode, optionValue);
-				continue;
-			} 
-			// Report invalid import	
-			if(optionID.equals(OPTION_ReportInvalidImport)){
-				updateSeverity(ImportProblem, optionValue);
-				continue;
-			} 
-			// Define the target JDK tag for .classfiles
-			if(optionID.equals(OPTION_TargetPlatform)){
-				long level = versionToJdkLevel(optionValue);
-				if (level != 0) this.targetJDK = level;
-				continue;
-			} 
-			// Define the JDK compliance level
-			if(optionID.equals(OPTION_Compliance)){
-				long level = versionToJdkLevel(optionValue);
-				if (level != 0) this.complianceLevel = level;
-				continue;
-			} 
-			// Private constructor access emulation (extra arg vs. visibility change)
-			if(optionID.equals(OPTION_PrivateConstructorAccess)){
-				long level = versionToJdkLevel(optionValue);
-				if (level >= JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
-				continue;
-			} 
-			// Report method with constructor name
-			if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
-				updateSeverity(MethodWithConstructorName, optionValue);
-				continue;
-			} 
-			// Report overriding package default method
-			if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
-				updateSeverity(OverriddenPackageDefaultMethod, optionValue);
-				continue;
-			} 
-			// Report deprecation
-			if(optionID.equals(OPTION_ReportDeprecation)){
-				updateSeverity(UsingDeprecatedAPI, optionValue);
-				continue;
-			} 
-			// Report deprecation inside deprecated code 
-			if(optionID.equals(OPTION_ReportDeprecationInDeprecatedCode)){
-				if (optionValue.equals(ENABLED)) {
-					this.reportDeprecationInsideDeprecatedCode = true;
-				} else if (optionValue.equals(DISABLED)) {
-					this.reportDeprecationInsideDeprecatedCode = false;
-				}
-				continue;
-			} 
-			// Report hidden catch block
-			if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
-				updateSeverity(MaskedCatchBlock, optionValue);
-				continue;
-			} 
-			// Report unused local variable
-			if(optionID.equals(OPTION_ReportUnusedLocal)){
-				updateSeverity(UnusedLocalVariable, optionValue);
-				continue;
-			}
-			// Report no implicit String conversion
-			if (optionID.equals(OPTION_ReportNoImplicitStringConversion)) {
-				updateSeverity(NoImplicitStringConversion, optionValue);
-				continue;
-			}
-			// Report unused parameter
-			if(optionID.equals(OPTION_ReportUnusedParameter)){
-				updateSeverity(UnusedArgument, optionValue);
-				continue;
-			} 
-			// Report unused parameter when implementing abstract method 
-			if(optionID.equals(OPTION_ReportUnusedParameterWhenImplementingAbstract)){
-				if (optionValue.equals(ENABLED)) {
-					this.reportUnusedParameterWhenImplementingAbstract = true;
-				} else if (optionValue.equals(DISABLED)) {
-					this.reportUnusedParameterWhenImplementingAbstract = false;
-				}
-				continue;
-			} 
-			// Report unused parameter when implementing abstract method 
-			if(optionID.equals(OPTION_ReportUnusedParameterWhenOverridingConcrete)){
-				if (optionValue.equals(ENABLED)) {
-					this.reportUnusedParameterWhenOverridingConcrete = true;
-				} else if (optionValue.equals(DISABLED)) {
-					this.reportUnusedParameterWhenOverridingConcrete = false;
-				}
-				continue;
-			} 
-			// Report unused import
-			if(optionID.equals(OPTION_ReportUnusedImport)){
-				updateSeverity(UnusedImport, optionValue);
-				continue;
-			} 
-			// Report synthetic access emulation
-			if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
-				updateSeverity(AccessEmulation, optionValue);
-				continue;
-			}
-			// Report local var hiding another variable
-			if(optionID.equals(OPTION_ReportLocalVariableHiding)){
-				updateSeverity(LocalVariableHiding, optionValue);
-				continue;
-			}
-			// Report field hiding another variable
-			if(optionID.equals(OPTION_ReportFieldHiding)){
-				updateSeverity(FieldHiding, optionValue);
-				continue;
-			}
-			// Report constructor/setter parameter hiding another field
-			if(optionID.equals(OPTION_ReportSpecialParameterHidingField)){
-				if (optionValue.equals(ENABLED)) {
-					this.reportSpecialParameterHidingField = true;
-				} else if (optionValue.equals(DISABLED)) {
-					this.reportSpecialParameterHidingField = false;
-				}
-				continue;
-			}			
-			// Report possible accidental boolean assignment
-			if(optionID.equals(OPTION_ReportPossibleAccidentalBooleanAssignment)){
-				updateSeverity(AccidentalBooleanAssign, optionValue);
-				continue;
-			}
-			// Report possible accidental boolean assignment
-			if(optionID.equals(OPTION_ReportSuperfluousSemicolon)){
-				updateSeverity(SuperfluousSemicolon, optionValue);
-				continue;
-			}
-			// Report non-externalized string literals
-			if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
-				updateSeverity(NonExternalizedString, optionValue);
-				continue;
-			}
-			// Report usage of 'assert' as an identifier
-			if(optionID.equals(OPTION_ReportAssertIdentifier)){
-				updateSeverity(AssertUsedAsAnIdentifier, optionValue);
-				continue;
-			}
-			// Set the source compatibility mode (assertions)
-			if(optionID.equals(OPTION_Source)){
-				long level = versionToJdkLevel(optionValue);
-				if (level != 0) this.sourceLevel = level;
-				continue;
-			}
-			// Set the default encoding format
-			if(optionID.equals(OPTION_Encoding)){
-				if (optionValue.length() == 0){
-					this.defaultEncoding = null;
-				} else {
-					try { 
-						new InputStreamReader(new ByteArrayInputStream(new byte[0]), optionValue);
-						this.defaultEncoding = optionValue;
-					} catch(UnsupportedEncodingException e){
-						// ignore unsupported encoding
-					}
-				}
-				continue;
-			}
-			// Set the threshold for problems per unit
-			if(optionID.equals(OPTION_MaxProblemPerUnit)){
-				try {
-					int val = Integer.parseInt(optionValue);
-					if (val >= 0) this.maxProblemsPerUnit = val;
-				} catch(NumberFormatException e){
-					// ignore ill-formatted limit
-				}				
-				continue;
-			}
-			// Report unnecessary receiver for static access
-			if(optionID.equals(OPTION_ReportNonStaticAccessToStatic)){
-				updateSeverity(NonStaticAccessToStatic, optionValue);
-				continue;
-			} 
-			// Report indirect static access
-			if(optionID.equals(OPTION_ReportIndirectStaticAccess)){
-				updateSeverity(IndirectStaticAccess, optionValue);
-				continue;
-			} 
-			// Report interface method incompatible with non-inherited Object method
-			if(optionID.equals(OPTION_ReportIncompatibleNonInheritedInterfaceMethod)){
-				updateSeverity(IncompatibleNonInheritedInterfaceMethod, optionValue);
-				continue;
-			} 
-			// Report unused private members
-			if(optionID.equals(OPTION_ReportUnusedPrivateMember)){
-				updateSeverity(UnusedPrivateMember, optionValue);
-				continue;
-			} 
-			// Report boolean method throwing exception
-			if(optionID.equals(OPTION_ReportUndocumentedEmptyBlock)){
-				updateSeverity(UndocumentedEmptyBlock, optionValue);
-				continue;
-			} 
-			// Report unnecessary cast/instance of
-			if(optionID.equals(OPTION_ReportUnnecessaryTypeCheck)){
-				updateSeverity(UnnecessaryTypeCheck, optionValue);
-				continue;
-			} 
-			// Report inconsistent javadoc annotation
-			if(optionID.equals(OPTION_ReportInvalidAnnotation)){
-				updateSeverity(InvalidAnnotation, optionValue);
-				continue;
-			} 
-			// Report finally block not completing normally
-			if(optionID.equals(OPTION_ReportFinallyBlockNotCompletingNormally)){
-				updateSeverity(FinallyBlockNotCompleting, optionValue);
-				continue;
-			} 
-			// Report unused declared thrown exception
-			if(optionID.equals(OPTION_ReportUnusedDeclaredThrownException)){
-				updateSeverity(UnusedDeclaredThrownException, optionValue);
-				continue;
-			} 
-			// Report unqualified field access
-			if(optionID.equals(OPTION_ReportUnqualifiedFieldAccess)){
-				updateSeverity(UnqualifiedFieldAccess, optionValue);
-				continue;
-			} 
-			// Report task
-			if(optionID.equals(OPTION_TaskTags)){
-				if (optionValue.length() == 0) {
-					this.taskTags = null;
-				} else {
-					this.taskTags = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
-				}
-				continue;
-			} 
-			// Report no-op assignments
-			if(optionID.equals(OPTION_ReportNoEffectAssignment)){
-				updateSeverity(NoEffectAssignment, optionValue);
-				continue;
-			}
-			if(optionID.equals(OPTION_TaskPriorities)){
-				if (optionValue.length() == 0) {
-					this.taskPriorites = null;
-				} else {
-					this.taskPriorites = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
-				}
-				continue;
-			} 
-		}
+		set(settings);		
 	}
 
 	public Map getMap() {
@@ -573,6 +285,156 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		this.produceReferenceInfo = flag;
 	}
 
+	public void set(Map optionsMap) {
+
+		Object optionValue;
+		if ((optionValue = optionsMap.get(OPTION_LocalVariableAttribute)) != null) {
+			if (GENERATE.equals(optionValue)) {
+				this.produceDebugAttributes |= Vars;
+			} else if (DO_NOT_GENERATE.equals(optionValue)) {
+				this.produceDebugAttributes &= ~Vars;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_LineNumberAttribute)) != null) {
+			if (GENERATE.equals(optionValue)) {
+				this.produceDebugAttributes |= Lines;
+			} else if (DO_NOT_GENERATE.equals(optionValue)) {
+				this.produceDebugAttributes &= ~Lines;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_SourceFileAttribute)) != null) {
+			if (GENERATE.equals(optionValue)) {
+				this.produceDebugAttributes |= Source;
+			} else if (DO_NOT_GENERATE.equals(optionValue)) {
+				this.produceDebugAttributes &= ~Source;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_PreserveUnusedLocal)) != null) {
+			if (PRESERVE.equals(optionValue)) {
+				this.preserveAllLocalVariables = true;
+			} else if (OPTIMIZE_OUT.equals(optionValue)) {
+				this.preserveAllLocalVariables = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportDeprecationInDeprecatedCode)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportDeprecationInsideDeprecatedCode = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportDeprecationInsideDeprecatedCode = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_Compliance)) != null) {
+			long level = versionToJdkLevel(optionValue);
+			if (level != 0) this.complianceLevel = level;
+		}
+		if ((optionValue = optionsMap.get(OPTION_Source)) != null) {
+			long level = versionToJdkLevel(optionValue);
+			if (level != 0) this.sourceLevel = level;
+		}
+		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
+			long level = versionToJdkLevel(optionValue);
+			if (level != 0) this.targetJDK = level;
+		}
+		if ((optionValue = optionsMap.get(OPTION_Encoding)) != null) {
+			if (optionValue instanceof String) {
+				this.defaultEncoding = null;
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					try { 
+						new InputStreamReader(new ByteArrayInputStream(new byte[0]), stringValue);
+						this.defaultEncoding = stringValue;
+					} catch(UnsupportedEncodingException e){
+						// ignore unsupported encoding
+					}
+				}
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_PrivateConstructorAccess)) != null) {
+			long level = versionToJdkLevel(optionValue);
+			if (level >= JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameterWhenImplementingAbstract)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportUnusedParameterWhenImplementingAbstract = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportUnusedParameterWhenImplementingAbstract = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameterWhenOverridingConcrete)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportUnusedParameterWhenOverridingConcrete = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportUnusedParameterWhenOverridingConcrete = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportSpecialParameterHidingField)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportSpecialParameterHidingField = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportSpecialParameterHidingField = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_MaxProblemPerUnit)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				try {
+					int val = Integer.parseInt(stringValue);
+					if (val >= 0) this.maxProblemsPerUnit = val;
+				} catch(NumberFormatException e){
+					// ignore ill-formatted limit
+				}				
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_TaskTags)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() == 0) {
+					this.taskTags = null;
+				} else {
+					this.taskTags = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				}
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_TaskPriorities)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() == 0) {
+					this.taskPriorites = null;
+				} else {
+					this.taskPriorites = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				}
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportUnreachableCode)) != null) updateSeverity(UnreachableCode, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportInvalidImport)) != null) updateSeverity(ImportProblem, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportHiddenCatchBlock)) != null) updateSeverity(MaskedCatchBlock, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLocal)) != null) updateSeverity(UnusedLocalVariable, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameter)) != null) updateSeverity(UnusedArgument, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedImport)) != null) updateSeverity(UnusedImport, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedPrivateMember)) != null) updateSeverity(UnusedPrivateMember, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedDeclaredThrownException)) != null) updateSeverity(UnusedDeclaredThrownException, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportNoImplicitStringConversion)) != null) updateSeverity(NoImplicitStringConversion, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportSyntheticAccessEmulation)) != null) updateSeverity(AccessEmulation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportLocalVariableHiding)) != null) updateSeverity(LocalVariableHiding, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportFieldHiding)) != null) updateSeverity(FieldHiding, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportPossibleAccidentalBooleanAssignment)) != null) updateSeverity(AccidentalBooleanAssign, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportSuperfluousSemicolon)) != null) updateSeverity(SuperfluousSemicolon, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportNonExternalizedStringLiteral)) != null) updateSeverity(NonExternalizedString, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportAssertIdentifier)) != null) updateSeverity(AssertUsedAsAnIdentifier, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportNonStaticAccessToStatic)) != null) updateSeverity(NonStaticAccessToStatic, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportIndirectStaticAccess)) != null) updateSeverity(IndirectStaticAccess, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportIncompatibleNonInheritedInterfaceMethod)) != null) updateSeverity(IncompatibleNonInheritedInterfaceMethod, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUndocumentedEmptyBlock)) != null) updateSeverity(UndocumentedEmptyBlock, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnnecessaryTypeCheck)) != null) updateSeverity(UnnecessaryTypeCheck, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportInvalidAnnotation)) != null) updateSeverity(InvalidAnnotation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportFinallyBlockNotCompletingNormally)) != null) updateSeverity(FinallyBlockNotCompleting, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnqualifiedFieldAccess)) != null) updateSeverity(UnqualifiedFieldAccess, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
+	}
+
 	public void setVerboseMode(boolean flag) {
 		this.verbose = flag;
 	}
@@ -626,28 +488,28 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		return buf.toString();
 	}
 
-	void updateSeverity(long irritant, String severityString) {
-		if (severityString.equals(ERROR)) {
+	void updateSeverity(long irritant, Object severityString) {
+		if (ERROR.equals(severityString)) {
 			this.errorThreshold |= irritant;
 			this.warningThreshold &= ~irritant;
-		} else if (severityString.equals(WARNING)) {
+		} else if (WARNING.equals(severityString)) {
 			this.errorThreshold &= ~irritant;
 			this.warningThreshold |= irritant;
-		} else if (severityString.equals(IGNORE)) {
+		} else if (IGNORE.equals(severityString)) {
 			this.errorThreshold &= ~irritant;
 			this.warningThreshold &= ~irritant;
 		}
 	}				
-	public static long versionToJdkLevel(String versionID) {
-		if (versionID.equals(VERSION_1_1)) {
+	public static long versionToJdkLevel(Object versionID) {
+		if (VERSION_1_1.equals(versionID)) {
 			return JDK1_1;
-		} else if (versionID.equals(VERSION_1_2)) {
+		} else if (VERSION_1_2.equals(versionID)) {
 			return JDK1_2;
-		} else if (versionID.equals(VERSION_1_3)) {
+		} else if (VERSION_1_3.equals(versionID)) {
 			return JDK1_3;
-		} else if (versionID.equals(VERSION_1_4)) {
+		} else if (VERSION_1_4.equals(versionID)) {
 			return JDK1_4;
-		} else if (versionID.equals(VERSION_1_5)) {
+		} else if (VERSION_1_5.equals(versionID)) {
 			return JDK1_5;
 		}
 		return 0; // unknown
