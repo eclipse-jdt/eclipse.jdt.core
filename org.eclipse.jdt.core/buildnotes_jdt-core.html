@@ -16,6 +16,19 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+	<li>Revised Classpath Container proposal (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/classpath%20container/classpathContainer.html">notes</a>):
+	<ul>
+	<li><code>classpathContainerChanged()</code> got replaced with setter method <code>JavaCore.setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer respectiveContainers) </code></li>
+	<li><code>ClasspathContainerResolver</code> got renamed into <code>ClasspathContainerInitializer</code></li>
+	<li> added container interface <code> IClasspathContainer </code> in order to allow containers to be presented in a UI.
+		  <ul>
+		  <li>IClasspathEntry[] getClasspathEntries() </li>
+		  <li>String getDescription() </li>
+		  <li>int getKind() </li>
+		  <li>Path getPath() </li>
+		 </ul>
+	</ul>
+	</li>
 	<li>If the completion is inside a super type in type declaration header then the relevance grow
 		when the type have the correct nature :
 		<ul>
@@ -40,7 +53,7 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14767">14767</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14767">14</a>
 bug in IJavaProject.findType(String, String)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14642">14642</a>
 StringIndexOutOfBoundsException when attempting to view some classes 
