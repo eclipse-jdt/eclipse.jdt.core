@@ -7864,10 +7864,41 @@ public void test0138(){
 			expectedReplacedSource,
 			"full ast");
 }
+public void test0139(){
+	String str =
+		"public class X  extends Z. #  {\n" +
+		"}";
+
+
+	String completeBehind = "Z.";
+	int cursorLocation = str.indexOf("Z.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnClass:Z.>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "Z.";
+	String expectedUnitDisplayString =
+		"public class X extends <CompleteOnClass:Z.> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n"
+		;
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=32061
  */
-public void test0139(){
+public void test0140(){
 	String str =
 		"public class X  {\n" + 
 		"    public void baz() {\n" + 
@@ -7919,7 +7950,7 @@ public void test0139(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=32061
  */
-public void test0140(){
+public void test0141(){
 	String str =
 		"public class X  {\n" + 
 		"    Object var1 = new Object() {};\n" + 
