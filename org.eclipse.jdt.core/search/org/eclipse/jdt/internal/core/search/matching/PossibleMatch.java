@@ -101,11 +101,7 @@ private char[] getQualifiedName() {
 	} else if (this.openable instanceof ClassFile) {
 		String fileName = getSourceFileName();
 		if (fileName == NO_SOURCE_FILE_NAME) {
-			try {
-				return ((ClassFile) this.openable).getType().getFullyQualifiedName('.').toCharArray();
-			} catch (JavaModelException e) {
-				return null;
-			}
+			return ((ClassFile) this.openable).getType().getFullyQualifiedName('.').toCharArray();
 		}
 		String simpleName = fileName.substring(0, fileName.length()-5); // length-".java".length()
 		String pkgName = this.openable.getParent().getElementName();
@@ -122,15 +118,12 @@ private char[] getQualifiedName() {
 private String getSourceFileName() {
 	if (this.sourceFileName != null) return this.sourceFileName;
 	this.sourceFileName = NO_SOURCE_FILE_NAME; 
-	try {
-		SourceMapper sourceMapper = this.openable.getSourceMapper();
-		if (sourceMapper != null) {
-			IType type = ((ClassFile) this.openable).getType();
-			ClassFileReader reader = MatchLocator.classFileReader(type);
-			if (reader != null)
-				this.sourceFileName = sourceMapper.findSourceFileName(type, reader);
-		}
-	} catch (JavaModelException e) { // ignored
+	SourceMapper sourceMapper = this.openable.getSourceMapper();
+	if (sourceMapper != null) {
+		IType type = ((ClassFile) this.openable).getType();
+		ClassFileReader reader = MatchLocator.classFileReader(type);
+		if (reader != null)
+			this.sourceFileName = sourceMapper.findSourceFileName(type, reader);
 	}
 	return this.sourceFileName;
 }	

@@ -38,11 +38,11 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
 	/**
 	 * Constant empty list of class files
 	 */
-	protected static IClassFile[] fgEmptyClassFileList= new IClassFile[] {};
+	protected static final IClassFile[] NO_CLASSFILES = new IClassFile[] {};
 	/**
 	 * Constant empty list of compilation units
 	 */
-	protected static ICompilationUnit[] fgEmptyCompilationUnitList= new ICompilationUnit[] {};
+	protected static final ICompilationUnit[] NO_COMPILATION_UNITS = new ICompilationUnit[] {};
 /**
  * Constructs a handle for a package fragment
  *
@@ -164,7 +164,7 @@ public IClassFile getClassFile(String name) {
  */
 public IClassFile[] getClassFiles() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_SOURCE) {
-		return fgEmptyClassFileList;
+		return NO_CLASSFILES;
 	}
 	
 	ArrayList list = getChildrenOfType(CLASS_FILE);
@@ -199,7 +199,7 @@ public ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner) 
  */
 public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_BINARY) {
-		return fgEmptyCompilationUnitList;
+		return NO_COMPILATION_UNITS;
 	}
 	
 	ArrayList list = getChildrenOfType(COMPILATION_UNIT);
@@ -210,7 +210,7 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 /**
  * @see IPackageFragment#getCompilationUnits(WorkingCopyOwner)
  */
-public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) throws JavaModelException {
+public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) {
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, false/*don't add primary*/);
 	if (workingCopies == null) return JavaModelManager.NoWorkingCopy;
 	int length = workingCopies.length;

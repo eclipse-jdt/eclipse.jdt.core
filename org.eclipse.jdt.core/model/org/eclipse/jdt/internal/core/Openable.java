@@ -339,7 +339,7 @@ public boolean hasUnsavedChanges() throws JavaModelException{
  *
  * @see IOpenable
  */
-public boolean isConsistent() throws JavaModelException {
+public boolean isConsistent() {
 	return true;
 }
 /**

@@ -321,21 +321,21 @@ public IType findPrimaryType() {
 	/*
 	 * @see IOpenable#getBuffer()
 	 */
-	public IBuffer getBuffer() throws JavaModelException {
+	public IBuffer getBuffer() {
 		return this.buffer;
 	}
 
 	/*
 	 * @see IOpenable#hasUnsavedChanges()
 	 */
-	public boolean hasUnsavedChanges() throws JavaModelException {
+	public boolean hasUnsavedChanges() {
 		return false;
 	}
 
 	/*
 	 * @see IOpenable#isConsistent()
 	 */
-	public boolean isConsistent() throws JavaModelException {
+	public boolean isConsistent() {
 		return false;
 	}
 

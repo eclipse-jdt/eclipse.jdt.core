@@ -863,7 +863,7 @@ public boolean isBasedOn(IResource resource) {
 /**
  * @see IOpenable#isConsistent()
  */
-public boolean isConsistent() throws JavaModelException {
+public boolean isConsistent() {
 	return JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().get(this) == null;
 }
 /**

@@ -532,7 +532,7 @@ public IPackageFragment getPackageFragment(String packageName) {
  * Returns the package name for the given folder
  * (which is a decendent of this root).
  */
-protected String getPackageName(IFolder folder) throws JavaModelException {
+protected String getPackageName(IFolder folder) {
 	IPath myPath= getPath();
 	IPath pkgPath= folder.getFullPath();
 	int mySegmentCount= myPath.segmentCount();
@@ -635,7 +635,7 @@ protected String getSourceAttachmentProperty() throws JavaModelException {
  * Returns the qualified name for the source attachment property
  * of this root.
  */
-protected QualifiedName getSourceAttachmentPropertyName() throws JavaModelException {
+protected QualifiedName getSourceAttachmentPropertyName() {
 	return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + this.getPath().toOSString()); //$NON-NLS-1$
 }
 

@@ -286,7 +286,7 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
 /**
  * Returns a name environment for the last built state.
  */
-protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
+protected INameEnvironment getBuildNameEnvironment() {
 	return new NameEnvironment(getProject());
 }
 
@@ -323,7 +323,7 @@ public String getPackageName() {
 /**
  * Returns the problem factory to be used during evaluation.
  */
-protected IProblemFactory getProblemFactory() throws JavaModelException {
+protected IProblemFactory getProblemFactory() {
 	return ProblemFactory.getProblemFactory(Locale.getDefault());
 }
 /**
@@ -371,7 +371,7 @@ public void setPackageName(String packageName) {
 /**
  * @see IEvaluationContext#validateImports(ICodeSnippetRequestor)
  */
-public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelException {
+public void validateImports(ICodeSnippetRequestor requestor) {
 	
 	checkBuilderState();
 	INameEnvironment environment = null;

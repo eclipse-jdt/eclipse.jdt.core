@@ -124,15 +124,15 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * A jar package fragment never contains compilation units.
  * @see IPackageFragment
  */
-public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
-	return fgEmptyCompilationUnitList;
+public ICompilationUnit[] getCompilationUnits() {
+	return NO_COMPILATION_UNITS;
 }
 /**
  * A package fragment in a jar has no corresponding resource.
  *
  * @see IJavaElement
  */
-public IResource getCorrespondingResource() throws JavaModelException {
+public IResource getCorrespondingResource() {
 	return null;
 }
 /**

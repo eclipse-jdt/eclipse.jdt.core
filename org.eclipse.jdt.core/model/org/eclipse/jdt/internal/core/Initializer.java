@@ -90,7 +90,7 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 /**
  * @see IMember
  */
-public ISourceRange getNameRange() throws JavaModelException {
+public ISourceRange getNameRange() {
 	return null;
 }
 /*

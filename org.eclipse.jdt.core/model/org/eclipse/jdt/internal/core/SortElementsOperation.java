@@ -84,7 +84,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param unit
 	 * @param bufferContents
 	 */
-	private String processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) throws JavaModelException {
+	private String processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) {
 		this.hasChanged = false;
 		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, comparator);
 		SourceElementParser parser = new SourceElementParser(builder,

@@ -398,11 +398,7 @@ protected IJavaElement createImportHandle(ImportReference importRef) {
 	if (currentOpenable instanceof CompilationUnit)
 		return ((CompilationUnit) currentOpenable).getImport(new String(importName));
 
-	try {
-		return ((ClassFile) currentOpenable).getType();
-	} catch (JavaModelException e) {
-		return null;
-	}
+	return ((ClassFile) currentOpenable).getType();
 }
 /**
  * Creates an IInitializer from the given field declaration and type. 
@@ -477,12 +473,8 @@ protected IType createTypeHandle(char[] simpleTypeName) {
 	if (currentOpenable instanceof CompilationUnit)
 		return ((CompilationUnit) currentOpenable).getType(new String(simpleTypeName));
 
-	try {
-		// ensure this is a top level type (see bug 20011  Searching for Inner Classes gives bad search results)
-		return getTopLevelType(((ClassFile) currentOpenable).getType());
-	} catch (JavaModelException e) {
-		return null;
-	}
+	// ensure this is a top level type (see bug 20011  Searching for Inner Classes gives bad search results)
+	return getTopLevelType(((ClassFile) currentOpenable).getType());
 }
 protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) throws CoreException {
 	BinaryType binaryType = (BinaryType) classFile.getType();

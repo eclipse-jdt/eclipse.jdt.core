@@ -419,7 +419,7 @@ public IType[] getTypes() throws JavaModelException {
 /**
  * @see IType#isAnonymous()
  */
-public boolean isAnonymous() throws JavaModelException {
+public boolean isAnonymous() {
 	return fName.length() == 0;
 }
 /**
@@ -438,13 +438,13 @@ public boolean isInterface() throws JavaModelException {
 /**
  * @see IType#isLocal()
  */
-public boolean isLocal() throws JavaModelException {
+public boolean isLocal() {
 	return fParent instanceof IMethod || fParent instanceof IInitializer;
 }
 /**
  * @see IType#isMember()
  */
-public boolean isMember() throws JavaModelException {
+public boolean isMember() {
 	return getDeclaringType() != null;
 }
 /**

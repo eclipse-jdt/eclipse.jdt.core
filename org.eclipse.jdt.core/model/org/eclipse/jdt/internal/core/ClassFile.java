@@ -356,7 +356,7 @@ public ISourceRange getSourceRange() throws JavaModelException {
 /**
  * @see IClassFile
  */
-public IType getType() throws JavaModelException {
+public IType getType() {
 	if (this.binaryType == null) {
 		// Remove the ".class" from the name of the ClassFile - always works
 		// since constructor fails if name does not end with ".class"
@@ -526,7 +526,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	}
 	return null;
 }
-private IBuffer mapSource(SourceMapper mapper) throws JavaModelException {
+private IBuffer mapSource(SourceMapper mapper) {
 	char[] contents = mapper.findSource(getType());
 	if (contents != null) {
 		// create buffer
