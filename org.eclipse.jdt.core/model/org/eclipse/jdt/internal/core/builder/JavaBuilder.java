@@ -123,7 +123,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (IncompleteClassPathException e) {
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
-		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath")); //$NON-NLS-1$
+		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath", e.missingClassFile)); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} finally {
 		if (!ok)
