@@ -686,7 +686,6 @@ public class ASTParser {
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
-					char[] sourceContents = sourceUnit.getContents();
 					if (needToResolveBindings && this.project != null) {
 						try {
 							// parse and resolve
