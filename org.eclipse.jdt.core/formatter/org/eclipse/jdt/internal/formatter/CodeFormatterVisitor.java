@@ -1359,8 +1359,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					arguments[i].traverse(this, scope);
 				}
 			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+		} else {
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
 	}
 
 	private void formatMethodArguments(
@@ -1836,7 +1838,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.exitAlignment(argumentsAlignment, true);
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
 		} else {
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments); 
 		}
 		
 		if (numberOfParens > 0) {
@@ -2745,7 +2747,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.exitAlignment(argumentsAlignment, true);
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
 		} else {
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments); 
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
@@ -3411,7 +3413,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.exitAlignment(argumentsAlignment, true);
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
 		} else {
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments); 
 		}
 		final TypeDeclaration anonymousType = qualifiedAllocationExpression.anonymousType;
 		if (anonymousType != null) {
