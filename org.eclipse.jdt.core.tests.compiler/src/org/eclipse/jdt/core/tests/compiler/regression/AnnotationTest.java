@@ -1082,5 +1082,22 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"	         ^^^^^\n" + 
 		"The value for annotation attribute I.val must be a constant expression\n" + 
 		"----------\n");
-	}			
+	}
+	
+	// check array handling of singleton 
+	public void test047() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    boolean[] val() default {true};\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(val = false) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+	}		
 }

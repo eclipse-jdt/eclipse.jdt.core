@@ -53,10 +53,13 @@ public abstract class Annotation extends Expression {
 		TypeBinding memberValueType = memberValue.resolvedType;
 		if (memberValueType != null) {
 			if (!memberValueType.isCompatibleWith(requiredType)) {
-				scope.problemReporter().typeMismatchError(memberValueType, requiredType, memberValue);
-				return; // may allow to proceed to find more errors at once
+				if (!(requiredType.isArrayType() && requiredType.dimensions() == 1 && memberValueType.isCompatibleWith(requiredType.leafComponentType()))) {
+					scope.problemReporter().typeMismatchError(memberValueType, requiredType, memberValue);
+					return; // may allow to proceed to find more errors at once
+				}
 			} else {
-				scope.compilationUnitScope().recordTypeConversion(requiredType, memberValueType);
+				scope.compilationUnitScope().recordTypeConversion(requiredType.leafComponentType(), memberValueType.leafComponentType());
+				memberValue.computeConversion(scope, requiredType, memberValueType);				
 			}
 		}
 		
@@ -147,19 +150,6 @@ public abstract class Annotation extends Expression {
 						continue nextPair;
 
 					checkAnnotationValue(expectedValueType, method.declaringClass, method.selector, memberValue, scope);
-					
-					// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
-					// may require to widen the rhs expression at runtime
-					if (expectedValueType != valueType) // must call before computeConversion() and typeMismatchError()
-						scope.compilationUnitScope().recordTypeConversion(expectedValueType, valueType);
-					if ((memberValue.isConstantValueOfTypeAssignableToType(valueType, expectedValueType)
-							|| (expectedValueType.isBaseType() && BaseTypeBinding.isWidening(expectedValueType.id, valueType.id)))
-							|| valueType.isCompatibleWith(expectedValueType)) {
-						memberValue.computeConversion(scope, expectedValueType, valueType);
-						continue nextMember;
-					}
-					scope.problemReporter().typeMismatchError(valueType, expectedValueType, memberValue);
-					continue nextMember;
 				}
 			}
 			if (!foundValue && (method.modifiers & AccAnnotationDefault) == 0) {
