@@ -15,6 +15,14 @@ Eclipse SDK Build ? - ?
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Buffer change: </li>
+<li>Resource copy filters : A new setting allows to specify exclusion filters for resource being copied to the output folder..
+	<ul>
+	<li>option id:				"org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"
+	<li>possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
+	<li>default:				"cvs,.*" 
+	</ul>
+</li>
 <li>Encoding support : Batch compiler can be specified the source encoding format using '-encoding myEncoding' command line option.
 In case of necessity, each individual file specified on the command line can be associated with a custom encoding
 by suffixing its name with '[myEncoding]' (if applied to a folder, then all files in it will be sharing the custom
@@ -22,7 +30,7 @@ encoding). When no encoding is specified, then the platform default is used (as 
 control the default encoding (no support yet for per file custom encoding).
 	<ul>
 	<li>option id:				"org.eclipse.jdt.core.encoding"
-	<li>possible values:	{ "" for platform default, or any of the supported encoding name.
+	<li>possible values:	{ "" for platform default, or any of the supported encoding name }.
 	<li>default:				"" 
 	</ul>
 </li>
@@ -35,6 +43,7 @@ e.g. signature version is different).
 (see <code>ICompilationUnit.getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory)</code>)
 is now remembered and will be reused if the working copy is closed then reopen.
 </li>
+<li>Project dependency cycle detection reenabled</li>
 </ul>
 
 <h3>
@@ -68,6 +77,12 @@ ClassCastException creating an invalid method
 Problem Reports Closed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9103">9103</a>
 Search reports no references to SWT.Help  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6418">6418</a>
+Scrapbook: "Unexpected End Of File" expected  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3191">3191</a>
+JM - non-existing external jars will not come to life when created (1FWI5C4)  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8980">8980</a>
+Unpredictable error catching on overridden methods with less visibility
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9024">9024</a>
 Do not find reference to an interface in JAR 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9040">9040</a>

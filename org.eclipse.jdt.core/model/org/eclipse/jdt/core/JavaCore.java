@@ -1079,73 +1079,73 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
  	 *    When generated, this attribute will enable local variable names 
 	 *    to be displayed in debugger, only in place where variables are 
 	 *    definitely assigned (.class file is then bigger)
-	 *     - option id:				"org.eclipse.jdt.core.compiler.debug.localVariable"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.debug.localVariable"
 	 *     - possible values:	{ "generate", "do not generate" }
-	 *     - default:				"generate"
+	 *     - default:			"generate"
 	 *
 	 *  COMPILER / Generating Line Number Debug Attribute 
 	 *    When generated, this attribute will enable source code highlighting in debugger 
 	 *    (.class file is then bigger).
-	 *     - option id:				"org.eclipse.jdt.core.compiler.debug.lineNumber"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.debug.lineNumber"
 	 *     - possible values:	{ "generate", "do not generate" }
-	 *     - default:				"generate"
+	 *     - default:			"generate"
 	 *		
 	 *  COMPILER / Generating Source Debug Attribute 
 	 *    When generated, this attribute will enable the debugger to present the 
 	 *    corresponding source code.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.debug.sourceFile"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.debug.sourceFile"
 	 *     - possible values:	{ "generate", "do not generate" }
-	 *     - default:				"generate"
+	 *     - default:			"generate"
 	 *		
 	 *  COMPILER / Preserving Unused Local Variables
 	 *    Unless requested to preserve unused local variables (i.e. never read), the 
 	 *    compiler will optimize them out, potentially altering debugging
-	 *     - option id:				"org.eclipse.jdt.core.compiler.codegen.unusedLocal"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.codegen.unusedLocal"
 	 *     - possible values:	{ "preserve", "optimize out" }
-	 *     - default:				"preserve"
+	 *     - default:			"preserve"
 	 * 
 	 *  COMPILER / Defining Target Java Platform
 	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.codegen.targetPlatform"
 	 *     - possible values:	{ "1.1", "1.2", "1.3", "1.4" }
-	 *     - default:				"1.1"
+	 *     - default:			"1.1"
 	 *
 	 *	COMPILER / Reporting Unreachable Code
 	 *    Unreachable code can optionally be reported as an error, warning or simply 
 	 *    ignored. The bytecode generation will always optimized it out.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.unreachableCode"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unreachableCode"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"error"
+	 *     - default:			"error"
 	 *
 	 *	COMPILER / Reporting Invalid Import
 	 *    An import statement that cannot be resolved might optionally be reported 
 	 *    as an error, as a warning or ignored.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.invalidImport"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.invalidImport"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"error"
+	 *     - default:			"error"
 	 *
 	 *	COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
 	 *    cannot be overriden. When enabling this option, the compiler will signal 
 	 *    such scenarii either as an error or a warning.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"warning"
+	 *     - default:			"warning"
 	 *
 	 *  COMPILER / Reporting Method With Constructor Name
 	 *    Naming a method with a constructor name is generally considered poor 
 	 *    style programming. When enabling this option, the compiler will signal such 
 	 *    scenarii either as an error or a warning.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"warning"
+	 *     - default:			"warning"
 	 *
 	 *  COMPILER / Reporting Deprecation
 	 *    When enabled, the compiler will signal use of deprecated API either as an 
 	 *    error or a warning.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.deprecation"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.deprecation"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"warning"
+	 *     - default:			"warning"
 	 *
 	 *	COMPILER / Reporting Hidden Catch Block
 	 *    Locally to a try statement, some catch blocks may hide others , e.g.
@@ -1154,154 +1154,154 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *      } catch (java.io.IOException e) {}. 
 	 *    When enabling this option, the compiler will issue an error or a warning for hidden 
 	 *    catch blocks corresponding to checked exceptions
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"warning"
+	 *     - default:			"warning"
 	 *
 	 *  COMPILER / Reporting Unused Local
 	 *    When enabled, the compiler will issue an error or a warning for unused local 
 	 *    variables (i.e. variables never read from)
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.unusedLocal"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unusedLocal"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"ignore"
+	 *     - default:			"ignore"
 	 *
 	 *	COMPILER / Reporting Unused Parameter
 	 *    When enabled, the compiler will issue an error or a warning for unused method 
 	 *    parameters (i.e. parameters never read from)
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.unusedParameter"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unusedParameter"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"ignore"
+	 *     - default:			"ignore"
 	 *
 	 *	COMPILER / Reporting Synthetic Access Emulation
 	 *    When enabled, the compiler will issue an error or a warning whenever it emulates 
 	 *    access to a non-accessible member of an enclosing type. Such access can have
 	 *    performance implications.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"ignore"
+	 *     - default:			"ignore"
 	 *
 	 * COMPILER / Reporting Non-Externalized String Literal
 	 *    When enabled, the compiler will issue an error or a warning for non externalized 
 	 *    String literal (i.e. non tagged with //$NON-NLS-<n>$). 
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"ignore"
+	 *     - default:			"ignore"
 	 * 
 	 * COMPILER / Reporting Usage of 'assert' Identifier
 	 *    When enabled, the compiler will issue an error or a warning whenever 'assert' is 
 	 *    used as an identifier (reserved keyword in 1.4)
-	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.assertIdentifier"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.assertIdentifier"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:				"ignore"
+	 *     - default:			"ignore"
 	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
 	 *    reserved for assertion support.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.source"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.source"
 	 *     - possible values:	{ "1.3", "1.4" }
-	 *     - default:				"1.3"
+	 *     - default:			"1.3"
 	 * 
 	 * COMPILER / Setting Compliance Level
 	 *    Select the compliance level for the compiler.
-	 *     - option id:				"org.eclipse.jdt.core.compiler.compliance"
+	 *     - option id:			"org.eclipse.jdt.core.compiler.compliance"
 	 *     - possible values:	{ "1.3", "1.4" }
-	 *     - default:				"1.3"
+	 *     - default:			"1.3"
 	 * 
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process
-	 *     - option id:				"org.eclipse.jdt.core.compiler.compliance"
+	 *     - option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
 	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
-	 *     - default:				"cvs,.*"
+	 *     - default:			"cvs,.*"
 	 * 
 	 *	JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
 	 *    the classpath prerequisite chain. When requesting to compute, this takes over
 	 *    the platform default order (based on project references).
-	 *     - option id:				"org.eclipse.jdt.core.computeJavaBuildOrder"
+	 *     - option id:			"org.eclipse.jdt.core.computeJavaBuildOrder"
 	 *     - possible values:	{ "compute", "ignore" }
-	 *     - default:				"ignore"	 
+	 *     - default:			"ignore"	 
 	 * 
 	 * JAVACORE / Specify Default Source Encoding Format
 	 *    Select the encoding format for compiled sources.
-	 *     - option id:				"org.eclipse.jdt.core.encoding"
+	 *     - option id:			"org.eclipse.jdt.core.encoding"
 	 *     - possible values:	{ "" for platform default, or any of the supported encoding name}.
-	 *     - default:				""
+	 *     - default:			""
 	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
-	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.openingBrace"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.newline.openingBrace"
 	 *     - possible values:	{ "insert", "do not insert" }
-	 *     - default:				"do not insert"
+	 *     - default:			"do not insert"
 	 * 
 	 *	FORMATTER / Inserting New Line Inside Control Statement
 	 *    When Insert, a new line is inserted between } and following else, catch, finally
-	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.controlStatement"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.newline.controlStatement"
 	 *     - possible values:	{ "insert", "do not insert" }
-	 *     - default:				"do not insert"
+	 *     - default:			"do not insert"
 	 * 
 	 *	FORMATTER / Clearing Blank Lines
 	 *    When Clear all, all blank lines are removed. When Preserve one, only one is kept
 	 *    and all others removed.
-	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.clearAll"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.newline.clearAll"
 	 *     - possible values:	{ "clear all", "preserve one" }
-	 *     - default:				"preserve one"
+	 *     - default:			"preserve one"
 	 * 
 	 *	FORMATTER / Inserting New Line Between Else/If 
 	 *    When Insert, a blank line is inserted between an else and an if when they are 
 	 *    contiguous. When choosing to not insert, else-if will be kept on the same
 	 *    line when possible.
-	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.elseIf"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.newline.elseIf"
 	 *     - possible values:	{ "insert", "do not insert" }
-	 *     - default:				"do not insert"
+	 *     - default:			"do not insert"
 	 * 
 	 *	FORMATTER / Inserting New Line In Empty Block
 	 *    When insert, a line break is inserted between contiguous { and }, if } is not followed
 	 *    by a keyword.
-	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.emptyBlock"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.newline.emptyBlock"
 	 *     - possible values:	{ "insert", "do not insert" }
-	 *     - default:				"insert"
+	 *     - default:			"insert"
 	 * 
 	 *	FORMATTER / Splitting Lines Exceeding Length
 	 *    Enable splitting of long lines (exceeding the configurable length). Length of 0 will
 	 *    disable line splitting
-	 *     - option id:				"org.eclipse.jdt.core.formatter.lineSplit"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.lineSplit"
 	 *     - possible values:	"<n>", where n is zero or a positive integer
-	 *     - default:				"80"
+	 *     - default:			"80"
 	 * 
 	 *	FORMATTER / Compacting Assignment
 	 *    Assignments can be formatted asymmetrically, e.g. 'int x= 2;', when Normal, a space
 	 *    is inserted before the assignment operator
-	 *     - option id:				"org.eclipse.jdt.core.formatter.style.assignment"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.style.assignment"
 	 *     - possible values:	{ "compact", "normal" }
-	 *     - default:				"normal"
+	 *     - default:			"normal"
 	 * 
 	 *	FORMATTER / Defining Indentation Character
 	 *    Either choose to indent with tab characters or spaces
-	 *     - option id:				"org.eclipse.jdt.core.formatter.tabulation.char"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.tabulation.char"
 	 *     - possible values:	{ "tab", "space" }
-	 *     - default:				"tab"
+	 *     - default:			"tab"
 	 * 
 	 *	FORMATTER / Defining Space Indentation Length
 	 *    When using spaces, set the amount of space characters to use for each 
 	 *    indentation mark.
-	 *     - option id:				"org.eclipse.jdt.core.formatter.tabulation.size"
+	 *     - option id:			"org.eclipse.jdt.core.formatter.tabulation.size"
 	 *     - possible values:	"<n>", where n is a positive integer
-	 *     - default:				"4"
+	 *     - default:			"4"
 	 * 
 	 *	CODEASSIST / Activate Visibility Sensitive Completion
 	 *    When active, completion doesn't show that you can not see
 	 *    (eg. you can not see private methods of a super class).
-	 *     - option id:				"org.eclipse.jdt.core.codeComplete.visibilityCheck"
+	 *     - option id:			"org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:	{ "enabled", "disabled" }
-	 *     - default:				"disabled"
+	 *     - default:			"disabled"
 	 * 
 	 *	CODEASSIST / Automatic Qualification of Implicit Members
 	 *    When active, completion automatically qualifies completion on implicit
 	 *    field references and message expressions.
-	 *     - option id:				"org.eclipse.jdt.core.codeComplete.forceImplicitQualification"
+	 *     - option id:			"org.eclipse.jdt.core.codeComplete.forceImplicitQualification"
 	 *     - possible values:	{ "enabled", "disabled" }
-	 *     - default:				"disabled"
+	 *     - default:			"disabled"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
@@ -1333,7 +1333,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		defaultOptions.put("org.eclipse.jdt.core.compiler.compliance", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Builder settings
-		defaultOptions.put("org.eclipse.jdt.core.builder.resourceCopyFilter", "cvs,.*"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.builder.resourceCopyExclusionFilter", "cvs,.*"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// JavaCore settings
 		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
