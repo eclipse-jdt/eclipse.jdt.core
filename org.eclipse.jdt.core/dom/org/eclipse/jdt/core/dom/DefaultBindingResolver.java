@@ -166,6 +166,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (binding instanceof ITypeBinding) {
 			ITypeBinding typeBinding = (ITypeBinding) binding;
 			return (ASTNode) this.bindingsToAstNodes.get(typeBinding.getTypeDeclaration());
+		} else if (binding instanceof IVariableBinding) {
+			IVariableBinding variableBinding = (IVariableBinding) binding;
+			return (ASTNode) this.bindingsToAstNodes.get(variableBinding.getVariableDeclaration());
 		}
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}

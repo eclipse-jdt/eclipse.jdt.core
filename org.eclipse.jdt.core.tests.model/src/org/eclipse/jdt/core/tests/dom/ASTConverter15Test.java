@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 //	static {
-//		TESTS_NUMBERS = new int[] { 144 };
+//		TESTS_NUMBERS = new int[] { 141 };
 //	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4208,6 +4208,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Bindings are not equals", variableBinding.isEqualTo(variableBinding2));
 		IVariableBinding variableBinding3 = variableBinding2.getVariableDeclaration();
 		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding3));
+		node = compilationUnit.findDeclaringNode(variableBinding2);
+		assertNotNull("No declaring node", node);
     }
 	
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83100
