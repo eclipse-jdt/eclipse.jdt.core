@@ -81,7 +81,7 @@ public class Assignment extends Expression {
 			return ((SingleNameReference)someExpression).binding;
 		} else if (someExpression instanceof FieldReference) {
 			FieldReference fieldRef = (FieldReference)someExpression;
-			if (fieldRef.receiver.isThis()) {
+			if (fieldRef.receiver.isThis() && !(fieldRef.receiver instanceof QualifiedThisReference)) {
 				return fieldRef.binding;
 			}			
 		}
