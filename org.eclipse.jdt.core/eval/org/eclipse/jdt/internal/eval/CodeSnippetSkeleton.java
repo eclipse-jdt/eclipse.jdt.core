@@ -89,7 +89,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 			return null;
 		}
 		/**
-		 * @see IBinaryType#getSignature()
+		 * @see IBinaryMethod#getSignature()
 		 */
 		public char[] getSignature() {
 			return null;
