@@ -1570,15 +1570,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 			switch(event.getType()){
 				case IResourceChangeEvent.PRE_DELETE :
 					try {
-						JavaModelManager.resourceTreeIsLocked();
 						if(resource.getType() == IResource.PROJECT 
 							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
 								
 							this.deleting((IProject)resource);
 						}
 					} catch(CoreException e){
-					} finally {
-						JavaModelManager.resourceTreeIsUnlocked();
 					}
 					return;
 					
@@ -1604,7 +1601,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 					
 				case IResourceChangeEvent.POST_CHANGE :
 					try {
-						JavaModelManager.resourceTreeIsLocked();
 						if (delta != null) {
 							IJavaElementDelta translatedDelta = this.processResourceDelta(delta);
 							if (translatedDelta != null) { 
@@ -1615,7 +1611,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 					} finally {
 						// workaround for bug 15168 circular errors not reported 
 						this.manager.javaProjectsCache = null;
-						JavaModelManager.resourceTreeIsUnlocked();
 						this.removedRoots = null;
 					}
 			}

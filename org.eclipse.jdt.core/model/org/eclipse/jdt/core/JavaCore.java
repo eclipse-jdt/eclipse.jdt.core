@@ -2625,11 +2625,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @exception CoreException if the operation failed.
 	 */
 	public static void run(IWorkspaceRunnable action, IProgressMonitor monitor) throws CoreException {
-		if (JavaModelManager.isResourceTreeLocked()) {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		if (workspace.isTreeLocked()) {
 			new BatchOperation(action).run(monitor);
 		} else {
 			// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
-			ResourcesPlugin.getWorkspace().run(new BatchOperation(action), monitor);
+			workspace.run(new BatchOperation(action), monitor);
 		}
 	}
 	/** 
@@ -2749,7 +2750,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								affectedProject.getRawClasspath(),
 								SetClasspathOperation.ReuseOutputLocation,
 								monitor,
-								!JavaModelManager.isResourceTreeLocked(), // can save resources
+								!ResourcesPlugin.getWorkspace().isTreeLocked(), // can save resources
 								oldResolvedPaths[i],
 								false, // updating - no validation
 								false); // updating - no need to save
@@ -3068,7 +3069,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 										project.getRawClasspath(),
 										SetClasspathOperation.ReuseOutputLocation,
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
-										!JavaModelManager.isResourceTreeLocked(), // can change resources
+										!ResourcesPlugin.getWorkspace().isTreeLocked(), // can change resources
 										(IClasspathEntry[]) affectedProjects.get(project),
 										false, // updating - no validation
 										false); // updating - no need to save

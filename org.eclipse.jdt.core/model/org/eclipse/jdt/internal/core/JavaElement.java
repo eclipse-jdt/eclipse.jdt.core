@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
@@ -442,12 +442,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	}
 
 	/**
-	 * Returns the workspace associated with this object.
-	 */
-	public IWorkspace getWorkspace() {
-		return getJavaModel().getWorkspace();
-	}
-	/**
 	 * Returns the hash code for this Java element. By default,
 	 * the hash code for an element is a combination of its name
 	 * and parent's hash code. Elements with other requirements must
@@ -555,8 +549,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
 		try {
-			if (operation.isReadOnly()
-					|| JavaModelManager.isResourceTreeLocked()) {
+			if (operation.isReadOnly() || ResourcesPlugin.getWorkspace().isTreeLocked()) {
 				operation.run(monitor);
 			} else {
 				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
