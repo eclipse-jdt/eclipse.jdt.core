@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 import java.io.*;
 import java.util.*;
@@ -27,7 +27,7 @@ String zipFilename; // keep for equals
 IFile resource;
 ZipFile zipFile;
 boolean closeZipFileAtEnd;
-SimpleLookupTable packageCache;
+SimpleSet packageCache;
 
 ClasspathJar(String zipFilename) {
 	this.zipFilename = zipFilename;
@@ -85,10 +85,10 @@ public IPath getProjectRelativePath() {
 
 public boolean isPackage(String qualifiedPackageName) {
 	if (packageCache != null)
-		return packageCache.containsKey(qualifiedPackageName);
+		return packageCache.includes(qualifiedPackageName);
 
-	this.packageCache = new SimpleLookupTable(41);
-	packageCache.put("", ""); //$NON-NLS-1$ //$NON-NLS-2$
+	this.packageCache = new SimpleSet(41);
+	packageCache.add(""); //$NON-NLS-1$
 	try {
 		if (this.zipFile == null) {
 			this.zipFile = new ZipFile(zipFilename);
@@ -103,13 +103,13 @@ public boolean isPackage(String qualifiedPackageName) {
 			while (last > 0) {
 				// extract the package name
 				String packageName = fileName.substring(0, last);
-				if (packageCache.containsKey(packageName))
+				if (packageCache.includes(packageName))
 					continue nextEntry;
-				packageCache.put(packageName, packageName);
+				packageCache.add(packageName);
 				last = packageName.lastIndexOf('/');
 			}
 		}
-		return packageCache.containsKey(qualifiedPackageName);
+		return packageCache.includes(qualifiedPackageName);
 	} catch(Exception e) {}
 	return false;
 }

@@ -97,21 +97,23 @@ public Object put(Object key, Object value) {
 	return value;
 }
 
-public void removeKey(Object key) {
+public Object removeKey(Object key) {
 	int length = keyTable.length;
 	int index = (key.hashCode() & 0x7FFFFFFF) % length;
 	Object currentKey;
 	while ((currentKey = keyTable[index]) != null) {
 		if (currentKey.equals(key)) {
 			elementSize--;
+			Object oldValue = valueTable[index];
 			keyTable[index] = null;
 			valueTable[index] = null;
 			if (keyTable[index + 1 == length ? 0 : index + 1] != null)
 				rehash(); // only needed if a possible collision existed
-			return;
+			return oldValue;
 		}
 		if (++index == length) index = 0;
 	}
+	return null;
 }
 
 public void removeValue(Object valueToRemove) {
