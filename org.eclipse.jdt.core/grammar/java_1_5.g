@@ -234,11 +234,11 @@ ReferenceType -> ArrayType -- here a push of dimensions is done, that explains t
 -- 1.5 feature
 ---------------------------------------------------------------
 ClassOrInterfaceType -> ClassOrInterface
-ClassOrInterfaceType -> ClassOrInterface TypeArguments
+ClassOrInterfaceType -> ClassOrInterface '<' TypeArgumentList1
 /:$readableName Type:/
 
 ClassOrInterface -> Name
-ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
+ClassOrInterface -> ClassOrInterface '<' TypeArgumentList1 '.' Name
 /:$readableName Type:/
 
 --
@@ -252,8 +252,8 @@ ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
 
 ArrayType ::= PrimitiveType Dims
 ArrayType ::= Name Dims
-ArrayType ::= ClassOrInterface TypeArguments '.' Name Dims
-ArrayType ::= ClassOrInterface TypeArguments Dims
+ArrayType ::= ClassOrInterface '<' TypeArgumentList1 '.' Name Dims
+ArrayType ::= ClassOrInterface '<' TypeArgumentList1 Dims
 /:$readableName ArrayType:/
 
 ClassType -> ClassOrInterfaceType
@@ -619,41 +619,41 @@ ConstructorDeclaration ::= ConstructorHeader ';'
 ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
 
-ExplicitConstructorInvocation ::= TypeArguments 'this' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= '<' TypeArgumentList1 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
 
 ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
 
-ExplicitConstructorInvocation ::= TypeArguments 'super' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= '<' TypeArgumentList1 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
 
-ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Primary '.' '<' TypeArgumentList1 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
 
-ExplicitConstructorInvocation ::= Name '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Name '.' '<' TypeArgumentList1 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
 
-ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Primary '.' '<' TypeArgumentList1 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
 
-ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+ExplicitConstructorInvocation ::= Name '.' '<' TypeArgumentList1 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
 /:$readableName ExplicitConstructorInvocation:/
 
@@ -1045,14 +1045,14 @@ AllocationHeader ::= 'new' ClassType '(' ArgumentListopt ')'
 /.$putCase consumeAllocationHeader(); $break ./
 /:$readableName AllocationHeader:/
 
-ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= 'new' '<' TypeArgumentList1 ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 
 ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' LESS TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' '<' TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 
 ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
@@ -1063,7 +1063,7 @@ ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' Si
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' LESS TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' '<' TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
@@ -1137,13 +1137,13 @@ FieldAccess ::= 'super' '.' 'Identifier'
 MethodInvocation ::= Name '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationName(); $break ./
 
-MethodInvocation ::= Primary '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+MethodInvocation ::= Primary '.' '<' TypeArgumentList1 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationPrimary(); $break ./
 
 MethodInvocation ::= Primary '.' 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationPrimary(); $break ./
 
-MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+MethodInvocation ::= 'super' '.' '<' TypeArgumentList1 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationSuper(); $break ./
 
 MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
@@ -1207,9 +1207,9 @@ CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpress
 /.$putCase consumeCastExpression(); $break ./
 CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpression(); $break ./
-CastExpression ::= PushLPAREN Name TypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name '<' TypeArgumentList1 Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpression(); $break ./
-CastExpression ::= PushLPAREN Name TypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name '<' TypeArgumentList1 PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpression(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
@@ -1539,10 +1539,6 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 -----------------------------------------------
 -- 1.5 features : generics
 -----------------------------------------------
-TypeArguments ::= LESS TypeArgumentList1
-/.$putCase consumeTypeArguments(); $break ./
-/:$readableName TypeArguments:/
-
 TypeArgumentList1 -> TypeArgument1
 TypeArgumentList1 ::= TypeArgumentList ',' TypeArgument1
 /.$putCase consumeTypeArgumentList1(); $break ./
@@ -1561,9 +1557,11 @@ TypeArgument1 -> ReferenceType1
 TypeArgument1 -> Wildcard1
 /:$readableName TypeArgument1:/
 
-ReferenceType1 ::= ReferenceType '>'
+ReferenceType1 ::= ClassOrInterface '>'
 /.$putCase consumeReferenceType1(); $break ./
-ReferenceType1 ::= ClassOrInterface LESS TypeArgumentList2
+ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList1 '>'
+/.$putCase consumeReferenceType1(); $break ./
+ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
 /.$putCase consumeReferenceType1(); $break ./
 /:$readableName ReferenceType1:/
 
@@ -1578,7 +1576,7 @@ TypeArgument2 -> Wildcard2
 
 ReferenceType2 ::= ReferenceType '>>'
 /.$putCase consumeReferenceType2(); $break ./
-ReferenceType2 ::= ClassOrInterface LESS TypeArgumentList3
+ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
 /.$putCase consumeReferenceType2(); $break ./
 /:$readableName ReferenceType2:/
 
@@ -1646,7 +1644,7 @@ WildcardBounds3 ::= 'super' ReferenceType3
 /.$putCase consumeWildcardBounds3(); $break ./
 /:$readableName WildcardBound3:/
 
-TypeParameters ::= LESS TypeParameterList1
+TypeParameters ::= '<' TypeParameterList1
 /.$putCase consumeTypeParameters(); $break ./
 /:$readableName TypeParameters:/
 
