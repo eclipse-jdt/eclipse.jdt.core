@@ -26,7 +26,7 @@ public class Java50Tests extends Tests {
 		return new TestSuite(Java50Tests.class);
 	}
 
-	public void _testAnnotation() throws JavaModelException {
+	public void testAnnotation() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); 
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.setOutputFolder(projectPath, "");
