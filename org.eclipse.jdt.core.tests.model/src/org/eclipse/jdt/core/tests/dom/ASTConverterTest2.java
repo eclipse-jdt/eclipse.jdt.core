@@ -1335,6 +1335,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not an anonymous type", typeBinding.isAnonymous());
 		assertTrue("a member type", !typeBinding.isMember());
 		assertTrue("not a nested type", typeBinding.isNested());
+		ASTNode astNode = unit.findDeclaringNode(typeBinding);
+		assertEquals("Wrong type", ASTNode.ANONYMOUS_CLASS_DECLARATION, astNode.getNodeType());
+		assertNull("Got a key", typeBinding.getKey());
+		astNode = unit.findDeclaringNode(typeBinding.getKey());
+		assertNull("Got a declaring node", astNode);
 		
 		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 2, bodyDeclarations.size());
