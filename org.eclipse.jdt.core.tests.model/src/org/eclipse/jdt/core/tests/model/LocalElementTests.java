@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
 
 import junit.framework.Test;
 
@@ -55,7 +57,7 @@ public class LocalElementTests extends ModifyingResourceTests {
 				"X.java\n" + 
 				"  class X\n" + 
 				"    void foo()\n" + 
-				"      class <anonymous>\n" + 
+				"      class <anonymous #1>\n" + 
 				"    void run(X)",
 				cu);
 		} finally {
@@ -90,8 +92,8 @@ public class LocalElementTests extends ModifyingResourceTests {
 				"  class X\n" + 
 				"    class Y\n" +
 				"    void foo()\n" + 
-				"      class <anonymous>\n" + 
-				"      class <anonymous>\n" + 
+				"      class <anonymous #1>\n" + 
+				"      class <anonymous #2>\n" + 
 				"    void run(X)",
 				cu);
 		} finally {
@@ -125,9 +127,9 @@ public class LocalElementTests extends ModifyingResourceTests {
 				"X.java\n" + 
 				"  class X\n" + 
 				"    void foo()\n" + 
-				"      class <anonymous>\n" + 
+				"      class <anonymous #1>\n" + 
 				"        void bar()\n" +
-				"          class <anonymous>\n" + 
+				"          class <anonymous #1>\n" + 
 				"    void run(X)",
 				cu);
 		} finally {
@@ -162,17 +164,39 @@ public class LocalElementTests extends ModifyingResourceTests {
 				"Unexpected compilation unit contents",
 				"X.java\n" + 
 				"  class X\n" + 
-				"    initializer\n" + 
-				"      class <anonymous>\n" + 
+				"    <initializer #1>\n" + 
+				"      class <anonymous #1>\n" + 
 				"    Object field\n" + 
-				"      class <anonymous>\n" + 
+				"      class <anonymous #1>\n" + 
 				"    void foo()\n" + 
-				"      class <anonymous>\n" + 
+				"      class <anonymous #1>\n" + 
 				"    void run(X)",
 				cu);
 		} finally {
 			deleteFile("/P/X.java");
 		}
+	}
+	
+	/*
+	 * IMember.getType(...) test
+	 */
+	public void testGetType() {
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IType topLevelType = cu.getType("X");
+		IJavaElement[] types = new IJavaElement[5];
+		types[0] = topLevelType.getInitializer(1).getType("", 1);
+		types[1] = topLevelType.getInitializer(1).getType("Y", 1);
+		types[2] = topLevelType.getField("f").getType("", 1);
+		types[3] = topLevelType.getMethod("foo", new String[] {"I", "QString;"}).getType("", 1);
+		types[4] = topLevelType.getMethod("foo", new String[] {"I", "QString;"}).getType("Z", 1);
+		assertElementsEqual(
+			"Unexpected types",
+			"<anonymous #1> [in <initializer #1> [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
+			"Y [in <initializer #1> [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
+			"<anonymous #1> [in f [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
+			"<anonymous #1> [in foo [in X [in X.java [in [default] [in [project root] [in P]]]]]]\n" + 
+			"Z [in foo [in X [in X.java [in [default] [in [project root] [in P]]]]]]",
+			types);
 	}
 
 	/*
@@ -288,7 +312,7 @@ public class LocalElementTests extends ModifyingResourceTests {
 				"Unexpected compilation unit contents",
 				"X.java\n" + 
 				"  class X\n" + 
-				"    initializer\n" + 
+				"    <initializer #1>\n" + 
 				"      class Y\n" + 
 				"    void foo()\n" + 
 				"      class Z",

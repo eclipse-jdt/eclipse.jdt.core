@@ -110,16 +110,22 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
-		buffer.append("<initializer>"); //$NON-NLS-1$
-		buffer.append(" (not open)"); //$NON-NLS-1$
+		buffer.append("<initializer #"); //$NON-NLS-1$
+		buffer.append(this.occurrenceCount);
+		buffer.append("> (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
-		buffer.append(getElementName());
+		buffer.append("<initializer #"); //$NON-NLS-1$
+		buffer.append(this.occurrenceCount);
+		buffer.append(">"); //$NON-NLS-1$
 	} else {
 		try {
+			buffer.append("<"); //$NON-NLS-1$
 			if (Flags.isStatic(this.getFlags())) {
 				buffer.append("static "); //$NON-NLS-1$
 			}
-			buffer.append("initializer"); //$NON-NLS-1$
+		buffer.append("initializer #"); //$NON-NLS-1$
+		buffer.append(this.occurrenceCount);
+		buffer.append(">"); //$NON-NLS-1$
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}

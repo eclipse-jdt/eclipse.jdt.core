@@ -618,13 +618,26 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	// TODO: (jerome) toString incorrect for local types
 	buffer.append(this.tabString(tab));
 	if (info == null) {
-		buffer.append(this.getElementName());
+		String elementName = this.getElementName();
+		if (elementName.length() == 0) {
+			buffer.append("<anonymous #"); //$NON-NLS-1$
+			buffer.append(this.occurrenceCount);
+			buffer.append(">"); //$NON-NLS-1$
+		} else {
+			buffer.append(elementName);
+		}
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
-		buffer.append(getElementName());
+		String elementName = this.getElementName();
+		if (elementName.length() == 0) {
+			buffer.append("<anonymous #"); //$NON-NLS-1$
+			buffer.append(this.occurrenceCount);
+			buffer.append(">"); //$NON-NLS-1$
+		} else {
+			buffer.append(elementName);
+		}
 	} else {
 		try {
 			if (this.isInterface()) {
@@ -632,7 +645,14 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 			} else {
 				buffer.append("class "); //$NON-NLS-1$
 			}
-			buffer.append(this.getElementName());
+			String elementName = this.getElementName();
+			if (elementName.length() == 0) {
+				buffer.append("<anonymous #"); //$NON-NLS-1$
+				buffer.append(this.occurrenceCount);
+				buffer.append(">"); //$NON-NLS-1$
+			} else {
+				buffer.append(elementName);
+			}
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
