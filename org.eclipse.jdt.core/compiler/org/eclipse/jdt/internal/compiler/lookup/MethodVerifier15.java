@@ -89,21 +89,13 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
 	// then when do you need a bridge method?
 	if (originalInherited.returnType != currentMethod.returnType) {
-		TypeBinding inheritedReturnType = originalInherited.returnType.leafComponentType();
-		TypeBinding returnType = currentMethod.returnType.leafComponentType();
-		switch (inheritedReturnType.bindingType()) {
-			case Binding.RAW_TYPE :
-				if (returnType.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) returnType)) {
-					problemReporter(currentMethod).methodNameClash(currentMethod, originalInherited);
-					return;
-				}
-				break;
+		switch (originalInherited.returnType.leafComponentType().bindingType()) {
 			case Binding.PARAMETERIZED_TYPE :
-				if (!returnType.isParameterizedType())
+				if (!currentMethod.returnType.leafComponentType().isParameterizedType())
 					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
 				break;
 			case Binding.TYPE_PARAMETER :
-				if (!returnType.isTypeVariable())
+				if (!currentMethod.returnType.leafComponentType().isTypeVariable())
 					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
 				break;
 		}   

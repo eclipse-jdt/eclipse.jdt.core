@@ -898,7 +898,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 		);
 	}
 
-	public void _test016() { // 73971 and 77228
+	public void _test016() { // 73971
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -914,18 +914,6 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 				"class B extends A {}\n"
 			},
 			"A=AB=B"
-		);
-		this.runConformTest(	// cannot have 2 methods with compatible return types like Object & String so how is this legal?
-			new String[] {
-				"X.java",
-				"class X implements I, J {\n" + 
-				"	public <T extends I> T getValue(String value) { return null; }\n" + 
-				"	public <T extends J> T getValue(String value) { return null; }\n" + 
-				"}\n" +
-				"interface I { <T extends I> T getValue(String value); }\n" + 
-				"interface J { <T extends J> T getValue(String value); }\n"
-			},
-			""
 		);
 	}
 
@@ -1065,6 +1053,33 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			null,
 			false,
 			null
+		);
+	}
+
+	public void test022() { // 77562
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.util.*;\n" + 
+				"class A { List getList() { return null; } }\n" + 
+				"class B extends A { List<String> getList() { return null; } }\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"import java.util.*;\n" + 
+				"class A { List<String> getList() { return null; } }\n" + 
+				"class B extends A { List getList() { return null; } }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in A.java (at line 3)\n" + 
+			"	class B extends A { List getList() { return null; } }\n" + 
+			"	                    ^^^^\n" + 
+			"Type safety: The return type List of the method getList() of type B needs unchecked conversion to conform to the return type List<String> of inherited method\n" + 
+			"----------\n"
+			// unchecked warning on B.getList()
 		);
 	}
 }
