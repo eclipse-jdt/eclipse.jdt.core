@@ -939,16 +939,18 @@ public MethodBinding[] methods() {
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
 			if (method != null) {
+				TypeBinding methodTypeErasure = method.returnType == null ? null : method.returnType.erasure();
+				char[] selector = method.selector;
 				AbstractMethodDeclaration methodDecl = null;
 				for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
-					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						boolean paramsMatch = complyTo15 && method.returnType.erasure() == method2.returnType.erasure() // see 87956 & 88094
+					if (method2 != null && CharOperation.equals(selector, method2.selector)) {
+						boolean paramsMatch = complyTo15 && methodTypeErasure == (method2.returnType == null ? null : method2.returnType.erasure()) // see 87956 & 88094
 							? method.areParameterErasuresEqual(method2)
 							: method.areParametersEqual(method2);
 						if (paramsMatch) {
 							boolean isEnumSpecialMethod = isEnum()
-								&& (method.selector == TypeConstants.VALUEOF || method.selector == TypeConstants.VALUES);
+								&& (selector == TypeConstants.VALUEOF || selector == TypeConstants.VALUES);
 							if (methodDecl == null) {
 								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost & may still be null if method is special
 								if (methodDecl != null && methodDecl.binding != null) { // ensure its a valid user defined method
@@ -974,7 +976,7 @@ public MethodBinding[] methods() {
 						}
 					}
 				}
-				if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
+				if (methodTypeErasure == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
 					method.sourceMethod().binding = null;
 					methods[i] = null;
 					failed++;
