@@ -32,15 +32,15 @@ public abstract class InternalSearchPattern {
 	int kind;
 	boolean mustResolve = true;
 	
-	void acceptMatch(String documentName, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
+	void acceptMatch(String documentName, String containerPath, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 		String documentPath = Index.convertPath(documentName);
 
 		if (scope instanceof JavaSearchScope) {
 			JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
 			// Get document path access restriction from java search scope
 			// Note that requestor has to verify if needed whether the document violates the access restriction or not
-			AccessRuleSet access = javaSearchScope.getAccessRuleSet(documentPath);
-			if (JavaSearchScope.NOT_INITIALIZED_RESTRICTION != access) { // scope encloses the document path
+			AccessRuleSet access = javaSearchScope.getAccessRuleSet(documentPath, containerPath);
+			if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the document path
 				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, access)) 
 					throw new OperationCanceledException();
 			}
@@ -64,6 +64,7 @@ public abstract class InternalSearchPattern {
 			if (entries == null) return;
 		
 			SearchPattern decodedResult = pattern.getBlankPattern();
+			String containerPath = index.containerPath;
 			for (int i = 0, l = entries.length; i < l; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 		
@@ -72,7 +73,7 @@ public abstract class InternalSearchPattern {
 				if (pattern.matchesDecodedKey(decodedResult)) {
 					String[] names = entry.getDocumentNames(index);
 					for (int j = 0, n = names.length; j < n; j++)
-						acceptMatch(names[j], decodedResult, requestor, participant, scope);
+						acceptMatch(names[j], containerPath, decodedResult, requestor, participant, scope);
 				}
 			}
 		} finally {

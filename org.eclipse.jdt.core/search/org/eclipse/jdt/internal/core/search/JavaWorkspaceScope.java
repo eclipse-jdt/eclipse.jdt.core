@@ -62,23 +62,23 @@ public boolean encloses(String resourcePathString) {
 }
 public IPath[] enclosingProjectsAndJars() {
 	if (this.needsInitialize) {
-		this.initialize();
+		this.initialize(5);
 	}
 	return super.enclosingProjectsAndJars();
 }
 public boolean equals(Object o) {
   return o instanceof JavaWorkspaceScope;
 }
-public AccessRuleSet getAccessRuleSet(String path) {
+public AccessRuleSet getAccessRuleSet(String path, String containerPath) {
 	if (this.pathRestrictions == null) 
 		return null;
-	return super.getAccessRuleSet(path);
+	return super.getAccessRuleSet(path, containerPath);
 }
 public int hashCode() {
 	return JavaWorkspaceScope.class.hashCode();
 }
-public void initialize() {
-	super.initialize();
+public void initialize(int size) {
+	super.initialize(size);
 	try {
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {

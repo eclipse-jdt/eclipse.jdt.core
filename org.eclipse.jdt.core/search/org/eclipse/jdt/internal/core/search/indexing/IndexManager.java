@@ -180,7 +180,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 			File indexFile = new File(indexLocation);
 			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
 				try {
-					index = new Index(indexLocation, "Index for " + containerPath.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+					index = new Index(indexLocation, containerPath.toString(), true /*reuse index file*/); //$NON-NLS-1$
 					indexes.put(indexLocation, index);
 					return index;
 				} catch (IOException e) {
@@ -204,7 +204,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 			try {
 				if (VERBOSE)
 					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-				index = new Index(indexLocation, "Index for " + containerPath.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				index = new Index(indexLocation, containerPath.toString(), false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(indexLocation, index);
 				return index;
 			} catch (IOException e) {
@@ -428,7 +428,7 @@ public synchronized Index recreateIndex(IPath containerPath) {
 
 		if (VERBOSE)
 			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-		index = new Index(indexLocation, "Index for " + containerPath.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
+		index = new Index(indexLocation, containerPath.toString(), false /*reuse index file*/); //$NON-NLS-1$
 		this.indexes.put(indexLocation, index);
 		index.monitor = monitor;
 		return index;

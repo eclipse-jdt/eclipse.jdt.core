@@ -45,8 +45,8 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 		JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
 		// Get document path access restriction from java search scope
 		// Note that requestor has to verify if needed whether the document violates the access restriction or not
-		AccessRuleSet access = javaSearchScope.getAccessRuleSet(path);
-		if (JavaSearchScope.NOT_INITIALIZED_RESTRICTION != access) { // scope encloses the path
+		AccessRuleSet access = javaSearchScope.getAccessRuleSet(path, index.containerPath);
+		if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the path
 			if (!requestor.acceptIndexMatch(path, this, participant, access)) 
 				throw new OperationCanceledException();
 		}

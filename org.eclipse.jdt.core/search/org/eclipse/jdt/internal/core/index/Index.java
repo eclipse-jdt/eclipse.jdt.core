@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 public class Index {
 
-public String printableName;
+public String containerPath;
 public ReadWriteMonitor monitor;
 
 protected DiskIndex diskIndex;
@@ -99,8 +99,8 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 }
 
 
-public Index(String fileName, String printableName, boolean reuseExistingFile) throws IOException {
-	this.printableName = printableName;
+public Index(String fileName, String containerPath, boolean reuseExistingFile) throws IOException {
+	this.containerPath = containerPath;
 	this.monitor = new ReadWriteMonitor();
 
 	this.memoryIndex = new MemoryIndex();
@@ -195,7 +195,6 @@ public void stopQuery() {
 		this.diskIndex.stopQuery();
 }
 public String toString() {
-	if (this.printableName != null) return this.printableName;
-	return super.toString();
+	return "Index for " + this.containerPath; //$NON-NLS-1$
 }
 }
