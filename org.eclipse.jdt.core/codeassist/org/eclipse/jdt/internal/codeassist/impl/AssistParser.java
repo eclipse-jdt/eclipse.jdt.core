@@ -534,12 +534,12 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 }
-public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int modifiers);
+public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod);
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
-public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] name, long[] positions);
-public abstract TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] name, long[] positions);
-public abstract NameReference createSingleAssistNameReference(char[] name, long position);
-public abstract TypeReference createSingleAssistTypeReference(char[] name, long position);
+public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
+public abstract TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
+public abstract NameReference createSingleAssistNameReference(char[] assistName, long position);
+public abstract TypeReference createSingleAssistTypeReference(char[] assistName, long position);
 /*
  * Flush parser/scanner state regarding to code assist
  */

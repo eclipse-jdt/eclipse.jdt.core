@@ -96,9 +96,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				int problemStartPosition,
 				int problemEndPosition,
 				int lineNumber,
-				ReferenceContext referenceContext,
+				ReferenceContext refContext,
 				CompilationResult unitResult) {
-				IProblem problem =  super.createProblem(
+				IProblem pb =  super.createProblem(
 					fileName,
 					problemId,
 					problemArguments,
@@ -107,13 +107,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					problemStartPosition,
 					problemEndPosition,
 					lineNumber,
-					referenceContext,
+					refContext,
 					unitResult);
-					if(SelectionEngine.this.problem == null && problem.isError() && (problem.getID() & IProblem.Syntax) == 0) {
-						SelectionEngine.this.problem = problem;
+					if(SelectionEngine.this.problem == null && pb.isError() && (pb.getID() & IProblem.Syntax) == 0) {
+						SelectionEngine.this.problem = pb;
 					}
 
-					return problem;
+					return pb;
 			}
 		};
 		this.lookupEnvironment =

@@ -305,13 +305,13 @@ protected void consumeFormalParameter() {
 	} else {
 
 		identifierLengthPtr--;
-		char[] name = identifierStack[identifierPtr];
+		char[] identifierName = identifierStack[identifierPtr];
 		long namePositions = identifierPositionStack[identifierPtr--];
 		TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
 		intPtr -= 2;
 		Argument arg = 
 			new SelectionOnArgumentName(
-				name, 
+				identifierName, 
 				namePositions, 
 				type, 
 				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
@@ -486,17 +486,17 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 }
-public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int modifiers){
-	return new SelectionOnImportReference(tokens, positions, modifiers);
+public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
+	return new SelectionOnImportReference(tokens, positions, mod);
 }
 public ImportReference createAssistPackageReference(char[][] tokens, long[] positions){
 	return new SelectionOnPackageReference(tokens, positions);
 }
-protected LocalDeclaration createLocalDeclaration(Expression initialization,char[] name,int sourceStart,int sourceEnd) {
+protected LocalDeclaration createLocalDeclaration(Expression initialization,char[] assistName,int sourceStart,int sourceEnd) {
 	if (this.indexOfAssistIdentifier() < 0) {
-		return super.createLocalDeclaration(initialization, name, sourceStart, sourceEnd);
+		return super.createLocalDeclaration(initialization, assistName, sourceStart, sourceEnd);
 	} else {
-		SelectionOnLocalName local = new SelectionOnLocalName(initialization, name, sourceStart, sourceEnd);
+		SelectionOnLocalName local = new SelectionOnLocalName(initialization, assistName, sourceStart, sourceEnd);
 		this.assistNode = local;
 		this.lastCheckPoint = sourceEnd + 1;
 		if (!diet){
@@ -506,32 +506,32 @@ protected LocalDeclaration createLocalDeclaration(Expression initialization,char
 		return local;
 	}
 }
-public NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] name, long[] positions){
+public NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
 	return new SelectionOnQualifiedNameReference(
 					previousIdentifiers, 
-					name, 
+					assistName, 
 					positions); 	
 }
-public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] name, long[] positions){
+public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
 	return new SelectionOnQualifiedTypeReference(
 					previousIdentifiers, 
-					name, 
+					assistName, 
 					positions); 	
 }
-public NameReference createSingleAssistNameReference(char[] name, long position) {
-	return new SelectionOnSingleNameReference(name, position);
+public NameReference createSingleAssistNameReference(char[] assistName, long position) {
+	return new SelectionOnSingleNameReference(assistName, position);
 }
-public TypeReference createSingleAssistTypeReference(char[] name, long position) {
-	return new SelectionOnSingleTypeReference(name, position);
+public TypeReference createSingleAssistTypeReference(char[] assistName, long position) {
+	return new SelectionOnSingleTypeReference(assistName, position);
 }
-public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int selectionStart, int selectionEnd) {
+public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int start, int end) {
 
-	this.selectionStart = selectionStart;
-	this.selectionEnd = selectionEnd;	
+	this.selectionStart = start;
+	this.selectionEnd = end;	
 	SelectionScanner selectionScanner = (SelectionScanner)this.scanner;
 	selectionScanner.selectionIdentifier = null;
-	selectionScanner.selectionStart = selectionStart;
-	selectionScanner.selectionEnd = selectionEnd;	
+	selectionScanner.selectionStart = start;
+	selectionScanner.selectionEnd = end;	
 	return this.dietParse(sourceUnit, compilationResult);
 }
 protected NameReference getUnspecifiedReference() {
@@ -652,14 +652,14 @@ protected MessageSend newMessageSend() {
 	this.isOrphanCompletionNode = true;
 	return messageSend;
 }
-public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int selectionStart, int selectionEnd) {
+public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int start, int end) {
 
-	this.selectionStart = selectionStart;
-	this.selectionEnd = selectionEnd;	
+	this.selectionStart = start;
+	this.selectionEnd = end;	
 	SelectionScanner selectionScanner = (SelectionScanner)this.scanner;
 	selectionScanner.selectionIdentifier = null;
-	selectionScanner.selectionStart = selectionStart;
-	selectionScanner.selectionEnd = selectionEnd;	
+	selectionScanner.selectionStart = start;
+	selectionScanner.selectionEnd = end;	
 	return this.parse(sourceUnit, compilationResult);
 }
 /*
