@@ -219,8 +219,8 @@ public void checkMethodParse(
 			expectedSelectedSource,
 			computedReplacedSource);
 	}
-/*	
 	if (expectedLabels != null) {
+/*	
 		assert("no labels-" + testName, parser.labels != null);
 		int length = parser.labels.length;
 		assertEquals("invalid number of labels-" + testName, expectedLabels.length, length);
@@ -228,8 +228,8 @@ public void checkMethodParse(
 			String label = new String(parser.labels[i]);
 			assertEquals("invalid label-" + testName, expectedLabels[i], label);
 		}
-	}
 */	
+	}
 }
 /*
  * Parse a method with selectionNode check

@@ -270,14 +270,14 @@ public void checkMethodParse(
 				parser.assistNode.sourceStart);
 		}
 	}
-//	if (expectedLabels != null) {
+	if (expectedLabels != null) {
 //		int length = (parser.labels == null) ? 0 : parser.labels.length;
 //		assertEquals("invalid number of labels-" + testName, expectedLabels.length, length);
 //		for (int i = 0; i < length; i++) {
 //			String label = new String(parser.labels[i]);
 //			assertEquals("invalid label-" + testName, expectedLabels[i], label);
 //		}
-//	}
+	}
 }
 /*
  * Parse a method with completionNode check

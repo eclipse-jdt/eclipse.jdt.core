@@ -55,7 +55,7 @@ private boolean checkBuffers(String errorString, String outputString, String sou
 	return true;
 }
 
-private boolean checkBuffersThrowingError(String errorString, String outputString, String sourceFileName, String expectedSuccessOutputString) {
+private boolean checkBuffersThrowingError(String errorString, String sourceFileName, String expectedSuccessOutputString) {
 
 	if (errorString.length() > 0 && errorString.indexOf(expectedSuccessOutputString) != -1) {
 		return true;
@@ -564,7 +564,7 @@ public boolean verifyClassFilesThrowingError(String sourceFilePath, String class
 	}
 	
 	this.failureReason = null;
-	return this.checkBuffersThrowingError(this.errorBuffer.toString(), this.outputBuffer.toString(), sourceFilePath, expectedSuccessOutputString);
+	return this.checkBuffersThrowingError(this.errorBuffer.toString(), sourceFilePath, expectedSuccessOutputString);
 }
 
 /**
