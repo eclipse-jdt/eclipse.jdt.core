@@ -305,6 +305,32 @@ public void test012() {
 		"SUCCESS");
 }
 
+public void test013() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends String> {\n" + 
+			"    \n" + 
+			"    T foo(T t) {\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        \n" + 
+			"        new X<String>().baz(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void baz(final T t) {\n" + 
+			"        new Object() {\n" + 
+			"            void print() {\n" + 
+			"                System.out.println(foo(t));\n" + 
+			"            }\n" + 
+			"        }.print();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
