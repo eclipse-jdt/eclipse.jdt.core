@@ -352,6 +352,15 @@ private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDec
  * Note that the type declaration has already been checked.
  */
 public void reportMatching(TypeDeclaration type, IJavaElement parent) throws CoreException {
+	
+	// filter out element not in hierarchy scope
+	if (this.locator.hierarchyResolver != null 
+			&& type.binding != null
+			&& !this.locator.hierarchyResolver.subOrSuperOfFocus(type.binding)) {
+		return;
+	}
+	
+	// create type handle
 	IJavaElement enclosingElement;
 	if (parent == null) {
 		enclosingElement = this.locator.createTypeHandle(type.name);

@@ -115,30 +115,18 @@ public class MissingType implements IGenericType {
 
 }
 	
-public HierarchyResolver(
-	INameEnvironment nameEnvironment,
-	IErrorHandlingPolicy policy,
-	Map settings,
-	IHierarchyRequestor requestor,
-	IProblemFactory problemFactory) {
-
-	// create a problem handler given a handling policy
-	options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
-	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
-	this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, nameEnvironment);
-	this.requestor = requestor;
-
-	this.typeIndex = -1;
-	this.typeModels = new IGenericType[5];
-	this.typeBindings = new ReferenceBinding[5];
-}
 public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierarchyRequestor requestor, IProblemFactory problemFactory) {
-	this(
-		nameEnvironment,
-		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
-		settings,
-		requestor,
-		problemFactory);
+	// create a problem handler with the 'exit after all problems' handling policy
+	options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
+	IErrorHandlingPolicy policy = DefaultErrorHandlingPolicies.exitAfterAllProblems();
+	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
+
+	this.initialize(
+		new LookupEnvironment(this, options, problemReporter, nameEnvironment),
+		requestor);
+}
+public HierarchyResolver(LookupEnvironment lookupEnvironment, IHierarchyRequestor requestor) {
+	this.initialize(lookupEnvironment, requestor);
 }
 /**
  * Add an additional binary type
@@ -281,6 +269,14 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 		superinterfaces[i] = new MissingType(new String(simpleName));
 	}
 	return superinterfaces;
+}
+private void initialize(LookupEnvironment lookupEnvironment, IHierarchyRequestor requestor) {
+	this.lookupEnvironment = lookupEnvironment;
+	this.requestor = requestor;
+
+	this.typeIndex = -1;
+	this.typeModels = new IGenericType[5];
+	this.typeBindings = new ReferenceBinding[5];
 }
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
@@ -567,7 +563,7 @@ public ReferenceBinding setFocusType(char[][] compoundName) {
 	this.focusType = this.lookupEnvironment.askForType(compoundName);
 	return this.focusType;
 }
-private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
+public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)
 	if (this.subTypeOfType(this.focusType, typeBinding)) return true;
 	if (this.subTypeOfType(typeBinding, this.focusType)) return true;

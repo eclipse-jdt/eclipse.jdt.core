@@ -197,8 +197,14 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				}
 			}
 
-			// check methods
 			if (binding != null) {
+				// filter out element not in hierarchy scope
+				if (this.locator.hierarchyResolver != null 
+						&& !this.locator.hierarchyResolver.subOrSuperOfFocus(binding)) {
+					return;
+				}
+	
+				// check methods
 				MethodBinding[] methods = binding.methods();
 				for (int i = 0; i < methods.length; i++) {
 					MethodBinding method = methods[i];
@@ -221,10 +227,8 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 									IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
-			}
 		
-			// check fields
-			if (binding != null) {
+				// check fields
 				FieldBinding[] fields = binding.fields();
 				for (int i = 0; i < fields.length; i++) {
 					FieldBinding field = fields[i];

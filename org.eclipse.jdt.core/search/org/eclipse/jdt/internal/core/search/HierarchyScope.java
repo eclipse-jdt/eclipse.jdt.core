@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
  */
 public class HierarchyScope extends AbstractSearchScope {
 
-	private IType focusType;
+	public IType focusType;
 	private String focusPath;
 	
 	private ITypeHierarchy hierarchy;
@@ -40,7 +40,7 @@ public class HierarchyScope extends AbstractSearchScope {
 	protected IResource[] elements;
 	protected int elementCount;
 	
-	protected boolean needsRefresh;
+	public boolean needsRefresh;
 
 	/* (non-Javadoc)
 	 * Adds the given resource to this search scope.
@@ -88,6 +88,8 @@ public class HierarchyScope extends AbstractSearchScope {
 		} else {
 			this.focusPath = type.getPath().toString();
 		}
+		
+		this.needsRefresh = true;
 			
 		//disabled for now as this could be expensive
 		//JavaModelManager.getJavaModelManager().rememberScope(this);
@@ -159,12 +161,12 @@ public class HierarchyScope extends AbstractSearchScope {
 				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 				for (int j = 0; j < classpath.length; j++) {
 					if (rootPath.equals(classpath[j].getPath())) {
-						// add the project and its jar pkg fragment roots
+						// add the project and its binary pkg fragment roots
 						IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 						set.add(project.getPath());
 						for (int k = 0; k < roots.length; k++) {
 							IPackageFragmentRoot pkgFragmentRoot = roots[k];
-							if (pkgFragmentRoot.isArchive()) {
+							if (pkgFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
 								set.add(pkgFragmentRoot.getPath());
 							}
 						}
@@ -180,7 +182,7 @@ public class HierarchyScope extends AbstractSearchScope {
 			IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
 			for (int i = 0; i < roots.length; i++) {
 				IPackageFragmentRoot pkgFragmentRoot = roots[i];
-				if (pkgFragmentRoot.isArchive()) {
+				if (pkgFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
 					set.add(pkgFragmentRoot.getPath());
 				} else {
 					set.add(pkgFragmentRoot.getParent().getPath());
@@ -222,10 +224,16 @@ public class HierarchyScope extends AbstractSearchScope {
 			if (resourcePath.equals(this.focusPath)) {
 				return true;
 			} else {
-				try {
-					this.initialize();
-				} catch (JavaModelException e) {
-					return false;
+				if (this.needsRefresh) {
+					try {
+						this.initialize();
+					} catch (JavaModelException e) {
+						return false;
+					}
+				} else {
+					// the scope is used only to find enclosing projects and jars
+					// clients is responsible for filtering out elements not in the hierarchy (see SearchEngine)
+					return true;
 				}
 			}
 		}
@@ -256,11 +264,17 @@ public class HierarchyScope extends AbstractSearchScope {
 			if (this.focusType.equals(element.getAncestor(IJavaElement.TYPE))) {
 				return true;
 			} else {
-				try {
-					this.initialize();
-				} catch (JavaModelException e) {
-					return false;
-				}
+				if (this.needsRefresh) {
+					try {
+						this.initialize();
+					} catch (JavaModelException e) {
+						return false;
+					}
+				} else {
+					// the scope is used only to find enclosing projects and jars
+					// clients is responsible for filtering out elements not in the hierarchy (see SearchEngine)
+					return true;
+				}					
 			}
 		}
 		if (this.needsRefresh) {

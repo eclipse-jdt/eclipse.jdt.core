@@ -390,6 +390,13 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 
 		/* index search */
 		PathCollector pathCollector = new PathCollector();
+		
+		// In the case of a hierarchy scope make sure that the hierarchy is not computed.
+		// MatchLocator will filter out elements not in the hierarchy
+		if (scope instanceof HierarchyScope && searchPattern instanceof SearchPattern) {
+			((HierarchyScope)scope).needsRefresh = false;
+			((SearchPattern)searchPattern).needsResolve = true; // force resolve to compute type bindings
+		}
 
 		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
 										.getIndexManager();
