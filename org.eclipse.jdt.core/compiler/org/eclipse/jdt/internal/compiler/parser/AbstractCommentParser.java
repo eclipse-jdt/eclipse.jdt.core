@@ -928,36 +928,29 @@ public abstract class AbstractCommentParser {
 	 */
 	protected void pushIdentifier(boolean newLength) {
 
-		try {
-			this.identifierStack[++this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
-			this.identifierPositionStack[this.identifierPtr] = (((long) this.scanner.startPosition) << 32)
-					+ (this.scanner.currentPosition - 1);
-		} catch (IndexOutOfBoundsException e) {
-			//---stack reallaocation (identifierPtr is correct)---
-			int oldStackLength = this.identifierStack.length;
-			char[][] oldStack = this.identifierStack;
-			this.identifierStack = new char[oldStackLength + 10][];
-			System.arraycopy(oldStack, 0, this.identifierStack, 0, oldStackLength);
-			this.identifierStack[this.identifierPtr] = this.scanner.getCurrentTokenSource();
-			// identifier position stack
-			long[] oldPos = this.identifierPositionStack;
-			this.identifierPositionStack = new long[oldStackLength + 10];
-			System.arraycopy(oldPos, 0, this.identifierPositionStack, 0, oldStackLength);
-			this.identifierPositionStack[this.identifierPtr] = (((long) this.scanner.startPosition) << 32)
-					+ (this.scanner.currentPosition - 1);
+		int stackLength = this.identifierStack.length;
+		if (++this.identifierPtr >= stackLength) {
+			System.arraycopy(
+				this.identifierStack, 0,
+				this.identifierStack = new char[stackLength + 10][], 0,
+				stackLength);
+			System.arraycopy(
+				this.identifierPositionStack, 0,
+				this.identifierPositionStack = new long[stackLength + 10], 0,
+				stackLength);
 		}
+		this.identifierStack[this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
+		this.identifierPositionStack[this.identifierPtr] = (((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1);
 
 		if (newLength) {
-			try {
-				this.identifierLengthStack[++this.identifierLengthPtr] = 1;
-			} catch (IndexOutOfBoundsException e) {
-				/* ---stack reallocation (identifierLengthPtr is correct)--- */
-				int oldStackLength = this.identifierLengthStack.length;
-				int oldStack[] = this.identifierLengthStack;
-				this.identifierLengthStack = new int[oldStackLength + 10];
-				System.arraycopy(oldStack, 0, this.identifierLengthStack, 0, oldStackLength);
-				this.identifierLengthStack[this.identifierLengthPtr] = 1;
+			stackLength = this.identifierLengthStack.length;
+			if (++this.identifierLengthPtr >= stackLength) {
+				System.arraycopy(
+					this.identifierLengthStack, 0,
+					this.identifierLengthStack = new int[stackLength + 10], 0,
+					stackLength);
 			}
+			this.identifierLengthStack[this.identifierLengthPtr] = 1;
 		} else {
 			this.identifierLengthStack[this.identifierLengthPtr]++;
 		}
@@ -974,27 +967,25 @@ public abstract class AbstractCommentParser {
 			return;
 		}
 
-		try {
-			this.astStack[++this.astPtr] = node;
-		} catch (IndexOutOfBoundsException e) {
-			int oldStackLength = this.astStack.length;
-			Object[] oldStack = this.astStack;
-			this.astStack = new Object[oldStackLength + AstStackIncrement];
-			System.arraycopy(oldStack, 0, this.astStack, 0, oldStackLength);
-			this.astPtr = oldStackLength;
-			this.astStack[this.astPtr] = node;
+		int stackLength = this.astStack.length;
+		if (++this.astPtr >= stackLength) {
+			System.arraycopy(
+				this.astStack, 0,
+				this.astStack = new Object[stackLength + AstStackIncrement], 0,
+				stackLength);
+			this.astPtr = stackLength;
 		}
+		this.astStack[this.astPtr] = node;
 
 		if (newLength) {
-			try {
-				this.astLengthStack[++this.astLengthPtr] = 1;
-			} catch (IndexOutOfBoundsException e) {
-				int oldStackLength = this.astLengthStack.length;
-				int[] oldPos = this.astLengthStack;
-				this.astLengthStack = new int[oldStackLength + AstStackIncrement];
-				System.arraycopy(oldPos, 0, this.astLengthStack, 0, oldStackLength);
-				this.astLengthStack[this.astLengthPtr] = 1;
+			stackLength = this.astLengthStack.length;
+			if (++this.astLengthPtr >= stackLength) {
+				System.arraycopy(
+					this.astLengthStack, 0,
+					this.astLengthStack = new int[stackLength + AstStackIncrement], 0,
+					stackLength);
 			}
+			this.astLengthStack[this.astLengthPtr] = 1;
 		} else {
 			this.astLengthStack[this.astLengthPtr]++;
 		}
