@@ -87,7 +87,7 @@ class CompilationUnitResolver extends Compiler {
 				sourceTypes,//sourceTypes[0] is always toplevel here
 				true, // need field and methods
 				true, // need member types
-				false, // no need for field initialization
+				true, // need for field initialization: see bug 40476
 				lookupEnvironment.problemReporter,
 				result);
 
