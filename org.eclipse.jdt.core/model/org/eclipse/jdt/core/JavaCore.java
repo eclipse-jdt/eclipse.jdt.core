@@ -2271,6 +2271,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			},
 			monitor);
 		} catch(CoreException e) {
+			if (JavaModelManager.CP_RESOLVE_VERBOSE){
+				System.out.println("CPContainer INIT - FAILED DUE TO EXCEPTION: "+containerPath); //$NON-NLS-1$
+				e.printStackTrace();
+			}
 			if (e instanceof JavaModelException) {
 				throw (JavaModelException)e;
 			} else {
