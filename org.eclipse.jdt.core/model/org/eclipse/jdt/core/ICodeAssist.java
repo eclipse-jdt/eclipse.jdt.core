@@ -61,7 +61,7 @@ public interface ICodeAssist {
 	 * </ul>
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
-	 * @deprecated - use codeCompiletion(int, ICompletionRequestor) instead
+	 * @deprecated - use codeComplete(int, ICompletionRequestor) instead
 	 */
 	void codeComplete(int offset, ICodeCompletionRequestor requestor)
 		throws JavaModelException;
