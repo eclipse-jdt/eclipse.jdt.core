@@ -456,4 +456,41 @@ public class IncrementalTests extends Tests {
 		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous;
 		expectingNoProblems();
 	}
+	
+	// http://dev.eclipse.org/bugs/show_bug.cgi?id=27658
+	public void testObjectWithSuperInterfaces() {
+		try {
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJar(projectPath, Util.getJavaClassLib());
+	
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	
+			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+	
+			env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
+				"package java.lang; \n"+ //$NON-NLS-1$
+				"public class Object implements I {} \n"+ //$NON-NLS-1$
+				"interface I {}	\n");	//$NON-NLS-1$
+	
+			fullBuild(projectPath);
+	
+			env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p; \n"+ //$NON-NLS-1$
+				"public class X {}\n"); //$NON-NLS-1$
+	
+			incrementalBuild(projectPath);
+	
+			env.addClass(root, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p; \n"+ //$NON-NLS-1$
+				"public class Y extends X {}\n"); //$NON-NLS-1$
+	
+			incrementalBuild(projectPath);
+		} catch(StackOverflowError e){
+			assertTrue("Infinite loop in cycle detection", false);
+			e.printStackTrace();
+		}
+	}
+	
 }
