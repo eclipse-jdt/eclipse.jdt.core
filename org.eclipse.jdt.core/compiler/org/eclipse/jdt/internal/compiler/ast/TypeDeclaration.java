@@ -713,19 +713,22 @@ public class TypeDeclaration
 
 		//members
 		if (memberTypes != null) {
-			for (int i = memberTypes.length; --i >= 0;)
+			int length = memberTypes.length;
+			for (int i = 0; i < length; i++)
 				memberTypes[i].parseMethod(parser, unit);
 		}
 
 		//methods
 		if (methods != null) {
-			for (int i = methods.length; --i >= 0;)
+			int length = methods.length;
+			for (int i = 0; i < length; i++)
 				methods[i].parseStatements(parser, unit);
 		}
 
 		//initializers
 		if (fields != null) {
-			for (int i = fields.length; --i >= 0;) {
+			int length = fields.length;
+			for (int i = 0; i < length; i++) {
 				if (fields[i] instanceof Initializer) {
 					((Initializer) fields[i]).parseStatements(parser, this, unit);
 				}
