@@ -67,6 +67,17 @@ private boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 		return CharOperation.equals(((ReferenceBinding) one).compoundName, ((ReferenceBinding) two).compoundName);
 	return false; // all other type bindings are identical
 }
+private void checkAbstractMethod(MethodBinding abstractMethod) {
+	if (mustImplementAbstractMethod(abstractMethod)) {
+		TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+		if (typeDeclaration != null) {
+			MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(abstractMethod);
+			missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, abstractMethod);
+		} else {
+			this.problemReporter().abstractMethodMustBeImplemented(this.type, abstractMethod);
+		}
+	}
+}
 private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
 	currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 	for (int i = length; --i >= 0;) {
@@ -181,52 +192,49 @@ For each inherited method identifier (message pattern - vm signature minus the r
 private void checkMethods() { 
 	boolean mustImplementAbstractMethods = this.type.isClass() && !this.type.isAbstract();
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
-	for (int s = methodSelectors.length; --s >= 0;) {
-		if (methodSelectors[s] != null) {
-			MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
-			MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
+	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
+		if (methodSelectors[s] == null) continue nextSelector;
 
-			int index = -1;
-			MethodBinding[] matchingInherited = new MethodBinding[inherited.length];
-			if (current != null) {
-				for (int i = 0, length1 = current.length; i < length1; i++) {
-					while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
-					MethodBinding currentMethod = current[i];
-					for (int j = 0, length2 = inherited.length; j < length2; j++) {
-						if (inherited[j] != null && areParametersEqual(currentMethod, inherited[j])) {
-							matchingInherited[++index] = inherited[j];
-							inherited[j] = null; // do not want to find it again
-						}
-					}
-					if (index >= 0)
-						this.checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1); // pass in the length of matching
-				}
-			}
-			for (int i = 0, length = inherited.length; i < length; i++) {
+		MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
+		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
+		if (inherited.length == 1 && current == null) { // handle the common case
+			if (mustImplementAbstractMethods && inherited[0].isAbstract())
+				checkAbstractMethod(inherited[0]);
+			continue nextSelector;
+		}
+
+		int index = -1;
+		MethodBinding[] matchingInherited = new MethodBinding[inherited.length];
+		if (current != null) {
+			for (int i = 0, length1 = current.length; i < length1; i++) {
 				while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
-				if (inherited[i] != null) {
-					matchingInherited[++index] = inherited[i];
-					for (int j = i + 1; j < length; j++) {
-						if (inherited[j] != null && areParametersEqual(inherited[i], inherited[j])) {
-							matchingInherited[++index] = inherited[j];
-							inherited[j] = null; // do not want to find it again
-						}
+				MethodBinding currentMethod = current[i];
+				for (int j = 0, length2 = inherited.length; j < length2; j++) {
+					if (inherited[j] != null && areParametersEqual(currentMethod, inherited[j])) {
+						matchingInherited[++index] = inherited[j];
+						inherited[j] = null; // do not want to find it again
 					}
 				}
-				if (index > 0) {
-					this.checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
-				} else if (mustImplementAbstractMethods && index == 0 && matchingInherited[0].isAbstract()) {
-					if (mustImplementAbstractMethod(matchingInherited[0])) {
-						TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-						if (typeDeclaration != null) {
-							MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(matchingInherited[0]);
-							missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
-						} else {
-							this.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
-						}
+				if (index >= 0)
+					this.checkAgainstInheritedMethods(currentMethod, matchingInherited, index + 1); // pass in the length of matching
+			}
+		}
+
+		for (int i = 0, length = inherited.length; i < length; i++) {
+			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
+			if (inherited[i] != null) {
+				matchingInherited[++index] = inherited[i];
+				for (int j = i + 1; j < length; j++) {
+					if (inherited[j] != null && areParametersEqual(inherited[i], inherited[j])) {
+						matchingInherited[++index] = inherited[j];
+						inherited[j] = null; // do not want to find it again
 					}
 				}
 			}
+			if (index > 0)
+				this.checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
+			else if (mustImplementAbstractMethods && index == 0 && matchingInherited[0].isAbstract())
+				checkAbstractMethod(matchingInherited[0]);
 		}
 	}
 }
@@ -265,9 +273,11 @@ Binding creation is responsible for reporting:
 */
 private void computeInheritedMethods() {
 	this.inheritedMethods = new HashtableOfObject(51); // maps method selectors to an array of methods... must search to match paramaters & return type
-	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-	int lastPosition = 0;
-	interfacesToVisit[lastPosition] = type.superInterfaces();
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
+	int lastPosition = -1;
+	ReferenceBinding[] itsInterfaces = type.superInterfaces();
+	if (itsInterfaces != NoSuperInterfaces)
+		interfacesToVisit[++lastPosition] = itsInterfaces;
 
 	ReferenceBinding superType = this.type.isClass()
 		? this.type.superclass()
@@ -277,8 +287,7 @@ private void computeInheritedMethods() {
 
 	while (superType != null) {
 		if (superType.isValidBinding()) {
-			ReferenceBinding[] itsInterfaces = superType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -287,7 +296,7 @@ private void computeInheritedMethods() {
 			MethodBinding[] methods = superType.unResolvedMethods();
 			nextMethod : for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
-				if (!(method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())) { // look at all methods which are NOT private or constructors or default abstract
+				if (!(method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())) {
 					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 					if (existingMethods != null) {
 						for (int i = 0, length = existingMethods.length; i < length; i++) {
@@ -300,12 +309,12 @@ private void computeInheritedMethods() {
 					}
 					if (nonVisibleDefaultMethods != null)
 						for (int i = 0; i < nonVisibleCount; i++)
-							if (areTypesEqual(method.returnType, nonVisibleDefaultMethods[i].returnType)
-								&& CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
+							if (CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
+								&& areTypesEqual(method.returnType, nonVisibleDefaultMethods[i].returnType)
 								&& areParametersEqual(method, nonVisibleDefaultMethods[i])) 
 									continue nextMethod;
 
-					if (!(method.isDefault() && method.declaringClass.fPackage != type.fPackage)) { // ignore methods which have default visibility and are NOT defined in another package
+					if (!method.isDefault() || method.declaringClass.fPackage == type.fPackage) {
 						if (existingMethods == null)
 							existingMethods = new MethodBinding[1];
 						else
@@ -347,8 +356,7 @@ private void computeInheritedMethods() {
 			if ((superType.tagBits & InterfaceVisited) == 0) {
 				superType.tagBits |= InterfaceVisited;
 				if (superType.isValidBinding()) {
-					ReferenceBinding[] itsInterfaces = superType.superInterfaces();
-					if (itsInterfaces != NoSuperInterfaces) {
+					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
 						if (++lastPosition == interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 						interfacesToVisit[lastPosition] = itsInterfaces;
