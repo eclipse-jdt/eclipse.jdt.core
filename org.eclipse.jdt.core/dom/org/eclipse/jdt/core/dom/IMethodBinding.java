@@ -268,6 +268,15 @@ public interface IMethodBinding extends IBinding {
 	public boolean isRawMethod();
 	
 	/**
+	 * Returns whether this method's signature is a subsignature of the given method as
+	 * specified in section 8.4.2 of <em>The Java Language Specification, Third Edition</em> (JLS3). 
+	 * 
+	 * @return <code>true</code> if this method's signature is a subsignature of the given method
+	 * @since 3.1
+	 */
+	public boolean isSubsignature(IMethodBinding otherMethod);
+	
+	/**
 	 * Returns whether this is a variable arity method.
 	 * <p>
 	 * Note: Variable arity ("varargs") methods were added in JLS3.

@@ -354,6 +354,13 @@ class MethodBinding implements IMethodBinding {
 		return (this.binding instanceof ParameterizedGenericMethodBinding)
 			&& ((ParameterizedGenericMethodBinding) this.binding).isRaw;
 	}
+	
+	public boolean isSubsignature(IMethodBinding otherMethod) {
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding other = ((MethodBinding) otherMethod).binding;
+		if (!CharOperation.equals(this.binding.selector, other.selector))
+			return false;
+		return this.binding.areParameterErasuresEqual(other);
+	}
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getMethodDeclaration()

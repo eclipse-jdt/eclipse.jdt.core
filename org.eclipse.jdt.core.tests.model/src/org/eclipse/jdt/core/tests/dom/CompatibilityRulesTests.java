@@ -30,7 +30,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(CompatibilityRulesTests.class.getName());
-			suite.addTest(new CompatibilityRulesTests("test020"));
+			suite.addTest(new CompatibilityRulesTests("test027"));
 			return suite;
 		}
 		return new Suite(CompatibilityRulesTests.class);
@@ -513,4 +513,105 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		assertTrue("int should be assignment compatible with Object", bindings[0].isAssignmentCompatible(bindings[1]));
 	}
 	
+	/*
+	 * Ensures that a method is subsignature of itself.
+	 */
+	public void test025() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo()V"
+			});	
+		assertTrue("X#foo() should be a subsignature of X#foo()", bindings[0].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method is subsignature of its super method.
+	 */
+	public void test026() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  String foo(Object o) {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y extends X {\n" +
+				"  String foo(Object o) {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo(Ljava/lang/Object;)Ljava/lang/String;",
+				"Lp1/Y;.foo(Ljava/lang/Object;)Ljava/lang/String;",
+			});	
+		assertTrue("Y#foo(Object) should be a subsignature of X#foo(Object)", bindings[1].isSubsignature(bindings[0]));
+	}
+		
+	/*
+	 * Ensures that a method is subsignature of its super generic method.
+	 */
+	public void test027() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  <T> Z<T> foo(Z<T> o) {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y extends X {\n" +
+				"  Z foo(Z o) {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Z.java",
+				"package p1;\n" +
+				"public class Z<T> {\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo<T:Ljava/lang/Object;>(Lp1/Z<TT;>;)Lp1/Z<TT;>;",
+				"Lp1/Y;.foo(Lp1/Z;)Lp1/Z;",
+			});	
+		assertTrue("Y#foo(Z) should be a subsignature of X#foo(Z<T>)", bindings[1].isSubsignature(bindings[0]));
+	}
+		
+	/*
+	 * Ensures that a method is not the subsignature of an unrelated method.
+	 */
+	public void test028() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo()V",
+				"Lp1/Y;.bar()V",
+			});	
+		assertTrue("Y#bar() should not be a subsignature of X#foo()", !bindings[1].isSubsignature(bindings[0]));
+	}
+		
 }
