@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 
@@ -24,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
  * definitions (stable with 2.0), whereas the internal implementation uses TerminalTokens 
  * which constant values reflect the latest parser generation state.
  */
-public class Scanner implements IScanner, TerminalTokens {
+public class Scanner implements TerminalTokens {
 
 	/* APIs ares
 	 - getNextToken() which return the current type of the token
