@@ -8362,7 +8362,6 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"");	
 	}			
 	// 72998
-	// TODO (philippe) reenable when addressed
 	public void test324() {
 		this.runConformTest(
 			new String[] {
