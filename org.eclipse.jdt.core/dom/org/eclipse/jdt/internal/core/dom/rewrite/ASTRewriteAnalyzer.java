@@ -3060,7 +3060,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (isChanged(node, NormalAnnotation.VALUES_PROPERTY)) {
 			// eval position after opening parent
 			try {
-				int startOffset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameLESS, pos);
+				int startOffset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameLPAREN, pos);
 				rewriteNodeList(node, NormalAnnotation.VALUES_PROPERTY, startOffset, "", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (CoreException e) {
 				handleException(e);

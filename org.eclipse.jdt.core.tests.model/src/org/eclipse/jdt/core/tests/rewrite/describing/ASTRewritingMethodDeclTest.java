@@ -2365,4 +2365,101 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		// Verify that body extended length does not become negative!
 		assertFalse("Invalid extended length for "+body, astRoot.getExtendedLength(body)<0);
 	}
+	
+	public void testAnnotations() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("@An\n");
+		buf.append("@An()\n");
+		buf.append("@An(val=1, val=2)\n");
+		buf.append("@An(val=1, val=2)\n");
+		buf.append("@An(1)\n");
+		buf.append("class E {\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		List modifiers= type.modifiers();
+		assertEquals(5, modifiers.size());
+		{
+			MarkerAnnotation an= (MarkerAnnotation) modifiers.get(0);
+			SimpleName newName= ast.newSimpleName("X");
+			rewrite.set(an, MarkerAnnotation.TYPE_NAME_PROPERTY, newName, null);
+		}
+		{
+			NormalAnnotation an= (NormalAnnotation) modifiers.get(1);
+			SimpleName newName= ast.newSimpleName("X");
+			rewrite.set(an, NormalAnnotation.TYPE_NAME_PROPERTY, newName, null);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(an, NormalAnnotation.VALUES_PROPERTY);
+			
+			MemberValuePair newPair= ast.newMemberValuePair();
+			newPair.setName(ast.newSimpleName("foo"));
+			newPair.setValue(ast.newNumberLiteral("0"));
+			
+			listRewrite.insertFirst(newPair, null);
+		}
+		{
+			NormalAnnotation an= (NormalAnnotation) modifiers.get(2);
+			SimpleName newName= ast.newSimpleName("X");
+			rewrite.set(an, NormalAnnotation.TYPE_NAME_PROPERTY, newName, null);
+			
+			List values= an.values();
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(an, NormalAnnotation.VALUES_PROPERTY);
+			listRewrite.remove((ASTNode) values.get(0), null);
+			
+			MemberValuePair p= (MemberValuePair) values.get(1);
+			SimpleName newMember= ast.newSimpleName("Y");
+			SimpleName newValue= ast.newSimpleName("Z");
+			rewrite.set(p, MemberValuePair.NAME_PROPERTY, newMember, null);
+			rewrite.set(p, MemberValuePair.VALUE_PROPERTY, newValue, null);
+			
+			MemberValuePair newPair= ast.newMemberValuePair();
+			newPair.setName(ast.newSimpleName("foo"));
+			newPair.setValue(ast.newNumberLiteral("0"));
+			
+			listRewrite.insertLast(newPair, null);
+		}
+		{
+			NormalAnnotation an= (NormalAnnotation) modifiers.get(3);
+			SimpleName newName= ast.newSimpleName("X");
+			rewrite.set(an, NormalAnnotation.TYPE_NAME_PROPERTY, newName, null);
+			
+			List values= an.values();
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(an, NormalAnnotation.VALUES_PROPERTY);
+			listRewrite.remove((ASTNode) values.get(0), null);
+			listRewrite.remove((ASTNode) values.get(1), null);
+		}
+		{
+			SingleMemberAnnotation an= (SingleMemberAnnotation) modifiers.get(4);
+			SimpleName newName= ast.newSimpleName("X");
+			rewrite.set(an, SingleMemberAnnotation.TYPE_NAME_PROPERTY, newName, null);
+			rewrite.set(an, SingleMemberAnnotation.VALUE_PROPERTY, ast.newBooleanLiteral(true), null);
+		}
+		
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("@X\n");
+		buf.append("@X(foo = 0)\n");
+		buf.append("@X(Y=Z, foo = 0)\n");
+		buf.append("@X()\n");
+		buf.append("@X(true)\n");
+		buf.append("class E {\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+
+	
+	
+	
+	
 }
