@@ -15,7 +15,7 @@ class ClasspathDirectory extends ClasspathLocation {
 
 String binaryPath; // includes .class files for a single directory
 SimpleLookupTable directoryCache;
-String[] missingPackageHolder = new String[0];
+String[] missingPackageHolder = new String[1];
 
 ClasspathDirectory(String binaryPath) {
 	this.binaryPath = binaryPath;
