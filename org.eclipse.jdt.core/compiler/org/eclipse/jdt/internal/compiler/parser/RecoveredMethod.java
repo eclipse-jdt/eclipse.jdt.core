@@ -189,16 +189,16 @@ public int sourceEnd(){
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
-	result.append("Recovered method:\n"); //$NON-NLS-1$
+	result.append("Recovered method:\n"/*nonNLS*/);
 	result.append(this.methodDeclaration.toString(tab + 1));
 	if (this.localTypes != null) {
 		for (int i = 0; i < this.localTypeCount; i++) {
-			result.append("\n"); //$NON-NLS-1$
+			result.append("\n"/*nonNLS*/);
 			result.append(this.localTypes[i].toString(tab + 1));
 		}
 	}
 	if (this.methodBody != null) {
-		result.append("\n"); //$NON-NLS-1$
+		result.append("\n"/*nonNLS*/);
 		result.append(this.methodBody.toString(tab + 1));
 	}
 	return result.toString();

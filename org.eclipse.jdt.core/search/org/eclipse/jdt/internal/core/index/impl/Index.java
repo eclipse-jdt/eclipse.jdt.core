@@ -53,7 +53,7 @@ public class Index implements IIndex {
 	 */
 	private String toString;
 	public Index(File indexDirectory) throws IOException {
-		this(indexDirectory,".index"); //$NON-NLS-1$
+		this(indexDirectory,".index"/*nonNLS*/);
 	}
 	public Index(File indexDirectory, String indexName) throws IOException {
 		super();
@@ -215,7 +215,7 @@ public class Index implements IIndex {
 		//System.out.println("merge");
 
 		//initialisation of tempIndex
-		File tempFile= new File(indexFile.getAbsolutePath() + "TempVA"); //$NON-NLS-1$
+		File tempFile= new File(indexFile.getAbsolutePath() + "TempVA"/*nonNLS*/);
 
 		boolean exists= indexFile.exists();
 		IndexInput mainIndexInput= new BlocksIndexInput(indexFile);

@@ -39,17 +39,17 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 public String operatorToString() {
 	switch (operator) {
 		case PLUS :
-			return "++"; //$NON-NLS-1$
+			return "++"/*nonNLS*/;
 		case MINUS :
-			return "--";} //$NON-NLS-1$
-	return "unknown operator"; //$NON-NLS-1$
+			return "--"/*nonNLS*/;}
+	return "unknown operator"/*nonNLS*/;
 }
 public boolean restrainUsageToNumericTypes(){
 	return true ;}
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/
 
-	return	lhs.toStringExpression() + " " + operatorToString(); } //$NON-NLS-1$
+	return	lhs.toStringExpression() + " "/*nonNLS*/ + operatorToString(); }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		lhs.traverse(visitor, scope);

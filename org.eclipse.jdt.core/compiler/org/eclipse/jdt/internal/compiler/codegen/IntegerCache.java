@@ -138,16 +138,16 @@ public int size() {
 public String toString() {
 	int max = size();
 	StringBuffer buf = new StringBuffer();
-	buf.append("{"); //$NON-NLS-1$
+	buf.append("{"/*nonNLS*/);
 	for (int i = 0; i < max; ++i) {
 		if ((keyTable[i] != 0) || ((keyTable[i] == 0) && (valueTable[i] != 0))) {
-			buf.append(keyTable[i]).append("->").append(valueTable[i]); //$NON-NLS-1$
+			buf.append(keyTable[i]).append("->"/*nonNLS*/).append(valueTable[i]);
 		}
 		if (i < max) {
-			buf.append(", "); //$NON-NLS-1$
+			buf.append(", "/*nonNLS*/);
 		}
 	}
-	buf.append("}"); //$NON-NLS-1$
+	buf.append("}"/*nonNLS*/);
 	return buf.toString();
 }
 }

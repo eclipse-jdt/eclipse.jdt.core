@@ -38,7 +38,7 @@ void checkLabelValidity(BlockScope scope) {
 	}
 }
 public String individualToString(){
-	return "Label flow context [label:"+String.valueOf(labelName)+"]"; //$NON-NLS-2$ //$NON-NLS-1$
+	return "Label flow context [label:"/*nonNLS*/+String.valueOf(labelName)+"]"/*nonNLS*/;
 }
 public char[] labelName() {
 	return labelName;

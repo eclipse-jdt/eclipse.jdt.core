@@ -53,7 +53,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab);
-	s = s + "default : " ; //$NON-NLS-1$
+	s = s + "default : "/*nonNLS*/ ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	visitor.visit(this, blockScope);

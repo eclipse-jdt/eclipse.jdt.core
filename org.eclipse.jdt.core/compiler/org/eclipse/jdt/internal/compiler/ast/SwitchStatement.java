@@ -193,6 +193,7 @@ public void resolve(BlockScope upperScope) {
 			if ((cst = statements[i].resolveCase(scope, testType, this)) != null) {
 				//----check for duplicate case statement------------
 				if (cst != NotAConstant) {
+					// a case with a welled typed constant, so intValue() is valid
 					int key = cst.intValue();
 					for (int j = 0; j < counter; j++) {
 						if (casesValues[j] == key) {
@@ -210,41 +211,41 @@ public String toString(int tab){
 	
 	String inFront , s = tabString(tab) ;
 	inFront = s ;
-	s = s + "switch (" + testExpression.toStringExpression() + ") "; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "switch ("/*nonNLS*/ + testExpression.toStringExpression() + ") "/*nonNLS*/;
 	if (statements == null)
-	{ 	s = s + "{}" ;  //$NON-NLS-1$
+	{ 	s = s + "{}"/*nonNLS*/ ; 
 		return s;}
 	else
-		s = s + "{"; //$NON-NLS-1$
+		s = s + "{"/*nonNLS*/;
 
 	s = s + (explicitDeclarations != 0
-				? "// ---scope needed for "+String.valueOf(explicitDeclarations) +" locals------------ \n" //$NON-NLS-2$ //$NON-NLS-1$
-				: "// ---NO scope needed------ \n") ; //$NON-NLS-1$
+				? "// ---scope needed for "/*nonNLS*/+String.valueOf(explicitDeclarations) +" locals------------ \n"/*nonNLS*/
+				: "// ---NO scope needed------ \n"/*nonNLS*/) ;
 		
 	int i = 0;
-	String tabulation = "  "; //$NON-NLS-1$
+	String tabulation = "  "/*nonNLS*/;
 	try	{while(true){
 		//use instanceof in order not to polluate classes with behavior only needed for printing purpose.
 		if ( statements[i]  instanceof Expression)
-			s = s + "\n" + inFront + tabulation; //$NON-NLS-1$
+			s = s + "\n"/*nonNLS*/ + inFront + tabulation;
 		if ( statements[i]  instanceof Break)
 			s = s + statements[i].toString(0) ;
 		else	
-			s = s + "\n" + statements[i].toString(tab+2) ; //$NON-NLS-1$
+			s = s + "\n"/*nonNLS*/ + statements[i].toString(tab+2) ;
 		//=============	
 		if ( (statements[i] instanceof Case) || (statements[i] instanceof DefaultCase))
 		{	i++;
 			while(! ((statements[i] instanceof Case) || (statements[i] instanceof DefaultCase)))
 			{	if ( (statements[i] instanceof Expression) || (statements[i] instanceof Break))
-					s = s +  statements[i].toString(0) +" ; "; //$NON-NLS-1$
+					s = s +  statements[i].toString(0) +" ; "/*nonNLS*/;
 				else
-					s = s + "\n" + statements[i].toString(tab+6) + " ; "; //$NON-NLS-1$ //$NON-NLS-2$
+					s = s + "\n"/*nonNLS*/ + statements[i].toString(tab+6) + " ; "/*nonNLS*/;
 				i++;}}
 		else
-		{	s = s + " ;" ; //$NON-NLS-1$
+		{	s = s + " ;"/*nonNLS*/ ;
 			i++;}}}
 	catch(IndexOutOfBoundsException e){};
-	s = s + "}"; //$NON-NLS-1$
+	s = s + "}"/*nonNLS*/;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

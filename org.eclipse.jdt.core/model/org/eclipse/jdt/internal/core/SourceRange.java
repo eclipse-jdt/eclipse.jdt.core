@@ -33,11 +33,11 @@ public int getOffset() {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("[offset="); //$NON-NLS-1$
+	buffer.append("[offset="/*nonNLS*/);
 	buffer.append(this.offset);
-	buffer.append(", length="); //$NON-NLS-1$
+	buffer.append(", length="/*nonNLS*/);
 	buffer.append(this.length);
-	buffer.append("]"); //$NON-NLS-1$
+	buffer.append("]"/*nonNLS*/);
 	return buffer.toString();
 }
 }

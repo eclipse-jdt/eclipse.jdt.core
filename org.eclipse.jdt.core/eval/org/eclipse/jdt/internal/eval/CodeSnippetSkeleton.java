@@ -17,20 +17,20 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 	IBinaryMethod[] methods = new IBinaryMethod[] {
 		new BinaryMethodSkeleton(
-			"<init>".toCharArray(), //$NON-NLS-1$
-			"()V".toCharArray(), //$NON-NLS-1$
+			"<init>"/*nonNLS*/.toCharArray(),
+			"()V"/*nonNLS*/.toCharArray(),
 			new char[][] {},
 			true
 		),
 		new BinaryMethodSkeleton(
-			"run".toCharArray(), //$NON-NLS-1$
-			"()V".toCharArray(), //$NON-NLS-1$
-			new char[][] {"java/lang/Throwable".toCharArray()}, //$NON-NLS-1$
+			"run"/*nonNLS*/.toCharArray(),
+			"()V"/*nonNLS*/.toCharArray(),
+			new char[][] {"java/lang/Throwable"/*nonNLS*/.toCharArray()},
 			false
 		),
 		new BinaryMethodSkeleton(
-			"setResult".toCharArray(), //$NON-NLS-1$
-			"(Ljava/lang/Object;Ljava/lang/Class;)V".toCharArray(), //$NON-NLS-1$
+			"setResult"/*nonNLS*/.toCharArray(),
+			"(Ljava/lang/Object;Ljava/lang/Class;)V"/*nonNLS*/.toCharArray(),
 			new char[][] {},
 			false
 		)
@@ -87,7 +87,7 @@ public IBinaryField[] getFields() {
 	return null;
 }
 public char[] getFileName() {
-	return CharOperation.concat(CODE_SNIPPET_NAME, ".java".toCharArray()); //$NON-NLS-1$
+	return CharOperation.concat(CODE_SNIPPET_NAME, ".java"/*nonNLS*/.toCharArray());
 }
 public char[][] getInterfaceNames() {
 	return null;
@@ -115,9 +115,5 @@ public boolean isClass() {
 }
 public boolean isInterface() {
 	return false;
-}
-
-public char[] sourceFileName() {
-	return null;
 }
 }

@@ -54,9 +54,9 @@ protected void executeOperation() throws JavaModelException {
 	JavaElementDelta delta = newJavaElementDelta();
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
 	String[] names = Signature.getSimpleNames(fName);
-	beginTask(Util.bind("operation.createPackageFragmentProgress"), names.length); //$NON-NLS-1$
+	beginTask(Util.bind("operation.createPackageFragmentProgress"/*nonNLS*/), names.length);
 	IContainer parentFolder = (IContainer) root.getUnderlyingResource();
-	String sideEffectPackageName = ""; //$NON-NLS-1$
+	String sideEffectPackageName = ""/*nonNLS*/;
 	Vector resultElements = new Vector(names.length);
 	int i;
 	for (i = 0; i < names.length; i++) {

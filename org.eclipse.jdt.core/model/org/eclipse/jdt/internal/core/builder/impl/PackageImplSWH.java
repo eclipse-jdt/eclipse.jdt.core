@@ -146,7 +146,7 @@ public IPackage[] getReferencedPackages() throws NotPresentException {
 	public IPackage[] getReferencingPackages(IImageContext context) 
 	  throws NotPresentException {
 		if (!isPresent())
-			throw new NotPresentException(Util.bind("element.notPresent")); //$NON-NLS-1$
+			throw new NotPresentException(Util.bind("element.notPresent"/*nonNLS*/));
 
 		IPackage[] pkgs = fState.getReferencingPackages(fHandle, context);
 

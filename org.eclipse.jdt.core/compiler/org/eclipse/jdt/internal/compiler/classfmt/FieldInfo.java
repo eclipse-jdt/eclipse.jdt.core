@@ -11,7 +11,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
-public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable {
+public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField {
 	private Constant constant;
 	private boolean isDeprecated;
 	private int[] constantPoolOffsets;
@@ -38,8 +38,8 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) throws Class
 }
 /**
  * Return the constant of the field.
- * Return org.eclipse.jdt.internal.compiler.impl.Constant.NotAConstant if there is none.
- * @return org.eclipse.jdt.internal.compiler.impl.Constant
+ * Return org.eclipse.jdt.internal.compiler.Constant.NotAConstant if there is none.
+ * @return org.eclipse.jdt.internal.compiler.Constant
  */
 public Constant getConstant() {
 	if (constant == null) {
@@ -261,29 +261,22 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());
 	int modifiers = getModifiers();
 	return buffer
-		.append("{") //$NON-NLS-1$
+		.append("{"/*nonNLS*/)
 		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0008) == 0x000008 ? "static " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0010) == 0x0010 ? "final " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0080) == 0x0080 ? "transient " : "")) //$NON-NLS-1$ //$NON-NLS-2$
+			((modifiers & AccDeprecated) != 0 ? "deprecated "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0001) == 1 ? "public "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0002) == 0x0002 ? "private "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0004) == 0x0004 ? "protected "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0008) == 0x000008 ? "static "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0010) == 0x0010 ? "final "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0040) == 0x0040 ? "volatile "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0080) == 0x0080 ? "transient "/*nonNLS*/ : ""/*nonNLS*/))
 		.append(getTypeName())
-		.append(" ") //$NON-NLS-1$
+		.append(" "/*nonNLS*/)
 		.append(getName())
-		.append(" ") //$NON-NLS-1$
+		.append(" "/*nonNLS*/)
 		.append(getConstant())
-		.append("}") //$NON-NLS-1$
+		.append("}"/*nonNLS*/)
 		.toString(); 
-}
-
-public int compareTo(Object o) {
-	if (!(o instanceof FieldInfo)) {
-		throw new ClassCastException();
-	}
-	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
 }
 }

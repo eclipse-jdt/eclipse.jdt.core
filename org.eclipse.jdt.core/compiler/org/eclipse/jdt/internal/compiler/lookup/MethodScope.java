@@ -42,18 +42,18 @@ public MethodScope(ClassScope parent, ReferenceContext context, boolean isStatic
 	this.startIndex = 0;
 }
 String basicToString(int tab) {
-	String newLine = "\n"; //$NON-NLS-1$
+	String newLine = "\n"/*nonNLS*/;
 	for (int i = tab; --i >= 0;)
-		newLine += "\t"; //$NON-NLS-1$
+		newLine += "\t"/*nonNLS*/;
 
-	String s = newLine + "--- Method Scope ---"; //$NON-NLS-1$
-	newLine += "\t"; //$NON-NLS-1$
-	s += newLine + "locals:"; //$NON-NLS-1$
+	String s = newLine + "--- Method Scope ---"/*nonNLS*/;
+	newLine += "\t"/*nonNLS*/;
+	s += newLine + "locals:"/*nonNLS*/;
 	for (int i = 0; i < localIndex; i++)
-		s += newLine + "\t" + locals[i].toString(); //$NON-NLS-1$
-	s += newLine + "startIndex = " + startIndex; //$NON-NLS-1$
-	s += newLine + "isConstructorCall = " + isConstructorCall; //$NON-NLS-1$
-	s += newLine + "fieldDeclarationIndex = " + fieldDeclarationIndex; //$NON-NLS-1$
+		s += newLine + "\t"/*nonNLS*/ + locals[i].toString();
+	s += newLine + "startIndex = "/*nonNLS*/ + startIndex;
+	s += newLine + "isConstructorCall = "/*nonNLS*/ + isConstructorCall;
+	s += newLine + "fieldDeclarationIndex = "/*nonNLS*/ + fieldDeclarationIndex;
 	return s;
 }
 /* Spec : 8.4.3 & 9.4

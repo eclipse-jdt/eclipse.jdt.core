@@ -10,7 +10,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
-public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
+public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants {
 	private char[][] exceptionNames;
 	private int[] constantPoolOffsets;
 	private boolean isDeprecated;
@@ -192,30 +192,19 @@ public String toString() {
 	int modifiers = getModifiers();
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());
 	return buffer
-		.append("{") //$NON-NLS-1$
+		.append("{"/*nonNLS*/)
 		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0008) == 0x000008 ? "static " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0010) == 0x0010 ? "final " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0080) == 0x0080 ? "transient " : "")) //$NON-NLS-1$ //$NON-NLS-2$
+			((modifiers & AccDeprecated) != 0 ? "deprecated "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0001) == 1 ? "public "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0002) == 0x0002 ? "private "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0004) == 0x0004 ? "protected "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0008) == 0x000008 ? "static "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0010) == 0x0010 ? "final "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0040) == 0x0040 ? "volatile "/*nonNLS*/ : ""/*nonNLS*/)
+				+ ((modifiers & 0x0080) == 0x0080 ? "transient "/*nonNLS*/ : ""/*nonNLS*/))
 		.append(getSelector())
 		.append(getMethodDescriptor())
-		.append("}") //$NON-NLS-1$
+		.append("}"/*nonNLS*/)
 		.toString(); 
-}
-public int compareTo(Object o) {
-	if (!(o instanceof MethodInfo)) {
-		throw new ClassCastException();
-	}
-	StringBuffer currentComparisonKey = new StringBuffer();
-	currentComparisonKey.append(this.getSelector()).append(this.getMethodDescriptor());
-	StringBuffer otherComparisonKey = new StringBuffer();
-	MethodInfo otherMethodInfo = (MethodInfo) o;
-	otherComparisonKey.append(otherMethodInfo.getSelector()).append(otherMethodInfo.getMethodDescriptor());
-	return currentComparisonKey.toString().compareTo(otherComparisonKey.toString());
 }
 }

@@ -70,13 +70,8 @@ public class CompletionParser extends AssistParser {
 	// it is poped when a block is exited 
 	int blockInvocationPtr;
 	int[] blockInvocationStack = new int[StackIncrement];
-	
-/** @deprecated - should use constructor with assertMode */
 public CompletionParser(ProblemReporter problemReporter) {
-	this(problemReporter, false/*no assertion by default*/);
-}
-public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
-	super(problemReporter, assertMode);
+	super(problemReporter);
 }
 public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;
@@ -317,11 +312,6 @@ private boolean checkInvocation() {
 					messageSend.receiver = ThisReference.ThisImplicit;
 					break;
 				case NAME_RECEIVER:
-					// remove special flags for primitive types
-					while (this.identifierLengthPtr >= 0 && this.identifierLengthStack[this.identifierLengthPtr] < 0) {
-						this.identifierLengthPtr--;
-					}
-				
 					// remove selector 
 					this.identifierPtr--; 
 					this.identifierLengthStack[this.identifierLengthPtr]--;
@@ -870,7 +860,7 @@ private void initializeForBlockStatements() {
 	this.blockInvocationPtr = -1;
 }
 public void initializeScanner(){
-	this.scanner = new CompletionScanner(this.assertMode);
+	this.scanner = new CompletionScanner();
 }
 /**
  * Returns whether we are directly or indirectly inside a field initializer.

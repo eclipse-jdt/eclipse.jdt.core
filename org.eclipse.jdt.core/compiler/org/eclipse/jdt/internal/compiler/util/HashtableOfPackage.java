@@ -79,11 +79,11 @@ public int size() {
 	return elementSize;
 }
 public String toString() {
-	String s = ""; //$NON-NLS-1$
+	String s = ""/*nonNLS*/;
 	PackageBinding pkg;
 	for (int i = 0, length = valueTable.length; i < length; i++)
 		if ((pkg = valueTable[i]) != null)
-			s += pkg.toString() + "\n"; //$NON-NLS-1$
+			s += pkg.toString() + "\n"/*nonNLS*/;
 	return s;
 }
 }

@@ -45,7 +45,7 @@ public class IndexSummary {
 		char[] word;
 		int blockNum;
 		public String toString(){
-			return "FirstWordInBlock: " + new String(word) + ", blockNum: " + blockNum; //$NON-NLS-1$ //$NON-NLS-2$
+			return "FirstWordInBlock: "/*nonNLS*/ + new String(word) + ", blockNum: "/*nonNLS*/ + blockNum;
 		}
 	}
 

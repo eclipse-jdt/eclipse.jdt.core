@@ -4,15 +4,12 @@ package org.eclipse.jdt.internal.compiler.classfmt;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.NullConstant;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+
 import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.compiler.codegen.*;
 
 import java.io.*;
-import java.util.Arrays;
 
 public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
 	private int constantPoolCount;
@@ -511,216 +508,12 @@ public String toString() {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 	
-	print.println(this.getClass().getName() + "{"); //$NON-NLS-1$
-	print.println(" className: " + new String(getName())); //$NON-NLS-1$
-	print.println(" superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName()))); //$NON-NLS-2$ //$NON-NLS-1$
-	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(accessFlags()) + "(" + accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+	print.println(this.getClass().getName() + "{"/*nonNLS*/);
+	print.println(" className: "/*nonNLS*/ + new String(getName()));
+	print.println(" superclassName: "/*nonNLS*/ + (getSuperclassName() == null ? "null"/*nonNLS*/ : new String(getSuperclassName())));
+	print.println(" access_flags: "/*nonNLS*/ + ClassFileStruct.printTypeModifiers(accessFlags()) + "("/*nonNLS*/ + accessFlags() + ")"/*nonNLS*/);
 
 	print.flush();
 	return out.toString();
-}
-/**
- * Check if the receiver has structural changes compare to the byte array in argument.
- * Structural changes are:
- * - modifiers changes for the class, the fields or the methods
- * - signature changes for fields or methods.
- * - changes in the number of fields or methods
- * - changes for field constants
- * - changes for thrown exceptions
- * - change for the super class or any super interfaces.
- * - changes for member types name or modifiers
- * If any of these changes occurs, the method returns true. false otherwise.
- */
-public boolean hasStructuralChanges(byte[] newBytes) {
-	try {
-		ClassFileReader newClassFile =
-			new ClassFileReader(newBytes, this.classFileName);
-		// type level comparison
-		// modifiers
-		if (this.getModifiers() != newClassFile.getModifiers()) {
-			return true;
-		}
-		// superclass
-		if (!CharOperation.equals(this.getSuperclassName(), newClassFile.getSuperclassName())) {
-			return true;
-		}
-		// interfaces
-		char[][] newInterfacesNames = newClassFile.getInterfaceNames();
-		int newInterfacesLength = newInterfacesNames == null ? 0 : newInterfacesNames.length;
-		if (newInterfacesLength != this.interfacesCount) {
-			return true;
-		}
-		if (this.interfacesCount != 0) {
-			for (int i = 0, max = this.interfacesCount; i < max; i++) {
-				if (!CharOperation.equals(this.interfaceNames[i], newInterfacesNames[i])) {
-					return true;
-				}
-			}
-		}
-		// fields
-		FieldInfo[] otherFieldInfos = (FieldInfo[]) newClassFile.getFields();
-		int otherFieldInfosLength = otherFieldInfos == null ? 0 : otherFieldInfos.length;
-		if (this.fieldsCount != otherFieldInfosLength) {
-			return true;
-		}
-		if (otherFieldInfosLength != 0) {
-//			Arrays.sort(this.fields);
-//			Arrays.sort(otherFieldInfos);
-			for (int i = 0; i < otherFieldInfosLength; i++) {
-				FieldInfo currentFieldInfo = this.fields[i];
-				FieldInfo otherFieldInfo = otherFieldInfos[i];
-				if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers()) {
-					return true;
-				}
-				if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName())) {
-					return true;
-				}
-				if (!CharOperation.equals(currentFieldInfo.getTypeName(), otherFieldInfo.getTypeName())) {
-					return true;
-				}
-				if (currentFieldInfo.hasConstant()) {
-					if (!otherFieldInfo.hasConstant()) {
-						return true;
-					}
-					Constant currentConstant = currentFieldInfo.getConstant();
-					Constant otherConstant = otherFieldInfo.getConstant();
-					if (!currentConstant.getClass().equals(otherConstant.getClass())) {
-						return true;
-					} 
-					switch (currentConstant.typeID()) {
-							case TypeIds.T_int : 
-								if (otherConstant.typeID() != TypeIds.T_int) {
-									return true;
-								}
-								if (otherConstant.intValue() != currentConstant.intValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_byte :
-								if (otherConstant.typeID() != TypeIds.T_byte) {
-									return true;
-								}
-								if (otherConstant.byteValue() != currentConstant.byteValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_short : 
-								if (otherConstant.typeID() != TypeIds.T_short) {
-									return true;
-								}
-								if (otherConstant.shortValue() != currentConstant.shortValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_char : 
-								if (otherConstant.typeID() != TypeIds.T_char) {
-									return true;
-								}
-								if (otherConstant.charValue() != currentConstant.charValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_float :
-								if (otherConstant.typeID() != TypeIds.T_float) {
-									return true;
-								}
-								if (otherConstant.floatValue() != currentConstant.floatValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_double :
-								if (otherConstant.typeID() != TypeIds.T_double) {
-									return true;
-								}
-								if (otherConstant.doubleValue() != currentConstant.doubleValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_boolean : 
-								if (otherConstant.typeID() != TypeIds.T_boolean) {
-									return true;
-								}
-								if (otherConstant.booleanValue() != currentConstant.booleanValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_String : 
-								if (otherConstant.typeID() != TypeIds.T_String) {
-									return true;
-								}
-								if (otherConstant.stringValue() != currentConstant.stringValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_null :
-								if (otherConstant.typeID() != TypeIds.T_null) {
-									return true;
-								}
-								if (otherConstant != NullConstant.Default) {
-									return true;
-								}
-					}
-				} else if (otherFieldInfo.hasConstant()) {
-					return true;
-				}
-			}
-		}
-		// methods
-		MethodInfo[] otherMethodInfos = (MethodInfo[]) newClassFile.getMethods();
-		int otherMethodInfosLength = otherMethodInfos == null ? 0 : otherMethodInfos.length;
-		if (this.methodsCount != otherMethodInfosLength) {
-			return true;
-		}
-		if (otherMethodInfosLength != 0) {
-//			Arrays.sort(this.methods);
-//			Arrays.sort(otherMethodInfos);
-			for (int i = 0; i < otherMethodInfosLength; i++) {
-				MethodInfo otherMethodInfo = otherMethodInfos[i];
-				MethodInfo currentMethodInfo = this.methods[i];
-				if (otherMethodInfo.getModifiers() != currentMethodInfo.getModifiers()) {
-					return true;
-				}				
-				if (!CharOperation.equals(otherMethodInfo.getSelector(), currentMethodInfo.getSelector())) {
-					return true;
-				}
-				if (!CharOperation.equals(otherMethodInfo.getMethodDescriptor(), currentMethodInfo.getMethodDescriptor())) {
-					return true;
-				}
-				char[][] otherThrownExceptions = otherMethodInfo.getExceptionTypeNames();
-				int otherThrownExceptionsLength = otherThrownExceptions == null ? 0 : otherThrownExceptions.length;
-				char[][] currentThrownExceptions = currentMethodInfo.getExceptionTypeNames();
-				int currentThrownExceptionsLength = currentThrownExceptions == null ? 0 : currentThrownExceptions.length;
-				if (currentThrownExceptionsLength != otherThrownExceptionsLength) {
-					return true;
-				}
-				if (currentThrownExceptionsLength != 0) {
-					for (int k = 0; k < currentThrownExceptionsLength; k++) {
-						if (!CharOperation.equals(currentThrownExceptions[k], otherThrownExceptions[k])) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		// Member types
-		InnerClassInfo[] currentMemberTypes = (InnerClassInfo[]) this.getMemberTypes();
-		InnerClassInfo[] otherMemberTypes = (InnerClassInfo[]) newClassFile.getMemberTypes();
-		int currentMemberTypeLength = currentMemberTypes == null ? 0 : currentMemberTypes.length;
-		int otherMemberTypeLength = otherMemberTypes == null ? 0 : otherMemberTypes.length;
-		if (currentMemberTypeLength != otherMemberTypeLength) {
-			return true;
-		}
-		if (currentMemberTypeLength != 0) {
-			for (int i = 0; i < currentMemberTypeLength; i++) {
-				if (!CharOperation.equals(currentMemberTypes[i].getName(), otherMemberTypes[i].getName())
-					|| currentMemberTypes[i].getModifiers() != otherMemberTypes[i].getModifiers()) {
-						return true;
-				}
-			}			
-		}
-		return false;
-	} catch (ClassFormatException e) {
-		return true;
-	}
 }
 }

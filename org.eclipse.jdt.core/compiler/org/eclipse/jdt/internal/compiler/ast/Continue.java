@@ -69,7 +69,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "continue "; //$NON-NLS-1$
+	s = s + "continue "/*nonNLS*/;
 	if (label != null )
 		s = s + new String(label) ;
 	return s;

@@ -340,15 +340,15 @@ private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundE
 	public String toString () {
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("DeltaKey("); //$NON-NLS-1$
+		buffer.append("DeltaKey("/*nonNLS*/);
 			
 		for (int i = 0; i < this.fLocalNames.length; i++) {
 			buffer.append(this.fLocalNames[i]);
 			if (i < this.fLocalNames.length - 1) {
-				buffer.append("/"); //$NON-NLS-1$
+				buffer.append("/"/*nonNLS*/);
 			}
 		}
-		buffer.append(")"); //$NON-NLS-1$
+		buffer.append(")"/*nonNLS*/);
 
 		return buffer.toString();
 	}

@@ -68,7 +68,7 @@ public CopyElementsOperation(IJavaElement[] elementsToCopy, IJavaElement destCon
  * for progress monitoring.
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.copyElementProgress"); //$NON-NLS-1$
+	return Util.bind("operation.copyElementProgress"/*nonNLS*/);
 }
 /**
  * Returns the nested operation to use for processing this element
@@ -83,7 +83,7 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				return new CreateImportOperation(element.getElementName(), (ICompilationUnit) dest);
 			case IJavaElement.TYPE :
 				if (isRenamingMainType(element, dest)) {
-					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + ".java"}, fForce); //$NON-NLS-1$
+					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + ".java"/*nonNLS*/}, fForce);
 				} else {
 					return new CreateTypeOperation(dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
 				}
