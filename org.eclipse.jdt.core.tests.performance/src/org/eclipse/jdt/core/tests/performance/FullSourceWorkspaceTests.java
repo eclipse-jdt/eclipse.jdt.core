@@ -73,8 +73,8 @@ public class FullSourceWorkspaceTests extends Tests {
 					String projectName = projectNames[i];
 					if (".metadata".equals(projectName)) continue;
 					IProject project = workspaceRoot.getProject(projectName);
-					project.create(null);
-					project.open(null);
+					project.create(monitor);
+					project.open(monitor);
 				}
 			}
 		}, null);
