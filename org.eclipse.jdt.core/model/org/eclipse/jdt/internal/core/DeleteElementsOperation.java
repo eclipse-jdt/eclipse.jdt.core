@@ -117,8 +117,8 @@ public class DeleteElementsOperation extends MultiOperation {
 				if (contents == null) continue;
 				IDOMCompilationUnit cuDOM = fFactory.createCompilationUnit(contents, cu.getElementName());
 				DOMNode node = (DOMNode)((JavaElement) e).findNode(cuDOM);
-				// TBD
-				Assert.isTrue(node != null, "Failed to locate " + e.getElementName() + " in " + cuDOM.getName()); //$NON-NLS-1$//$NON-NLS-2$
+				if (node == null) Assert.isTrue(false, "Failed to locate " + e.getElementName() + " in " + cuDOM.getName()); //$NON-NLS-1$//$NON-NLS-2$
+
 				int startPosition = node.getStartPosition();
 				buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, CharOperation.NO_CHAR);
 				delta.removed(e);
