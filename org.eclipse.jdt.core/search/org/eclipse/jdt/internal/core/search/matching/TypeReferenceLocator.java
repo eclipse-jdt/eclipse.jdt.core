@@ -307,7 +307,7 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 			}
 			knownTypes.add(type);
 		}
-		typeBinding = ((ReferenceBinding) typeBinding).enclosingType();
+		typeBinding = typeBinding.enclosingType();
 		IJavaElement parent = type.getParent();
 		if (parent instanceof IType) {
 			type = (IType)parent;
