@@ -62,7 +62,7 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathDirectory)) return false;
 
-	return binaryPath.equals(((ClasspathDirectory) o).binaryPath);
+	return binaryPath.equalsIgnoreCase(((ClasspathDirectory) o).binaryPath);
 }
 
 boolean exists(String pathPrefix, String filename, char[][] packageName) {
