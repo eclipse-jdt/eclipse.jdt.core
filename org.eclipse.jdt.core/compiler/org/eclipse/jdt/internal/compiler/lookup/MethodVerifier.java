@@ -471,11 +471,11 @@ private boolean isSameOrSubTypeOf(TypeBinding one, TypeBinding two) {
 	}
 	if (one.isBaseType() || two.isBaseType()) return false;
 
-	ReferenceBinding someType = (ReferenceBinding) one;
+	ReferenceBinding subType = (ReferenceBinding) one;
 	ReferenceBinding superType = (ReferenceBinding) two;
 	if (superType.isInterface())
-		return someType.implementsInterface(superType, true);
-	return someType.isClass() && isSameClassOrSubclassOf(someType, superType);
+		return subType.implementsInterface(superType, true);
+	return subType.isClass() && isSameClassOrSubclassOf(subType, superType);
 }
 private boolean mustImplementAbstractMethod(MethodBinding abstractMethod) {
 	// if the type's superclass is an abstract class, then all abstract methods must be implemented
