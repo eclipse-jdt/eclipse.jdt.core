@@ -2305,7 +2305,7 @@ public class DeltaProcessor {
 				int kind = delta.getKind();
 				if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
 					IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-					this.updateRootIndex(root, root.getPackageFragment(""), delta); //$NON-NLS-1$
+					this.updateRootIndex(root, root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME), delta);
 					break;
 				}
 				// don't break as packages of the package fragment root can be indexed below
@@ -2316,7 +2316,7 @@ public class DeltaProcessor {
 						IPackageFragment pkg = null;
 						if (element instanceof IPackageFragmentRoot) {
 							IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-							pkg = root.getPackageFragment(""); //$NON-NLS-1$
+							pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
 						} else {
 							pkg = (IPackageFragment)element;
 						}
