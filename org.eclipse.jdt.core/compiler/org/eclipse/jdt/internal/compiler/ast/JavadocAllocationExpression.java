@@ -68,10 +68,6 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		if (this.resolvedType == null)
 			return null;
 
-		if (!this.resolvedType.canBeInstantiated()) {
-			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
-			return this.resolvedType;
-		}
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
@@ -86,14 +82,16 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			}
 			return this.resolvedType;
 		}
-		if (isMethodUseDeprecated(binding, scope))
+		if (isMethodUseDeprecated(binding, scope)) {
 			scope.problemReporter().deprecatedMethod(binding, this);
+		}
 
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
 				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 			}
 		}
+
 		return allocationType;
 	}
 
