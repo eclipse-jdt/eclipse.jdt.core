@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.lang.reflect.*;
 import org.eclipse.jdt.core.tests.junit.extension.PerformanceTestSuite;
-import org.eclipse.jdt.core.tests.model.NameLookupTests2;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
