@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -294,6 +295,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		if (local.isArgument) {
 			return true;
 		}
+		// final constants are inlined, and thus considered as always initialized
+		if (local.constant != Constant.NotAConstant) {
+			return true;
+		}
 		return isDefinitelyAssigned(local.id + maxFieldCount);
 	}
 	
@@ -337,6 +342,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 		
 		if (local.isArgument) {
+			return true;
+		}
+		// final constants are inlined, and thus considered as always initialized
+		if (local.constant != Constant.NotAConstant) {
 			return true;
 		}
 		return isPotentiallyAssigned(local.id + maxFieldCount);
