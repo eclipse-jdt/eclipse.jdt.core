@@ -119,11 +119,11 @@ public void testDeadlock01() throws CoreException {
 				public void run() {
 					try {
 						//synchronized(JavaModelManager.getJavaModelManager()) {
-							System.out.println(Thread.currentThread() + " got Java model lock");
 							permissionToPopulateModel.acquire(); // ensure workspace lock is taken already
-							permissionToModifyResource.release();
+							System.out.println(Thread.currentThread() + " about to take Java model lock");
 							// needs the JavaModel lock to populate the project
 							project.getChildren(); // trigger classpath initializer activation (requires workspace lock)
+							permissionToModifyResource.release();
 							System.out.println(Thread.currentThread() + " done populating the model");
 						//}
 					} catch (JavaModelException e) {
