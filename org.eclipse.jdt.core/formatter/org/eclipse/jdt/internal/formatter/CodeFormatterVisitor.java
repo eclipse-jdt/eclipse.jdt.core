@@ -528,11 +528,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-	
-		if (fieldDeclaration.initialization == null) {
-			this.scribe.alignFragment(fieldAlignment, 1);
-		}
-	
+
 		if (fieldAlignment != null) {
 			this.scribe.alignFragment(fieldAlignment, 2);
 			this.scribe.printTrailingComment();
@@ -768,7 +764,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return this.scribe.toString();
 	}
 	
-	private void format(TypeDeclaration typeDeclaration){
+	private void formatLastTypeDeclaration(TypeDeclaration typeDeclaration){
 
 		if (typeDeclaration.modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
@@ -883,6 +879,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (class_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}
+	}
+
+	private void format(TypeDeclaration typeDeclaration){
+		this.formatLastTypeDeclaration(typeDeclaration);
+		this.scribe.printNewLine();
 	}
 
 	/*
@@ -1822,8 +1823,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 		final Statement[] statements = block.statements;
 		if (statements != null) {
-			this.scribe.printTrailingComment();
-			this.scribe.printNewLine();
 			formatStatements(scope, statements);
 		} else if (this.preferences.insert_new_line_in_empty_block) {
 			this.scribe.printNewLine();
@@ -1832,8 +1831,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		this.scribe.unIndent();
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
-		this.scribe.printTrailingComment();
-		this.scribe.printNewLine();
 	
 		if (block_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
@@ -1971,7 +1968,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			int blankLinesAfterPackage = this.preferences.blank_lines_after_package;
 			if (blankLinesAfterPackage > 0) {
 				this.scribe.printNewLines(blankLinesAfterPackage);
-			}				
+			} else {
+				this.scribe.printNewLine();
+			}			
 		} else {
 			this.scribe.printComment();
 		}
@@ -2002,9 +2001,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
 			int typesLength = types.length;
-			for (int i = 0; i < typesLength; i++) {
+			for (int i = 0; i < typesLength - 1; i++) {
 				types[i].traverse(this, scope);
 			}
+			formatLastTypeDeclaration(types[typesLength - 1]);
 		}
 		this.scribe.printLastComment();
 		return false;
@@ -2532,6 +2532,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					if (elseStatement == null || this.preferences.insert_new_line_in_control_statements) {
 						this.scribe.printTrailingComment();
+						this.scribe.printNewLine();
 					}
 				}
 			} else if (elseStatement == null && this.preferences.keep_simple_if_on_one_line) {

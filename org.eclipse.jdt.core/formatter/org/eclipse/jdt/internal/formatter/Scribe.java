@@ -239,7 +239,7 @@ public class Scribe {
 		if (count > 0) {
 			if (this.formatter.preferences.preserve_user_linebreaks) {
 				this.printNewLines(count);
-			} else {
+			} else if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
 				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve + 1);
 				this.printNewLines(linesToPreserve);
 			}
@@ -603,7 +603,6 @@ public class Scribe {
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
 			int currentTokenStartPosition = this.scanner.currentPosition;
-			boolean hasComment = false;
 			boolean hasLineComment = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
 				switch(this.currentToken) {
@@ -638,11 +637,13 @@ public class Scribe {
 						} else if (count == 1) {
 							if (hasLineComment) {
 								preserveEmptyLines(1);
-							} else if (hasComment) {
-								printNewLine();
-							} else if (currentTokenStartPosition >= this.scannerEndPosition - 1) {
+							} else {
 								printNewLine();
 							}
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+							return;
+						} else if (hasLineComment) {
+							preserveEmptyLines(1);
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
@@ -657,7 +658,6 @@ public class Scribe {
 						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
-						hasComment = true;
 						break;
 					default :
 						// step back one token

@@ -367,7 +367,7 @@ public class Alignment {
 	// perform alignment effect for current fragment
 	public void performFragmentEffect(){
 		if ((this.mode & M_NO_ALIGNMENT) != 0) {
-			this.scribe.space();
+			return;
 		}
 		
 		if (this.fragmentBreaks[this.fragmentIndex] == 1) {

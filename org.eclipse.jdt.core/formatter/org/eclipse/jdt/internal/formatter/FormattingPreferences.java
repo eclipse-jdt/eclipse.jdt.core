@@ -172,9 +172,9 @@ public class FormattingPreferences {
 	public static final int DEFAULT_TAB_SIZE = 4;
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");	//$NON-NLS-1$
 	public static final int DEFAULT_BLANK_LINES_BEFORE_PACKAGE = 0;
-	public static final int DEFAULT_BLANK_LINES_AFTER_PACKAGE = 1;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_IMPORTS = 1;
-	public static final int DEFAULT_BLANK_LINES_AFTER_IMPORTS = 1;
+	public static final int DEFAULT_BLANK_LINES_AFTER_PACKAGE = 0;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_IMPORTS = 0;
+	public static final int DEFAULT_BLANK_LINES_AFTER_IMPORTS = 0;
 	public static final int DEFAULT_INITIAL_INDENTATION_LEVEL = 0;
 	public static final int DEFAULT_CONTINUATION_INDENTATION = 2; // 2 indentations
 	public static final String DEFAULT_TYPE_DECLARATION_BRACE_POSITION = END_OF_LINE;
@@ -278,7 +278,7 @@ public class FormattingPreferences {
 	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;
-	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 1;
+	public static final int DEFAULT_BLANK_LINES_BEFORE_MEMBER_TYPE = 0;
 	public static final boolean DEFAULT_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE = false;
@@ -300,7 +300,7 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = true;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = true;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK = true;
-	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 1;
+	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = true;
 
