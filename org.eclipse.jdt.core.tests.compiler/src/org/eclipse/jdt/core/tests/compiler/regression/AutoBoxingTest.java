@@ -1200,6 +1200,23 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			},
 			"SUCCESS"
 		);
-	}		
+	}	
+
+	public void _test042() { // conditional expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static Boolean bar() { return Boolean.TRUE; } \n" +
+				"	public static void main(String[] args) {\n" +
+				"		Integer i = bar() ? new Integer(1) : null;\n" +
+				"		int j = i;\n" +
+				"		System.out.print(j);\n" +
+				"	}\n" +
+				"}",
+			},
+			"1"
+		);
+	}
 
 }
