@@ -7102,15 +7102,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	public class X<T, U> extends Throwable {\n" + 
-			"	             ^\n" + 
-			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 1)\n" + 
-			"	public class X<T, U> extends Throwable {\n" + 
-			"	                             ^^^^^^^^^\n" + 
-			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Enum<X> ex = null;\n" + 
+			"	     ^\n" + 
+			"Bound mismatch: The type X is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type Enum<E>\n" + 
 			"----------\n");		
 	}
 	// 70618 - reference to variable allowed in parameterized super type
