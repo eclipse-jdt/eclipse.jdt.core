@@ -424,14 +424,18 @@ public class ASTRewrite {
 	
 	/**
 	 * Creates and returns a node that represents a sequence of nodes. 
-	 * Users should not make any assumptions on the type of the returned node. The passed
-	 * nodes must be either be brand new (not part of the original AST) or a placeholder node (for example, one
-     * created by {@link #createCopyTarget(ASTNode)} or {@link #createStringPlaceholder(String, int)});
-     * or another group node. 
+	 * Each of the given nodes must be either be brand new (not part of the original AST), or
+	 * a placeholder node (for example, one created by {@link #createCopyTarget(ASTNode)}
+	 * or {@link #createStringPlaceholder(String, int)}), or another group node.
+	 * The type of the returned node is unspecified. The returned node can be used
+	 * to replace an existing node (or as an element of another group node).
+	 * When the document is rewritten, the source code for each of the given nodes is
+	 * inserted, in order, into the output document at the position corresponding to the
+	 * group (indentation is adjusted).
 	 * 
-	 * @param targetNodes the node to go in the group
-	 * @return the new group placeholder
-	 * @throws IllegalArgumentException if the targetNodes is null, or is empty.
+	 * @param targetNodes the nodes to go in the group
+	 * @return the new group node
+	 * @throws IllegalArgumentException if the targetNodes is <code>null</code> or empty
 	 * @since 3.1
 	 */
 	public final ASTNode createGroupNode(ASTNode[] targetNodes) {
