@@ -49,7 +49,7 @@ or treated as a warning would violate the language spec. As a consequence, <code
 further attempts to set these preferences are now ignored and import problems or unreachable code are always reported as errors.
 <li> The warning level of the batch compiler can now be configured more easily using <code>-warn:+...</code> or <code>-warn:-...</code> command line
 argument (as opposed to only existing <code>-warn:...</code> command line argument). 
-<code>-warn:+...</code> will not reset override default warning level, but simply enable
+<code>-warn:+...</code> will not override the default warning level, but simply enable
 a few more specific warnings. Similarily, <code>-warn:-...</code> will only disable specific warnings.
 <br>Note, by default the batch compiler will report the following warnings:
 	<ul>
