@@ -2348,6 +2348,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
 				relevance += computeRelevanceForExpectingType(sourceType);
+				relevance += computeRelevanceForQualification(false);
 
 				if (sourceType.isClass()){
 					relevance += computeRelevanceForClass();
@@ -2386,12 +2387,14 @@ public final class CompletionEngine
 							char[] typeName = refBinding.sourceName();
 							char[] completionName = typeName;
 							
+							boolean isQualified = false;
 							if (!insideQualifiedReference && !refBinding.isMemberType()) {
 								if (mustQualifyType(packageName, typeName)) {
 									if (packageName == null || packageName.length == 0)
 										if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 											continue next; // ignore types from the default package from outside it
 									completionName = CharOperation.concat(packageName, typeName, '.');
+									isQualified = true;
 								}
 							}
 							
@@ -2399,6 +2402,7 @@ public final class CompletionEngine
 							relevance += computeRelevanceForInterestingProposal();
 							relevance += computeRelevanceForCaseMatching(token, typeName);
 							relevance += computeRelevanceForExpectingType(refBinding);
+							relevance += computeRelevanceForQualification(isQualified);
 							
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
