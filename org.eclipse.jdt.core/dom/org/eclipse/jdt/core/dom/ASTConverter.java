@@ -587,18 +587,6 @@ class ASTConverter {
 					simpleType.setSourceRange(sourceStart, end - sourceStart + 1);
 					type = this.ast.newArrayType(simpleType, dimensions);
 					type.setSourceRange(sourceStart, length);
-					if (dimensions > 1) {
-						// need to set positions for intermediate array type see 42839
-						Type currentComponentType = ((ArrayType) type).getComponentType();
-						int searchedDimension = dimensions - 1;
-						int rightBracketEndPosition = end;
-						while (currentComponentType.isArrayType()) {
-							rightBracketEndPosition = retrieveProperRightBracketPosition(searchedDimension, end, typeReference.sourceEnd);
-							currentComponentType.setSourceRange(sourceStart, rightBracketEndPosition - sourceStart + 1);
-							currentComponentType = ((ArrayType) currentComponentType).getComponentType();
-							searchedDimension--;
-						}		
-					}
 					if (this.resolveBindings) {
 						completeRecord((ArrayType) type, typeReference);
 						this.recordNodes(simpleName, typeReference);
@@ -2818,13 +2806,36 @@ class ASTConverter {
 					subarrayType.setSourceRange(start, end - start + 1);
 					subarrayType.setParent(null);
 					fieldDeclaration.setType(subarrayType);
+					updateInnerPositions(subarrayType, remainingDimensions);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
 			} else {
 				fieldDeclaration.setType(type);
 			}
 		} else {
+			if (type.isArrayType()) {
+				// update positions of the component types of the array type
+				int dimensions = ((ArrayType) type).getDimensions();
+				updateInnerPositions(type, dimensions);
+			}
 			fieldDeclaration.setType(type);
+		}
+	}
+
+	private void updateInnerPositions(Type type, int dimensions) {
+		if (dimensions > 1) {
+			// need to set positions for intermediate array type see 42839
+			int start = type.getStartPosition();
+			int length = type.getLength();
+			Type currentComponentType = ((ArrayType) type).getComponentType();
+			int searchedDimension = dimensions - 1;
+			int rightBracketEndPosition = start;
+			while (currentComponentType.isArrayType()) {
+				rightBracketEndPosition = retrieveProperRightBracketPosition(searchedDimension, start, start + length);
+				currentComponentType.setSourceRange(start, rightBracketEndPosition - start + 1);
+				currentComponentType = ((ArrayType) currentComponentType).getComponentType();
+				searchedDimension--;
+			}		
 		}
 	}
 
