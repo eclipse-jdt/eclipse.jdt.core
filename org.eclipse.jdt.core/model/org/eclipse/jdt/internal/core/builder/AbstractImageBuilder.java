@@ -77,50 +77,54 @@ public void acceptResult(CompilationResult result) {
 
 	SourceFile compilationUnit = (SourceFile) result.getCompilationUnit(); // go directly back to the sourceFile
 	if (!workQueue.isCompiled(compilationUnit)) {
+		workQueue.finished(compilationUnit);
+
 		try {
-			workQueue.finished(compilationUnit);
 			updateProblemsFor(compilationUnit, result); // record compilation problems before potentially adding duplicate errors
 			updateTasksFor(compilationUnit, result); // record tasks
-
-			String typeLocator = compilationUnit.typeLocator();
-			ClassFile[] classFiles = result.getClassFiles();
-			int length = classFiles.length;
-			ArrayList duplicateTypeNames = null;
-			ArrayList definedTypeNames = new ArrayList(length);
-			for (int i = 0; i < length; i++) {
-				ClassFile classFile = classFiles[i];
-				char[][] compoundName = classFile.getCompoundName();
-				char[] typeName = compoundName[compoundName.length - 1];
-				boolean isNestedType = CharOperation.contains('$', typeName);
-
-				// Look for a possible collision, if one exists, report an error but do not write the class file
-				if (isNestedType) {
-					String qualifiedTypeName = new String(classFile.outerMostEnclosingClassFile().fileName());
-					if (newState.isDuplicateLocator(qualifiedTypeName, typeLocator))
-						continue;
-				} else {
-					String qualifiedTypeName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
-					if (newState.isDuplicateLocator(qualifiedTypeName, typeLocator)) {
-						if (duplicateTypeNames == null)
-							duplicateTypeNames = new ArrayList();
-						duplicateTypeNames.add(compoundName);
-						createProblemFor(compilationUnit.resource, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
-						continue;
-					}
-					newState.recordLocatorForType(qualifiedTypeName, typeLocator);
-				}
-				definedTypeNames.add(writeClassFile(classFile, compilationUnit.sourceLocation.binaryFolder, !isNestedType));
-			}
-
-			finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
-			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
-			Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
-			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
-				createProblemFor(compilationUnit.resource, Util.bind("build.classFileCollision", e.getMessage()), JavaCore.ERROR); //$NON-NLS-1$
-			else
-				createProblemFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
+			throw internalException(e);
 		}
+
+		String typeLocator = compilationUnit.typeLocator();
+		ClassFile[] classFiles = result.getClassFiles();
+		int length = classFiles.length;
+		ArrayList duplicateTypeNames = null;
+		ArrayList definedTypeNames = new ArrayList(length);
+		for (int i = 0; i < length; i++) {
+			ClassFile classFile = classFiles[i];
+			char[][] compoundName = classFile.getCompoundName();
+			char[] typeName = compoundName[compoundName.length - 1];
+			boolean isNestedType = CharOperation.contains('$', typeName);
+
+			// Look for a possible collision, if one exists, report an error but do not write the class file
+			if (isNestedType) {
+				String qualifiedTypeName = new String(classFile.outerMostEnclosingClassFile().fileName());
+				if (newState.isDuplicateLocator(qualifiedTypeName, typeLocator))
+					continue;
+			} else {
+				String qualifiedTypeName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
+				if (newState.isDuplicateLocator(qualifiedTypeName, typeLocator)) {
+					if (duplicateTypeNames == null)
+						duplicateTypeNames = new ArrayList();
+					duplicateTypeNames.add(compoundName);
+					createProblemFor(compilationUnit.resource, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
+					continue;
+				}
+				newState.recordLocatorForType(qualifiedTypeName, typeLocator);
+			}
+			try {
+				definedTypeNames.add(writeClassFile(classFile, compilationUnit.sourceLocation.binaryFolder, !isNestedType));
+			} catch (CoreException e) {
+				Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
+				if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
+					createProblemFor(compilationUnit.resource, Util.bind("build.classFileCollision", e.getMessage()), JavaCore.ERROR); //$NON-NLS-1$
+				else
+					createProblemFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
+			}
+		}
+		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
+		notifier.compiled(compilationUnit);
 	}
 }
 
