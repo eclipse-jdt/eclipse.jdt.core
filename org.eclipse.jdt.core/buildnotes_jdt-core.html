@@ -11,11 +11,23 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK Build 200205? - ?th May 2002 
+Eclipse SDK Build 20020530 - 30th May 2002 
 <br>Project org.eclipse.jdt.core v_252
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Compiler can now optionally report unused imports. See option named "" on <code>JavaCore#getDefaultOptions</code> comment
+<pre>
+	 * COMPILER / Reporting Unused Import
+	 *    When enabled, the compiler will issue an error or a warning for unused import 
+	 *    reference 
+	 *     - option id:		"org.eclipse.jdt.core.compiler.problem.unusedImport"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:		"ignore"
+</pre>
+Note that if import problems (separate settings) are disabled, unused imports will not be reported either.
+This option is also available to the batch compiler ("-warn:unusedImports").
+</li>
 <li>Added API on IType so as to tell whether a type is anonymous, local or member.</li>
 <li>Changing 2.0 API for refreshing external JARs so as to pass in a collection of projects to restrain the scope
 of the update (see <code>IJavaModel#refreshExternalJARs(IJavaProject[],IProgressMonitor)</code>. </li>
