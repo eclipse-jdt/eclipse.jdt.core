@@ -80,58 +80,54 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 protected void cleanOutputFolders() throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
-	ArrayList visited = new ArrayList(sourceLocations.length);
-	next : for (int i = 0, l = sourceLocations.length; i < l; i++) {
-		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
-		ClasspathMultiDirectory sourceLocation = sourceLocations[i];
-		if (sourceLocation.hasIndependentOutputFolder) {
-			IContainer outputFolder = sourceLocation.binaryFolder;
-			if (!visited.contains(outputFolder)) {
-				visited.add(outputFolder);
-				if (deleteAll) {
+	if (deleteAll) {
+		ArrayList visited = new ArrayList(sourceLocations.length);
+		for (int i = 0, l = sourceLocations.length; i < l; i++) {
+			notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
+			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
+			if (sourceLocation.hasIndependentOutputFolder) {
+				IContainer outputFolder = sourceLocation.binaryFolder;
+				if (!visited.contains(outputFolder)) {
+					visited.add(outputFolder);
 					IResource[] members = outputFolder.members(); 
 					for (int j = 0, m = members.length; j < m; j++)
 						members[j].delete(IResource.FORCE, null);
-				} else {
-					outputFolder.accept(
-						new IResourceVisitor() {
-							public boolean visit(IResource resource) throws CoreException {
-								if (resource.getType() == IResource.FILE) {
-									if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
-										resource.delete(IResource.FORCE, null);
-									return false;
-								}
-								return true;
+				}
+				copyExtraResourcesBack(sourceLocation, deleteAll);
+			} else {
+				boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
+				final char[][] exclusionPatterns =
+					isOutputFolder
+						? sourceLocation.exclusionPatterns
+						: null; // ignore exclusionPatterns if output folder == another source folder... not this one
+				sourceLocation.binaryFolder.accept(
+					new IResourceVisitor() {
+						public boolean visit(IResource resource) throws CoreException {
+							if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+								return false;
+							if (resource.getType() == IResource.FILE) {
+								if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+									resource.delete(IResource.FORCE, null);
+								return false;
 							}
+							return true;
 						}
-					);
-				}
-			}
-			copyExtraResourcesBack(sourceLocation, deleteAll);
-		} else {
-			boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
-			final char[][] exclusionPatterns =
-				isOutputFolder
-					? sourceLocation.exclusionPatterns
-					: null; // ignore exclusionPatterns if output folder == another source folder... not this one
-			sourceLocation.binaryFolder.accept(
-				new IResourceVisitor() {
-					public boolean visit(IResource resource) throws CoreException {
-						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
-							return false;
-						if (resource.getType() == IResource.FILE) {
-							if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
-								resource.delete(IResource.FORCE, null);
-							return false;
-						}
-						return true;
 					}
-				}
-			);
-			if (!isOutputFolder)
-				copyPackages(sourceLocation);
+				);
+				if (!isOutputFolder)
+					copyPackages(sourceLocation);
+			}
+			notifier.checkCancel();
 		}
-		notifier.checkCancel();
+	} else {
+		for (int i = 0, l = sourceLocations.length; i < l; i++) {
+			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
+			if (sourceLocation.hasIndependentOutputFolder)
+				copyExtraResourcesBack(sourceLocation, deleteAll);
+			else if (!sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder))
+				copyPackages(sourceLocation); // output folder is different from source folder
+			notifier.checkCancel();
+		}
 	}
 }
 
