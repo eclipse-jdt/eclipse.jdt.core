@@ -233,7 +233,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 
 	/**
-	 * Returns the number of extra array dimensions over and above the 
+	 * Sets the number of extra array dimensions over and above the 
 	 * explicitly-specified type.
 	 * <p>
 	 * For example, <code>int x[][]</code> has a type of 

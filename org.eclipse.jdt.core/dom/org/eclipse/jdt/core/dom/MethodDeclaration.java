@@ -354,7 +354,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	}
 
 	/**
-	 * Returns the number of extra array dimensions over and above the 
+	 * Sets the number of extra array dimensions over and above the 
 	 * explicitly-specified return type.
 	 * <p>
 	 * For example, <code>int foo()[][]</code> is rendered as a return
@@ -364,8 +364,6 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * constructs have different ASTs, even though there are really syntactic
 	 * variants of the same method declaration.
 	 * </p>
-	 * 
-	 * @return the number of extra array dimensions
 	 * 
 	 * @param dimensions the number of array dimensions
 	 * @exception IllegalArgumentException if the number of dimensions is
