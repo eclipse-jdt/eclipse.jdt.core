@@ -117,7 +117,7 @@ public int hashCode() {
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {
-					manager.add((IFile) value, this.folder.getFullPath());
+					manager.addBinary((IFile) value, this.folder.getFullPath());
 				} else if (value == DELETED) {
 					manager.remove(name, this.project.getFullPath());
 				}

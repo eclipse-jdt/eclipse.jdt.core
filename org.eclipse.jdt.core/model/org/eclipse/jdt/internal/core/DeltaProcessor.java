@@ -1225,7 +1225,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						break;
 				case IResourceDelta.ADDED :
 					if (file.isLocal(IResource.DEPTH_ZERO))
-						indexManager.add(file, binaryFolderPath);
+						indexManager.addBinary(file, binaryFolderPath);
 					break;
 				case IResourceDelta.REMOVED :
 					indexManager.remove(file.getFullPath().toString(), binaryFolderPath);
@@ -1241,7 +1241,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						break;
 				case IResourceDelta.ADDED :
 					if (file.isLocal(IResource.DEPTH_ZERO))
-						indexManager.add(file, file.getProject().getProject().getFullPath());
+						indexManager.addSource(file, file.getProject().getProject().getFullPath());
 					break;
 				case IResourceDelta.REMOVED :
 					indexManager.remove(file.getFullPath().toString(), file.getProject().getProject().getFullPath());

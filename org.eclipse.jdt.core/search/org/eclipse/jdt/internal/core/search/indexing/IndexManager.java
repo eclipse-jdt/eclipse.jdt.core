@@ -61,22 +61,25 @@ public void activateProcessing() {
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void add(IFile resource, IPath indexedContainer){
+public void addSource(IFile resource, IPath indexedContainer){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
-	String extension = resource.getFileExtension();
-	if ("java".equals(extension)){ //$NON-NLS-1$
-		AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this, indexedContainer);
-		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
-			job.initializeContents();
-		}
-		request(job);
-	} else if ("class".equals(extension)){ //$NON-NLS-1$
-		AddClassFileToIndex job = new AddClassFileToIndex(resource, this, indexedContainer);
-		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
-			job.initializeContents();
-		}
-		request(job);
+	AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this, indexedContainer);
+	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
+		job.initializeContents();
 	}
+	request(job);
+}
+/**
+ * Trigger addition of a resource to an index
+ * Note: the actual operation is performed in background
+ */
+public void addBinary(IFile resource, IPath indexedContainer){
+	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
+	AddClassFileToIndex job = new AddClassFileToIndex(resource, this, indexedContainer);
+	if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
+		job.initializeContents();
+	}
+	request(job);
 }
 /**
  * Index the content of the given source folder.
@@ -98,7 +101,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder) {
 			public boolean visit(IResource resource) throws CoreException {
 				if (resource instanceof IFile) {
 					if ("java".equalsIgnoreCase(resource.getFileExtension())) {  //$NON-NLS-1$
-						add((IFile)resource, container);
+						addSource((IFile)resource, container);
 					}
 					return false;
 				} else {

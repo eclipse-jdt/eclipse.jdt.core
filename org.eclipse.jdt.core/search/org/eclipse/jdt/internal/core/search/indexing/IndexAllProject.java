@@ -110,7 +110,7 @@ public int hashCode() {
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {
-					manager.add((IFile) value, this.project.getFullPath());
+					manager.addSource((IFile) value, this.project.getFullPath());
 				} else if (value == DELETED) {
 					manager.remove(name, this.project.getFullPath());
 				}
@@ -132,7 +132,7 @@ public int hashCode() {
 		
 		if (resource.getType() == IResource.FILE) {
 			String extension = resource.getFileExtension();
-			if ((extension != null) && extension.equalsIgnoreCase("java")) { //$NON-NLS-1$
+			if ("java".equalsIgnoreCase(extension)) { //$NON-NLS-1$
 				IPath path = resource.getLocation();
 				if (path != null) {
 					File resourceFile = path.toFile();

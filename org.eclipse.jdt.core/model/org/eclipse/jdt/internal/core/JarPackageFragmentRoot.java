@@ -292,7 +292,9 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 			ArrayList[] entries= (ArrayList[]) packageFragToTypes.get(packName);
 			JarPackageFragment packFrag= (JarPackageFragment) getPackageFragment(packName);
 			JarPackageFragmentInfo fragInfo= (JarPackageFragmentInfo) packFrag.createElementInfo();
-			fragInfo.setEntryNames(entries[0]);
+			if (entries[0].size() > 0){
+				fragInfo.setEntryNames(entries[0]);
+			}
 			int resLength= entries[1].size();
 			if (resLength == 0) {
 				packFrag.computeNonJavaResources(new String[] {}, fragInfo, jar.getName());

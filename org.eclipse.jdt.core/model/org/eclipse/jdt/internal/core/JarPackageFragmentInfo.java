@@ -20,11 +20,11 @@ class JarPackageFragmentInfo extends PackageFragmentInfo {
 	 * The names of the zip entries that are the class files associated
 	 * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
 	 */
-	protected ArrayList fEntryNames= new ArrayList();
+	protected ArrayList fEntryNames;
 /**
  */
 boolean containsJavaResources() {
-	return fEntryNames.size() != 0;
+	return fEntryNames != null && fEntryNames.size() != 0;
 }
 /**
  * Returns an array of non-java resources contained in the receiver.
