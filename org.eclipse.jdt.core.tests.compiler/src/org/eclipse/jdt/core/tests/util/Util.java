@@ -88,9 +88,53 @@ public static String displayString(String inputString){
 }
 /**
  * Generate a display string from the given String.
+ * It converts:
+ * <ul>
+ * <li>\t to \t</li>
+ * <li>\r to \\r</li>
+ * <li>\n to \n</li>
+ * <li>\b to \\b</li>
+ * <li>\f to \\f</li>
+ * <li>\" to \\\"</li>
+ * <li>\' to \\'</li>
+ * <li>\\ to \\\\</li>
+ * <li>All other characters are unchanged.</li>
+ * </ul>
+ * This method doesn't convert \r\n to \n. 
+ * <p>
+ * Example of use:
+ * <o>
+ * <li>
+ * <pre>
+ * input string = "abc\ndef\tghi",
+ * indent = 3
+ * result = "\"\t\t\tabc\\n" +
+ * 			"\t\t\tdef\tghi\""
+ * </pre>
+ * </li>
+ * <li>
+ * <pre>
+ * input string = "abc\ndef\tghi\n",
+ * indent = 3
+ * result = "\"\t\t\tabc\\n" +
+ * 			"\t\t\tdef\tghi\\n\""
+ * </pre>
+ * </li>
+ * <li>
+ * <pre>
+ * input string = "abc\r\ndef\tghi\r\n",
+ * indent = 3
+ * result = "\"\t\t\tabc\\r\\n" +
+ * 			"\t\t\tdef\tghi\\r\\n\""
+ * </pre>
+ * </li>
+ * </ol>
+ * </p>
+ * 
+ * @param inputString the given input string
  * @param indent number of tabs are added at the begining of each line.
  *
- * Example of use: [org.eclipse.jdt.core.tests.util.Util.displayString("abc\ndef\tghi", 3)]
+ * @return the displayed string
 */
 public static String displayString(String inputString, int indent) {
 	int length = inputString.length();
