@@ -396,11 +396,22 @@ protected void parseAndBuildBindings(PossibleMatch possibleMatch, boolean mustRe
  * Returns the existing one if already cached.
  * Returns null if source type binding was cached.
  */
-protected BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException {
+protected BinaryTypeBinding cacheBinaryType(IType type, IBinaryType binaryType) throws JavaModelException {
 	IType enclosingType = type.getDeclaringType();
 	if (enclosingType != null)
-		cacheBinaryType(enclosingType); // cache enclosing types first, so that binary type can be found in lookup enviroment
-	IBinaryType binaryType = (IBinaryType) ((BinaryType) type).getElementInfo();
+		cacheBinaryType(enclosingType, null); // cache enclosing types first, so that binary type can be found in lookup enviroment
+	if (binaryType == null) {
+		ClassFile classFile = (ClassFile) type.getClassFile();
+		try {
+			binaryType = getBinaryInfo(classFile, classFile.getResource());
+		} catch (CoreException e) {
+			if (e instanceof JavaModelException) {
+				throw (JavaModelException) e;
+			} else {
+				throw new JavaModelException(e);
+			}
+		}
+	}
 	BinaryTypeBinding binding = this.lookupEnvironment.cacheBinaryType(binaryType);
 	if (binding == null) { // it was already cached as a result of a previous query
 		char[][] compoundName = CharOperation.splitOn('.', type.getFullyQualifiedName().toCharArray());
@@ -531,7 +542,7 @@ protected boolean createHierarchyResolver(IType focusType, PossibleMatch[] possi
 	if (!isPossibleMatch) {
 		if (focusType.isBinary()) {
 			try {
-				cacheBinaryType(focusType);
+				cacheBinaryType(focusType, null);
 			} catch (JavaModelException e) {
 				return false;
 			}
@@ -615,6 +626,7 @@ protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) thr
 			String osPath = resource.getLocation().toOSString();
 			info = ClassFileReader.read(osPath);
 		}
+		if (info == null) throw binaryType.newNotPresentException();
 		return info;
 	} catch (ClassFormatException e) {
 		//e.printStackTrace();

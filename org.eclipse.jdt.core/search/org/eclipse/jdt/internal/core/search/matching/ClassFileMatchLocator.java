@@ -61,7 +61,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 	int accuracy = SearchMatch.A_ACCURATE;
 	if (((InternalSearchPattern)pattern).mustResolve) {
 		try {
-			BinaryTypeBinding binding = locator.cacheBinaryType(binaryType);
+			BinaryTypeBinding binding = locator.cacheBinaryType(binaryType, info);
 			if (binding != null) {
 				// filter out element not in hierarchy scope
 				if (!locator.typeInHierarchy(binding)) return;

@@ -153,7 +153,7 @@ public char[][][] collect() throws JavaModelException {
 		this.locator.initialize(javaProject, 0);
 		try {
 			if (this.type.isBinary()) {
-				BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type);
+				BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type, null);
 				if (binding != null)
 					collectSuperTypeNames(binding);
 			} else {
@@ -203,7 +203,7 @@ public char[][][] collect() throws JavaModelException {
 					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
 			} else if (openable instanceof IClassFile) {
 				IClassFile classFile = (IClassFile) openable;
-				BinaryTypeBinding binding = this.locator.cacheBinaryType(classFile.getType());
+				BinaryTypeBinding binding = this.locator.cacheBinaryType(classFile.getType(), null);
 				if (matches(binding))
 					collectSuperTypeNames(binding);
 			}
