@@ -32,8 +32,6 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
 	private Constant constant;
 	private int[] constantPoolOffsets;
 	private char[] descriptor;
-	private boolean isDeprecated;
-	private boolean isSynthetic;
 	private char[] name;
 	private Object wrappedConstantValue;
 	private char[] signature;
@@ -87,18 +85,12 @@ public Constant getConstant() {
  * @return int
  */
 public int getModifiers() {
-	if (accessFlags == -1) {
+	if (this.accessFlags == -1) {
 		// compute the accessflag. Don't forget the deprecated attribute
-		accessFlags = u2At(0);
+		this.accessFlags = u2At(0);
 		readDeprecatedAndSyntheticAttributes();
-		if (isDeprecated) {
-			accessFlags |= AccDeprecated;
-		}
-		if (isSynthetic) {
-			accessFlags |= AccSynthetic;
-		}
 	}
-	return accessFlags;
+	return this.accessFlags;
 }
 /**
  * Answer the name of the field.
@@ -277,9 +269,9 @@ private void readDeprecatedAndSyntheticAttributes() {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation.equals(attributeName, DeprecatedName)) {
-			isDeprecated = true;
+			this.accessFlags |= AccDeprecated;
 		} else if (CharOperation.equals(attributeName, SyntheticName)) {
-			isSynthetic = true;
+			this.accessFlags |= AccSynthetic;
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
