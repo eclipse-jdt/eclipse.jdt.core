@@ -168,9 +168,14 @@ public void testContains4() throws CoreException {
 		folder = this.getFolder("/P/bin");
 		assertTrue("/P/bin should not be in model", !getJavaModel().contains(folder));
 		
+		// classfile in bin folder
 		file = this.createFile("/P/bin/X.class", "");
 		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
 		
+		// resource file in bin folder
+		this.createFolder("/P/bin/image");
+		file = this.createFile("/P/bin/image/ok.gif", "");
+		assertTrue("/P/bin/image/ok.gif should not be in model", !getJavaModel().contains(file));
 	} finally {
 		this.deleteProject("P");
 	}
@@ -190,6 +195,11 @@ public void testContains5() throws CoreException {
 		// .class file in bin
 		file = this.createFile("/P/bin/X.class", "");
 		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
+
+		// resource file in bin
+		this.createFolder("/P/bin/image");
+		file = this.createFile("/P/bin/image/ok.gif", "");
+		assertTrue("/P/bin/image/ok.gif should not be in model", !getJavaModel().contains(file));
 
 		// .class file in src
 		file = this.createFile("/P/src/X.class", "");
