@@ -41,9 +41,6 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 			public IBuffer createBuffer(ICompilationUnit compilationUnit) {
 				return null;
 			}
-			public IProblemRequestor getProblemRequestor() {
-				return null;
-			}
 			public String toString() {
 				return "Destroyed working copy owner"; //$NON-NLS-1$
 			}
@@ -87,17 +84,11 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
  */
 public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Object info = manager.getInfo(this);
-	if (info instanceof WorkingCopyElementInfo) {
-		((WorkingCopyElementInfo)info).incrementUseCount();
-	} else {
-		if (info != null) {
-			// close cu and its children
-			close();
-			
-			// remove compilation unit info for the owner
-			manager.removeInfoAndChildren(this);
-		}
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
+	if (perWorkingCopyInfo == null) {
+		// close cu and its children
+		close();
+
 		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(this, null, problemRequestor);
 		runOperation(operation, null);
 	}
@@ -105,7 +96,7 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	// check if this compilation unit can be opened
-	if (!(info instanceof WorkingCopyElementInfo)) { // no check is done on root kind or exclusion pattern for working copies
+	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
 		if (((IPackageFragment)getParent()).getKind() == IPackageFragmentRoot.K_BINARY
 				|| !isValidCompilationUnit()
 				|| !underlyingResource.isAccessible()) {
@@ -127,16 +118,16 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 	// generate structure and compute syntax problems if needed
 	CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
-	boolean computeProblems = computeProblems(info);
-	WorkingCopyElementInfo workingCopyElementInfo = computeProblems ? (WorkingCopyElementInfo)unitInfo : null;
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
+	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
 	IProblemFactory factory = 
 		computeProblems 
-			?  CompilationUnitProblemFinder.getProblemFactory(getElementName().toCharArray(), workingCopyElementInfo, pm) 
+			?  CompilationUnitProblemFinder.getProblemFactory(getElementName().toCharArray(), perWorkingCopyInfo, pm) 
 			:  	new DefaultProblemFactory();
 	SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
 	requestor.parser = parser;
 	if (computeProblems) {
-		workingCopyElementInfo.beginReporting();
+		perWorkingCopyInfo.beginReporting();
 	}
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
@@ -162,35 +153,31 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	
 	// compute other problems if needed
 	if (computeProblems){
-		CompilationUnitProblemFinder.process(unit, this, workingCopyElementInfo, pm);
-		workingCopyElementInfo.endReporting();
+		CompilationUnitProblemFinder.process(unit, this, perWorkingCopyInfo, pm);
+		perWorkingCopyInfo.endReporting();
 	}		
 	
 	return unitInfo.isStructureKnown();
 }
 /*
+ * @see Openable#canBeRemovedFromCache
+ */
+public boolean canBeRemovedFromCache() {
+	if (isWorkingCopy()) return false; // working copies should remain in the cache until they are destroyed
+	return super.canBeRemovedFromCache();
+}
+/*
  * @see IOpenable#close
  */
 public void close() throws JavaModelException {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Object info = manager.peekAtInfo(this);
-	if (info == null) return;
+	if (isWorkingCopy()) return; // a working copy must remain opened until it is discarded
 	super.close();
-	if (info instanceof WorkingCopyElementInfo) {
-		WorkingCopyElementInfo workingCopyElementInfo = (WorkingCopyElementInfo)info;
-		int useCount = workingCopyElementInfo.useCount();
-		HashMap newElements = new HashMap();
-		newElements.put(this,  new WorkingCopyElementInfo(-useCount, workingCopyElementInfo.problemRequestor));
-		// note if working copy is reopen by another thread in the meantime
-		// then putInfos will not put the working copy info as it will be already in the cache
-		manager.putInfos(this, newElements); 
-	}
 }
 /*
  * @see Openable#closing
  */
 protected void closing(Object info) throws JavaModelException {
-	if (!(info instanceof WorkingCopyElementInfo)) {
+	if (!isWorkingCopy()) {
 		super.closing(info);
 	} // else the buffer of a working copy must remain open for the lifetime of the working copy
 }
@@ -321,9 +308,6 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
 		}
 	}
 }
-protected boolean computeProblems(Object info) {
-	return info instanceof WorkingCopyElementInfo && ((WorkingCopyElementInfo)info).isActive();
-}
 /**
  * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
@@ -400,11 +384,11 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 public void destroy() {
 	try {
-		Object info = JavaModelManager.getJavaModelManager().getInfo(this);
+		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
 		
 		discardWorkingCopy();
 		
-		if (info instanceof WorkingCopyElementInfo && ((WorkingCopyElementInfo)info).useCount() == 0) {
+		if (perWorkingCopyInfo != null && perWorkingCopyInfo.useCount == 0) {
 			// mark as destroyed
 			this.owner = DESTROYED_WC_OWNER;
 		}
@@ -417,9 +401,8 @@ public void destroy() {
  * @see ICompilationUnit#discardWorkingCopy
  */
 public void discardWorkingCopy() throws JavaModelException {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Object info = manager.getInfo(this);
-	if (info instanceof WorkingCopyElementInfo && ((WorkingCopyElementInfo)info).decrementUseCount() == 0) {
+	int useCount = JavaModelManager.getJavaModelManager().discardPerWorkingCopyInfo(this);
+	if (useCount == 0) {
 		// discard working copy and its children
 		DiscardWorkingCopyOperation op = new DiscardWorkingCopyOperation(this);
 		runOperation(op, null);
@@ -610,21 +593,6 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 		return e;
 	}
 }
-/*
- * @see JavaElement#getElementInfo(IProgessMonitor)
- */
-public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Object info = manager.getInfo(this);
-	if (info == null) {
-		info = openWhenClosed(new CompilationUnitElementInfo(), monitor);
-	} else if (info instanceof WorkingCopyElementInfo && !((WorkingCopyElementInfo)info).isOpen()) {
-		WorkingCopyElementInfo workingCopyElementInfo = (WorkingCopyElementInfo)info;
-		int useCount = workingCopyElementInfo.useCount();
-		info = openWhenClosed(new WorkingCopyElementInfo(useCount, workingCopyElementInfo.problemRequestor), monitor);
-	}
-	return info;
-}
 public char[] getFileName(){
 	return getElementName().toCharArray();
 }
@@ -812,6 +780,13 @@ public IPath getPath() {
 		return this.getParent().getPath().append(this.getElementName());
 	}
 }
+/*
+ * Returns the per working copy info for the receiver, or null if none exist.
+ * Note: the use count of the per working copy info is NOT incremented.
+ */
+public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
+	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
+}
 /**
  * @see IJavaElement#getResource()
  */
@@ -886,9 +861,8 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	}
 	CompilationUnit workingCopy = (CompilationUnit)perOwnerWorkingCopies.get(this);
 	if (workingCopy != null) {
-		Object info = manager.getInfo(workingCopy);
-		if (info instanceof WorkingCopyElementInfo) {
-			((WorkingCopyElementInfo)info).incrementUseCount();
+		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true /*record usage*/, null/*not used since don't create*/);
+		if (perWorkingCopyInfo != null) {
 
 			if (SHARED_WC_VERBOSE) {
 				System.out.println("Incrementing use count of shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
@@ -970,15 +944,16 @@ public boolean hasUnsavedChanges() throws JavaModelException{
  * @see ICompilationUnit#isBasedOn(IResource)
  */
 public boolean isBasedOn(IResource resource) {
-	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
-	if (!(info instanceof WorkingCopyElementInfo)) return false;
+	if (!isWorkingCopy()) return false;
 	
 	if (resource.getType() != IResource.FILE) {
 		return false;
 	}
 	// if resource got deleted, then #getModificationStamp() will answer IResource.NULL_STAMP, which is always different from the cached
 	// timestamp
-	return ((WorkingCopyElementInfo)info).fTimestamp == ((IFile) resource).getModificationStamp();
+	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
+	if (info == null) return false;
+	return ((CompilationUnitElementInfo)info).fTimestamp == ((IFile) resource).getModificationStamp();
 }
 /**
  * @see IOpenable#isConsistent()
@@ -1019,7 +994,8 @@ protected boolean isValidCompilationUnit() {
  * @see ICompilationUnit#isWorkingCopy()
  */
 public boolean isWorkingCopy() {
-	return JavaModelManager.getJavaModelManager().peekAtInfo(this) instanceof WorkingCopyElementInfo;
+	// TODO per construction, need to check cache state if owner is primary one.
+	return getPerWorkingCopyInfo() != null;
 }
 /**
  * @see IOpenable#makeConsistent(IProgressMonitor)
@@ -1029,18 +1005,11 @@ public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 		
 	// close
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Object existingInfo = manager.removeInfoAndChildren(this);
+	// working copy: remove info from cache, but keep buffer open
+	manager.removeInfoAndChildren(this);
 	
 	// create a new info and make it the current info
-	Object info;
-	if (existingInfo instanceof WorkingCopyElementInfo) {
-		WorkingCopyElementInfo workingCopyElementInfo = (WorkingCopyElementInfo)existingInfo;
-		int useCount = workingCopyElementInfo.useCount();
-		info = new WorkingCopyElementInfo(useCount, workingCopyElementInfo.problemRequestor);
-	} else {
-		info = new CompilationUnitElementInfo();
-	}
-	openWhenClosed(info, monitor);
+	openWhenClosed(createElementInfo(), monitor);
 }
 /**
  * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
@@ -1065,7 +1034,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 
 	// create buffer
-	boolean isWorkingCopy = info instanceof WorkingCopyElementInfo;
+	boolean isWorkingCopy = isWorkingCopy();
 	IBuffer buffer = 
 		isWorkingCopy 
 			? this.owner.createBuffer(this) 
@@ -1111,7 +1080,7 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
 		super.openParent(childInfo, newElements, pm);
 	} catch(JavaModelException e){
 		// allow parent to not exist for working copies defined outside classpath
-		if (!(childInfo instanceof WorkingCopyElementInfo) && !e.isDoesNotExist()){ 
+		if (!isWorkingCopy() && !e.isDoesNotExist()){ 
 			throw e;
 		}
 	}
@@ -1187,12 +1156,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		buffer.append("[Working copy] "); //$NON-NLS-1$
 		buffer.append(getElementName());
 	} else {
-		Object unitInfo = JavaModelManager.getJavaModelManager().peekAtInfo(this);
-		if (unitInfo instanceof WorkingCopyElementInfo) {
+		if (isWorkingCopy()) {
 			buffer.append(this.tabString(tab));
 			buffer.append("[Working copy] "); //$NON-NLS-1$
 			buffer.append(getElementName());
-			if (info == null || !((CompilationUnitElementInfo)unitInfo).isOpen()) {
+			if (info == null) {
 				buffer.append(" (not open)"); //$NON-NLS-1$
 			}
 		} else {

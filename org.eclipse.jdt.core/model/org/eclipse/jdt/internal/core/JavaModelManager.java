@@ -21,6 +21,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -487,7 +488,13 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Table from IProject to PerProjectInfo.
 	 * NOTE: this object itself is used as a lock to synchronize creation/removal of per project infos
 	 */
-	protected Map perProjectInfo = new HashMap(5);
+	protected Map perProjectInfos = new HashMap(5);
+	
+	/**
+	 * Table from ICompilationUnit (in working copy mode) to PerWorkingCopyInfo.
+	 * NOTE: this object itself is used as a lock to synchronize creation/removal of per working copy infos
+	 */
+	protected Map perWorkingCopyInfos = new HashMap(5);
 	
 	/**
 	 * A map from ICompilationUnit to IWorkingCopy
@@ -526,6 +533,30 @@ public class JavaModelManager implements ISaveParticipant {
 			this.resolvedPathToRawEntries = null;
 		}
 	}
+	
+	public static class PerWorkingCopyInfo implements IProblemRequestor {
+		public int useCount = 0;
+		IProblemRequestor problemRequestor;
+		public PerWorkingCopyInfo(IProblemRequestor problemRequestor) {
+			this.problemRequestor = problemRequestor;
+		}
+		public void acceptProblem(IProblem problem) {
+			if (this.problemRequestor == null) return;
+			this.problemRequestor.acceptProblem(problem);
+		}
+		public void beginReporting() {
+			if (this.problemRequestor == null) return;
+			this.problemRequestor.beginReporting();
+		}
+		public void endReporting() {
+			if (this.problemRequestor == null) return;
+			this.problemRequestor.endReporting();
+		}
+		public boolean isActive() {
+			return this.problemRequestor != null && this.problemRequestor.isActive();
+		}
+	}
+	
 	public static boolean VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
@@ -643,7 +674,50 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 	
+	/*
+	 * Discards the per working copy info for the given working copy (making it a compilation unit)
+	 * if its use count was 1. Otherwise, just decrement the use count.
+	 * Close the working copy, its buffer and remove it from the shared working copy table.
+	 * Ignore if no per-working copy info existed.
+	 * Returns the new use count (or -1 if it didn't exist).
+	 */
+	public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
+		synchronized(perWorkingCopyInfos) {
+			PerWorkingCopyInfo info = (PerWorkingCopyInfo)perWorkingCopyInfos.get(workingCopy);
+			if (info != null) {
+				if (--info.useCount == 0) {
+					IJavaElement originalElement = workingCopy.getOriginalElement();
 
+					// remove per working copy info first so that the buffer can be closed while closing the working copy
+					perWorkingCopyInfos.remove(workingCopy);
+
+					// remove infos + close buffer (since no longer working copy)
+					removeInfoAndChildren(workingCopy);
+					
+					// if original element is not on classpath flush it from the cache 
+					if (!workingCopy.getParent().exists()) {
+						((CompilationUnit)originalElement).close();
+					}
+					
+					// remove working copy from the shared working copy cache if needed
+					// TODO backward compatibility for #getSharedWorkingCopies support
+					// In order to be shared, working copies have to denote the same compilation unit 
+					// AND use the same buffer factory.
+					// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
+					Map perFactoryWorkingCopies = (Map) this.sharedWorkingCopies.get(workingCopy.owner);
+					if (perFactoryWorkingCopies != null){
+						if (perFactoryWorkingCopies.remove(originalElement) != null
+								&& CompilationUnit.SHARED_WC_VERBOSE) {
+							System.out.println("Destroying shared working copy " + workingCopy.toStringWithAncestors());//$NON-NLS-1$
+						}
+					}
+				}
+				return info.useCount;
+			} else {
+				return -1;
+			}	
+		}
+	}
 	
 	/**
 	 * @see ISaveParticipant
@@ -790,11 +864,11 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
 	public PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
-		synchronized(perProjectInfo) { // use the perProjectInfo collection as its own lock
-			PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
+		synchronized(perProjectInfos) { // use the perProjectInfo collection as its own lock
+			PerProjectInfo info= (PerProjectInfo) perProjectInfos.get(project);
 			if (info == null && create) {
 				info= new PerProjectInfo(project);
-				perProjectInfo.put(project, info);
+				perProjectInfos.put(project, info);
 			}
 			return info;
 		}
@@ -815,6 +889,24 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return info;
 	}
+	
+	/*
+	 * Returns the per-working copy info for the given working copy.
+	 * If it doesn't exist and if create, add a new per-working copy info with the given problem requestor.
+	 * If recordUsage, increment the per-working copy info's use count.
+	 * Returns null if it doesn't exist and not create.
+	 */
+	public PerWorkingCopyInfo getPerWorkingCopyInfo(ICompilationUnit workingCopy, boolean create, boolean recordUsage, IProblemRequestor problemRequestor) {
+		synchronized(perWorkingCopyInfos) { // use the perWorkingCopyInfo collection as its own lock
+			PerWorkingCopyInfo info = (PerWorkingCopyInfo) perWorkingCopyInfos.get(workingCopy);
+			if (info == null && create) {
+				info= new PerWorkingCopyInfo(problemRequestor);
+				perWorkingCopyInfos.put(workingCopy, info);
+			}
+			if (info != null && recordUsage) info.useCount++;
+			return info;
+		}
+	}	
 	
 	/*
 	 * Returns the temporary cache for newly opened elements for the current thread.
@@ -1233,11 +1325,11 @@ public class JavaModelManager implements ISaveParticipant {
 	}	
 
 	public void removePerProjectInfo(JavaProject javaProject) {
-		synchronized(perProjectInfo) { // use the perProjectInfo collection as its own lock
+		synchronized(perProjectInfos) { // use the perProjectInfo collection as its own lock
 			IProject project = javaProject.getProject();
-			PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
+			PerProjectInfo info= (PerProjectInfo) perProjectInfos.get(project);
 			if (info != null) {
-				perProjectInfo.remove(project);
+				perProjectInfos.remove(project);
 			}
 		}
 	}
@@ -1318,7 +1410,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 
 		ArrayList vStats= null; // lazy initialized
-		for (Iterator iter =  perProjectInfo.values().iterator(); iter.hasNext();) {
+		for (Iterator iter =  perProjectInfos.values().iterator(); iter.hasNext();) {
 			try {
 				PerProjectInfo info = (PerProjectInfo) iter.next();
 				saveState(info, context);

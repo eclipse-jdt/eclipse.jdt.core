@@ -23,26 +23,27 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class BecomeWorkingCopyOperation extends JavaModelOperation {
 	
-	Map perFactoryWorkingCopies;
+	Map perOwnerWorkingCopies;
 	IProblemRequestor problemRequestor;
 	
 	/*
 	 * Creates a BecomeWorkingCopyOperation for the given working copy.
-	 * perFactoryWorkingCopies map is not null if the working copy is a shared working copy.
+	 * perOwnerWorkingCopies map is not null if the working copy is a shared working copy.
 	 */
-	public BecomeWorkingCopyOperation(ICompilationUnit workingCopy, Map perFactoryWorkingCopies, IProblemRequestor problemRequestor) {
+	public BecomeWorkingCopyOperation(ICompilationUnit workingCopy, Map perOwnerWorkingCopies, IProblemRequestor problemRequestor) {
 		super(new IJavaElement[] {workingCopy});
-		this.perFactoryWorkingCopies = perFactoryWorkingCopies;
+		this.perOwnerWorkingCopies = perOwnerWorkingCopies;
 		this.problemRequestor = problemRequestor;
 	}
 	protected void executeOperation() throws JavaModelException {
 
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
-		workingCopy.openWhenClosed(new WorkingCopyElementInfo(problemRequestor), fMonitor);
+		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, true/*create if needed*/, true/*record usage*/, problemRequestor);
+		workingCopy.openWhenClosed(workingCopy.createElementInfo(), fMonitor);
 
-		if (this.perFactoryWorkingCopies != null) {
-			this.perFactoryWorkingCopies.put(workingCopy.getOriginalElement(), workingCopy);
+		if (this.perOwnerWorkingCopies != null) {
+			this.perOwnerWorkingCopies.put(workingCopy.getOriginalElement(), workingCopy);
 			if (CompilationUnit.SHARED_WC_VERBOSE) {
 				System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
 			}

@@ -17,6 +17,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class ReconcilerTests extends ModifyingResourceTests {
 	
@@ -285,6 +287,29 @@ public void testChangeMethodVisibility() throws JavaModelException {
 		"	foo[*]: {MODIFIERS CHANGED}"
 	);
 }
+/**
+ * Ensures that the correct delta is reported when closing the working copy and modifying its buffer.
+ */
+public void testCloseWorkingCopy() throws JavaModelException {
+	IBuffer buffer = this.workingCopy.getBuffer();
+	this.workingCopy.close();
+	buffer.setContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}");
+	this.workingCopy.reconcile();
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	bar[+]: {}"
+	);
+}
+
 /**
  * Ensures that a reference to a constant with type mismatch doesn't show an error.
  * (regression test for bug 17104 Compiler does not complain but "Quick Fix" ??? complains)
@@ -700,7 +725,7 @@ public void testMethodWithError7() throws JavaModelException, CoreException {
 		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
 
 		// Close working copy
-		this.workingCopy.close();
+		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
 		
 		// Reopen should detect syntax error
 		this.problemRequestor.initialize();

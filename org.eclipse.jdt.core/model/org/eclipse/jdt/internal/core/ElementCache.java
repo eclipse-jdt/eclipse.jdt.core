@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 
@@ -38,9 +37,9 @@ public ElementCache(int size, int overflow) {
  * by closing the element.
  */
 protected boolean close(LRUCacheEntry entry) {
-	IOpenable element = (IOpenable) entry._fKey;
+	Openable element = (Openable) entry._fKey;
 	try {
-		if (element.hasUnsavedChanges()) {
+		if (!element.canBeRemovedFromCache()) {
 			return false;
 		} else {
 			// We must close an entire JarPackageFragmentRoot at once.

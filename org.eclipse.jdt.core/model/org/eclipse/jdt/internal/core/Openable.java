@@ -68,6 +68,16 @@ public void bufferChanged(BufferChangedEvent event) {
  * the structure of this element.
  */
 protected abstract boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException;
+/*
+ * Returns whether this element can be removed from the Java model cache to make space.
+ */
+public boolean canBeRemovedFromCache() {
+	try {
+		return !hasUnsavedChanges();
+	} catch (JavaModelException e) {
+		return false;
+	}
+}
 /**
  * Close the buffer associated with this element, if any.
  */
