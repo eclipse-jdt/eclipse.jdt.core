@@ -191,9 +191,11 @@ public final class AST {
 	 * requested frivolously. The additional space is not reclaimed until the 
 	 * AST, all its nodes, and all its bindings become garbage. So it is very
 	 * important to not retain any of these objects longer than absolutely
-	 * necessary. Note that bindings can only be resolved while the AST remains
-	 * in its original unmodified state. Once the AST is modified, all 
-	 * <code>resolveBinding</code> methods return <code>null</code>.
+	 * necessary. Bindings are resolved at the time the AST is created. Subsequent
+	 * modifications to the AST do not affect the bindings returned by
+	 * <code>resolveBinding</code> methods in any way; these methods return the
+	 * same binding as before the AST was modified (including modifications
+	 * that rearrange subtrees by reparenting nodes).
 	 * If <code>resolveBindings</code> is <code>false</code>, the analysis 
 	 * does not go beyond parsing and building the tree, and all 
 	 * <code>resolveBinding</code> methods return <code>null</code> from the 
@@ -277,9 +279,11 @@ public final class AST {
 	 * requested frivolously. The additional space is not reclaimed until the 
 	 * AST, all its nodes, and all its bindings become garbage. So it is very
 	 * important to not retain any of these objects longer than absolutely
-	 * necessary. Note that bindings can only be resolved while the AST remains
-	 * in its original unmodified state. Once the AST is modified, all 
-	 * <code>resolveBinding</code> methods return <code>null</code>.
+	 * necessary. Bindings are resolved at the time the AST is created. Subsequent
+	 * modifications to the AST do not affect the bindings returned by
+	 * <code>resolveBinding</code> methods in any way; these methods return the
+	 * same binding as before the AST was modified (including modifications
+	 * that rearrange subtrees by reparenting nodes).
 	 * If the given project is <code>null</code>, the analysis 
 	 * does not go beyond parsing and building the tree, and all 
 	 * <code>resolveBinding</code> methods return <code>null</code> from the 
@@ -318,7 +322,7 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		if (project == null) {
-			// this just reuces to the other simplest case
+			// this just reduces to the other simplest case
 			return parseCompilationUnit(source);
 		}
 	
@@ -361,6 +365,10 @@ public final class AST {
 	 * nodes never overlap.
 	 * If a syntax error is detected while parsing, the relevant node(s) of the
 	 * tree will be flagged as <code>MALFORMED</code>.
+	 * </p>
+	 * <p>
+	 * This method does not compute binding information; all <code>resolveBinding</code>
+	 * methods applied to nodes of the resulting AST return <code>null</code>.
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
