@@ -130,6 +130,7 @@ public void acceptResult(CompilationResult result) {
 			finishedWith(sourceLocation, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
+			Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 			createErrorFor(resourceForLocation(sourceLocation), Util.bind("build.inconsistentClassFile")); //$NON-NLS-1$
 		}
 	}
