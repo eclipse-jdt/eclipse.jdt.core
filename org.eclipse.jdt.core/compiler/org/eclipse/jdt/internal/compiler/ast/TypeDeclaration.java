@@ -884,17 +884,27 @@ public class TypeDeclaration
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
+			
+			boolean needSerialVersion = this.binding.isClass() && this.binding.implementsInterface(scope.getJavaIoSerializable(), true);
+				
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
 			if (this.fields != null) {
 				for (int i = 0, count = this.fields.length; i < count; i++) {
 					FieldDeclaration field = this.fields[i];
 					if (field.isField()) {
-						if (field.binding == null) {
+						FieldBinding fieldBinding = field.binding;
+						if (fieldBinding == null) {
 							// still discover secondary errors
 							if (field.initialization != null) field.initialization.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 							this.ignoreFurtherInvestigation = true;
 							continue;
+						}
+						if (needSerialVersion
+								&& ((fieldBinding.modifiers & (AccStatic | AccFinal)) == (AccStatic | AccFinal))
+								&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
+								&& BaseTypes.LongBinding == fieldBinding.type) {
+							needSerialVersion = false;
 						}
 						this.maxFieldCount++;
 						lastVisibleFieldID = field.binding.id;
@@ -903,6 +913,9 @@ public class TypeDeclaration
 					}
 					field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 				}
+			}
+			if (needSerialVersion && !this.ignoreFurtherInvestigation) {
+				this.scope.problemReporter().missingSerialVersion(this);
 			}
 			if (this.memberTypes != null) {
 				for (int i = 0, count = this.memberTypes.length; i < count; i++) {

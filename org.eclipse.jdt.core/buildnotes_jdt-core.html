@@ -52,6 +52,17 @@ Eclipse SDK 3.1 - ?th July 2004 - J2SE 1.5 Preview - Codename "Cheetah"
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added optional compiler diagnosis for serializabe classes missing a declaration of serialVersionUID field.
+Corresponding problem ID is IProblem.MissingSerialVersion.
+</li>
+<pre>
+* COMPILER / Reporting Missing Declaration of serialVersionUID Field on Serializable Class
+*    When enabled, the compiler will issue an error or a warning whenever a serializable class is missing a local declaration 
+*    of a serialVersionUID field. This field must be declared as static final and be of type long.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.missingSerialVersion"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
 <li>Once 1.5 source compliance is enabled, the typecheck rules for conditional operator (a ? b : c) 
 allows scenario where 'b' and 'c' have a common supertype (i.e. it is no longer required for
 one to be assignable to the other as in the past). This is required by JLS 3rd edition.
@@ -63,7 +74,9 @@ one to be assignable to the other as in the past). This is required by JLS 3rd e
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70398">70398</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69942">69942</a>
+compiler warning for serializable classes that do not explicitly declare serialVersionUID
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70398">70398</a>
 Java AST creation error due to NullPointerException in IF statement test block.
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=43587">43587</a>
 Searching for references to default constructors reports questionable results

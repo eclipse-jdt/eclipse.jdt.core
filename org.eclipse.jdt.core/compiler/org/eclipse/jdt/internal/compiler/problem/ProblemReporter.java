@@ -520,6 +520,9 @@ public int computeSeverity(int problemId){
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
 
+		case IProblem.MissingSerialVersion:
+			return this.options.getSeverity(CompilerOptions.MissingSerialVersion);
+		
 		/*
 		 * Javadoc syntax errors
 		 */
@@ -2875,6 +2878,15 @@ public void missingSemiColon(Expression expression){
 		NoArgument,
 		expression.sourceStart,
 		expression.sourceEnd);
+}
+public void missingSerialVersion(TypeDeclaration typeDecl) {
+	String[] arguments = new String[] {new String(typeDecl.name)};
+	this.handle(
+		IProblem.MissingSerialVersion,
+		arguments,
+		arguments,
+		typeDecl.sourceStart,
+		typeDecl.sourceEnd);
 }
 public void mustDefineDimensionsOrInitializer(ArrayAllocationExpression expression) {
 	this.handle(

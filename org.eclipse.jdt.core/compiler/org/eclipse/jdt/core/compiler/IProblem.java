@@ -339,7 +339,9 @@ public interface IProblem {
 	 * @since 3.0 
 	 */
 	int ArgumentHidingField = Internal + 95;		
-
+	/** @since 3.1 */
+	int MissingSerialVersion = Internal + 96;
+	
 	// methods
 	int UndefinedMethod = MethodRelated + 100;
 	int NotVisibleMethod = MethodRelated + 101;

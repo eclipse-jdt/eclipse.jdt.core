@@ -387,6 +387,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_MISSING_SERIAL_VERSION = PLUGIN_ID + ".compiler.problem.missingSerialVersion"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
@@ -1751,6 +1757,13 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.finalParameterBound"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Missing Declaration of serialVersionUID Field on Serializable Class
+	 *    When enabled, the compiler will issue an error or a warning whenever a serializable class is missing a local declaration 
+	 *    of a serialVersionUID field. This field must be declared as static final and be of type long.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingSerialVersion"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
 	 * 
 	 * COMPILER / Reporting Invalid Javadoc Comment
 	 *    This is the generic control for the severity of Javadoc problems.
