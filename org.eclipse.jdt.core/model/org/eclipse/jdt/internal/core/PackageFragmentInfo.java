@@ -40,7 +40,7 @@ private Object[] computeNonJavaResources(IResource resource) {
 		IResource[] members = ((IContainer) resource).members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];
-			if (child.getType() != IResource.FOLDER) {
+			if (child.getType() == IResource.FILE) {
 				String fileName = child.getName();
 				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
 					if (nonJavaResources.length == nonJavaResourcesCounter) {
@@ -51,6 +51,14 @@ private Object[] computeNonJavaResources(IResource resource) {
 							(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]),
 							0,
 							nonJavaResourcesCounter);
+					}
+					nonJavaResources[nonJavaResourcesCounter++] = child;
+				}
+			} else if (child.getType() == IResource.FOLDER) {
+				if (!Util.isValidFolderNameForPackage(child.getName())) {
+					if (nonJavaResources.length == nonJavaResourcesCounter) {
+						// resize
+						System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
 					}
 					nonJavaResources[nonJavaResourcesCounter++] = child;
 				}

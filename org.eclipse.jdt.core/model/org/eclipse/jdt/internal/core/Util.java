@@ -473,6 +473,13 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		int len = sig.length();
 		return checkTypeSignature(sig, 0, len, allowVoid) == len;
 	}
+	/**
+	 * Returns true if the given folder name is valid for a package,
+	 * false if it is not.
+	 */
+	public static boolean isValidFolderNameForPackage(String folderName) {
+		return folderName.indexOf('.') == -1;
+	}	
 
 /**
  * Add entry into the workspace log file
@@ -588,7 +595,7 @@ public static String packageName(IPath pkgPath) {
 	StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
 	for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
 		String segment = pkgPath.segment(j);
-		if (segment.indexOf('.') >= 0) {
+		if (!isValidFolderNameForPackage(segment)) {
 			return null;
 		}
 		pkgName.append(segment);

@@ -357,13 +357,13 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					} else {
 						if (elementType == IJavaElement.COMPILATION_UNIT) {
 							// create compilation unit handle 
+							// fileName validation has been done in elementType(IResourceDelta, int, boolean)
 							String fileName = path.lastSegment();
-							if (!Util.isValidCompilationUnitName(fileName)) return null;
 							element = pkgFragment.getCompilationUnit(fileName);
 						} else {
 							// create class file handle
+							// fileName validation has been done in elementType(IResourceDelta, int, boolean)
 							String fileName = path.lastSegment();
-							if (!Util.isValidClassFileName(fileName)) return null;
 							element = pkgFragment.getClassFile(fileName);
 						}
 					}
@@ -981,12 +981,16 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			case IJavaElement.PACKAGE_FRAGMENT:
 				IResource res = delta.getResource();
 				if (res instanceof IFolder) {
-					return IJavaElement.PACKAGE_FRAGMENT;
+					if (Util.isValidFolderNameForPackage(res.getName())) {
+						return IJavaElement.PACKAGE_FRAGMENT;
+					} else {
+						return -1;
+					}
 				} else {
-					String extension = res.getFileExtension();
-					if ("java".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+					String fileName = res.getName();
+					if (Util.isValidCompilationUnitName(fileName)) { //$NON-NLS-1$
 						return IJavaElement.COMPILATION_UNIT;
-					} else if ("class".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+					} else if (Util.isValidClassFileName(fileName)) { //$NON-NLS-1$
 						return IJavaElement.CLASS_FILE;
 					} else {
 						return -1;

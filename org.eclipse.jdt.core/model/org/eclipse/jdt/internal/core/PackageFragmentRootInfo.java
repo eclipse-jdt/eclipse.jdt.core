@@ -53,6 +53,7 @@ private Object[] computeFolderNonJavaResources(IJavaProject project, IContainer 
 			if (member.getType() == IResource.FILE) {
 				String fileName = member.getName();
 				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
+					// check case of a .zip or .jar file on classpath
 					if (project.findPackageFragmentRoot(member.getFullPath()) == null) {
 						if (nonJavaResources.length == nonJavaResourcesCounter) {
 							// resize
@@ -60,6 +61,14 @@ private Object[] computeFolderNonJavaResources(IJavaProject project, IContainer 
 						}
 						nonJavaResources[nonJavaResourcesCounter++] = member;
 					}
+				}
+			} else if (member.getType() == IResource.FOLDER) {
+				if (!Util.isValidFolderNameForPackage(member.getName())) {
+					if (nonJavaResources.length == nonJavaResourcesCounter) {
+						// resize
+						System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
+					}
+					nonJavaResources[nonJavaResourcesCounter++] = member;
 				}
 			}
 		}

@@ -427,7 +427,10 @@ private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) t
 		//the cu was in a default package...no package declaration
 		//create the new package declaration as the first child of the cu
 		IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
-		domCU.getFirstChild().insertSibling(pkg);
+		IDOMNode firstChild = domCU.getFirstChild();
+		if (firstChild != null) {
+			firstChild.insertSibling(pkg);
+		} // else the cu was empty: leave it empty
 	}
 }
 	/**
