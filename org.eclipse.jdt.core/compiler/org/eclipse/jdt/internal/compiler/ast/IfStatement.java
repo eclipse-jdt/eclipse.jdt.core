@@ -67,18 +67,15 @@ public class IfStatement extends Statement {
 
 		// process the condition
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
+		Constant condConstant = this.condition.optimizedBooleanConstant();
 
 		// process the THEN part
-		if (thenStatement == null) {
+		if (this.thenStatement == null) {
 			thenFlowInfo = flowInfo.initsWhenTrue();
 		} else {
-			Constant cst;
 			thenFlowInfo =
-				((((cst = condition.constant) != NotAConstant)
-					&& (cst.booleanValue() == false))
-					|| (((cst = condition.optimizedBooleanConstant()) != NotAConstant)
-						&& (cst.booleanValue() == false)))
-					? (flowInfo.initsWhenTrue().copy().markAsFakeReachable(true))
+				(condConstant != NotAConstant && condConstant.booleanValue() == false)
+					? flowInfo.initsWhenTrue().copy().markAsFakeReachable(true)
 					: flowInfo.initsWhenTrue().copy();
 			// Save info for code gen
 			thenInitStateIndex =
@@ -89,18 +86,15 @@ public class IfStatement extends Statement {
 			}
 		};
 		// optimizing the jump around the ELSE part
-		thenExit = (thenFlowInfo == FlowInfo.DeadEnd) || thenFlowInfo.isFakeReachable();
+		this.thenExit = (thenFlowInfo == FlowInfo.DeadEnd) || thenFlowInfo.isFakeReachable();
 
 		// process the ELSE part
-		if (elseStatement == null) {
+		if (this.elseStatement == null) {
 			elseFlowInfo = flowInfo.initsWhenFalse();
 		} else {
-			Constant cst;
 			elseFlowInfo =
-				((((cst = condition.constant) != NotAConstant) && (cst.booleanValue() == true))
-					|| (((cst = condition.optimizedBooleanConstant()) != NotAConstant)
-						&& (cst.booleanValue() == true)))
-					? (flowInfo.initsWhenFalse().copy().markAsFakeReachable(true))
+				(condConstant != NotAConstant && condConstant.booleanValue() == true)
+					? flowInfo.initsWhenFalse().copy().markAsFakeReachable(true)
 					: flowInfo.initsWhenFalse().copy();
 			// Save info for code gen
 			elseInitStateIndex =
@@ -113,10 +107,9 @@ public class IfStatement extends Statement {
 
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo;
-		if ((condition.constant != NotAConstant)
-			&& (condition.constant.booleanValue() == true)) {
+		if (condConstant != NotAConstant && condConstant.booleanValue() == true) {
 			// IF (TRUE)
-			if (thenExit) {
+			if (this.thenExit) {
 				mergedInfo = elseFlowInfo.markAsFakeReachable(true);
 				mergedInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(mergedInfo);
@@ -128,9 +121,8 @@ public class IfStatement extends Statement {
 			}
 		} else {
 			// IF (FALSE)
-			if ((condition.constant != NotAConstant)
-				&& (condition.constant.booleanValue() == false)) {
-				if (elseFlowInfo == FlowInfo.DeadEnd) {
+			if (condConstant != NotAConstant && condConstant.booleanValue() == false) {
+				if (elseFlowInfo == FlowInfo.DeadEnd || elseFlowInfo.isFakeReachable()) {
 					mergedInfo = thenFlowInfo.markAsFakeReachable(true);
 					mergedInitStateIndex =
 						currentScope.methodScope().recordInitializationStates(mergedInfo);
