@@ -416,9 +416,12 @@ public void updateFromParserState(){
 		Parser parser = this.parser();
 		/* might want to recover implemented interfaces */
 		if (parser.listLength > 0){ // awaiting interface type references
-			parser.consumeClassHeaderImplements(); 
-			// will reset typeListLength to zero
-			// thus this check will only be performed on first errorCheck after class X implements Y,Z,
+			int typePtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
+			if(typePtr >= 0 && parser.astStack[typePtr] instanceof TypeDeclaration) {
+				parser.consumeClassHeaderImplements(); 
+				// will reset typeListLength to zero
+				// thus this check will only be performed on first errorCheck after class X implements Y,Z,
+			}
 		}
 	}
 }

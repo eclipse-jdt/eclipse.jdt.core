@@ -318,7 +318,8 @@ public void updateFromParserState(){
 		if (parser.listLength > 0){ // awaiting interface type references
 			/* has consumed the arguments - listed elements must be thrown exceptions */
 			if (methodDeclaration.sourceEnd == parser.rParenPos) {
-				if (parser.astStack[parser.astPtr] instanceof TypeReference){
+				int methodPtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
+				if (parser.astStack[parser.astPtr] instanceof TypeReference && methodPtr >= 0 && parser.astStack[methodPtr] instanceof AbstractMethodDeclaration){
 					parser.consumeMethodHeaderThrowsClause(); 
 					// will reset typeListLength to zero
 					// thus this check will only be performed on first errorCheck after void foo() throws X, Y,
@@ -355,12 +356,15 @@ public void updateFromParserState(){
 					if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
 				}
 				if (parser.listLength > 0){
-					parser.consumeMethodHeaderParameters();
-					/* fix-up positions, given they were updated against rParenPos, which did not get set */
-					if (parser.currentElement == this){ // parameter addition might have added an awaiting (no return type) method - see 1FVXQZ4 */
-						methodDeclaration.sourceEnd = methodDeclaration.arguments[methodDeclaration.arguments.length-1].sourceEnd;
-						methodDeclaration.bodyStart = methodDeclaration.sourceEnd+1;
-						parser.lastCheckPoint = methodDeclaration.bodyStart;
+					int methodPtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
+					if(methodPtr >= 0 && parser.astStack[methodPtr] instanceof AbstractMethodDeclaration) {
+						parser.consumeMethodHeaderParameters();
+						/* fix-up positions, given they were updated against rParenPos, which did not get set */
+						if (parser.currentElement == this){ // parameter addition might have added an awaiting (no return type) method - see 1FVXQZ4 */
+							methodDeclaration.sourceEnd = methodDeclaration.arguments[methodDeclaration.arguments.length-1].sourceEnd;
+							methodDeclaration.bodyStart = methodDeclaration.sourceEnd+1;
+							parser.lastCheckPoint = methodDeclaration.bodyStart;
+						}
 					}
 				}
 			}

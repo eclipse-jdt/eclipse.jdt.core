@@ -2138,7 +2138,6 @@ protected void consumeFormalParameter() {
 protected void consumeFormalParameterList() {
 	// FormalParameterList ::= FormalParameterList ',' FormalParameter
 	optimizedConcatNodeLists();
-	listLength++; // record one more parameter got reduced, in case needing to recover incomplete list
 }
 protected void consumeFormalParameterListopt() {
 	// FormalParameterListopt ::= $empty
