@@ -992,7 +992,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 			// fall through next case
 		case AbstractVariableDeclaration.FIELD:
 			int fieldEndPosition = this.sourceEnds.get(fieldDeclaration);
-			if (fieldEndPosition == 0) {
+			if (fieldEndPosition == -1) {
 				// use the declaration source end by default
 				fieldEndPosition = fieldDeclaration.declarationSourceEnd;
 			}
