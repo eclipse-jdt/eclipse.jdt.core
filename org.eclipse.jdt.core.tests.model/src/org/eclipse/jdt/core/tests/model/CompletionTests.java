@@ -127,6 +127,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionMemberType2"));
 	suite.addTest(new CompletionTests("testCompletionAfterCase1"));
 	suite.addTest(new CompletionTests("testCompletionAfterCase2"));
+	suite.addTest(new CompletionTests("testCompletionToplevelType1"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8047,6 +8048,19 @@ public void testCompletionAfterCase2() throws JavaModelException {
 
 		assertEquals(
 			"element:zzz    completion:zzz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionToplevelType1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src", "p3", "CompletionToplevelType1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "CompletionToplevelType1";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:CompletionToplevelType1    completion:CompletionToplevelType1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME),
 			requestor.getResults());
 }
 }

@@ -2654,6 +2654,50 @@ public final class CompletionEngine
 				length);
 			qualifiedName[length] = '.';
 		}
+		
+		if (unitScope != null) {
+			int typeLength = qualifiedName.length;
+			SourceTypeBinding[] types = unitScope.topLevelTypes;
+
+			for (int i = 0, length = types.length; i < length; i++) {
+				SourceTypeBinding sourceType = types[i]; 
+	
+				char[] qualifiedSourceTypeName = CharOperation.concatWith(sourceType.compoundName, '.');
+				
+				if (typeLength > qualifiedSourceTypeName.length)	continue;
+				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false))	continue;
+
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForCaseMatching(qualifiedName, qualifiedSourceTypeName);
+				relevance += computeRelevanceForExpectingType(sourceType);
+				relevance += computeRelevanceForQualification(false);
+
+				if (sourceType.isClass()){
+					relevance += computeRelevanceForClass();
+					relevance += computeRelevanceForException(sourceType.sourceName);
+					requestor.acceptClass(
+						sourceType.qualifiedPackageName(),
+						sourceType.sourceName(),
+						sourceType.sourceName(),
+						sourceType.modifiers,
+						startPosition - offset, 
+						endPosition - offset,
+						relevance);
+				} else {
+					relevance += computeRelevanceForInterface();
+					requestor.acceptInterface(
+						sourceType.qualifiedPackageName(),
+						sourceType.sourceName(),
+						sourceType.sourceName(),
+						sourceType.modifiers,
+						startPosition - offset,
+						endPosition - offset,
+						relevance);
+				}
+			}
+		}
+		
 		nameEnvironment.findTypes(qualifiedName, this);
 		nameEnvironment.findPackages(qualifiedName, this);
 	}
