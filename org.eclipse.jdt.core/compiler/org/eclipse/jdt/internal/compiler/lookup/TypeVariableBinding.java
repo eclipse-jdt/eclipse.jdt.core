@@ -136,7 +136,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public char[] genericTypeSignature() {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
-	}	
+	}
 	/**
 	 * Returns true if a type is identical to another one,
 	 * or for generic types, true if compared to its raw type.
@@ -148,6 +148,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return ((WildcardBinding) otherType).boundCheck(this);
 		return false;
 	}	
+	/**
+	 * Returns true if the type variable is directly bound to a given type
+	 */
+	public boolean isErasureBoundTo(TypeBinding type) {
+		if (this.superclass.erasure() == type) 
+			return true;
+		for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+			if (this.superInterfaces[i].erasure() == type)
+				return true;
+		}
+		return false;
+	}
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */

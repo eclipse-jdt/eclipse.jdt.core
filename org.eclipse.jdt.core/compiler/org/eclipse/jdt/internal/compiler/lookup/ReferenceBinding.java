@@ -91,7 +91,19 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, SourceTypeBindin
 	if (isPrivate()) {
 		// answer true if the receiverType is the receiver or its enclosingType
 		// AND the invocationType and the receiver have a common enclosingType
-		if (!(receiverType == this || receiverType == enclosingType())) return false;
+		receiverCheck: {
+			if (!(receiverType == this || receiverType == enclosingType())) {
+				// special tolerance for type variable direct bounds
+				if (receiverType.isTypeVariable()) {
+					TypeVariableBinding typeVariable = (TypeVariableBinding) receiverType;
+					if (typeVariable.isErasureBoundTo(this.erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure())) {
+						break receiverCheck;
+					}
+				}
+				return false;
+			}
+		}
+		
 		
 		if (invocationType != this) {
 			ReferenceBinding outerInvocationType = invocationType;
@@ -455,12 +467,15 @@ public int hashCode() {
 		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
 }
 
+public final boolean hasRestrictedAccess() {
+	return (modifiers & AccRestrictedAccess) != 0;
+}
+
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
 * NOTE: Assume that anInterface is an interface.
 */
-
 public boolean implementsInterface(ReferenceBinding anInterface, boolean searchHierarchy) {
 	if (this == anInterface)
 		return true;
@@ -571,7 +586,6 @@ public boolean isInterface() {
 
 /* Answer true if the receiver has private visibility
 */
-
 public final boolean isPrivate() {
 	return (modifiers & AccPrivate) != 0;
 }

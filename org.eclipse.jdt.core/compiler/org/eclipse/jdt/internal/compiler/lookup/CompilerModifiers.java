@@ -19,9 +19,8 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	final int AccJustFlag = // 16 lower bits
 	    	ASTNode.Bit1|ASTNode.Bit2|ASTNode.Bit3|ASTNode.Bit4|ASTNode.Bit5|ASTNode.Bit6|ASTNode.Bit7|ASTNode.Bit8|
 			ASTNode.Bit9|ASTNode.Bit10|ASTNode.Bit11|ASTNode.Bit12|ASTNode.Bit13|ASTNode.Bit14|ASTNode.Bit15|ASTNode.Bit16;
-	final int AccCatchesExceptions = ASTNode.Bit17; 
-	final int AccThrowsExceptions = ASTNode.Bit18; // also IConstants.AccSynthetic
-	final int AccProblem = ASTNode.Bit19; 
+
+	final int AccRestrictedAccess = ASTNode.Bit19; 
 	final int AccFromClassFile = ASTNode.Bit20; 
 	final int AccIsConstantValue = ASTNode.Bit20;
 	final int AccDefaultAbstract = ASTNode.Bit20; 

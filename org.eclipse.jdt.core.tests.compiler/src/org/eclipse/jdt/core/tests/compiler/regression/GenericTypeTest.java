@@ -8169,7 +8169,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"");
 	}
 	// 74096
-	public void _test306() {
+	public void test306() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
