@@ -1292,9 +1292,12 @@ private JavaModelException newInvalidElementType() {
 					IClasspathEntry[] fileEntries = project.readClasspathFile(true/*create markers*/, false/*don't log problems*/);
 					if (fileEntries == null)
 						break; // could not read, ignore 
-					if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries)) {
-						wasSuccessful = true;
-						break;
+					JavaModelManager.PerProjectInfo info = project.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+					if (info.classpath != null) { // if there is an in-memory classpath
+						if (project.isClasspathEqualsTo(info.classpath, info.outputLocation, fileEntries)) {
+							wasSuccessful = true;
+							break;
+						}
 					}
 		
 					// will force an update of the classpath/output location based on the file information
