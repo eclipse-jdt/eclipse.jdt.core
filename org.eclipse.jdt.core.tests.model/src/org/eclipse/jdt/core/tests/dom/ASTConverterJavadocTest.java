@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
@@ -1420,6 +1421,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		final CompilationUnit compilUnit = (CompilationUnit) result;
 		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
 		assumeEquals(this.prefix+"Wrong number of comments", 2, compilUnit.getCommentList().size());
+		Comment comment = (Comment) compilUnit.getCommentList().get(0);
+		int commentStart = comment.getStartPosition();
+		int commentLength = ((Comment) compilUnit.getCommentList().get(1)).getStartPosition()-commentStart+comment.getLength();
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
@@ -1433,9 +1437,32 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeTrue("We should get an expression", expression instanceof MethodInvocation);
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		int methodStart = compilUnit.getExtendedStartPosition(methodInvocation);
-		assumeEquals("Method invocation "+methodInvocation+" does not start at the right position", methodStart, 75);
+		assumeEquals("Method invocation "+methodInvocation+" does not start at the right position", commentStart, methodStart);
 		int methodLength = compilUnit.getExtendedLength(methodInvocation);
-		assumeEquals("Method invocation "+methodInvocation+" does not have the correct length", methodLength, 15);
+		assumeEquals("Method invocation "+methodInvocation+" does not have the correct length", commentLength, methodLength);
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=54xxx
+	 */
+	public void _testBug54xxx() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug54xxx", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 1, compilUnit.getCommentList().size());
+		ASTNode node = getASTNode(compilUnit, 0, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration method = (MethodDeclaration) node;
+		node = method.getBody();
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a block", node.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
+		Block block = (Block) node;
+		int blockStart = compilUnit.getExtendedStartPosition(block);
+		assumeEquals("Body block "+block+" does not start at the right position", block.getStartPosition(), blockStart);
+		int blockLength = compilUnit.getExtendedLength(block);
+		assumeEquals("Body block "+block+" does not have the correct length", block.getLength(), blockLength);
 	}
 	/*
 	 * End DefaultCommentMapper verifications
