@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.lang.reflect.Method;
-import java.util.Hashtable;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -19,7 +18,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import junit.framework.*;
 
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
-Hashtable oldOptions;
 
 public static Test suite() {
 	TestSuite suite = new Suite(ResolveTests_1_5.class.getName());		
@@ -44,20 +42,13 @@ public ResolveTests_1_5(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	setUpJavaProject("Resolve");
-	
-	this.oldOptions = JavaCore.getOptions();
-	Hashtable options = new Hashtable(this.oldOptions);
-	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	JavaCore.setOptions(options);
+	setUpJavaProject("Resolve", "1.5");
 	
 	waitUntilIndexesReady();
 }
 
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
-	
-	JavaCore.setOptions(oldOptions);
 	
 	super.tearDownSuite();
 }

@@ -1041,13 +1041,25 @@ protected void assertDeltas(String message, String expected) {
 	 * Returns the IPath to the external java class library (e.g. jclMin.jar)
 	 */
 	protected IPath getExternalJCLPath() {
-		return new Path(getExternalJCLPathString());
+		return new Path(getExternalJCLPathString(""));
+	}	
+	/**
+	 * Returns the IPath to the external java class library (e.g. jclMin.jar)
+	 */
+	protected IPath getExternalJCLPath(String compliance) {
+		return new Path(getExternalJCLPathString(compliance));
 	}
 	/**
 	 * Returns the java.io path to the external java class library (e.g. jclMin.jar)
 	 */
 	protected String getExternalJCLPathString() {
-		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMin.jar";
+		return getExternalJCLPathString("");
+	}
+	/**
+	 * Returns the java.io path to the external java class library (e.g. jclMin.jar)
+	 */
+	protected String getExternalJCLPathString(String compliance) {
+		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMin" + compliance + ".jar";
 	}
 	/**
 	 * Returns the IPath to the root source of the external java class library (e.g. "src")
@@ -1059,13 +1071,25 @@ protected void assertDeltas(String message, String expected) {
 	 * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected IPath getExternalJCLSourcePath() {
-		return new Path(getExternalJCLSourcePathString());
+		return new Path(getExternalJCLSourcePathString(""));
+	}
+	/**
+	 * Returns the IPath to the source of the external java class library (e.g. jclMinsrc.zip)
+	 */
+	protected IPath getExternalJCLSourcePath(String compliance) {
+		return new Path(getExternalJCLSourcePathString(compliance));
 	}
 	/**
 	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected String getExternalJCLSourcePathString() {
-		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip";
+		return getExternalJCLSourcePathString("");
+	}
+	/**
+	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
+	 */
+	protected String getExternalJCLSourcePathString(String compliance) {
+		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMin" + compliance + "src.zip";
 	}
 	protected IFile getFile(String path) {
 		return getWorkspaceRoot().getFile(new Path(path));
@@ -1284,15 +1308,21 @@ protected void assertDeltas(String message, String expected) {
 	 */
 	public void setupExternalJCL() throws IOException {
 		if (EXTERNAL_JAR_DIR_PATH != null) return;
-		
+		EXTERNAL_JAR_DIR_PATH = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
+		setupExternalJCL("jclMin");
+		setupExternalJCL("jclMin1.5");
+	}
+	/**
+	 * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
+	 * If not available, copy from the project resources.
+	 */
+	public void setupExternalJCL(String jclName) throws IOException {
 		String separator = java.io.File.separator;
 		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
-		String localJCLPath = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-		EXTERNAL_JAR_DIR_PATH = localJCLPath;
-		java.io.File jclDir = new java.io.File(localJCLPath);
+		java.io.File jclDir = new java.io.File(EXTERNAL_JAR_DIR_PATH);
 		java.io.File jclMin =
-			new java.io.File(localJCLPath + separator + "jclMin.jar");
-		java.io.File jclMinsrc = new java.io.File(localJCLPath + separator + "jclMinsrc.zip");
+			new java.io.File(EXTERNAL_JAR_DIR_PATH + separator + jclName + ".jar");
+		java.io.File jclMinsrc = new java.io.File(EXTERNAL_JAR_DIR_PATH + separator + jclName + "src.zip");
 		if (!jclDir.exists()) {
 			if (!jclDir.mkdir()) {
 				//mkdir failed
@@ -1300,21 +1330,21 @@ protected void assertDeltas(String message, String expected) {
 			}
 			//copy the two files to the JCL directory
 			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "jclMin.jar");
+				new java.io.File(resourceJCLDir + separator + jclName + ".jar");
 			copy(resourceJCLMin, jclMin);
 			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "jclMinsrc.zip");
+				new java.io.File(resourceJCLDir + separator + jclName + "src.zip");
 			copy(resourceJCLMinsrc, jclMinsrc);
 		} else {
 			//check that the two files, jclMin.jar and jclMinsrc.zip are present
 			//copy either file that is missing or less recent than the one in workspace
 			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "jclMin.jar");
+				new java.io.File(resourceJCLDir + separator + jclName + ".jar");
 			if (jclMin.lastModified() < resourceJCLMin.lastModified()) {
 				copy(resourceJCLMin, jclMin);
 			}
 			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "jclMinsrc.zip");
+				new java.io.File(resourceJCLDir + separator + jclName + "src.zip");
 			if (jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified()) {
 				copy(resourceJCLMinsrc, jclMinsrc);
 			}
@@ -1331,10 +1361,17 @@ protected void assertDeltas(String message, String expected) {
 		
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
-			JavaCore.setClasspathVariables(
-				new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-				new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-				null);
+			if ("1.5".equals(compliance)) {
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
+					null);
+			} else {
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+					null);
+			}
 		}
 	
 		// create project

@@ -11,21 +11,18 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -66,18 +63,6 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 	private static final int INCREMENTS = 100;
 	
 	private static boolean RESOLVE_BINDINGS = false;
-
-	protected static String getConverterJCLPath() {
-		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMin.jar"; //$NON-NLS-1$
-	}
-
-	protected static String getConverterJCLRootSourcePath() {
-		return ""; //$NON-NLS-1$
-	}
-
-	protected static String getConverterJCLSourcePath() {
-		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMinsrc.zip"; //$NON-NLS-1$
-	}
 
 	public static Test suite() {
 		if (true) {
@@ -222,58 +207,11 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		}
 	}
 
-	public void setupConverterJCL() throws IOException {
-		String separator = java.io.File.separator;
-		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL"; //$NON-NLS-1$
-		String localJCLPath =getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-		EXTERNAL_JAR_DIR_PATH = localJCLPath;
-		java.io.File jclDir = new java.io.File(localJCLPath);
-		java.io.File jclMin =
-			new java.io.File(localJCLPath + separator + "converterJclMin.jar"); //$NON-NLS-1$
-		java.io.File jclMinsrc = new java.io.File(localJCLPath + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-		if (!jclDir.exists()) {
-			if (!jclDir.mkdir()) {
-				//mkdir failed
-				throw new IOException("Could not create the directory " + jclDir); //$NON-NLS-1$
-			}
-			//copy the two files to the JCL directory
-			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
-			copy(resourceJCLMin, jclMin);
-			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-			copy(resourceJCLMinsrc, jclMinsrc);
-		} else {
-			//check that the two files, jclMin.jar and jclMinsrc.zip are present
-			//copy either file that is missing or less recent than the one in workspace
-			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
-			if (jclMin.lastModified() < resourceJCLMin.lastModified() || jclMin.length() != resourceJCLMin.length()) {
-				copy(resourceJCLMin, jclMin);
-			}
-			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-			if (jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified() || jclMinsrc.length() < resourceJCLMinsrc.length()) {
-				copy(resourceJCLMinsrc, jclMinsrc);
-			}
-		}
-	}
-	
-	public IJavaProject setUpJavaProject(String projectName, Map options) throws CoreException, IOException {
-		IJavaProject project = super.setUpJavaProject(projectName);
-		project.setOptions(options);
-		return project;
-	}
-
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupConverterJCL();
-		Map options = JavaCore.getDefaultOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+		setupExternalJCL("converterJcl");
 
-		IJavaProject javaProject = setUpJavaProject("Compiler", options); //$NON-NLS-1$
+		IJavaProject javaProject = setUpJavaProject("Compiler", "1.4"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$

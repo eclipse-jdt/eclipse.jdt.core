@@ -11,10 +11,8 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -45,47 +43,6 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	/**
-	 * Check locally for the required JCL files, jclMin.jar and jclMinsrc.zip.
-	 * If not available, copy from the project resources.
-	 */
-	public void setupConverterJCL() throws IOException {
-		String separator = java.io.File.separator;
-		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL"; //$NON-NLS-1$
-		String localJCLPath =getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-		EXTERNAL_JAR_DIR_PATH = localJCLPath;
-		java.io.File jclDir = new java.io.File(localJCLPath);
-		java.io.File jclMin =
-			new java.io.File(localJCLPath + separator + "converterJclMin.jar"); //$NON-NLS-1$
-		java.io.File jclMinsrc = new java.io.File(localJCLPath + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-		if (!jclDir.exists()) {
-			if (!jclDir.mkdir()) {
-				//mkdir failed
-				throw new IOException("Could not create the directory " + jclDir); //$NON-NLS-1$
-			}
-			//copy the two files to the JCL directory
-			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
-			copy(resourceJCLMin, jclMin);
-			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-			copy(resourceJCLMinsrc, jclMinsrc);
-		} else {
-			//check that the two files, jclMin.jar and jclMinsrc.zip are present
-			//copy either file that is missing or less recent than the one in workspace
-			java.io.File resourceJCLMin =
-				new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
-			if (jclMin.lastModified() < resourceJCLMin.lastModified() || jclMin.length() != resourceJCLMin.length()) {
-				copy(resourceJCLMin, jclMin);
-			}
-			java.io.File resourceJCLMinsrc =
-				new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-			if (jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified() || jclMinsrc.length() < resourceJCLMinsrc.length()) {
-				copy(resourceJCLMinsrc, jclMinsrc);
-			}
-		}
-	}
-
-	/**
 	 * Reset the jar placeholder and delete project.
 	 */
 	public void tearDownSuite() throws Exception {
@@ -101,15 +58,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupConverterJCL();
+		setupExternalJCL("converterJcl");
 		setUpJavaProject("Converter"); //$NON-NLS-1$
 		
-		Map options = JavaCore.getDefaultOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
-		setUpJavaProject("Converter15", options); //$NON-NLS-1$
+		setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
 			JavaCore.setClasspathVariables(
@@ -119,12 +71,6 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}		
 	}
 
-	protected IJavaProject setUpJavaProject(final String projectName, Map options) throws CoreException, IOException {
-		IJavaProject javaProject = setUpJavaProject(projectName);
-		javaProject.setOptions(options);
-		return javaProject;
-	}
-	
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
 		return runConversion(AST.JLS2, unit, resolveBindings);
 	}
