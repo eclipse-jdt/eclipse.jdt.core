@@ -51,6 +51,11 @@ public interface IClasspathContainer {
 	int K_SYSTEM = 2;
 
 	/**
+	 * Kind for a container mapping to a default system library, implicitly contributed by the runtime
+	 */
+	int K_DEFAULT_SYSTEM = 3;
+
+	/**
 	 * Answers the set of classpath entries this container is mapping to.
 	 * <p>
 	 * The set of entries associated with a classpath container may contain any of the following:
@@ -78,6 +83,8 @@ public interface IClasspathContainer {
 	 * <ul>
 	 * <li><code>K_APPLICATION</code> if this container maps to an application library</li>
 	 * <li><code>K_SYSTEM</code> if this container maps to a system library</li>
+	 * <li><code>K_DEFAULT_SYSTEM</code> if this container maps to a default system library (library
+	 * 	implicitly contributed by the runtime).</li>
 	 * </ul>
 	 * Typically, system containers should be placed first on a build path.
 	 */	
