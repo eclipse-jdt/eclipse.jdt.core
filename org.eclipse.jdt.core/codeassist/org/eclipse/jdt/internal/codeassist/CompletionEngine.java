@@ -2558,6 +2558,7 @@ public final class CompletionEngine
 								relevance += computeRelevanceForExpectingType(localType);
 								relevance += computeRelevanceForException(localType.sourceName);
 								relevance += computeRelevanceForClass();
+								relevance += computeRelevanceForQualification(false);
 								
 								noProposal = false;
 								requestor.acceptClass(
