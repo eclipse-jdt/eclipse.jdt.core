@@ -90,7 +90,25 @@ public void testASTParsing() throws JavaModelException {
 		assertTrue(true);
 	}
 }
-
+/**
+ * Test AST.parseCompilationUnit(IClassFile, boolean).
+ * Test for http://bugs.eclipse.org/bugs/show_bug.cgi?id=30471
+ */
+public void testASTParsing2() throws JavaModelException {
+	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");	
+	IClassFile classFile = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	ASTNode node = runConversion(classFile, false);
+	assertNotNull("No node", node);
+	this.attachSource(this.root, null, null);
+	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	assertTrue("source code should no longer exist for A", cf.getSource() == null);
+	try {
+		node = runConversion(classFile, false);
+		assertTrue("Should not be here", false);
+	} catch(IllegalArgumentException e) {
+		assertTrue(true);
+	}
+}
 /**
  * Changing the source attachment file should update the java model.
  * (regression test for bug 23292 Must restart Eclipse after debug of source in .zip is updated)
