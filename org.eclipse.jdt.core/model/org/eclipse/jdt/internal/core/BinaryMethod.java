@@ -157,7 +157,7 @@ protected void getHandleMemento(StringBuffer buff) {
 	escapeMementoName(buff, getElementName());
 	for (int i = 0; i < this.parameterTypes.length; i++) {
 		buff.append(delimiter);
-		buff.append(this.parameterTypes[i]);
+		escapeMementoName(buff, this.parameterTypes[i]);
 	}
 	if (this.occurrenceCount > 1) {
 		buff.append(JEM_COUNT);

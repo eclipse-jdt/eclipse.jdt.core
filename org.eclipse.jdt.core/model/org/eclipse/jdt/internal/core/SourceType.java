@@ -237,7 +237,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 					case JEM_METHOD:
 						String param = memento.nextToken();
 						StringBuffer buffer = new StringBuffer();
-						while (Signature.C_ARRAY == param.charAt(0)) {
+						while (param.length() == 1 && Signature.C_ARRAY == param.charAt(0)) { // backward compatible with 3.0 mementos
 							buffer.append(Signature.C_ARRAY);
 							param = memento.nextToken();
 						}

@@ -163,24 +163,45 @@ public void testBinaryInnerTypeMemento() throws JavaModelException {
 /**
  * Tests that a binary method can be persisted and restored using its memento.
  */
-public void testBinaryMethodMemento() throws JavaModelException {
+public void testBinaryMethodMemento1() throws JavaModelException {
 	IType type = getClassFile("/P/lib/p/X.class").getType();
-
 	IMethod method = type.getMethod("foo", new String[] {"I", "Ljava.lang.String;"});
 	assertMemento(
 		"=P/lib<p(X.class[X~foo~I~Ljava.lang.String;",
 		method);
-		
-	method = type.getMethod("bar", new String[] {});
+}
+/**
+ * Tests that a binary method can be persisted and restored using its memento.
+ */
+public void testBinaryMethodMemento2() throws JavaModelException {
+	IType type = getClassFile("/P/lib/p/X.class").getType();
+	IMethod method = type.getMethod("bar", new String[] {});
 	assertMemento(
 		"=P/lib<p(X.class[X~bar",
 		method);
-		
-	method = type.getMethod("fred", new String[] {"[Z"});
+}	
+/**
+ * Tests that a binary method can be persisted and restored using its memento.
+ */
+public void testBinaryMethodMemento3() throws JavaModelException {
+	IType type = getClassFile("/P/lib/p/X.class").getType();
+	IMethod method = type.getMethod("fred", new String[] {"[Z"});
 	assertMemento(
-		"=P/lib<p(X.class[X~fred~[Z",
+		"=P/lib<p(X.class[X~fred~\\[Z",
 		method);
 }
+/**
+ * Tests that a binary method with a parameter with wildcard can be persisted and restored using its memento.
+ * (regression test for bug 75466 [1.5] IAE in JavaElement.exists() for Collection<E>#containsAll(Collection<?>))
+ */
+public void testBinaryMethodMemento4() throws JavaModelException {
+	IType type = getClassFile("/P/lib/p/X.class").getType();
+	IMethod method = type.getMethod("foo", new String[] {"Ljava.util.Collection<*>;"});
+	assertMemento(
+		"=P/lib<p(X.class[X~foo~Ljava.util.Collection\\<*>;",
+		method);
+}
+
 /**
  * Tests that a binary type can be persisted and restored using its memento.
  */
@@ -245,7 +266,7 @@ public void testExternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
-		"=P/" + getEscapedExternalJCLPath() + "<p(X.class[X~foo~[Ljava.lang.String;",
+		"=P/" + getEscapedExternalJCLPath() + "<p(X.class[X~foo~\\[Ljava.lang.String;",
 		method);
 }
 /**
@@ -322,7 +343,7 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
-		"=P/lib\\/myLib.jar<p(X.class[X~foo~[Ljava.lang.String;",
+		"=P/lib\\/myLib.jar<p(X.class[X~foo~\\[Ljava.lang.String;",
 		method);
 }
 /**
@@ -566,22 +587,31 @@ public void testSourceInnerTypeMemento() {
 /**
  * Tests that a source method can be persisted and restored using its memento.
  */
-public void testSourceMethodMemento() {
+public void testSourceMethodMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
-
 	IMethod method = type.getMethod("foo", new String[] {"I", "Ljava.lang.String;"});
 	assertMemento(
 		"=P/src<p{X.java[X~foo~I~Ljava.lang.String;",
 		method);
-		
-	method = type.getMethod("bar", new String[] {});
+}
+/**
+ * Tests that a source method can be persisted and restored using its memento.
+ */
+public void testSourceMethodMemento2() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	IMethod method = type.getMethod("bar", new String[] {});
 	assertMemento(
 		"=P/src<p{X.java[X~bar",
 		method);
-		
-	method = type.getMethod("fred", new String[] {"[Z"});
+}
+/**
+ * Tests that a source method can be persisted and restored using its memento.
+ */
+public void testSourceMethodMemento3() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	IMethod method = type.getMethod("fred", new String[] {"[Z"});
 	assertMemento(
-		"=P/src<p{X.java[X~fred~[Z",
+		"=P/src<p{X.java[X~fred~\\[Z",
 		method);
 }
 /**
