@@ -513,7 +513,6 @@ public class BindingEqualityTest extends ConverterTestSetup {
 		ICompilationUnit[] units = new ICompilationUnit[length];
 		compilationUnitscollector.toArray(units);
 		long totalTime = 0;
-		this.fPerformanceMeter.start();
 		for (int j = 0; j < length; j++) {
 			ICompilationUnit currentUnit = units[j];
 			ASTNode result = runConversion(AST.JLS3, currentUnit, true);
@@ -557,8 +556,8 @@ public class BindingEqualityTest extends ConverterTestSetup {
 			}
 			totalTime += (System.currentTimeMillis() - time);
 		}
-		this.fPerformanceMeter.stop();
-		this.fPerformanceMeter.commit();
-		System.out.println("Total time = " + totalTime + "ms");
+		if (DEBUG) {
+			System.out.println("Total time = " + totalTime + "ms");
+		}
 	}
 }
