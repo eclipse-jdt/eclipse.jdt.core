@@ -168,6 +168,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionType1"));
 	suite.addTest(new CompletionTests("testCompletionQualifiedAllocationType1"));
 	suite.addTest(new CompletionTests("testCompletionClassLiteralAfterAnonymousType1"));
+	suite.addTest(new CompletionTests("testCompletionArraysCloneMethod"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8303,6 +8304,19 @@ public void testCompletionClassLiteralAfterAnonymousType1() throws JavaModelExce
 
 	assertEquals(
 		"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		requestor.getResults());
+}
+public void testCompletionArraysCloneMethod() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionArraysCloneMethod.java");
+
+	String str = cu.getSource();
+	String completeBehind = ".cl";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_STATIC),
 		requestor.getResults());
 }
 }

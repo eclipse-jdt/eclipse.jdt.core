@@ -127,6 +127,7 @@ public final class CompletionEngine
 		
 	static final char[] classField = "class".toCharArray();  //$NON-NLS-1$
 	static final char[] lengthField = "length".toCharArray();  //$NON-NLS-1$
+	static final char[] cloneMethod = "clone".toCharArray();  //$NON-NLS-1$
 	static final char[] THIS = "this".toCharArray();  //$NON-NLS-1$
 	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
 	
@@ -1419,7 +1420,9 @@ public final class CompletionEngine
 
 		if (receiverType.isBaseType())
 			return; // nothing else is possible with base types
-
+		
+		ObjectVector methodsFound = new ObjectVector();
+		
 		if (receiverType.isArrayType()) {
 			if (token.length <= lengthField.length
 				&& CharOperation.prefixEquals(token, lengthField, false /* ignore case */
@@ -1443,6 +1446,45 @@ public final class CompletionEngine
 					endPosition - offset,
 					relevance);
 			}
+			if (token.length <= cloneMethod.length
+				&& CharOperation.prefixEquals(token, cloneMethod, false /* ignore case */
+			)) {
+				ReferenceBinding objectRef = scope.getJavaLangObject();
+				
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForCaseMatching(token, cloneMethod);
+				relevance += computeRelevanceForExpectingType(objectRef);
+				relevance += computeRelevanceForStatic(false, false);
+				relevance += computeRelevanceForQualification(false);
+				
+				char[] completion;
+				if (source != null
+					&& source.length > endPosition
+					&& source[endPosition] == '(') {
+					completion = cloneMethod;
+					} else {
+					completion = CharOperation.concat(cloneMethod, new char[] { '(', ')' });
+				}
+				noProposal = false;
+				requestor.acceptMethod(
+					CharOperation.NO_CHAR,
+					CharOperation.NO_CHAR,
+					cloneMethod,
+					CharOperation.NO_CHAR_CHAR,
+					CharOperation.NO_CHAR_CHAR,
+					CharOperation.NO_CHAR_CHAR,
+					CharOperation.concat(JAVA, LANG, '.'),
+					OBJECT,
+					completion,
+					IConstants.AccPublic,
+					startPosition - offset,
+					endPosition - offset,
+					relevance);
+					
+				methodsFound.add(new Object[]{objectRef.getMethods(cloneMethod)[0], objectRef});
+			}
+			
 			receiverType = scope.getJavaLangObject();
 		}
 
@@ -1462,7 +1504,7 @@ public final class CompletionEngine
 			null,
 			(ReferenceBinding) receiverType,
 			scope,
-			new ObjectVector(),
+			methodsFound,
 			false,
 			false,
 			false,
