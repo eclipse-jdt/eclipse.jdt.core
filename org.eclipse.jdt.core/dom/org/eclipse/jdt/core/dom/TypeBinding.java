@@ -398,4 +398,30 @@ class TypeBinding implements ITypeBinding {
 		return this.binding == BaseTypes.NullBinding;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getQualifiedName()
+	 */
+	public String getQualifiedName() {
+		if (isAnonymous() || isLocal()) {
+			return null;
+		}
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(getName());
+		buffer.insert(0, '.');
+		if (isMember()) {
+			// handle member type
+			ITypeBinding declaringClass = getDeclaringClass();
+			while(declaringClass != null) {
+				buffer.insert(0, declaringClass.getName());
+				buffer.insert(0, '.');
+				declaringClass = declaringClass.getDeclaringClass();
+			}
+		}
+		IPackageBinding packageBinding = getPackage();
+		if (!packageBinding.isUnnamed()) {
+			buffer.insert(0, packageBinding.getName());
+		}
+		return buffer.toString();
+	}
+
 }

@@ -376,4 +376,17 @@ public interface ITypeBinding extends IBinding {
 	 *    and <code>false</code> otherwise
 	 */
 	public boolean isFromSource();
+	
+	/**
+	 * Returns the fully qualified name of this type binding if it exists, null otherwise.
+	 * 
+	 * If this type binding represents an anonymous or a local type, then it returns null.
+	 * If this type binding represents a member type, then it returns its VM name preceeded with
+	 * its package name replacing all '$' with a dot.
+	 * For example, the member class p.A$B (VM name) is converted to "p.A.B".
+	 * For a top level type, is returns its name preceeded with its package name.
+	 * 
+	 * @return the fully qualified name of this type binding if it exists, null otherwise.
+	 */
+	public String getQualifiedName();
 }
