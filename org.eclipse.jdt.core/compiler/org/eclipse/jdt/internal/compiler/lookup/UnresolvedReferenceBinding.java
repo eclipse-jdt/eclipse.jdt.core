@@ -42,14 +42,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		if (targetType == this)
 			targetType = environment.askForType(this.compoundName);
 		if (targetType != null && targetType != this) { // could not resolve any better, error was already reported against it
-			this.resolvedType = targetType;
-			// must ensure to update any other type bindings that can contain the resolved type
-			// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
-			// TODO (kent) check update is unnecessary here, as already done in LookupEnvironment.createBinaryTypeFrom(IBinaryType, PackageBinding, boolean) which is called by askForType
-//			if (this.wrappers != null)
-//				for (int i = 0, l = this.wrappers.length; i < l; i++)
-//					this.wrappers[i].swapUnresolved(this, targetType, environment);
-//			environment.updateCaches(this, targetType);
+			setResolvedType(targetType, environment);
 		} else {
 			environment.problemReporter.isClassPathCorrect(this.compoundName, null);
 			return null; // will not get here since the above error aborts the compilation
@@ -58,6 +51,18 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 	if (convertGenericToRawType && targetType.isGenericType()) // raw reference to generic ?
 	    return environment.createRawType(targetType, null);
 	return targetType;
+}
+void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment) {
+	if (this.resolvedType == targetType) return;
+
+	// targetType may be a source or binary type
+	this.resolvedType = targetType;
+	// must ensure to update any other type bindings that can contain the resolved type
+	// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
+	if (this.wrappers != null)
+		for (int i = 0, l = this.wrappers.length; i < l; i++)
+			this.wrappers[i].swapUnresolved(this, targetType, environment);
+	environment.updateCaches(this, targetType);
 }
 public String toString() {
 	return "Unresolved type " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$

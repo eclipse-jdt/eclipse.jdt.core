@@ -305,12 +305,7 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 		if (cachedType.isBinaryBinding()) // sanity check before the cast... at this point the cache should ONLY contain unresolved types
 			return (BinaryTypeBinding) cachedType;
 
-		UnresolvedReferenceBinding unresolvedType = (UnresolvedReferenceBinding) cachedType;
-		unresolvedType.resolvedType = binaryBinding;
-		if (unresolvedType.wrappers != null)
-			for (int i = 0, l = unresolvedType.wrappers.length; i < l; i++)
-				unresolvedType.wrappers[i].swapUnresolved(unresolvedType, binaryBinding, this);
-		updateCaches(unresolvedType, binaryBinding);
+		((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
 	}
 
 	packageBinding.addType(binaryBinding);
