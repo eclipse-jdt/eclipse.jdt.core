@@ -1177,7 +1177,7 @@ public class DefaultCodeFormatterOptions {
 		if (useTabOption != null) {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
-		// TODO add conversion from old options to new options
+		// TODO Remove berfore 3.0
 		final Object clearBlankLines = settings.get(JavaCore.FORMATTER_CLEAR_BLANK_LINES);
 		if (clearBlankLines != null) {
 			if (JavaCore.CLEAR_ALL.equals(clearBlankLines)) {
