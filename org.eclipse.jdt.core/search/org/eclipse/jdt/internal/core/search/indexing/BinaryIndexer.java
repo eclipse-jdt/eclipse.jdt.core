@@ -405,7 +405,7 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 				}
 				break;
 			case ClassFileStruct.ClassTag :
-				name = extractClassReference(constantPoolOffsets, reader, i);
+				name = replace('/', '.', extractClassReference(constantPoolOffsets, reader, i)); // so that it looks like java.lang.String
 				addTypeReference(name);
 		}
 	}
