@@ -16,7 +16,20 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li></li>
+	<li>Changing the source attachement of a jar will now correctly fire source
+		attachment java deltas. The flags of these deltas are:
+		<ul>
+			<li><code>IJavaElementDelta.F_SOURCEATTACHED</code> if a source
+				has been attached to a jar and no source previously existed.
+			</li>
+			<li><code>IJavaElementDelta.F_SOURCEDETACHED</code> if a source
+				has been detached from a jar and no other source has been attached.
+			</li>
+			<li><code>IJavaElementDelta.F_SOURCEDETACHED | JavaElementDelta.F_SOURCEATTACHED</code> 
+				if an attached source has been changed.
+			</li>
+		</ul>
+	</li>
 </ul>
 
 <h3>
@@ -41,7 +54,9 @@ Binary constructor search does not work (ref & decl)
 null binding returned for fully qualified array declaration
 <h3>
 Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3285">3285</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=4384">4384</a>
+Setting classpath variables does two builds  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3285">3285</a>
 Why does change the source attachment trigger a build (1GEHXW3)  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13906">13906</a>
 Compiler did not detect uncaught exception
