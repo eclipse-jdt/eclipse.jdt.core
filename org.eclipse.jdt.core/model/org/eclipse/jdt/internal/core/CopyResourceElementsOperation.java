@@ -195,7 +195,7 @@ protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinatio
 private void processCompilationUnitResource(ICompilationUnit source, IPackageFragment dest) throws JavaModelException {
 	String newCUName = getNewNameFor(source);
 	String destName = (newCUName != null) ? newCUName : source.getElementName();
-	String newContent = updatedContent(source, dest, newCUName);
+	String newContent = updatedContent(source, dest, newCUName); // null if unchanged
 
 	// copy resource
 	IFile sourceResource = (IFile)(source.isWorkingCopy() ? source.getOriginalElement() : source).getCorrespondingResource();
@@ -396,7 +396,7 @@ private String updatedContent(ICompilationUnit cu, IPackageFragment dest, String
 	String currPackageName = cu.getParent().getElementName();
 	String destPackageName = dest.getElementName();
 	if (currPackageName.equals(destPackageName) && newName == null) {
-		return cu.getSource();
+		return null; //nothing to change
 	} else {
 		String typeName = cu.getElementName();
 		typeName = typeName.substring(0, typeName.length() - 5);
