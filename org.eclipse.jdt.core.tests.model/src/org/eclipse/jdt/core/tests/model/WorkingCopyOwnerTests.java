@@ -184,7 +184,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			} catch (JavaModelException e) {
 				gotException = true;
 			}
-			assertTrue("should get a JavaModelException before discarding working copy", !gotException);
+			assertTrue("should not get a JavaModelException before discarding working copy", !gotException);
 
 			workingCopy.discardWorkingCopy();
 			assertTrue("should no longer be in working copy mode", !workingCopy.isWorkingCopy());
@@ -200,6 +200,79 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
+	/*
+	 * Ensures that getOwner() returns the correct owner for a non-primary working copy.
+	 */
+	public void testGetOwner1() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+
+			assertEquals("Unexpected owner", owner, workingCopy.getOwner());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
+	/*
+	 * Ensures that getOwner() returns null for a primary compilation unit.
+	 */
+	public void testGetOwner2() throws CoreException {
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		assertEquals("Unexpected owner", null, cu.getOwner());
+	}
+
+	/*
+	 * Ensures that getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+	 * returns the same working copy if called twice with the same working copy owner.
+	 */
+	public void testGetWorkingCopy1() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+
+			assertEquals("Unexpected working copy", workingCopy, cu.getWorkingCopy(owner, null, null));
+		} finally {
+			if (workingCopy != null) {
+				int max = 2;
+				while (workingCopy.isWorkingCopy() && max-- > 0) {
+					workingCopy.discardWorkingCopy();
+				}
+			}
+		}
+	}
+	
+	/*
+	 * Ensures that getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+	 * returns a different working copy if called twice with a different working copy owner.
+	 */
+	public void testGetWorkingCopy2() throws CoreException {
+		ICompilationUnit workingCopy1 = null;
+		ICompilationUnit workingCopy2 = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner1 = new TestWorkingCopyOwner();
+			workingCopy1 = cu.getWorkingCopy(owner1, null, null);
+			TestWorkingCopyOwner owner2 = new TestWorkingCopyOwner();
+			workingCopy2 = cu.getWorkingCopy(owner2, null, null);
+
+			assertTrue("working copies should be different", !workingCopy1.equals(workingCopy2));
+		} finally {
+			if (workingCopy1 != null) {
+				workingCopy1.discardWorkingCopy();
+			}
+			if (workingCopy2 != null) {
+				workingCopy2.discardWorkingCopy();
 			}
 		}
 	}
