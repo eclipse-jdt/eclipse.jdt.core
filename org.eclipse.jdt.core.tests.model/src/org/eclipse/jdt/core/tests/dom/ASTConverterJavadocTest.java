@@ -2176,4 +2176,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug51911() throws JavaModelException {
 		verifyComments("testBug51911");
 	}
+
+	/**
+	 * Test fix for bug 73348: [Javadoc] Missing description for return tag is not always warned
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348">73348</a>
+	 */
+	public void testBug73348() throws JavaModelException {
+		verifyComments("testBug73348");
+	}
 }

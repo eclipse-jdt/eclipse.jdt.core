@@ -45,6 +45,9 @@ public class JavadocParser extends AbstractCommentParser {
 	private int invalidParamReferencesPtr = -1;
 	private JavadocSingleNameReference[] invalidParamReferencesStack;
 
+	// Store when return tag is parsed
+	private int currentAstPtr= -2;
+
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.checkDocComment = this.sourceParser.options.docCommentSupport;
@@ -277,6 +280,7 @@ public class JavadocParser extends AbstractCommentParser {
 	protected boolean parseReturn() {
 		if (this.returnStatement == null) {
 			this.returnStatement = createReturnStatement();
+			this.currentAstPtr = this.astPtr;
 			return true;
 		}
 		if (this.sourceParser != null) this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
@@ -389,13 +393,14 @@ public class JavadocParser extends AbstractCommentParser {
 			case TerminalTokens.TokenNamereturn :
 				this.tagValue = TAG_RETURN_VALUE;
 				valid = parseReturn();
-				// verify characters after return tag (we're expecting text description)
+				/* verify characters after return tag (we're expecting text description)
 				if(!verifyCharsAfterReturnTag(this.index)) {
 					if (this.sourceParser != null) {
 						int end = this.starPosition == -1 || this.lineEnd<this.starPosition ? this.lineEnd : this.starPosition;
 						this.sourceParser.problemReporter().javadocEmptyReturnTag(this.tagSourceStart, end);
 					}
 				}
+				*/
 				break;
 			case TerminalTokens.TokenNamethrows :
 				this.tagValue = TAG_THROWS_VALUE;
@@ -497,7 +502,30 @@ public class JavadocParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
 	 */
 	protected void pushText(int start, int end) {
-		// compiler does not matter of text
+		if (this.currentAstPtr != -2 && this.returnStatement != null) {
+			int position = this.index;
+			this.index = start;
+			boolean empty = true;
+			boolean star = false;
+			char ch = readChar();
+			if (Character.isWhitespace(ch) || start>(this.tagSourceEnd+1)) {
+				while (this.index <= end && empty) {
+					if (!star) {
+						empty = Character.isWhitespace(ch) || ch == '*';
+						star = ch == '*';
+					} else if (ch != '*') {
+						empty = false;
+						break;
+					}
+					ch = readChar();
+				}
+			}
+			((JavadocReturnStatement)this.returnStatement).empty = empty;
+			this.index = position;
+			if (this.currentAstPtr != this.astPtr) {
+				this.currentAstPtr = -2;
+			}
+		}
 	}
 
 	/*
