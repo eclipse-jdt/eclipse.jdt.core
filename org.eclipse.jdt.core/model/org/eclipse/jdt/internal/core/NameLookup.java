@@ -290,51 +290,28 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch) {
-		int count= this.packageFragmentRoots.length;
 		if (partialMatch) {
-			name= name.toLowerCase();
-			for (int i= 0; i < count; i++) {
-				IPackageFragmentRoot root= this.packageFragmentRoots[i];
-				IJavaElement[] list= null;
-				try {
-					list= root.getChildren();
-				} catch (JavaModelException npe) {
-					continue; // the package fragment root is not present;
-				}
-				int elementCount= list.length;
-				IPackageFragment[] result = new IPackageFragment[elementCount];
-				int resultLength = 0; 
-				for (int j= 0; j < elementCount; j++) {
-					IPackageFragment packageFragment= (IPackageFragment) list[j];
-					if (nameMatches(name, packageFragment, true)) {
-						result[resultLength++] = packageFragment;
+			String prefix = name.toLowerCase();
+			ArrayList pkgs = null;
+			Iterator keys = this.packageFragments.keySet().iterator();
+			while (keys.hasNext()) {
+				String pkgName = (String) keys.next();
+				if (pkgName.toLowerCase().startsWith(prefix)) {
+					IPackageFragment[] fragments = (IPackageFragment[]) this.packageFragments.get(pkgName);
+					for (int i = 0, length = fragments == null ? 0 : fragments.length; i < length; i++) {
+						if (pkgs == null) pkgs = new ArrayList();
+						pkgs.add(fragments[i]);					
 					}
 				}
-				if (resultLength > 0) {
-					System.arraycopy(result, 0, result = new IPackageFragment[resultLength], 0, resultLength);
-					return result;
-				} else {
-					return null;
-				}
 			}
+			if (pkgs == null) return null;
+			int resultLength = pkgs.size();
+			IPackageFragment[] result = new IPackageFragment[resultLength];
+			pkgs.toArray(result);
+			return result;
 		} else {
-			IPackageFragment[] fragments= (IPackageFragment[]) this.packageFragments.get(name);
-			if (fragments != null) {
-				IPackageFragment[] result = new IPackageFragment[fragments.length];
-				int resultLength = 0; 
-				for (int i= 0; i < fragments.length; i++) {
-					IPackageFragment packageFragment= fragments[i];
-					result[resultLength++] = packageFragment;
-				}
-				if (resultLength > 0) {
-					System.arraycopy(result, 0, result = new IPackageFragment[resultLength], 0, resultLength);
-					return result;
-				} else {
-					return null;
-				}
-			}
+			return (IPackageFragment[]) this.packageFragments.get(name);
 		}
-		return null;
 	}
 
 	/**
@@ -492,25 +469,30 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
-		int count= this.packageFragmentRoots.length;
-		String matchName= partialMatch ? name.toLowerCase() : name;
-		for (int i= 0; i < count; i++) {
-			if (requestor.isCanceled())
-				return;
-			IPackageFragmentRoot root= this.packageFragmentRoots[i];
-			IJavaElement[] list= null;
-			try {
-				list= root.getChildren();
-			} catch (JavaModelException npe) {
-				continue; // this root package fragment is not present
-			}
-			int elementCount= list.length;
-			for (int j= 0; j < elementCount; j++) {
+		if (partialMatch) {
+			String prefix = name.toLowerCase();
+			Iterator keys = this.packageFragments.keySet().iterator();
+			while (keys.hasNext()) {
 				if (requestor.isCanceled())
 					return;
-				IPackageFragment packageFragment= (IPackageFragment) list[j];
-				if (nameMatches(matchName, packageFragment, partialMatch))
-					requestor.acceptPackageFragment(packageFragment);
+				String pkgName = (String) keys.next();
+				if (pkgName.toLowerCase().startsWith(prefix)) {
+					IPackageFragment[] pkgs = (IPackageFragment[]) this.packageFragments.get(pkgName);
+					for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
+						if (requestor.isCanceled())
+							return;
+						requestor.acceptPackageFragment(pkgs[i]);					
+					}
+				}
+			}
+		} else {
+			IPackageFragment[] pkgs = (IPackageFragment[]) this.packageFragments.get(name);
+			if (pkgs != null) {
+				for (int i = 0, length = pkgs.length; i < length; i++) {
+					if (requestor.isCanceled())
+						return;
+					requestor.acceptPackageFragment(pkgs[i]);
+				}
 			}
 		}
 	}
