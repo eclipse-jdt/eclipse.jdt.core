@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
-import org.eclipse.jdt.core.util.CompilationUnitSorter.DefaultJavaElementComparator;
 
 /**
  * 
@@ -53,7 +52,7 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 		}
 	}
 	ICompilationUnit copy = (ICompilationUnit) unit.getWorkingCopy();
-	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
+	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), 0, new NullProgressMonitor());
 	String sortedSource = copy.getBuffer().getContents();
 	assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
 	if (testPositions) {
