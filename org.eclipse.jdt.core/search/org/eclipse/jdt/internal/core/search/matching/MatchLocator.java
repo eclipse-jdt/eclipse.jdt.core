@@ -905,7 +905,7 @@ public JavaSearchMatch newFieldReferenceMatch(
 	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
 	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
 	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
-	boolean insideDocComment = reference instanceof JavadocFieldReference || reference instanceof JavadocSingleNameReference;
+	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
@@ -930,7 +930,7 @@ public JavaSearchMatch newMethodReferenceMatch(
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	boolean insideDocComment = reference instanceof JavadocMessageSend;
+	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	return new MethodReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
 }
 
@@ -953,12 +953,7 @@ public JavaSearchMatch newTypeReferenceMatch(
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	boolean insideDocComment = 
-		reference instanceof JavadocArrayQualifiedTypeReference
-		|| reference instanceof JavadocArraySingleTypeReference
-		|| reference instanceof JavadocQualifiedTypeReference
-		|| reference instanceof JavadocSingleNameReference
-		|| reference instanceof JavadocSingleTypeReference;
+	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	return new TypeReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
 }
 
