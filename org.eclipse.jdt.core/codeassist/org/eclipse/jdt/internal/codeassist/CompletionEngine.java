@@ -2018,7 +2018,7 @@ public final class CompletionEngine
 		}
 	}
 	
-	private int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
+	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
 		if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
 			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
 				return R_CASE + R_EXACT_NAME;
@@ -2092,7 +2092,7 @@ public final class CompletionEngine
 		} 
 		return 0;
 	}
-	private int computeRelevanceForInterestingProposal(){
+	int computeRelevanceForInterestingProposal(){
 		return computeRelevanceForInterestingProposal(null);
 	}
 	private int computeRelevanceForInterestingProposal(Binding binding){
@@ -2881,7 +2881,7 @@ public final class CompletionEngine
 			public void acceptNameWithoutPrefixAndSuffix(char[] name) {
 				accept(name, 0);
 			}
-			private void accept(char[] name, int prefixAndSuffixRelevance){
+			void accept(char[] name, int prefixAndSuffixRelevance){
 				if (CharOperation.prefixEquals(t, name, false)) {
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
@@ -2977,7 +2977,7 @@ public final class CompletionEngine
 		this.startPosition = start;
 		this.endPosition = end + 1;
 	}
-	private int computeBaseRelevance(){
+	int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
 	private void computeExpectedTypes(AstNode parent, Scope scope){

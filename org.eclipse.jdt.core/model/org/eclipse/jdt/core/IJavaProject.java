@@ -408,7 +408,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *    and <code>ignoreUnresolvedEntry</code> is <code>false</code>.</li>
 	 * </ul>
 	 * @see IClasspathEntry
-	 * TODO: (philippe) verify improved wording to accomodate classpath container
 	 */
 	IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedEntry)
 	     throws JavaModelException;
