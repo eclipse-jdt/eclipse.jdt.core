@@ -2119,7 +2119,7 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public IPath readOutputLocation() throws JavaModelException {
+	public IPath readOutputLocation() {
 
 		// Read classpath file without creating markers nor logging problems
 		IClasspathEntry[] classpath = this.readClasspathFile(false, false);
@@ -2137,7 +2137,7 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public IClasspathEntry[] readRawClasspath() throws JavaModelException {
+	public IClasspathEntry[] readRawClasspath() {
 
 		// Read classpath file without creating markers nor logging problems
 		IClasspathEntry[] classpath = this.readClasspathFile(false, false);

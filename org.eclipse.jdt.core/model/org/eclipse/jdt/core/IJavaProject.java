@@ -664,6 +664,57 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		throws JavaModelException;
 
 	/**
+	 * Returns the default output location for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
+	 * if unable to read the file. 
+	 * <p>This output location may differ from the in-memory one returned by <code>getOutputLocation</code>, in case the 
+	 * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
+	 * is automatically noticed and reconciled at the next resource change notification event. 
+	 * However, if the file is modified within an operation, where this change needs to be taken into account before the 
+	 * operation ends, then the output location from disk can be read using this method, and further assigned to the project 
+	 * using <code>setRawClasspath(...)</code>.
+	 * <p>
+	 * The default output location is where class files are ordinarily generated
+	 * (and resource files, copied). Each source classpath entry can also
+	 * specify an output location for the generated class files (and copied
+	 * resource files) corresponding to compilation units under that source
+	 * folder. This makes it possible to arrange generated class files for
+	 * different source folders in different output folders, and not
+	 * necessarily the default output folder. This means that the generated
+	 * class files for the project may end up scattered across several folders,
+	 * rather than all in the default output folder (which is more standard).
+	 * 
+	 * @return the workspace-relative absolute path of the default output folder
+	 * @see #getOutputLocation
+	 */
+	IPath readOutputLocation();
+
+	/**
+	 * Returns the raw classpath for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
+	 * if unable to read the file. 
+	 * <p>This classpath may differ from the in-memory classpath returned by <code>getRawClasspath</code>, in case the 
+	 * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
+	 * is automatically noticed and reconciled at the next resource change notification event. 
+	 * However, if the file is modified within an operation, where this change needs to be taken into account before the 
+	 * operation ends, then the classpath from disk can be read using this method, and further assigned to the project 
+	 * using <code>setRawClasspath(...)</code>.
+	 * <p>
+	 * A raw classpath may contain classpath variable and/or container entries. Classpath variable entries can be resolved 
+	 * individually (see <code>JavaCore#getClasspathVariable</code>), or the full classpath can be resolved at once using the 
+	 * helper method <code>getResolvedClasspath</code>.
+	 * TODO (jim) please reformulate to include classpath containers in resolution aspects
+	 * <p>
+	 * Note that no check is performed whether the project has the Java nature set, allowing an existing <code>.classpath</code> 
+	 * file to be considered independantly (unlike <code>getRawClasspath</code> which requires the Java nature to be associated 
+	 * with the project). 
+	 * 
+	 * @return the raw classpath from disk for the project, as a list of classpath entries
+	 * @see #getRawClassPath
+	 * @see IClasspathEntry
+	 * @since 3.0
+	 */
+	IClasspathEntry[] readRawClasspath();
+
+	/**
 	 * Helper method for setting one option value only. Equivalent to <code>Map options = this.getOptions(false); map.put(optionName, optionValue); this.setOptions(map)</code>
 	 * <p>
 	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
@@ -802,59 +853,4 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor)
 		throws JavaModelException;
-
-
-	/**
-	 * Returns the raw classpath for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
-	 * if unable to read the file. 
-	 * <p>This classpath may differ from the in-memory classpath returned by <code>getRawClasspath</code>, in case the 
-	 * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
-	 * is automatically noticed and reconciled at the next resource change notification event. 
-	 * However, if the file is modified within an operation, where this change needs to be taken into account before the 
-	 * operation ends, then the classpath from disk can be read using this method, and further assigned to the project 
-	 * using <code>setRawClasspath(...)</code>.
-	 * <p>
-	 * A raw classpath may contain classpath variable and/or container entries. Classpath variable entries can be resolved 
-	 * individually (see <code>JavaCore#getClasspathVariable</code>), or the full classpath can be resolved at once using the 
-	 * helper method <code>getResolvedClasspath</code>.
-	 * TODO (jim) please reformulate to include classpath containers in resolution aspects
-	 * <p>
-	 * Note that no check is performed whether the project has the Java nature set, allowing an existing <code>.classpath</code> 
-	 * file to be considered independantly (unlike <code>getRawClasspath</code> which requires the Java nature to be associated 
-	 * with the project). 
-	 * 
-	 * @return the raw classpath from disk for the project, as a list of classpath entries
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
-	 * @see #getRawClassPath
-	 * @see IClasspathEntry
-	 * @since 3.0
-	 */
-	IClasspathEntry[] readRawClasspath() throws JavaModelException;
-
-	/**
-	 * Returns the default output location for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
-	 * if unable to read the file. 
-	 * <p>This output location may differ from the in-memory one returned by <code>getOutputLocation</code>, in case the 
-	 * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
-	 * is automatically noticed and reconciled at the next resource change notification event. 
-	 * However, if the file is modified within an operation, where this change needs to be taken into account before the 
-	 * operation ends, then the output location from disk can be read using this method, and further assigned to the project 
-	 * using <code>setRawClasspath(...)</code>.
-	 * <p>
-	 * The default output location is where class files are ordinarily generated
-	 * (and resource files, copied). Each source classpath entry can also
-	 * specify an output location for the generated class files (and copied
-	 * resource files) corresponding to compilation units under that source
-	 * folder. This makes it possible to arrange generated class files for
-	 * different source folders in different output folders, and not
-	 * necessarily the default output folder. This means that the generated
-	 * class files for the project may end up scattered across several folders,
-	 * rather than all in the default output folder (which is more standard).
-	 * 
-	 * @return the workspace-relative absolute path of the default output folder
-	 * @exception JavaModelException if this element does not exist
-	 * @see #getOutputLocation
-	 */
-	IPath readOutputLocation() throws JavaModelException;
 }
