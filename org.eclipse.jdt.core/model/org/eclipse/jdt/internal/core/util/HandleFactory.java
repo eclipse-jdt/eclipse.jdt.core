@@ -163,7 +163,7 @@ public class HandleFactory {
 			}
 
 			public boolean visit(FieldDeclaration node, MethodScope scope) {
-				currentElement = ((IType)currentElement).getField(currentElement.getElementName());
+				currentElement = ((IType)currentElement).getField(new String(node.name));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}

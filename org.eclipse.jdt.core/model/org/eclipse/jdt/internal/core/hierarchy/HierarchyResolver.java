@@ -612,9 +612,9 @@ public void resolveLocalType(IType type, Member declaringMember) throws JavaMode
 	org.eclipse.jdt.core.ICompilationUnit cu = type.getCompilationUnit();
 	IType[] topLevelTypes = cu.getTypes();
 	int length = topLevelTypes.length;
-	ISourceType[] sourceTypes = new ISourceType[length];
+	SourceTypeElementInfo[] sourceTypes = new SourceTypeElementInfo[length];
 	for (int i = 0; i < length; i++) {
-		sourceTypes[i] = (ISourceType)((SourceType)topLevelTypes[i]).getElementInfo();
+		sourceTypes[i] = (SourceTypeElementInfo)((SourceType)topLevelTypes[i]).getElementInfo();
 	}
 	
 	// build compilation unit declaration

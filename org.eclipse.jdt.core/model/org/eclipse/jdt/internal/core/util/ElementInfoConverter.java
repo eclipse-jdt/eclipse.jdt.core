@@ -59,13 +59,13 @@ public class ElementInfoConverter implements CompilerModifiers {
 	}
 
 	/*
-	 * Convert a set of source element types into a parsed compilation unit declaration
+	 * Convert a set of source type infos into a parsed compilation unit declaration
 	 * The argument types are then all grouped in the same unit. The argument types must 
 	 * at least contain one type.
 	 * Can optionally add local and anonymous types
 	 */
 	public static CompilationUnitDeclaration buildCompilationUnit(
-		ISourceType[] sourceTypes,
+		SourceTypeElementInfo[] sourceTypes,
 		boolean needLocalTypes,
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult) {
@@ -82,9 +82,10 @@ public class ElementInfoConverter implements CompilerModifiers {
 	 * at least contain one type.
 	 */
 	private CompilationUnitDeclaration convert(
-		ISourceType[] sourceTypes,
+		SourceTypeElementInfo[] sourceTypes,
 		CompilationResult compilationResult) {
-		ISourceType sourceType = sourceTypes[0];
+		
+		SourceTypeElementInfo sourceType = sourceTypes[0];
 		if (sourceType.getName() == null)
 			return null; // do a basic test that the sourceType is valid
 
@@ -123,9 +124,9 @@ public class ElementInfoConverter implements CompilerModifiers {
 	}
 	
 	/*
-	 * Convert a field source element into a parsed field declaration
+	 * Convert a source field info into a parsed field declaration
 	 */
-	private FieldDeclaration convert(ISourceField sourceField, TypeDeclaration type, CompilationResult compilationResult) {
+	private FieldDeclaration convert(SourceFieldElementInfo sourceField, TypeDeclaration type, CompilationResult compilationResult) {
 
 		FieldDeclaration field = new FieldDeclaration();
 
@@ -141,8 +142,8 @@ public class ElementInfoConverter implements CompilerModifiers {
 		field.modifiers = sourceField.getModifiers();
 
 		/* convert local and anonymous types */
-		if (this.needLocalTypes && sourceField instanceof SourceFieldElementInfo) {
-			IJavaElement[] children = ((SourceFieldElementInfo)sourceField).getChildren();
+		if (this.needLocalTypes) {
+			IJavaElement[] children = sourceField.getChildren();
 			int typesLength = children.length;
 			if (typesLength > 0) {
 				ArrayInitializer initializer = new ArrayInitializer();
@@ -152,7 +153,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 				for (int i = 0; i < typesLength; i++) {
 					IJavaElement localType = children[i];
 					try {
-						AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)convert((ISourceType)((JavaElement)localType).getElementInfo(),compilationResult);
+						AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)convert((SourceTypeElementInfo)((JavaElement)localType).getElementInfo(),compilationResult);
 						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
 						expression.type = anonymousLocalTypeDeclaration.superclass;
 						anonymousLocalTypeDeclaration.superclass = null;
@@ -170,9 +171,9 @@ public class ElementInfoConverter implements CompilerModifiers {
 	}
 
 	/*
-	 * Convert a method source element into a parsed method/constructor declaration 
+	 * Convert a source method info into a parsed method/constructor declaration 
 	 */
-	private AbstractMethodDeclaration convert(ISourceMethod sourceMethod, CompilationResult compilationResult) {
+	private AbstractMethodDeclaration convert(SourceMethodElementInfo sourceMethod, CompilationResult compilationResult) {
 
 		AbstractMethodDeclaration method;
 
@@ -224,15 +225,15 @@ public class ElementInfoConverter implements CompilerModifiers {
 		}
 		
 		/* convert local and anonymous types */
-		if (this.needLocalTypes && sourceMethod instanceof SourceMethodElementInfo) {
-			IJavaElement[] children = ((SourceMethodElementInfo)sourceMethod).getChildren();
+		if (this.needLocalTypes) {
+			IJavaElement[] children = sourceMethod.getChildren();
 			int typesLength = children.length;
 			if (typesLength != 0) {
 				Statement[] statements = new Statement[typesLength];
 				for (int i = 0; i < typesLength; i++) {
-					IJavaElement type = children[i];
+					JavaElement type = (JavaElement)children[i];
 					try {
-						TypeDeclaration localType = convert((ISourceType)((JavaElement)type).getElementInfo(), compilationResult);
+						TypeDeclaration localType = convert((SourceTypeElementInfo)type.getElementInfo(), compilationResult);
 						((LocalTypeDeclaration)localType).enclosingMethod = method;
 						if (localType instanceof AnonymousLocalTypeDeclaration) {
 							AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration)localType;
@@ -257,34 +258,30 @@ public class ElementInfoConverter implements CompilerModifiers {
 	}
 
 	/*
-	 * Convert a source element type into a parsed type declaration
+	 * Convert a source type info into a parsed type declaration
 	 *
 	 * Can optionally ignore fields & methods
 	 */
 	private TypeDeclaration convert(
-		ISourceType sourceType,
+		SourceTypeElementInfo sourceType,
 		CompilationResult compilationResult) {
 		/* create type declaration - can be member type */
 		TypeDeclaration type;
 		boolean isAnonymous = false;
 		if (sourceType.getEnclosingType() == null) {
-		 	if (sourceType instanceof SourceTypeElementInfo) {
-				IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
-				try {
-					if (typeHandle.isAnonymous()) {
-						type = new AnonymousLocalTypeDeclaration(compilationResult);
-						isAnonymous = true;
-					} else if (typeHandle.isLocal()) {
-						type = new LocalTypeDeclaration(compilationResult);
-					} else {
-						type = new TypeDeclaration(compilationResult);
-					}
-				} catch (JavaModelException e) {
+			IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
+			try {
+				if (typeHandle.isAnonymous()) {
+					type = new AnonymousLocalTypeDeclaration(compilationResult);
+					isAnonymous = true;
+				} else if (typeHandle.isLocal()) {
+					type = new LocalTypeDeclaration(compilationResult);
+				} else {
 					type = new TypeDeclaration(compilationResult);
 				}
-		 	} else {
-		 		type = new TypeDeclaration(compilationResult);
-		 	}
+			} catch (JavaModelException e) {
+				type = new TypeDeclaration(compilationResult);
+			}
 		}  else {
 			type = new MemberTypeDeclaration(compilationResult);
 		}
@@ -319,7 +316,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 		type.memberTypes = new MemberTypeDeclaration[sourceMemberTypeCount];
 		for (int i = 0; i < sourceMemberTypeCount; i++) {
 			type.memberTypes[i] =
-				(MemberTypeDeclaration) convert(sourceMemberTypes[i], compilationResult);
+				(MemberTypeDeclaration) convert((SourceTypeElementInfo)sourceMemberTypes[i], compilationResult);
 		}
 		
 		// TODO (jerome) convert initializers if need local types
@@ -329,7 +326,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 		int sourceFieldCount = sourceFields == null ? 0 : sourceFields.length;
 		type.fields = new FieldDeclaration[sourceFieldCount];
 		for (int i = 0; i < sourceFieldCount; i++) {
-			type.fields[i] = convert(sourceFields[i], type, compilationResult);
+			type.fields[i] = convert((SourceFieldElementInfo)sourceFields[i], type, compilationResult);
 		}
 
 		/* convert methods - need to add default constructor if necessary */
@@ -355,7 +352,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 		}
 		boolean isInterface = type.isInterface();
 		for (int i = 0; i < sourceMethodCount; i++) {
-			AbstractMethodDeclaration method =convert(sourceMethods[i], compilationResult);
+			AbstractMethodDeclaration method =convert((SourceMethodElementInfo)sourceMethods[i], compilationResult);
 			if (isInterface || method.isAbstract()) { // fix-up flag 
 				method.modifiers |= AccSemicolonBody;
 			}
