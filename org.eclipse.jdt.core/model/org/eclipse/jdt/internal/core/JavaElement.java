@@ -132,6 +132,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			getElementInfo();
 			return true;
 		} catch (JavaModelException e) {
+			// element doesn't exist: return false
 		}
 		return false;
 	}

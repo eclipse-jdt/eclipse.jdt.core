@@ -149,6 +149,7 @@ public IJavaProject findJavaProject(IProject project) {
 			}
 		}
 	} catch (JavaModelException e) {
+		// java model doesn't exist: cannot find any project
 	}
 	return null;
 }
