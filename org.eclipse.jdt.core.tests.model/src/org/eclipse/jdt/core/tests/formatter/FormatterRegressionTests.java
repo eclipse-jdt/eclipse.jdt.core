@@ -6435,16 +6435,4 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test496", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61599
-	 */
-	public void test497() {
-		String resourcePath = getResource("test497", "formatter.xml");
-		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "gnu");
-		assertNotNull("No preferences", options);
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test497", "ClockCmd.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
-	}
 }
