@@ -79,6 +79,10 @@ location. The project output location is now corresponding to a default output l
 workspace structure enhancements (in particular: linked folders). As a consequence, the Java builder
 will only consider the resources officially reflected in the resource tree (as opposed to existing 
 underlying files not yet reflected when the resource tree is out of sync).
+The build state format has changed to reflect this evolution, as a consequence, if reusing an existing
+workspace, the first build action will have to be a rebuild-all projects, since incrementally it will
+not be able to re-read old build states associated with prerequisite projects (and an incremental build
+cannot tell the build manager a full rebuild is necessary). 
 </li>
 <li>An option allows to control whether the Java builder should clean the output folder(s). Since
 options can be specified on a per project basis, each individual project can be toggled for cleaning
