@@ -250,10 +250,17 @@ public class ClasspathEntry implements IClasspathEntry {
 	public String rootID(){
 		StringBuffer buffer = new StringBuffer(10);
 		buffer.append('[');
-		buffer.append(JavaProject.kindToString(this.entryKind));
-		buffer.append(']');
-		buffer.append(this.path);
-		return buffer.toString();
+		switch(this.entryKind){
+			case IClasspathEntry.CPE_LIBRARY :
+				return "[LIB]"+this.path;  //$NON-NLS-1$
+			case IClasspathEntry.CPE_PROJECT :
+				return "[PRJ]"+this.path;  //$NON-NLS-1$
+			case IClasspathEntry.CPE_SOURCE :
+				return "[SRC]"+this.path;  //$NON-NLS-1$
+			case IClasspathEntry.CPE_VARIABLE :
+				return "[VAR]"+this.path;  //$NON-NLS-1$
+		}
+		return "";  //$NON-NLS-1$
 	}
 	
 	/**
