@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return suite;
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test563"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test564"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -7742,6 +7742,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test560() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.brace_position_for_array_initializer = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_method_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_block = DefaultCodeFormatterConstants.NEXT_LINE;
@@ -7754,6 +7755,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test561() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.brace_position_for_array_initializer = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_method_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_block = DefaultCodeFormatterConstants.NEXT_LINE;
@@ -7808,5 +7810,18 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89299
+	public void test564() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.brace_position_for_array_initializer = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.brace_position_for_method_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.brace_position_for_block = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.keep_empty_array_initializer_on_one_line = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test564", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -5,7 +5,7 @@ public class X
         if (b)
         {
             return new String[]
-                {};
+            {};
         } // << wrong feed
         return x;
     }

@@ -1,4 +1,3 @@
 class A {
-    int[] tab = new int[] {
-    };
+    int[] tab = new int[] {};
 }
