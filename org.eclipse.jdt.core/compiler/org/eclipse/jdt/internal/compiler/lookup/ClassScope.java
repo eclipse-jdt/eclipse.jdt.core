@@ -792,9 +792,11 @@ public class ClassScope extends Scope {
 	    // TODO connect type parameter bounds
 		boolean noProblems = true;
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
-		TypeVariableBinding[] typeVariables = referenceContext.binding.typeVariables;
-		nextVariable : for (int i = 0, length = typeVariables.length; i < length; i++) {
-			TypeVariableBinding typeVariable = typeVariables[i];
+		if (typeParameters == null) return true;
+		nextVariable : for (int i = 0, l = typeParameters.length; i < l; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeVariableBinding typeVariable = typeParameter.binding;
+			if (typeVariable == null) return false;
 			
 			typeVariable.superclass = getJavaLangObject();
 			typeVariable.superInterfaces = NoSuperInterfaces;
@@ -802,27 +804,54 @@ public class ClassScope extends Scope {
 			// set firstBound to the binding of the first explicit bound in parameter declaration
 			typeVariable.firstBound = null; // first bound used to compute erasure
 
-			TypeReference typeRef = typeParameters[typeVariable.rank].type;
+			TypeReference typeRef = typeParameter.type;
 			if (typeRef == null)
 				continue nextVariable;
 			ReferenceBinding superType = findSupertype(typeRef);
-			if (superType != null) { // is null if a cycle was detected cycle
-				typeRef.resolvedType = superType; // hold onto the problem type
-				if (!superType.isValidBinding()) {
-					problemReporter().invalidType(typeRef, superType);
-				} else {
-					// only want to reach here when no errors are reported
-					if (superType.isClass())
-						typeVariable.superclass = superType;
-					else
-						typeVariable.superInterfaces = new ReferenceBinding[] {superType};
-					continue nextVariable;
+			if (superType == null) { // detected cycle
+				noProblems = false;
+				continue nextVariable;
+			}
+			typeRef.resolvedType = superType; // hold onto the problem type
+			if (!superType.isValidBinding()) {
+				problemReporter().invalidType(typeRef, superType);
+				typeVariable.tagBits |= HierarchyHasProblems;
+				noProblems = false;
+				continue nextVariable;
+			}
+			if (superType.isClass())
+				typeVariable.superclass = superType;
+			else
+				typeVariable.superInterfaces = new ReferenceBinding[] {superType};
+			typeVariable.firstBound = superType; // first bound used to compute erasure
+
+			TypeReference[] boundRefs = typeParameter.bounds;
+			if (boundRefs != null) {
+				for (int j = 0, k = boundRefs.length; j < k; j++) {
+					typeRef = boundRefs[j];
+					superType = findSupertype(typeRef);
+					if (superType == null) { // detected cycle
+						noProblems = false;
+						continue nextVariable;
+					}
+					typeRef.resolvedType = superType; // hold onto the problem type
+					if (!superType.isValidBinding()) {
+						problemReporter().invalidType(typeRef, superType);
+						typeVariable.tagBits |= HierarchyHasProblems;
+						noProblems = false;
+						continue nextVariable;
+					}
+					if (superType.isClass()) {
+//					problemReporter().superinterfaceMustBeAnInterface(sourceType, referenceContext, superInterface);
+						typeVariable.tagBits |= HierarchyHasProblems;
+						noProblems = false;
+						continue nextVariable;
+					}
+					int size = typeVariable.superInterfaces.length;
+					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
+					typeVariable.superInterfaces[size] = superType;
 				}
 			}
-			noProblems = false;
-			typeVariable.tagBits |= HierarchyHasProblems;
-//			if ((typeVariable.superclass.tagBits & BeginHierarchyCheck) == 0)
-//				detectCycle(typeVariable, typeVariable.superclass, null);
 		}
 		return noProblems;
 	}

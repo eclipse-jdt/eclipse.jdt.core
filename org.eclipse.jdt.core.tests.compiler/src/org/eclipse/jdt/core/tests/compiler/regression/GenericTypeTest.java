@@ -250,6 +250,25 @@ public void test009() {
 		"----------\n");
 }
 
+public void test010() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Foo {} \n" + 
+			"public class X<T extends Object & Comparable<? super T>> {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<Foo>();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	new X<Foo>();\n" + 
+		"	      ^^^\n" + 
+		"The type argument Foo does not satisfy the parameter T bound: \'Object & Comparable\' in type X<T>\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
