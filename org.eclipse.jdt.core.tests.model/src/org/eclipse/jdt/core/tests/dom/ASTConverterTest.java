@@ -135,22 +135,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		}		
 	}
 	
-	/**
-	 * Returns the root directory that contains the resources for these tests.
-	 */
-	protected static String getRootDirectoryName() {
-		CodeSource javaCoreCodeSource = JavaCore.class.getProtectionDomain().getCodeSource();
-		if (javaCoreCodeSource != null) {
-			URL javaCoreUrl = javaCoreCodeSource.getLocation();
-			String javaCorePath = javaCoreUrl.getFile();
-			int index = javaCorePath.indexOf(JavaCore.PLUGIN_ID);
-			if (index != -1) {
-				String pluginsPath = javaCorePath.substring(0, index);
-				return pluginsPath + "org.eclipse.jdt.core.tests" + java.io.File.separator + "Eclipse Java Tests Model";
-			}
-		}
-		return null;
-	}	
+	
 	
 	/**
 	 * Check locally for the required JCL files, jclMin.jar and jclMinsrc.zip.
@@ -158,7 +143,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	 */
 	public void setupConverterJCL() throws IOException {
 		String separator = java.io.File.separator;
-		String resourceJCLDir = getRootDirectoryName() + separator + "JCL";
+		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
 		String localJCLPath =getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
 		EXTERNAL_JAR_DIR_PATH = localJCLPath;
 		java.io.File jclDir = new java.io.File(localJCLPath);
