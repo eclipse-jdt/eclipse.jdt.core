@@ -1483,12 +1483,12 @@ public void test040() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
-		"The interface X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
+		"The type X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
-		"The interface X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
+		"The type X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
 		"----------\n");
 }
 /*
