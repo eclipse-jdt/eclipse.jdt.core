@@ -59,9 +59,6 @@ private boolean areParameterErasuresEqual(MethodBinding one, MethodBinding two) 
 		if (!areTypesEqual(oneArgs[i].erasure(), twoArgs[i].erasure())) return false;
 	return true;
 }
-private boolean areReturnTypeErasuresEqual(MethodBinding one, MethodBinding two) {
-	return areTypesEqual(one.returnType.erasure(), two.returnType.erasure());
-}
 private boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
 	if (one instanceof ReferenceBinding && two instanceof ReferenceBinding)
@@ -96,10 +93,10 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		}
 
 		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType()
-			&& isSameOrSubTypeOf(currentMethod.returnType, inheritedMethod.returnType);
+			&& isTypeSubstituable(currentMethod.returnType, inheritedMethod.returnType);
 		if (!addBridgeMethod && !areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
 			// can be [] of Class#RAW vs. Class<T>
-			if (!areReturnTypeErasuresEqual(currentMethod, inheritedMethod)) {
+			if (!isReturnTypeSubstituable(currentMethod, inheritedMethod)) {
 				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 				continue nextMethod;
 			} else if (inheritedMethod.typeVariables.length != currentMethod.typeVariables.length) {
@@ -117,7 +114,7 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 
 		if (addBridgeMethod || inheritedMethod.hasSubstitutedParameters()) {
 		    MethodBinding original = inheritedMethod.original();
-		    if (!areReturnTypeErasuresEqual(original, currentMethod) || !areParameterErasuresEqual(original, currentMethod))
+		    if (!isReturnTypeSubstituable(original, currentMethod) || !areParameterErasuresEqual(original, currentMethod))
 				this.type.addSyntheticBridgeMethod(original, currentMethod);
 		}
 
@@ -162,7 +159,7 @@ private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMet
 private void checkInheritedMethods(MethodBinding[] methods, int length) {
 	MethodBinding first = methods[0];
 	int index = length;
-	while (--index > 0 && areReturnTypeErasuresEqual(first, methods[index])) {/*empty*/}
+	while (--index > 0 && isReturnTypeSubstituable(first, methods[index])) {/*empty*/}
 	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
 		this.problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		return;
@@ -296,7 +293,7 @@ private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 		MethodBinding[] methods = superType.getMethods(selector);
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
-			if (!areReturnTypeErasuresEqual(method, abstractMethod) || !areParameterErasuresEqual(method, abstractMethod))
+			if (!isReturnTypeSubstituable(method, abstractMethod) || !areParameterErasuresEqual(method, abstractMethod))
 				continue nextMethod;
 			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
 				continue nextMethod;
@@ -356,7 +353,7 @@ private void computeInheritedMethods() {
 				MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 				if (existingMethods != null) {
 					for (int i = 0, length = existingMethods.length; i < length; i++) {
-						if (areReturnTypeErasuresEqual(method, existingMethods[i]) && areParameterErasuresEqual(method, existingMethods[i])) {
+						if (isReturnTypeSubstituable(method, existingMethods[i]) && areParameterErasuresEqual(method, existingMethods[i])) {
 							if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
 								checkPackagePrivateAbstractMethod(method);
 							continue nextMethod;
@@ -366,7 +363,7 @@ private void computeInheritedMethods() {
 				MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(method.selector);
 				if (nonVisible != null)
 					for (int i = 0, l = nonVisible.length; i < l; i++)
-						if (areReturnTypeErasuresEqual(method, nonVisible[i]) && areParameterErasuresEqual(method, nonVisible[i])) 
+						if (isReturnTypeSubstituable(method, nonVisible[i]) && areParameterErasuresEqual(method, nonVisible[i])) 
 							continue nextMethod;
 
 				if (!method.isDefault() || method.declaringClass.fPackage == type.fPackage) {
@@ -394,7 +391,7 @@ private void computeInheritedMethods() {
 					MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
 					if (current != null) { // non visible methods cannot be overridden so a warning is issued
 						foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-							if (areReturnTypeErasuresEqual(method, current[i]) && areParameterErasuresEqual(method, current[i])) {
+							if (isReturnTypeSubstituable(method, current[i]) && areParameterErasuresEqual(method, current[i])) {
 								this.problemReporter().overridesPackageDefaultMethod(current[i], method);
 								break foundMatch;
 							}
@@ -483,13 +480,19 @@ private boolean isAsVisible(MethodBinding newMethod, MethodBinding inheritedMeth
 
 	return !newMethod.isPrivate();		// The inheritedMethod cannot be private since it would not be visible
 }
+private boolean isReturnTypeSubstituable(MethodBinding one, MethodBinding two) {
+	if (one.returnType == two.returnType) return true;
+
+	return isTypeSubstituable(one.returnType.erasure(), two.returnType.erasure());
+}
 private boolean isSameClassOrSubclassOf(ReferenceBinding testClass, ReferenceBinding superclass) {
 	do {
 		if (testClass == superclass) return true;
 	} while ((testClass = testClass.superclass()) != null);
 	return false;
 }
-private boolean isSameOrSubTypeOf(TypeBinding one, TypeBinding two) {
+private boolean isTypeSubstituable(TypeBinding one, TypeBinding two) {
+	if (one == two) return true;
 	if (one.isArrayType() || two.isArrayType()) {
 		if (one.isArrayType() != two.isArrayType()) return false;
 		ArrayBinding arrayOne = (ArrayBinding) one;
@@ -502,6 +505,9 @@ private boolean isSameOrSubTypeOf(TypeBinding one, TypeBinding two) {
 
 	ReferenceBinding subType = (ReferenceBinding) one;
 	ReferenceBinding superType = (ReferenceBinding) two;
+	if (CharOperation.equals(subType.compoundName, superType.compoundName)) return true;
+
+	// TODO what about unresolved types?
 	if (superType.isInterface())
 		return subType.implementsInterface(superType, true);
 	return subType.isClass() && isSameClassOrSubclassOf(subType, superType);
