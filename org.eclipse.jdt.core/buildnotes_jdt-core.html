@@ -39,6 +39,13 @@ Eclipse SDK 2.1 Build - ?th March 2003
 <br>Project org.eclipse.jdt.core v_303
 <h2>
 What's new in this drop</h2>
+<ul>
+<li><code>IJavaProject.isOnClasspath(...)</code> no longer throws any exception, but rather consistently return <code>false</code>
+in these circumstances. Indeed, it is difficult for clients to work with predicates that throw exceptions. 
+Although this change creates a source incompatibility, the change is binary compatible with 2.0 and within the original 
+spirit of the original API contract. Include in 2.1 readme.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=33695">33695</a>
