@@ -1,0 +1,4 @@
+if (bool)
+	synchronized (this)
+	{
+	}
