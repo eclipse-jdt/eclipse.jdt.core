@@ -40,7 +40,7 @@ protected Map getCompilerOptions() {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 31 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -1578,6 +1578,77 @@ public void test028() {
 	} catch (IOException e) {
 		assertTrue(false);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86487
+public void test029() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        ArrayList<Integer> arr = new ArrayList<Integer>();\n" + 
+			"    	 arr.add(0);\n" + 
+			"    	 arr.add(1);\n" + 
+			"		 int counter = 0;\n" + 
+			"        // tested statement:\n" + 
+			"        for (int i : arr){\n" + 
+			"            ++counter;\n" + 
+			"        }\n" + 
+			"        System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86487
+public void test030() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        int[] arr = new int[2];\n" + 
+			"    	 arr[0]= 0;\n" + 
+			"    	 arr[1]= 1;\n" + 
+			"		 int counter = 0;\n" + 
+			"        // tested statement:\n" + 
+			"        for (int i : arr){\n" + 
+			"            ++counter;\n" + 
+			"        }\n" + 
+			"        System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86487
+public void test031() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"        ArrayList arr = new ArrayList();\n" + 
+			"    	 arr.add(new Object());\n" + 
+			"		 int counter = 0;\n" + 
+			"        // tested statement:\n" + 
+			"        for (Object o : arr){\n" + 
+			"            ++counter;\n" + 
+			"        }\n" + 
+			"        System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS");
 }
 public static Class testClass() {
 	return ForeachStatementTest.class;
