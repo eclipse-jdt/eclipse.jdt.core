@@ -8418,4 +8418,38 @@ public void test011(){
 		expectedReplacedSource,
 		testName); 
 }
+/**
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=27370
+ */
+public void test012(){
+	String str = 
+		"public class X {\n" +
+		"  public X() {\n" + 
+		"    super();\n" +   
+		"  }\n" +  
+		"  Object o = new ZZZ\n" + 
+		"}\n";
+
+	String testName = "<bug 27370>";
+	String completeBehind = "ZZZ";
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	int cursorLocation = str.lastIndexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  Object o = new <CompleteOnType:ZZZ>();\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
 }

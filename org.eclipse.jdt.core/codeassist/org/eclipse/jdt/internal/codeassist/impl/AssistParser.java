@@ -970,9 +970,15 @@ public void recoveryTokenCheck() {
 			break;
 		case TokenNameRBRACE :
 			super.recoveryTokenCheck();
-			if(oldElement instanceof RecoveredInitializer && currentElement != oldElement) {
-				popUntilElement(K_METHOD_DELIMITER);
-				popElement(K_METHOD_DELIMITER);
+			if(currentElement != oldElement) {
+				if(oldElement instanceof RecoveredInitializer
+					|| oldElement instanceof RecoveredMethod) {
+					popUntilElement(K_METHOD_DELIMITER);
+					popElement(K_METHOD_DELIMITER);
+				} else if(oldElement instanceof RecoveredType) {
+					popUntilElement(K_TYPE_DELIMITER);
+					popElement(K_TYPE_DELIMITER);
+				}
 			}
 			break;
 		default :
