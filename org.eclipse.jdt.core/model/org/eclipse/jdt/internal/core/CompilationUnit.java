@@ -755,8 +755,10 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getPackageName()
  */
 public char[][] getPackageName() {
-	return null;
+	PackageFragment packageFragment = (PackageFragment) getParent();
+	return Util.toCharArrays(packageFragment.names);
 }
+
 /**
  * @see IJavaElement#getPath()
  */
