@@ -335,6 +335,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testLongDeclaration"));
 	suite.addTest(new JavaSearchTests("testLocalTypeDeclaration1"));
 	suite.addTest(new JavaSearchTests("testLocalTypeDeclaration2"));
+	suite.addTest(new JavaSearchTests("testTypeDeclaration2"));
 	
 	// type reference
 	suite.addTest(new JavaSearchTests("testSimpleTypeReference"));
@@ -343,6 +344,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReference3"));
 	suite.addTest(new JavaSearchTests("testTypeReference4"));
 	suite.addTest(new JavaSearchTests("testTypeReference5"));
+	suite.addTest(new JavaSearchTests("testTypeReference6"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInInitializer"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceAsSingleNameReference"));
 	suite.addTest(new JavaSearchTests("testMemberTypeReference"));
@@ -2567,6 +2569,24 @@ public void testTypeDeclaration() throws CoreException {
 	assertSearchResults("src/d8/A.java d8.A [A]", resultCollector);
 }
 /**
+ * Type declaration test.
+ * (generic type)
+ */
+public void testTypeDeclaration2() throws CoreException {
+	IPackageFragment pkg = this.getPackageFragment("JavaSearch", "src", "s6");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		"Y", 
+		TYPE,
+		DECLARATIONS,
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"src/s6/Y.java s6.Y [Y]",
+		resultCollector);
+}
+/**
  * Simple method declaration test.
  */
 public void testSimpleMethodDeclaration() throws CoreException {
@@ -2929,6 +2949,23 @@ public void testTypeReference5() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"test48261.jar p.X$Y(java.lang.String)",
+		resultCollector);
+}
+/**
+ * Type reference test
+ * (in a generic type)
+ */
+public void testTypeReference6() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch/src/s6/X.java").getType("X");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment().getParent()});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		type, 
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"src/s6/Y.java Object s6.Y.foo() [X]",
 		resultCollector);
 }
 /**
