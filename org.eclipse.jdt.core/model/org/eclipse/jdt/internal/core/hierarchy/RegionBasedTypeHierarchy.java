@@ -92,6 +92,7 @@ public IJavaProject javaProject() {
 }
 public void pruneDeadBranches() {
 	pruneDeadBranches(getRootClasses());
+	pruneDeadBranches(getRootInterfaces());
 }
 /*
  * Returns whether all subtypes of the given type have been pruned.
@@ -136,6 +137,7 @@ protected void removeType(IType type) {
 			if (types != null) types.remove(type);
 		}
 	}
+	this.interfaces.remove(type);
 }
 
 }
