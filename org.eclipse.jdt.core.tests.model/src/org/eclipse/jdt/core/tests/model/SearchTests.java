@@ -343,18 +343,12 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		thread.setDaemon(true);
 		thread.start();
 			
-		// remove jar from classpath, change jar and add it to classpath
-		project.setRawClasspath(
-			new IClasspathEntry[0], 
-			null);
-		getFile("/P1/jclMin.jar").setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
-		project.setRawClasspath(
-			new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P1/jclMin.jar"), null, null)}, 
-			null);
-			
 		// wait for concurrent job to start
 		monitor.suspend();
 
+		// change jar contents
+		getFile("/P1/jclMin.jar").setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
+			
 		// resume waiting job
 		job.resume();
 		
