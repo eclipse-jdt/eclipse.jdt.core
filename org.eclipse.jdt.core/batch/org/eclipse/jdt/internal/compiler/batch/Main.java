@@ -367,6 +367,7 @@ public class Main implements ProblemSeverities {
 
 		boolean didSpecifyCompliance = false;
 		boolean didSpecifyDefaultEncoding = false;
+		boolean didSpecifyTarget = false;
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -776,6 +777,7 @@ public class Main implements ProblemSeverities {
 				continue;
 			}
 			if (mode == TargetSetting) {
+				didSpecifyTarget = true;
 				if (currentArg.equals("1.1")) { //$NON-NLS-1$
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
@@ -1075,6 +1077,20 @@ public class Main implements ProblemSeverities {
 		if (filenames == null)
 			throw new InvalidInputException(Main.bind("configure.noSource")); //$NON-NLS-1$
 
+		// target must be 1.4 if source is 1.4
+		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
+				&& !options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)
+				&& didSpecifyTarget){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
+		}
+
+		// target cannot be 1.4 if compliance is 1.3
+		if (options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)
+				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
+				&& didSpecifyTarget){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+		}
+		
 		// check and set compliance/source/target compatibilities
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -1087,19 +1103,7 @@ public class Main implements ProblemSeverities {
 				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
-		
-		// target must be 1.4 if source is 1.4
-		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
-				&& !options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
-		}
 
-		// target cannot be 1.4 if compliance is 1.3
-		if (options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)
-				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
-		}
-		
 		if (log != null) {
 			try {
 				err = new PrintWriter(new FileOutputStream(log, false));
