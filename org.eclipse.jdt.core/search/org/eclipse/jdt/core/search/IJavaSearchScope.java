@@ -73,7 +73,8 @@ IPath[] enclosingProjectsAndJars();
  * in folders or within JARs).
  * 
  * @return whether this scope contains any <code>.class</code> files
- * @deprecated
+ * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) with the package fragment
+ * 				roots that correspond to the binaries instead
  */
 boolean includesBinaries();
 /**
@@ -81,7 +82,8 @@ boolean includesBinaries();
  * the projects of the resources of this search scope.
  * 
  * @return whether this scope includes classpaths
- * @deprecated 
+ * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
+ * 				with a java project instead
  */
 boolean includesClasspaths();
 /**
