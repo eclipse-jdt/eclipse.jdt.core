@@ -562,8 +562,7 @@ protected void toString(int tab, StringBuffer buffer) {
  */
 public String toStringWithAncestors() {
 	StringBuffer buffer = new StringBuffer();
-	Object info = fgJavaModelManager.getInfo(this);
-	this.toStringInfo(0, buffer, info);
+	this.toStringInfo(0, buffer, NO_INFO);
 	this.toStringAncestors(buffer);
 	return buffer.toString();
 }
@@ -574,8 +573,7 @@ protected void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
 	if (parent != null && parent.getParent() != null) {
 		buffer.append(" [in "); //$NON-NLS-1$
-		Object parentInfo = fgJavaModelManager.getInfo(parent);
-		parent.toStringInfo(0, buffer, parentInfo);
+		parent.toStringInfo(0, buffer, NO_INFO);
 		parent.toStringAncestors(buffer);
 		buffer.append("]"); //$NON-NLS-1$
 	}

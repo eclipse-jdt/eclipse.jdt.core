@@ -548,13 +548,13 @@ public String toDebugString(int depth) {
 	if ((changeFlags & IJavaElementDelta.F_MOVED_FROM) != 0) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
-		buffer.append("MOVED_FROM(" + ((JavaElement)getMovedFromElement()).toDebugString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("MOVED_FROM(" + ((JavaElement)getMovedFromElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MOVED_TO) != 0) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
-		buffer.append("MOVED_TO(" + ((JavaElement)getMovedToElement()).toDebugString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("MOVED_TO(" + ((JavaElement)getMovedToElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0) {

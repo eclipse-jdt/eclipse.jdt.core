@@ -302,7 +302,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				} // else not a java-project
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				element = project.getPackageFragmentRoot(resource);
+				element = project == null ? JavaCore.create(resource) : project.getPackageFragmentRoot(resource);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT:
 				// find the element that encloses the resource
@@ -315,7 +315,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
 					if (root == null) {
 						element = JavaModelManager.getJavaModelManager().create(resource, project);
-					} else if (!JavaModelManager.conflictsWithOutputLocation(path, (JavaProject)project)) {
+					} else if (!JavaModelManager.conflictsWithOutputLocation(path, (JavaProject)root.getJavaProject())) {
 						// create package handle
 						IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
 						String pkg = Util.packageName(pkgPath);
@@ -411,7 +411,27 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			// and it appears empty.
 			close(element);
 			
-			fCurrentDelta.added(element);
+			if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
+				IPath movedFromPath = delta.getMovedFromPath();
+				IResource res = delta.getResource();
+				IResource movedFromRes;
+				if (res instanceof IFile) {
+					movedFromRes = res.getWorkspace().getRoot().getFile(movedFromPath);
+				} else {
+					movedFromRes = res.getWorkspace().getRoot().getFolder(movedFromPath);
+				}
+				// create the moved from element
+				// pass null for the project in case the element is coming from another project
+				Openable movedFromElement = this.createElement(movedFromRes, elementType, null);
+				if (movedFromElement == null) {
+					// moved from outside classpath
+					fCurrentDelta.added(element);
+				} else {
+					fCurrentDelta.movedTo(element, movedFromElement);
+				}
+			} else {
+				fCurrentDelta.added(element);
+			}
 			
 			switch (elementType) {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
@@ -505,9 +525,30 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			close(element);
 		}
 		removeFromParentInfo(element);
-		fCurrentDelta.removed(element);
+		int elementType = element.getElementType();
+		if ((delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
+			IPath movedToPath = delta.getMovedToPath();
+			IResource res = delta.getResource();
+			IResource movedToRes;
+			if (res instanceof IFile) {
+				movedToRes = res.getWorkspace().getRoot().getFile(movedToPath);
+			} else {
+				movedToRes = res.getWorkspace().getRoot().getFolder(movedToPath);
+			}
+			// create the moved To element
+			// pass null for the project in case the element is moving to another project
+			Openable movedToElement = this.createElement(movedToRes, elementType, null);
+			if (movedToElement == null) {
+				// moved outside classpath
+				fCurrentDelta.removed(element);
+			} else {
+				fCurrentDelta.movedFrom(element, movedToElement);
+			}
+		} else {
+			fCurrentDelta.removed(element);
+		}
 
-		switch (element.getElementType()) {
+		switch (elementType) {
 			case IJavaElement.JAVA_MODEL :
 				element.getJavaModelManager().getIndexManager().reset();
 				element.getJavaModelManager().fModelInfo = null;
