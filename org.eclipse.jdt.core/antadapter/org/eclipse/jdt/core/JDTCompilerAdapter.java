@@ -123,16 +123,16 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	        getSourcepathMethod = javacClass.getMethod("getSourcepath", null); //$NON-NLS-1$
         } catch(NoSuchMethodException e) {
         }
-        Path compileSourcepath = null;
+        Path compileSourcePath = null;
         if (getSourcepathMethod != null) {
 	 		try {
-				compileSourcepath = (Path) getSourcepathMethod.invoke(attributes, null);
+				compileSourcePath = (Path) getSourcepathMethod.invoke(attributes, null);
 			} catch (IllegalAccessException e) {
 			} catch (InvocationTargetException e) {
 			}
         }
-        if (compileSourcepath != null) {
-            sourcepath = compileSourcepath;
+        if (compileSourcePath != null) {
+            sourcepath = compileSourcePath;
         } else {
             sourcepath = src;
         }
@@ -297,17 +297,17 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
      * so that you don't have to specify them all one by one.
      * @param extdirs - Path to append files to
      */
-    private void addExtdirs(Path extdirs, Path classpath) {
-        if (extdirs == null) {
+    private void addExtdirs(Path extDirs, Path classpath) {
+        if (extDirs == null) {
             String extProp = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
             if (extProp != null) {
-                extdirs = new Path(classpath.getProject(), extProp);
+                extDirs = new Path(classpath.getProject(), extProp);
             } else {
                 return;
             }
         }
 
-        String[] dirs = extdirs.list();
+        String[] dirs = extDirs.list();
         for (int i = 0; i < dirs.length; i++) {
             File dir = classpath.getProject().resolveFile(dirs[i]);
             if (dir.exists() && dir.isDirectory()) {

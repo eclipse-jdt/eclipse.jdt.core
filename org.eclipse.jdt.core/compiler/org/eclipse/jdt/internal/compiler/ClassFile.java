@@ -576,10 +576,10 @@ public class ClassFile
 	 * have to be generated for the inner classes attributes.
 	 * @param referenceBinding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding 
 	 */
-	public void addInnerClasses(ReferenceBinding referenceBinding) {
+	public void addInnerClasses(ReferenceBinding refBinding) {
 		// check first if that reference binding is there
 		for (int i = 0; i < numberOfInnerClasses; i++) {
-			if (innerClassesBindings[i] == referenceBinding)
+			if (innerClassesBindings[i] == refBinding)
 				return;
 		}
 		int length = innerClassesBindings.length;
@@ -591,7 +591,7 @@ public class ClassFile
 				0,
 				length);
 		}
-		innerClassesBindings[numberOfInnerClasses++] = referenceBinding;
+		innerClassesBindings[numberOfInnerClasses++] = refBinding;
 	}
 
 	/**
