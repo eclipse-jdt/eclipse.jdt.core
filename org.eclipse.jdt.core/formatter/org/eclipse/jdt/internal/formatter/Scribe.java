@@ -342,10 +342,13 @@ public class Scribe {
 
 	public TextEdit getRootEdit() {
 		MultiTextEdit edit = null;
-		if (this.textRegionStart < 0) {
-			edit = new MultiTextEdit(0, this.textRegionEnd + 1);
-		} else if (this.textRegionStart == 0 && this.textRegionEnd == 0) {
-			edit = new MultiTextEdit(0, 0);
+		int length = this.textRegionEnd - this.textRegionStart + 1;
+		if (this.textRegionStart <= 0) {
+			if (length <= 0) {
+				edit = new MultiTextEdit(0, 0);
+			} else {
+				edit = new MultiTextEdit(0, this.textRegionEnd + 1);
+			}
 		} else {
 			edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
 		}
@@ -404,9 +407,6 @@ public class Scribe {
 		this.scanner.setSource(compilationUnitSource);
 		this.scannerEndPosition = compilationUnitSource.length;
 		this.scanner.resetTo(0, this.scannerEndPosition);
-		if (this.textRegionEnd == -1) {
-			this.textRegionEnd = this.scannerEndPosition;
-		}
 		this.edits = new OptimizedReplaceEdit[INITIAL_SIZE];
 	}	
 	
