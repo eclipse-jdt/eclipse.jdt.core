@@ -14375,7 +14375,7 @@ public void test500(){
 			},
 			"SUCCESS");
 	}		
-	public void _test512() {
+	public void test512() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================

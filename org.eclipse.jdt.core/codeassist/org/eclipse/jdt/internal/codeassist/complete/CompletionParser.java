@@ -1439,11 +1439,6 @@ protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeEnterAnonymousClassBody();
 }
-protected void consumeEnterAnonymousClassBodySimpleName() {
-	popElement(K_SELECTOR_QUALIFIER);
-	popElement(K_SELECTOR_INVOCATION_TYPE);
-	super.consumeEnterAnonymousClassBodySimpleName();
-}
 protected void consumeEnterVariable() {
 	identifierPtr--;
 	identifierLengthPtr--;

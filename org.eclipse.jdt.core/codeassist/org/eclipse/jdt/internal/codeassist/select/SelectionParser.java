@@ -353,66 +353,6 @@ protected void consumeEnterAnonymousClassBody() {
 		lastIgnoredToken = -1;		
 	}
 }
-protected void consumeEnterAnonymousClassBodySimpleName() {
-	// EnterAnonymousClassBody ::= $empty
-
-	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeEnterAnonymousClassBodySimpleName();
-		return;
-	}
-	pushOnGenericsLengthStack(0);
-	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
-	// trick to avoid creating a selection on type reference
-	char [] oldIdent = this.assistIdentifier();
-	this.setAssistIdentifier(null);		
-	TypeReference typeReference = getTypeReference(0);
-	this.setAssistIdentifier(oldIdent);	
-
-	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
-	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
-	QualifiedAllocationExpression alloc = new SelectionOnQualifiedAllocationExpression(anonymousType); 
-	markEnclosingMemberWithLocalType();
-	pushOnAstStack(anonymousType);
-
-	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
-	int argumentLength;
-	if ((argumentLength = expressionLengthStack[expressionLengthPtr--]) != 0) {
-		expressionPtr -= argumentLength;
-		System.arraycopy(
-			expressionStack, 
-			expressionPtr + 1, 
-			alloc.arguments = new Expression[argumentLength], 
-			0, 
-			argumentLength); 
-	}
-	alloc.type = typeReference;
-
-	anonymousType.sourceEnd = alloc.sourceEnd;
-	//position at the type while it impacts the anonymous declaration
-	anonymousType.sourceStart = anonymousType.declarationSourceStart = alloc.type.sourceStart;
-	alloc.sourceStart = intStack[intPtr--];
-	pushOnExpressionStack(alloc);
-
-	assistNode = alloc;
-	this.lastCheckPoint = alloc.sourceEnd + 1;
-	if (!diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;
-		currentToken = 0; // opening brace already taken into account
-		hasReportedError = true;
-	}
-
-	anonymousType.bodyStart = scanner.currentPosition;
-	listLength = 0; // will be updated when reading super-interfaces
-	// recovery
-	if (currentElement != null){
-		lastCheckPoint = anonymousType.bodyStart;
-		currentElement = currentElement.add(anonymousType, 0);
-		currentToken = 0; // opening brace already taken into account
-		lastIgnoredToken = -1;		
-	}
-}
 protected void consumeEnterVariable() {
 	// EnterVariable ::= $empty
 	// do nothing by default

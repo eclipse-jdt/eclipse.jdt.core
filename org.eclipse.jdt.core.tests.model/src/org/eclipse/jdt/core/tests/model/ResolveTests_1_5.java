@@ -1685,7 +1685,7 @@ public void test0075() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Inner(W) {key=Ltest0075/Test$Inner<>;.<W:Ljava/lang/Object;>(TW;)V} [in Inner [in Test [in [Working copy] Test.java [in test0075 [in src2 [in Resolve]]]]]]",
+		"Inner(W) {key=Ltest0075/Test$Inner<Ljava/lang/String;>;.<W:Ljava/lang/Object;>(TW;)V%<Ljava/lang/Object;>} [in Inner [in Test [in [Working copy] Test.java [in test0075 [in src2 [in Resolve]]]]]]",
 		elements
 	);
 }

@@ -1145,18 +1145,18 @@ ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' Clas
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments ClassType '(' ArgumentListopt ')' ClassBodySimpleNameopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' ClassType '(' ArgumentListopt ')' ClassBodySimpleNameopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 
 --1.1 feature
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType '(' ArgumentListopt ')' ClassBodySimpleNameopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments ClassType '(' ArgumentListopt ')' ClassBodySimpleNameopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
@@ -1168,15 +1168,6 @@ ClassBodyopt ::= $empty --test made using null as contents
 /.$putCase consumeClassBodyopt(); $break ./
 ClassBodyopt ::= EnterAnonymousClassBody ClassBody
 /:$readableName ClassBody:/
-
-ClassBodySimpleNameopt ::= $empty --test made using null as contents
-/.$putCase consumeClassBodyopt(); $break ./
-ClassBodySimpleNameopt ::= EnterAnonymousClassBodySimpleName ClassBody
-/:$readableName ClassBody:/
-
-EnterAnonymousClassBodySimpleName ::= $empty
-/.$putCase consumeEnterAnonymousClassBodySimpleName(); $break ./
-/:$readableName EnterAnonymousClassBodySimpleName:/
 
 EnterAnonymousClassBody ::= $empty
 /.$putCase consumeEnterAnonymousClassBody(); $break ./

@@ -274,11 +274,6 @@ protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR);
 	pushOnElementStack(K_TYPE_DELIMITER);
 }
-protected void consumeEnterAnonymousClassBodySimpleName() {
-	super.consumeEnterAnonymousClassBodySimpleName();
-	popElement(K_SELECTOR);
-	pushOnElementStack(K_TYPE_DELIMITER);
-}
 protected void consumeEnumHeader() {
 	super.consumeEnumHeader();
 	pushOnElementStack(K_TYPE_DELIMITER);
