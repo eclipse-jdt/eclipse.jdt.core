@@ -3555,6 +3555,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=45141
+	 */
+	public void test324() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test324", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=45220
 	 */
 	public void test325() {
@@ -3564,11 +3573,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=45141
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=45465
 	 */
-	public void test324() {
+	public void test326() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test324", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+		runTest(codeFormatter, "test326", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
