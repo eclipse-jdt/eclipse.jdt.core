@@ -108,7 +108,6 @@ private void buildDeltas(LookupTable deltas) throws CoreException {
 }
 
 private void cleanup() {
-	this.workspaceRoot = null;
 	this.classpath = null;
 	this.outputFolder = null;
 	this.sourceFolders = null;
@@ -167,25 +166,20 @@ private void setLastState(State state) {
 * they are added to the workspace.
 */
 private IProject[] getRequiredProjects() {
-	if (javaProject == null) return new IProject[0];
+	if (javaProject == null || workspaceRoot == null) return new IProject[0];
 
-	// this is NOT what you want but it will do for now see if JavaProject cannot
-	// provide the answer by itself - see getRequiredProjectNames()
-	IPackageFragmentRoot[] roots;
+	String[] projectNames;
 	try {
-		roots = ((JavaProject) javaProject).getBuilderRoots(null);
+		projectNames = javaProject.getRequiredProjectNames();
 	} catch(JavaModelException e) {
 		return new IProject[0];
 	}
 
 	ArrayList projects = new ArrayList();
-	for (int i = 0; i < roots.length; ++i) {
-		IJavaProject p = roots[i].getJavaProject();
-		if (p != null && p != javaProject) {
-			IProject project = p.getProject();
-			if (!projects.contains(project))
-				projects.add(project);
-		}
+	for (int i = 0; i < projectNames.length; ++i) {
+		IProject p = workspaceRoot.getProject(projectNames[i]);
+		if (p != null && !projects.contains(p))
+			projects.add(p);
 	}
 	IProject[] result = new IProject[projects.size()];
 	projects.toArray(result);
@@ -269,7 +263,7 @@ private void initializeBuilder() throws CoreException {
 					classpath[cpCount++] = ClasspathLocation.forSourceFolder(
 						resource.getLocation().toString(),
 						outputFolder.getLocation().toString());
-					break nextEntry;
+					continue nextEntry;
 
 				case IClasspathEntry.CPE_PROJECT :
 					if (!(resource instanceof IProject)) continue nextEntry;
@@ -285,7 +279,7 @@ private void initializeBuilder() throws CoreException {
 					}
 					prereqOutputFolders.put(prereqProject, prereqOutputFolder);
 					classpath[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toString());
-					break nextEntry;
+					continue nextEntry;
 
 				case IClasspathEntry.CPE_LIBRARY :
 					if (resource instanceof IFile) {
@@ -296,7 +290,7 @@ private void initializeBuilder() throws CoreException {
 						continue nextEntry;
 					}
 					classpath[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
-					break nextEntry;
+					continue nextEntry;
 			}
 		} else if (target instanceof File) {
 			String extension = entry.getPath().getFileExtension();
