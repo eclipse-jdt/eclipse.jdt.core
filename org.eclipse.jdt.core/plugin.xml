@@ -19,6 +19,7 @@
     <import plugin="org.eclipse.core.resources"/>
     <import plugin="org.apache.xerces"/>
     <import plugin="org.eclipse.ant.core" optional="true"/>
+    <import plugin="org.eclipse.team.core" optional="true"/>
 </requires>
 	
 <!-- =================================================================================== -->

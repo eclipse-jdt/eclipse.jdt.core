@@ -33,11 +33,13 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.1 Build - 14th October 2002
+Eclipse SDK 2.1 Build - 15th October 2002
 <br>Project org.eclipse.jdt.core v_278
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added soft dependency on plug-in "org.eclipse.team.core" to account for fileTypes contribution
+</li>
  <li> JavaCore option added for specifying the task priorities (default is <code>""</code> meaning 
  tasks have normal priority).
 <pre>
@@ -53,7 +55,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24741">24741</a>  
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23272">23272</a>  
+Plugin dependence problem
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24741">24741</a>  
 Search does not find patterned type reference in binary project  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23812">23812</a>  
 Configurable (TODO) Markers priority in takslist  
