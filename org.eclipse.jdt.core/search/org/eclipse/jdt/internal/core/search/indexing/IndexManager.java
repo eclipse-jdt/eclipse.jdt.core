@@ -243,7 +243,13 @@ private SimpleLookupTable getIndexStates() {
 private IPath getJavaPluginWorkingLocation() {
 	if (this.javaPluginLocation != null) return this.javaPluginLocation;
 
-	return this.javaPluginLocation = JavaCore.getPlugin().getStateLocation();
+	IPath stateLocation = JavaCore.getPlugin().getStateLocation();
+	
+	// TODO (jerome) workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=62267
+	String device = stateLocation.getDevice();
+	if (device != null && device.charAt(0) == '/') stateLocation = stateLocation.setDevice(device.substring(1));
+	
+	return this.javaPluginLocation = stateLocation;
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) throws IOException {
 	try {
