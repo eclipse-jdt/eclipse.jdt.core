@@ -30,6 +30,12 @@ public class AnnotationParser {
 	public static final char[] TAG_EXCEPTION = "exception".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SEE = "see".toCharArray(); //$NON-NLS-1$
 	
+	// tags expected positions
+	public final static int ORDERED_TAGS_NUMBER = 3;
+	public final static int PARAM_TAG_EXPECTED_ORDER = 0;
+	public final static int THROWS_TAG_EXPECTED_ORDER = 1;
+	public final static int SEE_TAG_EXPECTED_ORDER = 2;
+	
 	// Public fields
 	public Annotation annotation;
 	public boolean checkAnnotation;
@@ -57,9 +63,7 @@ public class AnnotationParser {
 	AnnotationParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
 		this.checkAnnotation = this.sourceParser.options.getSeverity(CompilerOptions.InvalidAnnotation) != ProblemSeverities.Ignore;
-		//if (this.checkAnnotation) {
-			this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null);
-		//}
+		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null);
 		this.identifierStack = new char[10][];
 		this.identifierPositionStack = new long[10];
 		this.identifierLengthStack = new int[20];
@@ -132,15 +136,15 @@ public class AnnotationParser {
 								switch (tk) {
 									case TerminalTokens.TokenNameIdentifier :
 										char[] tag = this.scanner.getCurrentIdentifierSource();
-									if (CharOperation.equals(tag, TAG_DEPRECATED)) {
-										foundDeprecated = true;
-									} else if (CharOperation.equals(tag, TAG_PARAM)) {
-										parseParam();
-									} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
-										parseThrows();
-									} else if (CharOperation.equals(tag, TAG_SEE)) {
-										parseSee();
-									}
+										if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+											foundDeprecated = true;
+										} else if (CharOperation.equals(tag, TAG_PARAM)) {
+											parseParam();
+										} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+											parseThrows();
+										} else if (CharOperation.equals(tag, TAG_SEE)) {
+											parseSee();
+										}
 										break;
 									case TerminalTokens.TokenNamereturn :
 										parseReturn();
@@ -163,7 +167,9 @@ public class AnnotationParser {
 				}
 			}
 		} finally {
-			updateAnnotation();
+			if (this.checkAnnotation) {
+				updateAnnotation();
+			}
 			this.source = null; // release source as soon as finished
 		}
 		return foundDeprecated;
@@ -181,9 +187,12 @@ public class AnnotationParser {
 		}
 	}
 
+	/*
+	 * Parse argument in @see tag method reference
+	 */
 	private AnnotationMessageSend parseArguments(TypeReference receiver) throws InvalidInputException {
 
-		int modulo = 0; // should be 2 for (Type,Type,...) and 3 for (Type arg,Type arg,...)
+		int modulo = 0; // should be 2 for (Type,Type,...) or 3 for (Type arg,Type arg,...)
 		int iToken = 0;
 		char[] argName = null;
 		int ptr = astPtr;
@@ -279,7 +288,7 @@ public class AnnotationParser {
 				iToken++;
 			} else if (token == TerminalTokens.TokenNameRPAREN) {
 				AnnotationArgumentExpression expr = new AnnotationArgumentExpression(name, argStart, argEnd, typeRef);
-				pushOnAstStack(expr, (iToken == (modulo - 1)));
+				pushOnAstStack(expr, firstArg);
 				int size = astLengthStack[astLengthPtr--];
 				AnnotationArgumentExpression[] arguments = new AnnotationArgumentExpression[size];
 				for (int i = (size - 1); i >= 0; i--) {
@@ -302,6 +311,9 @@ public class AnnotationParser {
 		throw new InvalidInputException();
 	}
 
+	/*
+	 * Parse an URL link reference in @see tag
+	 */
 	private boolean parseHref() throws InvalidInputException {
 		int start = this.scanner.getCurrentTokenStartPosition();
 		//int end = this.scanner.getCurrentTokenEndPosition();
@@ -341,6 +353,9 @@ public class AnnotationParser {
 		return false;
 	}
 
+	/*
+	 * Parse a method reference in @see tag
+	 */
 	private Expression parseMember(TypeReference receiver) throws InvalidInputException {
 		this.identifierPtr = -1;
 		this.identifierLengthPtr = -1;
@@ -373,6 +388,9 @@ public class AnnotationParser {
 		return null;
 	}
 
+	/*
+	 * Parse @param tag declaration
+	 */
 	private void parseParam() {
 
 		// Store current token state
@@ -408,6 +426,9 @@ public class AnnotationParser {
 		consumeToken();
 	}
 
+	/*
+	 * Parse a qualified name and built a type reference if the syntax is valid.
+	 */
 	private TypeReference parseQualifiedName(boolean reset) throws InvalidInputException {
 
 		// Reset identifier stack if requested
@@ -482,6 +503,9 @@ public class AnnotationParser {
 		return typeRef;
 	}
 
+	/*
+	 * Parse a reference in @see tag
+	 */
 	private Expression parseReference() throws InvalidInputException {
 		TypeReference typeRef = null;
 		nextToken : while (this.index < this.scanner.eofPosition) {
@@ -539,6 +563,9 @@ public class AnnotationParser {
 		return typeRef;
 	}
 	
+	/*
+	 * Parse @return tag declaration
+	 */
 	private void parseReturn() {
 		if (this.annotation.returnStatement == null) {
 			this.annotation.returnStatement = new AnnotationReturnStatement(scanner.getCurrentTokenStartPosition(),
@@ -552,6 +579,9 @@ public class AnnotationParser {
 		}
 	}
 
+	/*
+	 * Parse @see tag declaration
+	 */
 	private void parseSee() {
 		int start = this.scanner.currentPosition;
 		try {
@@ -566,6 +596,9 @@ public class AnnotationParser {
 		}
 	}
 
+	/*
+	 * Parse @throws tag declaration
+	 */
 	private void parseThrows() {
 		int start = this.scanner.currentPosition;
 		try {
@@ -623,7 +656,8 @@ public class AnnotationParser {
 	}
 
 	/*
-	 * add a new obj on top of the ast stack
+	 * Add a new obj on top of the ast stack.
+	 * If new length is required, then add also a new length in length stack.
 	 */
 	private void pushOnAstStack(AstNode node, boolean newLength) {
 
@@ -658,60 +692,80 @@ public class AnnotationParser {
 		}
 	}
 
+	/*
+	 * Push a param name in ast node stack.
+	 */
 	private void pushParamName(AnnotationSingleNameReference arg) {
-		// TODO (frederic) To be changed when mixed tags declaration will be accepted
-		switch (this.astLengthPtr) {
-			case -1 :
-				// push first param name
-				pushOnAstStack(arg, true);
-				break;
-			case 0 :
-				// push other param name
-				pushOnAstStack(arg, false);
-				break;
-			default :
-				this.sourceParser.problemReporter().annotationUnexpectedTag(arg.tagSourceStart, arg.tagSourceEnd);
+		if (this.astLengthPtr == -1) { // First push
+			pushOnAstStack(arg, true);
+		} else {
+			// Verify that no @throws has been declared before
+			for (int i=THROWS_TAG_EXPECTED_ORDER; i<=this.astLengthPtr; i+=ORDERED_TAGS_NUMBER) {
+				if (this.astLengthStack[i] != 0) {
+					this.sourceParser.problemReporter().annotationUnexpectedTag(arg.tagSourceStart, arg.tagSourceEnd);
+					return;
+				}
+			}
+			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
+				case PARAM_TAG_EXPECTED_ORDER :
+					// previous push was a @param tag => push another param name
+					pushOnAstStack(arg, false);
+					break;
+				case SEE_TAG_EXPECTED_ORDER :
+					// previous push was a @see tag => push new param name
+					pushOnAstStack(arg, true);
+					break;
+			}
 		}
 	}
 
+	/*
+	 * Push a reference statement in ast node stack.
+	 */
 	private void pushSeeRef(Statement statement) {
-		// TODO (frederic) To be changed when mixed tags declaration will be accepted
-		switch (this.astLengthPtr) {
-			case -1 :
-				// no @param previously declared, nor @throw/@exception
-				pushOnAstStack(null, true); // push 0 for parameters size
-			case 0 :
-				// no @throw/@exception previously declared
-				pushOnAstStack(null, true); // push 0 for thrownExceptions size
-			case 1 :
-				// push first reference
-				pushOnAstStack(statement, true);
-				break;
-			case 2 :
-				// push other reference
-				pushOnAstStack(statement, false);
-				break;
-			default :
-				this.sourceParser.problemReporter().annotationUnexpectedTag(statement.sourceStart, statement.sourceEnd);
+		if (this.astLengthPtr == -1) { // First push
+			pushOnAstStack(null, true);
+			pushOnAstStack(null, true);
+			pushOnAstStack(statement, true);
+		} else {
+			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
+				case PARAM_TAG_EXPECTED_ORDER :
+					// previous push was a @param tag => push empty @throws tag and new @see tag
+					pushOnAstStack(null, true);
+					pushOnAstStack(statement, true);
+					break;
+				case THROWS_TAG_EXPECTED_ORDER :
+					// previous push was a @throws tag => push new @see tag
+					pushOnAstStack(statement, true);
+					break;
+				case SEE_TAG_EXPECTED_ORDER :
+					// previous push was a @see tag => push another @see tag
+					pushOnAstStack(statement, false);
+					break;
+			}
 		}
 	}
 
 	private void pushThrowName(TypeReference typeRef) {
-		// TODO (frederic) To be changed when mixed tags declaration will be accepted
-		switch (this.astLengthPtr) {
-			case -1 :
-				// no @param previously declared
-				pushOnAstStack(null, true); // push 0 for parameters size
-			case 0 :
-				// push first class name
-				pushOnAstStack(typeRef, true);
-				break;
-			case 1 :
-				// push other class name
-				pushOnAstStack(typeRef, false);
-				break;
-			default :
-				this.sourceParser.problemReporter().annotationUnexpectedTag(typeRef.sourceStart, typeRef.sourceEnd);
+		if (this.astLengthPtr == -1) { // First push
+			pushOnAstStack(null, true);
+			pushOnAstStack(typeRef, true);
+		} else {
+			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
+				case PARAM_TAG_EXPECTED_ORDER :
+					// previous push was a @param tag => push new @throws tag
+					pushOnAstStack(typeRef, true);
+					break;
+				case THROWS_TAG_EXPECTED_ORDER :
+					// previous push was a @throws tag => push another @throws tag
+					pushOnAstStack(typeRef, false);
+					break;
+				case SEE_TAG_EXPECTED_ORDER :
+					// previous push was a @see tag => push empty @param and new @throws tags
+					pushOnAstStack(null, true);
+					pushOnAstStack(typeRef, true);
+					break;
+			}
 		}
 	}
 
@@ -749,53 +803,53 @@ public class AnnotationParser {
 		return token;
 	}
 
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("check annotation: ").append(this.checkAnnotation).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("annotation: ").append(this.annotation).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+		return buffer.toString();
+	}
 	/*
 	 * Fill annotation fields with information in ast nodes stack.
 	 */
 	private void updateAnnotation() {
+		if (this.astLengthPtr == -1) {
+			return;
+		}
+
+		// Initialize arrays
+		int[] sizes = new int[ORDERED_TAGS_NUMBER];
+		for (int i=0; i<=this.astLengthPtr; i++) {
+			sizes[i%ORDERED_TAGS_NUMBER] += this.astLengthStack[i];
+		}
+		this.annotation.references = new Expression[sizes[SEE_TAG_EXPECTED_ORDER]];
+		this.annotation.thrownExceptions = new TypeReference[sizes[THROWS_TAG_EXPECTED_ORDER]];
+		this.annotation.parameters = new AnnotationSingleNameReference[sizes[PARAM_TAG_EXPECTED_ORDER]];
+		
+		// Store nodes in arrays
 		while (this.astLengthPtr >= 0) {
+			int ptr = this.astLengthPtr % ORDERED_TAGS_NUMBER;
 			// Starting with the stack top, so get references (eg. Expression) coming from @see declarations
-			if (this.astLengthPtr == 2) {
+			if (ptr == SEE_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
-				if (size > 0) {
-					this.annotation.references = new Expression[size];
-					for (int i = (size - 1); i >= 0; i--) {
-						this.annotation.references[i] = (Expression) this.astStack[astPtr--];
-					}
+				for (int i=0; i<size; i++) {
+					this.annotation.references[--sizes[ptr]] = (Expression) this.astStack[astPtr--];
 				}
 			}
 
 			// Then continuing with class names (eg. TypeReference) coming from @throw/@exception declarations
-			else if (this.astLengthPtr == 1) {
+			else if (ptr == THROWS_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
-				if (size > 0) {
-					this.annotation.thrownExceptions = new TypeReference[size];
-					for (int i = (size - 1); i >= 0; i--) {
-						this.annotation.thrownExceptions[i] = (TypeReference) this.astStack[astPtr--];
-					}
+				for (int i=0; i<size; i++) {
+					this.annotation.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[astPtr--];
 				}
 			}
 
 			// Finally, finishing with parameters nales (ie. Argument) coming from @param declaration
-			else if (this.astLengthPtr == 0) {
+			else if (ptr == PARAM_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
-				if (size > 0) {
-					this.annotation.parameters = new AnnotationSingleNameReference[size];
-					for (int i = (size - 1); i >= 0; i--) {
-						this.annotation.parameters[i] = (AnnotationSingleNameReference) this.astStack[astPtr--];
-					}
-				}
-			}
-
-			// Flag all nodes got from other ast length stack pointer values as invalid....
-			// TODO (frederic) To be changed when mixed tags declaration will be accepted
-			else {
-				int size = this.astLengthStack[this.astLengthPtr--];
-				if (size > 0) {
-					for (int i = 0; i < size; i++) {
-						AstNode node = this.astStack[astPtr--];
-						this.sourceParser.problemReporter().annotationUnexpectedTag(node.sourceStart, node.sourceEnd);
-					}
+				for (int i=0; i<size; i++) {
+					this.annotation.parameters[--sizes[ptr]] = (AnnotationSingleNameReference) this.astStack[astPtr--];
 				}
 			}
 		}
