@@ -173,6 +173,399 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression1"));
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression2"));
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
+	
+	// completion keywords tests
+	suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSuper12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTry1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTry2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTry3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTry4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTry5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTry6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDo1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDo2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDo3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDo4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDo5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDo6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFor1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFor2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFor3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFor4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFor5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFor6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordIf1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordIf2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordIf3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordIf4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordIf5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordIf6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordReturn1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordReturn2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordReturn3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordReturn4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordReturn5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordReturn6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSwitch1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSwitch2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSwitch3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSwitch4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSwitch5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSwitch6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrow1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrow2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrow3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrow4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrow5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrow6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAssert1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAssert2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAssert3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAssert4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAssert5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAssert6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordElse8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinally14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordContinue1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordContinue2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordContinue3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordContinue4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordBreak1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordBreak2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordBreak3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordBreak4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordBreak5"));
+	//suite.addTest(new CompletionTests("testCompletionKeywordBreak6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordWhile10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordExtends10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImplements1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImplements2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImplements3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImplements4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImplements5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImplements6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPackage8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordImport8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCase10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordDefault9"));
+	//suite.addTest(new CompletionTests("testCompletionKeywordDefault10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass15"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass16"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass17"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass18"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass19"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass20"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass21"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass22"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass23"));
+	suite.addTest(new CompletionTests("testCompletionKeywordClass24"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface15"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface16"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface17"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInterface18"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThrows8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNative8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordVolatile8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTransient8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew15"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNew16"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordStatic10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic15"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic16"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic17"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic18"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic19"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPublic20"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordPrivate10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordProtected10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal15"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal16"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal17"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFinal18"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract6"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract7"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract9"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract10"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract11"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract12"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract13"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract15"));
+	suite.addTest(new CompletionTests("testCompletionKeywordAbstract16"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTrue1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTrue2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTrue3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordTrue4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFalse1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFalse2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFalse3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordFalse4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNull1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNull2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNull3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordNull4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof1"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof2"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof3"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof4"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof5"));
+	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof6"));
+	
 	return suite;
 }
 /**
@@ -221,8 +614,8 @@ public void testCompletionEndOfCompilationUnit() throws JavaModelException {
 	cu.codeComplete(cu.getSourceRange().getOffset() + cu.getSourceRange().getLength(), requestor);
 	assertEquals(
 		"should have two methods of 'foo'", 
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n" +
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED),
 		requestor.getResults());	
 }
 
@@ -1480,7 +1873,8 @@ public void testCompletionUnresolvedFieldType() throws JavaModelException {
 		requestor.getResults());
 }
 /*
- * bug : http://dev.eclipse.org/bugs/show_bug.cgi?id=24440 */
+ * bug : http://dev.eclipse.org/bugs/show_bug.cgi?id=24440
+ */
 public void testCompletionUnresolvedEnclosingType() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionUnresolvedEnclosingType.java");
@@ -2467,6 +2861,5149 @@ public void testCompletionConditionalExpression3() throws JavaModelException {
 			"element:var2    completion:var2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
 			"element:var3    completion:var3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
 			"element:var4    completion:var4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThis4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThis6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+			"element:super    completion:super()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTry1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:try    completion:try    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTry2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTry3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "try";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordDo1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDo1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "do";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:do    completion:do    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME)+"\n"+
+			"element:double    completion:double    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDo2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDo2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "do";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:double    completion:double    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDo3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDo3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "do";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:double    completion:double    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFor1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFor1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+			"element:for    completion:for    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFor2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFor2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFor3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFor3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordIf1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordIf1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "if";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:if    completion:if    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+			requestor.getResults());
+}
+public void testCompletionKeywordIf2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordIf2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "if";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordIf3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordIf3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "if";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordReturn1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "re";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:return    completion:return    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordReturn2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "re";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordReturn3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "re";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSwitch1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSwitch1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sw";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:switch    completion:switch    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSwitch2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSwitch2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sw";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSwitch3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSwitch3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sw";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThrow1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrow1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Throwable    completion:Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:throw    completion:throw    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrow2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrow2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Throwable    completion:Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrow3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrow3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Throwable    completion:Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordAssert1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAssert1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "as";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:assert    completion:assert    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAssert2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAssert2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "as";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordAssert3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAssert3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "as";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordElse1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:else    completion:else    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordElse2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordElse3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordElse4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:catch    completion:catch    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:catch    completion:catch    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:catchz    completion:catchz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finally    completion:finally    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finally    completion:finally    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finally    completion:finally    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finallyz    completion:finallyz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finallyz    completion:finallyz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordContinue1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cont";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:continue    completion:continue    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordContinue2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cont";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordBreak1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordBreak1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "bre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:break    completion:break    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordBreak2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordBreak2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "bre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordBreak3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordBreak3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "bre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:break    completion:break    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:while    completion:while    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:while    completion:while    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:while    completion:while    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:extends    completion:extends    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:extends    completion:extends    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordImplements1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImplements1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:implements    completion:implements    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImplements2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImplements2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:implements    completion:implements    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImplements3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImplements3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPackage1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:package    completion:package    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "p", "CompletionKeywordPackage2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPackage3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPackage4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordImport1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImport1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:import    completion:import    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImport2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "p", "CompletionKeywordImport2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:import    completion:import    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImport3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImport3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:import    completion:import    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImport4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImport4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCase1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:throws    completion:throws    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:throws    completion:throws    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:throws    completion:throws    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:synchronized    completion:synchronized    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:synchronized    completion:synchronized    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:synchronized    completion:synchronized    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNative1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:native    completion:native    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNative2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNative3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:native    completion:native    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNative4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:strictfp    completion:strictfp    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:strictfp    completion:strictfp    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:volatile    completion:volatile    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:volatile    completion:volatile    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:transient    completion:transient    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:transient    completion:transient    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNew1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:private    completion:private    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:private    completion:private    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:private    completion:private    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:protected    completion:protected    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:protected    completion:protected    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:protected    completion:protected    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE +R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTrue1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTrue1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tru";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordTrue2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTrue2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tru";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFalse1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFalse1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fal";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFalse2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFalse2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fal";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:false    completion:false    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNull1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNull1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nul";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNull2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNull2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nul";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:null    completion:null    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInstanceof1() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInstanceof1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ins";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:instanceof    completion:instanceof    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInstanceof2() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInstanceof2.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ins";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordInstanceof3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInstanceof3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ins";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+
+public void testCompletionKeywordThis8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThis11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThis13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:this    completion:this    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThis14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordSuper12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sup";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED) + "\n" +
+			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+			"element:super    completion:super()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTry4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:try    completion:try    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTry5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTry6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTry6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "try";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordDo4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDo4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "do";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:do    completion:do    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME)+"\n"+
+			"element:double    completion:double    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDo5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDo5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "do";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:double    completion:double    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDo6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDo6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "do";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:double    completion:double    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFor4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFor4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+			"element:for    completion:for    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFor5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFor5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFor6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFor6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordIf4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordIf4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "if";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:if    completion:if    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+			requestor.getResults());
+}
+public void testCompletionKeywordIf5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordIf5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "if";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordIf6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordIf6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "if";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordReturn4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "re";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:return    completion:return    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordReturn5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "re";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordReturn6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "re";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSwitch4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSwitch4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sw";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:switch    completion:switch    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSwitch5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSwitch5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sw";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSwitch6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSwitch6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sw";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThrow4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrow4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Throwable    completion:Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:throw    completion:throw    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrow5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrow5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Throwable    completion:Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrow6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrow6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Throwable    completion:Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordAssert4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAssert4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "as";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:assert    completion:assert    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAssert5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAssert5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "as";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordAssert6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAssert6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "as";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordElse5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:else    completion:else    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordElse6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordElse7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordElse8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordElse8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "els";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:catch    completion:catch    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordCatch10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCatch10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:catch    completion:catch    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:catchz    completion:catchz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finally    completion:finally    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finally    completion:finally    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finally    completion:finally    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finallyz    completion:finallyz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinally14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinally14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "finall";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:finallyz    completion:finallyz    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordContinue3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cont";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:continue    completion:continue    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordContinue4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cont";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordBreak4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordBreak4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "bre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:break    completion:break    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordBreak5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordBreak5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "bre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordBreak6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordBreak6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "bre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:break    completion:break    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:while    completion:while    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:while    completion:while    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordWhile10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordWhile10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "wh";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:while    completion:while    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:extends    completion:extends    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:extends    completion:extends    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordExtends10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordExtends10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ext";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordImplements4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImplements4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:implements    completion:implements    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImplements5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImplements5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:implements    completion:implements    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImplements6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImplements6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPackage5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPackage6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPackage7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPackage8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "p", "CompletionKeywordPackage8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pac";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordImport5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImport5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:import    completion:import    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImport6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImport6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordImport7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordImport7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:import    completion:import    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordImport8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "p", "CompletionKeywordImport8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "imp";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:import    completion:import    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:case    completion:case    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordCase10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordCase10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cas";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordDefault10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordDefault10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "def";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass15() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass15.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass16() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass16.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass17() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass17.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass18() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass18.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass19() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass19.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass20() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass20.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass21() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass21.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass22() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass22.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass23() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass23.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordClass24() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordClass24.java");
+
+		String str = cu.getSource();
+		String completeBehind = "cla";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:Class    completion:Class    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:ClassWithComplexName    completion:ClassWithComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
+			"element:class    completion:class    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface1.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface15() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface15.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface16() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface16.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface17() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface17.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInterface18() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInterface18.java");
+
+		String str = cu.getSource();
+		String completeBehind = "interf";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:interface    completion:interface    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:throws    completion:throws    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:throws    completion:throws    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordThrows8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThrows8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "thro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:throws    completion:throws    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:synchronized    completion:synchronized    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:synchronized    completion:synchronized    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:synchronized    completion:synchronized    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordSynchronized12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSynchronized12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "syn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNative5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:native    completion:native    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNative6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNative7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:native    completion:native    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNative8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNative8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nat";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:strictfp    completion:strictfp    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:strictfp    completion:strictfp    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStrictfp8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStrictfp8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "stric";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:volatile    completion:volatile    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:volatile    completion:volatile    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordVolatile8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordVolatile8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "vol";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:transient    completion:transient    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:transient    completion:transient    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTransient8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTransient8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tran";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNew9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew15() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew15.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNew16() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNew16.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ne";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:new    completion:new    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordStatic10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordStatic10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "sta";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:static    completion:static    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic20() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic15() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic15.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic16() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic16.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic17() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic17.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic18() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic18.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPublic19() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPublic19.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pub";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:public    completion:public    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:private    completion:private    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:private    completion:private    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:private    completion:private    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordPrivate10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordPrivate10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pri";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:protected    completion:protected    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected7() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected7.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:protected    completion:protected    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected8() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected8.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:protected    completion:protected    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordProtected10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordProtected10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "pro";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal18() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal18.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal15() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal15.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal16() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal16.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFinal17() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFinal17.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fin";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract9() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract9.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract10() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract10.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract11() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract12() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract12.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract13() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract13.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract14() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract14.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract15() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract15.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordAbstract16() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordAbstract16.java");
+
+		String str = cu.getSource();
+		String completeBehind = "abs";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:abstract    completion:abstract    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordTrue3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTrue3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tru";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordTrue4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordTrue4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "tru";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordFalse3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFalse3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fal";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordFalse4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordFalse4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "fal";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:false    completion:false    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordNull3() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNull3.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nul";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordNull4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordNull4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "nul";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:null    completion:null    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInstanceof4() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInstanceof4.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ins";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:instanceof    completion:instanceof    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionKeywordInstanceof5() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInstanceof5.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ins";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
+			requestor.getResults());
+}
+public void testCompletionKeywordInstanceof6() throws JavaModelException {
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordInstanceof6.java");
+
+		String str = cu.getSource();
+		String completeBehind = "ins";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"",
 			requestor.getResults());
 }
 }

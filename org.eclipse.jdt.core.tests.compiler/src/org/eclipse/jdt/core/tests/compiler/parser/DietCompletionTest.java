@@ -517,13 +517,13 @@ public void test16() {
 		"}											\n"; 
 
 	String completeBehind = "extends";
-	String expectedCompletionNodeToString = NONE;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:extends>";
 	String completionIdentifier = "extends";
 	String expectedUnitDisplayString = 
 		"import java.io.*;\n" + 
-		"public class X {\n" + 
-		"  {\n" + 
-		"  }\n" + 
+		"public class X extends <CompleteOnKeyword:extends> {\n" + 
+		"  {\n" +
+		"  }\n" +
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -552,13 +552,13 @@ public void test17() {
 		"}											\n"; 
 
 	String completeBehind = "ext";
-	String expectedCompletionNodeToString = NONE;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
 	String completionIdentifier = "ext";
 	String expectedUnitDisplayString =
 		"import java.io.*;\n" + 
-		"public class X {\n" + 
-		"  {\n" + 
-		"  }\n" + 
+		"public class X extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" +
+		"  }\n" +
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";

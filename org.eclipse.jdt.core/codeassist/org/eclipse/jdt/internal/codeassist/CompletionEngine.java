@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
+import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -378,16 +379,16 @@ public final class CompletionEngine
 		if(astNodeParent != null) {
 			computeExpectedTypes(astNodeParent, scope);
 		}
-
-		// defaults... some nodes will change these
+		
 		if (astNode instanceof CompletionOnFieldType) {
 
 			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
 			CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) field.type;
 			token = type.token;
 			setSourceRange(type.sourceStart, type.sourceEnd);
-			//		findKeywords(token, modifiers, scope); // could be the start of a field, method or member type
+			
 			findTypesAndPackages(token, scope);
+			findKeywordsForMember(token, field.modifiers);
 			
 			if(!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
 				findMethods(token,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false);
@@ -400,15 +401,16 @@ public final class CompletionEngine
 				token = type.token;
 				setSourceRange(type.sourceStart, type.sourceEnd);
 				findTypesAndPackages(token, scope);
-				
+				findKeywordsForMember(token, method.modifiers);
+			
 				if(method.modifiers == CompilerModifiers.AccDefault) {
 					findMethods(token,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false);
 				}
 			} else {
 				
 				if (astNode instanceof CompletionOnSingleNameReference) {
-	
-					token = ((CompletionOnSingleNameReference) astNode).token;
+					CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
+					token = singleNameReference.token;
 					findVariablesAndMethods(
 						token,
 						scope,
@@ -416,7 +418,16 @@ public final class CompletionEngine
 						scope);
 					// can be the start of a qualified type name
 					findTypesAndPackages(token, scope);
-	
+					findKeywords(token, singleNameReference.possibleKeywords);
+					if(singleNameReference.canBeExplicitConstructor){
+						if(CharOperation.prefixEquals(token, Keywords.THIS, false)) {
+							ReferenceBinding ref = scope.enclosingSourceType();
+							findExplicitConstructors(Keywords.THIS, ref, (MethodScope)scope, singleNameReference);
+						} else if(CharOperation.prefixEquals(token, Keywords.SUPER, false)) {
+							ReferenceBinding ref = scope.enclosingSourceType();
+							findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
+						}
+					}
 				} else {
 	
 					if (astNode instanceof CompletionOnSingleTypeReference) {
@@ -465,6 +476,12 @@ public final class CompletionEngine
 									findMemberTypes(token, receiverType, scope, scope.enclosingSourceType());
 	
 									findClassField(token, (TypeBinding) qualifiedBinding, scope);
+									
+									MethodScope methodScope = null;
+									if((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
+										|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic)) {
+										findKeywords(token, new char[][]{Keywords.THIS});
+									}
 	
 									findFields(
 										token,
@@ -545,7 +562,9 @@ public final class CompletionEngine
 									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 					
 									token = access.token;
-	
+									
+									findKeywords(token, new char[][]{Keywords.NEW});
+									
 									findFieldsAndMethods(
 										token,
 										(TypeBinding) qualifiedBinding,
@@ -682,6 +701,11 @@ public final class CompletionEngine
 																} else {
 																	token = ((CompletionOnArgumentName) variable).realName;
 																	findVariableNames(token, variable.type, excludeNames, ARGUMENT, variable.modifiers);
+																}
+															} else {
+																if(astNode instanceof CompletionOnKeyword) {
+																	CompletionOnKeyword keyword = (CompletionOnKeyword)astNode;
+																	findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
 																}
 															}
 														}
@@ -839,6 +863,10 @@ public final class CompletionEngine
 						if (importReference instanceof CompletionOnImportReference) {
 							findImports((CompletionOnImportReference) importReference);
 							return;
+						} else if(importReference instanceof CompletionOnKeyword) {
+							setSourceRange(importReference.sourceStart, importReference.sourceEnd);
+							CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
+							findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
 						}
 					}
 				}
@@ -971,6 +999,68 @@ public final class CompletionEngine
 		}
 	}
 
+	private void findExplicitConstructors(
+		char[] name,
+		ReferenceBinding currentType,
+		MethodScope scope,
+		InvocationSite invocationSite) {
+			
+		ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration)scope.referenceContext;
+		MethodBinding enclosingConstructor = constructorDeclaration.binding;
+
+		// No visibility checks can be performed without the scope & invocationSite
+		MethodBinding[] methods = currentType.availableMethods();
+		if(methods != null) {
+			next : for (int f = methods.length; --f >= 0;) {
+				MethodBinding constructor = methods[f];
+				if (constructor != enclosingConstructor && constructor.isConstructor()) {
+					
+					if (constructor.isSynthetic()) continue next;
+						
+					if (options.checkVisibility
+						&& !constructor.canBeSeenBy(invocationSite, scope))	continue next;
+	
+					TypeBinding[] parameters = constructor.parameters;
+					int paramLength = parameters.length;
+	
+					char[][] parameterPackageNames = new char[paramLength][];
+					char[][] parameterTypeNames = new char[paramLength][];
+					for (int i = 0; i < paramLength; i++) {
+						TypeBinding type = parameters[i];
+						parameterPackageNames[i] = type.qualifiedPackageName();
+						parameterTypeNames[i] = type.qualifiedSourceName();
+					}
+					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
+					
+					char[] completion = CharOperation.NO_CHAR;
+					if (source != null
+						&& source.length > endPosition
+						&& source[endPosition] == '(')
+						completion = name;
+					else
+						completion = CharOperation.concat(name, new char[] { '(', ')' });
+					
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForInterestingProposal();
+					relevance += computeRelevanceForCaseMatching(token, name);
+					requestor.acceptMethod(
+						currentType.qualifiedPackageName(),
+						currentType.qualifiedSourceName(),
+						name,
+						parameterPackageNames,
+						parameterTypeNames,
+						parameterNames,
+						CharOperation.NO_CHAR,
+						CharOperation.NO_CHAR,
+						completion,
+						constructor.modifiers,
+						startPosition - offset,
+						endPosition - offset,
+						relevance);
+				}
+			}
+		}
+	}
 	private void findConstructors(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
@@ -1344,8 +1434,9 @@ public final class CompletionEngine
 
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
-	private void findKeywords(char[] keyword, char[][] choices, Scope scope) {
-
+	private void findKeywords(char[] keyword, char[][] choices) {
+		if(choices == null || choices.length == 0) return;
+		
 		int length = keyword.length;
 		if (length > 0)
 			for (int i = 0; i < choices.length; i++)
@@ -1358,6 +1449,96 @@ public final class CompletionEngine
 					
 					requestor.acceptKeyword(choices[i], startPosition - offset, endPosition - offset,relevance);
 				}
+	}
+	
+	private void findKeywordsForMember(char[] token, int modifiers) {
+		char[][] keywords = new char[Keywords.COUNT][];
+		int count = 0;
+				
+		// visibility
+		if((modifiers & CompilerModifiers.AccPrivate) == 0
+			&& (modifiers & CompilerModifiers.AccProtected) == 0
+			&& (modifiers & CompilerModifiers.AccPublic) == 0) {
+			keywords[count++] = Keywords.PROTECTED;
+			keywords[count++] = Keywords.PUBLIC;
+			if((modifiers & CompilerModifiers.AccAbstract) == 0) {
+				keywords[count++] = Keywords.PRIVATE;
+			}
+		}
+		
+		if((modifiers & CompilerModifiers.AccAbstract) == 0) {
+			// abtract
+			if((modifiers & ~(CompilerModifiers.AccVisibilityMASK | CompilerModifiers.AccStatic)) == 0) {
+				keywords[count++] = Keywords.ABSTARCT;
+			}
+			
+			// final
+			if((modifiers & CompilerModifiers.AccFinal) == 0) {
+				keywords[count++] = Keywords.FINAL;
+			}
+			
+			// static
+			if((modifiers & CompilerModifiers.AccStatic) == 0) {
+				keywords[count++] = Keywords.STATIC;
+			}
+			
+			boolean canBeField = true;
+			boolean canBeMethod = true;
+			boolean canBeType = true;
+			if((modifiers & CompilerModifiers.AccNative) != 0
+				|| (modifiers & CompilerModifiers.AccStrictfp) != 0
+				|| (modifiers & CompilerModifiers.AccSynchronized) != 0) {
+				canBeField = false;
+				canBeType = false;
+			}
+			
+			if((modifiers & CompilerModifiers.AccTransient) != 0
+				|| (modifiers & CompilerModifiers.AccVolatile) != 0) {
+				canBeMethod = false;
+				canBeType = false;
+			}
+			
+			if(canBeField) {
+				// transient
+				if((modifiers & CompilerModifiers.AccTransient) == 0) {
+					keywords[count++] = Keywords.TRANSIENT;
+				}
+				
+				// volatile
+				if((modifiers & CompilerModifiers.AccVolatile) == 0) {
+					keywords[count++] = Keywords.VOLATILE;
+				}
+			}
+			
+			if(canBeMethod) {
+				// native
+				if((modifiers & CompilerModifiers.AccNative) == 0) {
+					keywords[count++] = Keywords.NATIVE;
+				}
+	
+				// strictfp
+				if((modifiers & CompilerModifiers.AccStrictfp) == 0) {
+					keywords[count++] = Keywords.STRICTFP;
+				}
+				
+				// synchronized
+				if((modifiers & CompilerModifiers.AccSynchronized) == 0) {
+					keywords[count++] = Keywords.SYNCHRONIZED;
+				}
+			}
+			
+			if(canBeType) {
+				keywords[count++] = Keywords.CLASS;
+				keywords[count++] = Keywords.INTERFACE;
+			}
+		} else {
+			// class
+			keywords[count++] = Keywords.CLASS;
+			keywords[count++] = Keywords.INTERFACE;
+		}
+		System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+		
+		findKeywords(token, keywords);
 	}
 
 	// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
@@ -2449,7 +2630,7 @@ public final class CompletionEngine
 				}
 			} 
 		} else {
-			findKeywords(token, baseTypes, scope);
+			findKeywords(token, baseTypes);
 			nameEnvironment.findTypes(token, this);
 			nameEnvironment.findPackages(token, this);
 		}

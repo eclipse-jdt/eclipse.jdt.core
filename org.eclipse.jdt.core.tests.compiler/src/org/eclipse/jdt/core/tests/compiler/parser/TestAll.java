@@ -59,6 +59,7 @@ public static Test suite() {
 	addTest(suite, NameReferenceCompletionTest.class);
 	addTest(suite, ReferenceTypeCompletionTest.class);
 	addTest(suite, CompletionParserTest2.class);
+	addTest(suite, CompletionParserTestKeyword.class);
 
 	/* selection tests */
 	addTest(suite, ExplicitConstructorInvocationSelectionTest.class);

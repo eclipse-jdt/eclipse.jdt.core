@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 
 public class CompletionParser extends AssistParser {
@@ -32,7 +33,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int COMPLETION_PARSER = 1024;
 	protected static final int COMPLETION_OR_ASSIST_PARSER = ASSIST_PARSER + COMPLETION_PARSER;
 	
-	// KIND : all values known by CompletionParser are between 1025 and 1535
+	// KIND : all values known by CompletionParser are between 1025 and 1549
 	protected static final int K_BLOCK_DELIMITER = COMPLETION_PARSER + 1; // whether we are inside a block
 	protected static final int K_SELECTOR_INVOCATION_TYPE = COMPLETION_PARSER + 2; // whether we are inside a message send
 	protected static final int K_SELECTOR_QUALIFIER = COMPLETION_PARSER + 3; // whether we are inside a message send
@@ -51,13 +52,35 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_BINARY_OPERATOR = COMPLETION_PARSER + 16;
 	protected static final int K_ASSISGNMENT_OPERATOR = COMPLETION_PARSER + 17;
 	protected static final int K_CONDITIONAL_OPERATOR = COMPLETION_PARSER + 18;
+	protected static final int K_BETWEEN_IF_AND_RIGHT_PAREN = COMPLETION_PARSER + 19;
+	protected static final int K_BETWEEN_WHILE_AND_RIGHT_PAREN = COMPLETION_PARSER + 20;
+	protected static final int K_BETWEEN_FOR_AND_RIGHT_PAREN = COMPLETION_PARSER + 21;
+	protected static final int K_BETWEEN_SWITCH_AND_RIGHT_PAREN = COMPLETION_PARSER + 22;
+	protected static final int K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN = COMPLETION_PARSER + 23;
+	protected static final int K_INSIDE_ASSERT_STATEMENT = COMPLETION_PARSER + 24;
+	protected static final int K_SWITCH_LABEL= COMPLETION_PARSER + 25;
+	
 
 	/* public fields */
 
 	public int cursorLocation;
 	public AstNode assistNodeParent; // the parent node of assist node
 	/* the following fields are internal flags */
-
+	
+	// block kind
+	static final int IF = 1;
+	static final int TRY = 2;
+	static final int CATCH = 3;
+	static final int WHILE = 4;
+	static final int SWITCH = 5;
+	static final int FOR = 6;
+	static final int DO = 7;
+	static final int SYNCHRONIZED = 8;
+	static final int METHOD = 9;
+	
+	// label kind
+	static final int DEFAULT = 1;
+	
 	// invocation type constants
 	static final int EXPLICIT_RECEIVER = 0;
 	static final int NO_RECEIVER = -1;
@@ -82,6 +105,13 @@ public class CompletionParser extends AssistParser {
 	// depth of '(', '{' and '[]'
 	int bracketDepth;
 	
+	// show if the current token can be an explicit constructor
+	int canBeExplicitConstructor = NO;
+	static final int NO = 0;
+	static final int NEXTTOKEN = 1;
+	static final int YES = 2;
+	
+	
 public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }
@@ -94,6 +124,12 @@ protected void attachOrphanCompletionNode(){
 	if (this.isOrphanCompletionNode) {
 		AstNode orphan = this.assistNode;
 		this.isOrphanCompletionNode = false;
+		
+		if (currentElement instanceof RecoveredUnit){
+			if (orphan instanceof ImportReference){
+				currentElement.add((ImportReference)orphan, 0);
+			}
+		}
 		
 		/* if in context of a type, then persists the identifier into a fake field return type */
 		if (currentElement instanceof RecoveredType){
@@ -575,6 +611,89 @@ private boolean checkClassLiteralAccess() {
 	}
 	return false;
 }
+private boolean checkKeyword() {
+	if (currentElement instanceof RecoveredUnit) {
+		RecoveredUnit unit = (RecoveredUnit) currentElement;
+		int index = -1;
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+			char[] ident = identifierStack[index];
+			long pos = identifierPositionStack[index];
+			
+			char[][] keywords = new char[Keywords.COUNT][];
+			int count = 0;
+			if(unit.typeCount == 0
+				&& lastModifiers == AccDefault
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.IMPORT)) {
+				keywords[count++] = Keywords.IMPORT;
+			}
+			if(unit.typeCount == 0
+				&& unit.importCount == 0
+				&& lastModifiers == AccDefault
+				&& compilationUnit.currentPackage == null
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.PACKAGE)) {
+				keywords[count++] = Keywords.PACKAGE;
+			}
+			if((lastModifiers & AccPublic) == 0
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.PUBLIC)) {
+				boolean hasNoPublicType = true;
+				for (int i = 0; i < unit.typeCount; i++) {
+					if((unit.types[i].typeDeclaration.modifiers & AccPublic) != 0) {
+						hasNoPublicType = false;
+					}
+				}
+				if(hasNoPublicType) {
+					keywords[count++] = Keywords.PUBLIC;
+				}
+			}
+			if((lastModifiers & AccAbstract) == 0
+				&& (lastModifiers & AccFinal) == 0
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.ABSTARCT)) {
+				keywords[count++] = Keywords.ABSTARCT;
+			}
+			if((lastModifiers & AccAbstract) == 0
+				&& (lastModifiers & AccFinal) == 0
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.FINAL)) {
+				keywords[count++] = Keywords.FINAL;
+			}
+			if(CharOperation.prefixEquals(identifierStack[index], Keywords.CLASS)) {
+				keywords[count++] = Keywords.CLASS;
+			}
+			if((lastModifiers & AccFinal) == 0
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.INTERFACE)) {
+				keywords[count++] = Keywords.INTERFACE;
+			}
+			if(count != 0) {
+				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+				
+				this.assistNode = new CompletionOnKeyword2(ident, pos, keywords);
+				this.lastCheckPoint = assistNode.sourceEnd + 1;
+				this.isOrphanCompletionNode = true;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+private boolean checkInstanceofKeyword() {
+	if(isInsideMethod()) {
+		int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+		int index;
+		if(kind != K_BLOCK_DELIMITER
+			&& (index = indexOfAssistIdentifier()) > -1
+			&& expressionPtr > -1
+			&& expressionLengthStack[expressionPtr] == 1
+			&& CharOperation.prefixEquals(identifierStack[index], Keywords.INSTANCEOF)) {
+			this.assistNode = new CompletionOnKeyword3(
+					identifierStack[index],
+					identifierPositionStack[index],
+					Keywords.INSTANCEOF);
+			this.lastCheckPoint = assistNode.sourceEnd + 1;
+			this.isOrphanCompletionNode = true;
+			return true;
+		}
+	}
+	return false;
+}
 /**
  * Checks if the completion is inside a method invocation or a constructor invocation.
  * Returns whether we found a completion node.
@@ -804,7 +923,9 @@ private boolean checkRecoveredType() {
  * resulting parsed structure.
  */
 public void completionIdentifierCheck(){
+	//if (assistNode != null) return; 
 
+	if (checkKeyword()) return;
 	if (checkRecoveredType()) return;
 	if (checkRecoveredMethod()) return;
 
@@ -844,7 +965,8 @@ public void completionIdentifierCheck(){
 		if (checkCatchClause()) return;
 		if (checkMemberAccess()) return;
 		if (checkClassLiteralAccess()) return;
-
+		if (checkInstanceofKeyword()) return;
+		
 		// if the completion was not on an empty name, it can still be inside an invocation (eg. this.fred("abc"[cursor])
 		// (NB: Put this check before checkNameCompletion() because the selector of the invocation can be on the identifier stack)
 		if (checkInvocation()) return;
@@ -880,6 +1002,12 @@ protected void consumeBinaryExpression(int op) {
 		}
 	}
 }
+protected void consumeCaseLabel() {
+	super.consumeCaseLabel();
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_SWITCH_LABEL) {
+		pushOnElementStack(K_SWITCH_LABEL);
+	}
+}
 protected void consumeCastExpression() {
 	popElement(K_CAST_STATEMENT);
 	
@@ -902,10 +1030,77 @@ protected void consumeClassBodyopt() {
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeClassBodyopt();
 }
+protected void consumeClassHeaderName() {
+	super.consumeClassHeaderName();
+
+	if (currentElement != null
+		&& currentToken == TokenNameIdentifier
+		&& this.cursorLocation+1 >= scanner.startPosition
+		&& this.cursorLocation < scanner.currentPosition){
+		this.pushIdentifier();
+
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredType.foundOpeningBrace) {
+				char[][] keywords = new char[Keywords.COUNT][];
+				int count = 0;
+				
+				TypeDeclaration type = recoveredType.typeDeclaration;
+				if(type.superInterfaces == null) {
+					if(type.superclass == null) {;
+						keywords[count++] = Keywords.EXTENDS;
+					}
+					keywords[count++] = Keywords.IMPLEMENTS;
+				}
+				
+				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+				
+				if(count > 0) {
+					type.superclass = new CompletionOnKeyword1(
+						identifierStack[index],
+						identifierPositionStack[index],
+						keywords);
+					this.assistNode = type.superclass;
+					this.lastCheckPoint = type.superclass.sourceEnd + 1;
+				}
+			}
+		}
+	}
+}
 protected void consumeClassHeaderExtends() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_CLASS);
 	super.consumeClassHeaderExtends();
 	popElement(K_NEXT_TYPEREF_IS_CLASS);
+	
+	if (currentElement != null
+		&& currentToken == TokenNameIdentifier
+		&& this.cursorLocation+1 >= scanner.startPosition
+		&& this.cursorLocation < scanner.currentPosition){
+		this.pushIdentifier();
+		
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredType.foundOpeningBrace) {
+				TypeDeclaration type = recoveredType.typeDeclaration;
+				if(type.superInterfaces == null) {
+					type.superclass = new CompletionOnKeyword1(
+						identifierStack[index],
+						identifierPositionStack[index],
+						Keywords.IMPLEMENTS);
+					this.assistNode = type.superclass;
+					this.lastCheckPoint = type.superclass.sourceEnd + 1;
+				}
+			}
+		}
+	}
 }
 protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
@@ -938,6 +1133,13 @@ protected void consumeConstructorHeaderName() {
 	}
 	this.restartRecovery = true;
 }
+protected void consumeDefaultLabel() {
+	super.consumeDefaultLabel();
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
+		popElement(K_SWITCH_LABEL);
+	}
+	pushOnElementStack(K_SWITCH_LABEL, DEFAULT);
+}
 protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR_QUALIFIER);
 	popElement(K_SELECTOR_INVOCATION_TYPE);
@@ -958,29 +1160,57 @@ protected void consumeEnterVariable() {
 	} else {
 		restartRecovery = true;
 		
+//		private boolean checkKeyword() {
+//			if (currentElement instanceof RecoveredUnit) {
+//				RecoveredUnit unit = (RecoveredUnit) currentElement;
+//				int index = -1;
+//				if ((index = this.indexOfAssistIdentifier()) > -1) {
+//					if(unit.typeCount == 0
+//						&& CharOperation.prefixEquals(identifierStack[index], Keywords.IMPORT)) {
+//						CompletionOnKeyword2 completionOnImportKeyword = new CompletionOnKeyword2(Keywords.IMPORT, identifierPositionStack[index]);
+//						this.assistNode = completionOnImportKeyword;
+//						this.lastCheckPoint = completionOnImportKeyword.sourceEnd + 1;
+//						this.isOrphanCompletionNode = true;
+//						return true;
+//					} else if(unit.typeCount == 0
+//						&& unit.importCount == 0
+//						&& CharOperation.prefixEquals(identifierStack[index], Keywords.PACKAGE)) {
+//						CompletionOnKeyword2 completionOnImportKeyword = new CompletionOnKeyword2(Keywords.PACKAGE, identifierPositionStack[index]);
+//						this.assistNode = completionOnImportKeyword;
+//						this.lastCheckPoint = completionOnImportKeyword.sourceEnd + 1;
+//						this.isOrphanCompletionNode = true;
+//						return true;
+//					}
+//				}
+//			}
+//			return false;
+//		}
+		
 		// recovery
 		if (currentElement != null) {
-			int nameSourceStart = (int)(identifierPositionStack[identifierPtr] >>> 32);
-			intPtr--;
-			
-			TypeReference type = getTypeReference(intStack[intPtr--]);
-			intPtr--;
-			
-			if (!(currentElement instanceof RecoveredType)
-				&& (currentToken == TokenNameDOT
-					|| (scanner.getLineNumber(type.sourceStart)
-							!= scanner.getLineNumber(nameSourceStart)))){
-				lastCheckPoint = nameSourceStart;
-				restartRecovery = true;
-				return;
+			if(!checkKeyword() && !(currentElement instanceof RecoveredUnit && ((RecoveredUnit)currentElement).typeCount == 0)) {
+				int nameSourceStart = (int)(identifierPositionStack[identifierPtr] >>> 32);
+				intPtr--;
+				
+				TypeReference type = getTypeReference(intStack[intPtr--]);
+				intPtr--;
+				
+				if (!(currentElement instanceof RecoveredType)
+					&& (currentToken == TokenNameDOT
+						|| (scanner.getLineNumber(type.sourceStart)
+								!= scanner.getLineNumber(nameSourceStart)))){
+					lastCheckPoint = nameSourceStart;
+					restartRecovery = true;
+					return;
+				}
+				
+				FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
+				completionFieldDecl.modifiers = intStack[intPtr--];
+				assistNode = completionFieldDecl;
+				lastCheckPoint = type.sourceEnd + 1;
+				currentElement = currentElement.add(completionFieldDecl, 0);
+				lastIgnoredToken = -1;
 			}
-			
-			FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
-			completionFieldDecl.modifiers = intStack[intPtr--];
-			assistNode = completionFieldDecl;
-			lastCheckPoint = type.sourceEnd + 1;
-			currentElement = currentElement.add(completionFieldDecl, 0);
-			lastIgnoredToken = -1;
 		}
 	}
 }
@@ -1083,7 +1313,36 @@ protected void consumeInstanceOfExpression(int op) {
 		assistNodeParent = exp;
 	}
 }
+protected void consumeInterfaceHeaderName() {
+	super.consumeInterfaceHeaderName();
+	
+	if (currentElement != null
+		&& currentToken == TokenNameIdentifier
+		&& this.cursorLocation+1 >= scanner.startPosition
+		&& this.cursorLocation < scanner.currentPosition){
+		this.pushIdentifier();
+		
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
 
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredType.foundOpeningBrace) {
+				TypeDeclaration type = recoveredType.typeDeclaration;
+				if(type.superInterfaces == null) {
+					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+						identifierStack[index],
+						identifierPositionStack[index],
+						Keywords.EXTENDS);
+					type.superInterfaces = new TypeReference[]{completionOnKeyword};
+					this.assistNode = completionOnKeyword;
+					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+				}
+			}
+		}
+	}
+}
 protected void consumeInterfaceType() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_INTERFACE);
 	super.consumeInterfaceType();
@@ -1188,6 +1447,70 @@ protected void consumeMethodHeaderName() {
 		}
 	}
 }
+protected void consumeMethodHeaderParameters() {
+	super.consumeMethodHeaderParameters();
+	
+	if (currentElement != null
+		&& currentToken == TokenNameIdentifier
+		&& this.cursorLocation+1 >= scanner.startPosition
+		&& this.cursorLocation < scanner.currentPosition){
+		this.pushIdentifier();
+		
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+
+			RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredMethod.foundOpeningBrace) {
+				AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
+				if(method.thrownExceptions == null
+					&& CharOperation.prefixEquals(identifierStack[index], Keywords.THROWS)) {
+					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+						identifierStack[index],
+						identifierPositionStack[index],
+						Keywords.THROWS);
+					method.thrownExceptions = new TypeReference[]{completionOnKeyword};
+					recoveredMethod.foundOpeningBrace = true;
+					this.assistNode = completionOnKeyword;
+					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+				}
+			}
+		}
+	}
+}
+protected void consumeMethodHeaderExtendedDims() {
+	super.consumeMethodHeaderExtendedDims();
+	
+	if (currentElement != null
+		&& currentToken == TokenNameIdentifier
+		&& this.cursorLocation+1 >= scanner.startPosition
+		&& this.cursorLocation < scanner.currentPosition){
+		this.pushIdentifier();
+		
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+
+			RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredMethod.foundOpeningBrace) {
+				AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
+				if(method.thrownExceptions == null) {
+					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+						identifierStack[index],
+						identifierPositionStack[index],
+						Keywords.THROWS);
+					method.thrownExceptions = new TypeReference[]{completionOnKeyword};
+					recoveredMethod.foundOpeningBrace = true;
+					this.assistNode = completionOnKeyword;
+					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+				}
+			}
+		}
+	}
+}
+
 protected void consumeMethodBody() {
 	popElement(K_BLOCK_DELIMITER);
 	super.consumeMethodBody();
@@ -1208,6 +1531,12 @@ protected void consumeRestoreDiet() {
 		popElement(K_LOCAL_INITIALIZER_DELIMITER);
 	}
 }
+protected void consumeStatementSwitch() {
+	super.consumeStatementSwitch();
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
+		popElement(K_SWITCH_LABEL);
+	}
+}
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
 	pushOnElementStack(K_BLOCK_DELIMITER);
@@ -1224,6 +1553,11 @@ protected void consumeToken(int token) {
 	if(isFirst) {
 		super.consumeToken(token);
 		return;
+	}
+	if(canBeExplicitConstructor == NEXTTOKEN) {
+		canBeExplicitConstructor = YES;
+	} else {
+		canBeExplicitConstructor = NO;
 	}
 	
 	int previous = this.previousToken;
@@ -1358,7 +1692,42 @@ protected void consumeToken(int token) {
 					|| kind == K_ARRAY_CREATION) {
 					pushOnElementStack(K_ARRAY_INITIALIZER, endPosition);
 				} else {
-					pushOnElementStack(K_BLOCK_DELIMITER);
+					switch(previous) {
+						case TokenNameRPAREN :
+							switch(previousKind) {
+								case K_BETWEEN_IF_AND_RIGHT_PAREN :
+									pushOnElementStack(K_BLOCK_DELIMITER, IF);
+									break;
+								case K_BETWEEN_CATCH_AND_RIGHT_PAREN :
+									pushOnElementStack(K_BLOCK_DELIMITER, CATCH);
+									break;
+								case K_BETWEEN_WHILE_AND_RIGHT_PAREN :
+									pushOnElementStack(K_BLOCK_DELIMITER, WHILE);
+									break;
+								case K_BETWEEN_SWITCH_AND_RIGHT_PAREN :
+									pushOnElementStack(K_BLOCK_DELIMITER, SWITCH);
+									break;
+								case K_BETWEEN_FOR_AND_RIGHT_PAREN :
+									pushOnElementStack(K_BLOCK_DELIMITER, FOR);
+									break;
+								case K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN :
+									pushOnElementStack(K_BLOCK_DELIMITER, SYNCHRONIZED);
+									break;
+								default :
+									pushOnElementStack(K_BLOCK_DELIMITER);
+									break;
+							}
+							break;
+						case TokenNametry :
+							pushOnElementStack(K_BLOCK_DELIMITER, TRY);
+							break;
+						case TokenNamedo:
+							pushOnElementStack(K_BLOCK_DELIMITER, DO);
+							break;
+						default :
+							pushOnElementStack(K_BLOCK_DELIMITER);
+							break;
+					}
 				}
 				break;
 			case TokenNameLBRACKET:
@@ -1371,18 +1740,57 @@ protected void consumeToken(int token) {
 				this.bracketDepth--;
 				break; 
 			case TokenNameRPAREN:
-				popElement(K_BETWEEN_CATCH_AND_RIGHT_PAREN);
+				switch(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					case K_BETWEEN_CATCH_AND_RIGHT_PAREN :
+						popElement(K_BETWEEN_CATCH_AND_RIGHT_PAREN);
+						break;
+					case K_BETWEEN_IF_AND_RIGHT_PAREN :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
+							popElement(K_BETWEEN_IF_AND_RIGHT_PAREN);
+						}
+						break;
+					case K_BETWEEN_WHILE_AND_RIGHT_PAREN :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
+							popElement(K_BETWEEN_WHILE_AND_RIGHT_PAREN);
+						}
+						break;
+					case K_BETWEEN_FOR_AND_RIGHT_PAREN :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
+							popElement(K_BETWEEN_FOR_AND_RIGHT_PAREN);
+						}
+						break;
+					case K_BETWEEN_SWITCH_AND_RIGHT_PAREN :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
+							popElement(K_BETWEEN_SWITCH_AND_RIGHT_PAREN);
+						}
+						break;
+					case K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
+							popElement(K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN);
+						}
+						break;
+				}
 				break;
 			case TokenNamethrow:
 				pushOnElementStack(K_INSIDE_THROW_STATEMENT, bracketDepth);
 				break;
 			case TokenNameSEMICOLON:
-				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_INSIDE_THROW_STATEMENT
-					&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
-					popElement(K_INSIDE_THROW_STATEMENT);
-				} else if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_INSIDE_RETURN_STATEMENT
-					&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth){
-					popElement(K_INSIDE_RETURN_STATEMENT);
+				switch(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					case K_INSIDE_THROW_STATEMENT :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_THROW_STATEMENT);
+						}
+						break;
+					case K_INSIDE_RETURN_STATEMENT :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_RETURN_STATEMENT);
+						}
+						break;
+					case K_INSIDE_ASSERT_STATEMENT :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_ASSERT_STATEMENT);
+						}
+						break;
 				}
 				break;
 			case TokenNamereturn:
@@ -1470,7 +1878,24 @@ protected void consumeToken(int token) {
 					pushOnElementStack(K_CONDITIONAL_OPERATOR, COLON);
 				}
 				break;
-			
+			case TokenNameif:
+				pushOnElementStack(K_BETWEEN_IF_AND_RIGHT_PAREN, bracketDepth);
+				break;
+			case TokenNamewhile:
+				pushOnElementStack(K_BETWEEN_WHILE_AND_RIGHT_PAREN, bracketDepth);
+				break;
+			case TokenNamefor:
+				pushOnElementStack(K_BETWEEN_FOR_AND_RIGHT_PAREN, bracketDepth);
+				break;
+			case TokenNameswitch:
+				pushOnElementStack(K_BETWEEN_SWITCH_AND_RIGHT_PAREN, bracketDepth);
+				break;
+			case TokenNamesynchronized:
+				pushOnElementStack(K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN, bracketDepth);
+				break;
+			case TokenNameassert:
+				pushOnElementStack(K_INSIDE_ASSERT_STATEMENT, this.bracketDepth);
+				break;
 		}
 	}
 }
@@ -1522,7 +1947,87 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 	}
 }
 public NameReference createSingleAssistNameReference(char[] name, long position) {
-	return new CompletionOnSingleNameReference(name, position);
+	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+	if(!isInsideMethod()) {
+		return new CompletionOnSingleNameReference(name, position);
+	} else {
+		boolean canBeExplicitConstructorCall = false;
+		if(kind == K_BLOCK_DELIMITER
+			&& previousKind == K_BLOCK_DELIMITER
+			&& previousInfo == DO) {
+			return new CompletionOnKeyword3(name, position, Keywords.WHILE);
+		} else if(kind == K_BLOCK_DELIMITER
+			&& previousKind == K_BLOCK_DELIMITER
+			&& previousInfo == TRY) {
+			return new CompletionOnKeyword3(name, position, new char[][]{Keywords.CATCH, Keywords.FINALLY});
+		} else {
+			char[][] keywords = new char[Keywords.COUNT][];
+			int count = 0;
+			
+			if((lastModifiers & AccStatic) == 0) {
+				keywords[count++]= Keywords.SUPER;
+				keywords[count++]= Keywords.THIS;
+			}
+			keywords[count++]= Keywords.NEW;
+			
+			if(kind == K_BLOCK_DELIMITER) {
+				if(canBeExplicitConstructor == YES) {
+					canBeExplicitConstructorCall = true;
+				}
+				
+				keywords[count++]= Keywords.ASSERT;
+				keywords[count++]= Keywords.DO;
+				keywords[count++]= Keywords.FOR;
+				keywords[count++]= Keywords.IF;
+				keywords[count++]= Keywords.RETURN;
+				keywords[count++]= Keywords.SWITCH;
+				keywords[count++]= Keywords.SYNCHRONIZED;
+				keywords[count++]= Keywords.THROW;
+				keywords[count++]= Keywords.TRY;
+				keywords[count++]= Keywords.WHILE;
+				
+				keywords[count++]= Keywords.FINAL;
+				keywords[count++]= Keywords.CLASS;
+				
+				if(previousKind == K_BLOCK_DELIMITER) {
+					switch (previousInfo) {
+						case IF :
+							keywords[count++]= Keywords.ELSE;
+							break;
+						case CATCH :
+							keywords[count++]= Keywords.CATCH;
+							keywords[count++]= Keywords.FINALLY;
+							break;
+					}
+				}
+				if(isInsideLoop()) {
+					keywords[count++]= Keywords.CONTINUE;
+				}
+				if(isInsideBreakable()) {
+					keywords[count++]= Keywords.BREAK;
+				}
+				if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
+					keywords[count++]= Keywords.CASE;
+					keywords[count++]= Keywords.DEFAULT;
+				}
+			} else {
+				keywords[count++]= Keywords.TRUE;
+				keywords[count++]= Keywords.FALSE;
+				keywords[count++]= Keywords.NULL;
+			
+				if(kind == K_SWITCH_LABEL) {
+					if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) != DEFAULT) {
+						keywords[count++]= Keywords.DEFAULT;
+					}
+					keywords[count++]= Keywords.BREAK;
+					keywords[count++]= Keywords.CASE;
+				}
+			}
+			System.arraycopy(keywords, 0 , keywords = new char[count][], 0, count);
+			
+			return new CompletionOnSingleNameReference(name, position, keywords, canBeExplicitConstructorCall);
+		}
+	}
 }
 public TypeReference createSingleAssistTypeReference(char[] name, long position) {
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
@@ -1633,6 +2138,45 @@ protected boolean isInsideBlock(){
 	}
 	return false;
 }
+protected boolean isInsideBreakable(){
+	int i = elementPtr;
+	while(i > -1) {
+		switch (elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return false;
+			case K_METHOD_DELIMITER : return false;
+			case K_FIELD_INITIALIZER_DELIMITER : return false;
+			case K_SWITCH_LABEL : return true;
+			case K_BLOCK_DELIMITER :
+				switch(elementInfoStack[i]) {
+					case FOR :
+					case DO :
+					case WHILE :
+						return true;
+				}
+		}
+		i--;
+	}
+	return false;
+}
+protected boolean isInsideLoop(){
+	int i = elementPtr;
+	while(i > -1) {
+		switch (elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return false;
+			case K_METHOD_DELIMITER : return false;
+			case K_FIELD_INITIALIZER_DELIMITER : return false;
+			case K_BLOCK_DELIMITER :
+				switch(elementInfoStack[i]) {
+					case FOR :
+					case DO :
+					case WHILE :
+						return true;
+				}
+		}
+		i--;
+	}
+	return false;
+}
 protected boolean isInsideReturn(){
 	int i = elementPtr;
 	while(i > -1) {
@@ -1654,6 +2198,12 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 	completionScanner.completionIdentifier = null;
 	completionScanner.cursorLocation = cursorLocation;
 	return this.parse(sourceUnit, compilationResult);
+}
+public void parseBlockStatements(
+	ConstructorDeclaration cd,
+	CompilationUnitDeclaration unit) {
+	canBeExplicitConstructor = 1;
+	super.parseBlockStatements(cd, unit);
 }
 /*
  * Prepares the state of the parser to go for BlockStatements.
@@ -1712,6 +2262,20 @@ public void recoveryExitFromVariable() {
 		}
 	} else {
 		super.recoveryExitFromVariable();
+	}
+}
+public void recoveryTokenCheck() {
+	RecoveredElement oldElement = currentElement;
+	switch (currentToken) {
+		case TokenNameRBRACE :
+			super.recoveryTokenCheck();
+			if(currentElement != oldElement && oldElement instanceof RecoveredBlock) {
+				popElement(K_BLOCK_DELIMITER);
+			}
+			break;
+		default :
+			super.recoveryTokenCheck();
+			break;
 	}
 }
 protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
@@ -1836,7 +2400,7 @@ protected LocalDeclaration createLocalDeclaration(Expression initialization, cha
 }
 
 protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
-	if (this.indexOfAssistIdentifier() < 0) {
+	if (this.indexOfAssistIdentifier() < 0 || (currentElement instanceof RecoveredUnit && ((RecoveredUnit)currentElement).typeCount == 0)) {
 		return super.createFieldDeclaration(initialization, name, sourceStart, sourceEnd);
 	} else {
 		CompletionOnFieldName field = new CompletionOnFieldName(initialization, name, sourceStart, sourceEnd);

@@ -58,6 +58,8 @@ public abstract class AssistParser extends Parser {
 	protected int elementPtr;
 	protected int[] elementKindStack = new int[ElementStackIncrement];
 	protected int[] elementInfoStack = new int[ElementStackIncrement];
+	protected int previousKind;
+	protected int previousInfo;
 	
 	// OWNER
 	protected static final int ASSIST_PARSER = 512;
@@ -93,7 +95,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	if (referenceContext instanceof CompilationUnitDeclaration){
 		RecoveredElement element = super.buildInitialRecoveryState();
 		flushAssistState();
-		elementPtr = -1;
+		flushElementStack();
 		return element;
 	}
 
@@ -546,6 +548,11 @@ public void flushAssistState(){
 	this.isOrphanCompletionNode = false;
 	this.setAssistIdentifier(null);
 }
+protected void flushElementStack() {
+	this.elementPtr = -1;
+	this.previousKind = 0;
+	this.previousInfo = 0;
+}
 /*
  * Build specific type reference nodes in case the cursor is located inside the type reference
  */
@@ -712,7 +719,7 @@ protected int indexOfAssistIdentifier(){
 public void initialize() {
 	super.initialize();
 	this.flushAssistState();
-	this.elementPtr = -1;
+	this.flushElementStack();
 	this.previousIdentifierPtr = -1;
 }
 
@@ -889,6 +896,10 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 }
 protected void popElement(int kind){
 	if(elementPtr < 0 || elementKindStack[elementPtr] != kind) return;
+	
+	previousKind = elementKindStack[elementPtr];
+	previousInfo = elementInfoStack[elementPtr];
+	
 	switch (kind) {
 		default :
 			elementPtr--;
@@ -902,6 +913,10 @@ protected void popUntilElement(int kind){
 		i--;
 	}
 	if(i > 0) {
+		if(i < elementPtr) {
+			previousKind = elementKindStack[i+1];
+			previousInfo = elementInfoStack[i+1];
+		}
 		elementPtr = i;	
 	}
 }
@@ -918,7 +933,7 @@ protected void prepareForBlockStatements() {
 	int methodIndex = lastIndexOfElement(K_METHOD_DELIMITER);
 	if(methodIndex == fieldInitializerIndex) {
 		// there is no method and no field initializer
-		elementPtr = -1;
+		flushElementStack();
 	} else if(methodIndex > fieldInitializerIndex) {
 		popUntilElement(K_METHOD_DELIMITER);
 	} else {
@@ -940,6 +955,10 @@ protected void pushOnElementStack(int kind){
 }
 protected void pushOnElementStack(int kind, int info){
 	if (this.elementPtr < -1) return;
+	
+	this.previousKind = 0;
+	this.previousInfo = 0;
+	
 	try {
 		this.elementPtr++;
 		this.elementKindStack[this.elementPtr] = kind;

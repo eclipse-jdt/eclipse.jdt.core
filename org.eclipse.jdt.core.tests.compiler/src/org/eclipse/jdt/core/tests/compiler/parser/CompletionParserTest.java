@@ -1336,7 +1336,7 @@ public void testDB_1FHSLDR() {
 
 	String testName = "<complete on finally keyword>";
 	String completeBehind = "fi";
-	String expectedCompletionNodeToString = "<CompleteOnName:fi>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fi>";
 	String completionIdentifier = "fi";
 	String expectedReplacedSource = "fi";
 	int cursorLocation = str.indexOf("fi }") + completeBehind.length() - 1;
@@ -1346,7 +1346,7 @@ public void testDB_1FHSLDR() {
 		"  public DB() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnName:fi>;\n" + 
+		"    <CompleteOnKeyword:fi>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2377,7 +2377,7 @@ public void testHB_1FHSLDR() {
 
 	String testName = "<complete on finally keyword>";
 	String completeBehind = "fi";
-	String expectedCompletionNodeToString = "<CompleteOnName:fi>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fi>";
 	String completionIdentifier = "fi";
 	String expectedReplacedSource = "fi";
 	int cursorLocation = str.indexOf("fi }") + completeBehind.length() - 1;
@@ -2388,7 +2388,7 @@ public void testHB_1FHSLDR() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" + 
-		"      <CompleteOnName:fi>;\n" + 
+		"      <CompleteOnKeyword:fi>;\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
@@ -6064,16 +6064,15 @@ public void testV_1FGGUOO_1() {
 
 	String testName = "<complete on implements keyword>";
 	String completeBehind = "i";
-	String expectedCompletionNodeToString = "<CompleteOnType:i>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:i>";
 	String completionIdentifier = "i";
 	String expectedReplacedSource = "i";
 	int cursorLocation = str.indexOf("i java") + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" + 
-		"public class V {\n" + 
-		"  <CompleteOnType:i>;\n" + 
-		"  {\n" + 
-		"  }\n" + 
+		"public class V extends <CompleteOnKeyword:i> {\n" + 
+		"  {\n" +
+		"  }\n" +
 		"  public V() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -7796,14 +7795,13 @@ public void testZ_1FGPF3D_1() {
 
 	String testName = "<complete on implements keyword>";
 	String completeBehind = "imp";
-	String expectedCompletionNodeToString = "<CompleteOnType:imp>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
 	String completionIdentifier = "imp";
 	String expectedReplacedSource = "imp";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" + 
-		"public class Z {\n" + 
-		"  <CompleteOnType:imp>;\n" + 
+		"public class Z extends <CompleteOnKeyword:imp> {\n" + 
 		"  {\n" + 
 		"  }\n" + 
 		"  public Z() {\n" + 
@@ -7858,12 +7856,13 @@ public void testZA_1() {
 
 	String testName = "<complete on import keyword>";
 	String completeBehind = "i";
-	String expectedCompletionNodeToString = "<CompleteOnType:i>";
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:i>";
 	String completionIdentifier = "i";
 	String expectedReplacedSource = "import";
 	int cursorLocation = str.indexOf("import") + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
-		"package p;\n";
+		"package p;\n" +
+		"import <CompleteOnKeyword:i>;\n";
 
 	checkDietParse(
 		str.toCharArray(), 
