@@ -25,28 +25,26 @@ public class SaveIndex extends IndexRequest {
 		super(indexPath, manager);
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
-		
-		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
-		
-		try {
-			/* ensure no concurrent write access to index */
-			IIndex index = this.manager.getIndex(this.indexPath, true /*reuse index file*/, false /*don't create if none*/);
-			if (index == null) return true;
-			ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
-			if (monitor == null) return true; // index got deleted since acquired
 
-			try {
-				monitor.enterWrite(); // ask permission to write
-				this.manager.saveIndex(index);
-			} finally {
-				monitor.exitWrite(); // free write lock
-			}
+		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+
+		/* ensure no concurrent write access to index */
+		IIndex index = this.manager.getIndex(this.indexPath, true /*reuse index file*/, false /*don't create if none*/);
+		if (index == null) return true;
+		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
+		if (monitor == null) return true; // index got deleted since acquired
+
+		try {
+			monitor.enterWrite(); // ask permission to write
+			this.manager.saveIndex(index);
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to save index " + this.indexPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			return false;
+		} finally {
+			monitor.exitWrite(); // free write lock
 		}
 		return true;
 	}

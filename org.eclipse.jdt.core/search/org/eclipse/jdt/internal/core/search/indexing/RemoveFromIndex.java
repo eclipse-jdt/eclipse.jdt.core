@@ -28,25 +28,23 @@ class RemoveFromIndex extends IndexRequest {
 
 		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
 
-		try {
-			/* ensure no concurrent write access to index */
-			IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ false /*create if none*/);
-			if (index == null) return true;
-			ReadWriteMonitor monitor = manager.getMonitorFor(index);
-			if (monitor == null) return true; // index got deleted since acquired
+		/* ensure no concurrent write access to index */
+		IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ false /*create if none*/);
+		if (index == null) return true;
+		ReadWriteMonitor monitor = manager.getMonitorFor(index);
+		if (monitor == null) return true; // index got deleted since acquired
 
-			try {
-				monitor.enterWrite(); // ask permission to write
-				index.remove(resourceName);
-			} finally {
-				monitor.exitWrite(); // free write lock
-			}
+		try {
+			monitor.enterWrite(); // ask permission to write
+			index.remove(resourceName);
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to remove " + this.resourceName + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			return false;
+		} finally {
+			monitor.exitWrite(); // free write lock
 		}
 		return true;
 	}
