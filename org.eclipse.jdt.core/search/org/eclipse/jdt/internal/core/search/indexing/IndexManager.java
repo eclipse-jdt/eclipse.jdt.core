@@ -579,13 +579,13 @@ public void saveIndexes() {
 	}
 	this.needToSave = !allSaved;
 }
-public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath containerPath, final String indexLocation, final SearchParticipant searchParticipant) {
-	request(new IndexRequest(containerPath, this) {
+public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath container, final String indexLocation, final SearchParticipant searchParticipant) {
+	request(new IndexRequest(container, this) {
 		public boolean execute(IProgressMonitor progressMonitor) {
 			if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 			
 			/* ensure no concurrent write access to index */
-			Index index = getIndex(containerPath, indexLocation, true, /*reuse index file*/ true /*create if none*/);
+			Index index = getIndex(this.containerPath, indexLocation, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) return true;
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
