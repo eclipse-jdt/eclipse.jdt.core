@@ -302,7 +302,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionKeywordCatch6"));
 	suite.addTest(new CompletionTests("testCompletionKeywordCatch7"));
 	suite.addTest(new CompletionTests("testCompletionKeywordCatch8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch8"));
+	suite.addTest(new CompletionTests("testCompletionKeywordCatch9"));
 	suite.addTest(new CompletionTests("testCompletionKeywordCatch10"));
 	suite.addTest(new CompletionTests("testCompletionKeywordFinally1"));
 	suite.addTest(new CompletionTests("testCompletionKeywordFinally2"));
