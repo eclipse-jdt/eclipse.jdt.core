@@ -110,9 +110,12 @@ STREAM: 2.0
   ================================================================================
   * Project references are maintained by the JavaCore, in parallel with build path.
   * Resurrected deprecated APIs from 0.9 which were discarded previously.
+  * Cross-project incremental recompilation in presence of structural changes in produced binaries.
   
   PRs Fixed in this Release
   ================================================================================
+  5275      eBay Defect 186249 - OTI PR# 1GLEYT1
+  5267      Dependent Projects not compiled when project is saved  
   5425      Exception on CodeAssist
   3194      DCR - JM - Buffer contents is duplicated (1G03HCP)  
   5430      Must resurrect 0.9 deprecated APIs   
