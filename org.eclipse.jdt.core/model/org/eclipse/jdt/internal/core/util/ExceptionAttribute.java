@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
@@ -72,12 +71,4 @@ public class ExceptionAttribute extends ClassFileAttribute implements IException
 	public int getExceptionsNumber() {
 		return this.exceptionsNumber;
 	}
-
-	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.EXCEPTIONS;
-	}
-
 }

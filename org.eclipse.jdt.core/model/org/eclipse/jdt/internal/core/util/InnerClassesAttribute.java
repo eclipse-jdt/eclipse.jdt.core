@@ -37,8 +37,7 @@ public class InnerClassesAttribute extends ClassFileAttribute implements IInnerC
 		throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		this.numberOfClasses = u2At(classFileBytes, 6, offset);
-		int length = this.numberOfClasses;
-		this.entries = NO_ENTRIES;
+		final int length = this.numberOfClasses;
 		if (length != 0) {
 			int readOffset = 8;
 			this.entries = new IInnerClassesAttributeEntry[length];
@@ -46,6 +45,8 @@ public class InnerClassesAttribute extends ClassFileAttribute implements IInnerC
 				this.entries[i] = new InnerClassesAttributeEntry(classFileBytes, constantPool, offset + readOffset);
 				readOffset += 8;
 			}		
+		} else {
+			this.entries = NO_ENTRIES;
 		}
 	}
 

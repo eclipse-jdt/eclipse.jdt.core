@@ -18,52 +18,84 @@ package org.eclipse.jdt.core.util;
  * @since 3.0
  */
 public interface IAnnotationComponentValue {
-	/**
-	 * Answer back the tag as described in the JVM specifications.
-	 * 
-	 * @return the tag
-	 */
-	int getTag();
-
-	/**
-	 * Answer back the constant value index as described in the JVM specifications.
-	 * 
-	 * @return the constant value index
-	 */
-	int getConstantValueIndex();
-
-	/**
-	 * Answer back the constant value as described in the JVM specifications.
-	 * 
-	 * @return the constant value
-	 */
-	IConstantPoolEntry getConstantValue();
 	
 	/**
-	 * Answer back the enum constant index as described in the JVM specifications.
+	 * Answer back the annotation component values as described in the JVM specifications.
+	 * This is initialized only of the tag item is '['.
 	 * 
-	 * @return the enum constant index
+	 * @return the annotation component values
 	 */
-	int getEnumConstantIndex();
+	IAnnotationComponentValue[] getAnnotationComponentValues();
+	
+	/**
+	 * Answer back the attribute value as described in the JVM specifications.
+	 * This is initialized only of the tag item is '@'.
+	 * 
+	 * @return the attribute value
+	 */
+	IAnnotation getAttributeValue();
 
 	/**
-	 * Answer back the enum constant as described in the JVM specifications.
+	 * Answer back the class info as described in the JVM specifications.
+	 * This is initialized only of the tag item is 'c'.
 	 * 
-	 * @return the enum constant
+	 * @return the class info
 	 */
-	IConstantPoolEntry getEnumConstant();	
+	IConstantPoolEntry getClassInfo();
 
 	/**
 	 * Answer back the class info index as described in the JVM specifications.
+	 * This is initialized only of the tag item is 'c'.
 	 * 
 	 * @return the class info index
 	 */
 	int getClassInfoIndex();
 
 	/**
-	 * Answer back the class info as described in the JVM specifications.
+	 * Answer back the constant value as described in the JVM specifications.
+	 * This is initialized only of the tag item is one of 'B', 'C', 'D', 'F',
+	 * 'I', 'J', 'S', 'Z', or 's'.
 	 * 
-	 * @return the class info
+	 * @return the constant value
 	 */
-	IConstantPoolEntry getClassInfo();	
+	IConstantPoolEntry getConstantValue();
+
+	/**
+	 * Answer back the constant value index as described in the JVM specifications.
+	 * This is initialized only of the tag item is one of 'B', 'C', 'D', 'F',
+	 * 'I', 'J', 'S', 'Z', or 's'.
+	 * 
+	 * @return the constant value index
+	 */
+	int getConstantValueIndex();
+
+	/**
+	 * Answer back the enum constant as described in the JVM specifications.
+	 * This is initialized only of the tag item is 'e'.
+	 * 
+	 * @return the enum constant
+	 */
+	IConstantPoolEntry getEnumConstant();	
+	
+	/**
+	 * Answer back the enum constant index as described in the JVM specifications.
+	 * This is initialized only of the tag item is 'e'.
+	 * 
+	 * @return the enum constant index
+	 */
+	int getEnumConstantIndex();
+	/**
+	 * Answer back the tag as described in the JVM specifications.
+	 * 
+	 * @return the tag
+	 */
+	int getTag();
+	
+	/**
+	 * Answer back the number of values as described in the JVM specifications.
+	 * This is initialized only of the tag item is '['.
+	 * 
+	 * @return the number of values
+	 */
+	int getValuesNumber();
 }

@@ -80,7 +80,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE)) {
 				this.localVariableAttribute = new LocalVariableAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.localVariableAttribute;
-			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE)) {
+			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE)) {
 				this.attributes[attributesIndex++] = new LocalVariableTypeAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
@@ -88,13 +88,6 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
 		
-	}
-
-	/**
-	 * @see IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.CODE;
 	}
 	/**
 	 * @see ICodeAttribute#getAttributes()

@@ -27,7 +27,32 @@ public interface IAttributeNamesConstants {
 	char[] EXCEPTIONS = new char[] {'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n', 's'};
 	char[] SOURCE = new char[] {'S', 'o', 'u', 'r', 'c', 'e', 'F', 'i', 'l', 'e'};
 	char[] DEPRECATED = new char[] {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd'};
+	/**
+	 * @since 3.0
+	 */
 	char[] SIGNATURE = new char[] {'S', 'i', 'g', 'n', 'a', 't', 'u', 'r', 'e'};
+	/**
+	 * @since 3.0
+	 */
 	char[] ENCLOSING_METHOD = new char[] {'E', 'n', 'c', 'l', 'o', 's', 'i', 'n', 'g', 'M', 'e', 't', 'h', 'o', 'd'};
-	char[] LOCAL_VARIABLE_TYPE= new char[] {'L', 'o', 'c', 'a', 'l', 'V', 'a', 'r', 'i', 'a', 'b', 'l', 'e', 'T', 'y', 'p', 'e', 'T', 'a', 'b', 'l', 'e'};
+	/**
+	 * @since 3.0
+	 */
+	char[] LOCAL_VARIABLE_TYPE_TABLE = new char[] {'L', 'o', 'c', 'a', 'l', 'V', 'a', 'r', 'i', 'a', 'b', 'l', 'e', 'T', 'y', 'p', 'e', 'T', 'a', 'b', 'l', 'e'};
+	/**
+	 * @since 3.0
+	 */
+	char[] RUNTIME_VISIBLE_ANNOTATIONS= "RuntimeVisibleAnnotations".toCharArray(); //$NON-NLS-1$
+	/**
+	 * @since 3.0
+	 */
+	char[] RUNTIME_INVISIBLE_ANNOTATIONS= "RuntimeInvisibleAnnotations".toCharArray();//$NON-NLS-1$
+	/**
+	 * @since 3.0
+	 */
+	char[] RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS= "RuntimeVisibleParameterAnnotations".toCharArray();//$NON-NLS-1$
+	/**
+	 * @since 3.0
+	 */
+	char[] RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS= "RuntimeInvisibleParameterAnnotations".toCharArray();//$NON-NLS-1$
 }

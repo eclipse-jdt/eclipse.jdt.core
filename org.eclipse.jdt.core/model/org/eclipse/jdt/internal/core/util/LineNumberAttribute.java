@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.ILineNumberAttribute;
 
@@ -40,26 +39,20 @@ public class LineNumberAttribute
 		throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		
-		this.lineNumberTableLength = u2At(classFileBytes, 6, offset);
-		this.lineNumberTable = NO_ENTRIES;
-		if (this.lineNumberTableLength != 0) {
-			this.lineNumberTable = new int[this.lineNumberTableLength][2];
-		}
-		int readOffset = 8;
-		for (int i = 0, max = this.lineNumberTableLength; i < max; i++) {
-			this.lineNumberTable[i][0] = u2At(classFileBytes, readOffset, offset);
-			this.lineNumberTable[i][1] = u2At(classFileBytes, readOffset + 2, offset);
-			readOffset += 4;
+		final int length = u2At(classFileBytes, 6, offset);
+		this.lineNumberTableLength = length;
+		if (length != 0) {
+			this.lineNumberTable = new int[length][2];
+			int readOffset = 8;
+			for (int i = 0; i < length; i++) {
+				this.lineNumberTable[i][0] = u2At(classFileBytes, readOffset, offset);
+				this.lineNumberTable[i][1] = u2At(classFileBytes, readOffset + 2, offset);
+				readOffset += 4;
+			}
+		} else {
+			this.lineNumberTable = NO_ENTRIES;
 		}
 	}
-
-	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.LINE_NUMBER;
-	}
-
 	/**
 	 * @see ILineNumberAttribute#getLineNumberTable()
 	 */

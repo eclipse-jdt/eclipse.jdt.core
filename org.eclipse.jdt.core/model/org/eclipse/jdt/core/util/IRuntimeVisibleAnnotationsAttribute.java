@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.util;
  *  
  * @since 3.0
  */
-public interface IRuntimeVisibleAnnotations extends IClassFileAttribute {
+public interface IRuntimeVisibleAnnotationsAttribute extends IClassFileAttribute {
 
 	/**
 	 * Answer back the number of annotations as described in the JVM specifications.

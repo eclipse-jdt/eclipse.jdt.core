@@ -11,32 +11,26 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of a annotation structure as described in the JVM specifications.
+ * Description of a parameter annotation as described in the JVM specifications.
  * 
  * This interface may be implemented by clients. 
  *  
  * @since 3.0
  */
-public interface IAnnotation {
-	/**
-	 * Answer back the type index as described in the JVM specifications.
-	 * 
-	 * @return the type index
-	 */
-	int getTypeIndex();
-	
-	/**
-	 * Answer back the number of components as described in the JVM specifications.
-	 * 
-	 * @return the type index
-	 */
-	int getComponentsNumber();
+public interface IParameterAnnotation {
 
 	/**
-	 * Answer back the components as described in the JVM specifications. Answer an
-	 * empty collection if none.
+	 * Answer back the number of annotations as described in the JVM specifications.
 	 * 
-	 * @return the components
+	 * @return the number of annotations
 	 */
-	IAnnotationComponent[] getComponents();
+	int getAnnotationsNumber();
+
+	/**
+	 * Answer back the annotations as described in the JVM specifications.
+	 * Answers an empty collection if none.
+	 * 
+	 * @return the annotations
+	 */
+	IAnnotation[] getAnnotations();
 }

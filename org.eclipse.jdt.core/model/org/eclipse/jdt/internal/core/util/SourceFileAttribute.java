@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
@@ -47,14 +46,6 @@ public class SourceFileAttribute
 		}
 		this.sourceFileName = constantPoolEntry.getUtf8Value();
 	}
-
-	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.SOURCE;
-	}
-
 	/**
 	 * @see ISourceAttribute#getSourceFileIndex()
 	 */

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.ILocalVariableTypeTableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTypeTableEntry;
@@ -42,24 +41,17 @@ public class LocalVariableTypeAttribute
 		super(classFileBytes, constantPool, offset);
 		final int length = u2At(classFileBytes, 6, offset);
 		this.localVariableTypeTableLength = length;
-		int readOffset = 8;
-		this.localVariableTypeTableEntries = NO_ENTRIES;
 		if (length != 0) {
+			int readOffset = 8;
 			this.localVariableTypeTableEntries = new ILocalVariableTypeTableEntry[length];
 			for (int i = 0; i < length; i++) {
 				this.localVariableTypeTableEntries[i] = new LocalVariableTypeTableEntry(classFileBytes, constantPool, offset + readOffset);
 				readOffset += 10;
 			}
+		} else {
+			this.localVariableTypeTableEntries = NO_ENTRIES;
 		}
 	}
-
-	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.LOCAL_VARIABLE_TYPE;
-	}
-
 	/**
 	 * @see ILocalVariableTypeTableAttribute#getLocalVariableTable()
 	 */
