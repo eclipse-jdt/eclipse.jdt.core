@@ -42,6 +42,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		return allTests();
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testArrayAccess() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -98,6 +99,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 
+	/** @deprecated using deprecated code */
 	public void testArrayCreation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -223,6 +225,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 
+	/** @deprecated using deprecated code */
 	public void testArrayInitializer() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -305,6 +308,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	
+	/** @deprecated using deprecated code */
 	public void testAssignment() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -368,6 +372,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 
+	/** @deprecated using deprecated code */
 	public void testCastExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -432,6 +437,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	
+	/** @deprecated using deprecated code */
 	public void testCastExpression_bug28824() throws Exception {
 		
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -487,6 +493,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	
+	/** @deprecated using deprecated code */
 	public void testCatchClause() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -554,6 +561,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 
+	/** @deprecated using deprecated code */
 	public void testClassInstanceCreation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -709,6 +717,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	
 	
+	/** @deprecated using deprecated code */
 	public void testConditionalExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -763,6 +772,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testFieldAccess() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -815,6 +825,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testInfixExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -895,6 +906,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 
+	/** @deprecated using deprecated code */
 	public void testInstanceofExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -945,6 +957,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testMethodInvocation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1021,6 +1034,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 
+	/** @deprecated using deprecated code */
 	public void testMethodParamsRenameReorder() throws Exception {
 		if (true)
 			return;
@@ -1102,6 +1116,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testMethodInvocation1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1211,6 +1226,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testParenthesizedExpression() throws Exception {
 		//System.out.println(getClass().getName()+"::" + getName() +" disabled (bug 23362)");
 		
@@ -1261,6 +1277,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testPrefixExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1308,6 +1325,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testPostfixExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1355,6 +1373,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}		
 
+	/** @deprecated using deprecated code */
 	public void testSuperConstructorInvocation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1539,9 +1558,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 		
 	}	
-
-
-	
+	/** @deprecated using deprecated code */
 	public void testSuperFieldInvocation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1591,6 +1608,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 		
 	}	
+	/** @deprecated using deprecated code */
 	public void testSuperMethodInvocation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1720,6 +1738,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}	
 
 	
+	/** @deprecated using deprecated code */
 	public void testThisExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1775,6 +1794,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testTypeLiteral() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1822,6 +1842,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	
+	/** @deprecated using deprecated code */
 	public void testSimpleName() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1863,6 +1884,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testNumberLiteral() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1904,6 +1926,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testBooleanLiteral() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1945,6 +1968,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testStringLiteral() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1986,6 +2010,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testCharacterLiteral() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

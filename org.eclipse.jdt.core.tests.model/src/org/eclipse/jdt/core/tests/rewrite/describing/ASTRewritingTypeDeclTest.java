@@ -47,6 +47,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		return setUpTest(new ASTRewritingTypeDeclTest("testEnumDeclaration"));
 	}
 		
+	/** @deprecated using deprecated code */
 	public void testTypeDeclChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -271,9 +272,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-
-
-	
+	/** @deprecated using deprecated code */
 	public void testTypeDeclRemoves() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

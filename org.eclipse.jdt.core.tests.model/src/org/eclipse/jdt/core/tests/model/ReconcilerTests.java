@@ -455,8 +455,9 @@ public void testBufferOpenAfterReconcile() throws CoreException {
 		deleteFile("/Reconciler/src/p1/Super.java");
 	}
 }
-/*
+/**
  * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
+ * @deprecated using deprecated code
  */
 public void testCancel() throws JavaModelException {
 	setWorkingCopyContents(
@@ -1611,6 +1612,7 @@ public void testMakeConsistentFoolingReconciler() throws JavaModelException {
 /**
  * Test bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60689
  * AST on reconcile: AST without Javadoc comments created
+ * @deprecated using deprecated code
  */
 public void testBug60689() throws JavaModelException {
 	setWorkingCopyContents("public class X {\n" +

@@ -345,6 +345,7 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	/** @deprecated using deprecated code */
 	public void test0008() throws Exception {
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0008", false, null);
 		StringBuffer buf= new StringBuffer();

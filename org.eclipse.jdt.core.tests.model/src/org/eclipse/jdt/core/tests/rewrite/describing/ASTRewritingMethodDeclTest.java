@@ -46,6 +46,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		return allTests();
 	}
 
+	/** @deprecated using deprecated code */
 	public void testMethodDeclChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2081,6 +2082,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testInsertFieldAfter() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

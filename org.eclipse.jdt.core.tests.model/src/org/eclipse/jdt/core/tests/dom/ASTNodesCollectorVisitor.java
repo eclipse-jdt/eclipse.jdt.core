@@ -69,6 +69,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ClassInstanceCreation)
+	 * @deprecated using deprecated code
 	 */
 	public void endVisit(ClassInstanceCreation node) {
 		if (node.getAST().apiLevel() == AST.JLS2) {
@@ -229,6 +230,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.TypeDeclaration)
+	 * @deprecated using deprecated code
 	 */
 	public void endVisit(TypeDeclaration node) {
 		add(node);

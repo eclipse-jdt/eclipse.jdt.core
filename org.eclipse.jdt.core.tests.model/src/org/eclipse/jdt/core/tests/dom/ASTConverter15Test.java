@@ -291,6 +291,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("not static", importDeclaration.isStatic());
 	}
 	
+	/** @deprecated using deprecated code */
 	public void test0008() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0008", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS2, sourceUnit, true);

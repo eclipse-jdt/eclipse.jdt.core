@@ -37,6 +37,10 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
+	
+	/** @deprecated using deprecated code */
+	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+
 	protected IJavaProject fJProject1;
 	protected IPackageFragmentRoot fSourceFolder;
 	
@@ -81,7 +85,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		boolean resolveBindings) {
 
 		try {
-			ASTParser c = ASTParser.newParser(AST.JLS2);
+			ASTParser c = ASTParser.newParser(AST_INTERNAL_JLS2);
 			c.setSource(unit);
 			c.setResolveBindings(resolveBindings);
 			ASTNode result = c.createAST(null);
@@ -96,7 +100,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.JLS2);
+		ASTParser c = ASTParser.newParser(AST_INTERNAL_JLS2);
 		c.setSource(source);
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;

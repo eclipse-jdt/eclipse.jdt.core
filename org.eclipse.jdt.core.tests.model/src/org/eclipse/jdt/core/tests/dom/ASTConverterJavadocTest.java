@@ -58,6 +58,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
 	// AST Level
+	/** @deprecated using deprecated code */
 	protected int astLevel = AST.JLS2;
 	protected int savedLevel;
 	// Debug
@@ -845,8 +846,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assertTrue(!stop || failures.size()==0);
 	}
 
-	/*
+	/**
 	 * Verify positions of fragments in source
+	 * @deprecated using deprecated code
 	 */
 	private void verifyPositions(TagElement tagElement, char[] source) {
 		String text = null;
@@ -1747,6 +1749,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		methodLength = compilUnit.getExtendedLength(method);
 		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
 	}
+	/** @deprecated using deprecated code */
 	public void testBug55221d() throws JavaModelException {
 		sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.d", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
@@ -1813,6 +1816,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			idx++;
 		}
 	}
+	/** @deprecated using deprecated code */
 	public void testBug55223b() throws JavaModelException {
 		sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestB.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, false);
@@ -2227,6 +2231,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * Bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
+	 * @deprecated using deprecated code
 	 */
 	public void testBug70892_JLS2() throws JavaModelException {
 		int level = astLevel;

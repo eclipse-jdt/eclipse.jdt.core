@@ -956,9 +956,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*
+	/**
 	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
 	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
+	 * @deprecated using deprecated code
 	 */
 	public void testParseCompilationUnit1() throws CoreException {
 		ICompilationUnit workingCopy1 = null;
@@ -1002,8 +1003,9 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*
+	/**
 	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
+	 * @deprecated using deprecated code
 	 */
 	public void testParseCompilationUnit2() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -1041,8 +1043,9 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*
+	/**
 	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
+	 * @deprecated using deprecated code
 	 */
 	public void testParseCompilationUnit3() throws CoreException {
 		ICompilationUnit workingCopy = null;

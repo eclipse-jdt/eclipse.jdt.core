@@ -27,6 +27,9 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractASTTests {
 
+	/** @deprecated Using deprecated code */
+	public static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	
 	protected AST ast;
 	static List TEST_SUITES = null;
 	static boolean PROJECT_SETUP = false;
@@ -108,19 +111,19 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return runConversion(AST.JLS2, unit, resolveBindings);
+		return runConversion(AST_INTERNAL_JLS2, unit, resolveBindings);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return runConversion(AST.JLS2, unit, position, resolveBindings);
+		return runConversion(AST_INTERNAL_JLS2, unit, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		return runConversion(AST.JLS2, classFile, position, resolveBindings);
+		return runConversion(AST_INTERNAL_JLS2, classFile, position, resolveBindings);
 	}
 	
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return runConversion(AST.JLS2, source, unitName, project);
+		return runConversion(AST_INTERNAL_JLS2, source, unitName, project);
 	}
 	
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
@@ -133,7 +136,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
 		ASTParser parser;
 		if (checkJLS2) {
-			parser = ASTParser.newParser(AST.JLS2);
+			parser = ASTParser.newParser(AST_INTERNAL_JLS2);
 			parser.setSource(unit);
 			parser.setResolveBindings(resolveBindings);
 			parser.createAST(null);
@@ -179,7 +182,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 	
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
-		return runConversion(AST.JLS2, source, unitName, project, options);
+		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options);
 	}	
 
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {

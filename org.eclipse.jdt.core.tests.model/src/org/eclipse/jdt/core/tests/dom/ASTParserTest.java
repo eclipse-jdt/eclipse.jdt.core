@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 
 public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 
+	/** @deprecated using deprecated code */
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTParserTest.class.getName());
 		
@@ -57,6 +58,7 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 		super.tearDown();
 	}
 	
+	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
 		switch (this.API_LEVEL) {

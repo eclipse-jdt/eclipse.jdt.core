@@ -155,6 +155,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 	 * @param length
 	 * @param times
 	 * @param arrayList
+	 * @deprecated using deprecated code 
 	 */
 	private void reportResults(int apiLevel, long totalTime, int length, long[] times, ArrayList arrayList) {
 		System.out.println("===============================================================================");
@@ -352,6 +353,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		}
 	}
 	
+	/** @deprecated using deprecated code */
 	public void test0003() throws JavaModelException {
 		try {
 			RESOLVE_BINDINGS = true;
@@ -391,6 +393,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		}
 	}
 
+	/** @deprecated using deprecated code */
 	public void test0004() throws JavaModelException {
 		try {
 			RESOLVE_BINDINGS = false;

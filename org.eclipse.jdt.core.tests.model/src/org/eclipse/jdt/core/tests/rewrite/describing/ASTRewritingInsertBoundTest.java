@@ -55,6 +55,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		return allTests();
 	}
 	
+	/** @deprecated using deprecated code */
 	private MethodDeclaration newMethodDeclaration(AST ast, String name) {
 		MethodDeclaration decl= ast.newMethodDeclaration();
 		decl.setName(ast.newSimpleName(name));
@@ -72,6 +73,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}	
 	
 	
+	/** @deprecated using deprecated code */
 	public void testInsert1() throws Exception {
 		// insert first and last
 		
@@ -136,6 +138,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testInsert3() throws Exception {
 		// insert 2 x before 
 		

@@ -3550,8 +3550,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertNotNull("No comments", compilationUnit.getCommentList());
 		assertEquals("Wrong size", 1, compilationUnit.getCommentList().size());
 	}
-	/*
+	/**
 	 * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
+	 * @deprecated using deprecated code
 	 */
 	public void test0521() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0521", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4065,6 +4066,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 * @deprecated using deprecated code
 	 */
 	public void test0533() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0533", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4089,6 +4091,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	}	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 * @deprecated using deprecated code
 	 */
 	public void test0534() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0534", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4113,6 +4116,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 * @deprecated using deprecated code
 	 */
 	public void test0535() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0535", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4167,8 +4171,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, false);
 		assertNotNull("No compilation unit", result);
 	}
-	/*
+	/**
 	 * Ensures that an AST can be created during reconcile.
+	 * @deprecated using deprecated code
 	 */
 	public void test0538a() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4207,8 +4212,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
-	/*
+	/**
 	 * Ensures that no AST is created during reconcile if consistent.
+	 * @deprecated using deprecated code
 	 */
 	public void test0538c() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4221,8 +4227,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
-	/*
+	/**
 	 * Ensures that bindings are created during reconcile if the problem requestor is active.
+	 * @deprecated using deprecated code
 	 */
 	public void test0538d() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4250,8 +4257,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
-	/*
+	/**
 	 * Ensures that bindings are created during reconcile if force problem detection is turned on.
+	 * @deprecated using deprecated code
 	 */
 	public void test0538e() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4271,10 +4279,11 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
-	/*
+	/**
 	 * Ensures that bindings are created during reconcile if force problem detection is turned on.
 	 * Case of a unit containing an anonymous type.
 	 * (regression test for bug 55102 NPE when using ICU.reconcile(GET_AST_TRUE, ...))
+	 * @deprecated using deprecated code
 	 */
 	public void test0538f() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4300,10 +4309,11 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
-	/*
+	/**
 	 * Ensures that bindings are created during reconcile if force problem detection is turned on.
 	 * Case of a unit containing an anonymous type.
 	 * (regression test for bug 55102 NPE when using ICU.reconcile(GET_AST_TRUE, ...))
+	 * @deprecated using deprecated code
 	 */
 	public void test0538g() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4330,9 +4340,10 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
-	/*
+	/**
 	 * Ensures that asking for well known type doesn't throw a NPE if the problem requestor is not active.
 	 * (regression test for bug 64750 NPE in Java AST Creation - editing some random file)
+	 * @deprecated using deprecated code
 	 */
 	public void test0538h() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4958,6 +4969,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65090
+	 * @deprecated using deprecated code
 	 */
 	public void test0558() {
 		String src = "\tSystem.out.println(\"Hello\");\n\tSystem.out.println(\"World\");\n";

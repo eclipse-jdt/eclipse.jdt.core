@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
  */
 public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 
+	/** @deprecated using deprecated code */
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTMatcherTest.class.getName());
 		
@@ -225,6 +226,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		super.tearDown();
 	}
 	
+	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
 		switch (this.API_LEVEL) {
@@ -651,6 +653,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testParameterizedType() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -661,6 +664,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testQualifiedType() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -669,6 +673,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testWildcardType() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -756,6 +761,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setCharValue('q');
 		basicMatch(x1);
 	}
+	/** @deprecated using deprecated code */
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = ast.newClassInstanceCreation();
 		x1.setExpression(E1);
@@ -808,6 +814,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		EmptyStatement x1 = ast.newEmptyStatement();
 		basicMatch(x1);
 	}
+	/** @deprecated using deprecated code */
 	public void testEnhancedForStatement() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -836,6 +843,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setAnonymousClassDeclaration(ACD1);
 		basicMatch(x1);
 	}
+	/** @deprecated using deprecated code */
 	public void testEnumDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -949,6 +957,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
@@ -1134,6 +1143,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setFinally(ast.newBlock());
 		basicMatch(x1);
 	}
+	/** @deprecated using deprecated code */
 	public void testTypeDeclaration() {
 		TypeDeclaration x1 = ast.newTypeDeclaration();
 		x1.setJavadoc(JD1);
@@ -1164,6 +1174,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setType(T1);
 		basicMatch(x1);
 	}
+	/** @deprecated using deprecated code */
 	public void testTypeParameter() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -1208,6 +1219,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	
 	// annotation-related
+	/** @deprecated using deprecated code */
 	public void testAnnotationTypeDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -1222,6 +1234,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testAnnotationTypeMemberDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -1236,6 +1249,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testNormalAnnotation() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -1247,6 +1261,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testMarkerAnnotation() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -1256,6 +1271,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testSingleMemberAnnotation() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;

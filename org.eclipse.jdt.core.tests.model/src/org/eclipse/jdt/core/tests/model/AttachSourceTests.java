@@ -35,6 +35,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 
+	/** @deprecated using deprecated code */
+	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	
 	private IPackageFragmentRoot pkgFragmentRoot;
 	private IType genericType;
 	private IPackageFragment innerClasses;
@@ -46,7 +49,7 @@ public static Test suite() {
 	return new Suite(AttachSourceTests.class);
 }
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
-	ASTParser parser = ASTParser.newParser(AST.JLS2);
+	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS2);
 	parser.setSource(classFile);
 	parser.setResolveBindings(resolveBindings);
 	parser.setWorkingCopyOwner(null);

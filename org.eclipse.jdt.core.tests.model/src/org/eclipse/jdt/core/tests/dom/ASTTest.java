@@ -726,6 +726,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		
 	}
 	
+	/** @deprecated using deprecated code */
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTTest.class.getName());
 		
@@ -759,6 +760,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		super.tearDown();
 	}
 	
+	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
 		switch (this.API_LEVEL) {
@@ -774,6 +776,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	/**
 	 * Snippets that show how to...
+	 * @deprecated using deprecated code
 	 */
 	public void testExampleSnippets() {
 		{
@@ -1274,6 +1277,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		
 	}
 
+	/** @deprecated using deprecated code */
 	public void testAST() {
 		
 		assertTrue(AST.JLS2 == 2);
@@ -2048,6 +2052,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getElementType().isPrimitiveType());
 	}		
 
+	/** @deprecated using deprecated code */
 	public void testParameterizedType() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2127,6 +2132,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}		
 	
+	/** @deprecated using deprecated code */
 	public void testQualifiedType() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2205,6 +2211,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}		
 
+	/** @deprecated using deprecated code */
 	public void testWildcardType() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2525,6 +2532,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 //		}
 	}		
 	
+	/** @deprecated using deprecated code */
 	public void testTypeDeclaration() {
 		long previousCount = ast.modificationCount();
 		final TypeDeclaration x = ast.newTypeDeclaration();
@@ -2742,6 +2750,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testEnumDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2877,8 +2886,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
-	/** @deprecated Only to suppress warnings for refs to bodyDeclarations. */
-	// TODO (jeem) - remove deprecation after 3.1 M4
+	/** @deprecated using deprecated code */
 	public void testEnumConstantDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -3019,6 +3027,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testTypeParameter() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -3070,6 +3079,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}		
 	
+	/** @deprecated using deprecated code */
 	public void testSingleVariableDeclaration() {
 		long previousCount = ast.modificationCount();
 		final SingleVariableDeclaration x = ast.newSingleVariableDeclaration();
@@ -3319,6 +3329,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testMethodDeclaration() {
 		long previousCount = ast.modificationCount();
 		final MethodDeclaration x = ast.newMethodDeclaration();
@@ -3540,6 +3551,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testInitializer() {
 		long previousCount = ast.modificationCount();
 		final Initializer x = ast.newInitializer();
@@ -4269,6 +4281,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testVariableDeclarationStatement() {
 		VariableDeclarationFragment x1 = ast.newVariableDeclarationFragment();
 		long previousCount = ast.modificationCount();
@@ -4407,6 +4420,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testTypeDeclarationStatement() {
 		AbstractTypeDeclaration x1 = ast.newTypeDeclaration();
 		long previousCount = ast.modificationCount();
@@ -4500,6 +4514,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 	}
 		
+	/** @deprecated using deprecated code */
 	public void testVariableDeclarationExpression() {
 		VariableDeclarationFragment x1 = ast.newVariableDeclarationFragment();
 		long previousCount = ast.modificationCount();
@@ -4627,6 +4642,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}	
 	
+	/** @deprecated using deprecated code */
 	public void testFieldDeclaration() {
 		VariableDeclarationFragment x1 = ast.newVariableDeclarationFragment();
 		long previousCount = ast.modificationCount();
@@ -5500,6 +5516,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * Exercise the modifiers property.
 	 * 
 	 * @param x the body declaration to test
+	 * @deprecated using deprecated code
 	 */
 	void tModifiers(final BodyDeclaration x) {
 		if (ast.apiLevel() == AST.JLS2) {
@@ -7549,6 +7566,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/** @deprecated using deprecated code */
 	public void testClassInstanceCreation() {
 		long previousCount = ast.modificationCount();
 		final ClassInstanceCreation x = ast.newClassInstanceCreation();
@@ -7866,6 +7884,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testAnnotationTypeDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -7962,6 +7981,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(t3.isPackageMemberTypeDeclaration() == true);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testAnnotationTypeMemberDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -8056,6 +8076,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/** @deprecated using deprecated code */
 	public void testNormalAnnotation() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -8116,6 +8137,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 		
+	/** @deprecated using deprecated code */
 	public void testMarkerAnnotation() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -8148,6 +8170,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tAnnotationName(x);
 	}
 
+	/** @deprecated using deprecated code */
 	public void testSingleMemberAnnotation() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -8208,6 +8231,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/** @deprecated using deprecated code */
 	public void testMemberValuePair() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -8306,6 +8330,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/** @deprecated using deprecated code */
 	public void testModifiers() {
 		
 		// check all modifiers match their JVM spec values

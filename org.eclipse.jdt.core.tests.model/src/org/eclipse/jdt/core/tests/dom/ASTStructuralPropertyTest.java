@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.*;
 
 public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 
+	/** @deprecated using deprecated code */
 	public static Test suite() {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTStructuralPropertyTest.class.getName());
 		
@@ -58,6 +59,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		super.tearDown();
 	}
 	
+	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
 		switch (this.API_LEVEL) {
@@ -265,6 +267,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		});
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testCreateInstance() {
 		for (int nodeType = 0; nodeType < 100; nodeType++) {
 			Class nodeClass = null;

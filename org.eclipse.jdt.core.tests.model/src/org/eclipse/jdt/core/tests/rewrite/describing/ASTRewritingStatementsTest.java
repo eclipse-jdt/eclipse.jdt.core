@@ -2791,6 +2791,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 	
+	/** @deprecated using deprecated code */
 	public void testThrowStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2985,6 +2986,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 
+	/** @deprecated using deprecated code */
 	public void testTypeDeclarationStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

@@ -138,6 +138,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	/** @deprecated using deprecated code */
 	public void test0003() throws Exception {
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0003", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -184,6 +185,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	/** @deprecated using deprecated code */
 	public void test0004() throws Exception {
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0004", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -231,6 +233,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	/** @deprecated using deprecated code */
 	public void test0005() throws Exception {
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0005", false, null);
 		StringBuffer buf= new StringBuffer();

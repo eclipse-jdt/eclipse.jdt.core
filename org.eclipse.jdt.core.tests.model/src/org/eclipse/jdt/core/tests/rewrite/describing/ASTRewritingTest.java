@@ -25,12 +25,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -40,6 +42,9 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 /**
   */
 public class ASTRewritingTest extends AbstractJavaModelTests {
+	/** @deprecated using deprecated code */
+	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	
 	protected IJavaProject project1;
 	protected IPackageFragmentRoot sourceFolder;
 	
@@ -95,7 +100,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 		
 	protected CompilationUnit createAST(ICompilationUnit cu) {
-		ASTParser parser= ASTParser.newParser(AST.JLS2);
+		ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS2);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
 		return (CompilationUnit) parser.createAST(null);
@@ -153,12 +158,22 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return newParam;
 	}
 	
+	/** @deprecated using deprecated code */
+	private void setModifiers(BodyDeclaration bodyDeclaration, int modifiers) {
+		bodyDeclaration.setModifiers(modifiers);
+	}
+
+	/** @deprecated using deprecated code */
+	private void setReturnType(MethodDeclaration methodDeclaration, Type type) {
+		methodDeclaration.setReturnType(type);
+	}
+	
 	protected FieldDeclaration createNewField(AST ast, String name) {
 		VariableDeclarationFragment frag= ast.newVariableDeclarationFragment();
 		frag.setName(ast.newSimpleName(name));
 		FieldDeclaration newFieldDecl= ast.newFieldDeclaration(frag);
-		if (ast.apiLevel() == AST.JLS2) {
-			newFieldDecl.setModifiers(Modifier.PRIVATE);
+		if (ast.apiLevel() == AST_INTERNAL_JLS2) {
+			setModifiers(newFieldDecl, Modifier.PRIVATE);
 		} else {
 			newFieldDecl.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
 		}
@@ -169,9 +184,9 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	protected MethodDeclaration createNewMethod(AST ast, String name, boolean isAbstract) {
 		MethodDeclaration decl= ast.newMethodDeclaration();
 		decl.setName(ast.newSimpleName(name));
-		if (ast.apiLevel() == AST.JLS2) {
-			decl.setModifiers(isAbstract ? (Modifier.ABSTRACT | Modifier.PRIVATE) : Modifier.PRIVATE);
-			decl.setReturnType(ast.newPrimitiveType(PrimitiveType.VOID));
+		if (ast.apiLevel() == AST_INTERNAL_JLS2) {
+			setModifiers(decl, isAbstract ? (Modifier.ABSTRACT | Modifier.PRIVATE) : Modifier.PRIVATE);
+			setReturnType(decl, ast.newPrimitiveType(PrimitiveType.VOID));
 		} else {
 			decl.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
 			if (isAbstract) {
