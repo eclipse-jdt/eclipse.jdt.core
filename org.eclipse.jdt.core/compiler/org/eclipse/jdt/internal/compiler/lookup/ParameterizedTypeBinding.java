@@ -240,9 +240,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 		if (foundNothing) {
 			if (isInterface()) {
-				 if (superInterfaces.length == 1)
+				 if (superInterfaces().length == 1)
 					return superInterfaces[0].getExactMethod(selector, argumentTypes);
-			} else if (superclass != null) {
+			} else if (superclass() != null) {
 				return superclass.getExactMethod(selector, argumentTypes);
 			}
 		}

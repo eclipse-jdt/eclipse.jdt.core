@@ -3697,4 +3697,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from Class<? extends X> to Class<? extends Object>\n" + 
 			"----------\n");
 	}			
+	// getClass on array type
+	public void test130() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X[] x = new X[0];\n" + 
+				"		Class<? extends X[]> c = x.getClass();\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}			
 }

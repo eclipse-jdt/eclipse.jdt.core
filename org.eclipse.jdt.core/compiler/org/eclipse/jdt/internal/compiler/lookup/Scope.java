@@ -425,8 +425,18 @@ public abstract class Scope
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
 		if (exactMethod != null) {
 			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
-			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this))
+			// special treatment for Object.getClass() in 1.5 mode (substitute return type)
+			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
+			    if (exactMethod.declaringClass.id == T_Object 
+			            && receiverType.id != T_Object
+			            && selector.length == 8
+			            && environment().options.sourceLevel >= JDK1_5
+			            && CharOperation.equals(selector, GETCLASS)
+			            && argumentTypes == NoParameters) {
+			        return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
+			    }
 				return exactMethod;
+			}
 		}
 		return null;
 	}
@@ -894,15 +904,26 @@ public abstract class Scope
 		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes);
 		if (methodBinding != null) {
 			// handle the method clone() specially... cannot be protected or throw exceptions
-			if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))
-				return new UpdatedMethodBinding(
-					environment().options.targetJDK >= ClassFileConstants.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
-					(methodBinding.modifiers ^ AccProtected) | AccPublic,
-					CLONE,
-					methodBinding.returnType,
-					argumentTypes,
-					null,
-					object);
+			if (argumentTypes == NoParameters) {
+			    switch (selector[0]) {
+			        case 'c': 
+			            if (CharOperation.equals(selector, CLONE))
+							return new UpdatedMethodBinding(
+								environment().options.targetJDK >= ClassFileConstants.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
+								(methodBinding.modifiers ^ AccProtected) | AccPublic,
+								CLONE,
+								methodBinding.returnType,
+								argumentTypes,
+								null,
+								object);
+			            break;
+			        case 'g': 
+			            if (CharOperation.equals(selector, GETCLASS) && environment().options.sourceLevel >= 1.5) {
+							return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
+			            }
+			            break;
+			    }
+			}
 			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this))
 				return methodBinding;
 		}
