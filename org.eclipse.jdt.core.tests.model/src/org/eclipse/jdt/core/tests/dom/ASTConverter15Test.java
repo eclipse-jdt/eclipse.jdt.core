@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -65,6 +66,7 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -88,11 +90,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0127"));
+		suite.addTest(new ASTConverter15Test("test0129"));
 		return suite;
 	}
 	
@@ -3671,6 +3673,87 @@ public class ASTConverter15Test extends ConverterTestSetup {
         IMethodBinding methodBinding2 = methodInvocation.resolveMethodBinding();
         assertFalse("Keys are equals", methodBinding.getKey().equals(methodBinding2.getKey()));
         assertFalse("bindings are equals", methodBinding.isEqualTo(methodBinding2));
+    }
+    
+   // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84064
+    public void test0128() throws CoreException {
+        this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+        final String contents = 
+        	"class X {\n" +
+            "	static X x;\n" +
+            "\n" +
+            "	static class G extends E {\n" +
+            "		public G() {\n" +
+            "			x.<String> super();\n" +
+            "		}\n" +
+            "	}\n" +
+            "\n" +
+            "	class E {\n" +
+            "		public <T> E() {\n" +
+            "		}\n" +
+            "	}\n" +
+            "}";
+        final char[] source = contents.toCharArray();
+        ASTNode node = buildAST(
+            contents,
+            this.workingCopy);
+        assertNotNull("No node", node);
+        assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+        CompilationUnit compilationUnit = (CompilationUnit) node;
+        assertProblemsSize(compilationUnit, 0);
+        node = getASTNode(compilationUnit, 0, 1, 0);
+        assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+        MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+        assertTrue("Not a constructor", methodDeclaration.isConstructor());
+        Block body = methodDeclaration.getBody();
+        assertNotNull("No body", body);
+        List statements = body.statements();
+        assertEquals("Wrong size", 1, statements.size());
+        Statement statement = (Statement) statements.get(0);
+        assertEquals("Not a super constructor invocation", ASTNode.SUPER_CONSTRUCTOR_INVOCATION, statement.getNodeType());
+        SuperConstructorInvocation constructorInvocation = (SuperConstructorInvocation) statement;
+        checkSourceRange(constructorInvocation, "x.<String> super();", source);
+    }
+    
+   // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84064
+    public void test0129() throws CoreException {
+        this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+        final String contents = 
+        	"class X {\n" +
+        	"	static X x;\n" +
+        	"	static class G extends E {\n" +
+        	"		public <T> G() {\n" +
+        	"			x.<String> this();\n" +
+        	"		}\n" +
+        	"	}\n" +
+        	"	static class E {\n" +
+        	"		public <T> E() {\n" +
+        	"		}\n" +
+        	"	}\n" +
+        	"}";
+        final char[] source = contents.toCharArray();
+        ASTNode node = buildAST(
+            contents,
+            this.workingCopy,
+            false);
+        assertNotNull("No node", node);
+        assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+        CompilationUnit compilationUnit = (CompilationUnit) node;
+        String expectedProblem = "Illegal enclosing instance specification for type X.G";
+        assertProblemsSize(compilationUnit, 1, expectedProblem);
+        node = getASTNode(compilationUnit, 0, 1, 0);
+        assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+        MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+        assertTrue("Not a constructor", methodDeclaration.isConstructor());
+        Block body = methodDeclaration.getBody();
+        assertNotNull("No body", body);
+        List statements = body.statements();
+        assertEquals("Wrong size", 1, statements.size());
+        Statement statement = (Statement) statements.get(0);
+        assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, statement.getNodeType());
+        ConstructorInvocation constructorInvocation = (ConstructorInvocation) statement;
+        checkSourceRange(constructorInvocation, "x.<String> this();", source);
+        assertTrue("Node is not malformed", isMalformed(constructorInvocation));
     }
 
 }

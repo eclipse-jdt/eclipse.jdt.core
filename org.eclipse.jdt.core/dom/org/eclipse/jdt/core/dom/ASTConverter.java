@@ -1352,7 +1352,9 @@ class ASTConverter {
 				}
 			}
 			if (statement.typeArguments != null) {
-				sourceStart = statement.typeArgumentsSourceStart;
+				if (sourceStart > statement.typeArgumentsSourceStart) {
+					sourceStart = statement.typeArgumentsSourceStart;
+				}
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
 						superConstructorInvocation.setFlags(superConstructorInvocation.getFlags() | ASTNode.MALFORMED);
@@ -1375,7 +1377,9 @@ class ASTConverter {
 				}
 			}
 			if (statement.typeArguments != null) {
-				sourceStart = statement.typeArgumentsSourceStart;
+				if (sourceStart > statement.typeArgumentsSourceStart) {
+					sourceStart = statement.typeArgumentsSourceStart;
+				}
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
 						constructorInvocation.setFlags(constructorInvocation.getFlags() | ASTNode.MALFORMED);
@@ -1386,6 +1390,10 @@ class ASTConverter {
 						}
 					break;
 				}
+			}
+			if (statement.qualification != null) {
+				// this is an error
+				constructorInvocation.setFlags(constructorInvocation.getFlags() | ASTNode.MALFORMED);
 			}
 			newStatement = constructorInvocation;
 		}
