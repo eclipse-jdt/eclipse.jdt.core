@@ -394,7 +394,7 @@ ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
 -- 1.5 features : generics
 -----------------------------------------------
 ClassHeaderName ::= Modifiersopt 'class' 'Identifier' TypeParameters
-/.$putCase consumeClassHeaderName(); $break ./
+/.$putCase consumeClassHeaderNameWithTypeParameters(); $break ./
 ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 /.$putCase consumeClassHeaderName(); $break ./
 /:$readableName ClassHeaderName:/
@@ -538,7 +538,7 @@ MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDim
 /:$readableName MethodHeader:/
 
 MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
-/.$putCase consumeMethodHeaderName(); $break ./
+/.$putCase consumeMethodHeaderNameWithTypeParameters(); $break ./
 MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
@@ -560,7 +560,7 @@ ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderT
 /:$readableName ConstructorHeader:/
 
 ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
-/.$putCase consumeConstructorHeaderName(); $break ./
+/.$putCase consumeConstructorHeaderNameWithTypeParameters(); $break ./
 ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 /.$putCase consumeConstructorHeaderName(); $break ./
 /:$readableName ConstructorHeaderName:/
@@ -683,7 +683,7 @@ InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
 -- 1.5 features : generics
 -----------------------------------------------
 InterfaceHeaderName ::= Modifiersopt interface Identifier TypeParameters
-/.$putCase consumeInterfaceHeaderName(); $break ./
+/.$putCase consumeInterfaceHeaderNameWithTypeParameters(); $break ./
 InterfaceHeaderName ::= Modifiersopt interface Identifier
 /.$putCase consumeInterfaceHeaderName(); $break ./
 /:$readableName InterfaceHeaderName:/
@@ -1662,9 +1662,9 @@ TypeParameterList ::= TypeParameterList ',' TypeParameter
 TypeParameter ::= Identifier
 /.$putCase consumeTypeParameter(); $break ./
 TypeParameter ::= Identifier 'extends' ReferenceType
-/.$putCase consumeTypeParameter(); $break ./
+/.$putCase consumeTypeParameterWithExtends(); $break ./
 TypeParameter ::= Identifier 'extends' ReferenceType AdditionalBoundList
-/.$putCase consumeTypeParameter(); $break ./
+/.$putCase consumeTypeParameterWithExtendsAndBounds(); $break ./
 /:$readableName TypeParameter:/
 
 AdditionalBoundList -> AdditionalBound
@@ -1684,9 +1684,9 @@ TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
 TypeParameter1 ::= Identifier '>'
 /.$putCase consumeTypeParameter1(); $break ./
 TypeParameter1 ::= Identifier 'extends' ReferenceType1
-/.$putCase consumeTypeParameter1(); $break ./
+/.$putCase consumeTypeParameter1WithExtends(); $break ./
 TypeParameter1 ::= Identifier 'extends' ReferenceType AdditionalBoundList1
-/.$putCase consumeTypeParameter1(); $break ./
+/.$putCase consumeTypeParameter1WithExtendsAndBounds(); $break ./
 /:$readableName TypeParameter1:/
 
 AdditionalBoundList1 -> AdditionalBound1
