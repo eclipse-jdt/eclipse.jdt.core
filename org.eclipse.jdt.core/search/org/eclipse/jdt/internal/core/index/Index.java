@@ -166,8 +166,11 @@ public void save() throws IOException {
 	// must own the write lock of the monitor
 	if (!hasChanged()) return;
 
+	int numberOfChanges = this.memoryIndex.docsToReferences.elementSize;
 	this.diskIndex = this.diskIndex.mergeWith(this.memoryIndex);
 	this.memoryIndex = new MemoryIndex();
+	if (numberOfChanges > 10)
+		System.gc(); // reclaim space now if the MemoryIndex had more than a couple changes
 }
 public void startQuery() throws IOException {
 	if (this.diskIndex != null)

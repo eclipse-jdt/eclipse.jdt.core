@@ -19,9 +19,11 @@ public class MemoryIndex {
 public int NUM_CHANGES = 100; // number of separate document changes... used to decide when to merge
 
 SimpleLookupTable docsToReferences; // document paths -> HashtableOfObject(category names -> set of words)
+SimpleWordSet allWords; // save space by locally interning the referenced words, since an indexer can generate numerous duplicates
 
 MemoryIndex() {
-	this.docsToReferences = new SimpleLookupTable();
+	this.docsToReferences = new SimpleLookupTable(7);
+	this.allWords = new SimpleWordSet(7);
 }
 void addDocumentNames(String substring, SimpleSet results) {
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
@@ -46,9 +48,9 @@ void addIndexEntry(char[] category, char[] key, SearchDocument document) {
 
 	SimpleWordSet existingWords = (SimpleWordSet) referenceTable.get(category);
 	if (existingWords == null)
-		referenceTable.put(category, existingWords = new SimpleWordSet(3));
+		referenceTable.put(category, existingWords = new SimpleWordSet(1));
 
-	existingWords.add(key);
+	existingWords.add(this.allWords.add(key));
 }
 void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOfObject results) {
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
