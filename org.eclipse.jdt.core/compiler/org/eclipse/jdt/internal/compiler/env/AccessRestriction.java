@@ -72,19 +72,19 @@ public class AccessRestriction {
 	}
 	/**
 	 * Select the first restriction which is violated when accessing a given type, or null if no restriction applies.
-	 * Type name is formed as: "java/lang/Object".
+	 * Target type file path is formed as: "org/eclipse/jdt/core/JavaCore.java".
 	 */
-	public AccessRestriction getViolatedRestriction(char[] targetTypeName, char[] referringTypeName) {
+	public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath, char[] referringTypeName) {
 		
 		// check local inclusion/exclusion rules
 		if (this.inclusionPatterns != null || this.exclusionPatterns != null) {
-			if (Util.isExcluded(targetTypeName, this.inclusionPatterns, this.exclusionPatterns, false)) {
+			if (Util.isExcluded(targetTypeFilePath, this.inclusionPatterns, this.exclusionPatterns, false)) {
 				return this;
 			}
 		}		
 	// then check further restrictions
 		return this.furtherRestriction != null 
-						? this.furtherRestriction.getViolatedRestriction(targetTypeName, referringTypeName)
+						? this.furtherRestriction.getViolatedRestriction(targetTypeFilePath, referringTypeName)
 						: null;
 	}
 	public char[][] getExclusionPatterns() {

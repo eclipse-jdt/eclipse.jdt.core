@@ -479,6 +479,7 @@ public class SearchBasicEngine {
 				if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
 					if (access != null) {
+						// TODO (frederic) the first argument should be a path (e.g. /org/eclipse/jdt/core/JavaCore.java) and not a fully qualified name
 						access = access.getViolatedRestriction(CharOperation.concat(record.pkg, record.simpleName, '/'), null);					
 					}
 					switch (record.typeSuffix) {
