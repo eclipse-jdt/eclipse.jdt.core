@@ -74,7 +74,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Constructs a handle for a java element with
 	 * the given parent element and name.
 	 *
-	 * @param type - one of the constants defined in IJavaLanguageElement
+	 * @param parent The parent of java element
+	 * @param name The name of java element
 	 *
 	 * @exception IllegalArgumentException if the type is not one of the valid
 	 *		Java element type constants

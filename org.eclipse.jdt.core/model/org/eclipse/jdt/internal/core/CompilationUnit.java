@@ -458,7 +458,7 @@ public boolean exists() {
 	return isPrimary() && super.exists() && isValidCompilationUnit();
 }
 /**
- * @see IWorkingCopy#findElements(IJavaElement)
+ * @see ICompilationUnit#findElements(IJavaElement)
  */
 public IJavaElement[] findElements(IJavaElement element) {
 	ArrayList children = new ArrayList();
@@ -514,7 +514,7 @@ public IJavaElement[] findElements(IJavaElement element) {
 	}
 }
 /**
- * @see IWorkingCopy#findPrimaryType()
+ * @see ICompilationUnit#findPrimaryType()
  */
 public IType findPrimaryType() {
 	String typeName = Signature.getQualifier(this.getElementName());
@@ -860,7 +860,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 	return getWorkingCopy(BufferFactoryWrapper.create(factory), problemRequestor, monitor);
 }
 /**
- * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+ * @see ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
  */
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	if (!isPrimary()) return this;
@@ -996,7 +996,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 }
 
 /**
- * @see Openable#openBuffer(IProgressMonitor)
+ * @see Openable#openBuffer(IProgressMonitor, Object)
  */
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 
@@ -1062,7 +1062,7 @@ public IMarker[] reconcile() throws JavaModelException {
 	return null;
 }
 /**
- * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
+ * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
 	reconcile(NO_AST, forceProblemDetection, null/*use primary owner*/, monitor);
