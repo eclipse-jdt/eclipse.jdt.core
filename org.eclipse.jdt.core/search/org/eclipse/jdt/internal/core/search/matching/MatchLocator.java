@@ -487,9 +487,6 @@ public class MatchLocator implements ITypeRequestor {
 		int accuracy)
 		throws CoreException {
 		if (this.scope.encloses(element)) {
-if (this.getCurrentResource().getFullPath().toString().endsWith("ResponseFactory.java")) {
-	System.out.println("Found ResponseFactory.java");
-}
 			this.collector.accept(
 				this.getCurrentResource(),
 				sourceStart,
