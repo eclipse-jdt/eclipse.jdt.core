@@ -584,16 +584,19 @@ public char[][] getInterfaceNames() {
  */
 public int getKind() {
 	int modifiers = getModifiers();
-	if ((modifiers & AccAnnotation) != 0) return IGenericType.ANNOTATION_TYPE_DECL;
-	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE_DECL;
-	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM_DECL;
+	if ((modifiers & AccInterface) != 0) {
+		if ((modifiers & AccAnnotation) != 0) return IGenericType.ANNOTATION_TYPE_DECL;
+		return IGenericType.INTERFACE_DECL;
+	}
+	if ((modifiers & AccEnum) != 0)	return IGenericType.ENUM_DECL;
 	return IGenericType.CLASS_DECL;
 }
 /**
  * Answer the receiver's nested types or null if the array is empty.
- *
- * This nested type info is extracted from the inner class attributes.
- * Ask the name environment to find a member type using its compound name
+ * 
+ * This nested type info is extracted from the inner class attributes. Ask the
+ * name environment to find a member type using its compound name
+ * 
  * @return org.eclipse.jdt.internal.compiler.api.IBinaryNestedType[]
  */
 public IBinaryNestedType[] getMemberTypes() {
