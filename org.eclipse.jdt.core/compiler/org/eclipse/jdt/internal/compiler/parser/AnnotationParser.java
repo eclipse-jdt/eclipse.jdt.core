@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 
 /**
- * Parser specialized for decoding annotations
+ * Parser specialized for decoding javadoc annotations
  */
 public class AnnotationParser {
 
