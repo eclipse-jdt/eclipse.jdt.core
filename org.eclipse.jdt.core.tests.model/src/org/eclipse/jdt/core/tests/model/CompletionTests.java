@@ -141,6 +141,14 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionAbstractMethod2"));
 	suite.addTest(new CompletionTests("testCompletionAbstractMethod3"));
 	suite.addTest(new CompletionTests("testCompletionAbstractMethod4"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration1"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration2"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration3"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration4"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration5"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration6"));
+	suite.addTest(new CompletionTests("testCompletionStaticMethod1"));
+	suite.addTest(new CompletionTests("testCompletionAfterSwitch"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -1278,8 +1286,8 @@ public void testCompletionMethodDeclaration() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n" +
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1295,8 +1303,8 @@ public void testCompletionMethodDeclaration2() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n" +
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1315,7 +1323,7 @@ public void testCompletionMethodDeclaration3() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1332,8 +1340,8 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n"+
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE)+"\n"+
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1350,12 +1358,12 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CompletionMethodDeclaration5    completion:CompletionMethodDeclaration5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:hashCode    completion:public int hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:toString    completion:public String toString()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n"+
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n"+
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n"+
+		"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n"+
+		"element:hashCode    completion:public int hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n"+
+		"element:toString    completion:public String toString()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1388,7 +1396,7 @@ public void testCompletionMethodDeclaration7() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1405,7 +1413,7 @@ public void testCompletionMethodDeclaration8() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1422,7 +1430,7 @@ public void testCompletionMethodDeclaration9() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -1439,7 +1447,7 @@ public void testCompletionMethodDeclaration10() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 
@@ -2615,9 +2623,9 @@ public void testCompletionAbstractMethodRelevance1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:foo1    completion:public void foo1()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
-		"element:foo2    completion:public void foo2()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n" +
-		"element:foo3    completion:public void foo3()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:foo1    completion:public void foo1()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE)+"\n" +
+		"element:foo2    completion:public void foo2()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE)+"\n" +
+		"element:foo3    completion:public void foo3()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 /*
@@ -2633,8 +2641,8 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
-		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n" +
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE)+"\n" +
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 		requestor.getResults());
 }
 /*
@@ -5223,7 +5231,7 @@ public void testCompletionKeywordFinal5() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal6() throws JavaModelException {
@@ -5250,7 +5258,7 @@ public void testCompletionKeywordFinal7() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal8() throws JavaModelException {
@@ -7808,7 +7816,7 @@ public void testCompletionKeywordFinal14() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal15() throws JavaModelException {
@@ -7835,7 +7843,7 @@ public void testCompletionKeywordFinal16() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal17() throws JavaModelException {
@@ -8382,5 +8390,114 @@ public void testCompletionAbstractMethod4() throws JavaModelException {
 	assertEquals(
 		"",
 		requestor.getResults());
+}
+public void testCompletionStaticMethodDeclaration1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo    completion:public static void foo()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME) + "\n" +
+			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethodDeclaration2() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethodDeclaration3() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo    completion:public static void foo()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME) + "\n" +
+			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethodDeclaration4() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethodDeclaration5() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration5.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethodDeclaration6() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration6.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE),
+			requestor.getResults());
+}
+public void testCompletionStaticMethod1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethod1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo    completion:CompletionStaticMethod1.foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME) + "\n" +
+			"element:foo    completion:foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME) + "\n" +
+			"element:foo0    completion:CompletionStaticMethod1.this.foo0()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+			"element:foo0    completion:foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			requestor.getResults());
+}
+public void testCompletionAfterSwitch() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAfterSwitch.java");
+
+	String str = cu.getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:bar    completion:bar()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME),
+			requestor.getResults());
 }
 }

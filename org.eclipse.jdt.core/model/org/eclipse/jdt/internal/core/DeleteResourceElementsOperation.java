@@ -52,7 +52,7 @@ private void deletePackageFragment(IPackageFragment frag)
 			for (int i = 0; i < childrenOfInterest.length; i++) {
 				resources[i] = childrenOfInterest[i].getCorrespondingResource();
 			}
-			deleteResources(resources, fForce);
+			deleteResources(resources, force);
 		}
 
 		// Discard non-java resources
@@ -65,7 +65,7 @@ private void deletePackageFragment(IPackageFragment frag)
 		for (int i = 0, max = nonJavaResources.length, index = 0; i < max; i++){
 			if (nonJavaResources[i] instanceof IResource) actualNonJavaResources[index++] = (IResource)nonJavaResources[i];
 		}
-		deleteResources(actualNonJavaResources, fForce);
+		deleteResources(actualNonJavaResources, force);
 		
 		// delete remaining files in this package (.class file in the case where Proj=src=bin)
 		IResource[] remainingFiles;
@@ -106,7 +106,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	switch (element.getElementType()) {
 		case IJavaElement.CLASS_FILE :
 		case IJavaElement.COMPILATION_UNIT :
-			deleteResource(element.getResource(), fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY);
+			deleteResource(element.getResource(), force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT :
 			deletePackageFragment((IPackageFragment) element);

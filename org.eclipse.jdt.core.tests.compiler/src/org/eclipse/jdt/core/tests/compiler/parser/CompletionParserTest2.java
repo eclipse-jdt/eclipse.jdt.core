@@ -7487,4 +7487,70 @@ public void test0132(){
 		expectedReplacedSource,
 		"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46470
+ */
+public void test0133(){
+	String str =
+	"public class X {\n" +
+	"   int x;\n" +
+	"   void foo() {\n" +
+	"      switch(x){\n" +
+	"         case 0:\n" +
+	"            break;\n" +
+	"      }\n" +
+	"      bar\n" +
+	"   }\n" +
+	"}\n";
+
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  int x;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:bar>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "bar";
+	expectedReplacedSource = "bar";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  int x;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    <CompleteOnName:bar>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

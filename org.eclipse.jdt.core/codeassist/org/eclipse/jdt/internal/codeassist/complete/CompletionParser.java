@@ -1645,6 +1645,7 @@ protected void consumeStatementSwitch() {
 	super.consumeStatementSwitch();
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
 		popElement(K_SWITCH_LABEL);
+		popElement(K_BLOCK_DELIMITER);
 	}
 }
 protected void consumeNestedMethod() {

@@ -38,7 +38,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 		// open the working copy now to ensure contents are that of the current state of this element
 		CompilationUnit workingCopy = getWorkingCopy();
 		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, this.path, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
-		workingCopy.openWhenClosed(workingCopy.createElementInfo(), fMonitor);
+		workingCopy.openWhenClosed(workingCopy.createElementInfo(), progressMonitor);
 
 		if (!workingCopy.isPrimary()) {
 			// report added java delta for a non-primary working copy
@@ -59,7 +59,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 			}
 		}
 
-		fResultElements = new IJavaElement[] {workingCopy};
+		resultElements = new IJavaElement[] {workingCopy};
 	}
 	/*
 	 * Returns the working copy this operation is working on.

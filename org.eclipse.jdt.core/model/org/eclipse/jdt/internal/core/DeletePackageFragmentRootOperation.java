@@ -57,7 +57,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		IResource rootResource = root.getResource();
 		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
-				rootResource.delete(this.updateResourceFlags, fMonitor);
+				rootResource.delete(this.updateResourceFlags, progressMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}
@@ -72,11 +72,11 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 							return !equalsOneOf(path, nestedFolders);
 						} else {
 							// subtree doesn't contain any nested source folders
-							proxy.requestResource().delete(updateResourceFlags, fMonitor);
+							proxy.requestResource().delete(updateResourceFlags, progressMonitor);
 							return false;
 						}
 					} else {
-						proxy.requestResource().delete(updateResourceFlags, fMonitor);
+						proxy.requestResource().delete(updateResourceFlags, progressMonitor);
 						return false;
 					}
 				}
@@ -129,7 +129,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 			if (newCPIndex < newClasspath.length) {
 				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
 			}
-			project.setRawClasspath(newClasspath, fMonitor);
+			project.setRawClasspath(newClasspath, progressMonitor);
 		}
 	}	
 	protected IJavaModelStatus verify() {

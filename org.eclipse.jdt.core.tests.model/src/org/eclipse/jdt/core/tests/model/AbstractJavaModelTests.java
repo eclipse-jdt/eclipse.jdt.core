@@ -11,8 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.*;
-import java.net.URL;
-import java.security.CodeSource;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
@@ -770,23 +768,10 @@ protected IProject getProject(String project) {
  * Returns the OS path to the directory that contains this plugin.
  */
 protected String getPluginDirectoryPath() {
-	CodeSource javaCoreCodeSource = JavaCore.class.getProtectionDomain().getCodeSource();
-	if (javaCoreCodeSource != null) {
-		URL javaCoreUrl = javaCoreCodeSource.getLocation();
-		String javaCorePath = javaCoreUrl.getFile();
-		int index = javaCorePath.indexOf(JavaCore.PLUGIN_ID);
-		if (index != -1) {
-			String pluginsPath = javaCorePath.substring(0, index);
-			File pluginsFile = new File(pluginsPath);
-			String[] list = pluginsFile.list(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return name.startsWith( "org.eclipse.jdt.core.tests.model");
-				}
-			});
-			if (list != null && list.length > 0) {
-				return pluginsPath + list[0];
-			}
-		}
+	try {
+		return new File(Platform.resolve(Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL()).getFile()).getAbsolutePath();
+	} catch (IOException e) {
+		//Error
 	}
 	return null;
 }
