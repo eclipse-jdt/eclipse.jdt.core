@@ -132,7 +132,8 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		}
 		this.entryResults.put(input, entries);
 	}
-	
+	if (entries == NO_ENTRY_RESULT) return;
+
 	/* only select entries which actually match the entire search pattern */
 	int slash = SUPER_REF.length;
 	char[] simpleName = this.superSimpleName;
