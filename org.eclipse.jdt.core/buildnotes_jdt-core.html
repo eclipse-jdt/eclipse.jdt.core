@@ -36,12 +36,21 @@
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK 2.1 Build - 21st February 2003
-<br>Project org.eclipse.jdt.core v_300
+<br>Project org.eclipse.jdt.core v_300 - 2.1 RELEASE CANDIDATE 1
 <h2>
 What's new in this drop</h2>
+<ul>
+<li>In 1.4 compliant mode, the compiler will allow unterminated line comment (i.e. with no trailing line separator), as a consequence
+of the JLS revisal. Thus removed temporary (and unused) 2.1 API :
+<code>ToolFactory.createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator, <b>boolean strictComment</b>){
+</code>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32339">32339</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32476">32476</a>
+Spec now allows line comment to end with EOF
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32339">32339</a>
 Cannot find declaration of SIGNATURE in Java text search
 
 <p><hr><h1>
@@ -73,9 +82,9 @@ What's new in this drop</h2>
     <ul>
      <li><code>IPackageFragmentRoot.computeSourceAttachmentRootPath(IPath sourceAttachmentPath)</code>
      </li>
-     <li><code>IJavaModelMarker.UNBOUND_CONTAINER</code>, use classpath problem marker ID instead (IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND).
+     <li><code>IJavaModelMarker.UNBOUND_CONTAINER</code>, use classpath problem marker ID instead (<code>IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND</code>).
      </li>
-     <li><code>IJavaModelMarker.UNBOUND_VARIABLE</code>, use classpath problem marker ID instead IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND).
+     <li><code>IJavaModelMarker.UNBOUND_VARIABLE</code>, use classpath problem marker ID instead (<code>IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND</code>).
      </li>
     </ul>
 </li>
