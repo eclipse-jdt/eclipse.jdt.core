@@ -254,33 +254,26 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 		int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
 		int end;
 		char c;
-		if (i + 1 < this.foundTaskCount) {
-			end = this.foundTaskPositions[i + 1][0] - 1;
-			for (int j = end; j >= msgStart; j--){
+		int max_value = i + 1 < this.foundTaskCount ? this.foundTaskPositions[i + 1][0] - 1 : Integer.MAX_VALUE;
+		
+		end = -1;
+		for (int j = msgStart; j < commentEnd; j++){
+			if ((c = this.source[j]) == '\n' || c == '\r'){
+				end = j - 1;
+				break;
+			}
+		}
+		end = Math.min(end, max_value);
+		
+		if (end < 0){
+			for (int j = commentEnd-1; j >= msgStart; j--){
 				if ((c = this.source[j]) == '*') {
 					end = j-1;
 					break;
 				}
 			}
-		} else {
-			end = -1;
-			for (int j = msgStart; j < commentEnd; j++){
-				if ((c = this.source[j]) == '\n' || c == '\r'){
-					end = j - 1;
-					break;
-				}
-			}
-			if (end < 0){
-				for (int j = commentEnd-1; j >= msgStart; j--){
-					if ((c = this.source[j]) == '*') {
-						end = j-1;
-						break;
-					}
-				}
-				if (end < 0) end = commentEnd-1;
-			}
+			if (end < 0) end = commentEnd-1;
 		}
-
 		
 		// trim the message
 		while (CharOperation.isWhitespace(source[end]) && msgStart <= end) end--;
