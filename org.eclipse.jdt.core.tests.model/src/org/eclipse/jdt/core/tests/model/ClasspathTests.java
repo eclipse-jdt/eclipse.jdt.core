@@ -2150,7 +2150,7 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(20);
 	//denseCycleDetection(100);
 }
-public void testNoCycleDetection() throws CoreException { //TODO: reenable post 2.1
+public void testNoCycleDetection() throws CoreException {
 	noCycleDetection(5, false);
 	noCycleDetection(10, false);
 	noCycleDetection(20, false);
@@ -2231,12 +2231,17 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		}
 		
 	} finally {
-		if (projects != null){
-			for (int i = 0; i < numberOfParticipants; i++){
-				if (projects[i] != null)
-					this.deleteProject(projects[i].getElementName());
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				if (projects != null){
+					for (int i = 0; i < numberOfParticipants; i++){
+						if (projects[i] != null)
+							deleteProject(projects[i].getElementName());
+					}
+				}
 			}
-		}
+		},
+		null);
 	}
 }
 /*
@@ -2293,12 +2298,17 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 		}
 		
 	} finally {
-		if (projects != null){
-			for (int i = 0; i < numberOfParticipants; i++){
-				if (projects[i] != null)
-					this.deleteProject(projects[i].getElementName());
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				if (projects != null){
+					for (int i = 0; i < numberOfParticipants; i++){
+						if (projects[i] != null)
+							deleteProject(projects[i].getElementName());
+					}
+				}
 			}
-		}
+		},
+		null);
 	}
 }
 

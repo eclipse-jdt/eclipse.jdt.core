@@ -524,16 +524,20 @@ private boolean isWorthBuilding() throws CoreException {
 void mustPropagateStructuralChanges() {
 	HashSet cycleParticipants = new HashSet(3);
 	javaProject.updateCycleParticipants(null, new ArrayList(), cycleParticipants, workspaceRoot, new HashSet(3));
-
+	IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+	IPath currentPath = javaProject.getPath();
 	Iterator i= cycleParticipants.iterator();
 	while (i.hasNext()) {
-		IJavaProject p = (IJavaProject) i.next();
-		if (p != javaProject && hasBeenBuilt(p.getProject())) {
-			if (DEBUG) 
-				System.out.println("Requesting another build iteration since cycle participant " + p.getProject().getName() //$NON-NLS-1$
-					+ " has not yet seen some structural changes"); //$NON-NLS-1$
-			needRebuild();
-			return;
+		IPath participantPath = (IPath) i.next();
+		if (participantPath != currentPath) {
+			IProject project = workspaceRoot.getProject(participantPath.segment(0));
+			if (hasBeenBuilt(project)) {
+				if (DEBUG) 
+					System.out.println("Requesting another build iteration since cycle participant " + project.getName() //$NON-NLS-1$
+						+ " has not yet seen some structural changes"); //$NON-NLS-1$
+				needRebuild();
+				return;
+			}
 		}
 	}
 }

@@ -2262,29 +2262,32 @@ public class JavaProject
 	 * Update cycle markers for all java projects
 	 */
 	public static void updateAllCycleMarkers() throws JavaModelException {
-		
+
+		//long start = System.currentTimeMillis();
+
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		HashSet cycleParticipants = new HashSet();
-		HashSet alreadyTraversed = new HashSet();
+		HashSet traversed = new HashSet();
 		int length = projects.length;
 		
 		// compute cycle participants
 		ArrayList prereqChain = new ArrayList();
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
-			if (!alreadyTraversed.contains(project)){
+			if (!traversed.contains(project.getPath())){
 				prereqChain.clear();
-				project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, alreadyTraversed);
+				project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, traversed);
 			}
 		}
-		
+		//System.out.println("updateAllCycleMarkers: " + (System.currentTimeMillis() - start) + " ms");
+
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
 			
-			if (cycleParticipants.contains(project)){
+			if (cycleParticipants.contains(project.getPath())){
 				IMarker cycleMarker = project.getCycleMarker();
 				String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
 				int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
@@ -2310,7 +2313,7 @@ public class JavaProject
 	}
 
 	/**
-	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly and indirectly),
+	 * If a cycle is detected, then cycleParticipants contains all the paths of projects involved in this cycle (directly and indirectly),
 	 * no cycle if the set is empty (and started empty)
 	 */
 	public void updateCycleParticipants(
@@ -2318,27 +2321,29 @@ public class JavaProject
 			ArrayList prereqChain, 
 			HashSet cycleParticipants, 
 			IWorkspaceRoot workspaceRoot,
-			HashSet alreadyTraversed){
-				
-		prereqChain.add(this);
+			HashSet traversed){
+
+		IPath path = this.getPath();
+		prereqChain.add(path);
+		traversed.add(path);
 		try {
 			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
-					IPath entryPath = entry.getPath();
-					IResource member = workspaceRoot.findMember(entryPath);
-					if (member != null && member.getType() == IResource.PROJECT){
-						JavaProject project = (JavaProject)JavaCore.create((IProject)member);
-						int index = cycleParticipants.contains(project) ? 0 : prereqChain.indexOf(project);
-						if (index >= 0) { // refer to cycle, or in cycle itself
-							for (int size = prereqChain.size(); index < size; index++) {
-								cycleParticipants.add(prereqChain.get(index)); 
-							}
-						} else {
-							if (!alreadyTraversed.contains(project)) {
-								project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, alreadyTraversed);
+					IPath prereqProjectPath = entry.getPath();
+					int index = cycleParticipants.contains(prereqProjectPath) ? 0 : prereqChain.indexOf(prereqProjectPath);
+					if (index >= 0) { // refer to cycle, or in cycle itself
+						for (int size = prereqChain.size(); index < size; index++) {
+							cycleParticipants.add(prereqChain.get(index)); 
+						}
+					} else {
+						if (!traversed.contains(prereqProjectPath)) {
+							IResource member = workspaceRoot.findMember(prereqProjectPath);
+							if (member != null && member.getType() == IResource.PROJECT){
+								JavaProject project = (JavaProject)JavaCore.create((IProject)member);
+								project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, traversed);
 							}
 						}
 					}
@@ -2346,8 +2351,7 @@ public class JavaProject
 			}
 		} catch(JavaModelException e){
 		}
-		prereqChain.remove(this);
-		alreadyTraversed.add(this);
+		prereqChain.remove(path);
 	}
 		
 	/**
