@@ -3652,4 +3652,49 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends X>\n" + 
 			"----------\n");
 	}		
+	// variation on test128
+	public void test129() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		XY xy = new XY();\n" + 
+				"		Class c1 = xy.getClass();\n" + 
+				"		Class<? extends XY> c2 = xy.getClass();\n" + 
+				"		String s = \"hello\";\n" + 
+				"		Class<? extends XY> c3 = s.getClass();\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XY extends X {\n" + 
+				"    public Class <? extends Object> getClass() {\n" + 
+				"        return super.getClass();\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	Class<? extends XY> c2 = xy.getClass();\n" + 
+			"	                    ^^\n" + 
+			"Type mismatch: cannot convert from Class<? extends Object> to Class<? extends XY>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	Class<? extends XY> c3 = s.getClass();\n" + 
+			"	                    ^^\n" + 
+			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends XY>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
+			"	public Class <? extends Object> getClass() {\n" + 
+			"	                                ^^^^^^^^^^\n" + 
+			"Cannot override the final method from Object\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
+			"	return super.getClass();\n" + 
+			"	       ^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<? extends X> to Class<? extends Object>\n" + 
+			"----------\n");
+	}			
 }
