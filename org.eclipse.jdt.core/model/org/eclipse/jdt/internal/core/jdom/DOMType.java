@@ -99,11 +99,16 @@ import org.eclipse.jdt.internal.core.util.CharArrayOps;
 	 * character preceding the close brace of the type's body, up to the
 	 * and including the first character before the next node (if there are
 	 * no following nodes, the range ends at the position of the last
-	 * charater in the document).
+	 * character in the document).
 	 */	
 	protected int[]  fCloseBodyRange;
 
-
+	/**
+	 * This position is the position of the end of the last line separator before the closing brace starting
+	 * position of the receiver.
+	 */
+	protected int fInsertionPosition;
+	
 	/**
 	 * A list of interfaces this type extends or implements.
 	 * <code>null</code> when this type does not extend
@@ -366,7 +371,9 @@ protected DOMNode getDetailedNode() {
  * @see DOMNode#getInsertionPosition()
  */
 public int getInsertionPosition() {
-	return getCloseBodyPosition();
+	// this should return the position of the end of the last line separator before the closing brace of the type
+	// See PR 1GELSDQ: ITPJUI:WINNT - JDOM: IType.createMethod does not insert nicely for inner types
+	return fInsertionPosition;
 }
 /**
  * @see IDOMNode#getJavaElement
@@ -504,6 +511,10 @@ void normalize(ILineStartFinder finder) {
 	}
 	setOpenBodyRangeEnd(openBodyEnd);
 	setCloseBodyRangeStart(closeBodyStart);
+	fInsertionPosition = finder.getLineStart(closeBodyStart);
+	if (fInsertionPosition < openBodyEnd) {
+		fInsertionPosition = getCloseBodyPosition();
+	}
 	super.normalize(finder);
 }
 /**
