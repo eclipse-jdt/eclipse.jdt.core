@@ -2670,4 +2670,11 @@ public final class CharOperation {
 		char[] result = concatWith(array, '.');
 		return new String(result);
 	}
+	final static public String[] toStrings(char[][] array) {
+		int length = array.length;
+		String[] result = new String[length];
+		for (int i = 0; i < length; i++)
+			result[i] = new String(array[i]);
+		return result;
+	}
 }
