@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 
 class MethodVerifier15 extends MethodVerifier {
@@ -18,133 +17,164 @@ class MethodVerifier15 extends MethodVerifier {
 MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
-boolean areTypesEqual(TypeBinding one, TypeBinding two) {
-	return one == two || super.areTypesEqual(one.erasure(), two.erasure());
-}
-boolean areTypesEquivalent(TypeBinding one, TypeBinding two) {
-	if (one == two) return true;
-	if (!super.areTypesEqual(one.erasure(), two.erasure())) return false;
+boolean areMethodsEqual(MethodBinding one, MethodBinding substituteTwo) {
+	TypeBinding[] oneParams = one.parameters;
+	TypeBinding[] twoParams = substituteTwo.parameters;
+	boolean checkParameters = false;
+	if (oneParams != twoParams) {
+		int length = oneParams.length;
+		if (length != twoParams.length) return false; // no match
 
-	if (one.isTypeVariable() && two.isTypeVariable()) {
-		TypeVariableBinding temp1 = (TypeVariableBinding) one;
-		TypeVariableBinding temp2 = (TypeVariableBinding) two;
-		if (temp1.rank != temp2.rank) return false;
-		if (!areTypesEquivalent(temp1.superclass, temp2.superclass)) return false;
-		ReferenceBinding[] superInterfaces1 = temp1.superInterfaces;
-		ReferenceBinding[] superInterfaces2 = temp2.superInterfaces;
-		if (superInterfaces1 != superInterfaces2) {
-			if (superInterfaces1 == null || superInterfaces2 == null) return false;
-			if (superInterfaces1.length != superInterfaces2.length) return false;
-			for (int i = 0, l = superInterfaces1.length; i < l; i++)
-				if (!areTypesEquivalent(superInterfaces1[i], superInterfaces2[i])) return false;
-		}
-	}   
-	return true;
-}
-void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
-	// methods includes the inherited methods that the currentMethod must comply with
-	// likely only 1 but could be more if mutiple declared supertypes define the method (1 superclass & 1 to many declared interfaces)
-	nextMethod : for (int i = length; --i >= 0;) {
-		MethodBinding inheritedMethod = methods[i];
-		if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
-			this.problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
-			continue nextMethod;
-		}
-
-		// curentMethod is always resolved as its defined by the source type BUT the inheritedMethod may not be
-		// so now with generics, the inheritedMethod should be resolved since we don't want to waste time dealing
-		// with Unresolved types over & over
-		if (inheritedMethod.declaringClass instanceof BinaryTypeBinding)
-			((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
-
-		if (checkForNameClash(currentMethod, inheritedMethod)) {
-			this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
-			continue nextMethod;
-		}
-
-		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
-			if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
-				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
-		} else {
-			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
-		}
-
-		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType();
-		if (currentMethod.returnType != inheritedMethod.returnType) {
-			// can be [] of Class#RAW vs. Class<T>
-			if (!isReturnTypeSubstituable(currentMethod, inheritedMethod)) {
-				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-				continue nextMethod;
-			}
-
-			TypeBinding inheritedReturnType = inheritedMethod.returnType.leafComponentType();
-			TypeBinding returnType = currentMethod.returnType.leafComponentType();
-			if (inheritedReturnType.isRawType()) {
-				if (returnType.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) returnType)) {
-					this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
-					continue nextMethod;
+		for (int i = 0; i < length; i++) {
+			if (oneParams[i] != twoParams[i]) {
+				checkParameters |= oneParams[i].leafComponentType().isParameterizedType();
+				if (!areTypesEqual(oneParams[i], twoParams[i])) {
+					while (!checkParameters && ++i < length)
+						checkParameters |= oneParams[i].leafComponentType().isParameterizedType();
+					if (checkParameters && one.areParameterErasuresEqual(substituteTwo)) // at least one parameter may cause a name clash
+						detectNameClash(one, substituteTwo, true);
+					return false; // no match but needed to check for a name clash
 				}
-			} else if (inheritedReturnType.isParameterizedType()) {
-				if (!returnType.isParameterizedType()) 
-					this.problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, ((MethodDeclaration)currentMethod.sourceMethod()).returnType);
-			} else if (inheritedReturnType.isTypeVariable()) {
-				this.problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod,  ((MethodDeclaration)currentMethod.sourceMethod()).returnType);
-			}
-			addBridgeMethod = true;
-		}
-
-		if (addBridgeMethod || inheritedMethod.hasSubstitutedParameters()) {
-		    MethodBinding original = inheritedMethod.original();
-		    if (!areReturnTypesEqual(original, currentMethod) || !areParametersEqual(original, currentMethod))
-				this.type.addSyntheticBridgeMethod(original, currentMethod);
-		}
-
-		if (currentMethod.thrownExceptions != NoExceptions)
-			this.checkExceptions(currentMethod, inheritedMethod);
-		if (inheritedMethod.isFinal())
-			this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
-		if (!this.isAsVisible(currentMethod, inheritedMethod))
-			this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-		if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-			if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
-				// check against the other inherited methods to see if they hide this inheritedMethod
-				ReferenceBinding declaringClass = inheritedMethod.declaringClass;
-				if (declaringClass.isInterface())
-					for (int j = length; --j >= 0;)
-						if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
-							continue nextMethod;
-
-				this.problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
 			}
 		}
 	}
+	return !detectNameClash(one, substituteTwo, checkParameters);
 }
-boolean checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-	TypeBinding[] currentVars = currentMethod.typeVariables;
-	TypeBinding[] inheritedVars = inheritedMethod.typeVariables;
-	if (currentVars.length != inheritedVars.length && currentVars.length > 0) return true; // must match unless all are replaced
+boolean areReturnTypesEqual(MethodBinding one, MethodBinding substituteTwo) {
+	if (one.returnType == substituteTwo.returnType) return true;
 
-	// must check each parameter pair to see if parameterized types are compatible
-	// already know that each erasure() is equal
-	TypeBinding[] currentArgs = currentMethod.parameters;
-	TypeBinding[] inheritedArgs = inheritedMethod.parameters;
-	if (currentArgs != inheritedArgs) {
-		for (int i = 0, l = currentArgs.length; i < l; i++) {
-			TypeBinding currentArg = currentArgs[i].leafComponentType();
-			TypeBinding inheritedArg = inheritedArgs[i].leafComponentType();
-			if (currentArg != inheritedArg && currentArg.isParameterizedType()) {
-				if (!inheritedArg.isParameterizedType()) return true;
-				TypeBinding[] args1 = ((ParameterizedTypeBinding) currentArg).arguments;
-				TypeBinding[] args2 = ((ParameterizedTypeBinding) inheritedArg).arguments;
-				for (int j = 0, k = args1.length; j < k; j++)
-				    if (!areTypesEquivalent(args1[j], args2[j])) return true;
+	// methods from classes are always before methods from interfaces
+	if (one.declaringClass.isClass() || one.declaringClass.implementsInterface(substituteTwo.declaringClass, true))
+		return one.returnType.isCompatibleWith(substituteTwo.returnType);
+
+	if (substituteTwo.declaringClass.implementsInterface(one.declaringClass, true))
+		return substituteTwo.returnType.isCompatibleWith(one.returnType);
+
+	// unrelated interfaces... one must be a subtype of the other
+	return one.returnType.isCompatibleWith(substituteTwo.returnType)
+		|| substituteTwo.returnType.isCompatibleWith(one.returnType);
+}
+boolean areTypesEqual(TypeBinding one, TypeBinding two) {
+	if (one == two) return true;
+
+	switch (one.bindingType()) {
+		case Binding.PARAMETERIZED_TYPE :
+		case Binding.RAW_TYPE :
+			return one.isEquivalentTo(two);
+//		case Binding.TYPE_PARAMETER : // won't work for variables from different classes - need substitution
+	}
+
+	// Can skip this since we resolved each method before comparing it, see computeSubstituteMethod()
+	//	if (one instanceof UnresolvedReferenceBinding)
+	//		return ((UnresolvedReferenceBinding) one).resolvedType == two;
+	//	if (two instanceof UnresolvedReferenceBinding)
+	//		return ((UnresolvedReferenceBinding) two).resolvedType == one;
+	return false; // all other type bindings are identical
+}
+void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	MethodBinding originalInherited = inheritedMethod.original();
+	if (inheritedMethod != originalInherited) {
+		MethodBinding[] toCheck = (MethodBinding[]) this.currentMethods.get(currentMethod.selector);
+		if (toCheck.length > 1) {
+			// must check to see if a bridge method will collide with another current method (see 77861)
+			for (int i = 0, length = toCheck.length; i < length; i++) {
+				if (currentMethod != toCheck[i] && toCheck[i].areParameterErasuresEqual(originalInherited)) {
+					problemReporter(toCheck[i]).methodNameClash(toCheck[i], originalInherited); // bridge method will collide
+					return;
+				}
 			}
 		}
+	}
+
+	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
+	// then when do you need a bridge method?
+	if (originalInherited.returnType != currentMethod.returnType) {
+		TypeBinding inheritedReturnType = originalInherited.returnType.leafComponentType();
+		TypeBinding returnType = currentMethod.returnType.leafComponentType();
+		switch (inheritedReturnType.bindingType()) {
+			case Binding.RAW_TYPE :
+				if (returnType.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) returnType)) {
+					problemReporter(currentMethod).methodNameClash(currentMethod, originalInherited);
+					return;
+				}
+				break;
+			case Binding.PARAMETERIZED_TYPE :
+				if (!returnType.isParameterizedType())
+					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
+				break;
+			case Binding.TYPE_PARAMETER :
+				if (!returnType.isTypeVariable())
+					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
+				break;
+		}   
+	}
+	this.type.addSyntheticBridgeMethod(originalInherited, currentMethod);
+}
+MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
+	if (inheritedMethod == null) return null;
+
+	// due to hierarchy & compatibility checks, we need to ensure these 2 methods are resolved
+	// should we push these tests to where they're needed? returnType.isCompatibleWith && parameter isEquivalentTo ?
+	if (currentMethod.declaringClass instanceof BinaryTypeBinding)
+		((BinaryTypeBinding) currentMethod.declaringClass).resolveTypesFor(currentMethod);
+	if (inheritedMethod.declaringClass instanceof BinaryTypeBinding)
+		((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
+
+	TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables();
+	if (inheritedTypeVariables == NoTypeVariables) return inheritedMethod;
+	TypeVariableBinding[] typeVariables = currentMethod == null ? NoTypeVariables : currentMethod.typeVariables;
+
+	int inheritedLength = inheritedTypeVariables.length;
+	int length = typeVariables.length;
+	TypeBinding[] arguments = new TypeBinding[inheritedLength];
+	if (inheritedLength <= length) {
+		System.arraycopy(typeVariables, 0, arguments, 0, inheritedLength);
+	} else {
+		System.arraycopy(typeVariables, 0, arguments, 0, length);
+		for (int i = length; i < inheritedLength; i++)
+			arguments[i] = inheritedTypeVariables[i].erasure();
+	}
+	ParameterizedGenericMethodBinding substitute =
+		new ParameterizedGenericMethodBinding(inheritedMethod, arguments, this.environment);
+	for (int i = 0; i < inheritedLength; i++)
+	    if (!inheritedTypeVariables[i].boundCheck(substitute, arguments[i]))
+	    	return inheritedMethod; // incompatible due to bound check
+   return substitute;
+}
+boolean detectNameClash(MethodBinding one, MethodBinding substituteTwo, boolean checkParameters) {
+	if (doTypeVariablesClash(one, substituteTwo) || (checkParameters && doParametersClash(one, substituteTwo))) {
+		if (this.type == one.declaringClass)
+		 	problemReporter(one).methodNameClash(one, substituteTwo);
+		else
+			problemReporter().inheritedMethodsHaveNameClash(this.type, one, substituteTwo);
+		return true;
 	}
 	return false;
 }
 boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	return areParametersEqual(method, inheritedMethod) && isReturnTypeSubstituable(method, inheritedMethod);
+	return super.doesMethodOverride(method, computeSubstituteMethod(inheritedMethod, method));
+}
+boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
+	// must check each parameter pair to see if parameterized types are compatible
+	TypeBinding[] oneParams = one.parameters;
+	TypeBinding[] twoParams = substituteTwo.parameters;
+	for (int i = 0, l = oneParams.length; i < l; i++) {
+		if (oneParams[i] == twoParams[i]) continue;
+		if (!oneParams[i].leafComponentType().isParameterizedType()) continue;
+
+		if (!twoParams[i].leafComponentType().isParameterizedType()
+			|| !oneParams[i].isEquivalentTo(twoParams[i])
+			|| !twoParams[i].isEquivalentTo(oneParams[i])) {
+				return true;
+		}
+	}
+	return false;
+}
+boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
+	TypeBinding[] currentVars = one.typeVariables;
+	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
+	return currentVars.length != inheritedVars.length
+		&& currentVars.length > 0 && inheritedVars.length > 0; // must match unless all are replaced
 }
 boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
 	TypeBinding[] arguments = parameterizedType.arguments;
@@ -161,31 +191,9 @@ boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
 	}
 	return false;
 }
-boolean isReturnTypeSubstituable(MethodBinding one, MethodBinding two) {
-	if (one.returnType == two.returnType) return true;
-
-	return isTypeSubstituable(one.returnType.erasure(), two.returnType.erasure());
-}
-boolean isTypeSubstituable(TypeBinding one, TypeBinding two) {
-	if (one == two) return true;
-	if (one.isArrayType() || two.isArrayType()) {
-		if (one.isArrayType() != two.isArrayType()) return false;
-		ArrayBinding arrayOne = (ArrayBinding) one;
-		ArrayBinding arrayTwo = (ArrayBinding) two;
-		if (arrayOne.dimensions != arrayTwo.dimensions) return false;
-		one = arrayOne.leafComponentType;
-		two = arrayTwo.leafComponentType;
-	}
-	if (one.isBaseType() || two.isBaseType()) return false;
-
-	ReferenceBinding subType = (ReferenceBinding) one;
-	ReferenceBinding superType = (ReferenceBinding) two;
-	if (CharOperation.equals(subType.compoundName, superType.compoundName)) return true;
-
-	superType = BinaryTypeBinding.resolveType(superType, this.environment, true);
-	subType = BinaryTypeBinding.resolveType(subType, this.environment, true);
-	if (superType.isInterface())
-		return subType.implementsInterface(superType, true);
-	return isSameClassOrSubclassOf(subType, superType); // interfaces are subclasses of Object too
+boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
+	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
+	return inheritedMethod.returnType == existingMethod.returnType
+		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
 }
 }

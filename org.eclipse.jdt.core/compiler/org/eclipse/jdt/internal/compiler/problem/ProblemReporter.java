@@ -1746,6 +1746,26 @@ public void indirectAccessToStaticType(ASTNode location, ReferenceBinding type) 
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void inheritedMethodsHaveNameClash(SourceTypeBinding type, MethodBinding oneMethod, MethodBinding twoMethod) {
+	this.handle(
+		IProblem.MethodNameClash,
+		new String[] {
+			new String(oneMethod.selector),
+			typesAsString(oneMethod.original().isVarargs(), oneMethod.original().parameters, false),
+			new String(oneMethod.declaringClass.readableName()),
+			typesAsString(twoMethod.original().isVarargs(), twoMethod.original().parameters, false),
+			new String(twoMethod.declaringClass.readableName()),
+		 }, 
+		new String[] {
+			new String(oneMethod.selector),
+			typesAsString(oneMethod.original().isVarargs(), oneMethod.original().parameters, true),
+			new String(oneMethod.declaringClass.shortReadableName()),
+			typesAsString(twoMethod.original().isVarargs(), twoMethod.original().parameters, true),
+			new String(twoMethod.declaringClass.shortReadableName()),
+		 }, 
+		 type.sourceStart(),
+		 type.sourceEnd());
+}	
 public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	StringBuffer concreteSignature = new StringBuffer();
 	concreteSignature
@@ -3146,27 +3166,25 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 	}
 }
 public void methodNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-
 	this.handle(
-			IProblem.MethodNameClash,
-			new String[] {
-				new String(currentMethod.selector),
-				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, false),
-				new String(currentMethod.declaringClass.readableName()),
-				typesAsString(inheritedMethod.original().isVarargs(), inheritedMethod.original().parameters, false),
-				new String(inheritedMethod.declaringClass.readableName()),
-			 }, 
-			new String[] {
-				new String(currentMethod.selector),
-				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, true),
-				new String(currentMethod.declaringClass.shortReadableName()),
-				typesAsString(inheritedMethod.original().isVarargs(), inheritedMethod.original().parameters, true),
-				new String(inheritedMethod.declaringClass.shortReadableName()),
-			 }, 
-			currentMethod.sourceStart(),
-			currentMethod.sourceEnd());
+		IProblem.MethodNameClash,
+		new String[] {
+			new String(currentMethod.selector),
+			typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, false),
+			new String(currentMethod.declaringClass.readableName()),
+			typesAsString(inheritedMethod.original().isVarargs(), inheritedMethod.original().parameters, false),
+			new String(inheritedMethod.declaringClass.readableName()),
+		 }, 
+		new String[] {
+			new String(currentMethod.selector),
+			typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, true),
+			new String(currentMethod.declaringClass.shortReadableName()),
+			typesAsString(inheritedMethod.original().isVarargs(), inheritedMethod.original().parameters, true),
+			new String(inheritedMethod.declaringClass.shortReadableName()),
+		 }, 
+		currentMethod.sourceStart(),
+		currentMethod.sourceEnd());
 }	
-
 public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,

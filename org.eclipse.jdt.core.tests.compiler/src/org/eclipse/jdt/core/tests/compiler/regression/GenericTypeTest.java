@@ -7711,7 +7711,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"foo, bar");	
 	}
 	// 72644
-	public void _test298() {
+	public void test298() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -9057,8 +9057,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 	//74594
-	// TODO (kent) reenable once addressed
-	public void _test345() {
+	public void test345() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9087,8 +9086,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"SUCCESS");
 	}	
 	//74594
-	// TODO (kent) reenable once addressed
-	public void _test346() {
+	public void test346() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9121,8 +9119,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4");
 	}	
 	//74594
-	// TODO (kent) reenable once addressed
-	public void _test347() {
+	public void test347() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9161,8 +9158,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4");
 	}	
 	// checking scenario where generic type and method share the same type parameter name
-	// TODO (kent) we shouldn't be issuing a warning for method override unchecked conversion
-	public void _test348() {
+	public void test348() {
 		this.runNegativeTest(
 			new String[] {	
 				"X.java",
@@ -9922,19 +9918,19 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			new String[] {
 				"Test.java",
 				"import java.util.AbstractSet;\n" + 
-					"import java.util.Iterator;\n" + 
-					"public class Test extends AbstractSet<Runnable>{\n" + 
-					"    public static void main(String[] args) {\n" + 
-					"        Test t=new Test();\n" + 
-					"        t.add(null);\n" + 
-					"    }\n" + 
-					"    public boolean add(Runnable run) {\n" + 
-					"        System.out.println(\"success\");\n" + 
-					"        return true;\n" + 
-					"    }\n" + 
-					"    public Iterator<Runnable> iterator() {return null;}\n" + 
-					"    public int size() {return 0;}\n" + 
-					"}"
+				"import java.util.Iterator;\n" + 
+				"public class Test extends AbstractSet<Runnable>{\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Test t=new Test();\n" + 
+				"        t.add(null);\n" + 
+				"    }\n" + 
+				"    public boolean add(Runnable run) {\n" + 
+				"        System.out.println(\"success\");\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"    public Iterator<Runnable> iterator() {return null;}\n" + 
+				"    public int size() {return 0;}\n" + 
+				"}"
 				}
 		);
 	}
@@ -9945,15 +9941,15 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			new String[] {
 				"Test.java",
 				"import java.util.List;\n" + 
-					"public class Test {\n" + 
-					"	List<? super Number> wsn= null; // Contravariance\n" + 
-					"	List<? super Integer> wsi= wsn; // should work!\n" + 
-					"}\n"
+				"public class Test {\n" + 
+				"	List<? super Number> wsn= null; // Contravariance\n" + 
+				"	List<? super Integer> wsi= wsn; // should work!\n" + 
+				"}\n"
 				}
 		);
 	}
 
-	public void _test381() {
+	public void test381() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9987,7 +9983,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method foo(Class<String>) of type X has the same erasure as foo(Class<? extends String>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
-	public void _test382() {
+	public void test382() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9999,12 +9995,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	class Y { void foo(Class<String> s) {} }\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(Class<String>) of type Y has the same erasure as foo(Class<? extends String>) of type I but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I {}\n" + 
+			"	             ^\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -10014,46 +10010,79 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"class Y { void foo(Class<? extends String> s) {} }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	class Y { void foo(Class<? extends String> s) {} }\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public abstract class X extends Y implements I {}\n" + 
+			"	                      ^\n" + 
 			"Name clash : The method foo(Class<? extends String>) of type Y has the same erasure as foo(Class<String>) of type I but does not override it\n" + 
 			"----------\n");
 	}
-	public void _test383() {
+	public void test383() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
+				"interface I { <T, S> void foo(Class<T> s); }\n" + 
+				"class Y { public <T> void foo(Class<T> s) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
+			"	             ^\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
+			"	                                                        ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"----------\n");
+			/*
+			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
+			public class X extends Y implements I { public <T> void foo(Class<T> s) {} }
+			       ^
+       		*/
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X extends Y implements I {}\n" + 
 				"interface I { <T, S> void foo(Class<T> s); }\n" + 
-				"class Y { <T> void foo(Class<T> s) {} }\n"
+				"class Y { public <T> void foo(Class<T> s) {} }\n"
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	class Y { <T> void foo(Class<T> s) {} }\n" + 
-			"	                   ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I {}\n" + 
+			"	             ^\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
 			"----------\n");
+			/*
+			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
+			public class X extends Y implements I {}
+			       ^
+			*/
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public abstract class X extends Y implements I {}\n" + 
+				"public abstract class X extends Y implements I {}\n" + // NOTE: X is abstract
 				"interface I { <T> void foo(Class<T> s); }\n" + 
-				"class Y { <T, S> void foo(Class<T> s) {} }\n"
+				"class Y { public <T, S> void foo(Class<T> s) {} }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	class Y { <T, S> void foo(Class<T> s) {} }\n" + 
-			"	                      ^^^^^^^^^^^^^^^\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public abstract class X extends Y implements I {}\n" + 
+			"	                      ^\n" + 
 			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n");
+			/*
+			X.java:1: name clash: <T,S>foo(java.lang.Class<T>) in Y and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
+			public abstract class X extends Y implements I {}
+			                ^
+			 */
 	}
-	public void _test384() {
+	public void test384() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10094,19 +10123,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 
-/*
-X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
-class A implements IDoubles {
-^
-X.java:4: getList() in A cannot implement getList() in IDoubles; attempting to use incompatible return type
-found   : java.util.List<java.lang.String>
-required: java.util.List<java.lang.Double>
-	public List<String> getList() { return null; }
-                            ^
-X.java:9: C is not abstract and does not override abstract method getList() in IDoubles
-class C extends B implements IDoubles {
- */	
-	public void _test385() { // 77496
+	public void test385() { // 77496
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10123,11 +10140,28 @@ class C extends B implements IDoubles {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\r\n" + 
-			"	public List<String> getList() { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public List<String> getList() { return null; }\n" + 
 			"	                    ^^^^^^^^^\n" + 
 			"The return type is incompatible with IDoubles.getList()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	class C extends B implements IDoubles {\n" + 
+			"	      ^\n" + 
+			"The return type is incompatible with IDoubles.getList(), B.getList()\n" + 
 			"----------\n");
+			/*
+			X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
+			class A implements IDoubles {
+			^
+			X.java:4: getList() in A cannot implement getList() in IDoubles; attempting to use incompatible return type
+			found   : java.util.List<java.lang.String>
+			required: java.util.List<java.lang.Double>
+				public List<String> getList() { return null; }
+			                            ^
+			X.java:9: C is not abstract and does not override abstract method getList() in IDoubles
+			class C extends B implements IDoubles {
+			 */	
 	}
 
 	// 77325
@@ -10519,7 +10553,12 @@ class C extends B implements IDoubles {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 34)\n" + 
+			"1. ERROR in X.java (at line 33)\n" + 
+			"	class M2<I> implements M1<I> { \n" + 
+			"	      ^^\n" + 
+			"Class must implement the inherited abstract method M1<I>.mm(M1<? extends I>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 34)\n" + 
 			"	public <J extends I> void mm(M1<J> q) { \n" + 
 			"	                          ^^^^^^^^^^^\n" + 
 			"Name clash : The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<I> but does not override it\n" + 

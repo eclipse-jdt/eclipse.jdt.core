@@ -90,6 +90,7 @@ public static Test suite() {
 	    tests_1_5.add(StaticImportTest.class);
 	    tests_1_5.add(VarargsTest.class);
 	    tests_1_5.add(EnumTest.class);
+	    tests_1_5.add(MethodVerifyTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
