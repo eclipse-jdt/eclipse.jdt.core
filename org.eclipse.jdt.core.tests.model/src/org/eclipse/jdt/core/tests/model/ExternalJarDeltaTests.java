@@ -35,8 +35,6 @@ public ExternalJarDeltaTests(String name) {
 	super(name);
 }
 
-
-
 public static Test suite() {
 	TestSuite suite = new Suite(ExternalJarDeltaTests.class.getName());
 	
@@ -60,41 +58,31 @@ public static Test suite() {
 private String getExternalPath() {
 	return EXTERNAL_JAR_DIR_PATH;
 }
-
-private String getLibraryPath() {
-	return getPluginDirectoryPath().substring(1).replace(File.separatorChar,'/')+"/LIB";
+private void touch(File f) {
+	f.setLastModified(f.lastModified() + 10000);
 }
-
 /**
  * Test if a modification is detected without doing a refresh.
  * Currently no modification are detected.
  */
-public void testExternalJar0() throws CoreException {
+public void testExternalJar0() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
-		File f2 = new File(p2Path);
-		
-		copy(f1, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
 		
-		copy(f2, f);
+		this.startDeltas();
+		touch(f);
 		
 		assertDeltas(
 			"Unexpected delta", 
 			""
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -107,27 +95,20 @@ public void testExternalJar0() throws CoreException {
 /**
  * Refresh the JavaModel after a modification of an external jar.
  */
-public void testExternalJarChanged1() throws CoreException {
+public void testExternalJarChanged1() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
-		File f2 = new File(p2Path);
-		
-		copy(f1, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
-		copy(f2, f);
+		touch(f);
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
@@ -135,7 +116,6 @@ public void testExternalJarChanged1() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -147,27 +127,20 @@ public void testExternalJarChanged1() throws CoreException {
 /**
  * Refresh a JavaProject after a modification of an external jar.
  */
-public void testExternalJarChanged2() throws CoreException {
+public void testExternalJarChanged2() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
-		File f2 = new File(p2Path);
-		
-		copy(f1, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
-		copy(f2, f);
+		touch(f);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
 		assertDeltas(
@@ -175,7 +148,6 @@ public void testExternalJarChanged2() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -187,28 +159,20 @@ public void testExternalJarChanged2() throws CoreException {
 /**
  * Refresh an external jar after a modification of this jar.
  */
-public void testExternalJarChanged3() throws CoreException {
+public void testExternalJarChanged3() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
-		File f2 = new File(p2Path);
-		
-		copy(f1, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
-		
-		copy(f2, f);
-		
+
+		touch(f);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
@@ -217,7 +181,6 @@ public void testExternalJarChanged3() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -229,24 +192,19 @@ public void testExternalJarChanged3() throws CoreException {
 /**
  * Refresh the JavaModel after an addition of an external jar.
  */
-public void testExternalJarAdded1() throws CoreException {
+public void testExternalJarAdded1() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/pAdded1.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "pAdded1.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
-		
-		f = new File(pPath);
-		File f2 = new File(p2Path);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
-		copy(f2, f);
+		f = new File(pPath);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
@@ -254,7 +212,6 @@ public void testExternalJarAdded1() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[+]: {}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -266,24 +223,19 @@ public void testExternalJarAdded1() throws CoreException {
 /**
  * Refresh a JavaProject after an addition of an external jar.
  */
-public void testExternalJarAdded2() throws CoreException {
+public void testExternalJarAdded2() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/pAdded2.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "pAdded2.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
-		
-		f = new File(pPath);
-		File f2 = new File(p2Path);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
-		copy(f2, f);
+		f = new File(pPath);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
 		assertDeltas(
@@ -291,7 +243,6 @@ public void testExternalJarAdded2() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[+]: {}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -303,24 +254,19 @@ public void testExternalJarAdded2() throws CoreException {
 /**
  * Refresh an external jar after an addition of this jar.
  */
-public void testExternalJarAdded3() throws CoreException {
+public void testExternalJarAdded3() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath =getLibraryPath();
-		String pPath = getExternalPath()+"/pAdded3.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "pAdded3.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
-		
-		f = new File(pPath);
-		File f2 = new File(p2Path);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
-		copy(f2, f);
+		f = new File(pPath);
+		f.createNewFile();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
@@ -329,7 +275,6 @@ public void testExternalJarAdded3() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[+]: {}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -341,21 +286,16 @@ public void testExternalJarAdded3() throws CoreException {
 /**
  * Refresh the JavaModel after a removal of an external jar.
  */
-public void testExternalJarRemoved1() throws CoreException {
+public void testExternalJarRemoved1() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f2 = new File(p2Path);
-		
-		copy(f2, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
@@ -367,7 +307,6 @@ public void testExternalJarRemoved1() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[-]: {}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -379,21 +318,16 @@ public void testExternalJarRemoved1() throws CoreException {
 /**
  * Refresh a JavaProject after a removal of an external jar.
  */
-public void testExternalJarRemoved2() throws CoreException {
+public void testExternalJarRemoved2() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f2 = new File(p2Path);
-		
-		copy(f2, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
@@ -405,7 +339,6 @@ public void testExternalJarRemoved2() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[-]: {}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -417,21 +350,16 @@ public void testExternalJarRemoved2() throws CoreException {
 /**
  * Refresh an external jar after a removal of this jar.
  */
-public void testExternalJarRemoved3() throws CoreException {
+public void testExternalJarRemoved3() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String pPath = getExternalPath()+"/p.jar";
-		String p2Path = libPath+"/p2.jar";
-		
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f2 = new File(p2Path);
-		
-		copy(f2, f);
+		f.createNewFile();
 		this.getJavaModel().refreshExternalArchives(null,null);
 		this.startDeltas();
 		
@@ -444,7 +372,6 @@ public void testExternalJarRemoved3() throws CoreException {
 			"P[*]: {CHILDREN}\n"+
 			"	"+pPath+"[-]: {}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
@@ -458,19 +385,13 @@ public void testExternalJarRemoved3() throws CoreException {
  * - remove internal jar and the same jar as external jar
  * - refresh the JavaModel
  */
-public void testExternalJarInternalExternalJar() throws CoreException {
+public void testExternalJarInternalExternalJar() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String libPath = getLibraryPath();
-		String p1Path = libPath+"/p1.jar";
-		String p2Path = libPath+"/p2.jar";
-		File f1= new File(p1Path);
-		File f2 = new File(p2Path);
-		
 		String internalFooPath = "/P/foo.jar";
-		IFile fooIFile = this.createFile(internalFooPath, read(f1));
+		IFile fooIFile = this.createFile(internalFooPath, new byte[0]);
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(internalFooPath), null, null)});
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -480,23 +401,23 @@ public void testExternalJarInternalExternalJar() throws CoreException {
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(externalFooPath, null, null)});
 		
 		f = new File(externalFooPath.toString());
-		copy(f2, f);
+		f.createNewFile();
+		touch(f);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
-		String deltaPath = externalFooPath.toString();
+		String deltaPath = externalFooPath.toOSString();
 		deltaPath = Character.toUpperCase(deltaPath.charAt(0)) + deltaPath.substring(1);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n"+
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n"+
 			"	foo.jar[*]: {REMOVED FROM CLASSPATH}\n"+
-			"	"+deltaPath.replace('/', File.separatorChar)+"[*]: {ADDED TO CLASSPATH}\n"+
+			"	"+deltaPath+"[+]: {}\n"+
 			"	ResourceDelta(/P/.classpath)[*]\n"+
 			"\n"+
 			"P[*]: {CHILDREN}\n"+
 			"	"+deltaPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
-	} catch (IOException e) {
 	} finally {
 		if(f != null) {
 			deleteFile(f);
