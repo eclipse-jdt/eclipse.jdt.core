@@ -110,7 +110,9 @@ public TypeBinding leafComponentType(){
 
 public char[] qualifiedPackageName() {
 	PackageBinding packageBinding = getPackage();
-	return packageBinding == null  || packageBinding.compoundName == CharOperation.NO_CHAR_CHAR ? CharOperation.NO_CHAR : getPackage().readableName();
+	return packageBinding == null  || packageBinding.compoundName == CharOperation.NO_CHAR_CHAR
+		? CharOperation.NO_CHAR
+		: packageBinding.readableName();
 }
 /**
 * Answer the source name for the type.
