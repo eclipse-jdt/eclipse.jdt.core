@@ -390,15 +390,16 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return this;
 	}
 	
+	/**
+	 * Returns the receiver updated in the following way: <ul>
+	 * <li> intersection of definitely assigned variables, 
+	 * <li> union of potentially assigned variables.
+	 * </ul>
+	 */
 	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
-		// updates the receiver with:
-		// - intersection of definitely assigned variables, 
-		// - union of potentially set ones
 	
-		if (this == DeadEnd)
-			return otherInits;
-		if (otherInits == DeadEnd)
-			return this;
+		if (this == DeadEnd) return otherInits;
+		if (otherInits == DeadEnd) return this;
 	
 		// if one branch is not fake reachable, then the merged one is reachable
 		if (!otherInits.isFakeReachable())

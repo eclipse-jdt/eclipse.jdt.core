@@ -102,6 +102,12 @@ public abstract class FlowInfo {
 
 	abstract public FlowInfo markAsFakeReachable(boolean isFakeReachable);
 
+	/**
+	 * Returns the receiver updated in the following way: <ul>
+	 * <li> intersection of definitely assigned variables, 
+	 * <li> union of potentially assigned variables.
+	 * </ul>
+	 */
 	abstract public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits);
 
 	public String toString(){

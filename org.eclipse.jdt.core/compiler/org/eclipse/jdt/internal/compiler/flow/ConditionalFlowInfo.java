@@ -146,6 +146,12 @@ public class ConditionalFlowInfo extends FlowInfo {
 		return this;
 	}
 	
+	/**
+	 * Converts conditional receiver into inconditional one, updated in the following way: <ul>
+	 * <li> intersection of definitely assigned variables, 
+	 * <li> union of potentially assigned variables.
+	 * </ul>
+	 */
 	public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		
 		return unconditionalInits().mergedWith(otherInits);
