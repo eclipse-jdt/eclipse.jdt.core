@@ -369,7 +369,7 @@ private ICompilationUnit[] getWorkingCopies() {
 	for (int i = 0; i < length; i++) {
 		CompilationUnit copy = (CompilationUnit)copies[i];
 		try {
-			if (copy.owner != DefaultWorkingCopyOwner.PRIMARY
+			if (!copy.isPrimary()
 					|| copy.hasUnsavedChanges()
 					|| !copy.isBasedOn(copy.getResource())) {
 				if (result == null) {

@@ -49,7 +49,7 @@ protected char getHandleMementoDelimiter() {
  */
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
-	if (checkOwner && cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	if (checkOwner && cu.isPrimary()) return this;
 	return cu.getPackageDeclaration(fName);
 }
 /**

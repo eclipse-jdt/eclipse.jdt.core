@@ -652,7 +652,7 @@ public class JavaModelManager implements ISaveParticipant {
 			if (--info.useCount == 0) {
 				// create the delta builder (this remembers the current content of the working copy)
 				JavaElementDeltaBuilder deltaBuilder = null;
-				if (workingCopy.owner == DefaultWorkingCopyOwner.PRIMARY) {
+				if (workingCopy.isPrimary()) {
 					deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				}
 

@@ -672,7 +672,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		int elementType = element.getElementType();
 	
 		if (elementType == IJavaElement.COMPILATION_UNIT) {
-			if (isMove() && ((ICompilationUnit) element).isWorkingCopy())
+			CompilationUnit compilationUnit = (CompilationUnit)element;
+			if (isMove() && compilationUnit.isWorkingCopy() && !compilationUnit.isPrimary())
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 		} else if (elementType != IJavaElement.PACKAGE_FRAGMENT) {
 			error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);

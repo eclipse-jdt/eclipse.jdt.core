@@ -72,7 +72,7 @@ public IImportDeclaration getImport(String name) {
  */
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	CompilationUnit cu = (CompilationUnit)fParent;
-	if (checkOwner && cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	if (checkOwner && cu.isPrimary()) return this;
 	return cu.getImportContainer();
 }
 /**

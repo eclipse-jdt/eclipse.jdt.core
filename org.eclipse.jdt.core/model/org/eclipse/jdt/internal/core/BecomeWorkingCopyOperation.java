@@ -40,7 +40,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 		JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(workingCopy, this.path, true/*create if needed*/, true/*record usage*/, this.problemRequestor);
 		workingCopy.openWhenClosed(workingCopy.createElementInfo(), fMonitor);
 
-		if (workingCopy.owner != DefaultWorkingCopyOwner.PRIMARY) {
+		if (!workingCopy.isPrimary()) {
 			// report added java delta for a non-primary working copy
 			JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
 			delta.added(workingCopy);

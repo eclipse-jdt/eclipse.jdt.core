@@ -90,7 +90,7 @@ protected char getHandleMementoDelimiter() {
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
-		if (cu.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+		if (cu.isPrimary()) return this;
 	}
 	IJavaElement parent =fParent.getPrimaryElement(false);
 	return ((IType)parent).getField(fName);

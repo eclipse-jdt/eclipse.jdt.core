@@ -94,7 +94,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	}
 	
 	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
-	if (this.owner != DefaultWorkingCopyOwner.PRIMARY && getPerWorkingCopyInfo() == null) {
+	if (!isPrimary() && getPerWorkingCopyInfo() == null) {
 		throw newNotPresentException();
 	}
 
@@ -676,7 +676,7 @@ public IJavaElement getOriginalElement() {
  * @see ICompilationUnit#getOwner()
  */
 public WorkingCopyOwner getOwner() {
-	return this.owner == DefaultWorkingCopyOwner.PRIMARY || !isWorkingCopy() ? null : this.owner;
+	return isPrimary() || !isWorkingCopy() ? null : this.owner;
 }
 /**
  * @see ICompilationUnit#getPackageDeclaration(String)
@@ -727,7 +727,7 @@ public ICompilationUnit getPrimary() {
  * @see JavaElement#getPrimaryElement(boolean)
  */
 public IJavaElement getPrimaryElement(boolean checkOwner) {
-	if (checkOwner && this.owner == DefaultWorkingCopyOwner.PRIMARY) return this;
+	if (checkOwner && isPrimary()) return this;
 	return new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
@@ -812,7 +812,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
  * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
  */
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
-	if (this.owner != DefaultWorkingCopyOwner.PRIMARY) return this;
+	if (!isPrimary()) return this;
 	
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	
@@ -874,6 +874,9 @@ public boolean isOpen() {
 	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 	return info != null && ((CompilationUnitElementInfo)info).isOpen();
 }
+public boolean isPrimary() {
+	return this.owner == DefaultWorkingCopyOwner.PRIMARY;
+}
 /**
  * @see Openable#isSourceElement()
  */
@@ -901,7 +904,7 @@ protected boolean isValidCompilationUnit() {
 public boolean isWorkingCopy() {
 	// For backward compatibility, non primary working copies are always returning true; in removal
 	// delta, clients can still check that element was a working copy before being discarded.
-	return this.owner != DefaultWorkingCopyOwner.PRIMARY || getPerWorkingCopyInfo() != null;
+	return !isPrimary() || getPerWorkingCopyInfo() != null;
 }
 /**
  * @see IOpenable#makeConsistent(IProgressMonitor)
@@ -951,7 +954,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	if (buffer.getCharacters() == null) {
 		if (isWorkingCopy) {
 			ICompilationUnit original;
-			if (this.owner != DefaultWorkingCopyOwner.PRIMARY 
+			if (!isPrimary() 
 					&& (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen()) {
 				buffer.setContents(original.getSource());
 			} else {
@@ -1082,7 +1085,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	if (this.owner != DefaultWorkingCopyOwner.PRIMARY) {
+	if (!isPrimary()) {
 		buffer.append(this.tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$
 		buffer.append(getElementName());
