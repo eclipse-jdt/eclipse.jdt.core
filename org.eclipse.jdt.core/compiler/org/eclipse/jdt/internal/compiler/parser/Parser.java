@@ -2383,6 +2383,7 @@ protected void consumeMethodHeader() {
 	// recovery
 	if (currentElement != null){
 		if (currentToken == TokenNameSEMICOLON){
+			method.modifiers |= AccSemicolonBody;
 			method.declarationSourceEnd = scanner.currentPosition-1;
 			if (currentElement.parent != null){
 				currentElement = currentElement.parent;
