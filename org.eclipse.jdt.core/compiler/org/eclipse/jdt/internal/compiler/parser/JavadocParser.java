@@ -77,38 +77,37 @@ public class JavadocParser extends AbstractCommentParser {
 	
 				// scan line per line, since tags must be at beginning of lines only
 				nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
-					int start = line == firstLineNumber
+					int lineStart = line == firstLineNumber
 							? javadocStart + 3 // skip leading /**
 							: this.sourceParser.scanner.getLineStart(line);
-					this.index = start;
+					this.index = lineStart;
 					this.lineEnd = line == lastLineNumber
 							? javadocEnd - 2 // remove trailing * /
 							: this.sourceParser.scanner.getLineEnd(line);
-					while (this.index < this.lineEnd) {
-						char nextCharacter = readChar(); // consider unicodes
-						if  (nextCharacter == '@') {
-							if ((readChar() == 'd') &&
-								(readChar() == 'e') &&
-								(readChar() == 'p') &&
-								(readChar() == 'r') &&
-								(readChar() == 'e') &&
-								(readChar() == 'c') &&
-								(readChar() == 'a') &&
-								(readChar() == 't') &&
-								(readChar() == 'e') &&
-								(readChar() == 'd'))
-							{
-								// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-								nextCharacter = readChar();
-								if (Character.isWhitespace(nextCharacter) || nextCharacter == '*') {
-									return true;
-								}
-							} else {
-								break; // skip to next line
-							}
-						} else if (nextCharacter != '*' && !Character.isWhitespace(nextCharacter)) {
-							break; // skip to next line
+					nextCharacter : while (this.index < this.lineEnd) {
+						char c = readChar(); // consider unicodes
+						switch (c) {
+						    default : 
+						        if (Character.isWhitespace(c)) {
+						            continue nextCharacter;
+						        }
+						        break;
+						    case '*' :
+						        continue nextCharacter;
+						    case '@' :
+						        if ((readChar() == 'd') && (readChar() == 'e') &&
+										(readChar() == 'p') && (readChar() == 'r') &&
+										(readChar() == 'e') && (readChar() == 'c') &&
+										(readChar() == 'a') && (readChar() == 't') &&
+										(readChar() == 'e') && (readChar() == 'd')) {
+									// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+									c = readChar();
+									if (Character.isWhitespace(c) || c == '*') {
+										return true;
+									}
+						        }
 						}
+			        	continue nextLine;
 					}
 				}
 				return false;
