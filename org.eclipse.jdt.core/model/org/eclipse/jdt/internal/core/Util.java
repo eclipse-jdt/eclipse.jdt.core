@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -193,6 +194,28 @@ public static int compare(char[] v1, char[] v2) {
 		s2.getChars(0, l2, buf, l1);
 		return new String(buf);
 	}
+
+/**
+ * Returns whether the given full path (for a package) conflicts with the output location
+ * of the given project.
+ */
+public static boolean conflictsWithOutputLocation(IPath folderPath, JavaProject project) {
+	try {
+		IPath outputLocation = project.getOutputLocation();
+		if (outputLocation == null) {
+			// in doubt, there is a conflict
+			return true;
+		}
+		if (outputLocation.isPrefixOf(folderPath)) {
+			// only allow nesting in outputlocation if there is a corresponding source folder
+			return project.getClasspathEntryFor(outputLocation) == null;
+		}
+		return false;
+	} catch (JavaModelException e) {
+		// in doubt, there is a conflict
+		return true;
+	}
+}
 	/**
 	 * Concatenate three strings.
 	 * @see concat(String, String)
@@ -577,6 +600,24 @@ private static void quickSort(String[] sortedCollection, int left, int right) {
 	if (left < original_right) {
 		quickSort(sortedCollection, left, original_right);
 	}
+}
+/**
+ * Converts the given relative path into a package name.
+ * Returns null if the path is not a valid package name.
+ */
+public static String packageName(IPath pkgPath) {
+	StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
+		String segment = pkgPath.segment(j);
+		if (segment.indexOf('.') >= 0) {
+			return null;
+		}
+		pkgName.append(segment);
+		if (j < pkgPath.segmentCount() - 1) {
+			pkgName.append("." ); //$NON-NLS-1$
+		}
+	}
+	return pkgName.toString();
 }
 /**
  * Sort the comparable objects in the given collection.

@@ -5,15 +5,21 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 
-import org.eclipse.core.resources.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
-
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
@@ -21,13 +27,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
-import org.eclipse.jdt.internal.core.search.indexing.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * This class is used by <code>JavaModelManager</code> to convert
@@ -37,7 +37,7 @@ import java.util.Iterator;
  */
 public class DeltaProcessor {
 	
-	static final IClasspathEntry[] UNKNOWN_CLASSPATH = new IClasspathEntry[] {};
+
 	
 	/**
 	 * The <code>JavaElementDelta</code> corresponding to the <code>IResourceDelta</code> being translated.
@@ -47,6 +47,18 @@ public class DeltaProcessor {
 	protected IndexManager indexManager =
 		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
 		
+	/* A table from IPath (from a classpath entry) to IJavaProject */
+	HashMap roots;
+	
+	/* A table from IPath (from a classpath entry) to HashSet of IJavaProject
+	 * Used when an IPath corresponds to more than one root */
+	HashMap otherRoots;
+	
+	/* The java element that was last created (see createElement(IResource). 
+	 * This is used as a stack of java elements (using getParent() to pop it, and 
+	 * using the various get*(...) to push it. */
+	Openable currentElement;
+	
 	HashSet projectsToUpdate = new HashSet();
 
 	public static boolean VERBOSE = false;
@@ -67,48 +79,7 @@ public class DeltaProcessor {
 		}
 	}
 
-	/**
-	 * Generic processing for an element that has been added:<ul>
-	 * <li>The element is added to its parent's cache of children
-	 * <li>The element is closed (to ensure consistency)
-	 * <li>An entry is made in the delta reporting it as added (ADDED).
-	 * </ul>
-	 * <p>
-	 * If the element is an archive, and it has just been added, it may not be specified
-	 * on the project's classpath. In this case, the new element is not added as a child
-	 * of its parent (since only package fragment roots on the classpath are considered to
-	 * be children of a project).
-	 */
-	protected void basicElementAdded(Openable element, IResourceDelta delta) {
 
-		if (isOpen(delta.getResource())) {
-
-			switch (element.getElementType()) {
-				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-					// when a root is added, and is on the classpath, the project must be updated
-					this.projectsToUpdate.add(element.getJavaProject());
-					//updateProject(project);
-					//try {
-					//	project.getJavaProjectElementInfo().setNameLookup(null);
-					//} catch (JavaModelException e) {
-					//}
-					break;
-				case IJavaElement.PACKAGE_FRAGMENT :
-					addToParentInfo(element);
-					JavaProject project = (JavaProject) element.getJavaProject();
-					try {
-						project.getJavaProjectElementInfo().setNameLookup(null);
-					} catch (JavaModelException e) {
-					}
-					break;
-				default:
-					addToParentInfo(element);
-			}
-
-			close(element);
-			fCurrentDelta.added(element);
-		}
-	}
 
 	/**
 	 * Check whether the updated file is affecting some of the properties of a given project (like
@@ -282,56 +253,73 @@ public class DeltaProcessor {
 	/**
 	 * Creates the openables corresponding to this resource.
 	 * Returns null if none was found.
-	 * In general, there is only one openable corresponding to a resource,
-	 * except for jar and zip files that can correspond to one or more
-	 * JarPackageFragmentRoots.
 	 */
-	protected Openable[] createElements(IResource resource) {
-
-		if (resource == null)
-			return null;
-		String extension = resource.getFileExtension();
-		extension = extension == null ? null : extension.toLowerCase();
-		if ("jar".equals(extension) //$NON-NLS-1$
-			|| "zip".equals(extension)) { //$NON-NLS-1$ 
-			IJavaProject[] projects = null;
-			try {
-				projects =
-					JavaModelManager.getJavaModel(resource.getWorkspace()).getJavaProjects();
-			} catch (JavaModelException e) {
-				return null;
-			}
-			ArrayList jars = new ArrayList();
-			for (int i = 0, length = projects.length; i < length; i++) {
-				IJavaProject project = projects[i];
-				// Create a jar package fragment root only if on the classpath
-				IPath resourcePath = resource.getFullPath();
-				try {
-					IClasspathEntry[] entries = project.getResolvedClasspath(true);
-					for (int j = 0, length2 = entries.length; j < length2; j++) {
-						IClasspathEntry entry = entries[j];
-						IPath rootPath = entry.getPath();
-						if (rootPath.equals(resourcePath)) {
-							jars.add(project.getPackageFragmentRoot((IFile) resource));
-						}
+	protected Openable createElement(IResource resource, int elementType) {
+		if (resource == null) return null;
+		
+		// find the element that encloses the resource
+		IPath path = resource.getFullPath();
+		this.popUntilPrefixOf(path);
+		
+		IJavaElement element = null;
+		if (this.currentElement != null) {
+			switch (elementType) {
+				case IJavaElement.JAVA_PROJECT:
+					element = JavaCore.create((IProject)resource);
+					break;
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+					element = this.currentElement.getJavaProject().getPackageFragmentRoot(resource);
+					break;
+				case IJavaElement.PACKAGE_FRAGMENT:
+					IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
+					if (root != null && !Util.conflictsWithOutputLocation(path, (JavaProject)root.getJavaProject())) {
+						IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
+						String pkg = Util.packageName(pkgPath);
+						if (pkg == null) return null;
+						element = root.getPackageFragment(pkg);
 					}
-				} catch (JavaModelException e) {
-				}
-			}
-			int size = jars.size();
-			if (size == 0)
-				return null;
-			Openable[] result = new Openable[size];
-			jars.toArray(result);
-			return result;
-		} else {
-			Openable element = (Openable) JavaCore.create(resource);
-			if (element == null) {
-				return null;
-			} else {
-				return new Openable[] { element };
+					break;
+				case IJavaElement.COMPILATION_UNIT:
+					IPackageFragment pkgFragment = null;
+					switch (this.currentElement.getElementType()) {
+						case IJavaElement.PACKAGE_FRAGMENT:
+							pkgFragment = (IPackageFragment)this.currentElement;
+							break;
+						case IJavaElement.COMPILATION_UNIT:
+						case IJavaElement.CLASS_FILE:
+							pkgFragment = (IPackageFragment)this.currentElement.getParent();
+							break;
+					}
+					if (pkgFragment != null) {
+						String fileName = path.lastSegment();
+						if (!Util.isValidCompilationUnitName(fileName)) return null;
+						element = pkgFragment.getCompilationUnit(fileName);
+					}
+					break;
+				case IJavaElement.CLASS_FILE:
+					pkgFragment = null;
+					switch (this.currentElement.getElementType()) {
+						case IJavaElement.PACKAGE_FRAGMENT:
+							pkgFragment = (IPackageFragment)this.currentElement;
+							break;
+						case IJavaElement.COMPILATION_UNIT:
+						case IJavaElement.CLASS_FILE:
+							pkgFragment = (IPackageFragment)this.currentElement.getParent();
+							break;
+					}
+					if (pkgFragment != null) {
+						String fileName = path.lastSegment();
+						if (!Util.isValidClassFileName(fileName)) return null;
+						element = pkgFragment.getClassFile(fileName);
+					}
+					break;
 			}
 		}
+		if (element == null) {
+			element = JavaCore.create(resource);
+		}
+		this.currentElement = (Openable)element;
+		return this.currentElement;
 	}
 
 	/**
@@ -344,15 +332,50 @@ public class DeltaProcessor {
 	 * </ul>
 	 */
 	protected void elementAdded(Openable element, IResourceDelta delta) {
-
-		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
+		int elementType = element.getElementType();
+		if (elementType == IJavaElement.JAVA_PROJECT) {
 			// project add is handled by JavaProject.configure() because
 			// when a project is created, it does not yet have a java nature
 			if (hasJavaNature(delta.getResource())) {
-				basicElementAdded(element, delta);
+				addToParentInfo(element);
+				fCurrentDelta.added(element);
 			}
 		} else {
-			basicElementAdded(element, delta);
+			addToParentInfo(element);
+			fCurrentDelta.added(element);
+			
+			switch (elementType) {
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+					// when a root is added, and is on the classpath, the project must be updated
+					this.projectsToUpdate.add(element.getJavaProject());
+					element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
+					// don't break as subpackages must be added too
+				case IJavaElement.PACKAGE_FRAGMENT :
+					// get rid of namelookup since it holds onto obsolete cached info 
+					JavaProject project = (JavaProject) element.getJavaProject();
+					try {
+						project.getJavaProjectElementInfo().setNameLookup(null);
+					} catch (JavaModelException e) {
+					}
+					// add subpackages
+					PackageFragmentRoot root = element.getPackageFragmentRoot();
+					String name = element.getElementName();
+					IResourceDelta[] children = delta.getAffectedChildren();
+					for (int i = 0, length = children.length; i < length; i++) {
+						IResourceDelta child = children[i];
+						IResource resource = child.getResource();
+						if (resource instanceof IFolder) {
+							String subpkgName = 
+								name.length() == 0 ? 
+									resource.getName() : 
+									name + "." + resource.getName(); //$NON-NLS-1$
+							Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
+							this.updateIndex(subpkg, child);
+							this.elementAdded(subpkg, child);
+						}
+					}
+					break;
+			}
 		}
 	}
 
@@ -392,7 +415,7 @@ public class DeltaProcessor {
 		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
 			// treat project opening as addition
 			if (hasJavaNature(delta.getResource())) {
-				basicElementAdded(element, delta);
+				elementAdded(element, delta);
 			}
 		} else {
 			addToParentInfo(element);
@@ -414,13 +437,18 @@ public class DeltaProcessor {
 		fCurrentDelta.removed(element);
 
 		switch (element.getElementType()) {
+			case IJavaElement.JAVA_MODEL :
+				element.getJavaModelManager().getIndexManager().reset();
+				element.getJavaModelManager().fModelInfo = null;
+				break;
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager.getJavaModelManager().removePerProjectInfo(
 					(JavaProject) element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				this.projectsToUpdate.add(element.getJavaProject());
-				break;
+				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
+				// don't break so that subpackages are also removed
 			case IJavaElement.PACKAGE_FRAGMENT :
 				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
 				JavaProject project = (JavaProject) element.getJavaProject();
@@ -428,10 +456,23 @@ public class DeltaProcessor {
 					project.getJavaProjectElementInfo().setNameLookup(null);
 				} catch (JavaModelException e) {
 				}
-				break;
-			case IJavaElement.JAVA_MODEL :
-				element.getJavaModelManager().getIndexManager().reset();
-				element.getJavaModelManager().fModelInfo = null;
+				// remove subpackages
+				PackageFragmentRoot root = element.getPackageFragmentRoot();
+				String name = element.getElementName();
+				IResourceDelta[] children = delta.getAffectedChildren();
+				for (int i = 0, length = children.length; i < length; i++) {
+					IResourceDelta child = children[i];
+					IResource resource = child.getResource();
+					if (resource instanceof IFolder) {
+						String subpkgName = 
+							name.length() == 0 ? 
+								resource.getName() : 
+								name + "." + resource.getName(); //$NON-NLS-1$
+						Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
+						this.updateIndex(subpkg, child);
+						this.elementRemoved(subpkg, child);
+					}
+				}
 				break;
 		}
 	}
@@ -482,6 +523,42 @@ public class DeltaProcessor {
 		}
 		return false;
 	}
+private void initializeRoots() {
+	this.roots = new HashMap();
+	this.otherRoots = new HashMap();
+	IJavaProject[] projects;
+	try {
+		projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+	} catch (JavaModelException e) {
+		// nothing can be done
+		return;
+	}
+	for (int i = 0, length = projects.length; i < length; i++) {
+		IJavaProject project = projects[i];
+		IClasspathEntry[] classpath;
+		try {
+			classpath = project.getResolvedClasspath(true);
+		} catch (JavaModelException e) {
+			// continue with next project
+			continue;
+		}
+		for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
+			IClasspathEntry entry = classpath[j];
+			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+			IPath path = entry.getPath();
+			if (this.roots.get(path) == null) {
+				this.roots.put(path, project);
+			} else {
+				HashSet set = (HashSet)this.otherRoots.get(path);
+				if (set == null) {
+					set = new HashSet();
+					this.otherRoots.put(path, set);
+				}
+				set.add(project);
+			}
+		}
+	}
+}
 
 	/**
 	 * Returns true if the given resource is considered open (in the
@@ -507,27 +584,30 @@ public class DeltaProcessor {
 	protected void nonJavaResourcesChanged(Openable element, IResourceDelta delta)
 		throws JavaModelException {
 
-		JavaElementInfo info = element.getElementInfo();
-		switch (element.getElementType()) {
-			case IJavaElement.JAVA_PROJECT :
-				IResource resource = delta.getResource();
-				((JavaProjectElementInfo) info).setNonJavaResources(null);
-
-				// if a package fragment root is the project, clear it too
-				PackageFragmentRoot projectRoot =
-					(PackageFragmentRoot) ((JavaProject) element).getPackageFragmentRoot(
-						new Path(IPackageFragment.DEFAULT_PACKAGE_NAME));
-				if (projectRoot.isOpen()) {
-					((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(
-						null);
-				}
-				break;
-			case IJavaElement.PACKAGE_FRAGMENT :
-				 ((PackageFragmentInfo) info).setNonJavaResources(null);
-				break;
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-				 ((PackageFragmentRootInfo) info).setNonJavaResources(null);
-		};
+		// reset non-java resources if element was open
+		if (element.isOpen()) {
+			JavaElementInfo info = element.getElementInfo();
+			switch (element.getElementType()) {
+				case IJavaElement.JAVA_PROJECT :
+					IResource resource = delta.getResource();
+					((JavaProjectElementInfo) info).setNonJavaResources(null);
+	
+					// if a package fragment root is the project, clear it too
+					PackageFragmentRoot projectRoot =
+						(PackageFragmentRoot) ((JavaProject) element).getPackageFragmentRoot(
+							new Path(IPackageFragment.DEFAULT_PACKAGE_NAME));
+					if (projectRoot.isOpen()) {
+						((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(
+							null);
+					}
+					break;
+				case IJavaElement.PACKAGE_FRAGMENT :
+					 ((PackageFragmentInfo) info).setNonJavaResources(null);
+					break;
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+					 ((PackageFragmentRootInfo) info).setNonJavaResources(null);
+			}
+		}
 
 		JavaElementDelta elementDelta = fCurrentDelta.find(element);
 		if (elementDelta == null) {
@@ -535,6 +615,29 @@ public class DeltaProcessor {
 			elementDelta = fCurrentDelta.find(element);
 		}
 		elementDelta.addResourceDelta(delta);
+	}
+	private void popUntilPrefixOf(IPath path) {
+		while (this.currentElement != null) {
+			IPath currentElementPath = null;
+			if (this.currentElement instanceof IPackageFragmentRoot) {
+				currentElementPath = ((IPackageFragmentRoot)this.currentElement).getPath();
+			} else {
+				IResource currentElementResource = null;
+				try {
+					currentElementResource = this.currentElement.getUnderlyingResource();
+				} catch (JavaModelException e) {
+				}
+				if (currentElementResource != null) {
+					currentElementPath = currentElementResource.getFullPath();
+				}
+			}
+			if (currentElementPath != null 
+				&& currentElementPath.isPrefixOf(path)) {
+					return;
+			} else {
+				this.currentElement = (Openable)this.currentElement.getParent();
+			}
+		}
 	}
 
 	/**
@@ -545,6 +648,8 @@ public class DeltaProcessor {
 	public IJavaElementDelta[] processResourceDelta(IResourceDelta changes) {
 
 		try {
+			this.initializeRoots();
+			
 			// get the workspace delta, and start processing there.
 			IResourceDelta[] deltas = changes.getAffectedChildren();
 			IJavaElementDelta[] translatedDeltas = new JavaElementDelta[deltas.length];
@@ -554,15 +659,15 @@ public class DeltaProcessor {
 					JavaModelManager.getJavaModel(delta.getResource().getWorkspace());
 				if (model != null) {
 					fCurrentDelta = new JavaElementDelta(model);
-					traverseDelta(delta, UNKNOWN_CLASSPATH); // traverse delta
+					traverseDelta(delta, IJavaElement.JAVA_MODEL); // traverse delta
 					translatedDeltas[i] = fCurrentDelta;
 				}
 			}
 			
 			// update package fragment roots of projects that were affected
-			Iterator iter = this.projectsToUpdate.iterator();
-			while (iter.hasNext()) {
-				JavaProject project = (JavaProject)iter.next();
+			Iterator iterator = this.projectsToUpdate.iterator();
+			while (iterator.hasNext()) {
+				JavaProject project = (JavaProject)iterator.next();
 				project.updatePackageFragmentRoots();
 			}
 	
@@ -576,64 +681,31 @@ public class DeltaProcessor {
  * Update the current delta (ie. add/remove/change the given element) and update the correponding index.
  * Returns whether the children of the given delta must be processed.
  */
-private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) {
+private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType) {
+	Openable element;
 	switch (delta.getKind()) {
 		case IResourceDelta.ADDED :
+			element = this.createElement(delta.getResource(), elementType);
+			if (element == null) return false;
 			updateIndex(element, delta);
 			elementAdded(element, delta);
-			if (element instanceof IPackageFragmentRoot) {
-				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
-			}
-			if (element instanceof IPackageFragment) {
-				// add subpackages
-				PackageFragmentRoot root = element.getPackageFragmentRoot();
-				String name = element.getElementName();
-				IResourceDelta[] children = delta.getAffectedChildren();
-				for (int i = 0, length = children.length; i < length; i++) {
-					IResourceDelta child = children[i];
-					IResource resource = child.getResource();
-					if (resource instanceof IFolder) {
-						String subpkgName = 
-							name.length() == 0 ? 
-								resource.getName() : 
-								name + "." + resource.getName(); //$NON-NLS-1$
-						Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
-						this.updateCurrentDeltaAndIndex(subpkg, child);
-					}
-				}
-			}
 			return false;
 		case IResourceDelta.REMOVED :
+			element = this.createElement(delta.getResource(), elementType);
+			if (element == null) return false;
 			updateIndex(element, delta);
 			elementRemoved(element, delta);
-			if (element instanceof IPackageFragmentRoot) {
-				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
-			}
-			if (element instanceof IPackageFragment) {
-				// remove subpackages
-				PackageFragmentRoot root = element.getPackageFragmentRoot();
-				String name = element.getElementName();
-				IResourceDelta[] children = delta.getAffectedChildren();
-				for (int i = 0, length = children.length; i < length; i++) {
-					IResourceDelta child = children[i];
-					IResource resource = child.getResource();
-					if (resource instanceof IFolder) {
-						String subpkgName = 
-							name.length() == 0 ? 
-								resource.getName() : 
-								name + "." + resource.getName(); //$NON-NLS-1$
-						Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
-						this.updateCurrentDeltaAndIndex(subpkg, child);
-					}
-				}
-			}
 			return false;
 		case IResourceDelta.CHANGED :
 			int flags = delta.getFlags();
 			if ((flags & IResourceDelta.CONTENT) != 0) {
+				element = this.createElement(delta.getResource(), elementType);
+				if (element == null) return false;
 				updateIndex(element, delta);
 				contentChanged(element, delta);
 			} else if ((flags & IResourceDelta.OPEN) != 0) {
+				element = this.createElement(delta.getResource(), elementType);
+				if (element == null) return false;
 				updateIndex(element, delta);
 				if (isOpen(delta.getResource())) {
 					elementOpened(element, delta);
@@ -673,40 +745,57 @@ private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delt
 	 * it will be computed if the resource corresponds to a Java project.
 	 * Return whether the delta corresponds to a resource on the classpath.
 	 */
-	protected boolean traverseDelta(IResourceDelta delta, IClasspathEntry[] classpath) {
+	protected boolean traverseDelta(IResourceDelta delta, int parentType) {
 
 		IResource res = delta.getResource();
-		boolean isOnClasspath = this.isOnClasspath(classpath, res);
 		
-		Openable element = null;
-		boolean processChildren = true;
-		JavaProject project = null;
-		if (isOnClasspath) {
-			Openable[] elements = this.createElements(res);
-			if (elements != null) {
-				for (int i = 0, length = elements.length; i < length; i++) {
-					element = elements[i];
-					processChildren = this.updateCurrentDeltaAndIndex(element, delta);
+		// check if current resource is now on classpath and determine the element type
+		boolean isOnClasspath = false;
+		int elementType = -1;
+		switch (parentType) {
+			case IJavaElement.JAVA_MODEL:
+			case IJavaElement.JAVA_PROJECT:
+				isOnClasspath = this.isOnClasspath(res.getFullPath());
+				if (isOnClasspath) {
+					elementType = IJavaElement.PACKAGE_FRAGMENT_ROOT;
+				} else {
+					elementType = IJavaElement.JAVA_PROJECT; // not yet in a package fragment root
 				}
-			} else {
-				return false;
-			}
+				break;
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+			case IJavaElement.PACKAGE_FRAGMENT:
+				isOnClasspath = true;
+				if (res instanceof IFolder) {
+					elementType = IJavaElement.PACKAGE_FRAGMENT;
+				} else {
+					String extension = res.getFileExtension();
+					if ("java".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+						elementType = IJavaElement.COMPILATION_UNIT;
+					} else if ("class".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+						elementType = IJavaElement.CLASS_FILE;
+					}
+				}
+				break;
+		}						
+		
+		boolean processChildren = true;
+		if (isOnClasspath) {
+			processChildren = this.updateCurrentDeltaAndIndex(delta, elementType);
 		} else {
 			if (res instanceof IProject) {
-				project = (JavaProject)JavaCore.getJavaCore().create((IProject)res);
-				if (project == null) return false; // not a Java project
-				processChildren = this.updateCurrentDeltaAndIndex(project, delta);
+				try {
+					if (this.isOpen(res) && !((IProject)res).hasNature(JavaCore.NATURE_ID)) return false; // non java project
+				} catch (CoreException e) {
+					return false;
+				}
+				processChildren = this.updateCurrentDeltaAndIndex(delta, elementType);
 				if (delta.getKind() != IResourceDelta.CHANGED 
 						|| (delta.getFlags() & IResourceDelta.OPEN) != 0) {
 					return false; // don't go deeper for added, removed, opened or closed projects
 				}
-				try {
-					classpath = project.getExpandedClasspath(true);
-				} catch (JavaModelException e) {
-				}
 			} else {
-				// if classpath is known, we are for sure out of classpath: stop processing children
-				processChildren = classpath != null;
+				// not yet inside a package fragment root
+				processChildren = true;
 			}
 		}
 		if (processChildren) {
@@ -714,11 +803,16 @@ private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delt
 			boolean oneChildOnClasspath = false;
 			int length = children.length;
 			IResourceDelta[] orphanChildren = new IResourceDelta[length];
+			Openable element = null;
 			for (int i = 0; i < length; i++) {
 				IResourceDelta child = children[i];
-				if (!traverseDelta(child, isOnClasspath ? null : classpath)) {
+				if (!traverseDelta(child, elementType)) {
 					try {
 						if (isOnClasspath) { 
+							if (element == null) {
+								element = this.createElement(res, elementType);
+								if (element == null) continue;
+							}
 							// add child as non java resource if current element on classpath
 							nonJavaResourcesChanged(element, child);
 						} else {
@@ -730,40 +824,31 @@ private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delt
 					oneChildOnClasspath = true;
 				}
 			}
-			if (oneChildOnClasspath || project != null) {
+			if (oneChildOnClasspath || res instanceof IProject) {
 				// add orphan children (case of non java resources under project)
-				if (project == null) {
-					project = (JavaProject)JavaCore.getJavaCore().create(res.getProject());
-				}
-				for (int i = 0; i < length; i++) {
-					if (orphanChildren[i] != null) {
-						try {
-							nonJavaResourcesChanged(project, orphanChildren[i]);
-						} catch (JavaModelException e) {
+				JavaProject project = (JavaProject)JavaCore.getJavaCore().create(res.getProject());
+				if (project != null) {
+					for (int i = 0; i < length; i++) {
+						if (orphanChildren[i] != null) {
+							try {
+								nonJavaResourcesChanged(project, orphanChildren[i]);
+							} catch (JavaModelException e) {
+							}
 						}
 					}
 				}
 			} // else resource delta will be added by parent
 			return isOnClasspath || oneChildOnClasspath;
 		} else {
-			return isOnClasspath && element != null; // element is null if non-java resource in package
+			return 
+				isOnClasspath 
+					&& (elementType == IJavaElement.COMPILATION_UNIT 
+						|| elementType == IJavaElement.CLASS_FILE);
 		}
 	}
 	
-private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
-	IPath path = res.getFullPath();
-	if (classpath == null) {
-		return true;
-	} else if (classpath == UNKNOWN_CLASSPATH) {
-		return false;
-	} else {
-		for (int i = 0, length = classpath.length; i < length; i++) {
-			if (classpath[i].getPath().isPrefixOf(path)) {
-				return true;
-			}
-		}
-		return false;
-	}
+private boolean isOnClasspath(IPath path) {
+	return this.roots.get(path) != null;
 }
 
 protected void updateIndex(Openable element, IResourceDelta delta) {

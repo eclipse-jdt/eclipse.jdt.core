@@ -203,28 +203,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (project == null)
 			return null;
 		IJavaElement element = determineIfOnClasspath(folder, project);
-		try {
-			IPath outputLocation = project.getOutputLocation();
-			if (outputLocation == null)
-				return null;
-			if (outputLocation.isPrefixOf(folder.getFullPath())) {
-				if (project.getClasspathEntryFor(outputLocation) != null) {
-					// if the output location is the same as an input location, return the element
-					return element;
-				} else {
-					// otherwise, do not create elements for folders in the output location
-					return null;
-				}
-			} else {
-				if (folder.getName().indexOf('.') >= 0 && !(element instanceof IPackageFragmentRoot)) {
-					return null; // only package fragment roots are allowed with dot names
-				}
-
-				return element;
-			}
-		} catch (JavaModelException e) {
+		if (Util.conflictsWithOutputLocation(folder.getFullPath(), project)
+		 	|| (folder.getName().indexOf('.') >= 0 
+		 		&& !(element instanceof IPackageFragmentRoot))) {
+			return null; // only package fragment roots are allowed with dot names
+		} else {
+			return element;
 		}
-		return null;
 	}
 	/**
 	 * Returns the Java project corresponding to the given project, or
@@ -370,18 +355,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						// is the file name in the package
 						pkgPath = pkgPath.removeLastSegments(1);
 					}
-					StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
-					for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
-						String segment = pkgPath.segment(j);
-						if (segment.indexOf('.') >= 0) {
-							return null;
-						}
-						pkgName.append(segment);
-						if (j < pkgPath.segmentCount() - 1) {
-							pkgName.append("." ); //$NON-NLS-1$
-						}
-					}
-					if (!JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
+					String pkgName = Util.packageName(pkgPath);
+					if (pkgName == null
+						|| !JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
 						return null;
 					}
 					return root.getPackageFragment(pkgName.toString());
