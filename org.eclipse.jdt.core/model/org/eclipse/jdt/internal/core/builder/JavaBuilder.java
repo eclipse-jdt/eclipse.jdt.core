@@ -451,7 +451,7 @@ private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throw
 	if (classpath == JavaProject.INVALID_CLASSPATH) // the .classpath file could not be read
 		return true;
 
-	IMarker[] markers = p.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+	IMarker[] markers = p.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	for (int i = 0, l = markers.length; i < l; i++)
 		if (((Integer) markers[i].getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_ERROR)
 			return true;
