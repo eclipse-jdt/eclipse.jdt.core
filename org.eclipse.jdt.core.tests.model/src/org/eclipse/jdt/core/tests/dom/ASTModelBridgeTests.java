@@ -340,4 +340,26 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a parameter type is correct.
+	 * (regression test for bug 78930 ITypeBinding#getJavaElement() throws NPE for type variable)
+	 */
+	public void testTypeParameter() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X</*start*/T/*end*/> {\n" +
+			"}"
+		);
+		IBinding binding = ((TypeParameter) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"<T> [in X [in [Working copy] X.java [in <default> [in <project root> [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+
 }

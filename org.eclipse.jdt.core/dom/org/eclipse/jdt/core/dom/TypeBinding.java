@@ -31,7 +31,9 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -345,6 +347,16 @@ class TypeBinding implements ITypeBinding {
 				// does not exist
 				return null;
 			}
+		} else if (referenceBinding.isTypeVariable()) {
+			// type parameter
+			Binding declaringElement = ((TypeVariableBinding) referenceBinding).declaringElement;
+			IBinding declaringTypeBinding = null;
+			if (declaringElement instanceof MethodBinding)
+				declaringTypeBinding = this.resolver.getMethodBinding((MethodBinding) declaringElement);
+			else
+				declaringTypeBinding = this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement);
+			IType declaringType = (IType) declaringTypeBinding.getJavaElement();
+			return declaringType.getTypeParameter(new String(referenceBinding.sourceName()));
 		} else {
 			// member or top level type
 			ITypeBinding declaringTypeBinding = getDeclaringClass();
