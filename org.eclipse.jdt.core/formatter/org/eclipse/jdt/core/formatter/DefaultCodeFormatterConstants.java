@@ -156,7 +156,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #createAlignmentValue(boolean, int, int)
 	 * @since 3.1
 	 */
-	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ENUM_CONSTANT = JavaCore.PLUGIN_ID + ".formatter.alignment_for_enum_constants";	 //$NON-NLS-1$
+	public static final String FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_enum_constants";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of expressions in array initializer
