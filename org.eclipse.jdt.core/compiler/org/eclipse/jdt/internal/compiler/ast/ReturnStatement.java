@@ -211,29 +211,28 @@ public class ReturnStatement extends Statement {
 			return;
 		}
 		expression.setExpectedType(methodType); // needed in case of generic method invocation
-		if ((expressionType = expression.resolveType(scope)) == null)
+		if ((expressionType = expression.resolveType(scope)) == null) return;
+		if (expressionType == VoidBinding) {
+			scope.problemReporter().attemptToReturnVoidValue(this);
+			return;
+		}
+		if (methodType == null) 
 			return;
 	
 		if (expressionType.isRawType() && (methodType.isParameterizedType() || methodType.isGenericType())) {
 		    scope.problemReporter().unsafeRawReturnValue(this.expression, expressionType, methodType);
 		}
 		
-		if (methodType != null && expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
+		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
 			// dealing with constant
 			expression.computeConversion(scope, methodType, expressionType);
 			return;
 		}
-		if (expressionType == VoidBinding) {
-			scope.problemReporter().attemptToReturnVoidValue(this);
-			return;
-		}
-		if (methodType != null && expressionType.isCompatibleWith(methodType)) {
+		if (expressionType.isCompatibleWith(methodType)) {
 			expression.computeConversion(scope, methodType, expressionType);
 			return;
 		}
-		if (methodType != null){
-			scope.problemReporter().typeMismatchError(expressionType, methodType, expression);
-		}
+		scope.problemReporter().typeMismatchError(expressionType, methodType, expression);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
