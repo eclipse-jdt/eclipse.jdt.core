@@ -34,7 +34,7 @@ protected Map getCompilerOptions() {
 public static Test suite() {
 	return setupSuite(testClass());
 }
-public void _test001() { // TODO reenable once generics are supported
+public void test001() { // TODO reenable once parameterized supertypes are supported
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -55,7 +55,7 @@ public void _test001() { // TODO reenable once generics are supported
 		"SUCCESS");
 }
 
-public void _test002() { // TODO reenable once generics are supported
+public void test002() { // TODO reenable once parameterized supertypes are supported
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -246,6 +246,7 @@ public void test009() {
 		"----------\n");
 }
 
+// TODO reenable once wildcards are supported
 public void _test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -265,6 +266,7 @@ public void _test010() {
 		"----------\n");
 }
 
+// TODO reenable once wildcards are supported
 public void _test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -971,129 +973,60 @@ public void test039() {
 		"Duplicate method foo(L) in type X\n" + 
 		"----------\n");
 }
-//public void test028() {
-//	this.runConformTest(
-//		new String[] {
-//			"X.java",
-//			"public class X <T> {\n" + 
-//			"    T foo(T t) {\n" + 
-//			"        System.out.println(t);\n" + 
-//			"        return t;\n" + 
-//			"    }\n" + 
-//			"    public static void main(String[] args) {\n" + 
-//			"        new X<XY>() {\n" + 
-//			"            void run() {\n" + 
-//			"                foo(new XY());\n" + 
-//			"            }\n" + 
-//			"        }.run();\n" + 
-//			"    }\n" + 
-//			"}\n" + 
-//			"class XY {\n" + 
-//			"    public String toString() {\n" + 
-//			"        return \"SUCCESS\";\n" + 
-//			"    }\n" + 
-//			"}\n",
-//		},
-//		"SUCCESS");
-//}
-//public void test019() {
-//	this.runNegativeTest(
-//		new String[] {
-//			"X.java",
-//			"public class X <T> {\n" + 
-//			"     private T foo(T t) {\n" + 
-//			"        System.out.println(t);\n" + 
-//			"        return t;\n" + 
-//			"    }\n" + 
-//			"    public static void main(String[] args) {\n" + 
-//			"        new X<XY>() {\n" + 
-//			"            void run() {\n" + 
-//			"                foo(new XY());\n" + 
-//			"            }\n" + 
-//			"        }.run();\n" + 
-//			"    }\n" + 
-//			"}\n" + 
-//			"class XY {\n" + 
-//			"    public String toString() {\n" + 
-//			"        return \"SUCCESS\";\n" + 
-//			"    }\n" + 
-//			"}",
-//		},
-//		// TODO (philippe) should eliminate 1st diagnosis, as foo is still used even if incorrectly
-//		"----------\n" + 
-//		"1. WARNING in X.java (at line 2)\n" + 
-//		"	private T foo(T t) {\n" + 
-//		"	          ^^^^^^^^\n" + 
-//		"The private method foo(T) from the type X<T> is never used locally\n" + 
-//		"----------\n" + 
-//		"2. ERROR in X.java (at line 9)\n" + 
-//		"	foo(new XY());\n" + 
-//		"	^^^\n" + 
-//		"The method foo(T) in the type X<T> is not applicable for the arguments (XY)\n" + 
-//		"----------\n");
-//}
-//public void test020() {
-//	this.runNegativeTest(
-//		new String[] {
-//			"X.java",
-//			"public class X <T> {\n" + 
-//			"     void foo(Y<T> y) {\n" + 
-//			"		System.out.print(\"SUCC\");\n" + 
-//			"    }\n" + 
-//			"    public static void main(String[] args) {\n" + 
-//			"        new X<String>().bar();\n" + 
-//			"    }\n" + 
-//			"    void bar() {\n" + 
-//			"        new Y<T>() {\n" + 
-//			"            public void pre() {\n" + 
-//			"                foo(this);\n" + 
-//			"            }\n" + 
-//			"        }.print(\"ESS\");\n" + 
-//			"    }\n" + 
-//			"}\n" + 
-//			"class Y <P> {\n" + 
-//			"	public void print(P p) {\n" + 
-//			"		pre();\n" + 
-//			"		System.out.println(p);\n" + 
-//			"	}\n" + 
-//			"	public void pre() {\n" + 
-//			"	}\n" + 
-//			"}",
-//		},
-//		"----------\n" + 
-//		"1. ERROR in X.java (at line 13)\n" + 
-//		"	}.print(\"ESS\");\n" + 
-//		"	  ^^^^^\n" + 
-//		"The method print(T) in the type Y<T> is not applicable for the arguments (String)\n" + 
-//		"----------\n");
-//}
-//public void test021() {
-//	this.runNegativeTest(
-//		new String[] {
-//			"X.java",
-//			"public class X <T extends String> {\n" + 
-//			"    void foo(T t) {\n" + 
-//			"    }\n" + 
-//			"    void bar(String x) {\n" + 
-//			"        foo(x);\n" + 
-//			"    }\n" + 
-//			"    public static void main(String[] args) {\n" + 
-//			"        new X<String>().foo(new Object());\n" + 
-//			"    }\n" + 
-//			"}\n",
-//		},
-//		"----------\n" + 
-//		"1. ERROR in X.java (at line 5)\n" + 
-//		"	foo(x);\n" + 
-//		"	^^^\n" + 
-//		"The method foo(T) in the type X<T> is not applicable for the arguments (String)\n" + 
-//		"----------\n" + 
-//		"2. ERROR in X.java (at line 8)\n" + 
-//		"	new X<String>().foo(new Object());\n" + 
-//		"	                ^^^\n" + 
-//		"The method foo(String) in the type X<String> is not applicable for the arguments (Object)\n" + 
-//		"----------\n");
-//}
+
+// TODO (kent) reenable once supported
+public void _test040() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends X> {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }    \n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}	
+
+// TODO (kent) reenable once supported
+public void _test041() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T, U extends T> {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }    \n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}	
+
+// TODO (kent) reenable once supported
+public void _test042() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends U, U> {\n" + 
+			"}\n",
+		},
+		"illegal forward reference");
+}	
+
+// TODO (kent) reenable once supported
+public void _test043() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends L<T> , U extends T> {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }    \n" + 
+			"class L<E>{}\n" +
+			"}\n",
+		},
+		"SUCCESS");
+}	
 
 public static Class testClass() {
 	return GenericTypeTest.class;
