@@ -240,10 +240,9 @@ public class CompilationUnit extends ASTNode {
 	 * Each call to <code>AST.parseCompilationUnit</code> with a request for bindings
 	 * gives rise to separate universe of binding objects. This method always returns
 	 * <code>null</code> when the binding object comes from a different AST.
-	 * </p>
 	 * Use <code>findDeclaringNode(binding.getKey())</code> when the binding comes
 	 * from a different AST.
-	 * 
+	 * </p>
 	 * 
 	 * @param binding the binding
 	 * @return the corresponding node where the given binding is declared,
