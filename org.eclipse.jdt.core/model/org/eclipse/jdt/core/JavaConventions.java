@@ -733,7 +733,7 @@ public final class JavaConventions {
 
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
-				// TODO: check custom output folder is located inside same project as src folder
+				// TODO: (jerome) check custom output folder is located inside same project as src folder
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= javaProject.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){

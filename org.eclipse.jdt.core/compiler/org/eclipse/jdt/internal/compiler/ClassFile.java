@@ -2450,8 +2450,8 @@ public class ClassFile
 		SourceTypeBinding typeBinding = typeDeclaration.binding;
 		ClassFile classFile = new ClassFile(typeBinding, null, true);
 
-		// TODO: handle cases where a field cannot be generated (name too long)
-		// TODO: handle too many methods
+		// TODO: (olivier) handle cases where a field cannot be generated (name too long)
+		// TODO: (olivier) handle too many methods
 		// inner attributes
 		if (typeBinding.isMemberType())
 			classFile.recordEnclosingTypeAttributes(typeBinding);

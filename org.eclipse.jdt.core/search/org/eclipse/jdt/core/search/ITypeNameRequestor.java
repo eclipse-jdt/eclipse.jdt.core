@@ -33,7 +33,7 @@ public interface ITypeNameRequestor {
  * @param path the full path to the resource containing the class. If the resource is a .class file
  *          or a .java file, this is the full path in the workspace to this resource. If the
  *          resource is a .zip or .jar file, this is the full OS path to this file.
- * TODO: should mention jar entries path
+ * TODO: (jerome) should mention jar entries path
  */
 void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path);
 /**
@@ -49,7 +49,7 @@ void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTy
  * @param path the full path to the resource containing the interface. If the resource is a .class file
  *          or a .java file, this is the full path in the workspace to this resource. If the
  *          resource is a .zip or .jar file, this is the full OS path to this file.
- * TODO: should mention jar entries path
+ * TODO: (jerome) should mention jar entries path
  * */
 void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path);
 }

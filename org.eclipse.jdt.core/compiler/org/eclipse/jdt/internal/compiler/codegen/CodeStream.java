@@ -5158,7 +5158,7 @@ public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
 	}
 }
 
-// TODO: should be rewritten to use a switch(type.id)
+// TODO: (olivier) should be rewritten to use a switch(type.id)
 public final void store(LocalVariableBinding localBinding, boolean valueRequired) {
 	TypeBinding type = localBinding.type;
 	int position = localBinding.resolvedPosition;
