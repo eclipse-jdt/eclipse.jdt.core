@@ -1116,4 +1116,26 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveType(org.eclipse.jdt.core.dom.EnumDeclaration)
+	 */
+	ITypeBinding resolveType(EnumDeclaration type) {
+		final Object node = this.newAstToOldAst.get(type);
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+			if (typeDeclaration != null) {
+				ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
+				if (typeBinding == null) {
+					return null;
+				}
+				this.bindingTables.bindingsToAstNodes.put(typeBinding, type);
+				String key = typeBinding.getKey();
+				if (key != null) {
+					this.bindingTables.bindingKeysToAstNodes.put(key, type);				
+				}
+				return typeBinding;
+			}
+		}
+		return null;
+	}
 }

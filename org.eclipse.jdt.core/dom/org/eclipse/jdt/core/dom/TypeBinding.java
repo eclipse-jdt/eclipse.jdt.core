@@ -802,8 +802,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isEnum()
 	 */
 	public boolean isEnum() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isEnum();
 	}
 
 	/* (non-Javadoc)

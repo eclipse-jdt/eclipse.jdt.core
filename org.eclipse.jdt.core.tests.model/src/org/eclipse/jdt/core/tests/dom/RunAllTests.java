@@ -31,7 +31,6 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.dom.ASTParserTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTModelBridgeTests.class,
 		org.eclipse.jdt.core.tests.dom.BatchASTCreationTests.class,
-//		org.eclipse.jdt.core.tests.dom.BindingEqualityTest.class,
 		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 	};
