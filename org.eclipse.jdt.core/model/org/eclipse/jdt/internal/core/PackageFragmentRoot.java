@@ -252,7 +252,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 					    if (isMemberIncluded || inclusionPatterns != null) { 
 							// eliminate binary output only if nested inside direct subfolders
 							if (javaProject.contains(member)) {
-								String[] newNames = Util.arrayConcat(pkgName, memberName);
+								String[] newNames = Util.arrayConcat(pkgName, memberName.intern());
 								computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
 							}
 						}

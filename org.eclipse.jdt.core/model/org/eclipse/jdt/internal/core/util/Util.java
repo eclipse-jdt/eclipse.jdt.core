@@ -511,6 +511,24 @@ public class Util {
 
 	/**
 	 * Compares two arrays using equals() on the elements.
+	 * Neither can be null. Only the first len elements are compared.
+	 * Return false if either array is shorter than len.
+	 */
+	public static boolean equalArrays(Object[] a, Object[] b, int len) {
+		if (a == b)	return true;
+		if (a.length < len || b.length < len) return false;
+		for (int i = 0; i < len; ++i) {
+			if (a[i] == null) {
+				if (b[i] != null) return false;
+			} else {
+				if (!a[i].equals(b[i])) return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Compares two arrays using equals() on the elements.
 	 * Either or both arrays may be null.
 	 * Returns true if both are null.
 	 * Returns false if only one is null.
@@ -1616,6 +1634,54 @@ public class Util {
 			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
 			throw e;
 		}
+	}
+	/**
+	 * Return a new array which is the split of the given string using the given divider. The given end 
+	 * is exclusive and the given start is inclusive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    divider = 'b'
+	 *    string = "abbaba"
+	 *    start = 2
+	 *    end = 5
+	 *    result => { "", "a", "" }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param divider the given divider
+	 * @param string the given string
+	 * @param start the given starting index
+	 * @param end the given ending index
+	 * @return a new array which is the split of the given string using the given divider
+	 * @throws ArrayIndexOutOfBoundsException if start is lower than 0 or end is greater than the array length
+	 */
+	public static final String[] splitOn(
+		char divider,
+		String string,
+		int start,
+		int end) {
+		int length = string == null ? 0 : string.length();
+		if (length == 0 || start > end)
+			return CharOperation.NO_STRINGS;
+
+		int wordCount = 1;
+		for (int i = start; i < end; i++)
+			if (string.charAt(i) == divider)
+				wordCount++;
+		String[] split = new String[wordCount];
+		int last = start, currentWord = 0;
+		for (int i = start; i < end; i++) {
+			if (string.charAt(i) == divider) {
+				split[currentWord++] = string.substring(last, i);
+				last = i + 1;
+			}
+		}
+		split[currentWord] = string.substring(last, end);
+		return split;
 	}
 	public static void sort(char[][] list) {
 		if (list.length > 1)

@@ -78,9 +78,25 @@ public final class HashtableOfArrayToObject implements Cloneable {
 		return null;
 	}
 
+	public Object[] getKey(Object[] key, int keyLength) {
+
+		int index = hashCode(key, keyLength) % this.valueTable.length;
+		Object[] currentKey;
+		while ((currentKey = this.keyTable[index]) != null) {
+			if (currentKey.length == keyLength && Util.equalArrays(currentKey, key, keyLength))
+				return currentKey;
+			index = (index + 1) % this.keyTable.length;
+		}
+		return null;
+	}
+
 	private int hashCode(Object[] element) {
+		return hashCode(element, element.length);
+	}
+	
+	private int hashCode(Object[] element, int length) {
 		int hash = 0;
-		for (int i = 0, length = element.length; i < length; i++)
+		for (int i = 0; i < length; i++)
 			hash = Util.combineHashCodes(hash, element[i].hashCode());
 		return hash & 0x7FFFFFFF;
 	}

@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A package fragment root that corresponds to a .jar or .zip.
@@ -87,48 +88,16 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	
 				if (member.isDirectory()) {
 					
-					entryName= entryName.substring(0, entryName.length() - 1);
-					String[] names = CharOperation.toStrings(CharOperation.splitOn('/', entryName.toCharArray()));
-					int length = names.length;
-	
-					// add the package name & all of its parent packages
-					while (true) {
-						// extract the package name
-						if (packageFragToTypes.containsKey(names)) break;
-						packageFragToTypes.put(names, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
-						
-						if (--length <= 0) break;
-						System.arraycopy(names, 0, names = new String[length], 0, length);
-					}
+					initPackageFragToTypes(packageFragToTypes, entryName, entryName.length()-1);
 				} else {
 					//store the class file / non-java rsc entry name to be cached in the appropriate package fragment
 					//zip entries only use '/'
 					int lastSeparator= entryName.lastIndexOf('/');
-					String[] names;
-					String fileName;
-					if (lastSeparator != -1) { //not in the default package
-						fileName= entryName.substring(lastSeparator + 1);
-						char[] packageName = new char[lastSeparator];
-						entryName.getChars(0, lastSeparator, packageName, 0);
-						names = CharOperation.toStrings(CharOperation.splitOn('/', packageName));
-					} else {
-						fileName = entryName;
-						names =  CharOperation.NO_STRINGS;
-					}
-					
-					// add the package name & all of its parent packages
-					String[] currentNames = names;
-					int length = currentNames.length;
-					while (true) {
-						// extract the package name
-						if (packageFragToTypes.containsKey(currentNames)) break;
-						packageFragToTypes.put(currentNames, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
-						
-						if (--length <= 0) break;
-						System.arraycopy(currentNames, 0, currentNames = new String[length], 0, length);
-					}
+					String fileName= entryName.substring(lastSeparator + 1);
+					String[] pkgName = initPackageFragToTypes(packageFragToTypes, entryName, lastSeparator);
+
 					// add classfile info amongst children
-					ArrayList[] children = (ArrayList[]) packageFragToTypes.get(names);
+					ArrayList[] children = (ArrayList[]) packageFragToTypes.get(pkgName);
 					if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
 						if (children[JAVA] == EMPTY_LIST) children[JAVA] = new ArrayList();
 						children[JAVA].add(fileName);
@@ -172,7 +141,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		info.setChildren(children);
 		return true;
 	}
-/**
+	/**
 	 * Returns a new element info for this element.
 	 */
 	protected Object createElementInfo() {
@@ -263,6 +232,24 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	}
 	public int hashCode() {
 		return this.jarPath.hashCode();
+	}
+	private String[] initPackageFragToTypes(HashtableOfArrayToObject packageFragToTypes, String entryName, int lastSeparator) {
+		String[] pkgName = Util.splitOn('/', entryName, 0, lastSeparator);
+		String[] existing = null;
+		int length = pkgName.length;
+		int existingLength = length;
+		while (existingLength >= 0) {
+			existing = (String[]) packageFragToTypes.getKey(pkgName, existingLength);
+			if (existing != null) break;
+			existingLength--;
+		}
+		for (int i = existingLength; i < length; i++) {
+			System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
+			existing[i] = pkgName[i].intern();
+			packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+		}
+		
+		return existing;
 	}
 	/**
 	 * @see IPackageFragmentRoot
