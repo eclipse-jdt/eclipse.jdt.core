@@ -254,9 +254,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().cannotInstantiate(type, receiverType);
 				return this.resolvedType = receiverType;
 			}
-			if ((this.resolvedType.tagBits & TagBits.HasWildcard) != 0) {
-			    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)this.resolvedType);
-			    return this.resolvedType;
+			if ((receiverType.tagBits & TagBits.HasWildcard) != 0) {
+			    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)receiverType);
+			    return this.resolvedType = receiverType;
 			}			
 			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope)) {
