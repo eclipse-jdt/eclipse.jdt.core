@@ -119,15 +119,6 @@ public void alreadyDefinedLabel(char[] labelName, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void annotationInvalidParamName(Argument param, boolean duplicated) {
-	String[] arguments = new String[] {String.valueOf(param.name)};
-	this.handle(
-		duplicated?IProblem.AnnotationDuplicateParamName:IProblem.AnnotationInvalidParamName,
-		arguments,
-		arguments,
-		param.sourceStart,
-		param.sourceEnd);
-}
 public void annotationInvalidParam(Argument param) {
 	String[] arguments = new String[] {String.valueOf(param.name)};
 	this.handle(
@@ -137,41 +128,34 @@ public void annotationInvalidParam(Argument param) {
 		param.sourceStart,
 		param.sourceEnd);
 }
-public void annotationInvalidSeeReference(int sourceStart, int sourceEnd) {
-	String[] arguments = new String[0];
+public void annotationInvalidParamName(Argument param, boolean duplicated) {
+	String[] arguments = new String[] {String.valueOf(param.name)};
 	this.handle(
-		IProblem.AnnotationInvalidSeeReference,
+		duplicated?IProblem.AnnotationDuplicateParamName:IProblem.AnnotationInvalidParamName,
 		arguments,
 		arguments,
+		param.sourceStart,
+		param.sourceEnd);
+}
+public void annotationInvalidReturnTag(int sourceStart, int sourceEnd, boolean missing){
+	this.handle(
+		missing?IProblem.AnnotationMissingReturnTag:IProblem.AnnotationDuplicateReturnTag,
+		NoArgument,
+		NoArgument,
 		sourceStart,
 		sourceEnd);
 }
-public void annotationInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationInvalidSeeHref,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+public void annotationInvalidSeeReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.AnnotationInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationInvalidSeeArgs,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+	this.handle(IProblem.AnnotationInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void annotationInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.AnnotationInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationInvalidThrowsClass(int sourceStart, int sourceEnd) {
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationInvalidThrowsClass,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+	this.handle(IProblem.AnnotationInvalidThrowsClass, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationInvalidThrowsClassName(TypeReference typeReference, boolean duplicated) {
 	String[] arguments = new String[] {String.valueOf(typeReference.resolvedType.sourceName())};
@@ -182,70 +166,24 @@ public void annotationInvalidThrowsClassName(TypeReference typeReference, boolea
 		typeReference.sourceStart,
 		typeReference.sourceEnd);
 }
-public void annotationMissingForPublic(int sourceStart, int sourceEnd, boolean typeMember){
-	String[] arguments = new String[0];
-	if (this.options.reportMissingAnnotation) {
-		this.handle(
-			typeMember?IProblem.AnnotationTypeMemberMissing:IProblem.AnnotationTypeMissing,
-			arguments,
-			arguments,
-			sourceStart,
-			sourceEnd);
-	}
+public void annotationMissingForPublic(int sourceStart, int sourceEnd){
+	this.handle(IProblem.AnnotationMissing, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationMissingParamName(int sourceStart, int sourceEnd){
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationMissingParamName,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
-}
-public void annotationInvalidReturnTag(int sourceStart, int sourceEnd, boolean missing){
-	String[] arguments = new String[0];
-	this.handle(
-		missing?IProblem.AnnotationMissingReturnTag:IProblem.AnnotationDuplicateReturnTag,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+	this.handle(IProblem.AnnotationMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationMissingSeeReference(int sourceStart, int sourceEnd){
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationMissingSeeReference,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+	this.handle(IProblem.AnnotationMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationMissingThrowsClassName(int sourceStart, int sourceEnd){
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationMissingThrowsClassName,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+	this.handle(IProblem.AnnotationMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void annotationMissingThrowsTag(TypeReference typeRef){
-	String[] arguments = new String[] {String.valueOf(typeRef.resolvedType.sourceName())};
-	this.handle(
-		IProblem.AnnotationMissingThrowsTag,
-		arguments,
-		arguments,
-		typeRef.sourceStart,
-		typeRef.sourceEnd);
+	String[] arguments = new String[]{String.valueOf(typeRef.resolvedType.sourceName())};
+	this.handle(IProblem.AnnotationMissingThrowsTag, arguments, arguments, typeRef.sourceStart, typeRef.sourceEnd);
 }
 public void annotationUnexpectedTag(int sourceStart, int sourceEnd) {
-	String[] arguments = new String[0];
-	this.handle(
-		IProblem.AnnotationUnexpectedTag,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
+	this.handle(IProblem.AnnotationUnexpectedTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
@@ -668,11 +606,51 @@ public int computeSeverity(int problemId){
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
 
-		// by default, if not annotation, then problems are errors.
+		// Annotation implicit IDs for deprecatedField(...)
+		case IProblem.Annotation | IProblem.UsingDeprecatedField:
+		// Annotation implicit IDs for deprecatedMethod(...)
+		case IProblem.Annotation | IProblem.UsingDeprecatedConstructor:
+		case IProblem.Annotation | IProblem.UsingDeprecatedMethod:
+		// Annotation implicit IDs for deprecatedType(...)
+		case IProblem.Annotation | IProblem.UsingDeprecatedType:
+		// Annotation implicit IDs for invalidField(...)
+		case IProblem.Annotation | IProblem.NotVisibleField:
+		case IProblem.Annotation | IProblem.AmbiguousField:
+		// Annotation implicit IDs for invalidMethod(...)
+		case IProblem.Annotation | IProblem.UndefinedMethod:
+		case IProblem.Annotation | IProblem.NotVisibleMethod:
+		case IProblem.Annotation | IProblem.ParameterMismatch:
+		// Annotation implicit IDs for invalidType(...)
+		case IProblem.Annotation | IProblem.UndefinedType:
+		case IProblem.Annotation | IProblem.NotVisibleType:
+		// Annotation implicit IDs for errorNoMethodFor(...)
+		case IProblem.Annotation | IProblem.NoMessageSendOnArrayType:
+		case IProblem.Annotation | IProblem.NoMessageSendOnBaseType:
+		// Annotation explicit IDs
+		case IProblem.AnnotationUnexpectedTag:
+		case IProblem.AnnotationMissingParamTag:
+		case IProblem.AnnotationMissingParamName:
+		case IProblem.AnnotationDuplicateParamName:
+		case IProblem.AnnotationInvalidParamName:
+		case IProblem.AnnotationMissingReturnTag:
+		case IProblem.AnnotationDuplicateReturnTag:
+		case IProblem.AnnotationMissingThrowsTag:
+		case IProblem.AnnotationMissingThrowsClassName:
+		case IProblem.AnnotationInvalidThrowsClass:
+		case IProblem.AnnotationDuplicateThrowsClassName:
+		case IProblem.AnnotationInvalidThrowsClassName:
+		case IProblem.AnnotationMissingSeeReference:
+		case IProblem.AnnotationInvalidSeeReference:
+		case IProblem.AnnotationInvalidSeeHref:
+		case IProblem.AnnotationInvalidSeeArgs:
+			return this.options.getSeverity(CompilerOptions.InvalidAnnotation);
+
+		case IProblem.AnnotationMissing:
+			if (!this.options.reportMissingAnnotation) return Ignore;
+			return this.options.getSeverity(CompilerOptions.InvalidAnnotation);
+
+		// by default problems are errors.
 		default:
-			if ((problemId & IProblem.Annotation) == IProblem.Annotation) {
-				return this.options.getSeverity(CompilerOptions.InvalidAnnotation);
-			}
 			return Error;
 	}
 }
@@ -771,8 +749,7 @@ public void deprecatedMethod(MethodBinding method, AstNode location) {
 			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsShortString(method)},
 			location.sourceStart,
 			location.sourceEnd);
-	}
-	else {
+	} else {
 		int id = IProblem.UsingDeprecatedMethod;
 		if ((location.bits & AstNode.InsideAnnotation) != 0) {
 			id |= IProblem.Annotation;

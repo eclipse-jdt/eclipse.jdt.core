@@ -28,32 +28,6 @@ public class AnnotationArgumentExpression extends Expression {
 		this.bits |= InsideAnnotation;
 	}
 
-	public StringBuffer printExpression(int indent, StringBuffer output) {
-		if (argument == null) {
-			if (token != null) {
-				output.append(token);
-			}
-		}
-		else {
-			argument.print(indent, output);
-		}
-		return output;
-	}
-
-	public void resolve(BlockScope scope) {
-		if (argument != null) {
-			argument.resolve(scope);
-		}
-	}
-
-	public TypeBinding resolveType(BlockScope scope) {
-		return commonResolveType(scope);
-	}
-
-	public TypeBinding resolveType(ClassScope scope) {
-		return commonResolveType(scope);
-	}
-
 	private TypeBinding commonResolveType(Scope scope) {
 		constant = NotAConstant;
 		if (this.resolvedType != null) { // is a shared type reference which was already resolved
@@ -81,8 +55,35 @@ public class AnnotationArgumentExpression extends Expression {
 		return null;
 	}
 
-	/**
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		if (argument == null) {
+			if (token != null) {
+				output.append(token);
+			}
+		}
+		else {
+			argument.print(indent, output);
+		}
+		return output;
+	}
+
+	public void resolve(BlockScope scope) {
+		if (argument != null) {
+			argument.resolve(scope);
+		}
+	}
+
+	public TypeBinding resolveType(BlockScope scope) {
+		return commonResolveType(scope);
+	}
+
+	public TypeBinding resolveType(ClassScope scope) {
+		return commonResolveType(scope);
+	}
+
+	/* (non-Javadoc)
 	 * Redefine to capture annotation specific signatures
+	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {

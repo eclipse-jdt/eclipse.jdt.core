@@ -173,7 +173,7 @@ public class AnnotationTestForInterface extends AnnotationTest {
 	}
 
 	public void test007() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"IX.java",
 				"	/**\n"
@@ -185,20 +185,12 @@ public class AnnotationTestForInterface extends AnnotationTest {
 					+ "	/**\n"
 					+ "	 * Invalid javadoc comment\n"
 					+ "	 */\n"
-					+ "}\n" },
-		"----------\n" + 
-		"1. ERROR in IX.java (at line 7)\n" + 
-		"	/**\n" + 
-		"	 * Invalid javadoc comment\n" + 
-		"	 */\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
-		"----------\n"
+					+ "}\n" }
 			);
 	}
 
 	public void test008() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"IX.java",
 				"public interface IX {\n"
@@ -206,35 +198,19 @@ public class AnnotationTestForInterface extends AnnotationTest {
 					+ "	/**\n"
 					+ "	 * Invalid javadoc comment\n"
 					+ "	 */\n"
-					+ "}\n" },
-		"----------\n" + 
-		"1. ERROR in IX.java (at line 3)\n" + 
-		"	/**\n" + 
-		"	 * Invalid javadoc comment\n" + 
-		"	 */\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
-		"----------\n"
+					+ "}\n" }
 			);
 	}
 
 	public void test009() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
 					+ "	 * Invalid javadoc comment\n"
 					+ "	 */\n"
-					+ "}\n" },
-		"----------\n" + 
-		"1. ERROR in IX.java (at line 2)\n" + 
-		"	/**\n" + 
-		"	 * Invalid javadoc comment\n" + 
-		"	 */\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
-		"----------\n"
+					+ "}\n" }
 			);
 	}
 

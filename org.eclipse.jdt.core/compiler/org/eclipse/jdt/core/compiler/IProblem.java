@@ -700,9 +700,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int AnnotationInvalidSeeArgs = Annotation + Internal + 485;
 	/** @since 3.0 */
-	int AnnotationTypeMissing = Annotation + Internal + 486;
-	/** @since 3.0 */
-	int AnnotationTypeMemberMissing = Annotation + Internal + 487;
+	int AnnotationMissing = Annotation + Internal + 486;
 	/** @since 3.0 */
 	int AnnotationMessagePrefix = Internal + 489;
 }

@@ -162,7 +162,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 2)\n"
 				+ "	public class X {\n"
 				+ "	             ^\n"
-				+ "Annotation: API class or interface should have javadoc comment\n"
+				+ "Annotation: Missing javadoc comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -186,7 +186,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "1. ERROR in test\\X.java (at line 4)\n"
 				+ "	public int x;\n"
 				+ "	           ^\n"
-				+ "Annotation: Missing javadoc for public member in API class or interface\n"
+				+ "Annotation: Missing javadoc comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -209,8 +209,8 @@ public class AnnotationTestMixed extends AnnotationTest {
 			"----------\n"
 				+ "1. ERROR in test\\X.java (at line 7)\n"
 				+ "	public X() {\n"
-				+ "	       ^\n"
-				+ "Annotation: Missing javadoc for public member in API class or interface\n"
+				+ "	       ^^^\n"
+				+ "Annotation: Missing javadoc comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -227,14 +227,14 @@ public class AnnotationTestMixed extends AnnotationTest {
 					+ "	/** Constructor javadoc comment */\n"
 					+ "	public X() {\n"
 					+ "	}\n"
-					+ "	public void foo() {\n"
+					+ "	public void foo(int a) {\n"
 					+ "	}\n"
 					+ "}\n" },
 			"----------\n"
 				+ "1. ERROR in test\\X.java (at line 10)\n"
-				+ "	public void foo() {\n"
-				+ "	            ^^^\n"
-				+ "Annotation: Missing javadoc for public member in API class or interface\n"
+				+ "	public void foo(int a) {\n"
+				+ "	            ^^^^^^^^^^\n"
+				+ "Annotation: Missing javadoc comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -649,7 +649,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "2. ERROR in test\\X.java (at line 12)\n"
 				+ "	public int x\n"
 				+ "	           ^\n"
-				+ "Annotation: Missing javadoc for public member in API class or interface\n"
+				+ "Annotation: Missing javadoc comment for public declaration\n"
 				+ "----------\n");
 	}
 	

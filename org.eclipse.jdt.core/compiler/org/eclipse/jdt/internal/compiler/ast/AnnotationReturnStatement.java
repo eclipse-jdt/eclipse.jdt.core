@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
@@ -43,4 +44,12 @@ public class AnnotationReturnStatement extends ReturnStatement {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * Redefine to capture annotation specific signatures
+	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
 }

@@ -177,7 +177,7 @@ public class AnnotationTestForClass extends AnnotationTest {
 	}
 
 	public void test007() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"	/**\n"
@@ -189,20 +189,12 @@ public class AnnotationTestForClass extends AnnotationTest {
 					+ "	/**\n"
 					+ "	 * Invalid javadoc comment\n"
 					+ "	 */\n"
-					+ "}\n" },
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	/**\n" + 
-		"	 * Invalid javadoc comment\n" + 
-		"	 */\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
-		"----------\n"
+					+ "}\n" }
 			);
 	}
 
 	public void test008() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"
@@ -210,35 +202,19 @@ public class AnnotationTestForClass extends AnnotationTest {
 					+ "	/**\n"
 					+ "	 * Invalid javadoc comment\n"
 					+ "	 */\n"
-					+ "}\n" },
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	/**\n" + 
-		"	 * Invalid javadoc comment\n" + 
-		"	 */\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
-		"----------\n"
+					+ "}\n" }
 			);
 	}
 
 	public void test009() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
 					+ "	 * Invalid javadoc comment\n"
 					+ "	 */\n"
-					+ "}\n" },
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	/**\n" + 
-		"	 * Invalid javadoc comment\n" + 
-		"	 */\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Annotation: Unexpected javadoc entry\n" + 
-		"----------\n"
+					+ "}\n" }
 			);
 	}
 

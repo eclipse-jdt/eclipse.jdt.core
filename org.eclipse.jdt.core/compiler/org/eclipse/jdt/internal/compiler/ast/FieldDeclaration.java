@@ -227,7 +227,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				}
 			} else {
 				if ((this.modifiers & AccPublic) != 0) {
-					initializationScope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd, true);
+					initializationScope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceEnd);
 				}
 			}
 		}

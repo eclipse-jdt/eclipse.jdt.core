@@ -51,8 +51,9 @@ public class AnnotationArgument extends Argument {
 		scope.problemReporter().annotationInvalidParamName(this, false);
 	}
 
-	/**
+	/* (non-Javadoc)
 	 * Redefine to capture annotation specific signatures
+	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {

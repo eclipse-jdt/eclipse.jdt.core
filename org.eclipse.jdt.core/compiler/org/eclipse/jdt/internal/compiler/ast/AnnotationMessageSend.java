@@ -203,8 +203,9 @@ public class AnnotationMessageSend extends MessageSend {
 		return this.resolvedType = binding.returnType;
 	}
 
-	/**
+	/* (non-Javadoc)
 	 * Redefine to capture annotation specific signatures
+	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {

@@ -1413,13 +1413,6 @@ protected void consumeClassBodyDeclarations() {
 protected void consumeClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations
 	nestedType-- ;
-
-	// Flag invalid orphan javadoc comments
-	checkAnnotation();
-	if (this.annotation != null) {
-		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
-		this.annotation = null;
-	}
 }
 protected void consumeClassBodyopt() {
 	// ClassBodyopt ::= $empty
@@ -1839,13 +1832,6 @@ protected void consumeEmptyCatchesopt() {
 protected void consumeEmptyClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
-
-	// Flag invalid orphan javadoc comments
-	checkAnnotation();
-	if (this.annotation != null) {
-		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
-		this.annotation = null;
-	}
 }
 protected void consumeEmptyClassMemberDeclaration() {
 	// ClassMemberDeclaration ::= ';'
@@ -1880,13 +1866,6 @@ protected void consumeEmptyInterfaceMemberDeclaration() {
 protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
-
-	// Flag invalid orphan javadoc comments
-	checkAnnotation();
-	if (this.annotation != null) {
-		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
-		this.annotation = null;
-	}
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
@@ -2411,13 +2390,6 @@ protected void consumeInterfaceMemberDeclarations() {
 protected void consumeInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= NestedType InterfaceMemberDeclarations
 	nestedType--;
-
-	// Flag invalid orphan javadoc comments
-	checkAnnotation();
-	if (this.annotation != null) {
-		this.problemReporter().annotationUnexpectedTag(this.annotation.sourceStart, this.annotation.sourceEnd);
-		this.annotation = null;
-	}
 }
 protected void consumeInterfaceType() {
 	// InterfaceType ::= ClassOrInterfaceType
@@ -4845,7 +4817,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			scanner.foundTaskPositions[i][0], 
 			scanner.foundTaskPositions[i][1]);
 	}
-		return compilationUnit;
+	return compilationUnit;
 }
 /*
  * Flush annotations defined prior to a given positions.
