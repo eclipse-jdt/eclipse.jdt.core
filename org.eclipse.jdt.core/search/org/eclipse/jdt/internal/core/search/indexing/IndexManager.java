@@ -263,7 +263,13 @@ public void indexAll(IProject project) {
 		IJavaModel model = JavaModelManager.getJavaModel(this.workspace);
 		IJavaProject javaProject = ((JavaModel) model).getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
-		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);	
+		IClasspathEntry[] entries;
+		if (javaProject.isOpen()){
+			entries = javaProject.getResolvedClasspath(true);	
+		} else {
+			// if project isn't yet initialized, do not want to trigger CP initializers inside background thread 13395)
+			entries = javaProject.getRawClasspath();
+		}
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {

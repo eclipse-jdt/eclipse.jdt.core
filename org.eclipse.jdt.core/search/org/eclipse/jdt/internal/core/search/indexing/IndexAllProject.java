@@ -86,7 +86,7 @@ public int hashCode() {
 			}
 			JavaCore javaCore = JavaCore.getJavaCore();
 			IJavaProject javaProject = javaCore.create(this.project);
-			IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
+			IClasspathEntry[] entries = javaProject.getRawClasspath(); //only interested in source folders
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				if (this.isCancelled) return FAILED;

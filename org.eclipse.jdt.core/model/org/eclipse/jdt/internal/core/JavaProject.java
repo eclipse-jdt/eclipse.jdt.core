@@ -1111,96 +1111,97 @@ public IResource getResource() {
 		return this.getResolvedClasspath(ignoreUnresolvedVariable, false);
 	}
 
-	/**
-	 * Internal variant which can create marker on project for invalid entries
-	 */
-	public IClasspathEntry[] getResolvedClasspath(
-		boolean ignoreUnresolvedVariable,
-		boolean generateMarkerOnError)
-		throws JavaModelException {
-
-		JavaProjectElementInfo projectInfo;
-		if (this.isOpen()){
-			projectInfo = getJavaProjectElementInfo();
-		} else {
-			projectInfo = null;
-		}
-		
-		// reuse cache if not needing to refresh markers or checking bound variables
-		if (ignoreUnresolvedVariable && !generateMarkerOnError && (projectInfo != null)){
-			// resolved path is cached on its info
-			IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
-			if (infoPath != null) return infoPath;
-		}
-		
-		IClasspathEntry[] classpath = getRawClasspath();
-
-		if (generateMarkerOnError){
-			flushClasspathProblemMarkers(false);
-		}
-
-		IClasspathEntry[] resolvedPath = classpath; // clone only if necessary
-		int length = classpath.length;
-		int index = 0;
-
-		for (int i = 0; i < length; i++) {
-
-			IClasspathEntry entry = classpath[i];
-
-			/* validation if needed */
-			if (generateMarkerOnError) {
-				IJavaModelStatus status =
-					JavaConventions.validateClasspathEntry(this, entry, false);
-				if (!status.isOK())
-					createClasspathProblemMarker(
-						status.getMessage(), 
-						IMarker.SEVERITY_ERROR,
-						false);
+		/**
+		 * Internal variant which can create marker on project for invalid entries
+		 */
+		public IClasspathEntry[] getResolvedClasspath(
+			boolean ignoreUnresolvedVariable,
+			boolean generateMarkerOnError)
+			throws JavaModelException {
+	
+			JavaProjectElementInfo projectInfo;
+			if (this.isOpen()){
+				projectInfo = getJavaProjectElementInfo();
+			} else {
+				// avoid populating the model for only retrieving the resolved classpath (13395)
+				projectInfo = null;
 			}
-
-			/* resolve variables if any, unresolved ones are ignored */
-			if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-
-				// clone original path
-				if (resolvedPath == classpath) {
-					System.arraycopy(
-						classpath,
-						0,
-						resolvedPath = new IClasspathEntry[length],
-						0,
-						i);
+			
+			// reuse cache if not needing to refresh markers or checking bound variables
+			if (ignoreUnresolvedVariable && !generateMarkerOnError && (projectInfo != null)){
+				// resolved path is cached on its info
+				IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
+				if (infoPath != null) return infoPath;
+			}
+			
+			IClasspathEntry[] classpath = getRawClasspath();
+	
+			if (generateMarkerOnError){
+				flushClasspathProblemMarkers(false);
+			}
+	
+			IClasspathEntry[] resolvedPath = classpath; // clone only if necessary
+			int length = classpath.length;
+			int index = 0;
+	
+			for (int i = 0; i < length; i++) {
+	
+				IClasspathEntry entry = classpath[i];
+	
+				/* validation if needed */
+				if (generateMarkerOnError) {
+					IJavaModelStatus status =
+						JavaConventions.validateClasspathEntry(this, entry, false);
+					if (!status.isOK())
+						createClasspathProblemMarker(
+							status.getMessage(), 
+							IMarker.SEVERITY_ERROR,
+							false);
 				}
-				// resolve current variable (handling variable->variable->variable->entry
-				IPath variablePath = entry.getPath(); // for error reporting
-				entry = JavaCore.getResolvedClasspathEntry(entry);
-				if (entry == null) {
-					if (!ignoreUnresolvedVariable) {
-						throw new JavaModelException(
-							new JavaModelStatus(
-								IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
-								variablePath.toString()));
+	
+				/* resolve variables if any, unresolved ones are ignored */
+				if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+	
+					// clone original path
+					if (resolvedPath == classpath) {
+						System.arraycopy(
+							classpath,
+							0,
+							resolvedPath = new IClasspathEntry[length],
+							0,
+							i);
+					}
+					// resolve current variable (handling variable->variable->variable->entry
+					IPath variablePath = entry.getPath(); // for error reporting
+					entry = JavaCore.getResolvedClasspathEntry(entry);
+					if (entry == null) {
+						if (!ignoreUnresolvedVariable) {
+							throw new JavaModelException(
+								new JavaModelStatus(
+									IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
+									variablePath.toString()));
+						}
 					}
 				}
+				if (entry != null) {
+					resolvedPath[index++] = entry;
+				}
 			}
-			if (entry != null) {
-				resolvedPath[index++] = entry;
+	
+			// resize resolved classpath in case some variable entries could not be resolved
+			if (index != length) {
+				System.arraycopy(
+					resolvedPath,
+					0,
+					resolvedPath = new IClasspathEntry[index],
+					0,
+					index);
 			}
+			if (projectInfo != null){
+				projectInfo.lastResolvedClasspath = resolvedPath;
+			}
+			return resolvedPath;
 		}
-
-		// resize resolved classpath in case some variable entries could not be resolved
-		if (index != length) {
-			System.arraycopy(
-				resolvedPath,
-				0,
-				resolvedPath = new IClasspathEntry[index],
-				0,
-				index);
-		}
-		if (projectInfo != null){
-			projectInfo.lastResolvedClasspath = resolvedPath;
-		}
-		return resolvedPath;
-	}
 	
 	/**
 	 * This is a helper method returning the expanded classpath for the project, as a list of classpath entries, 
