@@ -81,7 +81,7 @@ void buildTypeBindings() {
 		}
 		boolean packageExists = currentPackageName == NoCharChar
 			? environment.getTopLevelPackage(typeDecl.name) != null
-			: (fPackage.getPackage0(typeDecl.name)) != null || environment.isPackage(currentPackageName, typeDecl.name);
+			: (fPackage.getPackage(typeDecl.name)) != null;
 		if (packageExists) {
 			// if a package exists, it must be a valid package - cannot be a NotFound problem package
 			problemReporter().typeCollidesWithPackage(referenceContext, typeDecl);
@@ -263,13 +263,7 @@ public void faultInTypes() {
 private Binding findOnDemandImport(char[][] compoundName) {
 	recordQualifiedReference(compoundName);
 
-	Binding binding = environment.getPackage0(compoundName[0]);
-	if (binding == null) {
-		if (environment.isPackage(null, compoundName[0]))
-			binding = environment.getTopLevelPackage(compoundName[0]);
-	} else if (binding == environment.theNotFoundPackage) {
-		binding = null; // forget the NotFound package
-	}
+	Binding binding = environment.getTopLevelPackage(compoundName[0]);
 	int i = 1;
 	int length = compoundName.length;
 	foundNothingOrType: if (binding != null) {
