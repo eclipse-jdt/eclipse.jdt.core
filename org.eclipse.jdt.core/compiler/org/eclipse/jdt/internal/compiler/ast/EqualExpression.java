@@ -228,6 +228,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		return;
 	}
 	Label falseLabel;
+	bits |= OnlyValueRequiredMASK;
 	generateOptimizedBoolean(
 		currentScope, 
 		codeStream, 
@@ -255,7 +256,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		} else {
 			falseLabel.place();
 		}	
-	}	
+	}
 }
 /**
  * Boolean operator code generation
@@ -381,11 +382,19 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 		if (left instanceof NullLiteral) {
 			// null == null
 			if (valueRequired) {
-				if (falseLabel == null) {
-					// implicit falling through the FALSE case
-					if (trueLabel != null) {
-						codeStream.goto_(trueLabel);
-					}
+					if ((bits & OnlyValueRequiredMASK) != 0) {
+						if (((bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+							codeStream.iconst_1();
+						} else {
+							codeStream.iconst_0();
+						}
+					} else {
+						if (falseLabel == null) {
+							// implicit falling through the FALSE case
+							if (trueLabel != null) {
+								codeStream.goto_(trueLabel);
+							}
+						}
 				}
 			}
 		} else {
