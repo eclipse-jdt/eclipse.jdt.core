@@ -56,13 +56,12 @@ class XMLWriter extends PrintWriter {
 	private int tab;
 	public XMLWriter(Writer writer) {
 		super(writer);
-		tab= 0;
+		this.tab= 0;
 		println(XML_VERSION);
-		tab--; // align first tag with XML version tag
 	}
 	public void endTag(String name, boolean insertTab) {
-		tab -=2;
-		printTag('/' + name, null, insertTab, true, false);
+		this.tab --;
+		printTag('/' + name, null/*no parameters*/, insertTab, true/*insert new line*/, false/*don't close tag*/);
 	}
 	private void printTabulation() {
 		for (int i= 0; i < tab; i++)
@@ -81,8 +80,6 @@ class XMLWriter extends PrintWriter {
 				sb.append(getEscaped(String.valueOf(parameters.get(key))));
 				sb.append("\""); //$NON-NLS-1$
 			}
-		} else {
-			tab++;
 		}
 		if (closeTag) {
 			sb.append("/>"); //$NON-NLS-1$
@@ -97,9 +94,12 @@ class XMLWriter extends PrintWriter {
 		} else {
 			print(sb.toString());
 		}
+		if (parameters != null && !closeTag)
+			this.tab++;
+
 	}
 	public void startTag(String name, boolean insertTab) {
-		printTag(name, null, insertTab, true, false);
-		tab++;
+		printTag(name, null/*no parameters*/, insertTab, true/*insert new line*/, false/*don't close tag*/);
+		this.tab++;
 	}
 }
