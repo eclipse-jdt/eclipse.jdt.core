@@ -2549,7 +2549,7 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] readRawClasspath() throws JavaModelException {
 
-		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
+		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, false/*log problems*/);
 		// discard the output location
 		if (classpath != null && classpath.length > 0) {
 			IClasspathEntry entry = classpath[classpath.length - 1];
@@ -2567,7 +2567,7 @@ public class JavaProject
 	 */
 	public IPath readOutputLocation() throws JavaModelException {
 
-		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
+		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, false/*log problems*/);
 		// extract the output location
 		IPath outputLocation = null;
 		if (classpath != null && classpath.length > 0) {
