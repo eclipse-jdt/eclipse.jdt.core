@@ -113,6 +113,8 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an unexpected exception
+  1GL0PGV: ITPJCORE:WINNT - Batch compiler leaving JARs open  
 
   PRs Closed in this Release
   ===============================================================================
