@@ -1255,4 +1255,79 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"1"
 		);
 	}
+
+	public void test026() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(\n" + 
+				"			new B().test().getClass() + \" & \"\n" + 
+				"			+ new C().test().getClass() + \" & \"\n" + 
+				"			+ new D().test().getClass());\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A<T extends Number> {\n" + 
+				"	A<T> test() { return this; }\n" + 
+				"}\n" +
+				"class B extends A {\n" + 
+				"	A test() { return super.test(); }\n" + 
+				"}\n" +
+				"class C extends A<Integer> {\n" + 
+				"	A<Integer> test() { return super.test(); }\n" + 
+				"}\n" +
+				"class D<U, V extends Number> extends A<V> {\n" + 
+				"	A<V> test() { return super.test(); }\n" + 
+				"}\n"
+			},
+			"class B & class C & class D"
+		);
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public abstract class A<E> {\n" + 
+				"	public abstract A<E> test();\n" + 
+				"}\n" +
+				"class H<K,V> {\n" + 
+				"	class M extends A<K> {\n" + 
+				"		public A<K> test() { return null; }\n" + 
+				"	}\n" +
+				"}\n"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends java.util.AbstractMap {\n" + 
+				"	public java.util.Set entrySet() { return null; }\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(new C().test().getClass());\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A<T extends Number> {\n" + 
+				"	A<T> test() { return this; }\n" + 
+				"}\n" +
+				"class C extends A<Integer> {\n" + 
+				"	A test() { return super.test(); }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	A test() { return super.test(); }\n" + 
+			"	^\n" + 
+			"Type safety: The return type A of the method test() of type C needs unchecked conversion to conform to the return type A<T> of inherited method\n" + 
+			"----------\n"
+			// warning: test() in C overrides test() in A; return type requires unchecked conversion
+		);
+	}
 }

@@ -97,16 +97,22 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	}
 
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
-	// then when do you need a bridge method?
 	if (originalInherited.returnType != currentMethod.returnType) {
 		TypeBinding originalReturnType = originalInherited.returnType.leafComponentType();
 		switch (originalReturnType.kind()) {
+			case Binding.GENERIC_TYPE :
+				// TODO (philippe) - we need this hack until SourceTypeBindings stop acting as ParameterizedTypes
+				if (originalReturnType != originalInherited.declaringClass || !inheritedMethod.returnType.leafComponentType().isParameterizedType())
+					break;
 			case Binding.PARAMETERIZED_TYPE :
-				if (!currentMethod.returnType.leafComponentType().isParameterizedType())
+				if (!currentMethod.returnType.leafComponentType().isParameterizedType()) {
+					if (currentMethod.returnType.leafComponentType().isRawType() && inheritedMethod.returnType.leafComponentType().isRawType())
+						break;
 					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
+				}
 				break;
 			case Binding.TYPE_PARAMETER : // see 81618
-				if (originalReturnType.isTypeVariable() && ((TypeVariableBinding) originalReturnType).declaringElement == originalInherited) {
+				if (((TypeVariableBinding) originalReturnType).declaringElement == originalInherited) {
 					TypeBinding returnType = currentMethod.returnType.leafComponentType();
 					if (!returnType.isTypeVariable() || ((TypeVariableBinding) returnType).declaringElement != currentMethod)
 						problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
@@ -206,21 +212,6 @@ boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	TypeBinding[] currentVars = one.typeVariables;
 	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
 	return currentVars.length != inheritedVars.length && currentVars.length > 0;
-}
-boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
-	TypeBinding[] arguments = parameterizedType.arguments;
-	if (arguments == null) return false;
-
-	nextArg : for (int i = 0, l = arguments.length; i < l; i++) {
-		if (arguments[i].isWildcard())
-			if (((WildcardBinding) arguments[i]).kind == org.eclipse.jdt.internal.compiler.ast.Wildcard.UNBOUND)
-				continue nextArg;
-		if (arguments[i].isTypeVariable())
-			if (((TypeVariableBinding) arguments[i]).firstBound == null)
-				continue nextArg;
-		return true;
-	}
-	return false;
 }
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
