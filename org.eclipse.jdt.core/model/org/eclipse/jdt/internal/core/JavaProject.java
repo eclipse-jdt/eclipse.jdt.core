@@ -1562,7 +1562,7 @@ public class JavaProject
 		}
 	}
 
-	private String[] projectPrerequisites(IClasspathEntry[] entries)
+	public String[] projectPrerequisites(IClasspathEntry[] entries)
 		throws JavaModelException {
 		ArrayList prerequisites = new ArrayList();
 		for (int i = 0, length = entries.length; i < length; i++) {

@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Util;
 
 import java.io.*;
@@ -215,7 +216,7 @@ private IProject[] getRequiredProjects() {
 
 	String[] projectNames;
 	try {
-		projectNames = javaProject.getRequiredProjectNames();
+		projectNames = ((JavaProject)javaProject).projectPrerequisites(((JavaProject)javaProject).getExpandedClasspath(true));
 	} catch(JavaModelException e) {
 		return new IProject[0];
 	}
