@@ -1001,12 +1001,13 @@ public void reconcile(
 	
 	NameLookup lookup = null;
 	try {
-		// set the units to look inside
-		lookup = ((JavaProject)getJavaProject()).getNameLookup();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ICompilationUnit[] workingCopies = manager.getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
-		lookup.setUnitsToLookInside(workingCopies);
-			
+		// set the units to look inside only for problem detection purpose
+		if (forceProblemDetection) {
+			lookup = ((JavaProject)getJavaProject()).getNameLookup();
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ICompilationUnit[] workingCopies = manager.getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
+			lookup.setUnitsToLookInside(workingCopies);
+		}			
 		// reconcile
 		ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
 		runOperation(op, monitor);
