@@ -58,6 +58,50 @@ public final class CharOperation {
 		array[length] = suffix;
 		return array;
 	}
+	/**
+	 * Append the given subarray to append to the target array starting at the given index in the target array.
+	 * The start of the subarray is inclusive, the end is exclusive.
+	 * Answers a new target array if it needs to grow, otherwise answers the same target array.
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    target = { 'a', 'b', -1 }
+	 *    index = 0
+	 *    array = { 'c', 'd' }
+	 *    start = 0
+	 *    end = 1
+	 *    => result = { 'a', 'b' , 'c' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    target = { 'a', 'b' }
+	 *    index = 0
+	 *    array = { 'c', 'd' }
+	 *    start = 0
+	 *    end = 1
+	 *    => result = new { 'a', 'b' , 'c', -1 }
+	 * </pre></li>
+	 * <li><pre>
+	 *    target = { 'a', 'b', 'c' }
+	 *    index = 1
+	 *    array = { 'c', 'd', 'e', 'f' }
+	 *    start = 1
+	 *    end = 4
+	 *    => result = new { 'a', 'd' , 'e', 'f', -1, -1 }
+	 * </pre></li>
+	 * </ol>
+	 */
+	public static final char[] append(char[] target, int index, char[] array, int start, int end) {
+		int targetLength = target.length;
+		int subLength = end-start;
+		int newTargetLength = subLength+index;
+		if (newTargetLength > targetLength) {
+			System.arraycopy(target, 0, target = new char[newTargetLength*2], 0, index);
+		}
+		System.arraycopy(array, start, target, index, subLength);
+		return target;
+	}
 
 	/**
 	 * Answers the concatenation of the two arrays. It answers null if the two arrays are null.

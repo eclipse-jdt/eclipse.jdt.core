@@ -11,10 +11,6 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-
 /**
  * Provides methods for encoding and decoding type and method signature strings.
  * <p>
@@ -434,90 +430,147 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
  * @since 2.0
  */
 public static char[] createCharArrayTypeSignature(char[] typeName, boolean isResolved) {
-	try {
-		Scanner scanner = new Scanner();
-		scanner.setSource(typeName);
-		int token = scanner.getNextToken();
-		boolean primitive = true;
-		char primitiveSig = ' ';
-		StringBuffer sig = null;
-		int arrayCount = 0;
-		switch (token) {
-			case ITerminalSymbols.TokenNameIdentifier :
-				char[] idSource = scanner.getCurrentIdentifierSource();
-				sig = new StringBuffer(idSource.length);
-				sig.append(idSource);
-				primitive = false;
+
+	if (typeName == null) throw new IllegalArgumentException(new String(typeName));
+	int length = typeName.length;
+	if (length == 0) throw new IllegalArgumentException(new String(typeName));
+
+	boolean primitive = false;
+	char primitiveSig = ' ';
+	int index = 0;
+	
+	// primitive type?
+	switch (typeName[index]) {
+		case 'b' :
+			if (CharOperation.fragmentEquals(BOOLEAN, typeName, index, true)) {
+				primitiveSig = C_BOOLEAN;
+				index += BOOLEAN.length;	
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNameboolean :
-				primitiveSig = Signature.C_BOOLEAN;
+			} else if (CharOperation.fragmentEquals(BYTE, typeName, index, true)) {
+				primitiveSig = C_BYTE;
+				index += BYTE.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNamebyte :
-				primitiveSig = Signature.C_BYTE;
+			}
+		case 'c':
+			if (CharOperation.fragmentEquals(CHAR, typeName, index, true)) {
+				primitiveSig = C_CHAR;
+				index += CHAR.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNamechar :
-				primitiveSig = Signature.C_CHAR;
+			}
+		case 'd':
+			if (CharOperation.fragmentEquals(DOUBLE, typeName, index, true)) {
+				primitiveSig = C_DOUBLE;
+				index += DOUBLE.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNamedouble :
-				primitiveSig = Signature.C_DOUBLE;
+			}
+		case 'f':
+			if (CharOperation.fragmentEquals(FLOAT, typeName, index, true)) {
+				primitiveSig = C_FLOAT;
+				index += FLOAT.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNamefloat :
-				primitiveSig = Signature.C_FLOAT;
+			}
+		case 'i':
+			if (CharOperation.fragmentEquals(INT, typeName, index, true)) {
+				primitiveSig = C_INT;
+				index += INT.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNameint :
-				primitiveSig = Signature.C_INT;
+			}
+		case 'l':
+			if (CharOperation.fragmentEquals(LONG, typeName, index, true)) {
+				primitiveSig = C_LONG;
+				index += LONG.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNamelong :
-				primitiveSig = Signature.C_LONG;
+			}
+		case 's':
+			if (CharOperation.fragmentEquals(SHORT, typeName, index, true)) {
+				primitiveSig = C_SHORT;
+				index += SHORT.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNameshort :
-				primitiveSig = Signature.C_SHORT;
+			}
+		case 'v':
+			if (CharOperation.fragmentEquals(VOID, typeName, index, true)) {
+				primitiveSig = C_VOID;
+				index += SHORT.length;				
+				primitive = true;			
 				break;
-			case ITerminalSymbols.TokenNamevoid :
-				primitiveSig = Signature.C_VOID;
+			}
+	}
+
+	// non primitive type and array count
+	char[] sig = primitive ? null : new char[length];
+	int sigIndex = 0;
+	int arrayCount = 0;
+	int startID = primitive ? -1 : 0;
+	while (index < length) {
+		char currentChar = typeName[index];
+		switch (currentChar) {
+			case '.':
+				if (startID == -1) throw new IllegalArgumentException(new String(typeName));
+				if (startID < index) {
+					sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+					sigIndex += index-startID;
+				}
+				int sigLength = sig.length;
+				if (sigIndex >= sigLength) {
+					System.arraycopy(sig, 0, sig = new char[sigLength*2], 0, sigLength);
+				}
+				sig[sigIndex++] = C_DOT;
+				index++;
+				startID = index;
+				break;
+			case '[':
+				arrayCount++;
+				if (startID != -1) {
+					if (startID < index) {
+						sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+						sigIndex += index-startID;
+					}
+					startID = -1; // no more id after []
+				}
+				index++;
 				break;
 			default :
-				throw new IllegalArgumentException();
+				if (startID != -1 && CharOperation.isWhitespace(currentChar)) {
+					if (startID < index) {
+						sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+						sigIndex += index-startID;
+					}
+					startID = index+1;
+				}
+				index++;
+				break;
 		}
-		token = scanner.getNextToken();
-		while (!primitive && token == ITerminalSymbols.TokenNameDOT) {
-			sig.append(scanner.getCurrentIdentifierSource());
-			token = scanner.getNextToken();
-			if (token == ITerminalSymbols.TokenNameIdentifier) {
-				sig.append(scanner.getCurrentIdentifierSource());
-				token = scanner.getNextToken();
-			} else {
-				throw new IllegalArgumentException();
-			}
-		}
-		while (token == ITerminalSymbols.TokenNameLBRACKET) {
-			token = scanner.getNextToken();
-			if (token != ITerminalSymbols.TokenNameRBRACKET)
-				throw new IllegalArgumentException();
-			arrayCount++;
-			token = scanner.getNextToken();
-		}
-		if (token != ITerminalSymbols.TokenNameEOF)
-			throw new IllegalArgumentException();
-		char[] result;
-		if (primitive) {
-			result = new char[arrayCount+1];
-			result[arrayCount] = primitiveSig;
-		} else {
-			int sigLength = sig.length(); 
-			int resultLength = arrayCount + 1 + sigLength + 1; // e.g. '[[[Ljava.lang.String;'
-			result = new char[resultLength];
-			sig.getChars(0, sigLength, result, arrayCount + 1);
-			result[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
-			result[resultLength-1] = C_NAME_END;
-		}
-		for (int i = 0; i < arrayCount; i++) {
-			result[i] = C_ARRAY;
-		}
-		return result;
-	} catch (InvalidInputException e) {
-		throw new IllegalArgumentException();
 	}
+	// last id
+	if (startID != -1 && startID < index) {
+		sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+		sigIndex += index-startID;
+	}
+	
+	// build result
+	char[] result;
+	if (primitive) {
+		result = new char[arrayCount+1];
+		result[arrayCount] = primitiveSig;
+	} else {
+		int resultLength = arrayCount + 1 + sigIndex + 1; // e.g. '[[[Ljava.lang.String;'
+		result = new char[resultLength];
+		System.arraycopy(sig, 0, result, arrayCount + 1, sigIndex);
+		result[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
+		result[resultLength-1] = C_NAME_END;
+	}
+	for (int i = 0; i < arrayCount; i++) {
+		result[i] = C_ARRAY;
+	}
+	return result;
 }
 /**
  * Creates a new type signature from the given type name. If the type name is qualified,
