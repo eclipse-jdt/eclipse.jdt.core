@@ -44,11 +44,11 @@ import org.eclipse.jdt.internal.core.util.Util;
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- * TODO remove IWorkspace argument on the search methods before 3.0
  */
 public class SearchEngine {
 
 	/**
+	 * Internal adapter class.
 	 * @deprecated marking deprecated as it uses deprecated ISearchPattern
 	 */
 	static class SearchPatternAdapter implements ISearchPattern {
@@ -58,6 +58,7 @@ public class SearchEngine {
 		}
 	}
 	/**
+	 * Internal adapter class.
 	 * @deprecated marking deprecated as it uses deprecated IJavaSearchResultCollector
 	 */
 	class ResultCollectorAdapter extends SearchRequestor {
@@ -159,7 +160,7 @@ public class SearchEngine {
 	 * 
 	 * @param workingCopies the working copies that take precedence over their original compilation units
 	 * @since 2.0
-	 * @deprecated use #SearchEngine(ICompilationUnit[]) instead
+	 * @deprecated Use {@link #SearchEngine(ICompilationUnit[])} instead.
 	 */
 	public SearchEngine(IWorkingCopy[] workingCopies) {
 		int length = workingCopies.length;
@@ -219,7 +220,7 @@ public class SearchEngine {
 	 *
 	 * @param resources the resources the scope is limited to
 	 * @return a new Java search scope
-	 * @deprecated Use createJavaSearchScope(IJavaElement[]) instead
+	 * @deprecated Use {@link #createJavaSearchScope(IJavaElement[])} instead.
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
 		int length = resources.length;
@@ -307,11 +308,11 @@ public class SearchEngine {
 	 * @param elements the Java elements the scope is limited to
 	 * @param includeMask the bit-wise OR of all include types of interest
 	 * @return a new Java search scope
-	 * @since 3.0
 	 * @see IJavaSearchScope#SOURCES
 	 * @see IJavaSearchScope#APPLICATION_LIBRARIES
 	 * @see IJavaSearchScope#SYSTEM_LIBRARIES
 	 * @see IJavaSearchScope#REFERENCED_PROJECTS
+	 * @since 3.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
 		JavaSearchScope scope = new JavaSearchScope();
@@ -340,7 +341,7 @@ public class SearchEngine {
 	 * @param leftPattern the left pattern
 	 * @param rightPattern the right pattern
 	 * @return a "or" pattern
-	 * @deprecated use SearchPattern.createOrPattern(SearchPattern, SearchPattern) instead
+	 * @deprecated Use {@link SearchPattern#createOrPattern(SearchPattern, SearchPattern)} instead.
 	 */
 	public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, ISearchPattern rightPattern) {
 		SearchPattern left = ((SearchPatternAdapter) leftPattern).pattern;
@@ -390,7 +391,7 @@ public class SearchEngine {
 	 *
 	 * @param isCaseSensitive indicates whether the search is case sensitive or not.
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
-	 * @deprecated use SearchPattern.createPattern(String, int, int, int, boolean) instead
+	 * @deprecated Use {@link SearchPattern#createPattern(String, int, int, int, boolean)} instead.
 	 */
 	public static ISearchPattern createSearchPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
 		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
@@ -419,6 +420,7 @@ public class SearchEngine {
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 * @deprecated use SearchPattern.createPattern(IJavaElement, int) instead
+	 * @deprecated Use {@link SearchPattern#createPattern(IJavaElement, int)} instead.
 	 */
 	public static ISearchPattern createSearchPattern(IJavaElement element, int limitTo) {
 		return new SearchPatternAdapter(SearchPattern.createPattern(element, limitTo));
@@ -434,7 +436,7 @@ public class SearchEngine {
 	}
 	
 	/**
-	 * Returns a new default Java search participant
+	 * Returns a new default Java search participant.
 	 * 
 	 * @return a new default Java search participant
 	 * @since 3.0
@@ -612,7 +614,7 @@ public class SearchEngine {
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @deprecated use search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor) instead
+	 * @deprecated Use {@link  #search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor)} instead.
 	 */
 	public void search(IWorkspace workspace, String patternString, int searchFor, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		try {
@@ -658,7 +660,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @deprecated use search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor) instead
+	 * @deprecated Use {@link #search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor)} instead.
 	 */
 	public void search(IWorkspace workspace, IJavaElement element, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		search(workspace, createSearchPattern(element, limitTo), scope, resultCollector);
@@ -677,7 +679,7 @@ public class SearchEngine {
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @deprecated use search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor) instead
+	 * @deprecated Use {@link  #search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor)} instead.
 	 */
 	public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		try {
@@ -1049,7 +1051,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @deprecated use searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, IProgressMonitor) instead
+	 * @deprecated Use {@link  #searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, IProgressMonitor)} instead.
 	 */	
 	public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
@@ -1133,7 +1135,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @deprecated use searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, IProgressMonitor) instead
+	 * @deprecated Use {@link #searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, IProgressMonitor)} instead.
 	 */	
 	public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
@@ -1223,7 +1225,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
-	 * @deprecated use searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, IProgressMonitor) instead
+	 * @deprecated Use {@link #searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, IProgressMonitor)} instead.
 	 */	
 	public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);

@@ -39,11 +39,14 @@ import org.eclipse.jdt.core.IJavaElement;
  * </p>
  *
  * @see SearchEngine
- * @deprecated use SearchRequestor instead
+ * @deprecated Since 3.0, the class
+ * {@link org.eclipse.jdt.core.search.SearchRequestor} replaces this interface.
  */
 public interface IJavaSearchResultCollector {
 	/**
 	 * The search result corresponds exactly to the search pattern.
+	 * 
+     * @deprecated Use {@link SearchMatch#A_ACCURATE} instead.
 	 */
 	int EXACT_MATCH = 0;
 
@@ -51,11 +54,15 @@ public interface IJavaSearchResultCollector {
 	 * The search result is potentially a match for the search pattern,
 	 * but a problem prevented the search engine from being more accurate
 	 * (typically because of the classpath was not correctly set).
+	 * 
+     * @deprecated Use {@link SearchMatch#A_INACCURATE} instead.
 	 */
 	 int POTENTIAL_MATCH = 1;
 
 /**
  * Called before the actual search starts.
+ * 
+ * @deprecated Replaced by {@link SearchRequestor#beginReporting()}.
  */
 public void aboutToStart();
 /**
@@ -72,6 +79,7 @@ public void aboutToStart();
  * @param accuracy the level of accuracy the search result has; either
  *  <code>EXACT_MATCH</code> or <code>POTENTIAL_MATCH</code>
  * @exception CoreException if this collector had a problem accepting the search result
+ * @deprecated Replaced by {@link SearchRequestor#acceptSearchMatch(SearchMatch)}.
  */
 public void accept(
 	IResource resource,
@@ -82,6 +90,8 @@ public void accept(
 	throws CoreException;
 /**
  * Called when the search has ended.
+ * 
+ * @deprecated Replaced by {@link SearchRequestor#endReporting()}.
  */
 public void done();
 /**

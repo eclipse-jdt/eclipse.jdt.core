@@ -92,8 +92,9 @@ IPath[] enclosingProjectsAndJars();
  * in folders or within JARs).
  * 
  * @return whether this scope contains any <code>.class</code> files
- * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) with the package fragment
- * 				roots that correspond to the binaries instead
+ * @deprecated Use
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * with the package fragment roots that correspond to the binaries instead.
  */
 boolean includesBinaries();
 /**
@@ -101,8 +102,9 @@ boolean includesBinaries();
  * the projects of the resources of this search scope.
  * 
  * @return whether this scope includes classpaths
- * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
- * 				with a Java project instead
+ * @deprecated Use
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * with a Java project instead.
  */
 boolean includesClasspaths();
 /**
@@ -110,8 +112,9 @@ boolean includesClasspaths();
  * in folders or within JARs).
  * 
  * @param includesBinaries whether this scope contains any <code>.class</code> files
- * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) with the package fragment
- * 				roots that correspond to the binaries instead
+ * @deprecated Use
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * with the package fragment roots that correspond to the binaries instead.
  */
 public void setIncludesBinaries(boolean includesBinaries);
 /**
@@ -119,8 +122,9 @@ public void setIncludesBinaries(boolean includesBinaries);
  * the projects of the resources of this search scope.
  * 
  * @param includesClasspaths whether this scope includes classpaths
- * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
- * 				with a Java project instead
+ * @deprecated Use
+ * {@link org.eclipse.jdt.core.search.SearchEngine#createJavaSearchScope(IJavaElement[]))
+ * with a Java project instead.
  */
 public void setIncludesClasspaths(boolean includesClasspaths);
 }
