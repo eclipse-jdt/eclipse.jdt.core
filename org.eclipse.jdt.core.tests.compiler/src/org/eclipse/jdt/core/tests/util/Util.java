@@ -297,11 +297,12 @@ public static String displayString(String inputString, int indent) {
 	return buffer.toString();
 }
 /**
- * Reads the content of the given source file and converts it to a display string.
+ * Reads the content of the given source file.
+ * Returns null if enable to read given source file.
  *
- * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0)]
+ * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContent("c:/temp/X.java")]
 */
-public static String fileContentToDisplayString(String sourceFilePath, int indent, boolean independantLineDelimiter) {
+public static String fileContent(String sourceFilePath) {
 	File sourceFile = new File(sourceFilePath);
 	if (!sourceFile.exists()) {
 		System.out.println("File " + sourceFilePath + " does not exists.");
@@ -336,7 +337,16 @@ public static String fileContentToDisplayString(String sourceFilePath, int inden
 		} catch (IOException e2) {
 		}
 	}
-	String sourceString = sourceContentBuffer.toString();
+	return sourceContentBuffer.toString();
+}
+
+/**
+ * Reads the content of the given source file and converts it to a display string.
+ *
+ * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0)]
+*/
+public static String fileContentToDisplayString(String sourceFilePath, int indent, boolean independantLineDelimiter) {
+	String sourceString = fileContent(sourceFilePath);
 	if (independantLineDelimiter) {
 		sourceString = convertToIndependantLineDelimiter(sourceString);
 	}

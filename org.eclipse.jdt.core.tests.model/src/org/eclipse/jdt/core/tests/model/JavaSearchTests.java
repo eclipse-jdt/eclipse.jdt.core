@@ -46,27 +46,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 			if (results.length() > 0) results.append("\n");
 			IResource resource = match.getResource();
 			IJavaElement element = (IJavaElement) match.getElement();
-			if (resource != null) {
-				IPath path = resource.getProjectRelativePath();
-				if (path.segmentCount() == 0) {
-					IJavaElement root = element;
-					while (root != null && !(root instanceof IPackageFragmentRoot)) {
-						root = root.getParent();
-					}
-					if (root != null) {
-						IPackageFragmentRoot pkgFragmentRoot = (IPackageFragmentRoot)root;
-						if (pkgFragmentRoot.isExternal()) {
-							results.append(pkgFragmentRoot.getPath().toOSString());
-						} else {
-							results.append(pkgFragmentRoot.getPath());
-						}
-					}
-				} else {
-					results.append(path);
-				}
-			} else {
-				results.append(element.getPath());
-			}
+			results.append(getPathString(resource, element));
 			if (this.showProject) {
 				IProject project = element.getJavaProject().getProject();
 				results.append(" [in ");
@@ -113,22 +93,10 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 				unit = (ICompilationUnit)localVar.getAncestor(IJavaElement.COMPILATION_UNIT);
 			}
 			if (resource instanceof IFile) {
-				char[] contents = null;
-				if ("java".equals(resource.getFileExtension())) {
-					ICompilationUnit cu = (ICompilationUnit)element.getAncestor(IJavaElement.COMPILATION_UNIT);
-					if (cu != null && cu.isWorkingCopy()) {
-						// working copy
-						contents = unit.getBuffer().getCharacters();
-					} else {
-						contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-							null, 
-							((IFile) resource).getLocation().toFile().getPath(),
-							null).getContents();
-					}
-				}
+				char[] contents = getSource(resource, element, unit);
 				int start = match.getOffset();
 				int end = start + match.getLength();
-				if (start == -1 || contents != null) { // retrieving attached source not implemented here
+				if (start == -1 || (contents != null && contents.length > 0)) { // retrieving attached source not implemented here
 					results.append(" [");
 					if (start > -1) {
 						if (this.showContext) {
@@ -176,6 +144,49 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 			results.append("\n");
 			results.append(e.toString());
 		}
+	}
+	protected String getPathString(IResource resource, IJavaElement element) {
+		String pathString;
+		if (resource != null) {
+			IPath path = resource.getProjectRelativePath();
+			if (path.segmentCount() == 0) {
+				IJavaElement root = element;
+				while (root != null && !(root instanceof IPackageFragmentRoot)) {
+					root = root.getParent();
+				}
+				if (root != null) {
+					IPackageFragmentRoot pkgFragmentRoot = (IPackageFragmentRoot)root;
+					if (pkgFragmentRoot.isExternal()) {
+						pathString = pkgFragmentRoot.getPath().toOSString();
+					} else {
+						pathString = pkgFragmentRoot.getPath().toString();
+					}
+				} else {
+					pathString = "";
+				}
+			} else {
+				pathString = path.toString();
+			}
+		} else {
+			pathString = element.getPath().toString();
+		}
+		return pathString;
+	}
+	protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws JavaModelException {
+		char[] contents = CharOperation.NO_CHAR;
+		if ("java".equals(resource.getFileExtension())) {
+			ICompilationUnit cu = (ICompilationUnit)element.getAncestor(IJavaElement.COMPILATION_UNIT);
+			if (cu != null && cu.isWorkingCopy()) {
+				// working copy
+				contents = unit.getBuffer().getCharacters();
+			} else {
+				contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
+					null, 
+					((IFile) resource).getLocation().toFile().getPath(),
+					null).getContents();
+			}
+		}
+		return contents;
 	}
 	private void append(IField field) throws JavaModelException {
 		append(field.getDeclaringType());
