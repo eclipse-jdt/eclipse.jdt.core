@@ -1198,7 +1198,7 @@ public class JavaModelManager implements ISaveParticipant {
 		this.cache.removeInfo(element);
 	}
 
-	void removePerProjectInfo(JavaProject javaProject) {
+	public void removePerProjectInfo(JavaProject javaProject) {
 		IProject project = javaProject.getProject();
 		PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
 		if (info != null) {
