@@ -201,7 +201,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		project.setRawClasspath(entries, null);
 	}
 	protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
-		this.sortElements(elements);
+		sortElements(elements);
 		assertElementsEqual(message, expected, elements);
 	}
 	
@@ -1218,9 +1218,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
 			public int compare(Object a, Object b) {
-				IJavaElement elementA = (IJavaElement)a;
-				IJavaElement elementB = (IJavaElement)b;
-				return elementA.getElementName().compareTo(elementB.getElementName());
+				JavaElement elementA = (JavaElement)a;
+				JavaElement elementB = (JavaElement)b;
+				return elementA.toStringWithAncestors().compareTo(elementB.toStringWithAncestors());
 			}
 		};
 		Util.sort(elements, comparer);

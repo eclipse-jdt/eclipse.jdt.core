@@ -882,9 +882,9 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 	IPackageFragment[] fragments= project.getPackageFragments();
 	assertSortedElementsEqual(
 		"unexpected package fragments",
-		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
-		"<default> [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
+		"<default> [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
+		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
 		"META-INF [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
 		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
 		"java [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
