@@ -402,26 +402,41 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getQualifiedName()
 	 */
 	public String getQualifiedName() {
-		if (isAnonymous() || isLocal() || isPrimitive() || isArray() || isNullType()) {
-			return null;
+		if (isAnonymous() || isLocal()) {
+			return NO_NAME;
 		}
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(getName());
-		buffer.insert(0, '.');
-		if (isMember()) {
-			// handle member type
-			ITypeBinding declaringClass = getDeclaringClass();
-			while(declaringClass != null) {
-				buffer.insert(0, declaringClass.getName());
-				buffer.insert(0, '.');
-				declaringClass = declaringClass.getDeclaringClass();
+		
+		if (isPrimitive() || isNullType()) {
+			return getName();
+		}
+		
+		if (isArray()) {
+			ITypeBinding elementType = getElementType();
+			String elementTypeQualifiedName = elementType.getQualifiedName();
+			if (elementTypeQualifiedName.length() != 0) {
+				int dimensions = getDimensions();
+				char[] brackets = new char[dimensions * 2];
+				for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
+					brackets[i] = ']';
+					brackets[i - 1] = '[';
+				}
+				StringBuffer stringBuffer = new StringBuffer(elementTypeQualifiedName);
+				stringBuffer.append(brackets);
+				return stringBuffer.toString();
+			} else {
+				return NO_NAME;
 			}
 		}
-		IPackageBinding packageBinding = getPackage();
-		if (!packageBinding.isUnnamed()) {
-			buffer.insert(0, packageBinding.getName());
+		
+		if (isTopLevel() || isMember()) {
+			StringBuffer stringBuffer = new StringBuffer();
+			stringBuffer
+				.append(this.binding.qualifiedPackageName())
+				.append('.')
+				.append(this.binding.qualifiedSourceName());
+			return stringBuffer.toString();
 		}
-		return buffer.toString();
+		return NO_NAME;
 	}
 
 }
