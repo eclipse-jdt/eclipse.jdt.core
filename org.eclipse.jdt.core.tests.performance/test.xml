@@ -41,11 +41,10 @@
 
   <!-- This target defines the performance tests that need to be run. -->
   <target name="performance-suite">
-    <!-- Java Model tests -->
-    <property name="jdt-model-performance-folder" value="${eclipse-home}/jdt-model-performance-folder"/>
-    <delete dir="${jdt-model-performance-folder}" quiet="true"/>
+    <property name="jdt-core-performance-folder" value="${eclipse-home}/jdt-core-performance-folder"/>
+    <delete dir="${jdt-core-performance-folder}" quiet="true"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="data-dir" value="${jdt-model-performance-folder}"/>
+      <property name="data-dir" value="${jdt-core-performance-folder}"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" value="org.eclipse.jdt.core.tests.performance.AllPerformanceTests"/>
     </ant>
