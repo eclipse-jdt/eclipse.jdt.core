@@ -325,12 +325,12 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 						for (int k = 0; k < parameterType.dimensions(); k++) {
 							typeName = CharOperation.concat(typeName, "[]" .toCharArray()); //$NON-NLS-1$
 						}
-						String parameterTypeName = parameterTypes[j];
+						String parameterTypeName = parameterTypes[j].replace('/', '.');
 						if (!Signature.toString(parameterTypeName).endsWith(new String(typeName))) {
 							sameParameters = false;
 							break;
 						} else {
-							parameterTypes[j] = parameterTypeName.replace('/', '.');
+							parameterTypes[j] = parameterTypeName;
 						}
 					}
 					if (sameParameters) {
