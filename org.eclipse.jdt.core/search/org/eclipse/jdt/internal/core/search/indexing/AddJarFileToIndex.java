@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -26,6 +25,7 @@ import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 class AddJarFileToIndex extends IndexRequest {
 	IFile resource;
@@ -117,35 +117,43 @@ class AddJarFileToIndex extends IndexRequest {
 					JobManager.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
-				final HashSet indexedFileNames = new HashSet(100);
 				IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
-				int resultLength = results == null ? 0 : results.length;
-				if (resultLength != 0) {
+				int max = results == null ? 0 : results.length;
+				if (max != 0) {
 					/* check integrity of the existing index file
 					 * if the length is equal to 0, we want to index the whole jar again
 					 * If not, then we want to check that there is no missing entry, if
-					 * one entry is missing then we 
+					 * one entry is missing then we recreate the index
 					 */
-					for (int i = 0; i < resultLength; i++)
-						indexedFileNames.add(results[i].getPath());
-					boolean needToReindex = false;
+					String EXISTS = "OK"; //$NON-NLS-1$
+					String DELETED = "DELETED"; //$NON-NLS-1$
+					SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
+					for (int i = 0; i < max; i++)
+						indexedFileNames.put(results[i].getPath(), DELETED);
 					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 						// iterate each entry to index it
 						ZipEntry ze = (ZipEntry) e.nextElement();
 						if (Util.isClassFileName(ze.getName())) {
 							JarFileEntryDocument entryDocument = new JarFileEntryDocument(ze, null, zipFilePath);
-							if (!indexedFileNames.remove(entryDocument.getName())) {
-								needToReindex = true;
+							indexedFileNames.put(entryDocument.getName(), EXISTS);
+						}
+					}
+					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
+					if (!needToReindex) {
+						Object[] valueTable = indexedFileNames.valueTable;
+						for (int i = 0, l = valueTable.length; i < l; i++) {
+							if (valueTable[i] == DELETED) {
+								needToReindex = true; // a file was deleted so re-index
 								break;
 							}
 						}
-					}
-					if (!needToReindex && indexedFileNames.size() == 0) {
-						if (JobManager.VERBOSE)
-							JobManager.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
-							+ zip.getName() + " (" //$NON-NLS-1$
-							+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
-						return true;
+						if (!needToReindex) {
+							if (JobManager.VERBOSE)
+								JobManager.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
+								+ zip.getName() + " (" //$NON-NLS-1$
+								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
+							return true;
+						}
 					}
 				}
 
