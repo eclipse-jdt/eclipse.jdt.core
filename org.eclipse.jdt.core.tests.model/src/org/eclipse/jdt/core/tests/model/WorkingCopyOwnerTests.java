@@ -210,7 +210,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy.commitWorkingCopy(false, null);
 			assertDeltas(
 				"Unexpected delta",
-				""
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[*]: {PRIMARY RESOURCE}"
 			);
 		} finally {
 			stopDeltas();
@@ -245,8 +248,12 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy.commitWorkingCopy(false, null);
 			assertDeltas(
 				"Unexpected delta",
-				"Y[*]: {CHILDREN | FINE GRAINED}\n" + 
-				"	foo()[+]: {}"
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+				"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"					foo()[+]: {}"
 			);
 		} finally {
 			stopDeltas();

@@ -550,7 +550,7 @@ public void testBatchOperation() throws CoreException {
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
 			"		x[*]: {CHILDREN}\n" +
-			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
+			"			A.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
 			"				B[+]: {}\n" +
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					i[+]: {}"
@@ -1033,7 +1033,7 @@ public void testListenerPostChange() throws CoreException {
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
 			"				A[+]: {}", 
 			listener.toString());
 		listener.flush();
@@ -1078,7 +1078,7 @@ public void testListenerPostChange() throws CoreException {
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo()[+]: {}\n" +
 			"				A[-]: {}",
@@ -1267,7 +1267,7 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[*]: {CONTENT | FINE GRAINED}"
+			"			A.java[*]: {CONTENT | FINE GRAINED | PRIMARY RESOURCE}"
 		);
 	} finally {
 		this.stopDeltas();
@@ -2056,7 +2056,7 @@ public void testRenameMethodAndSave() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		x.y[*]: {CHILDREN}\n" + 
-			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			A.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo2()[+]: {}\n" + 
 			"					foo1()[-]: {}"
@@ -2142,7 +2142,7 @@ public void testSaveWorkingCopy() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo()[+]: {}"
 		);
@@ -2273,7 +2273,7 @@ public void testWorkingCopyCommit() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		x.y[*]: {CHILDREN}\n" + 
-			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			A.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo()[+]: {}"
 		);

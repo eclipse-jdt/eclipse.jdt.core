@@ -534,12 +534,25 @@ public class DeltaProcessor {
 	 */
 	private void contentChanged(Openable element) {
 
-		// filter out changes to primary compilation unit in working copy mode
-		if (!isPrimaryWorkingCopy(element, element.getElementType())) {
+		boolean isPrimary = false;
+		boolean isPrimaryWorkingCopy = false;
+		if (element.getElementType() == IJavaElement.COMPILATION_UNIT) {
+			CompilationUnit cu = (CompilationUnit)element;
+			isPrimary = cu.isPrimary();
+			isPrimaryWorkingCopy = isPrimary && cu.isWorkingCopy();
+		}
+		if (isPrimaryWorkingCopy) {
+			// filter out changes to primary compilation unit in working copy mode
+			// just report a change to the resource (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59500)
+			currentDelta().changed(element, IJavaElementDelta.F_PRIMARY_RESOURCE);
+		} else {
 			close(element);
 			int flags = IJavaElementDelta.F_CONTENT;
 			if (element instanceof JarPackageFragmentRoot){
 				flags |= IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED;
+			}
+			if (isPrimary) {
+				flags |= IJavaElementDelta.F_PRIMARY_RESOURCE;
 			}
 			currentDelta().changed(element, flags);
 		}
@@ -936,7 +949,11 @@ public class DeltaProcessor {
 		} else {			
 			if (delta == null || (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {
 				// regular element addition
-				if (!isPrimaryWorkingCopy(element, elementType)) { // filter out changes to primary compilation unit in working copy mode
+				if (isPrimaryWorkingCopy(element, elementType) ) {
+					// filter out changes to primary compilation unit in working copy mode
+					// just report a change to the resource (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59500)
+					currentDelta().changed(element, IJavaElementDelta.F_PRIMARY_RESOURCE);
+				} else {
 					addToParentInfo(element);
 					
 					// Force the element to be closed as it might have been opened 
@@ -1045,7 +1062,11 @@ public class DeltaProcessor {
 		int elementType = element.getElementType();
 		if (delta == null || (delta.getFlags() & IResourceDelta.MOVED_TO) == 0) {
 			// regular element removal
-			if (!isPrimaryWorkingCopy(element, elementType)) { // filter out changes to primary compilation unit in working copy mode
+			if (isPrimaryWorkingCopy(element, elementType) ) {
+				// filter out changes to primary compilation unit in working copy mode
+				// just report a change to the resource (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59500)
+				currentDelta().changed(element, IJavaElementDelta.F_PRIMARY_RESOURCE);
+			} else {
 				close(element);
 				removeFromParentInfo(element);
 				currentDelta().removed(element);

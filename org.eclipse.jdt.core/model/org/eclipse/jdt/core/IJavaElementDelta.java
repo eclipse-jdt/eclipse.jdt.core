@@ -167,13 +167,6 @@ public interface IJavaElementDelta {
 	public int F_REMOVED_FROM_CLASSPATH = 0x00080;
 
 	/**
-	 * Change flag indicating that the raw classpath (or the output folder) of a project has changed. 
-	 * This flag is only valid if the element is an <code>IJavaProject</code>.
-	 *
-	 * @since 3.0
-	 */
-	public int F_CLASSPATH_CHANGED = 0x20000;
-	/**
 	 * Change flag indicating that a classpath entry corresponding to the element has changed position in the project's 
 	 * classpath. This flag is only valid if the element is an <code>IPackageFragmentRoot</code>.
 	 * @deprecated Use F_REORDER instead.
@@ -253,6 +246,22 @@ public interface IJavaElementDelta {
 	 * @since 3.0
 	 */
 	public int F_PRIMARY_WORKING_COPY = 0x10000;
+
+	/**
+	 * Change flag indicating that the raw classpath (or the output folder) of a project has changed. 
+	 * This flag is only valid if the element is an <code>IJavaProject</code>.
+	 *
+	 * @since 3.0
+	 */
+	public int F_CLASSPATH_CHANGED = 0x20000;
+
+	/**
+	 * Change flag indicating that the resource of a primary compilation unit has changed.
+	 * This flag is only valid if the element is a primary <code>ICompilationUnit</code>.
+	 * 
+	 * @since 3.0
+	 */
+	public int F_PRIMARY_RESOURCE = 0x40000;
 
 	/**
 	 * Returns deltas for the children that have been added.
