@@ -849,15 +849,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding2 = enumDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding2);
 		List modifiers = enumDeclaration.modifiers();
-		assertEquals("Wrong number of modifiers", 2, modifiers.size());
+		assertEquals("Wrong number of modifiers", 1, modifiers.size());
 		IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
 		assertTrue("Not a modifier", extendedModifier instanceof Modifier);
 		Modifier modifier = (Modifier) extendedModifier;
 		checkSourceRange(modifier, "public", source);
-		extendedModifier = (IExtendedModifier) modifiers.get(1);
-		assertTrue("Not a modifier", extendedModifier instanceof Modifier);
-		modifier = (Modifier) extendedModifier;
-		checkSourceRange(modifier, "abstract", source);
 		assertEquals("wrong name", "X", enumDeclaration.getName().getIdentifier());
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("wrong size", 4, enumConstants.size());
