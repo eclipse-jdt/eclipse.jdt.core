@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -23,12 +24,10 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.Util;
 
 public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 	
@@ -75,61 +74,29 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 	if (size != 0) {
 		this.infoToHandle = new HashMap(size);
 	}
-	IType[] types = new IType[size];
-	allTypesInRegion.toArray(types);
-
-	/*
-	 * NOTE: To workaround pb with hierarchy resolver that requests top  
-	 * level types in the process of caching an enclosing type, this needs to
-	 * be sorted in reverse alphabetical order so that top level types are cached
-	 * before their inner types.
-	 */
-	Util.sort(
-		types,
-		new Util.Comparer() {
-			/**
-			 * @see Comparer#compare(Object, Object)
-			 */
-			public int compare(Object a, Object b) {
-				return - ((IJavaElement)a).getParent().getElementName().compareTo(((IJavaElement)b).getParent().getElementName());
-			}
+	HashSet existingOpenables = new HashSet(size);
+	Openable[] openables = new Openable[size];
+	int openableIndex = 0;
+	for (int i = 0; i < size; i++) {
+		IType type = (IType)allTypesInRegion.get(i);
+		Openable openable;
+		if (type.isBinary()) {
+			openable = (Openable)type.getClassFile();
+		} else {
+			openable = (Openable)type.getCompilationUnit();
 		}
-	);
-
-	// collect infos and compilation units
-	ArrayList infos = new ArrayList();
-	ArrayList closedUnits = new ArrayList();
-	types : for (int i = 0; i < size; i++) {
-		try {
-			IType type = types[i];
-			this.addInfoFromElement((Openable)type.getOpenable(), infos, closedUnits, type.getPath().toString());
-		} catch (JavaModelException npe) {
-			continue types;
+		if (existingOpenables.add(openable)) {
+			openables[openableIndex++] = openable;
 		}
 	}
-
-	// copy vectors into arrays
-	IGenericType[] genericTypes;
-	int infosSize = infos.size();
-	if (infosSize > 0) {
-		genericTypes = new IGenericType[infosSize];
-		infos.toArray(genericTypes);
-	} else {
-		genericTypes = new IGenericType[0];
-	}
-	ICompilationUnit[] closedCUs;
-	int closedUnitsSize = closedUnits.size();
-	if (closedUnitsSize > 0) {
-		closedCUs = new ICompilationUnit[closedUnitsSize];
-		closedUnits.toArray(closedCUs);
-	} else {
-		closedCUs = new ICompilationUnit[0];
+	if (openableIndex < size) {
+		System.arraycopy(openables, 0, openables = new Openable[openableIndex], 0, openableIndex);
 	}
 
 	try {
 		// resolve
-		if (monitor != null) monitor.beginTask("", (infosSize+closedUnitsSize) * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
-		if (infosSize > 0 || closedUnitsSize > 0) {
+		if (monitor != null) monitor.beginTask("", openableIndex * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+		if (openableIndex > 0) {
 			IType focusType = this.getType();
 			CompilationUnit unitToLookInside = null;
 			if (focusType != null) {
@@ -138,12 +105,12 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 			if (this.nameLookup != null && unitToLookInside != null) {
 				try {
 					nameLookup.setUnitsToLookInside(new ICompilationUnit[] {unitToLookInside}); // NB: this uses a PerThreadObject, so it is thread safe
-					this.hierarchyResolver.resolve(genericTypes, closedCUs, null, monitor);
+					this.hierarchyResolver.resolve(openables, null, monitor);
 				} finally {
 					nameLookup.setUnitsToLookInside(null);
 				}
 			} else {
-				this.hierarchyResolver.resolve(genericTypes, closedCUs, null, monitor);
+				this.hierarchyResolver.resolve(openables, null, monitor);
 			}
 		}
 	} finally {

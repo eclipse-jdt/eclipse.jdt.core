@@ -102,39 +102,6 @@ public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scop
 	this.binariesFromIndexMatches = new HashMap(10);
 	this.scope = scope;
 }
-/**
- * Add the type info from the given hierarchy binary type to the given list of infos.
- */
-private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType binaryType, ArrayList infos) {
-	infos.add(binaryType);
-	this.infoToHandle.put(binaryType, handle);
-}
-protected void addInfoFromClosedElement(Openable handle,ArrayList infos,ArrayList closedUnits,String resourcePath) {
-	HierarchyBinaryType binaryType = (HierarchyBinaryType) binariesFromIndexMatches.get(resourcePath);
-	if (binaryType != null) {
-		this.addInfoFromBinaryIndexMatch(handle, binaryType, infos);
-	} else {
-		super.addInfoFromClosedElement(handle, infos, closedUnits, resourcePath);
-	}
-}
-/**
- * Add the type info (and its sibblings type infos) to the given list of infos.
- */
-private void addInfosFromType(IType type, ArrayList infos) throws JavaModelException {
-	if (type.isBinary()) {
-		// add class file
-		ClassFile classFile = (ClassFile)type.getClassFile();
-		if (classFile != null) {
-			this.addInfoFromOpenClassFile(classFile, infos);
-		}
-	} else {
-		// add whole cu (if it is a working copy, it's types can be potential subtypes)
-		CompilationUnit unit = (CompilationUnit)type.getCompilationUnit();
-		if (unit != null) {
-			this.addInfoFromOpenCU(unit, infos);
-		}
-	}
-}
 public void build(boolean computeSubtypes) {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	try {
@@ -167,27 +134,14 @@ public void build(boolean computeSubtypes) {
 		manager.flushZipFiles();
 	}
 }
-private void buildForProject(JavaProject project, ArrayList infos, ArrayList closedUnits, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, HashSet localTypes, IProgressMonitor monitor) throws JavaModelException {
+private void buildForProject(JavaProject project, ArrayList potentialSubtypes, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, HashSet localTypes, IProgressMonitor monitor) throws JavaModelException {
 	// copy vectors into arrays
-	IGenericType[] genericTypes;
-	int infosSize = infos.size();
-	if (infosSize > 0) {
-		genericTypes = new IGenericType[infosSize];
-		infos.toArray(genericTypes);
-	} else {
-		genericTypes = new IGenericType[0];
-	}
-	org.eclipse.jdt.core.ICompilationUnit[] closedCUs;
-	int closedUnitsSize = closedUnits.size();
-	if (closedUnitsSize > 0) {
-		closedCUs = new org.eclipse.jdt.core.ICompilationUnit[closedUnitsSize];
-		closedUnits.toArray(closedCUs);
-	} else {
-		closedCUs = new org.eclipse.jdt.core.ICompilationUnit[0];
-	}
+	int openablesLength = potentialSubtypes.size();
+	Openable[] openables = new Openable[openablesLength];
+	potentialSubtypes.toArray(openables);
 
 	// resolve
-	if (infosSize > 0 || closedUnitsSize > 0) {
+	if (openablesLength > 0) {
 		this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
 		IType focusType = this.getType();
 		this.nameLookup = project.getNameLookup();
@@ -227,7 +181,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList clo
 					return;
 				}
 			}
-			this.hierarchyResolver.resolve(genericTypes, closedCUs, localTypes, monitor);
+			this.hierarchyResolver.resolve(openables, localTypes, monitor);
 		} finally {
 			if (inProjectOfFocusType) {
 				this.nameLookup.setUnitsToLookInside(null);
@@ -285,8 +239,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 	 */
 	Util.sortReverseOrder(allPotentialSubTypes);
 	
-	ArrayList infos = new ArrayList();
-	ArrayList closedUnits = new ArrayList();
+	ArrayList potentialSubtypes = new ArrayList();
 
 	try {
 		// create element infos for subtypes
@@ -315,17 +268,15 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 				IJavaProject project = handle.getJavaProject();
 				if (currentProject == null) {
 					currentProject = project;
-					infos = new ArrayList(5);
-					closedUnits = new ArrayList(5);
+					potentialSubtypes = new ArrayList(5);
 				} else if (!currentProject.equals(project)) {
 					// build current project
-					this.buildForProject((JavaProject)currentProject, infos, closedUnits, workingCopies, localTypes, monitor);
+					this.buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
 					currentProject = project;
-					infos = new ArrayList(5);
-					closedUnits = new ArrayList(5);
+					potentialSubtypes = new ArrayList(5);
 				}
 				
-				this.addInfoFromElement(handle, infos, closedUnits, resourcePath); // TODO (jerome) should not add all infos: this creates duplicate compilation units
+				potentialSubtypes.add(handle);
 			} catch (JavaModelException e) {
 				continue;
 			}
@@ -336,9 +287,9 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 			if (currentProject == null) {
 				// case of no potential subtypes
 				currentProject = focusType.getJavaProject();
-				this.addInfosFromType(focusType, infos);
+				potentialSubtypes.add(focusType.getCompilationUnit());
 			}
-			this.buildForProject((JavaProject)currentProject, infos, closedUnits, workingCopies, localTypes, monitor);
+			this.buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
 		} catch (JavaModelException e) {
 			// ignore
 		}
@@ -347,10 +298,9 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		if (!this.hierarchy.contains(focusType)) {
 			try {
 				currentProject = focusType.getJavaProject();
-				infos = new ArrayList();
-				closedUnits = new ArrayList();
-				this.addInfosFromType(focusType, infos);
-				this.buildForProject((JavaProject)currentProject, infos, closedUnits, workingCopies, localTypes, monitor);
+				potentialSubtypes = new ArrayList();
+				potentialSubtypes.add(focusType.getCompilationUnit());
+				this.buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
 			} catch (JavaModelException e) {
 				// ignore
 			}
