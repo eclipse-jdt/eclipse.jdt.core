@@ -101,6 +101,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.generateOuterAccess(path, this, targetType, currentScope);
 	} else {
 		receiver.generateCode(currentScope, codeStream, !isStatic);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	// generate arguments
 	generateArguments(binding, arguments, currentScope, codeStream);

@@ -62,11 +62,13 @@ public class ArrayReference extends Reference {
 		Assignment assignment,
 		boolean valueRequired) {
 
+		int pc = codeStream.position;
 		receiver.generateCode(currentScope, codeStream, true);
 		if (receiver instanceof CastExpression	// ((type[])null)[0]
 				&& ((CastExpression)receiver).innermostCastedExpression().resolvedType == NullBinding){
 			codeStream.checkcast(receiver.resolvedType); 
 		}	
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		position.generateCode(currentScope, codeStream, true);
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		codeStream.arrayAtPut(this.resolvedType.id, valueRequired);

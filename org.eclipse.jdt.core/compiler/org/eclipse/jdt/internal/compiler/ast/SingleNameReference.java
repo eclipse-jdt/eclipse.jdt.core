@@ -226,6 +226,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD : // assigning to a field
 				FieldBinding fieldBinding;
+				int pc = codeStream.position;
 				if (!(fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) { // need a receiver?
 					if ((bits & DepthMASK) != 0) {
 						ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
@@ -235,6 +236,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						this.generateReceiver(codeStream);
 					}
 				}
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				assignment.expression.generateCode(currentScope, codeStream, true);
 				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], valueRequired);
 				if (valueRequired) {
@@ -552,7 +554,6 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	}
 	
 	public void generateReceiver(CodeStream codeStream) {
-		
 		codeStream.aload_0();
 	}
 

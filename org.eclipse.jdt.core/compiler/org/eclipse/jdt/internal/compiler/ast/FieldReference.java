@@ -152,10 +152,12 @@ public class FieldReference extends Reference implements InvocationSite {
 		Assignment assignment,
 		boolean valueRequired) {
 
+		int pc = codeStream.position;
 		receiver.generateCode(
 			currentScope,
 			codeStream,
 			!this.codegenBinding.isStatic());
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		fieldStore(
 			codeStream,

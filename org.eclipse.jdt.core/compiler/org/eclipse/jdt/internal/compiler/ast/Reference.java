@@ -32,7 +32,7 @@ public FieldBinding fieldBinding() {
 	return null ;
 }
 public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodBinding syntheticWriteAccessor, boolean valueRequired) {
-
+	int pc = codeStream.position;
 	if (fieldBinding.isStatic()) {
 		if (valueRequired) {
 			if ((fieldBinding.type == LongBinding) || (fieldBinding.type == DoubleBinding)) {
@@ -60,6 +60,7 @@ public void fieldStore(CodeStream codeStream, FieldBinding fieldBinding, MethodB
 			codeStream.invokestatic(syntheticWriteAccessor);
 		}
 	}
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public abstract void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired);
 

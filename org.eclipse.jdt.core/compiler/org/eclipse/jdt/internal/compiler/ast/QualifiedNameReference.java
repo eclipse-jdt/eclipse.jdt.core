@@ -294,7 +294,9 @@ public class QualifiedNameReference extends NameReference {
 		Assignment assignment,
 		boolean valueRequired) {
 			
+		int pc = codeStream.position;
 		FieldBinding lastFieldBinding = generateReadSequence(currentScope, codeStream);
+		codeStream.recordPositionsFrom(pc , this.sourceStart);
 		assignment.expression.generateCode(currentScope, codeStream, true);
 		fieldStore(codeStream, lastFieldBinding, syntheticWriteAccessor, valueRequired);
 		// equivalent to valuesRequired[maxOtherBindings]
@@ -482,6 +484,7 @@ public class QualifiedNameReference extends NameReference {
 					break;
 				}
 				if (needValue && !lastFieldBinding.isStatic()) {
+					int pc = codeStream.position;
 					if ((bits & DepthMASK) != 0) {
 						ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
 						Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
@@ -489,6 +492,7 @@ public class QualifiedNameReference extends NameReference {
 					} else {
 						generateReceiver(codeStream);
 					}
+					codeStream.recordPositionsFrom(pc, this.sourceStart);
 				}
 				break;
 			case Binding.LOCAL : // reading the first local variable
