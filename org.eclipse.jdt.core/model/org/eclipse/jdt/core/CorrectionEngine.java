@@ -70,6 +70,8 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 		the offset of position given by the marker.
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
+	 * @exception JavaModelException currently this exception is never thrown,ut the opportunity to thrown an exception
+	 * 	when the correction failed is kept for later. 
 	 * @since 2.0 
 	 */
 	public void computeCorrections(IMarker marker, ICompilationUnit targetUnit, int positionOffset, ICorrectionRequestor requestor) throws JavaModelException {
@@ -102,6 +104,8 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 		denote the compilation unit in which correction occurs. Cannot be null.
 	 * 
 	 * @exception IllegalArgumentException if <code>targetUnit</code> or <code>requestor</code> is <code>null</code>
+	 * @exception JavaModelException currently this exception is never thrown, but the opportunity to thrown an exception
+	 * 	when the correction failed is kept for later.
 	 * @since 2.0 
 	 */
 	public void computeCorrections(IProblem problem, ICompilationUnit targetUnit, ICorrectionRequestor requestor) throws JavaModelException {
@@ -137,6 +141,8 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 		arguments of the problem.
 	 * 
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
+	 * @exception JavaModelException currently this exception is never thrown, but the opportunity to thrown an exception
+	 * 	when the correction failed is kept for later.
 	 * @since 2.0
 	 */
 	private void computeCorrections(ICompilationUnit unit, int id, int start, int end, String[] arguments, ICorrectionRequestor requestor) throws JavaModelException{
