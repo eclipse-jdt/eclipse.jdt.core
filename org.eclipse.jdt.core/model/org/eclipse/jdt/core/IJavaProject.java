@@ -205,7 +205,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * (possibly in a folder)
 	 * </p>
 	 * 
-	 * @return an array of non-Java resources directly contained in this project
+	 * @return an array of non-Java resources (<code>IFile</code>s and/or 
+	 *              <code>IFolder</code>s) directly contained in this project
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 */

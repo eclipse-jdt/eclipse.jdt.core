@@ -144,7 +144,10 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * (possibly in a folder).
 	 * </p>
 	 * 
-	 * @return an array of non-Java resources contained in this package fragment
+	 * @return an array of non-Java resources (<code>IFile</code>s, 
+	 *              <code>IFolder</code>s, or <code>IStorage</code>s if the
+	 *              package fragment is in an archive) contained in this package 
+	 *              fragment
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;

@@ -271,7 +271,10 @@ public interface IPackageFragmentRoot
 	 * (possibly in a folder). Thus when a nested source folder is excluded, it will appear
 	 * in the non-Java resources of the outer folder.
 	 * </p>
-	 * @return an array of non-Java resources contained in this package fragment root
+	 * @return an array of non-Java resources (<code>IFile</code>s, 
+	 *              <code>IFolder</code>s, or <code>IStorage</code>s if the
+	 *              package fragment root is in archive) contained in this package 
+	 *              fragment root
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;

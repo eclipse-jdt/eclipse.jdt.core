@@ -137,7 +137,8 @@ IJavaProject[] getJavaProjects() throws JavaModelException;
  * Java nature).
  * </p>
  * 
- * @return an array of non-Java projects contained in the workspace.
+ * @return an array of non-Java projects (<code>IProject</code>s) contained 
+ *              in the workspace.
  * @throws JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource
  * @since 2.1
