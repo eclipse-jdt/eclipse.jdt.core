@@ -267,7 +267,8 @@ public class CastExpression extends Expression {
 
 		constant = Constant.NotAConstant;
 		implicitConversion = T_undefined;
-		if ((type instanceof TypeReference) || (type instanceof NameReference)) {
+		if ((type instanceof TypeReference) || (type instanceof NameReference)
+				&& ((type.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
 			this.resolvedType = type.resolveType(scope);
 			TypeBinding castedExpressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && castedExpressionType != null) {
