@@ -33,24 +33,49 @@ public class JavaSearchScope extends AbstractSearchScope implements IJavaSearchS
 	   if the resources are projects) */
 	private IPath[] paths = new IPath[1];
 	private int pathsCount = 0;
+	
 /**
  * Adds the given resource to this search scope.
  */
 public void add(IResource element) {
+	this.add(element, true);
+}
+
+/**
+ * Adds the given resource to this search scope.
+ * If asked and if the element is a project, also add its external jars,
+ * jars that are internal to the project and source folders.
+ */
+public void add(IResource element, boolean addJarsAndSourceFolders) {
 	super.add(element);
 
 	// clear indexer cache
 	fLastCheckedResource = null;
 
-	if (element instanceof IProject) {
+	if (addJarsAndSourceFolders && element instanceof IProject) {
 		// remember the paths of its classpath entries
 		IJavaModel javaModel = JavaModelManager.getJavaModel(element.getWorkspace());
 		IJavaProject javaProject = javaModel.getJavaProject(element.getName());
 		try {
-			IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
+			// add only external jars, internal jars (that are internal to the project)
+			// and source folders of the project
+			IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
-				this.add(entry.getPath());
+				IPath path = entry.getPath();
+				switch (entry.getEntryKind()) {
+					case IClasspathEntry.CPE_LIBRARY:
+						if (element.getFullPath().isPrefixOf(path) // jar internal to project 
+								|| element.getWorkspace().getRoot().findMember(path) == null) { // jar external to workspace
+							this.add(path);
+						}
+						break;
+					case IClasspathEntry.CPE_SOURCE:
+						if (element.getFullPath().isPrefixOf(path)) { // source folder inside project
+							this.add(path);
+						}
+						break;
+				}
 			}
 		} catch (JavaModelException e) {
 		}
@@ -58,6 +83,7 @@ public void add(IResource element) {
 		this.add(element.getFullPath());
 	}
 }
+
 /**
  * Adds the given path to this search scope.
  */
@@ -72,6 +98,7 @@ private void add(IPath path) {
 	}
 	this.paths[this.pathsCount++] = path;
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#encloses(String)
  */
@@ -88,6 +115,7 @@ public boolean encloses(String resourcePathString) {
 	}
 	return false;
 }
+
 /**
  * Returns whether this search scope encloses the given resource.
  */
@@ -104,6 +132,7 @@ protected boolean encloses(IResource element) {
 	fLastResult = encloses;
 	return encloses;
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#encloses(IJavaElement)
  */
@@ -121,6 +150,7 @@ public boolean encloses(IJavaElement element) {
 		return false;
 	}
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#enclosingProjectsAndJars()
  */
@@ -165,28 +195,33 @@ public IPath[] enclosingProjectsAndJars() {
 		return new IPath[0];
 	}
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#includesBinaries()
  */
 public boolean includesBinaries() {
 	return this.includesBinaries;
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#includesClasspaths()
  */
 public boolean includesClasspaths() {
 	return this.includesClasspaths;
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#setIncludesBinaries
  */
 public void setIncludesBinaries(boolean includesBinaries) {
 	this.includesBinaries = includesBinaries;
 }
+
 /* (non-Javadoc)
  * @see IJavaSearchScope#setIncludeClasspaths
  */
 public void setIncludesClasspaths(boolean includesClasspaths) {
 	this.includesClasspaths = includesClasspaths;
 }
+
 }

@@ -12,7 +12,8 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 import org.eclipse.jdt.internal.codeassist.*;
-import org.eclipse.jdt.internal.core.SourceTypeElementInfo;;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.search.JavaSearchScope;;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -197,10 +198,32 @@ public class SearchableEnvironment
 
 			SearchEngine searchEngine = new SearchEngine();
 
-			IProject projectRsc = (IProject) this.project.getUnderlyingResource();
-			IJavaSearchScope scope =
-				searchEngine.createJavaSearchScope(new IResource[] { projectRsc });
-
+			// Collect the project and its prerequisites (ie. referenced projects and jars)
+			JavaSearchScope scope = new JavaSearchScope();
+			IWorkspaceRoot root = this.project.getUnderlyingResource().getWorkspace().getRoot();
+			IClasspathEntry[] entries = this.project.getExpandedClasspath(true);
+			for (int i = 0, length = entries.length; i < length; i++) {
+				IClasspathEntry entry = entries[i];
+				switch (entry.getEntryKind()) {
+					case IClasspathEntry.CPE_LIBRARY:
+						scope.add(root.getFile(entry.getPath()), false);
+						break;
+					case IClasspathEntry.CPE_PROJECT:
+						scope.add(root.getProject(entry.getPath().lastSegment()), false);
+						break;
+					case IClasspathEntry.CPE_SOURCE:
+						IPath path = entry.getPath();
+						if (path.segmentCount() == 1) {
+							// project is source
+							scope.add(root.getProject(path.lastSegment()), false);
+						} else {
+							// regular source folder
+							scope.add(root.getFolder(path), false);
+						}
+						break;
+				}
+			}
+			
 			IProgressMonitor progressMonitor = new IProgressMonitor() {
 				boolean isCanceled = false;
 				public void beginTask(String name, int totalWork) {
@@ -248,7 +271,7 @@ public class SearchableEnvironment
 			};
 			try {
 				searchEngine.searchAllTypeNames(
-					projectRsc.getWorkspace(),
+					this.project.getUnderlyingResource().getWorkspace(),
 					qualification,
 					simpleName,
 					PREFIX_MATCH,
