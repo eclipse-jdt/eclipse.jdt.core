@@ -200,6 +200,12 @@ public IJavaElement[] getElements() {
  * Returns the new array.
  */
 protected IJavaElement[] growAndAddToArray(IJavaElement[] array, IJavaElement addition) {
+	
+	if(SelectionEngine.DEBUG){
+		System.out.print("SELECTION - accept new element(");
+		System.out.print(addition.toString());
+		System.out.println(")");
+	}
 	IJavaElement[] old = array;
 	array = new IJavaElement[old.length + 1];
 	System.arraycopy(old, 0, array, 0, old.length);

@@ -18,3 +18,9 @@ org.eclipse.jdt.core/debug/hierarchy=true
 
 # Reports incremental builder activity : nature of build, built state reading, indictment process
 org.eclipse.jdt.core/debug/builder=true
+
+# Reports completion activity
+org.eclipse.jdt.core/debug/completion=true
+
+# Reports selection activity
+org.eclipse.jdt.core/debug/selection=true

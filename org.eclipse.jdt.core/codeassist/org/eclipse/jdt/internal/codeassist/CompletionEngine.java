@@ -33,7 +33,9 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 public final class CompletionEngine
 	extends Engine
 	implements ISearchRequestor, TypeConstants , TerminalSymbols {
-		
+	
+	public static boolean DEBUG = false;
+	
 	AssistOptions options;
 	CompletionParser parser;
 	ISearchableNameEnvironment nameEnvironment;
@@ -607,6 +609,14 @@ public final class CompletionEngine
 	 */
 	public void complete(ICompilationUnit sourceUnit, int completionPosition) {
 
+		if(DEBUG) {
+			System.out.print("COMPLETION IN ");
+			System.out.print(sourceUnit.getFileName());
+			System.out.print(" AT POSITION ");
+			System.out.println(completionPosition);
+			System.out.println("COMPLETION - Source :");
+			System.out.println(sourceUnit.getContents());
+		}
 		try {
 			actualCompletionPosition = completionPosition - 1;
 			// for now until we can change the UI.
@@ -615,6 +625,10 @@ public final class CompletionEngine
 
 			//		boolean completionNodeFound = false;
 			if (parsedUnit != null) {
+				if(DEBUG) {
+					System.out.println("COMPLETION - Diet AST :");
+					System.out.println(parsedUnit.toString());
+				}
 
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
@@ -642,11 +656,19 @@ public final class CompletionEngine
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
 							parseMethod(parsedUnit, actualCompletionPosition);
+							if(DEBUG) {
+								System.out.println("COMPLETION - AST :");
+								System.out.println(parsedUnit.toString());
+							}
 							parsedUnit.resolve();
 						}
 					} catch (CompletionNodeFound e) {
 						//					completionNodeFound = true;
 						if (e.astNode != null)
+							if(DEBUG) {
+								System.out.print("COMPLETION - Completion node : ");
+								System.out.println(e.astNode.toString());
+							}
 							// if null then we found a problem in the completion node
 							complete(e.astNode, e.qualifiedBinding, e.scope);
 					}

@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.*;
  */
 public final class SelectionEngine extends Engine implements ISearchRequestor {
 
+	public static boolean DEBUG = false;
+	
 	SelectionParser parser;
 	ISearchableNameEnvironment nameEnvironment;
 	ISelectionRequestor requestor;
@@ -331,6 +333,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		int selectionSourceEnd) {
 
 		char[] source = sourceUnit.getContents();
+		
+		if(DEBUG) {
+			System.out.print("SELECTION IN ");
+			System.out.print(sourceUnit.getFileName());
+			System.out.print(" FROM ");
+			System.out.print(selectionSourceStart);
+			System.out.print(" TO ");
+			System.out.println(selectionSourceEnd);
+			System.out.println("SELECTION - Source :");
+			System.out.println(source);
+		}
 		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd))
 			return;
 		try {
@@ -340,6 +353,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				parser.dietParse(sourceUnit, result, actualSelectionStart, actualSelectionEnd);
 
 			if (parsedUnit != null) {
+				if(DEBUG) {
+					System.out.println("SELECTION - Diet AST :");
+					System.out.println(parsedUnit.toString());
+				}
+				
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof SelectionOnPackageReference) {
 					char[][] tokens =
@@ -370,9 +388,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							parsedUnit.scope.faultInTypes();
 							selectDeclaration(parsedUnit);
 							parseMethod(parsedUnit, selectionSourceStart);
+							if(DEBUG) {
+								System.out.println("SELECTION - AST :");
+								System.out.println(parsedUnit.toString());
+							}
 							parsedUnit.resolve();
 						} catch (SelectionNodeFound e) {
 							if (e.binding != null) {
+								if(DEBUG) {
+									System.out.println("SELECTION - Selection binding:");
+									System.out.println(e.binding.toString());
+								}
 								// if null then we found a problem in the selection node
 								selectFrom(e.binding);
 							}
@@ -506,6 +532,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.parser.problemReporter(), result);
 
 			if (parsedUnit != null && parsedUnit.types != null) {
+				if(DEBUG) {
+					System.out.println("SELECTION - Diet AST :");
+					System.out.println(parsedUnit.toString());
+				}
 				// find the type declaration that corresponds to the original source type
 				char[] packageName = sourceType.getPackageName();
 				char[] sourceTypeName = sourceType.getQualifiedName();
@@ -558,6 +588,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							parsedUnit.resolve();
 						} catch (SelectionNodeFound e) {
 							if (e.binding != null) {
+								if(DEBUG) {
+									System.out.println("SELECTION - Selection binding :");
+									System.out.println(e.binding.toString());
+								}
 								// if null then we found a problem in the selection node
 								selectFrom(e.binding);
 							}

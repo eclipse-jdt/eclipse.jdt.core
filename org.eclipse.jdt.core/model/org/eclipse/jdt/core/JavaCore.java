@@ -12,6 +12,8 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -81,6 +83,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String HIERARCHY_DEBUG = PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
 	private static final String BUILDER_DEBUG = PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
+	private static final String COMPLETION_DEBUG = PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
+	private static final String SELECTION_DEBUG = PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	
 	
 	private static Map Variables = new HashMap(5);
@@ -930,6 +934,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			option = Platform.getDebugOption(BUILDER_DEBUG);
 			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(COMPLETION_DEBUG);
+			if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(SELECTION_DEBUG);
+			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
