@@ -105,7 +105,14 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		// if ((methodInfo.getModifiers() & IConstants.AccSynthetic) != 0) continue; // skip synthetic
 		char[] signature = methodInfo.getGenericSignature();
 		if (signature == null) signature = methodInfo.getMethodDescriptor();
-		String[] pNames= Signature.getParameterTypes(new String(signature));
+		String[] pNames = null;
+		try {
+			pNames = Signature.getParameterTypes(new String(signature));
+		} catch (IllegalArgumentException e) {
+			// protect against malformed .class file (e.g. com/sun/crypto/provider/SunJCE_b.class has a 'a' generic signature)
+			signature = methodInfo.getMethodDescriptor();
+			pNames = Signature.getParameterTypes(new String(signature));
+		}
 		char[][] paramNames= new char[pNames.length][];
 		for (int j= 0; j < pNames.length; j++) {
 			paramNames[j]= pNames[j].toCharArray();
