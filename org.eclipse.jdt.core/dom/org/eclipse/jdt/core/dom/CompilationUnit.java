@@ -307,8 +307,7 @@ public class CompilationUnit extends ASTNode {
 	/**
 	 * Returns the list of messages reported by the compiler during the parsing 
 	 * or the type checking of this compilation unit. This list might be a subset of 
-	 * the compiler's error messages. Errors reported by the compiler during the flow 
-	 * analysis or the code generation are not included.
+	 * errors detected and reported by a Java compiler.
 	 * 
 	 * @return the list of messages, possibly empty
 	 * @see AST#parseCompilationUnit
