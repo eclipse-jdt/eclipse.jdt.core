@@ -122,7 +122,7 @@ public interface ICodeAssist {
 	/**
 	 * <b>DO NOT USE</b>: This API element was added in anticipation of J2SE
 	 * 1.5 support, which is planned for the next release of Eclipse after 3.0.
-	 * It is currently unimplmemented, and the API may change slightly before
+	 * It is currently unimplemented, and the API may change slightly before
 	 * reaching its final form.
 	 * <p>
 	 * Performs code completion at the given offset position in this compilation unit,
