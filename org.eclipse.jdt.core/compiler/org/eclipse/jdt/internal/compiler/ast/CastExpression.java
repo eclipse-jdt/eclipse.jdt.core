@@ -482,10 +482,14 @@ public class CastExpression extends Expression {
 			if (this.resolvedType != null && expressionType != null) {
 				boolean necessary = checkCastTypesCompatibility(scope, this.resolvedType, expressionType);
 				if (!necessary && this.expression.resolvedType != null) { // cannot do better if expression is not bound
-					this.bits |= UnnecessaryCastMask;
-					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
-						scope.problemReporter().unnecessaryCast(this);
-					}
+					
+					// (int[])null = ... still requires a checkcast
+//					if (!(expressionType == NullBinding && ((this.bits & IsStrictlyAssignedMASK) != 0) && this.resolvedType.isArrayType())) {
+						this.bits |= UnnecessaryCastMask;
+						if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
+							scope.problemReporter().unnecessaryCast(this);
+						}
+//					}
 				}
 			}
 			return this.resolvedType;
