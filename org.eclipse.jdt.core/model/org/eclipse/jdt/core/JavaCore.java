@@ -2300,7 +2300,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * TODO: check spec for specific output location
 	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
 	 * for the project's source folder identified by the given absolute 
 	 * workspace-relative path but excluding all source files with paths
