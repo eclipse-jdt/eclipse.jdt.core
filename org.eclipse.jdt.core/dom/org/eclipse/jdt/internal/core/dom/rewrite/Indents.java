@@ -33,7 +33,7 @@ public class Indents {
 	 * Indent char is a space char but not a line delimiters.
 	 * <code>== Character.isWhitespace(ch) && ch != '\n' && ch != '\r'</code>
 	 * @param ch
-	 * @return
+	 * @return Returns true if this the character is a indent delimiter character
 	 */
 	public static boolean isIndentChar(char ch) {
 		return Character.isWhitespace(ch) && !isLineDelimiterChar(ch);
@@ -84,7 +84,7 @@ public class Indents {
 	 * @param line The line to trim the indent
 	 * @param indentsToRemove The indent level to remove
 	 * @param tabWidth The current tab width
-	 * @return
+	 * @return Returns the trimed line
 	 */
 	public static String trimIndent(String line, int indentsToRemove, int tabWidth) {
 		if (line == null || indentsToRemove <= 0)
@@ -198,7 +198,7 @@ public class Indents {
 	 * @param tabWidth The current tab width setting
 	 * @param newIndent The new Indent string
 	 * @param lineDelim THe current line delimiter
-	 * @return
+	 * @return Returns the newly indented code
 	 */
 	public static String changeIndent(String code, int codeIndentLevel, int tabWidth, String newIndent, String lineDelim) {
 		try {
