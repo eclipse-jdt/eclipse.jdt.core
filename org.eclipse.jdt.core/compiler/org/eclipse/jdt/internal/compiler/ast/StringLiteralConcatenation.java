@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
  */
 public class StringLiteralConcatenation extends StringLiteral {
 	private static final int INITIAL_SIZE = 5;
-	public StringLiteral[] literals;
+	public Expression[] literals;
 	public int counter;
 	/**	
 	 * Build a two-strings literal

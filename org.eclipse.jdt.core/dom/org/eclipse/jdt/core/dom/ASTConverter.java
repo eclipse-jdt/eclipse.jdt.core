@@ -1149,7 +1149,7 @@ class ASTConverter {
 		} else if (expression.left instanceof StringLiteralConcatenation
 				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)) {
 			StringLiteralConcatenation literal = (StringLiteralConcatenation) expression.left;
-			final org.eclipse.jdt.internal.compiler.ast.StringLiteral[] stringLiterals = literal.literals;
+			final org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = literal.literals;
 			infixExpression.setLeftOperand(convert(stringLiterals[0]));
 			infixExpression.setRightOperand(convert(stringLiterals[1]));
 			for (int i = 2; i < literal.counter; i++) {
@@ -2069,7 +2069,7 @@ class ASTConverter {
 		expression.computeConstant();
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
-		org.eclipse.jdt.internal.compiler.ast.StringLiteral[] stringLiterals = expression.literals;
+		org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = expression.literals;
 		infixExpression.setLeftOperand(convert(stringLiterals[0]));
 		infixExpression.setRightOperand(convert(stringLiterals[1]));
 		for (int i = 2; i < expression.counter; i++) {
