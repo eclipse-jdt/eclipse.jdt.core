@@ -10,144 +10,21 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.text.edits.TextEdit;
 
 public class DefaultCodeFormatter extends CodeFormatter {
 
 	public static final boolean DEBUG = false;
-
-	private static ASTNode[] parseClassBodyDeclarations(char[] source, Map settings) {
-		
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		final ProblemReporter problemReporter = new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault()));
-					
-		CodeFormatterParser parser =
-			new CodeFormatterParser(problemReporter, false);
-
-		ICompilationUnit sourceUnit = 
-			new CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-
-		return parser.parseClassBodyDeclarations(source, new CompilationUnitDeclaration(problemReporter, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit), source.length));
-	}
-
-	private static CompilationUnitDeclaration parseCompilationUnit(char[] source, Map settings) {
-		
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		CodeFormatterParser parser =
-			new CodeFormatterParser(
-				new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault())),
-			false);
-		ICompilationUnit sourceUnit = 
-			new CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
-		
-		if (compilationUnitDeclaration.ignoreMethodBodies) {
-			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
-			// if initial diet parse did not work, no need to dig into method bodies.
-			return compilationUnitDeclaration; 
-		}
-		
-		//fill the methods bodies in order for the code to be generated
-		//real parse of the method....
-		parser.scanner.setSource(source);
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
-		if (types != null) {
-			for (int i = types.length; --i >= 0;) {
-				types[i].parseMethod(parser, compilationUnitDeclaration);
-			}
-		}
-		return compilationUnitDeclaration;
-	}
-
-	private static Expression parseExpression(char[] source, Map settings) {
-		
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		final ProblemReporter problemReporter = new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault()));
-					
-		CodeFormatterParser parser =
-			new CodeFormatterParser(problemReporter, false);
-
-		ICompilationUnit sourceUnit = 
-			new CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-
-		return parser.parseExpression(source, new CompilationUnitDeclaration(problemReporter, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit), source.length));
-	}
-
-	private static ConstructorDeclaration parseStatements(char[] source, Map settings) {
-		
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		final ProblemReporter problemReporter = new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault()));
-		CodeFormatterParser parser = new CodeFormatterParser(problemReporter, false);
-		ICompilationUnit sourceUnit = 
-			new CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-
-		final CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
-		CompilationUnitDeclaration compilationUnitDeclaration = new CompilationUnitDeclaration(problemReporter, compilationResult, source.length);		
-
-		ConstructorDeclaration constructorDeclaration = new ConstructorDeclaration(compilationResult);
-		constructorDeclaration.sourceEnd  = -1;
-		constructorDeclaration.declarationSourceEnd = source.length - 1;
-		constructorDeclaration.bodyStart = 0;
-		constructorDeclaration.bodyEnd = source.length - 1;
-		
-		parser.scanner.setSource(source);
-		parser.parse(constructorDeclaration, compilationUnitDeclaration);
-		
-		return constructorDeclaration;
-	}
 	
 	private CodeFormatterVisitor newCodeFormatter;
 	private Map options;
@@ -214,7 +91,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		ASTNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
+		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
@@ -224,7 +101,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), this.options);
+		CompilationUnitDeclaration compilationUnitDeclaration = CodeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.options);
 		
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
@@ -239,7 +116,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		Expression expression = parseExpression(source.toCharArray(), this.options);
+		Expression expression = CodeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options);
 		
 		if (expression == null) {
 			// a problem occured while parsing the source
@@ -249,7 +126,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), this.options);
+		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
@@ -302,19 +179,19 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		Expression expression = parseExpression(source.toCharArray(), this.options);
+		Expression expression = CodeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options);
 		
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), this.options);
+		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements != null) {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 		
-		ASTNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
+		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations != null) {
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);

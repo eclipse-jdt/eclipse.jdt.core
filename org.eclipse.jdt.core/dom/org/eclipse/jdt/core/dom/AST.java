@@ -21,13 +21,13 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 
 /**
  * Umbrella owner and abstract syntax tree node factory.
@@ -74,6 +74,23 @@ import org.eclipse.jdt.internal.core.NameLookup;
  * @since 2.0
  */
 public final class AST {
+	/**
+	 * Kind used to parse an expression
+	 * @since 3.0
+	 */
+	public static final int K_EXPRESSION = 0x01;
+	
+	/**
+	 * Kind used to parse a set of statements
+	 * @since 3.0
+	 */
+	public static final int K_STATEMENTS = 0x02;
+	
+	/**
+	 * Kind used to parse a set of class body declarations
+	 * @since 3.0
+	 */
+	public static final int K_CLASS_BODY_DECLARATIONS = 0x04;
 
 	/**
 	 * Internal modification count; initially 0; increases monotonically
@@ -182,6 +199,104 @@ public final class AST {
 	void modifying() {
 		// increase the modification count
 		modCount++;	
+	}
+
+	/**
+	 * Parses the given source between the bounds specified by the given offset (inclusive)
+	 * and the given length and creates and returns a corresponding abstract syntax tree.
+	 * <p>
+	 * The root node of the new AST depends on the given kind.
+	 * <ul>
+	 * <li>org.eclipse.jdt.core.dom.AST.K_CLASS_BODY_DECLARATIONS: The root node is an instance of
+	 * <code>org.eclipse.jdt.core.dom.TypeDeclaration</code>. The type declaration itself doesn't contain any information.
+	 * It is simply used to return all class body declarations inside the bodyDeclaratins() collection.</li>
+	 * <li>org.eclipse.jdt.core.dom.AST.K_STATEMENTS: The root node is an instance of
+	 * <code>org.eclipse.jdt.core.dom.Block</code>. The block itself doesn't contain any information.
+	 * It is simply used to return all the statements.</li>
+	 * <li>org.eclipse.jdt.core.dom.AST.K_EXPRESSION: The root node is an instance of a subclass of
+	 * <code>org.eclipse.jdt.core.dom.Expression</code>.</li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * <p>Each node in the subtree carries source range(s) information relating back
+	 * to positions in the given source (the given source itself
+	 * is not remembered with the AST). 
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * </p>
+	 * <p>
+	 * This method does not compute binding information; all <code>resolveBinding</code>
+	 * methods applied to nodes of the resulting AST return <code>null</code>.
+	 * </p>
+	 * <p><code>null</code> is returned:
+	 * <ol>
+	 * <li>If a syntax error is detected while parsing,</li>
+	 * <li>If the given source doesn't correspond to the given kind.</li>
+	 * </ol>
+	 * </p>
+	 * 
+	 * @param kind the given kind to parse
+	 * @param source the string to be parsed
+	 * @param offset the given offset
+	 * @param length the given length
+	 * @param options the given options. If null, <code>JavaCore.getOptions()</code> is used.
+	 * 
+	 * @return ASTNode
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see AST#K_CLASS_BODY_DECLARATIONS
+	 * @see AST#K_EXPRESSION
+	 * @see AST#K_STATEMENTS
+	 * @see JavaCore#getOptions()
+	 * @since 3.0
+	 */
+	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options) {
+		if (options == null) {
+			options = JavaCore.getOptions();
+		}
+		ASTConverter converter = new ASTConverter(options, false);
+		converter.compilationUnitSource = source;
+		converter.scanner.setSource(source);
+		
+		AST ast = new AST();
+		ast.setBindingResolver(new BindingResolver());
+		converter.setAST(ast);
+		switch(kind) {
+			case K_STATEMENTS :
+				ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source, offset, length, options);
+				if (constructorDeclaration != null) {
+					Block block = ast.newBlock();
+					Statement[] statements = constructorDeclaration.statements;
+					if (statements != null) {
+						int statementsLength = statements.length;
+						for (int i = 0; i < statementsLength; i++) {
+							block.statements().add(converter.convert(statements[i]));
+						}
+					}
+					return block;
+				}
+				break;
+			case K_EXPRESSION :
+				org.eclipse.jdt.internal.compiler.ast.Expression expression = CodeSnippetParsingUtil.parseExpression(source, offset, length, options);
+				if (expression != null) {
+					return converter.convert(expression);
+				}
+				break;
+			case K_CLASS_BODY_DECLARATIONS :
+				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = CodeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options);
+				if (nodes != null) {
+					return converter.convert(nodes);
+				}
+		}
+		return null;
 	}
 
 	/**
@@ -334,17 +449,10 @@ public final class AST {
 		}
 
 		if (resolveBindings) {
-			NameLookup lookup = null;
 			CompilationUnitDeclaration compilationUnitDeclaration = null;
 			try {
-				// set the units to look inside
-				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-				lookup.setUnitsToLookInside(workingCopies);
-				
 				// parse and resolve
-				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/, source);
+				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/, source, owner);
 				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true);
 				AST ast = new AST();
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -364,9 +472,6 @@ public final class AST {
 			} finally {
 				if (compilationUnitDeclaration != null) {
 					compilationUnitDeclaration.cleanUp();
-				}
-				if (lookup != null) {
-					lookup.setUnitsToLookInside(null);
 				}
 			}
 		} else {
@@ -536,15 +641,8 @@ public final class AST {
 		String classFileName = classFile.getElementName(); // this includes the trailing .class
 		buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
 		IJavaProject project = classFile.getJavaProject();
-		NameLookup lookup = null;
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		try {
-			// set the units to look inside
-			lookup = ((JavaProject)project).getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
-			
 			// parse and resolve
 			compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
@@ -552,7 +650,8 @@ public final class AST {
 					CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray()),
 					buffer.toString(),
 					project,
-					false/*don't cleanup*/);
+					false/*don't cleanup*/,
+					owner);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -572,9 +671,6 @@ public final class AST {
 		} finally {
 			if (compilationUnitDeclaration != null) {
 				compilationUnitDeclaration.cleanUp();
-			}
-			if (lookup != null) {
-				lookup.setUnitsToLookInside(null);
 			}
 		}
 	}
@@ -743,22 +839,16 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 	
-		NameLookup lookup = null;
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
 		try {
-			// set the units to look inside
-			lookup = ((JavaProject)project).getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
-				
-				// parse and resolve
+			// parse and resolve
 			compilationUnitDeclaration =
 				CompilationUnitResolver.resolve(
 					source,
 					unitName,
 					project,
-					false/*don't cleanup*/);
+					false/*don't cleanup*/,
+					owner);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -778,9 +868,6 @@ public final class AST {
 		} finally {
 			if (compilationUnitDeclaration != null) {
 				compilationUnitDeclaration.cleanUp();
-			}
-			if (lookup != null) {
-				lookup.setUnitsToLookInside(null);
 			}
 		}
 	}
@@ -819,13 +906,61 @@ public final class AST {
 	 * @see ASTNode#getLength()
 	 */
 	public static CompilationUnit parseCompilationUnit(char[] source) {
+		return parseCompilationUnit(source, null);
+	}
+
+	/**
+	 * Parses the given string as a Java compilation unit and creates and 
+	 * returns a corresponding abstract syntax tree.
+	 * <p>
+	 * The given options are used to find out the compiler options to use while parsing.
+	 * This could implies the settings for the assertion support. See the <code>JavaCore.getOptions()</code>
+	 * methods for further details.
+	 * </p>
+	 * <p>
+	 * The returned compilation unit node is the root node of a new AST.
+	 * Each node in the subtree carries source range(s) information relating back
+	 * to positions in the given source string (the given source string itself
+	 * is not remembered with the AST). 
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
+	 * </p>
+	 * <p>
+	 * This method does not compute binding information; all <code>resolveBinding</code>
+	 * methods applied to nodes of the resulting AST return <code>null</code>.
+	 * </p>
+	 * 
+	 * @param source the string to be parsed as a Java compilation unit
+	 * @param options options to use while parsing the file. If null, <code>JavaCore.getOptions()</code> is used.
+	 * @return CompilationUnit
+	 * @see ASTNode#getFlags()
+	 * @see ASTNode#MALFORMED
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see JavaCore#getOptions()
+	 * @since 3.0
+	 */
+	public static CompilationUnit parseCompilationUnit(char[] source, Map options) {
+		if (options == null) {
+			options = JavaCore.getOptions();
+		}
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
 		CompilationUnitDeclaration compilationUnitDeclaration = 
-			CompilationUnitResolver.parse(source, JavaCore.getOptions()); // no better custom options
+			CompilationUnitResolver.parse(source, options);
 
-		ASTConverter converter = new ASTConverter(JavaCore.getOptions(), false);
+		ASTConverter converter = new ASTConverter(options, false);
 		AST ast = new AST();
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
@@ -1058,21 +1193,15 @@ public final class AST {
 
 		final Map options = unit.getJavaProject().getOptions(true);
 		if (resolveBindings) {
-			NameLookup lookup = null;
 			CompilationUnitDeclaration compilationUnitDeclaration = null;
 			try {
-				// set the units to look inside
-				lookup = ((JavaProject)unit.getJavaProject()).getNameLookup();
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-				lookup.setUnitsToLookInside(workingCopies);
-
 				// parse and resolve
 				compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
 					searcher,
 					false/*don't cleanup*/,
-					source);
+					source,
+					owner);
 				
 				ASTConverter converter = new ASTConverter(options, true);
 				AST ast = new AST();
@@ -1107,9 +1236,6 @@ public final class AST {
 			} finally {
 				if (compilationUnitDeclaration != null) {
 					compilationUnitDeclaration.cleanUp();
-				}
-				if (lookup != null) {
-					lookup.setUnitsToLookInside(null);
 				}
 			}
 		} else {

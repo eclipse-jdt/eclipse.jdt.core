@@ -262,8 +262,8 @@ public class JavaProject
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
 
 		// compute the pkg fragment roots
-		computeChildren((JavaProjectElementInfo)info);				
-
+		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false));	
+		
 		// remember the timestamps of external libraries the first time they are looked up
 		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
 			IClasspathEntry entry = resolvedClasspath[i];
@@ -303,9 +303,8 @@ public class JavaProject
 	 */
 	public void computeChildren(JavaProjectElementInfo info) throws JavaModelException {
 		IClasspathEntry[] classpath = getResolvedClasspath(true);
-		NameLookup lookup = info.getNameLookup();
-		if (lookup != null){
-			IPackageFragmentRoot[] oldRoots = lookup.fPackageFragmentRoots;
+		IPackageFragmentRoot[] oldRoots = info.allPkgFragmentRootsCache;
+		if (oldRoots != null) {
 			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true);
 			checkIdentical: { // compare all pkg fragment root lists
 				if (oldRoots.length == newRoots.length){
@@ -317,8 +316,8 @@ public class JavaProject
 					return; // no need to update
 				}	
 			}
-			info.setNameLookup(null); // discard name lookup (hold onto roots)
-		}				
+		}
+		info.resetCaches(); // discard caches (hold onto roots and pkg fragments)
 		info.setNonJavaResources(null);
 		info.setChildren(
 			computePackageFragmentRoots(classpath, false));		
@@ -918,8 +917,8 @@ public class JavaProject
 			if (extension == null) {
 				String packageName = path.toString().replace(IPath.SEPARATOR, '.');
 
-				IPackageFragment[] pkgFragments =
-					getNameLookup().findPackageFragments(packageName, false);
+				NameLookup lookup = newNameLookup((WorkingCopyOwner)null/*no need to look at working copies for pkgs*/);
+				IPackageFragment[] pkgFragments = lookup.findPackageFragments(packageName, false);
 				if (pkgFragments == null) {
 					return null;
 
@@ -948,25 +947,14 @@ public class JavaProject
 				} else {
 					qualifiedName = typeName;
 				}
-				IType type = null;
-				NameLookup lookup = null;
-				try {
-					// set units to look inside
-					lookup = getNameLookup();
-					JavaModelManager manager = JavaModelManager.getJavaModelManager();
-					ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-					lookup.setUnitsToLookInside(workingCopies);
-					
-					// lookup type
-					type = lookup.findType(
-						qualifiedName,
-						false,
-						NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-				} finally {
-					if (lookup != null) {
-						lookup.setUnitsToLookInside(null);
-					}
-				}
+
+				// lookup type
+				NameLookup lookup = newNameLookup(owner);
+				IType type = lookup.findType(
+					qualifiedName,
+					false,
+					NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+
 				if (type != null) {
 					return type.getParent();
 				} else {
@@ -1001,7 +989,8 @@ public class JavaProject
 	public IPackageFragment findPackageFragment0(IPath path) 
 		throws JavaModelException {
 
-		return getNameLookup().findPackageFragment(path);
+		NameLookup lookup = newNameLookup((WorkingCopyOwner)null/*no need to look at working copies for pkgs*/);
+		return lookup.findPackageFragment(path);
 	}
 
 	/**
@@ -1063,25 +1052,11 @@ public class JavaProject
 	 */
 	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
 		
-		IType type = null;
-		NameLookup lookup = null;
-		try {
-			// set units to look inside
-			lookup = getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
-			
-			// lookup type
-			type = lookup.findType(
-				fullyQualifiedName,
-				false,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-		} finally {
-			if (lookup != null) {
-				lookup.setUnitsToLookInside(null);
-			}
-		}
+		NameLookup lookup = newNameLookup(owner);
+		IType type = lookup.findType(
+			fullyQualifiedName,
+			false,
+			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 		if (type == null) {
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');
@@ -1108,25 +1083,12 @@ public class JavaProject
 	 * @see IJavaProject#findType(String, String, WorkingCopyOwner)
 	 */
 	public IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner) throws JavaModelException {
-		NameLookup lookup = null;
-		try {
-			// set units to look inside
-			lookup = getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
-			
-			// lookup type
-			return lookup.findType(
-				typeQualifiedName, 
-				packageName,
-				false,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-		} finally {
-			if (lookup != null) {
-				lookup.setUnitsToLookInside(null);
-			}
-		}
+		NameLookup lookup = newNameLookup(owner);
+		return lookup.findType(
+			typeQualifiedName, 
+			packageName,
+			false,
+			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 	}	
 	
 	/**
@@ -1418,23 +1380,6 @@ public class JavaProject
 		throws JavaModelException {
 
 		return (JavaProjectElementInfo) getElementInfo();
-	}
-
-	/**
-	 * @return NameLookup
-	 * @throws JavaModelException
-	 */
-	public NameLookup getNameLookup() throws JavaModelException {
-
-		JavaProjectElementInfo info = getJavaProjectElementInfo();
-		// lock on the project info to avoid race condition
-		synchronized(info){
-			NameLookup nameLookup;
-			if ((nameLookup = info.getNameLookup()) == null){
-				info.setNameLookup(nameLookup = new NameLookup(this));
-			}
-			return nameLookup;
-		}
 	}
 
 	/**
@@ -1974,20 +1919,6 @@ public class JavaProject
 	}
 
 	/**
-	 * @return ISearchableNameEnvironment
-	 * @throws JavaModelException
-	 */
-	public ISearchableNameEnvironment getSearchableNameEnvironment()
-		throws JavaModelException {
-
-		JavaProjectElementInfo info = getJavaProjectElementInfo();
-		if (info.getSearchableEnvironment() == null) {
-			info.setSearchableEnvironment(new SearchableEnvironment(this));
-		}
-		return info.getSearchableEnvironment();
-	}
-
-	/**
 	 * Retrieve a shared property on a project. If the property is not defined, answers null.
 	 * Note that it is orthogonal to IResource persistent properties, and client code has to decide
 	 * which form of storage to use appropriately. Shared properties produce real resource files which
@@ -2212,6 +2143,43 @@ public class JavaProject
 		return new EvaluationContextWrapper(new EvaluationContext(), this);
 	}
 
+	/*
+	 * Returns a new name lookup. This name lookup first looks in the given working copies.
+	 */
+	public NameLookup newNameLookup(ICompilationUnit[] workingCopies) throws JavaModelException {
+
+		JavaProjectElementInfo info = getJavaProjectElementInfo();
+		// lock on the project info to avoid race condition while computing the pkg fragment roots and package fragment caches
+		synchronized(info){
+			return new NameLookup(info.getAllPackageFragmentRoots(this), info.getAllPackageFragments(this), workingCopies);
+		}
+	}
+
+	/*
+	 * Returns a new name lookup. This name lookup first looks in the working copies of the given owner.
+	 */
+	public NameLookup newNameLookup(WorkingCopyOwner owner) throws JavaModelException {
+		
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		ICompilationUnit[] workingCopies = owner == null ? null : manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		return newNameLookup(workingCopies);
+	}
+
+	/*
+	 * Returns a new search name environment for this project. This name environment first looks in the given working copies.
+	 */
+	public ISearchableNameEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies) throws JavaModelException {
+		return new SearchableEnvironment(this, workingCopies);
+	}
+
+	/*
+	 * Returns a new search name environment for this project. This name environment first looks in the working copies
+	 * of the given owner.
+	 */
+	public ISearchableNameEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner) throws JavaModelException {
+		return new SearchableEnvironment(this, owner);
+	}
+
 	/**
 	 * @see IJavaProject
 	 */
@@ -2391,11 +2359,12 @@ public class JavaProject
 	
 	/*
 	 * Resets this project's name lookup
+	 * TODO (jerome) rename (and callers) to resetCaches
 	 */
 	public void resetNameLookup() {
 		if (isOpen()){
 			try {
-				((JavaProjectElementInfo)getElementInfo()).setNameLookup(null);
+				((JavaProjectElementInfo)getElementInfo()).resetCaches();
 			} catch (JavaModelException e) {
 				// project was closed and deleted by another thread: ignore
 			}

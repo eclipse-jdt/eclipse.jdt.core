@@ -138,7 +138,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// compute other problems if needed
 	if (computeProblems){
 		perWorkingCopyInfo.beginReporting();
-		CompilationUnitProblemFinder.process(unit, this, parser, perWorkingCopyInfo, problemFactory, pm);
+		CompilationUnitProblemFinder.process(unit, this, parser, this.owner, perWorkingCopyInfo, problemFactory, pm);
 		perWorkingCopyInfo.endReporting();
 	}
 	
@@ -1032,27 +1032,8 @@ public void reconcile(
 
 	if (!isWorkingCopy()) return; // Reconciling is not supported on non working copies
 	
-	NameLookup lookup = null;
-	try {
-		// set the units to look inside only for problem detection purpose (40322)
-		if (forceProblemDetection) {
-			try {
-				lookup = ((JavaProject)getJavaProject()).getNameLookup();
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ICompilationUnit[] workingCopies = manager.getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
-				lookup.setUnitsToLookInside(workingCopies);
-			} catch(JavaModelException e) {
-				// simple project may not find its namelookup, simply ignore working copies (41583)
-			}
-		}			
-		// reconcile
-		ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
-		op.runOperation(monitor);
-	} finally {
-		if (lookup != null) {
-			lookup.setUnitsToLookInside(null);
-		}
-	}
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection, workingCopyOwner);
+	op.runOperation(monitor);
 }
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)

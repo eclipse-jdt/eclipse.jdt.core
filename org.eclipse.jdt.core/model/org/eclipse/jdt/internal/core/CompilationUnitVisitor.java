@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -117,12 +116,6 @@ public class CompilationUnitVisitor extends Compiler {
 		};
 	}
 
-	protected static INameEnvironment getNameEnvironment(ICompilationUnit sourceUnit)
-		throws JavaModelException {
-		return (SearchableEnvironment) ((JavaProject) sourceUnit.getJavaProject())
-			.getSearchableNameEnvironment();
-	}
-
 	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
 	 */
@@ -139,10 +132,10 @@ public class CompilationUnitVisitor extends Compiler {
 		ASTVisitor visitor)
 		throws JavaModelException {
 
-		IJavaProject project = unitElement.getJavaProject();
+		JavaProject project = (JavaProject) unitElement.getJavaProject();
 		CompilationUnitVisitor compilationUnitVisitor =
 			new CompilationUnitVisitor(
-				getNameEnvironment(unitElement),
+				project.newSearchableNameEnvironment(unitElement.getOwner()),
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),

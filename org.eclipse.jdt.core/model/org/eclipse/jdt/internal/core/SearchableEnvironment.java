@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -36,7 +37,8 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
  */
 public class SearchableEnvironment
 	implements ISearchableNameEnvironment, IJavaSearchConstants {
-	protected NameLookup nameLookup;
+	
+	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
 
 	protected IJavaProject project;
@@ -45,9 +47,20 @@ public class SearchableEnvironment
 	/**
 	 * Creates a SearchableEnvironment on the given project
 	 */
-	public SearchableEnvironment(IJavaProject project) throws JavaModelException {
+	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
 		this.project = project;
-		this.nameLookup = ((JavaProject) project).getNameLookup();
+		this.nameLookup = project.newNameLookup(workingCopies);
+
+		// Create search scope with visible entry on the project's classpath
+		this.searchScope = SearchEngine.createJavaSearchScope(this.project.getAllPackageFragmentRoots());
+	}
+
+	/**
+	 * Creates a SearchableEnvironment on the given project
+	 */
+	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
+		this.project = project;
+		this.nameLookup = project.newNameLookup(owner);
 
 		// Create search scope with visible entry on the project's classpath
 		this.searchScope = SearchEngine.createJavaSearchScope(this.project.getAllPackageFragmentRoots());
@@ -114,7 +127,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment#findType(char[][])
+	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#findType(char[][])
 	 */
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		if (compoundTypeName == null) return null;
@@ -287,7 +300,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment#isPackage(char[][], char[])
+	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#isPackage(char[][], char[])
 	 */
 	public boolean isPackage(char[][] parentPackageName, char[] subPackageName) {
 		if (subPackageName == null || CharOperation.contains('.', subPackageName))

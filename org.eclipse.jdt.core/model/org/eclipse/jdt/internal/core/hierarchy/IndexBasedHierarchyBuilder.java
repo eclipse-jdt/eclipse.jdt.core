@@ -143,13 +143,11 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 
 	// resolve
 	if (openablesLength > 0) {
-		this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
 		IType focusType = this.getType();
-		this.nameLookup = project.getNameLookup();
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
+		org.eclipse.jdt.core.ICompilationUnit[] unitsToLookInside = null;
 		if (inProjectOfFocusType) {
 			org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
-			org.eclipse.jdt.core.ICompilationUnit[] unitsToLookInside;
 			if (unitToLookInside != null) {
 				int wcLength = workingCopies == null ? 0 : workingCopies.length;
 				if (wcLength == 0) {
@@ -162,40 +160,35 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 			} else {
 				unitsToLookInside = workingCopies;
 			}
-			this.nameLookup.setUnitsToLookInside(unitsToLookInside); // NB: this uses a PerThreadObject, so it is thread safe
 		}
-		try {
-			this.hierarchyResolver = 
-				new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
-			if (focusType != null) {
-				Member declaringMember = ((Member)focusType).getOuterMostLocalContext();
-				if (declaringMember == null) {
-					// top level or member type
-					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-					if (!inProjectOfFocusType && project.getSearchableNameEnvironment().findType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
-						// focus type is not visible in this project: no need to go further
-						return;
-					}
-				} else {
-					// local or anonymous type
-					Openable openable;
-					if (declaringMember.isBinary()) {
-						openable = (Openable)declaringMember.getClassFile();
-					} else {
-						openable = (Openable)declaringMember.getCompilationUnit();
-					}
-					localTypes = new HashSet();
-					localTypes.add(openable.getPath().toString());
-					this.hierarchyResolver.resolve(new Openable[] {openable}, localTypes, monitor);
+		SearchableEnvironment searchableEnvironment = (SearchableEnvironment)project.newSearchableNameEnvironment(unitsToLookInside);
+		this.nameLookup = searchableEnvironment.nameLookup;
+		this.hierarchyResolver = 
+			new HierarchyResolver(searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
+		if (focusType != null) {
+			Member declaringMember = ((Member)focusType).getOuterMostLocalContext();
+			if (declaringMember == null) {
+				// top level or member type
+				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+				if (!inProjectOfFocusType && searchableEnvironment.findType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
+					// focus type is not visible in this project: no need to go further
 					return;
 				}
-			}
-			this.hierarchyResolver.resolve(openables, localTypes, monitor);
-		} finally {
-			if (inProjectOfFocusType) {
-				this.nameLookup.setUnitsToLookInside(null);
+			} else {
+				// local or anonymous type
+				Openable openable;
+				if (declaringMember.isBinary()) {
+					openable = (Openable)declaringMember.getClassFile();
+				} else {
+					openable = (Openable)declaringMember.getCompilationUnit();
+				}
+				localTypes = new HashSet();
+				localTypes.add(openable.getPath().toString());
+				this.hierarchyResolver.resolve(new Openable[] {openable}, localTypes, monitor);
+				return;
 			}
 		}
+		this.hierarchyResolver.resolve(openables, localTypes, monitor);
 	}
 }
 /**

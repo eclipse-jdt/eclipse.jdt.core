@@ -117,12 +117,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 		return DefaultErrorHandlingPolicies.proceedWithAllProblems();
 	}
 
-	protected static INameEnvironment getNameEnvironment(ICompilationUnit sourceUnit)
-		throws JavaModelException {
-		return (SearchableEnvironment) ((JavaProject) sourceUnit.getJavaProject())
-			.getSearchableNameEnvironment();
-	}
-
 	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
 	 */
@@ -138,6 +132,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		CompilationUnitDeclaration unit,
 		ICompilationUnit unitElement, 
 		Parser parser,
+		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
 		IProblemFactory problemFactory,
 		IProgressMonitor monitor)
@@ -145,10 +140,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
 		
-		IJavaProject project = unitElement.getJavaProject();
+		JavaProject project = (JavaProject) unitElement.getJavaProject();
 		CompilationUnitProblemFinder problemFinder =
 			new CompilationUnitProblemFinder(
-				getNameEnvironment(unitElement),
+				project.newSearchableNameEnvironment(workingCopyOwner),
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
@@ -199,11 +194,12 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 	public static CompilationUnitDeclaration process(
 		ICompilationUnit unitElement, 
+		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, null/*use default Parser*/,problemRequestor, new DefaultProblemFactory(), monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, null/*use default Parser*/, workingCopyOwner, problemRequestor, new DefaultProblemFactory(), monitor);
 	}
 
 	

@@ -514,7 +514,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 		} else {
 			// Attempts to find the corresponding java file
 			String qualifiedName = getType().getFullyQualifiedName();
-			NameLookup lookup = ((JavaProject) getJavaProject()).getNameLookup();
+			NameLookup lookup = ((JavaProject) getJavaProject()).newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
 			ICompilationUnit cu = lookup.findCompilationUnit(qualifiedName);
 			if (cu != null) {
 				return cu.getBuffer();

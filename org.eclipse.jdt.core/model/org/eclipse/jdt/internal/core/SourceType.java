@@ -60,40 +60,27 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	}
 	
 	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
-	NameLookup nameLookup = project.getNameLookup();
-	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor,nameLookup);
+	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
+	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor, environment.nameLookup);
 	CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
 	requestorWrapper.completionEngine = engine;
 	
 	String source = getCompilationUnit().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
-		try {
-			// set the units to look inside
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-			nameLookup.setUnitsToLookInside(workingCopies);
-	
-			// code complete
-			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
-			
-			char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
-			char[] suffix = CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
-			char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
-			
-			BasicCompilationUnit cu = 
-				new BasicCompilationUnit(
-					fakeSource, 
-					null,
-					getElementName(),
-					encoding); 
-	
-			engine.complete(cu, prefix.length + position, prefix.length);
-		} finally {
-			if (nameLookup != null) {
-				nameLookup.setUnitsToLookInside(null);
-			}
-		}
+		String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
+		
+		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
+		char[] suffix = CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
+		char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
+		
+		BasicCompilationUnit cu = 
+			new BasicCompilationUnit(
+				fakeSource, 
+				null,
+				getElementName(),
+				encoding); 
+
+		engine.complete(cu, prefix.length + position, prefix.length);
 	} else {
 		engine.complete(this, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 	}
@@ -650,71 +637,57 @@ public String[][] resolveType(String typeName) throws JavaModelException {
  * @see IType#resolveType(String, WorkingCopyOwner)
  */
 public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
-	JavaProject project = (JavaProject)getJavaProject();
-	NameLookup lookup = null;
-	try {
-		// set the units to look inside
-		lookup = project.getNameLookup();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-		lookup.setUnitsToLookInside(workingCopies);
-			
-		// resolve
-		ISourceType info = (ISourceType) this.getElementInfo();
-		ISearchableNameEnvironment environment = project.getSearchableNameEnvironment();
-	
-		class TypeResolveRequestor implements ISelectionRequestor {
-			String[][] answers = null;
-			void acceptType(String[] answer){
-				if (answers == null) {
-					answers = new String[][]{ answer };
-				} else {
-					// grow
-					int length = answers.length;
-					System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
-					answers[length] = answer;
-				}
+	ISourceType info = (ISourceType) getElementInfo();
+	JavaProject project = (JavaProject) getJavaProject();
+	ISearchableNameEnvironment environment = project.newSearchableNameEnvironment(owner);
+
+	class TypeResolveRequestor implements ISelectionRequestor {
+		String[][] answers = null;
+		void acceptType(String[] answer){
+			if (answers == null) {
+				answers = new String[][]{ answer };
+			} else {
+				// grow
+				int length = answers.length;
+				System.arraycopy(answers, 0, answers = new String[length+1][], 0, length);
+				answers[length] = answer;
 			}
-			public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
-				acceptType(new String[]  { new String(packageName), new String(className) });
-			}
-			
-			public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
-				acceptType(new String[]  { new String(packageName), new String(interfaceName) });
-			}
-	
-			public void acceptError(IProblem error) {
-				// ignore
-			}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName) {
-				// ignore
-			}
-			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {
-				// ignore
-			}
-			public void acceptPackage(char[] packageName){
-				// ignore
-			}
-	
 		}
-		TypeResolveRequestor requestor = new TypeResolveRequestor();
-		SelectionEngine engine = 
-			new SelectionEngine(environment, requestor, this.getJavaProject().getOptions(true));
-			
-	 	IType[] topLevelTypes = this.getCompilationUnit().getTypes();
-	 	int length = topLevelTypes.length;
-	 	SourceTypeElementInfo[] topLevelInfos = new SourceTypeElementInfo[length];
-	 	for (int i = 0; i < length; i++) {
-			topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
+		public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
+			acceptType(new String[]  { new String(packageName), new String(className) });
 		}
-			
-		engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
-		return requestor.answers;
-	} finally {
-		if (lookup != null) {
-			lookup.setUnitsToLookInside(null);
+		
+		public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
+			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
 		}
+
+		public void acceptError(IProblem error) {
+			// ignore
+		}
+		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName) {
+			// ignore
+		}
+		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {
+			// ignore
+		}
+		public void acceptPackage(char[] packageName){
+			// ignore
+		}
+
 	}
+	TypeResolveRequestor requestor = new TypeResolveRequestor();
+	SelectionEngine engine = 
+		new SelectionEngine(environment, requestor, project.getOptions(true));
+		
+ 	IType[] topLevelTypes = getCompilationUnit().getTypes();
+ 	int length = topLevelTypes.length;
+ 	SourceTypeElementInfo[] topLevelInfos = new SourceTypeElementInfo[length];
+ 	for (int i = 0; i < length; i++) {
+		topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
+	}
+		
+	engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
+	return requestor.answers;
 }
 /**
  * @private Debugging purposes

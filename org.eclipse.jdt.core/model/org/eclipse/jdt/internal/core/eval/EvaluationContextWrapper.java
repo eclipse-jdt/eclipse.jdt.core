@@ -92,28 +92,15 @@ public void codeComplete(String codeSnippet, int position, ICompletionRequestor 
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, ICompletionRequestor, WorkingCopyOwner)
  */
 public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
-	NameLookup lookup = null;
-	try {
-		// set the units to look inside
-		lookup = this.project.getNameLookup();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-		lookup.setUnitsToLookInside(workingCopies);
-
-		// code complete
-		this.context.complete(
-			codeSnippet.toCharArray(),
-			position,
-			this.project.getSearchableNameEnvironment(),
-			new CompletionRequestorWrapper(requestor, lookup),
-			this.project.getOptions(true),
-			this.project
-		);
-	} finally {
-		if (lookup != null) {
-			lookup.setUnitsToLookInside(null);
-		}
-	}
+	SearchableEnvironment environment = (SearchableEnvironment) this.project.newSearchableNameEnvironment(owner);
+	this.context.complete(
+		codeSnippet.toCharArray(),
+		position,
+		environment,
+		new CompletionRequestorWrapper(requestor, environment.nameLookup),
+		this.project.getOptions(true),
+		this.project
+	);
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String, int, int)
@@ -125,30 +112,17 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String, int, int, WorkingCopyOwner)
  */
 public IJavaElement[] codeSelect(String codeSnippet, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
-	NameLookup lookup = null;
-	try {
-		// set the units to look inside
-		lookup = this.project.getNameLookup();
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
-		lookup.setUnitsToLookInside(workingCopies);
-
-		// code select
-		SelectionRequestor requestor= new SelectionRequestor(lookup, null); // null because there is no need to look inside the code snippet itself
-		this.context.select(
-			codeSnippet.toCharArray(),
-			offset,
-			offset + length - 1,
-			this.project.getSearchableNameEnvironment(),
-			requestor,
-			this.project.getOptions(true)
-		);
-		return requestor.getElements();
-	} finally {
-		if (lookup != null) {
-			lookup.setUnitsToLookInside(null);
-		}
-	}
+	SearchableEnvironment environment = (SearchableEnvironment) this.project.newSearchableNameEnvironment(owner);
+	SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, null); // null because there is no need to look inside the code snippet itself
+	this.context.select(
+		codeSnippet.toCharArray(),
+		offset,
+		offset + length - 1,
+		environment,
+		requestor,
+		this.project.getOptions(true)
+	);
+	return requestor.getElements();
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#deleteVariable(IGlobalVariable)

@@ -151,7 +151,6 @@ public char[][][] collect() throws JavaModelException {
 		this.resultIndex = 0;
 		JavaProject javaProject = (JavaProject) this.type.getJavaProject();
 		this.locator.initialize(javaProject, 0);
-		this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies); // NB: this uses a PerThreadObject, so it is thread safe
 		try {
 			if (this.type.isBinary()) {
 				BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type);
@@ -171,8 +170,6 @@ public char[][][] collect() throws JavaModelException {
 		} catch (AbortCompilation e) {
 			// problem with classpath: report inacurrate matches
 			return null;
-		} finally {
-			this.locator.nameLookup.setUnitsToLookInside(null);
 		}
 		if (this.result.length > this.resultIndex)
 			System.arraycopy(this.result, 0, this.result = new char[this.resultIndex][][], 0, this.resultIndex);
@@ -189,40 +186,32 @@ public char[][][] collect() throws JavaModelException {
 	JavaProject previousProject = null;
 	this.result = new char[1][][];
 	this.resultIndex = 0;
-	try {
-		for (int i = 0, length = paths.length; i < length; i++) {
-			try {
-				Openable openable = this.locator.handleFactory.createOpenable(paths[i], this.locator.scope);
-				if (openable == null) continue; // outside classpath
+	for (int i = 0, length = paths.length; i < length; i++) {
+		try {
+			Openable openable = this.locator.handleFactory.createOpenable(paths[i], this.locator.scope);
+			if (openable == null) continue; // outside classpath
 
-				IJavaProject project = openable.getJavaProject();
-				if (!project.equals(previousProject)) {
-					if (previousProject != null)
-						this.locator.nameLookup.setUnitsToLookInside(null);
-					previousProject = (JavaProject) project;
-					this.locator.initialize(previousProject, 0);
-					this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
-				}
-				if (openable instanceof ICompilationUnit) {
-					ICompilationUnit unit = (ICompilationUnit) openable;
-					CompilationUnitDeclaration parsedUnit = buildBindings(unit, true /*only toplevel and member types are visible to the focus type*/);
-					if (parsedUnit != null)
-						parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
-				} else if (openable instanceof IClassFile) {
-					IClassFile classFile = (IClassFile) openable;
-					BinaryTypeBinding binding = this.locator.cacheBinaryType(classFile.getType());
-					if (matches(binding))
-						collectSuperTypeNames(binding);
-				}
-			} catch (AbortCompilation e) {
-				// ignore: continue with next element
-			} catch (JavaModelException e) {
-				// ignore: continue with next element
+			IJavaProject project = openable.getJavaProject();
+			if (!project.equals(previousProject)) {
+				previousProject = (JavaProject) project;
+				this.locator.initialize(previousProject, 0);
 			}
+			if (openable instanceof ICompilationUnit) {
+				ICompilationUnit unit = (ICompilationUnit) openable;
+				CompilationUnitDeclaration parsedUnit = buildBindings(unit, true /*only toplevel and member types are visible to the focus type*/);
+				if (parsedUnit != null)
+					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
+			} else if (openable instanceof IClassFile) {
+				IClassFile classFile = (IClassFile) openable;
+				BinaryTypeBinding binding = this.locator.cacheBinaryType(classFile.getType());
+				if (matches(binding))
+					collectSuperTypeNames(binding);
+			}
+		} catch (AbortCompilation e) {
+			// ignore: continue with next element
+		} catch (JavaModelException e) {
+			// ignore: continue with next element
 		}
-	} finally {
-		if (previousProject != null)
-			this.locator.nameLookup.setUnitsToLookInside(null);
 	}
 	if (this.result.length > this.resultIndex)
 		System.arraycopy(this.result, 0, this.result = new char[this.resultIndex][][], 0, this.resultIndex);
