@@ -342,11 +342,10 @@ public final class AST {
 			if (sourceString == null) {
 				throw new IllegalArgumentException();
 			}
+			source = sourceString.toCharArray();
 			if (!resolveBindings) {
 				return AST.parseCompilationUnit(source);
 			}
-			
-			source = sourceString.toCharArray();
 			StringBuffer buffer = new StringBuffer(".java"); //$NON-NLS-1$
 			
 			String classFileName = classFile.getElementName(); // this includes the trailing .class
