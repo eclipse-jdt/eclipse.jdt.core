@@ -95,9 +95,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 
 		if (delegatedByParent){
 			return this; //ignore
-		} else {
-			return this.parent.add(localDeclaration, bracketBalanceValue);
-		}
+		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
 
 	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalanceValue);
@@ -130,9 +128,7 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue, boolean del
 			
 		if (delegatedByParent){
 			return this; //ignore
-		} else {
-			return this.parent.add(stmt, bracketBalanceValue);
-		}			
+		return this.parent.add(stmt, bracketBalanceValue);
 	}
 			
 	RecoveredStatement element = new RecoveredStatement(stmt, this, bracketBalanceValue);
@@ -155,11 +151,9 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		it must be belonging to an enclosing block */
 	if (this.blockDeclaration.sourceEnd != 0 
 		&& typeDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
-		if (delegatedByParent){
+		if (delegatedByParent)
 			return this; //ignore
-		} else {
-			return this.parent.add(typeDeclaration, bracketBalanceValue);
-		}
+		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 			
 	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);

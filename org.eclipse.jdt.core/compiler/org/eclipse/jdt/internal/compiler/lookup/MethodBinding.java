@@ -473,8 +473,7 @@ public final int sourceEnd() {
 	AbstractMethodDeclaration method = sourceMethod();
 	if (method == null)
 		return 0;
-	else
-		return method.sourceEnd;
+	return method.sourceEnd;
 }
 AbstractMethodDeclaration sourceMethod() {
 	SourceTypeBinding sourceType;
@@ -494,8 +493,7 @@ public final int sourceStart() {
 	AbstractMethodDeclaration method = sourceMethod();
 	if (method == null)
 		return 0;
-	else
-		return method.sourceStart;
+	return method.sourceStart;
 }
 /* During private access emulation, the binding can be requested to loose its
  * private visibility when the class file is dumped.

@@ -390,9 +390,8 @@ public class MethodScope extends BlockScope {
 			ProblemReporter problemReporter = referenceCompilationUnit().problemReporter;
 			problemReporter.referenceContext = referenceContext;
 			return problemReporter;
-		} else {
-			return outerMethodScope.problemReporter();
 		}
+		return outerMethodScope.problemReporter();
 	}
 
 	public final int recordInitializationStates(FlowInfo flowInfo) {

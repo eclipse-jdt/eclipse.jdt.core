@@ -87,10 +87,9 @@ public abstract class Scope
 	}
 
 	public ArrayBinding createArray(TypeBinding type, int dimension) {
-		if (type.isValidBinding())
-			return environment().createArrayType(type, dimension);
-		else
+		if (!type.isValidBinding())
 			return new ArrayBinding(type, dimension);
+		return environment().createArrayType(type, dimension);
 	}
 
 	public final ClassScope enclosingClassScope() {
@@ -192,11 +191,10 @@ public abstract class Scope
 		if (memberType != null) {
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
 			if (enclosingSourceType == null
-				? memberType.canBeSeenBy(getCurrentPackage())
-				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
+					? memberType.canBeSeenBy(getCurrentPackage())
+					: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 				return memberType;
-			else
-				return new ProblemReferenceBinding(typeName, memberType, NotVisible);
+			return new ProblemReferenceBinding(typeName, memberType, NotVisible);
 		}
 		return null;
 	}
@@ -252,8 +250,7 @@ public abstract class Scope
 		if (field != null) {
 			if (field.canBeSeenBy(currentType, invocationSite, this))
 				return field;
-			else
-				return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
+			return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
 		}
 		// collect all superinterfaces of receiverType until the field is found in a supertype
 		ReferenceBinding[][] interfacesToVisit = null;
@@ -355,11 +352,10 @@ public abstract class Scope
 		if (memberType != null) {
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
 			if (enclosingSourceType == null
-				? memberType.canBeSeenBy(currentPackage)
-				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
+					? memberType.canBeSeenBy(currentPackage)
+					: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 				return memberType;
-			else
-				return new ProblemReferenceBinding(typeName, memberType, NotVisible);
+			return new ProblemReferenceBinding(typeName, memberType, NotVisible);
 		}
 
 		// collect all superinterfaces of receiverType until the memberType is found in a supertype
@@ -893,12 +889,11 @@ public abstract class Scope
 								if (foundField == null || foundField.problemId() == NotVisible)
 									// supercedes any potential InheritedNameHidesEnclosingName problem
 									return fieldBinding;
-								else
-									// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
-									return new ProblemFieldBinding(
-										fieldBinding.declaringClass,
-										name,
-										InheritedNameHidesEnclosingName);
+								// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
+								return new ProblemFieldBinding(
+									fieldBinding.declaringClass,
+									name,
+									InheritedNameHidesEnclosingName);
 							}
 
 							ProblemFieldBinding insideProblem = null;
@@ -1333,9 +1328,8 @@ public abstract class Scope
 								if (foundType == null || foundType.problemId() == NotVisible)
 									// supercedes any potential InheritedNameHidesEnclosingName problem
 									return memberType;
-								else
-									// make the user qualify the type, likely wants the first inherited type
-									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+								// make the user qualify the type, likely wants the first inherited type
+								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
 							}
 							if (memberType.isValidBinding()) {
 								if (sourceType == memberType.enclosingType()

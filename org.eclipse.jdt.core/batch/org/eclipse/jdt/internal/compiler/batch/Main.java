@@ -353,11 +353,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.err.close();
 			}
 		}
-		if (this.globalErrorsCount == 0){
+		if (this.globalErrorsCount == 0)
 			return true;
-		} else {
-			return false;
-		}
+		return false;
 	}
 
 	/*
@@ -1111,10 +1109,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			printUsage();
 			this.proceed = false;
 			return;
-		} else {
-			if (printVersionRequired) {
-				printVersion();
-			}
+		}
+		if (printVersionRequired) {
+			printVersion();
 		}
 
 		if (filesCount != 0)
@@ -1149,60 +1146,59 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.err.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 				this.proceed = false;
 				return;
+			 }
+			 String javaVMName = System.getProperty("java.vm.name");//$NON-NLS-1$
+			 if (javaVMName != null && javaVMName.equalsIgnoreCase("J9")) {//$NON-NLS-1$
+			 	/*
+			 	 * Handle J9 VM settings: Retrieve jclMax by default
+			 	 */
+			 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+			 	 if (javaHome != null) {
+			 	 	File javaHomeFile = new File(javaHome);
+			 	 	if (javaHomeFile.exists()) {
+						try {
+							javaHomeFile = new File(javaHomeFile.getCanonicalPath());
+							File defaultLibrary = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "classes.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+							File locales = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "locale.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+							File charconv = new File(javaHomeFile, "lib" +  File.separator + "charconv.zip"); //$NON-NLS-1$//$NON-NLS-2$
+							/* we don't need to check if defaultLibrary exists. This is done later when the user
+							 * classpath and the bootclasspath are merged. 
+							 */
+							bootclasspaths = new String[] {
+								defaultLibrary.getAbsolutePath(),
+								locales.getAbsolutePath(),
+								charconv.getAbsolutePath()};
+							bootclasspathCount = 3;
+						} catch (IOException e) {
+							// cannot retrieve libraries
+						}
+			 	 	}
+			 	 }
 			 } else {
-				 String javaVMName = System.getProperty("java.vm.name");//$NON-NLS-1$
-				 if (javaVMName != null && javaVMName.equalsIgnoreCase("J9")) {//$NON-NLS-1$
-				 	/*
-				 	 * Handle J9 VM settings: Retrieve jclMax by default
-				 	 */
-				 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-				 	 if (javaHome != null) {
-				 	 	File javaHomeFile = new File(javaHome);
-				 	 	if (javaHomeFile.exists()) {
-							try {
-								javaHomeFile = new File(javaHomeFile.getCanonicalPath());
-								File defaultLibrary = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "classes.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-								File locales = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "locale.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-								File charconv = new File(javaHomeFile, "lib" +  File.separator + "charconv.zip"); //$NON-NLS-1$//$NON-NLS-2$
-								/* we don't need to check if defaultLibrary exists. This is done later when the user
+			 	/*
+			 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
+			 	 */
+			 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+			 	 if (javaHome != null) {
+			 	 	File javaHomeFile = new File(javaHome);
+			 	 	if (javaHomeFile.exists()) {
+						try {
+							javaHomeFile = new File(javaHomeFile.getCanonicalPath());
+							// add all jars in the lib subdirectory
+							File[] systemLibrariesJars = getFilesFrom(new File(javaHomeFile, "lib"), SUFFIX_STRING_jar);//$NON-NLS-1$
+							int length = systemLibrariesJars.length;
+							bootclasspaths = new String[length];
+							for (int i = 0; i < length; i++) {
+								/* we don't need to check if this file exists. This is done later when the user
 								 * classpath and the bootclasspath are merged. 
 								 */
-								bootclasspaths = new String[] {
-									defaultLibrary.getAbsolutePath(),
-									locales.getAbsolutePath(),
-									charconv.getAbsolutePath()};
-								bootclasspathCount = 3;
-							} catch (IOException e) {
-								// cannot retrieve libraries
-							}
-				 	 	}
-				 	 }
-				 } else {
-				 	/*
-				 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
-				 	 */
-				 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-				 	 if (javaHome != null) {
-				 	 	File javaHomeFile = new File(javaHome);
-				 	 	if (javaHomeFile.exists()) {
-							try {
-								javaHomeFile = new File(javaHomeFile.getCanonicalPath());
-								// add all jars in the lib subdirectory
-								File[] systemLibrariesJars = getFilesFrom(new File(javaHomeFile, "lib"), SUFFIX_STRING_jar);//$NON-NLS-1$
-								int length = systemLibrariesJars.length;
-								bootclasspaths = new String[length];
-								for (int i = 0; i < length; i++) {
-									/* we don't need to check if this file exists. This is done later when the user
-									 * classpath and the bootclasspath are merged. 
-									 */
-									bootclasspaths[bootclasspathCount++] = systemLibrariesJars[i].getAbsolutePath();
-								} 
-							} catch (IOException e) {
-								// cannot retrieve libraries
-							}
-				 	 	}
-				 	 }
-				 }
+								bootclasspaths[bootclasspathCount++] = systemLibrariesJars[i].getAbsolutePath();
+							} 
+						} catch (IOException e) {
+							// cannot retrieve libraries
+						}
+			 	 	}
+			 	 }
 			 }
 		}
 
@@ -1407,11 +1403,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		for (int i = 0; i < fileCount; i++) {
 			char[] charName = this.filenames[i].toCharArray();
-			if (knownFileNames.get(charName) != null) {
+			if (knownFileNames.get(charName) != null)
 				throw new InvalidInputException(Main.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
-			} else {
-				knownFileNames.put(charName, charName);
-			}
+			knownFileNames.put(charName, charName);
 			File file = new File(this.filenames[i]);
 			if (!file.exists())
 				throw new InvalidInputException(Main.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
