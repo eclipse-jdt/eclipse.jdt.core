@@ -37,6 +37,8 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.internal.core.Assert;
@@ -696,7 +698,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @since 2.0
 	 */
-	public static IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
+	public static IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
 
 		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
 		if (projectContainers == null){
@@ -707,20 +709,25 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 		if (container == null){
-			ClasspathContainerInitializer initializer = JavaModelManager.getClasspathContainerInitializer(containerPath.segment(0));
+			final ClasspathContainerInitializer initializer = JavaModelManager.getClasspathContainerInitializer(containerPath.segment(0));
 			if (initializer != null){
 				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
 				boolean ok = false;
 				try {
-					// activate initializer
-					initializer.initialize(containerPath, project);
+					// wrap initializer call with Safe runnable in case initializer would be causing some grief
+					Platform.run(new ISafeRunnable() {
+						public void handleException(Throwable exception) {
+							Util.log(exception, "Exception occurred in classpath container initializer: "+initializer); //$NON-NLS-1$
+						}
+						public void run() throws Exception {
+							initializer.initialize(containerPath, project);
+						}
+					});
 					
 					// retrieve value (if initialization was successful)
 					container = (IClasspathContainer)projectContainers.get(containerPath);
 					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 					ok = true;
-				} catch (CoreException e){
-					throw new JavaModelException(e);
 				} finally {
 					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
 				}
@@ -762,17 +769,25 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return the path, or <code>null</code> if none 
 	 * @see #setClasspathVariable
 	 */
-	public static IPath getClasspathVariable(String variableName) {
+	public static IPath getClasspathVariable(final String variableName) {
 
 		IPath variablePath = (IPath) JavaModelManager.variableGet(variableName);
 
 		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
 		if (variablePath == null){
-			ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
+			final ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
 			if (initializer != null){
 				JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
-				initializer.initialize(variableName);
+				// wrap initializer call with Safe runnable in case initializer would be causing some grief
+				Platform.run(new ISafeRunnable() {
+					public void handleException(Throwable exception) {
+						Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer); //$NON-NLS-1$
+					}
+					public void run() throws Exception {
+						initializer.initialize(variableName);
+					}
+				});
 				variablePath = (IPath) JavaModelManager.variableGet(variableName); // retry
 				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
