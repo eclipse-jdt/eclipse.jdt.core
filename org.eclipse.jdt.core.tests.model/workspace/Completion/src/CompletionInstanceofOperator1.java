@@ -1,21 +1,21 @@
 public class CompletionInstanceofOperator1 {
-	void foo(ZZZCompletionInstanceof2 x) {
-		if(x instanceof ZZZCompletionInstanceof){}
+	void foo(WWWCompletionInstanceof2 x) {
+		if(x instanceof WWWCompletionInstanceof){}
 	}
 }
 
-class ZZZCompletionInstanceof1 {
+class WWWCompletionInstanceof1 {
 
 }
 
-class ZZZCompletionInstanceof2 extends ZZZCompletionInstanceof1 {
+class WWWCompletionInstanceof2 extends WWWCompletionInstanceof1 {
 
 }
 
-class ZZZCompletionInstanceof3 extends ZZZCompletionInstanceof2 {
+class WWWCompletionInstanceof3 extends WWWCompletionInstanceof2 {
 
 }
 
-class ZZZCompletionInstanceof4 {
+class WWWCompletionInstanceof4 {
 
 }

@@ -12,8 +12,13 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.ITypeNameRequestor;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 import junit.framework.*;
@@ -26,7 +31,36 @@ public CompletionTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	setUpJavaProject("Completion");
+	IJavaProject project = setUpJavaProject("Completion");
+	
+	// dummy query for waiting until the indexes are ready
+	SearchEngine engine = new SearchEngine();
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+	try {
+		engine.searchAllTypeNames(
+			project.getProject().getWorkspace(),
+			null,
+			"!@$#!@".toCharArray(),
+			IJavaSearchConstants.PATTERN_MATCH,
+			IJavaSearchConstants.CASE_SENSITIVE,
+			IJavaSearchConstants.CLASS,
+			scope, 
+			new ITypeNameRequestor() {
+				public void acceptClass(
+					char[] packageName,
+					char[] simpleTypeName,
+					char[][] enclosingTypeNames,
+					String path) {}
+				public void acceptInterface(
+					char[] packageName,
+					char[] simpleTypeName,
+					char[][] enclosingTypeNames,
+					String path) {}
+			},
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+	} catch (CoreException e) {
+	}
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Completion");
@@ -180,6 +214,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression2"));
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
 	suite.addTest(new CompletionTests("testCompletionArrayAccess1"));
+	suite.addTest(new CompletionTests("testCompletionFindSecondaryType1"));
 	
 	// completion keywords tests
 	suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
@@ -644,7 +679,10 @@ public void testCompletionFindClass() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	assertEquals(
 		"should have one class",
-		"element:A    completion:A    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + + R_EXACT_NAME + R_UNQUALIFIED)+"\n" +
+		"element:A    completion:A    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED)+"\n" +
+		"element:A1    completion:A1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:A2    completion:A2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
+		"element:A3    completion:A3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n" +
 		"element:ABC    completion:p1.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
 		"element:ABC    completion:p2.ABC    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());	
@@ -2817,15 +2855,15 @@ public void testCompletionInstanceofOperator1() throws JavaModelException {
 		ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionInstanceofOperator1.java");
 
 		String str = cu.getSource();
-		String completeBehind = "x instanceof ZZZCompletionInstanceof";
+		String completeBehind = "x instanceof WWWCompletionInstanceof";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:ZZZCompletionInstanceof1    completion:ZZZCompletionInstanceof1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
-			"element:ZZZCompletionInstanceof2    completion:ZZZCompletionInstanceof2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
-			"element:ZZZCompletionInstanceof3    completion:ZZZCompletionInstanceof3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
-			"element:ZZZCompletionInstanceof4    completion:ZZZCompletionInstanceof4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+			"element:WWWCompletionInstanceof1    completion:WWWCompletionInstanceof1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
+			"element:WWWCompletionInstanceof2    completion:WWWCompletionInstanceof2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n" +
+			"element:WWWCompletionInstanceof3    completion:WWWCompletionInstanceof3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE)+"\n" +
+			"element:WWWCompletionInstanceof4    completion:WWWCompletionInstanceof4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
 public void testCompletionConditionalExpression1() throws JavaModelException {
@@ -8195,5 +8233,19 @@ public void testCompletionEmptyToken1() throws JavaModelException {
 		"element:wait    completion:wait()    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
 		"element:zzyy    completion:zzyy    position:["+start+","+end+"]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 		requestor.getResultsWithPosition());
+}
+public void testCompletionFindSecondaryType1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindSecondaryType1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "/**/Secondary";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:SecondaryType1    completion:SecondaryType1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:SecondaryType2    completion:SecondaryType2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
 }
 }
