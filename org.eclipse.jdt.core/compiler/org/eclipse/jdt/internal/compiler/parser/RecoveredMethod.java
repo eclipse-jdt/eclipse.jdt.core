@@ -313,6 +313,8 @@ public void updateFromParserState(){
 				}
 				int argLength = parser.astLengthStack[parser.astLengthPtr];
 				int argStart = parser.astPtr - argLength + 1;
+				boolean needUpdateRParenPos = parser.rParenPos < parser.lParenPos; // 12387 : rParenPos will be used
+				// to compute bodyStart, and thus used to set next checkpoint.
 				int count;
 				for (count = 0; count < argLength; count++){
 					Argument argument = (Argument)parser.astStack[argStart+count];
@@ -327,6 +329,7 @@ public void updateFromParserState(){
 						parser.currentToken = 0;
 						break;
 					}
+					if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
 					count++;
 				}
 				if (parser.listLength > 0){
