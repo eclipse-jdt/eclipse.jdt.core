@@ -7965,8 +7965,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			});	
 	}	
 	// 75156 - should report name clash
-	// TODO (kent) fixed with !inheritedArg.isEquivalentTo(currentArg) check in MethodVerifier
-	  public void _test310() {
+	public void test310() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7980,15 +7979,14 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 4)\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo(List<X> lx) { }\n" + 
 			"	     ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n");	
 	}
 	// 75156 variation - should report name clash and ambiguity
-	// TODO (kent) fixed with !inheritedArg.isEquivalentTo(currentArg) check in MethodVerifier
-	public void _test311() {
+	public void test311() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8005,20 +8003,19 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 4)\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo(List<X> lx) { }\n" + 
 			"	     ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 6)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	this.foo((List)null);\n" + 
 			"	     ^^^\n" + 
 			"The method foo(List<X>) is ambiguous for the type X\n" + 
 			"----------\n");	
 	}		
 	// 75156 variation - should report name clash instead of final method override
-	// TODO (kent) fixed with !inheritedArg.isEquivalentTo(currentArg) check in MethodVerifier
-	public void _test312() {
+	public void test312() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8032,7 +8029,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}"	
 			},
 			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 4)\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo(List<X> lx) { }\n" + 
 			"	     ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
@@ -9263,4 +9260,76 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");
 	}		
+	public void test353() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	<T> T foo(Class<T> c) { return null; }\n" +
+				"}\n" + 
+				"class Y {\n" + 
+				"	<T> T foo(Class<T> c) { return null; }\n" +
+				"}"
+			},
+			"");	
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	<T, S> S foo(Class<T> c) { return null; }\n" +
+				"}\n" + 
+				"class Y {\n" + 
+				"	<S, T> T foo(Class<S> c) { return null; }\n" +
+				"}"
+			},
+			"");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	<T, S> S foo(Class<S> c) { return null; }\n" +
+				"}\n" + 
+				"class Y {\n" + 
+				"	<S, T> S foo(Class<S> c) { return null; }\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	<T, S> S foo(Class<S> c) { return null; }\r\n" + 
+			"	         ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<S>) of type X has the same erasure as foo(Class<S>) of type Y but does not override it\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	<T, S> T foo(Class<T> c) { return null; }\n" +
+				"}\n" + 
+				"class Y {\n" + 
+				"	<T> T foo(Class<T> c) { return null; }\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	<T, S> T foo(Class<T> c) { return null; }\r\n" + 
+			"	         ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	<T> T foo(Class<T> c) { return null; }\n" +
+				"}\n" + 
+				"class Y {\n" + 
+				"	<T, S> T foo(Class<T> c) { return null; }\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	<T> T foo(Class<T> c) { return null; }\r\n" + 
+			"	      ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
+			"----------\n");
+	}
 }

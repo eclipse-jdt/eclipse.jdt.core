@@ -21,6 +21,26 @@ MethodVerifier15(LookupEnvironment environment) {
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	return one == two || super.areTypesEqual(one.erasure(), two.erasure());
 }
+boolean areTypesEquivalent(TypeBinding one, TypeBinding two) {
+	if (one == two) return true;
+	if (!super.areTypesEqual(one.erasure(), two.erasure())) return false;
+
+	if (one.isTypeVariable() && two.isTypeVariable()) {
+		TypeVariableBinding temp1 = (TypeVariableBinding) one;
+		TypeVariableBinding temp2 = (TypeVariableBinding) two;
+		if (temp1.rank != temp2.rank) return false;
+		if (!areTypesEquivalent(temp1.superclass, temp2.superclass)) return false;
+		ReferenceBinding[] superInterfaces1 = temp1.superInterfaces;
+		ReferenceBinding[] superInterfaces2 = temp2.superInterfaces;
+		if (superInterfaces1 != superInterfaces2) {
+			if (superInterfaces1 == null || superInterfaces2 == null) return false;
+			if (superInterfaces1.length != superInterfaces2.length) return false;
+			for (int i = 0, l = superInterfaces1.length; i < l; i++)
+				if (!areTypesEquivalent(superInterfaces1[i], superInterfaces2[i])) return false;
+		}
+	}   
+	return true;
+}
 void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
 	// methods includes the inherited methods that the currentMethod must comply with
 	// likely only 1 but could be more if mutiple declared supertypes define the method (1 superclass & 1 to many declared interfaces)
@@ -37,23 +57,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		if (inheritedMethod.declaringClass instanceof BinaryTypeBinding)
 			((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
 
-		// must check each parameter pair to see if you have raw to parameterized conversions
-		TypeBinding[] currentArgs = currentMethod.parameters;
-		TypeBinding[] inheritedArgs = inheritedMethod.parameters;
-		if (currentArgs != inheritedArgs) {
-			for (int j = 0, k = currentArgs.length; j < k; j++) {
-				TypeBinding currentArg = currentArgs[j].leafComponentType();
-				TypeBinding inheritedArg = inheritedArgs[j].leafComponentType();
-				if (currentArg != inheritedArg) {
-					if (currentArg.isParameterizedType() && hasBoundedParameters((ParameterizedTypeBinding) currentArg)) {
-						if (inheritedArg.isRawType()) {
-//						if (inheritedArg.isRawType() || !inheritedArg.isEquivalentTo(currentArg)) {
-							this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
-							continue nextMethod;
-						}
-					}
-				}
-			}
+		if (checkForNameClash(currentMethod, inheritedMethod)) {
+			this.problemReporter(currentMethod).methodNameClash(currentMethod, inheritedMethod);
+			continue nextMethod;
 		}
 
 		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
@@ -112,6 +118,30 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			}
 		}
 	}
+}
+boolean checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	TypeBinding[] currentVars = currentMethod.typeVariables;
+	TypeBinding[] inheritedVars = inheritedMethod.typeVariables;
+	if (currentVars.length != inheritedVars.length && currentVars.length > 0) return true; // must match unless all are replaced
+
+	// must check each parameter pair to see if parameterized types are compatible
+	// already know that each erasure() is equal
+	TypeBinding[] currentArgs = currentMethod.parameters;
+	TypeBinding[] inheritedArgs = inheritedMethod.parameters;
+	if (currentArgs != inheritedArgs) {
+		for (int i = 0, l = currentArgs.length; i < l; i++) {
+			TypeBinding currentArg = currentArgs[i].leafComponentType();
+			TypeBinding inheritedArg = inheritedArgs[i].leafComponentType();
+			if (currentArg != inheritedArg && currentArg.isParameterizedType()) {
+				if (!inheritedArg.isParameterizedType()) return true;
+				TypeBinding[] args1 = ((ParameterizedTypeBinding) currentArg).arguments;
+				TypeBinding[] args2 = ((ParameterizedTypeBinding) inheritedArg).arguments;
+				for (int j = 0, k = args1.length; j < k; j++)
+				    if (!areTypesEquivalent(args1[j], args2[j])) return true;
+			}
+		}
+	}
+	return false;
 }
 boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	return areParametersEqual(method, inheritedMethod) && isReturnTypeSubstituable(method, inheritedMethod);
