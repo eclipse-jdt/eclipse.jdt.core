@@ -70,12 +70,12 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 	String source = getSource();
 	if (source != null) {
 		String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
-		
+		String elementName = getElementName();
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(
 				getSource().toCharArray(), 
 				null,
-				getElementName() + ".java", //$NON-NLS-1$
+				elementName.substring(0, elementName.length()-".class".length()) + ".java", //$NON-NLS-1$ //$NON-NLS-2$
 				encoding); 
 		codeComplete(cu, cu, offset, requestor);
 	}

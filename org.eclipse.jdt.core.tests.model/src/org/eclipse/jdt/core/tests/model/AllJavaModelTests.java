@@ -76,6 +76,10 @@ public static Test suite() {
 	
 	// Support for "open on" feature tests
 	suite.addTest(ResolveTests.suite());
+	
+	// Support for completion tests
+	suite.addTest(CompletionTests.suite());
+	suite.addTest(SnippetCompletionTests.suite());
 		
 	return suite;
 }

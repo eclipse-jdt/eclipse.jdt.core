@@ -1,0 +1,1 @@
+public class CompletionSuperType4 extends CompletionSuperClass2.Inner
