@@ -1055,6 +1055,7 @@ public void test021() {
 		assertTrue(false);
 	}
 }
+// TODO (olivier) verify error
 public void _test022() { 
 	this.runConformTest(
 		new String[] {
@@ -1098,6 +1099,38 @@ public void _test022() {
 		assertTrue(false);
 	}*/
 }
+
+/*
+ * Type mismatch, using non parameterized collection type (indirectly implementing parameterized type)
+ */
+public void test023() { 
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Iterator;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		for (Thread s : new AX()) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX implements Iterable<String> {\n" + 
+				"    \n" + 
+				"   public Iterator<String> iterator() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	for (Thread s : new AX()) {\n" + 
+			"	                ^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from element type String to Thread\n" + 
+			"----------\n");
+}
+
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }

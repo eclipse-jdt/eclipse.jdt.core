@@ -135,6 +135,38 @@ public class ForeachStatement extends Statement {
 		return mergedInfo;
 	}
 
+	private static ReferenceBinding findIterableInterface(ReferenceBinding collectionType) {
+	    
+		if (collectionType.erasure().id == T_JavaLangIterable) return collectionType;
+		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+		int lastPosition = -1;
+		ReferenceBinding currentType = collectionType;
+		do {
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		} while ((currentType = currentType.superclass()) != null);
+				
+		for (int i = 0; i <= lastPosition; i++) {
+			ReferenceBinding[] interfaces = interfacesToVisit[i];
+			for (int j = 0, length = interfaces.length; j < length; j++) {
+				if ((currentType = interfaces[j]).erasure().id == T_JavaLangIterable)
+					return currentType;
+	
+				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+				if (itsInterfaces != NoSuperInterfaces) {
+					if (++lastPosition == interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+					interfacesToVisit[lastPosition] = itsInterfaces;
+				}
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * For statement code generation
 	 *
@@ -323,27 +355,37 @@ public class ForeachStatement extends Statement {
 				if (elementType.isBaseType()) {
 					this.elementVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
 				}
-			} else if (collectionType.isParameterizedType()) {
-			    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)collectionType;
-			    if (parameterizedType.type.isCompatibleWith(scope.getJavaLangIterable())) { // for(E e : Iterable<E>)
-					if (parameterizedType.arguments.length == 1) { // per construction can only be one
-						this.kind = GENERIC_ITERABLE;
-						TypeBinding collectionElementType = parameterizedType.arguments[0]; 
+			} else if (collectionType instanceof ReferenceBinding) {
+			    ReferenceBinding iterableType = findIterableInterface((ReferenceBinding)collectionType);
+			    if (iterableType != null) {
+				    if (iterableType.isParameterizedType()) { // for(E e : Iterable<E>)
+					    ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)iterableType;
+						if (parameterizedType.arguments.length == 1) { // per construction can only be one
+							this.kind = GENERIC_ITERABLE;
+							TypeBinding collectionElementType = parameterizedType.arguments[0]; 
+							if (!collectionElementType.isCompatibleWith(elementType)) {
+								scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+							}
+							// no conversion needed as only for reference types
+						}
+				    } else if (iterableType.isGenericType()) { // for (T t : Iterable<T>) - in case used inside Iterable itself
+						if (iterableType.typeVariables().length == 1) {
+							this.kind = GENERIC_ITERABLE;
+							TypeBinding collectionElementType = iterableType.typeVariables()[0]; 
+							if (!collectionElementType.isCompatibleWith(elementType)) {
+								scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
+							}
+						}
+					} else if (iterableType.isRawType()) { // for(Object o : Iterable)
+						this.kind = RAW_ITERABLE;
+						TypeBinding collectionElementType = scope.getJavaLangObject(); 
 						if (!collectionElementType.isCompatibleWith(elementType)) {
 							scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
 						}
 						// no conversion needed as only for reference types
 					}
 			    }
-			} else if (collectionType.isCompatibleWith(scope.getJavaLangIterable())) { // for(Object o : Iterable)
-				this.kind = RAW_ITERABLE;
-				TypeBinding collectionElementType = scope.getJavaLangObject(); 
-				if (!collectionElementType.isCompatibleWith(elementType)) {
-					scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
-				}
-				// no conversion needed as only for reference types
 			}
-	
 			if (this.kind == -1) {
 				scope.problemReporter().invalidTypeForCollection(collection);
 			} else {
