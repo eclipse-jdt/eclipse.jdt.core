@@ -20,6 +20,7 @@ What's new in this drop</h2>
 	<ul>
 	<li><code>classpathContainerChanged()</code> got replaced with setter method <code>JavaCore.setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer respectiveContainers) </code></li>
 	<li><code>ClasspathContainerResolver</code> got renamed into <code>ClasspathContainerInitializer</code></li>
+	<li> Container can no longer contain any <code>CPE_SOURCE</code> entry.
 	<li> added container interface <code> IClasspathContainer </code> in order to allow containers to be presented in a UI.
 		  <ul>
 		  <li>IClasspathEntry[] getClasspathEntries() </li>
@@ -53,7 +54,7 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14767">14</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14767">14767</a>
 bug in IJavaProject.findType(String, String)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14642">14642</a>
 StringIndexOutOfBoundsException when attempting to view some classes 

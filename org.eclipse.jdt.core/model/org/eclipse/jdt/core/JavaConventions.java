@@ -532,6 +532,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				if (path != null && path.segmentCount() == 2){
 					try {
 						IClasspathContainer container = JavaCore.getClasspathContainer(path, javaProject);
+						// container retrieval is performing validation check on container entry kinds.
 						if (container == null){
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", path.toString())); //$NON-NLS-1$
 						}

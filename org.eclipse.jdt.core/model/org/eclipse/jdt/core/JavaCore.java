@@ -333,7 +333,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						if (entries != null){
 							for (int i = 0; i < entries.length; i++){
 								IClasspathEntry entry = entries[i];
-								if (entry == null || entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
+								if (entry == null 
+										|| entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER 
+										|| entry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
 									throw new JavaModelException(
 										new JavaModelStatus(
 											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
