@@ -4731,6 +4731,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Unsafe type operation: Should not invoke the constructor AX(E) of raw type AX. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n");
 	}
+	// Expected type inference for cast operation
 	public void test170() {
 		this.runNegativeTest(
 			new String[] {
@@ -4764,6 +4765,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from ? to T\n" + 
 			"----------\n");
 	}
+	// Expected type inference for cast operation
 	public void test171() {
 		this.runNegativeTest(
 			new String[] {
@@ -4802,6 +4804,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from ? to T\n" + 
 			"----------\n");
 	}
+	// Expected type inference for cast operation
 	public void test172() {
 		this.runNegativeTest(
 			new String[] {
@@ -4858,4 +4861,29 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}	
+	// Expected type inference for field declaration
+	public void test174() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	Object o = foo;\n" + 
+				"    	System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T> T bar(AX<?> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"    static AX<X> foo = bar(new AX<X>(new X()));\n" + // use field type for type inference
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"	 E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n" + 
+				"\n"
+			},
+			"SUCCESS");
+	}		
 }
