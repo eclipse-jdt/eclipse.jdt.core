@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added #createScanner allowing to make comment check stricter
+ *     IBM Corporation - added #createDefaultClassFileBytesDisassembler
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
