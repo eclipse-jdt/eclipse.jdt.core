@@ -89,7 +89,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 	}
 	
 	/**
-	 * Avoid depraction warnings on formatter settings
+	 * Avoid deprection warnings on formatter settings
 	 * @deprecated
 	 */
 	private void formatterSettings(Map defaultOptionsMap, HashSet optionNames) {
