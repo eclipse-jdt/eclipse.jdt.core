@@ -138,7 +138,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private static final int NO_MODIFIERS = 0;
 	/*
 	 * Set of expected tokens type for a single type reference.
-	 * This array needs to be SORTED.	 */
+	 * This array needs to be SORTED.
+	 */
 	private static final int[] SINGLETYPEREFERENCE_EXPECTEDTOKENS = new int[] {
 		ITerminalSymbols.TokenNameIdentifier,
 		ITerminalSymbols.TokenNameboolean,
@@ -151,11 +152,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		ITerminalSymbols.TokenNameshort,
 		ITerminalSymbols.TokenNamevoid
 	};
+	private int chunkKind;
 	public int lastLocalDeclarationSourceStart;
 	private IScanner localScanner;
 	public FormattingPreferences preferences;
 	public Scribe scribe;
-	private int chunkKind;
 	
 	/*
 	 * TODO: See how to choose the formatter's options. The extension point is calling
@@ -180,6 +181,32 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 //		convertOldOptionsToPreferences(settings, preferences);
 		this.preferences = preferences;
 		this.scribe = new Scribe(this, settings);
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#acceptProblem(org.eclipse.jdt.core.compiler.IProblem)
+	 */
+	public void acceptProblem(IProblem problem) {
+		super.acceptProblem(problem);
+	}
+
+	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
+		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
+		
+		switch((binaryExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
+			case OperatorIds.AND_AND :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND_AND));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.OR_OR :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR_OR));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+		}
+
+		return builder;
 	}
 
 	public boolean checkChunkStart(int kind) {
@@ -370,13 +397,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}		
 		}		
 	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#acceptProblem(org.eclipse.jdt.core.compiler.IProblem)
-	 */
-	public void acceptProblem(IProblem problem) {
-		super.acceptProblem(problem);
-	}
 
 	private boolean dumpBinaryExpression(
 		BinaryExpression binaryExpression,
@@ -429,45 +449,31 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false;
 	}
 
-	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
-		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
-		
-		switch((binaryExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
-			case OperatorIds.AND_AND :
-				binaryExpression.left.traverse(builder, scope);
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND_AND));
-				binaryExpression.right.traverse(builder, scope);
-				break;
-			case OperatorIds.OR_OR :
-				binaryExpression.left.traverse(builder, scope);
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR_OR));
-				binaryExpression.right.traverse(builder, scope);
-				break;
+	private String failedToFormat(final char[] compilationUnitSource) {
+		StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
+		buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
+		System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
+		if (DEBUG) {
+			System.out.println(this.scribe);
 		}
-
-		return builder;
-	}
-	
-	private void formatEmptyStatement() {
-
-		if (this.preferences.put_empty_statement_on_new_line) {
-			this.scribe.printNewLine();
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-		this.scribe.printTrailingCommentForEmptyStatement();
+		return buffer.toString();
 	}
 
-	private void formatGuardClauseBlock(Block block, BlockScope scope) {
+	private void format(
+		AbstractMethodDeclaration methodDeclaration,
+		ClassScope scope,
+		boolean isChunkStart) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, this.preferences.insert_space_before_block_open_brace);
-		this.scribe.space();
-
-		final Statement[] statements = block.statements;
-		statements[0].traverse(this, scope);
-		this.scribe.space();
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, false, true);
-		this.scribe.printTrailingComment();
-	}	
+		final int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+		if (newLineBeforeChunk > 0) {
+			this.scribe.printNewLines(newLineBeforeChunk);
+		}
+		final int newLinesBeforeMethod = this.preferences.blank_lines_before_method;
+		if (newLinesBeforeMethod > 0) {
+			this.scribe.printNewLines(newLinesBeforeMethod);
+		}
+		methodDeclaration.traverse(this, scope);
+	}
 	
 	private void format(FieldDeclaration fieldDeclaration, IAbstractSyntaxTreeVisitor visitor, MethodScope scope, boolean isChunkStart) {
 		
@@ -530,11 +536,29 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (fieldAlignment != null) {
 			this.scribe.alignFragment(fieldAlignment, 3);
 			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 			this.scribe.exitAlignment(fieldAlignment, false);
 		} else {
 			this.scribe.space();
 			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 		}
+	}
+
+	private void format(
+		MemberTypeDeclaration memberTypeDeclaration,
+		ClassScope scope,
+		boolean isChunkStart) {
+
+		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+		if (newLineBeforeChunk > 0) {
+			this.scribe.printNewLines(newLineBeforeChunk);
+		}
+		final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
+		if (newLinesBeforeMember > 0) {
+			this.scribe.printNewLines(newLinesBeforeMember);
+		}
+		memberTypeDeclaration.traverse(this, scope);
 	}
 	
 	private void format(MultiFieldDeclaration multiFieldDeclaration, IAbstractSyntaxTreeVisitor visitor, MethodScope scope, boolean isChunkStart) {
@@ -604,6 +628,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				
 				this.scribe.alignFragment(fieldAlignment, 3);
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			}
 		}
 		if (fieldAlignment != null) {
@@ -644,16 +669,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return this.scribe.toString();
 	}
 
-	private String failedToFormat(final char[] compilationUnitSource) {
-		StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
-		buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
-		System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
-		if (DEBUG) {
-			System.out.println(this.scribe);
-		}
-		return buffer.toString();
-	}
-
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
 	 */
@@ -676,37 +691,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.lastLocalDeclarationSourceStart = 0;
 		try {
 			compilationUnitDeclaration.traverse(this, compilationUnitDeclaration.scope);
-		} catch(AbortFormatting e){
-			return failedToFormat(compilationUnitSource);
-		}
-		if (DEBUG){
-			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
-		}
-		return this.scribe.toString();
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
-	 */
-	public String format(String string, int[] positions, Expression expression) {
-		// reset the scribe
-		this.scribe.reset(positions);
-		
-		long startTime = System.currentTimeMillis();
-
-		final char[] compilationUnitSource = string.toCharArray();
-		
-		this.scribe.scanner.setSource(compilationUnitSource);
-		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.scannerEndPosition = compilationUnitSource.length;
-		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
-		if (expression == null) {
-			return string;
-		}
-
-		this.lastLocalDeclarationSourceStart = 0;
-		try {
-			expression.traverse(this, null);
 		} catch(AbortFormatting e){
 			return failedToFormat(compilationUnitSource);
 		}
@@ -753,13 +737,44 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		return this.scribe.toString();
 	}
+
+	/**
+	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 */
+	public String format(String string, int[] positions, Expression expression) {
+		// reset the scribe
+		this.scribe.reset(positions);
+		
+		long startTime = System.currentTimeMillis();
+
+		final char[] compilationUnitSource = string.toCharArray();
+		
+		this.scribe.scanner.setSource(compilationUnitSource);
+		this.localScanner.setSource(compilationUnitSource);
+		this.scribe.scannerEndPosition = compilationUnitSource.length;
+		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		if (expression == null) {
+			return string;
+		}
+
+		this.lastLocalDeclarationSourceStart = 0;
+		try {
+			expression.traverse(this, null);
+		} catch(AbortFormatting e){
+			return failedToFormat(compilationUnitSource);
+		}
+		if (DEBUG){
+			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
+		}
+		return this.scribe.toString();
+	}
 	
 	private void format(TypeDeclaration typeDeclaration){
 
 		if (typeDeclaration.modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
 		} else {
-			this.scribe.printComment(true);
+			this.scribe.printComment();
 		}
 		/*
 		 * Type name
@@ -855,7 +870,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		formatTypeMembers(typeDeclaration);
 
-		this.scribe.printComment(true);
+		this.scribe.printComment();
 		
 		if (this.preferences.indent_body_declarations_compare_to_type_header) {
 			this.scribe.unIndent();
@@ -868,6 +883,139 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printTrailingComment();
 		if (class_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
+		}
+	}
+
+	/*
+	 * Merged traversal of member (types, fields, methods)
+	 */
+	private void formatClassBodyDeclarations(AstNode[] nodes) {
+		final int FIELD = 1, METHOD = 2, TYPE = 3;
+		
+		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		this.scribe.enterAlignment(memberAlignment);
+		boolean isChunkStart = false;
+		boolean ok = false;
+		int startIndex = 0;
+		do {
+			try {
+				for (int i = startIndex, max = nodes.length; i < max; i++) {
+					AstNode member = nodes[i];
+					if (member instanceof FieldDeclaration) {
+						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
+						if (member instanceof MultiFieldDeclaration){
+							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
+							
+							if (multiField.isStatic()) {
+								format(multiField, this, null, isChunkStart);
+							} else {
+								format(multiField, this, null, isChunkStart);
+							}					
+						} else if (member instanceof Initializer) {
+							Initializer initializer = (Initializer) member;
+							if (initializer.isStatic()) {
+								initializer.traverse(this, null);
+							} else {
+								initializer.traverse(this, null);
+							}					
+						} else {
+							FieldDeclaration field = (FieldDeclaration) member;
+							if (field.isStatic()) {
+								format(field, this, null, isChunkStart);
+							} else {
+								format(field, this, null, isChunkStart);
+							}					
+						}
+					} else if (member instanceof AbstractMethodDeclaration) {
+						isChunkStart = memberAlignment.checkChunkStart(METHOD, i, this.scribe.scanner.currentPosition);
+						format((AbstractMethodDeclaration) member, null, isChunkStart);
+					} else {
+						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
+						format((MemberTypeDeclaration)member, null, isChunkStart);
+					}
+					if (isSemiColon()) {
+						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printTrailingComment();
+					}
+				}
+				ok = true;
+			} catch(AlignmentException e){
+				startIndex = memberAlignment.chunkStartIndex;
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);		
+		this.scribe.exitAlignment(memberAlignment, true);
+		this.scribe.printComment();
+	}
+	
+	private void formatEmptyStatement() {
+
+		if (this.preferences.put_empty_statement_on_new_line) {
+			this.scribe.printNewLine();
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printTrailingComment();
+		this.scribe.printNewLine();
+	}
+
+	private void formatGuardClauseBlock(Block block, BlockScope scope) {
+
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, this.preferences.insert_space_before_block_open_brace);
+		this.scribe.space();
+
+		final Statement[] statements = block.statements;
+		statements[0].traverse(this, scope);
+		this.scribe.space();
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, false, true);
+		this.scribe.printTrailingComment();
+	}	
+
+	public void formatMessageSend(
+		MessageSend messageSend,
+		BlockScope scope,
+		Alignment messageAlignment) {
+
+		if (messageAlignment != null) {
+			this.scribe.alignFragment(messageAlignment, 0);
+			this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier); // selector
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+
+		final Expression[] arguments = messageSend.arguments;
+		if (arguments != null) {
+			int argumentLength = arguments.length;
+			Alignment argumentsAlignment = this.scribe.createAlignment(
+					"messageArguments", //$NON-NLS-1$
+					this.preferences.message_send_arguments_alignment,
+					argumentLength,
+					this.scribe.scanner.currentPosition);
+			this.scribe.enterAlignment(argumentsAlignment);
+			boolean ok = false;
+			do {
+				try {
+					if (this.preferences.insert_space_within_message_send) {
+						this.scribe.space();
+					}
+					for (int i = 0; i < argumentLength; i++) {
+						if (i > 0) {
+							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+						}
+						this.scribe.alignFragment(argumentsAlignment, i);
+						if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+							this.scribe.space();
+						}
+						arguments[i].traverse(this, scope);
+					}
+					this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+					ok = true;
+				} catch (AlignmentException e) {
+					this.scribe.redoAlignment(e);
+				}
+			} while (!ok);
+			this.scribe.exitAlignment(argumentsAlignment, true);
+		} else {
+			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
 		}
 	}
 
@@ -920,88 +1068,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 	}
 
-	private void format(
-		MemberTypeDeclaration memberTypeDeclaration,
-		ClassScope scope,
-		boolean isChunkStart) {
-
-		int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) {
-			this.scribe.printNewLines(newLineBeforeChunk);
-		}
-		final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
-		if (newLinesBeforeMember > 0) {
-			this.scribe.printNewLines(newLinesBeforeMember);
-		}
-		memberTypeDeclaration.traverse(this, scope);
-	}
-
-	private void format(
-		AbstractMethodDeclaration methodDeclaration,
-		ClassScope scope,
-		boolean isChunkStart) {
-
-		final int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-		if (newLineBeforeChunk > 0) {
-			this.scribe.printNewLines(newLineBeforeChunk);
-		}
-		final int newLinesBeforeMethod = this.preferences.blank_lines_before_method;
-		if (newLinesBeforeMethod > 0) {
-			this.scribe.printNewLines(newLinesBeforeMethod);
-		}
-		methodDeclaration.traverse(this, scope);
-	}
-
-	public void formatMessageSend(
-		MessageSend messageSend,
-		BlockScope scope,
-		Alignment messageAlignment) {
-
-		if (messageAlignment != null) {
-			this.scribe.alignFragment(messageAlignment, 0);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier); // selector
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
-
-		final Expression[] arguments = messageSend.arguments;
-		if (arguments != null) {
-			int argumentLength = arguments.length;
-			Alignment argumentsAlignment = this.scribe.createAlignment(
-					"messageArguments", //$NON-NLS-1$
-					this.preferences.message_send_arguments_alignment,
-					argumentLength,
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(argumentsAlignment);
-			boolean ok = false;
-			do {
-				try {
-					if (this.preferences.insert_space_within_message_send) {
-						this.scribe.space();
-					}
-					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
-						}
-						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
-							this.scribe.space();
-						}
-						arguments[i].traverse(this, scope);
-					}
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
-				}
-			} while (!ok);
-			this.scribe.exitAlignment(argumentsAlignment, true);
-		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
-		}
-	}
-
-	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace, boolean insertNewLine) {
+	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace) {
 	
 		if (bracePosition.equals(FormattingPreferences.NEXT_LINE)) {
 			this.scribe.printNewLine();
@@ -1011,30 +1078,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, insertSpaceBeforeBrace);
 
-		this.scribe.printTrailingComment(insertNewLine);
-	}
-
-	private void formatTypeOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace, TypeDeclaration typeDeclaration) {
-		int fieldCount = (typeDeclaration.fields == null) ? 0 : typeDeclaration.fields.length;
-		int methodCount = (typeDeclaration.methods == null) ? 0 : typeDeclaration.methods.length;
-		int typeCount = (typeDeclaration.memberTypes == null) ? 0 : typeDeclaration.memberTypes.length;
-	
-		if (methodCount == 1 && typeDeclaration.methods[0].isDefaultConstructor()) {
-			methodCount = 0;
-		}
-		final int memberLength = fieldCount+methodCount+typeCount;
-
-		boolean insertNewLine = memberLength > 0;
-		
-		if (!insertNewLine) {
-			if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
-				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
-			} else {
-				insertNewLine = this.preferences.insert_new_line_in_empty_type_declaration;
-			}
-		}
-	
-		formatOpeningBrace(bracePosition, insertSpaceBeforeBrace, insertNewLine);		
+		this.scribe.printTrailingComment();
+		this.scribe.printNewLine();
 	}
 
 	public void formatStatements(BlockScope scope, final Statement[] statements) {
@@ -1044,18 +1089,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			statement.traverse(this, scope);
 			if (statement instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				if (i < (statementsLength - 1)) {
-					/*
-					 * We need to check that the next statement is a local declaration
-					 */
-					if (statements[i + 1] instanceof EmptyStatement) {
-						this.scribe.printTrailingCommentForEmptyStatement();
-					} else {
-						this.scribe.printTrailingComment();
-					}
-				} else {
-					this.scribe.printTrailingComment();
-				}		
+				this.scribe.printTrailingComment();
 			} else if (statement instanceof LocalDeclaration) {
 				LocalDeclaration currentLocal = (LocalDeclaration) statement;
 				if (i < (statementsLength - 1)) {
@@ -1076,18 +1110,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				}
-			} else if (i < (statementsLength - 1)) {
-				/*
-				 * We need to check that the next statement is a local declaration
-				 */
-				if (statements[i + 1] instanceof EmptyStatement) {
-					this.scribe.printTrailingCommentForEmptyStatement();
-				} else {
-					this.scribe.printTrailingComment();
-				}
 			} else {
 				this.scribe.printTrailingComment();
 			}
+			this.scribe.printNewLine();
 		}
 	}
 	
@@ -1159,6 +1185,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 								format(multiField, this, typeDeclaration.initializerScope, isChunkStart);
 							}					
 						} else if (member instanceof Initializer) {
+							int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
+							if (newLineBeforeChunk > 0) {
+								this.scribe.printNewLines(newLineBeforeChunk);
+							}
 							Initializer initializer = (Initializer) member;
 							if (initializer.isStatic()) {
 								initializer.traverse(this, typeDeclaration.staticInitializerScope);
@@ -1183,6 +1213,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					if (isSemiColon()) {
 						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
+						this.scribe.printNewLine();
 					}
 				}
 				ok = true;
@@ -1194,65 +1225,31 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.exitAlignment(memberAlignment, true);
 	}
 
-	/*
-	 * Merged traversal of member (types, fields, methods)
-	 */
-	private void formatClassBodyDeclarations(AstNode[] nodes) {
-		final int FIELD = 1, METHOD = 2, TYPE = 3;
+	private void formatTypeOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace, TypeDeclaration typeDeclaration) {
+		int fieldCount = (typeDeclaration.fields == null) ? 0 : typeDeclaration.fields.length;
+		int methodCount = (typeDeclaration.methods == null) ? 0 : typeDeclaration.methods.length;
+		int typeCount = (typeDeclaration.memberTypes == null) ? 0 : typeDeclaration.memberTypes.length;
+	
+		if (methodCount == 1 && typeDeclaration.methods[0].isDefaultConstructor()) {
+			methodCount = 0;
+		}
+		final int memberLength = fieldCount+methodCount+typeCount;
+
+		boolean insertNewLine = memberLength > 0;
 		
-		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
-		this.scribe.enterAlignment(memberAlignment);
-		boolean isChunkStart = false;
-		boolean ok = false;
-		int startIndex = 0;
-		do {
-			try {
-				for (int i = startIndex, max = nodes.length; i < max; i++) {
-					AstNode member = nodes[i];
-					if (member instanceof FieldDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
-						if (member instanceof MultiFieldDeclaration){
-							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
-							
-							if (multiField.isStatic()) {
-								format(multiField, this, null, isChunkStart);
-							} else {
-								format(multiField, this, null, isChunkStart);
-							}					
-						} else if (member instanceof Initializer) {
-							Initializer initializer = (Initializer) member;
-							if (initializer.isStatic()) {
-								initializer.traverse(this, null);
-							} else {
-								initializer.traverse(this, null);
-							}					
-						} else {
-							FieldDeclaration field = (FieldDeclaration) member;
-							if (field.isStatic()) {
-								format(field, this, null, isChunkStart);
-							} else {
-								format(field, this, null, isChunkStart);
-							}					
-						}
-					} else if (member instanceof AbstractMethodDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(METHOD, i, this.scribe.scanner.currentPosition);
-						format((AbstractMethodDeclaration) member, null, isChunkStart);
-					} else {
-						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
-						format((MemberTypeDeclaration)member, null, isChunkStart);
-					}
-					if (isSemiColon()) {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-						this.scribe.printTrailingComment();
-					}
-				}
-				ok = true;
-			} catch(AlignmentException e){
-				startIndex = memberAlignment.chunkStartIndex;
-				this.scribe.redoAlignment(e);
+		if (!insertNewLine) {
+			if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
+				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
+			} else {
+				insertNewLine = this.preferences.insert_new_line_in_empty_type_declaration;
 			}
-		} while (!ok);		
-		this.scribe.exitAlignment(memberAlignment, true);
+		}
+	
+		formatOpeningBrace(bracePosition, insertSpaceBeforeBrace);
+		
+		if (insertNewLine) {
+			this.scribe.printNewLine();
+		}
 	}
 
 	private int getExtraDimension() {
@@ -1434,7 +1431,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		formatTypeMembers(anonymousTypeDeclaration);
 		
-		this.scribe.printComment(true);
+		this.scribe.printComment();
 		this.scribe.unIndent();
 		if (this.preferences.insert_new_line_in_empty_anonymous_type_declaration) {
 			this.scribe.printNewLine();
@@ -1811,20 +1808,23 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	public boolean visit(Block block, BlockScope scope) {
 	
 		String block_brace_position = this.preferences.block_brace_position;
-		formatOpeningBrace(block_brace_position, this.preferences.insert_space_before_block_open_brace, this.preferences.insert_new_line_in_empty_block);
+		formatOpeningBrace(block_brace_position, this.preferences.insert_space_before_block_open_brace);
 		this.scribe.indent();
 	
 		final Statement[] statements = block.statements;
 		if (statements != null) {
 			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 			formatStatements(scope, statements);
 		} else if (this.preferences.insert_new_line_in_empty_block) {
 			this.scribe.printNewLine();
 		}
-		this.scribe.printComment(true);
+		this.scribe.printComment();
 
 		this.scribe.unIndent();
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+		this.scribe.printTrailingComment();
+		this.scribe.printNewLine();
 	
 		if (block_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
@@ -1944,7 +1944,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		CompilationUnitScope scope) {
 		
 		/* 
-		 * Package declaration		 */
+		 * Package declaration
+		 */
 		if (compilationUnitDeclaration.currentPackage != null) {
 			// OPTION
 			// dump the package keyword
@@ -1952,7 +1953,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (blankLinesBeforePackage > 0) {
 				this.scribe.printNewLines(blankLinesBeforePackage - 1);
 			}
-			this.scribe.printComment(true);
+			this.scribe.printComment();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamepackage);
 			this.scribe.space();
 			this.scribe.printQualifiedReference(compilationUnitDeclaration.currentPackage.sourceEnd);
@@ -1963,11 +1964,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.printNewLines(blankLinesAfterPackage);
 			}				
 		} else {
-			this.scribe.printComment(true);
+			this.scribe.printComment();
 		}
 		
 		/*
-		 * Import statements		 */
+		 * Import statements
+		 */
 		final ImportReference[] imports = compilationUnitDeclaration.imports;
 		if (imports != null) {
 			int blankLinesBeforeImports = this.preferences.blank_lines_before_imports;
@@ -1986,7 +1988,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 
 		/*
-		 * Type declarations		 */
+		 * Type declarations
+		 */
 		final TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
 			int typesLength = types.length;
@@ -1994,7 +1997,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				types[i].traverse(this, scope);
 			}
 		}
-		this.scribe.printComment(false);
+		this.scribe.printComment();
 		return false;
 	}
 
@@ -2114,19 +2117,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false;	
 	}
 
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Continue, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
-
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamecontinue);
-		if (continueStatement.label != null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-		return false;
-	}
-
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
@@ -2138,7 +2128,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (constructorDeclaration.modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
 		} else {
-			this.scribe.printComment(true);
+			this.scribe.printComment();
 		}			
 		/*
 		 * Print the method name
@@ -2164,24 +2154,26 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			 * Method body
 			 */
 			String method_declaration_brace = this.preferences.method_declaration_brace_position;
-			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_method_open_brace, this.preferences.insert_new_line_in_empty_method_body);
+			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_method_open_brace);
 			this.scribe.indent();			
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.number_of_blank_lines_to_insert_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
 				this.scribe.printNewLines(numberOfBlankLinesAtBeginningOfMethodBody);
 			}
 			if (constructorDeclaration.constructorCall != null && !constructorDeclaration.constructorCall.isImplicitSuper()) {
+				this.scribe.printNewLine();
 				constructorDeclaration.constructorCall.traverse(this, constructorDeclaration.scope);
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 			}
 			final Statement[] statements = constructorDeclaration.statements;
 			if (statements != null) {
+				this.scribe.printNewLine();
 				formatStatements(constructorDeclaration.scope, statements);
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
 			}
-			this.scribe.printComment(true);
+			this.scribe.printComment();
 			this.scribe.unIndent();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
@@ -2193,6 +2185,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Continue, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
+
+		this.scribe.printNextToken(ITerminalSymbols.TokenNamecontinue);
+		if (continueStatement.label != null) {
+			this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		return false;
 	}
 
@@ -2274,119 +2279,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FalseLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
-
-		final int numberOfParens = (falseLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) {
-			manageOpeningParenthesizedExpression(falseLiteral, numberOfParens);
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamefalse);
-
-		if (numberOfParens > 0) {
-			manageClosingParenthesizedExpression(falseLiteral, numberOfParens);
-		}
-		return false;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FieldReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(FieldReference fieldReference, BlockScope scope) {
-
-		final int numberOfParens = (fieldReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) {
-			manageOpeningParenthesizedExpression(fieldReference, numberOfParens);
-		}
-		fieldReference.receiver.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier);
-		
-		if (numberOfParens > 0) {
-			manageClosingParenthesizedExpression(fieldReference, numberOfParens);
-		}
-		return false;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ForStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(ForStatement forStatement, BlockScope scope) {
-	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamefor);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
-		
-		if (this.preferences.insert_space_in_for_parens) {
-			this.scribe.space();
-		}
-		final Statement[] initializations = forStatement.initializations;
-		if (initializations != null) {
-			int length = initializations.length;
-			for (int i = 0; i < length; i++) {
-				initializations[i].traverse(this, scope);
-				if (i >= 0 && (i < length - 1) && !(initializations[i] instanceof LocalDeclaration)) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_inits);
-					if (this.preferences.insert_space_after_comma_in_for_inits) {
-						this.scribe.space();
-					}
-				}				
-			}
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-		if (this.preferences.insert_space_after_semicolon_in_for) {
-			this.scribe.space();
-		}
-		final Expression condition = forStatement.condition;
-		if (condition != null) {
-			condition.traverse(this, scope);
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-		if (this.preferences.insert_space_after_semicolon_in_for) {
-			this.scribe.space();
-		}
-		final Statement[] increments = forStatement.increments;
-		if (increments != null) {
-			for (int i = 0, length = increments.length; i < length; i++) {
-				increments[i].traverse(this, scope);
-				if (i != length - 1) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_increments);
-					if (this.preferences.insert_space_after_comma_in_for_increments) {
-						this.scribe.space();
-					}
-				}
-			}
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_for_parens);
-		
-		final Statement action = forStatement.action;
-		if (action != null) {
-			if (action instanceof Block) {
-				action.traverse(this, scope);
-			} else {
-				this.scribe.indent();
-				this.scribe.printNewLine();
-				action.traverse(this, scope);
-				this.scribe.unIndent();
-			}
-			if (action instanceof Expression) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				this.scribe.printTrailingComment();
-			} else if (action instanceof Block && this.preferences.insert_new_line_in_control_statements) {
-				this.scribe.printTrailingComment();
-			}
-		} else {
-			this.scribe.indent();
-			/*
-			 * This is an empty statement
-			 */
-			formatEmptyStatement(); 
-			this.scribe.unIndent();
-		}
-		return false;
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.EqualExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
@@ -2459,6 +2351,42 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FalseLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
+
+		final int numberOfParens = (falseLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(falseLiteral, numberOfParens);
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNamefalse);
+
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(falseLiteral, numberOfParens);
+		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FieldReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(FieldReference fieldReference, BlockScope scope) {
+
+		final int numberOfParens = (fieldReference.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(fieldReference, numberOfParens);
+		}
+		fieldReference.receiver.traverse(this, scope);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier);
+		
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(fieldReference, numberOfParens);
+		}
+		return false;
+	}
+
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.FloatLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(FloatLiteral floatLiteral, BlockScope scope) {
@@ -2475,6 +2403,85 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(floatLiteral, numberOfParens);
+		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ForStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(ForStatement forStatement, BlockScope scope) {
+	
+		this.scribe.printNextToken(ITerminalSymbols.TokenNamefor);
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
+		
+		if (this.preferences.insert_space_in_for_parens) {
+			this.scribe.space();
+		}
+		final Statement[] initializations = forStatement.initializations;
+		if (initializations != null) {
+			int length = initializations.length;
+			for (int i = 0; i < length; i++) {
+				initializations[i].traverse(this, scope);
+				if (i >= 0 && (i < length - 1) && !(initializations[i] instanceof LocalDeclaration)) {
+					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_inits);
+					if (this.preferences.insert_space_after_comma_in_for_inits) {
+						this.scribe.space();
+					}
+				}				
+			}
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		if (this.preferences.insert_space_after_semicolon_in_for) {
+			this.scribe.space();
+		}
+		final Expression condition = forStatement.condition;
+		if (condition != null) {
+			condition.traverse(this, scope);
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		if (this.preferences.insert_space_after_semicolon_in_for) {
+			this.scribe.space();
+		}
+		final Statement[] increments = forStatement.increments;
+		if (increments != null) {
+			for (int i = 0, length = increments.length; i < length; i++) {
+				increments[i].traverse(this, scope);
+				if (i != length - 1) {
+					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_increments);
+					if (this.preferences.insert_space_after_comma_in_for_increments) {
+						this.scribe.space();
+					}
+				}
+			}
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_for_parens);
+		
+		final Statement action = forStatement.action;
+		if (action != null) {
+			if (action instanceof Block) {
+				action.traverse(this, scope);
+			} else {
+				this.scribe.indent();
+				this.scribe.printNewLine();
+				action.traverse(this, scope);
+				this.scribe.unIndent();
+			}
+			if (action instanceof Expression) {
+				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
+			} else if (action instanceof Block && this.preferences.insert_new_line_in_control_statements) {
+				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
+			}
+		} else {
+			this.scribe.indent();
+			/*
+			 * This is an empty statement
+			 */
+			formatEmptyStatement(); 
+			this.scribe.unIndent();
 		}
 		return false;
 	}
@@ -2535,7 +2542,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						if (thenStatement instanceof Expression) {
 							this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						}
-						this.scribe.printTrailingComment();
 						ok = true;
 					} catch (AlignmentException e) {
 						this.scribe.redoAlignment(e);
@@ -2549,14 +2555,17 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				}
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			} else {
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 				this.scribe.indent();
 				thenStatement.traverse(this, scope);
 				if (thenStatement instanceof Expression) {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				}
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 				this.scribe.unIndent();
 			}
 		}
@@ -2583,6 +2592,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				}
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 			} else {
 				this.scribe.printTrailingComment();
 				this.scribe.indent();
@@ -2591,6 +2601,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				}
 				this.scribe.printTrailingComment();
+				this.scribe.printNewLine();
 				this.scribe.unIndent();
 			}
 		}
@@ -2616,6 +2627,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		}
 		this.scribe.printTrailingComment();
+		this.scribe.printNewLine();
 		return false;
 	}
 
@@ -2843,7 +2855,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			returnType.traverse(this, methodDeclarationScope);
 		}
 		/*
-		 * Print the method name		 */
+		 * Print the method name
+		 */
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
 
 		/*
@@ -2876,7 +2889,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			 * Method body
 			 */
 			String method_declaration_brace = this.preferences.method_declaration_brace_position;
-			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_method_open_brace, this.preferences.insert_new_line_in_empty_method_body);
+			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_method_open_brace);
 			this.scribe.indent();			
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.number_of_blank_lines_to_insert_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
@@ -2884,14 +2897,16 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 			final Statement[] statements = methodDeclaration.statements;
 			if (statements != null) {
+				this.scribe.printNewLine();
 				formatStatements(methodDeclarationScope, statements);
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
 			}
-			this.scribe.printComment(true);
+			this.scribe.printComment();
 			this.scribe.unIndent();
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 			if (method_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 				this.scribe.unIndent();
 			}
@@ -2899,6 +2914,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			// no method body
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 		}
 		return false;
 	}
@@ -3265,7 +3281,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 * Type body
 		 */
 		String switch_brace = this.preferences.switch_brace_position;
-		formatOpeningBrace(switch_brace, this.preferences.insert_space_before_switch_open_brace, true);
+		formatOpeningBrace(switch_brace, this.preferences.insert_space_before_switch_open_brace);
+		this.scribe.printNewLine();
 
 		if (preferences.indent_switchstatements_compare_to_switch) {
 			this.scribe.indent();
@@ -3279,7 +3296,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				if (i == 0) {
 					// this is a case or a default statement
 					statement.traverse(this, scope);
-					this.scribe.printTrailingComment();
 					if (this.preferences.indent_switchstatements_compare_to_cases) {
 						this.scribe.indent();
 					}
@@ -3321,18 +3337,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					 * Print the semi-colon
 					 */	
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-					if (i < (statementsLength - 1)) {
-						/*
-						 * We need to check that the next statement is a local declaration
-						 */
-						if (statements[i + 1] instanceof EmptyStatement) {
-							this.scribe.printTrailingCommentForEmptyStatement();
-						} else {
-							this.scribe.printTrailingComment();
-						}
-					} else {
-						this.scribe.printTrailingComment();
-					}					
+					this.scribe.printTrailingComment();
 				} else if (statement instanceof LocalDeclaration) {
 					LocalDeclaration currentLocal = (LocalDeclaration) statement;
 					if (i < (statementsLength - 1)) {
@@ -3362,18 +3367,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
-				} else if (i < (statementsLength - 1)) {
-					/* 
-					 * We need to check that the next statement is a local declaration
-					 */
-					if (statements[i + 1] instanceof EmptyStatement) {
-						this.scribe.printTrailingCommentForEmptyStatement();
-					} else {
-						this.scribe.printTrailingComment();
-					}
 				} else {
 					this.scribe.printTrailingComment();
 				}
+				this.scribe.printNewLine();
 			}
 		}		
 		
@@ -3410,34 +3407,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printTrailingComment();
 		return false;
 	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TrueLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(TrueLiteral trueLiteral, BlockScope scope) {
-
-		final int numberOfParens = (trueLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) {
-			manageOpeningParenthesizedExpression(trueLiteral, numberOfParens);
-		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNametrue);
-
-		if (numberOfParens > 0) {
-			manageClosingParenthesizedExpression(trueLiteral, numberOfParens);
-		}
-		return false;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
-	 */
-	public boolean visit(
-		TypeDeclaration typeDeclaration,
-		CompilationUnitScope scope) {
-
-		format(typeDeclaration);
-		return false;
-	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
@@ -3469,6 +3438,23 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 * Print the semi-colon
 		 */	
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TrueLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(TrueLiteral trueLiteral, BlockScope scope) {
+
+		final int numberOfParens = (trueLiteral.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(trueLiteral, numberOfParens);
+		}
+		this.scribe.printNextToken(ITerminalSymbols.TokenNametrue);
+
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(trueLiteral, numberOfParens);
+		}
 		return false;
 	}
 
@@ -3508,6 +3494,17 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.printTrailingComment();
 			}	
 		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
+	 */
+	public boolean visit(
+		TypeDeclaration typeDeclaration,
+		CompilationUnitScope scope) {
+
+		format(typeDeclaration);
 		return false;
 	}
 
