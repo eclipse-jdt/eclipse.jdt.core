@@ -1350,11 +1350,11 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	} else if (accessedType.isArrayType()) {
 		this.ldc(String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
 	} else {
-		// we make it an array type
+		// we make it an array type (to avoid class initialization)
 		this.ldc("[L" + String.valueOf(accessedType.constantPoolName()).replace('/', '.') + ";"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 	this.invokeClassForName();
-	if (!accessedType.isArrayType()) {
+	if (!accessedType.isArrayType()) { // extract the component type, which doesn't initialize the class
 		this.invokeJavaLangClassGetComponentType();
 	}	
 
