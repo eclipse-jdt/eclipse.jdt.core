@@ -1384,12 +1384,7 @@ public static char[][] getParameterTypes(char[] methodSignature) throws IllegalA
  */
 public static String[] getParameterTypes(String methodSignature) throws IllegalArgumentException {
 	char[][] parameterTypes = getParameterTypes(methodSignature.toCharArray());
-	int length = parameterTypes.length;
-	String[] result = new String[length];
-	for (int i = 0; i < length; i++) {
-		result[i] = new String(parameterTypes[i]);
-	}
-	return result;
+	return CharOperation.toStrings(parameterTypes);
 }
 
 /**
@@ -1403,12 +1398,7 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
  */
 public static String[] getThrownExceptionTypes(String methodSignature) throws IllegalArgumentException {
 	char[][] parameterTypes = getThrownExceptionTypes(methodSignature.toCharArray());
-	int length = parameterTypes.length;
-	String[] result = new String[length];
-	for (int i = 0; i < length; i++) {
-		result[i] = new String(parameterTypes[i]);
-	}
-	return result;
+	return CharOperation.toStrings(parameterTypes);
 }
 
 /**
@@ -1584,12 +1574,7 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
  */
 public static String[] getTypeParameters(String methodOrTypeSignature) throws IllegalArgumentException {
 	char[][] params = getTypeParameters(methodOrTypeSignature.toCharArray());
-	int length = params.length;
-	String[] result = new String[length];
-	for (int i = 0; i < length; i++) {
-		result[i] = new String(params[i]);
-	}
-	return result;
+	return CharOperation.toStrings(params);
 }
 
 /**
@@ -1683,12 +1668,7 @@ public static char[][] getTypeParameterBounds(char[] formalTypeParameterSignatur
  */
 public static String[] getTypeParameterBounds(String formalTypeParameterSignature) throws IllegalArgumentException {
 	char[][] bounds = getTypeParameterBounds(formalTypeParameterSignature.toCharArray());
-	int length = bounds.length;
-	String[] result = new String[length];
-	for (int i = 0; i < length; i++) {
-		result[i] = new String(bounds[i]);
-	}
-	return result;
+	return CharOperation.toStrings(bounds);
 }
 
 /**

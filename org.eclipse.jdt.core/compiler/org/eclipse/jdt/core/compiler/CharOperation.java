@@ -2737,6 +2737,7 @@ public final class CharOperation {
 	 */
 	final static public String[] toStrings(char[][] array) {
 		int length = array.length;
+		if (length == 0) return NO_STRINGS;
 		String[] result = new String[length];
 		for (int i = 0; i < length; i++)
 			result[i] = new String(array[i]);
