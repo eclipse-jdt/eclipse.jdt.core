@@ -2503,10 +2503,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			if (sourceAttachmentPath.isEmpty()) {
 				sourceAttachmentPath = null; // treat empty path as none
 			} else if (!sourceAttachmentPath.isAbsolute()) {
-				// TODO: (philippe) should use assertion instead once clients are behaving
-				//Assert.isTrue(false, "Source attachment path for IClasspathEntry must be absolute"); //$NON-NLS-1$
-				Util.log(new IllegalArgumentException(), "Source attachment path should be absolute: \"" + sourceAttachmentPath.toOSString()+"\""); //$NON-NLS-1$//$NON-NLS-2$
-				sourceAttachmentPath = sourceAttachmentPath.makeAbsolute();
+				Assert.isTrue(false, "Source attachment path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 			}
 		}
 		return new ClasspathEntry(
