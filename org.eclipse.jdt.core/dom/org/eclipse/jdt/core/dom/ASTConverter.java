@@ -774,6 +774,7 @@ class ASTConverter {
 		}
 		parenthesizedExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		adjustSourcePositionsForParent(expression);
+		removeExtraBlanks(expression);
 		parenthesizedExpression.setExpression(convert(expression));
 		return parenthesizedExpression;
 	}
@@ -1115,10 +1116,11 @@ class ASTConverter {
 		CastExpression castExpression = this.ast.newCastExpression();
 		castExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		org.eclipse.jdt.internal.compiler.ast.Expression type = expression.type;
+		removeExtraBlanks(type);
 		if (type instanceof TypeReference ) {
-			castExpression.setType(convertType((TypeReference)expression.type));
+			castExpression.setType(convertType((TypeReference)type));
 		} else if (type instanceof NameReference) {
-			castExpression.setType(convertToType((NameReference)expression.type));
+			castExpression.setType(convertToType((NameReference)type));
 		}
 		castExpression.setExpression(convert(expression.expression));
 		if (this.resolveBindings) {
@@ -2889,6 +2891,43 @@ class ASTConverter {
 		} catch (InvalidInputException e){
 		}
 		return false;
+	}
+
+	/**
+	 * Remove whitespaces before and after the expression.
+	 */	
+	private void removeExtraBlanks(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+		int start = expression.sourceStart;
+		int end = expression.sourceEnd;
+		int token;
+		int trimLeftPosition = expression.sourceStart;
+		int trimRigthPosition = expression.sourceEnd;
+		boolean first = true;
+		try {
+			scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*todo*/);
+			scanner.setSource(this.compilationUnitSource);
+			scanner.resetTo(start, end);
+			while (true) {
+				token = scanner.getNextToken();
+				switch (token) {
+					case Scanner.TokenNameWHITESPACE :
+						if (first) {
+							trimLeftPosition = scanner.currentPosition;
+						}
+						trimRigthPosition = scanner.startPosition - 1;
+						break;
+					case Scanner.TokenNameEOF :
+						expression.sourceStart = trimLeftPosition;
+						expression.sourceEnd = trimRigthPosition;
+						return;
+				}
+				first = false;
+			}
+		} catch (InvalidInputException e){
+		} finally {
+			scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null /*todo*/);
+			scanner.setSource(this.compilationUnitSource);
+		}
 	}
 	
 	private void adjustSourcePositionsForParent(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
