@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -139,7 +140,15 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 			
 			// need to add a paramater for constructor in binary type
 			IType declaringDeclaringType = type.getDeclaringType();
-			if(declaringDeclaringType != null && isConstructor) {
+			
+			boolean isStatic = false;
+			try {
+				isStatic = Flags.isStatic(type.getFlags());
+			} catch (JavaModelException e) {
+				// isStatic == false
+			}
+			
+			if(declaringDeclaringType != null && isConstructor	&& !isStatic) {
 				int length = parameterPackageNames.length;
 				System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
 				System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);

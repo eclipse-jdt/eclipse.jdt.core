@@ -85,6 +85,7 @@ public static Test suite() {
 	suite.addTest(new ResolveTests("testResolveInnerClassAsParamater"));
 	suite.addTest(new ResolveTests("testResolveCatchArgumentType1"));
 	suite.addTest(new ResolveTests("testResolveCatchArgumentType2"));
+	suite.addTest(new ResolveTests("testResolveStaticClassConstructor"));
 	return suite;
 }
 
@@ -863,5 +864,22 @@ public void testResolveCatchArgumentType2() throws JavaModelException {
 	assertTrue("should have one type", elements.length == 1 && 
 		elements[0].getElementName().equals("Y1") &&
 		elements[0] instanceof IType);
+}
+/**
+ * bugs http://dev.eclipse.org/bugs/show_bug.cgi?id=25888
+ */
+public void testResolveStaticClassConstructor() throws JavaModelException {
+	IClassFile cu = getClassFile("Resolve", "test25888.jar", "", "ResolveStaticClassConstructor.class");
+
+	String str = cu.getSource();
+	String selectAt = "StaticInnerClass";
+	String selection = "StaticInnerClass";
+	int start = str.lastIndexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = cu.codeSelect(start, length);
+
+	assertTrue("should have one method", elements.length == 1 &&
+		elements[0].getElementName().equals("StaticInnerClass") &&
+		elements[0] instanceof IMethod);
 }
 }
