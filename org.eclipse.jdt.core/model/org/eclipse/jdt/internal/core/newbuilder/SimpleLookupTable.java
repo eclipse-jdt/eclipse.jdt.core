@@ -100,6 +100,20 @@ public Object removeKey(Object key) {
 	return null;
 }
 
+public void removeValue(Object valueToRemove) {
+	boolean rehash = false;
+	for (int i = 0, l = valueTable.length; i < l; i++) {
+		Object value = valueTable[i];
+		if (value != null && value.equals(valueToRemove)) {
+			keyTable[i] = null;
+			valueTable[i] = null;
+			rehash = true;
+		}
+	}
+	if (rehash)
+		rehash();
+}
+
 private void rehash() {
 	SimpleLookupTable newLookupTable = new SimpleLookupTable(elementSize * 2);
 	// double the number of expected elements

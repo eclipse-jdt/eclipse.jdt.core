@@ -62,8 +62,11 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		if (kind == FULL_BUILD) {
 			buildAll();
 		} else {
-			this.lastState = getLastState(currentProject);
-			if (lastState == null || hasClasspathChanged() || hasOutputLocationChanged()) {
+			if ((this.lastState = getLastState(currentProject)) == null) {
+				if (DEBUG)
+					System.out.println("Performing full build since last saved state was not found"); //$NON-NLS-1$
+				buildAll();
+			} else if (hasClasspathChanged() || hasOutputLocationChanged()) {
 				// if the output location changes, do not delete the binary files from old location
 				// the user may be trying something
 				buildAll();
@@ -213,15 +216,28 @@ private IProject[] getRequiredProjects() {
 
 private boolean hasClasspathChanged() {
 	ClasspathLocation[] oldClasspathLocations = lastState.classpathLocations;
-	if (classpath.length != oldClasspathLocations.length) return true;
+	if (classpath.length == oldClasspathLocations.length) {
+		for (int i = 0, length = classpath.length; i < length; i++) {
+			if (classpath[i].equals(oldClasspathLocations[i])) continue;
+			if (DEBUG)
+				System.out.println(classpath[i] + " != " + oldClasspathLocations[i]); //$NON-NLS-1$
+			return true;
+		}
+		return false;
+	}
 
-	for (int i = 0, length = classpath.length; i < length; i++)
-		if (!classpath[i].equals(oldClasspathLocations[i])) return true;
-	return false;
+	if (DEBUG)
+		System.out.println("Class path size changed"); //$NON-NLS-1$
+	return true;
 }
 
 private boolean hasOutputLocationChanged() {
-	return !outputFolder.getLocation().toString().equals(lastState.outputLocationString);
+	if (outputFolder.getLocation().toString().equals(lastState.outputLocationString))
+		return false;
+
+	if (DEBUG)
+		System.out.println(outputFolder.getLocation().toString() + " != " + lastState.outputLocationString); //$NON-NLS-1$
+	return true;
 } 
 
 private void initializeBuilder() throws CoreException {
