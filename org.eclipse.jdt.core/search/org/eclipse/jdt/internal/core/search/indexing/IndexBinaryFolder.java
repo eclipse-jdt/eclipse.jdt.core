@@ -1,18 +1,32 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
-import org.eclipse.jdt.internal.core.index.*;
-import org.eclipse.jdt.internal.core.search.processing.*;
-import org.eclipse.jdt.internal.core.index.impl.*;
-
-import java.io.*;
-import java.util.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.IQueryResult;
+import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public class IndexBinaryFolder extends IndexRequest {
 	IFolder folder;
