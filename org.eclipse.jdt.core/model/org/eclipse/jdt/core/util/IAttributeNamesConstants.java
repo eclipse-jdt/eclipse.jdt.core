@@ -30,4 +30,5 @@ public interface IAttributeNamesConstants {
 	char[] STACK_MAP = new char[] {'S', 't', 'a', 'c', 'k', 'M', 'a', 'p'};
 	char[] SIGNATURE = new char[] {'S', 'i', 'g', 'n', 'a', 't', 'u', 'r', 'e'};
 	char[] ENCLOSING_METHOD = new char[] {'E', 'n', 'c', 'l', 'o', 's', 'i', 'n', 'g', 'M', 'e', 't', 'h', 'o', 'd'};
+	char[] LOCAL_VARIABLE_TYPE= new char[] {'L', 'o', 'c', 'a', 'l', 'V', 'a', 'r', 'i', 'a', 'b', 'l', 'e', 'T', 'y', 'p', 'e', 'T', 'a', 'b', 'l', 'e'};
 }
