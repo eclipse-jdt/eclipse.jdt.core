@@ -240,7 +240,7 @@ private void recordNewState(State state) {
 		}
 	}
 
-//	state.dump();
+	// state.dump();
 	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, state);
 }
 

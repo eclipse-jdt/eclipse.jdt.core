@@ -8,7 +8,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -17,8 +16,8 @@ public class State {
 IJavaProject javaProject;
 ClasspathLocation[] classpathLocations;
 String outputLocationString;
-// keyed by fileId (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
-HashtableOfObject references;
+// keyed by location (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
+SimpleLookupTable references;
 
 int buildNumber;
 int lastStructuralBuildNumber;
@@ -28,7 +27,7 @@ protected State(JavaBuilder javaBuilder) {
 	this.javaProject = javaBuilder.javaProject;
 	this.classpathLocations = javaBuilder.classpath;
 	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
-	this.references = new HashtableOfObject(13);
+	this.references = new SimpleLookupTable(13);
 
 	this.buildNumber = 0; // indicates a full build
 	this.lastStructuralBuildNumber = this.buildNumber;
@@ -42,13 +41,13 @@ void cleanup() {
 
 void copyFrom(State lastState) {
 	try {
-		this.references = (HashtableOfObject) lastState.references.clone();
+		this.references = (SimpleLookupTable) lastState.references.clone();
 		this.buildNumber = lastState.buildNumber + 1;
 		this.lastStructuralBuildNumber = lastState.lastStructuralBuildNumber;
 	} catch (CloneNotSupportedException e) {
-		this.references = new HashtableOfObject(31);
+		this.references = new SimpleLookupTable(31);
 
-		char[][] keyTable = lastState.references.keyTable;
+		Object[] keyTable = lastState.references.keyTable;
 		Object[] valueTable = lastState.references.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++)
 			if (keyTable[i] != null)
@@ -56,8 +55,8 @@ void copyFrom(State lastState) {
 	}
 }
 
-char[][] getAdditionalTypeNamesFor(char[] fileId) {
-	Object c = references.get(fileId);
+char[][] getAdditionalTypeNamesFor(String location) {
+	Object c = references.get(location);
 	if (c instanceof AdditionalTypeCollection)
 		return ((AdditionalTypeCollection) c).additionalTypeNames;
 	return null;
@@ -76,8 +75,8 @@ void hasStructuralChanges() {
 	this.lastStructuralBuildNumber = this.buildNumber;
 }
 
-void record(char[] fileId, char[][][] qualifiedRefs, char[][] simpleRefs, char[][] typeNames) {
-	references.put(fileId,
+void record(String location, char[][][] qualifiedRefs, char[][] simpleRefs, char[][] typeNames) {
+	references.put(location,
 		(typeNames != null && typeNames.length > 0)
 			? new AdditionalTypeCollection(typeNames, qualifiedRefs, simpleRefs)
 			: new ReferenceCollection(qualifiedRefs, simpleRefs));
@@ -122,22 +121,33 @@ void dump() {
 	System.out.println("\tOutput location:");
 	System.out.println("\t\t" + outputLocationString);
 
-	System.out.print("\tReferences table:");
+	System.out.print("\tStructural build numbers table:");
+	if (structuralBuildNumbers.size() == 0) {
+		System.out.print(" <empty>");
+	} else {
+		Object[] keyTable = structuralBuildNumbers.keyTable;
+		Object[] valueTable = structuralBuildNumbers.valueTable;
+		for (int i = 0, l = keyTable.length; i < l; i++)
+			if (keyTable[i] != null)
+				System.out.print("\n\t\t" + keyTable[i].toString() + " -> " + valueTable[i].toString());
+	}
+
+	System.out.print("\n\tReferences table:");
 	if (references.size() == 0) {
 		System.out.print(" <empty>");
 	} else {
-		char[][] keyTable = references.keyTable;
+		Object[] keyTable = references.keyTable;
 		Object[] valueTable = references.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
-				System.out.print("\n\t\t" + new String(keyTable[i]));
+				System.out.print("\n\t\t" + keyTable[i].toString());
 				ReferenceCollection c = (ReferenceCollection) valueTable[i];
 				char[][][] qRefs = c.qualifiedReferences;
 				System.out.print("\n\t\t\tqualified:");
 				if (qRefs.length == 0)
 					System.out.print(" <empty>");
 				else for (int j = 0, k = qRefs.length; j < k; j++)
-						System.out.print("  '" + CharOperation.toString(qRefs[j]) + "'");
+						System.out.print("  '" + org.eclipse.jdt.internal.compiler.util.CharOperation.toString(qRefs[j]) + "'");
 				char[][] sRefs = c.simpleNameReferences;
 				System.out.print("\n\t\t\tsimple:");
 				if (sRefs.length == 0)

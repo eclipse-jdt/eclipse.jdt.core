@@ -118,12 +118,11 @@ protected void addAffectedSourceFiles() {
 	if (simpleNames.length < simpleStrings.size())
 		simpleNames = null;
 
-	char[][] keyTable = newState.references.keyTable;
+	Object[] keyTable = newState.references.keyTable;
 	Object[] valueTable = newState.references.valueTable;
 	next : for (int i = 0, l = keyTable.length; i < l; i++) {
-		char[] key = keyTable[i];
-		if (key != null) {
-			String location = new String(key);
+		String location = (String) keyTable[i];
+		if (location != null) {
 			if (compiledAllAtOnce && previousLocations != null && previousLocations.contains(location))
 				continue next; // can skip previously compiled locations since already saw hierarchy related problems
 			if (locations.contains(location))
@@ -366,22 +365,21 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 	}
 }
 
-protected void finishedWith(char[] fileId, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
-	char[][] previousTypeNames = (char[][]) newState.getAdditionalTypeNamesFor(fileId);
+protected void finishedWith(String location, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
+	char[][] previousTypeNames = (char[][]) newState.getAdditionalTypeNamesFor(location);
 	if (previousTypeNames != null) {
 		next : for (int i = 0, x = previousTypeNames.length; i < x; i++) {
 			char[] previous = previousTypeNames[i];
 			for (int j = 0, y = additionalTypeNames.length; j < y; j++)
 				if (CharOperation.equals(previous, additionalTypeNames[j])) continue next;
 
-			char[] dirName = CharOperation.subarray(fileId, 0, CharOperation.lastIndexOf('/', fileId) + 1);
-			String filename = new String(CharOperation.concat(dirName, previous));
-			IPath path = new Path(filename).addFileExtension(JavaBuilder.CLASS_EXTENSION);
+			IPath path = new Path(location);
+			path = path.removeLastSegments(1).append(new String(previous)).addFileExtension(JavaBuilder.CLASS_EXTENSION);
 			IResource resource = javaBuilder.workspaceRoot.getFileForLocation(path);
 			resource.delete(true, null);
 		}
 	}
-	super.finishedWith(fileId, result, additionalTypeNames);
+	super.finishedWith(location, result, additionalTypeNames);
 }
 
 protected boolean isClassFileChanged(IFile file, String fileName, byte[] newBytes, boolean isSecondaryType) throws CoreException {

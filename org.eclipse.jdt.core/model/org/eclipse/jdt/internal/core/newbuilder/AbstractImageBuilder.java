@@ -73,11 +73,10 @@ public void acceptResult(CompilationResult result) {
 	// Before reporting the new problems, we need to update the problem count &
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
-	char[] fileId = result.getFileName();  // the full filesystem path 'd:/xyz/eclipse/Test/p1/p2/A.java'
-	String filename = new String(fileId);
-	if (!workQueue.isCompiled(filename)) {
+	String location = new String(result.getFileName()); // the full filesystem path 'd:/xyz/eclipse/Test/p1/p2/A.java'
+	if (!workQueue.isCompiled(location)) {
 		try {
-			workQueue.finished(filename);
+			workQueue.finished(location);
 	
 			ICompilationUnit compilationUnit = result.getCompilationUnit();
 			ClassFile[] classFiles = result.getClassFiles();
@@ -97,11 +96,11 @@ public void acceptResult(CompilationResult result) {
 			}
 			updateProblemsFor(result);
 			if (otherTypeNames.isEmpty()) {
-				finishedWith(fileId, result, new char[0][]);
+				finishedWith(location, result, new char[0][]);
 			} else {
 				char[][] additionalTypeNames = new char[otherTypeNames.size()][];
 				otherTypeNames.toArray(additionalTypeNames);
-				finishedWith(fileId, result, additionalTypeNames);
+				finishedWith(location, result, additionalTypeNames);
 			}
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
@@ -197,8 +196,8 @@ void compile(SourceFile[] units, String[] initialTypeNames, String[] additionalF
 	notifier.checkCancel();
 }
 
-protected void finishedWith(char[] fileId, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
-	newState.record(fileId, result.qualifiedReferences, result.simpleNameReferences, additionalTypeNames);
+protected void finishedWith(String location, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
+	newState.record(location, result.qualifiedReferences, result.simpleNameReferences, additionalTypeNames);
 }
 
 protected RuntimeException internalException(Throwable t) {
