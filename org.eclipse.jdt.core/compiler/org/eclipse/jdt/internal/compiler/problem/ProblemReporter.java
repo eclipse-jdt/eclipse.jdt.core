@@ -537,6 +537,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
 		case IProblem.JavadocInvalidTag:
+		case IProblem.JavadocUnterminatedInlineTag:
 			if (this.options.docCommentSupport) {
 				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 			} else {
@@ -2511,6 +2512,9 @@ public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 }
 public void javadocUnexpectedTag(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocUnexpectedTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocUnterminatedInlineTag(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocUnterminatedInlineTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 private boolean javadocVisibility(int visibility, int modifiers) {
 	switch (modifiers & CompilerModifiers.AccVisibilityMASK) {
