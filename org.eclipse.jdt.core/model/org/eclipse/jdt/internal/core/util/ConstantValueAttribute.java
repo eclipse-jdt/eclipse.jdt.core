@@ -29,7 +29,7 @@ public class ConstantValueAttribute
 	ConstantValueAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		this.constantValueIndex = u2At(classFileBytes, 6, offset);
-		this.constantPool = constantPool;	
+		this.constantPool = constantPool;
 	}
 	/**
 	 * @see IConstantValueAttribute#getConstantValue()
