@@ -2177,15 +2177,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see IClasspathContainer
 	 * @since 2.0
 	 */
-	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
+	public static void setClasspathContainer(IPath containerPath, final IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
 
 		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
 
 		if (monitor != null && monitor.isCanceled()) return;
 
-		int projectLength = affectedProjects.length;
+		final int projectLength = affectedProjects.length;
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
+		final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
 
 		// filter out unmodified project containers
 		int remaining = 0;
@@ -2232,51 +2232,35 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (remaining == 0) return;
 		
 		// trigger model refresh
-		boolean wasFiring = manager.isFiring();
 		int count = 0;
 		try {
-			if (wasFiring)
-				manager.stopDeltas();
-				
-			for(int i = 0; i < projectLength; i++){
-
-				if (monitor != null && monitor.isCanceled()) return;
-
-				JavaProject affectedProject = (JavaProject)affectedProjects[i];
-				if (affectedProject == null) continue; // was filtered out
-				
-				if (++count == remaining) { // re-enable firing for the last operation
-					if (wasFiring) {
-						wasFiring = false;
-						manager.startDeltas();
+			JavaCore.run(new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					for(int i = 0; i < projectLength; i++){
+		
+						if (monitor != null && monitor.isCanceled()) return;
+		
+						JavaProject affectedProject = (JavaProject)affectedProjects[i];
+						if (affectedProject == null) continue; // was filtered out
+						
+						// force a refresh of the affected project (will compute deltas)
+						affectedProject.setRawClasspath(
+								affectedProject.getRawClasspath(),
+								SetClasspathOperation.ReuseOutputLocation,
+								monitor,
+								!JavaModelManager.IsResourceTreeLocked, // can save resources
+								!JavaModelManager.IsResourceTreeLocked && affectedProject.getWorkspace().isAutoBuilding(), // force save?
+								oldResolvedPaths[i],
+								false); // updating - no validation
 					}
 				}
-			
-				// force a refresh of the affected project (will compute deltas)
-				affectedProject.setRawClasspath(
-						affectedProject.getRawClasspath(),
-						SetClasspathOperation.ReuseOutputLocation,
-						monitor,
-						!JavaModelManager.IsResourceTreeLocked, // can save resources
-						!JavaModelManager.IsResourceTreeLocked && affectedProject.getWorkspace().isAutoBuilding(), // force save?
-						oldResolvedPaths[i],
-						remaining == 1, // no individual cycle check if more than 1 project
-						false); // updating - no validation
-			}
-			if (remaining > 1){
-				// use workspace runnable so as to allow marker creation - workaround bug 14733
-//				ResourcesPlugin.getWorkspace().run(
-//					new IWorkspaceRunnable() {
-//						public void run(IProgressMonitor monitor) throws CoreException {
-							JavaProject.updateAllCycleMarkers(); // update them all at once
-//						}
-//					}, 
-//					monitor);					
-			}
-		} finally {
-			if (wasFiring) {
-				manager.startDeltas();
-				// in case of exception traversing, deltas may be fired only in the next #fire() iteration
+			},
+			monitor);
+		} catch(CoreException e) {
+			if (e instanceof JavaModelException) {
+				throw (JavaModelException)e;
+			} else {
+				throw new JavaModelException(e);
 			}
 		}
 					
@@ -2476,11 +2460,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		if (monitor != null && monitor.isCanceled()) return;
 		
-		boolean needCycleCheck = false;
 		int varLength = variableNames.length;
 		
 		// gather classpath information for updating
-		HashMap affectedProjects = new HashMap(5);
+		final HashMap affectedProjects = new HashMap(5);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IJavaModel model = manager.getJavaModel();
 
@@ -2530,20 +2513,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 							if (variableName.equals(entry.getPath().segment(0))){
 								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
-								
-								// also check whether it will be necessary to update proj references and cycle markers
-								if (!needCycleCheck && entry.getPath().segmentCount() ==  1){
-									IPath oldPath = (IPath)JavaModelManager.variableGet(variableName);
-									if (oldPath == JavaModelManager.VariableInitializationInProgress) oldPath = null;
-									if (oldPath != null && oldPath.segmentCount() == 1) {
-										needCycleCheck = true;
-									} else {
-										IPath newPath = variablePaths[k];
-										if (newPath != null && newPath.segmentCount() == 1) {
-											needCycleCheck = true;
-										}
-									}
-								}
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;
@@ -2568,50 +2537,36 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		int size = affectedProjects.size();
 		
 		if (!affectedProjects.isEmpty()) {
-			boolean wasFiring = manager.isFiring();
 			try {
-				if (wasFiring)
-					manager.stopDeltas();
-				// propagate classpath change
-				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
-				while (projectsToUpdate.hasNext()) {
-
-					if (monitor != null && monitor.isCanceled()) return;
-
-					JavaProject project = (JavaProject) projectsToUpdate.next();
-					
-					if (!projectsToUpdate.hasNext()) {
-						// re-enable firing for the last operation
-						if (wasFiring) {
-							wasFiring = false;
-							manager.startDeltas();
+				JavaCore.run(
+					new IWorkspaceRunnable() {
+						public void run(IProgressMonitor monitor) throws CoreException {
+							// propagate classpath change
+							Iterator projectsToUpdate = affectedProjects.keySet().iterator();
+							while (projectsToUpdate.hasNext()) {
+			
+								if (monitor != null && monitor.isCanceled()) return;
+			
+								JavaProject project = (JavaProject) projectsToUpdate.next();
+								
+								project
+									.setRawClasspath(
+										project.getRawClasspath(),
+										SetClasspathOperation.ReuseOutputLocation,
+										monitor,
+										!JavaModelManager.IsResourceTreeLocked, // can change resources
+										!JavaModelManager.IsResourceTreeLocked && project.getWorkspace().isAutoBuilding(),// force build if in auto build mode
+										(IClasspathEntry[]) affectedProjects.get(project),
+										false); // updating - no validation
+							}
 						}
-					}
-					project
-						.setRawClasspath(
-							project.getRawClasspath(),
-							SetClasspathOperation.ReuseOutputLocation,
-							monitor,
-							!JavaModelManager.IsResourceTreeLocked, // can change resources
-							!JavaModelManager.IsResourceTreeLocked && project.getWorkspace().isAutoBuilding(),// force build if in auto build mode
-							(IClasspathEntry[]) affectedProjects.get(project),
-							size == 1 && needCycleCheck, // no individual check if more than 1 project to update
-							false); // updating - no validation
-				}
-				if (size > 1 && needCycleCheck){
-					// use workspace runnable for protecting marker manipulation
-//					ResourcesPlugin.getWorkspace().run(
-//						new IWorkspaceRunnable() {
-//							public void run(IProgressMonitor monitor) throws CoreException {
-								JavaProject.updateAllCycleMarkers(); // update them all at once
-//							}
-//						}, 
-//						monitor);					
-				}
-			} finally {
-				if (wasFiring) {
-					manager.startDeltas();
-					// in case of exception traversing, deltas may be fired only in the next #fire() iteration
+					},
+					monitor);
+			} catch (CoreException e) {
+				if (e instanceof JavaModelException) {
+					throw (JavaModelException)e;
+				} else {
+					throw new JavaModelException(e);
 				}
 			}
 		}

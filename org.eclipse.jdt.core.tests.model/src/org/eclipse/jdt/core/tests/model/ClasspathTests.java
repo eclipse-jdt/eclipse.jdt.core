@@ -10,10 +10,12 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -1483,38 +1485,43 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(5);
 	denseCycleDetection(10);
 	denseCycleDetection(20);
-	//denseCycleDetection(100);
+	denseCycleDetection(100);
 }
 
-private void denseCycleDetection(int numberOfParticipants) throws CoreException {
+private void denseCycleDetection(final int numberOfParticipants) throws CoreException {
 	
 	long start = System.currentTimeMillis();
-	IJavaProject[] projects = new IJavaProject[numberOfParticipants];
-	int[] allProjectsInCycle = new int[numberOfParticipants];
+	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
+	final int[] allProjectsInCycle = new int[numberOfParticipants];
 	try {
-		for (int i = 0; i < numberOfParticipants; i++){
-			projects[i] = this.createJavaProject("P"+i, new String[]{""}, "");
-			allProjectsInCycle[i] = 1;
-		}		
-		for (int i = 0; i < numberOfParticipants; i++){
-			IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
-			int index = 0;
-			for (int j = 0; j < numberOfParticipants; j++){
-				if (i == j) continue;
-				extraEntries[index++] = JavaCore.newProjectEntry(projects[j].getPath());
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				for (int i = 0; i < numberOfParticipants; i++){
+					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
+					allProjectsInCycle[i] = 1;
+				}		
+				for (int i = 0; i < numberOfParticipants; i++){
+					IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
+					int index = 0;
+					for (int j = 0; j < numberOfParticipants; j++){
+						if (i == j) continue;
+						extraEntries[index++] = JavaCore.newProjectEntry(projects[j].getPath());
+					}
+					// append project references			
+					IClasspathEntry[] oldClasspath = projects[i].getRawClasspath();
+					IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries.length];
+					System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
+					for (int j = 0; j < extraEntries.length; j++){
+						newClasspath[oldClasspath.length+j] = extraEntries[j];
+					}			
+					// set classpath
+					projects[i].setRawClasspath(newClasspath, null);
+				};
 			}
-			// append project references			
-			IClasspathEntry[] oldClasspath = projects[i].getRawClasspath();
-			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries.length];
-			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries.length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[j];
-			}			
-			// set classpath
-			projects[i].setRawClasspath(newClasspath, null);
-		};
+		}, 
+		null);
 		
-		//System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
+		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
 			this.assertCycleMarkers(projects[i], projects, allProjectsInCycle);
