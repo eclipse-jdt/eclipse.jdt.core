@@ -124,16 +124,17 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			return null;
 		}
 		if (operator == PLUS){
-			// removed check for rejecting Object += String which is accepted now
-	/*		if(scope.isJavaLangObject(lhsType)) {
+			// reject Object += String (39248)
+			if(scope.isJavaLangObject(lhsType)) {
 				// <Object> += <String> is illegal
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 				return null;
-			} else */
-			// <int | boolean> += <String> is illegal
-			if ((lhsType.isNumericType() || lhsId == T_boolean) && !expressionType.isNumericType()){
-				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
-				return null;
+			} else {
+				// <int | boolean> += <String> is illegal
+				if ((lhsType.isNumericType() || lhsId == T_boolean) && !expressionType.isNumericType()){
+					scope.problemReporter().invalidOperator(this, lhsType, expressionType);
+					return null;
+				}
 			}
 		}
 		lhs.implicitConversion = result >>> 12;
