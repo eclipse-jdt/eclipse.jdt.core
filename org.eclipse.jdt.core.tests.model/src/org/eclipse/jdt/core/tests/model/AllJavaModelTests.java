@@ -25,6 +25,9 @@ public static Test suite() {
 	TestSuite suite = new TestSuite(AllJavaModelTests.class.getName());
 	// Enter each test here, grouping the tests that are related
 
+	// creation of method
+	suite.addTest(CreateMembersTests.suite());
+	
 	// Java Naming convention tests
 	suite.addTest(JavaConventionTests.suite());
 
