@@ -198,7 +198,7 @@ public interface IClasspathEntry {
 	 * @return the resource exclusion patterns associated with this source entry, or <code>null</code> if none
 	 * was specified. 
 	 * @since 2.1	 */
-	String[] getExclusionPatterns();
+	IPath[] getExclusionPatterns();
 	
 	/**
 	 * Returns the path of this classpath entry.

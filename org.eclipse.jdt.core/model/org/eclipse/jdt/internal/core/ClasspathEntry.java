@@ -58,7 +58,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * Patterns allowing to exclude portions of the resource tree denoted by this entry path.	 */
 	
-	public String[] exclusionPatterns;
+	public IPath[] exclusionPatterns;
+	public char[][] fullCharExclusionPatterns;
+	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 	
 	/**
 	 * Describes the path to the source archive associated with this
@@ -93,25 +95,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	public boolean isExported;
 
 	/**
-	 * Default exclusion patterns for source folders
-	 * @since 2.1
-	 */
-//	public static final String[] EXCLUDE_CLASS = new String[] { "**/*.class" }; //$NON-NLS-1$
-
-	/**
-	 * Default exclusion patterns for library folders
-	 * @since 2.1
-	 */
-//	public static final String[] EXCLUDE_JAVA = new String[] { "**/*.java" }; //$NON-NLS-1$
-	
-		/**
 	 * Creates a class path entry of the specified kind with the given path.
 	 */
 	public ClasspathEntry(
 		int contentKind,
 		int entryKind,
 		IPath path,
-		String[] exclusionPatterns,
+		IPath[] exclusionPatterns,
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
 		boolean isExported) {
@@ -119,22 +109,35 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.contentKind = contentKind;
 		this.entryKind = entryKind;
 		this.path = path;
-		this.exclusionPatterns = exclusionPatterns;
+		if (exclusionPatterns != null && exclusionPatterns.length > 0) {
+			this.exclusionPatterns = exclusionPatterns;
+			this.fullCharExclusionPatterns = UNINIT_PATTERNS;
+		}
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.isExported = isExported;
 	}
+	
 	/*
-	 * Returns a char based representation of the exclusions patterns.	 */
-	public char[][] charBasedExclusionPatterns() {
-		int length = exclusionPatterns == null ? 0 : exclusionPatterns.length;
-		if (length == 0) return null;
-		char[][] result = new char[length][];
-		for (int i = 0; i < length; i++) {
-			result[i] = exclusionPatterns[i].toCharArray();
+	 * Returns a char based representation of the exclusions patterns full path.	 */
+	public char[][] fulExclusionPatternChars() {
+
+		if (this.fullCharExclusionPatterns == UNINIT_PATTERNS) {
+			int length = this.exclusionPatterns.length;
+			this.fullCharExclusionPatterns = new char[length][];
+			IPath prefixPath = path.removeTrailingSeparator();
+			for (int i = 0; i < length; i++) {
+				IPath fullPath = prefixPath, pattern;
+				if (!(pattern = exclusionPatterns[i]).isAbsolute()) { // add leading ** to relative fragment
+					fullPath.append("**/"); //$NON-NLS-1$
+				}
+				fullPath.append(pattern);
+				this.fullCharExclusionPatterns[i] = fullPath.toString().toCharArray();
+			}
 		}
-		return result;
+		return this.fullCharExclusionPatterns;
 	}
+	
 	/**
 	 * Returns true if the given object is a classpath entry
 	 * with equivalent attributes.
@@ -180,7 +183,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					return false;
 			} else {
 				int excludeLength = this.exclusionPatterns.length;
-				String[] otherExcludes = otherEntry.getExclusionPatterns();
+				IPath[] otherExcludes = otherEntry.getExclusionPatterns();
 				if (otherExcludes == null || otherExcludes.length != excludeLength)
 					return false;
 				for (int i = 0; i < excludeLength; i++){
@@ -211,7 +214,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * @see org.eclipse.jdt.core.IClasspathEntry#getExclusionPatterns()
 	 */
-	public String[] getExclusionPatterns() {
+	public IPath[] getExclusionPatterns() {
 		return this.exclusionPatterns;
 	}
 
@@ -300,7 +303,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append("[isExported:"); //$NON-NLS-1$
 		buffer.append(this.isExported);
 		buffer.append(']');
-		String[] patterns = getExclusionPatterns();
+		IPath[] patterns = getExclusionPatterns();
 		if (patterns != null) {
 			buffer.append("[excluding:"); //$NON-NLS-1$
 			for (int i = 0, length = patterns.length; i < length; i++) {

@@ -512,14 +512,14 @@ public static final boolean pathMatch(char[] pattern, char[] filepath, boolean i
 	if (fSegmentEnd < 0) fSegmentEnd = fLength;
 
 	// special case: pattern foo is equivalent to **\foo (not absolute)
-	boolean freePrefixDoubleStar = pattern[0] != pathSeparator;
+	boolean freeLeadingDoubleStar = pattern[0] != pathSeparator;
 	
 	// special case: pattern foo\ is equivalent to foo\**
-	boolean freeSuffixDoubleStar = pattern[pLength-1] == pathSeparator;
+	boolean freeTrailingDoubleStar = pattern[pLength-1] == pathSeparator;
 		
 	// first segments
 	while (pSegmentStart < pLength
-				&& !freePrefixDoubleStar
+				&& !freeLeadingDoubleStar
 				&& !(pSegmentEnd == pSegmentStart+2
 					&& pattern[pSegmentStart] == '*' 
 					&& pattern[pSegmentStart+1] == '*')) {
@@ -587,7 +587,7 @@ public static final boolean pathMatch(char[] pattern, char[] filepath, boolean i
 	return (pSegmentRestart >= pSegmentEnd)
 				|| (fSegmentStart >= fLength && pSegmentStart >= pLength)	
 				|| (pSegmentStart == pLength - 2 && pattern[pSegmentStart] == '*' && pattern[pSegmentStart+1] == '*')
-				|| (pSegmentStart == pLength &&  freeSuffixDoubleStar); 
+				|| (pSegmentStart == pLength &&  freeTrailingDoubleStar); 
 }
 
 public static final int occurencesOf(char toBeFound, char[] array) {
