@@ -221,7 +221,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	 */
 	private TypeDeclaration convert(ISourceType sourceType, CompilationResult compilationResult) {
 		/* create type declaration - can be member type */
-		TypeDeclaration type = type = new TypeDeclaration(compilationResult);
+		TypeDeclaration type = new TypeDeclaration(compilationResult);
 		if (sourceType.getEnclosingType() != null) {
 			type.bits |= ASTNode.IsMemberTypeMASK;
 		}
