@@ -579,7 +579,10 @@ class ASTConverter {
 			methodDecl.setReturnType(this.ast.newPrimitiveType(PrimitiveType.VOID));
 		} else {
 			org.eclipse.jdt.internal.compiler.ast.MethodDeclaration method = (org.eclipse.jdt.internal.compiler.ast.MethodDeclaration) methodDeclaration;
-			methodDecl.setReturnType(convertType(method.returnType));
+			TypeReference typeReference = method.returnType;
+			if (typeReference != null) {
+				methodDecl.setReturnType(convertType(typeReference));
+			}
 		}
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
 		int declarationSourceEnd = methodDeclaration.bodyEnd;
