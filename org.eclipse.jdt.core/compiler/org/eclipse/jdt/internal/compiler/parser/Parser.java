@@ -240,7 +240,7 @@ private final static void buildFileOfByteFor(String filename, String tag, String
 
 	buildFileForTable(filename, bytes);
 }
-private final static void buildFileOfIntFor(String filename, String tag, String[] tokens) throws java.io.IOException {
+private final static char[] buildFileOfIntFor(String filename, String tag, String[] tokens) throws java.io.IOException {
 
 	//transform the String tokens into chars before dumping then into file
 
@@ -261,6 +261,7 @@ private final static void buildFileOfIntFor(String filename, String tag, String[
 	System.arraycopy(chars, 0, chars = new char[ic], 0, ic);
 
 	buildFileForTable(filename, chars);
+	return chars;
 }
 private final static void buildFileOfShortFor(String filename, String tag, String[] tokens) throws java.io.IOException {
 
@@ -284,7 +285,11 @@ private final static void buildFileOfShortFor(String filename, String tag, Strin
 
 	buildFileForTable(filename, chars);
 }
-private final static void buildFileForName(String filename, String contents) throws java.io.IOException {
+private final static String[] buildFileForName(String filename, String contents) throws java.io.IOException {
+	String[] result = new String[contents.length()];
+	result[0] = null;
+	int resultCount = 1;
+	
 	StringBuffer buffer = new StringBuffer();
 	
 	int start = contents.indexOf("name[]"); //$NON-NLS-1$
@@ -295,6 +300,7 @@ private final static void buildFileForName(String filename, String contents) thr
 	
 	boolean addLineSeparator = false;
 	int tokenStart = -1;
+	StringBuffer currentToken = new StringBuffer();
 	for (int i = 0; i < contents.length(); i++) {
 		char c = contents.charAt(i);
 		if(c == '\"') {
@@ -303,6 +309,8 @@ private final static void buildFileForName(String filename, String contents) thr
 			} else {
 				if(addLineSeparator) {
 					buffer.append('\n');
+					result[resultCount++] = currentToken.toString();
+					currentToken = new StringBuffer();
 				}
 				String token = contents.substring(tokenStart, i);
 				if(token.equals(ERROR_TOKEN)){
@@ -311,6 +319,7 @@ private final static void buildFileForName(String filename, String contents) thr
 					token = UNEXPECTED_EOF;
 				}
 				buffer.append(token);
+				currentToken.append(token);
 				addLineSeparator = true;
 				tokenStart = -1;
 			}
@@ -319,25 +328,28 @@ private final static void buildFileForName(String filename, String contents) thr
 			addLineSeparator = false;
 		}
 	}
-
+	if(currentToken.length() > 0) {
+		result[resultCount++] = currentToken.toString();
+	}
+	
 	buildFileForTable(filename, buffer.toString().toCharArray());
+	
+	System.arraycopy(result, 0, result = new String[resultCount], 0, resultCount);
+	return result;
 }
 private static void buildFileForReadableName(
 	String file,
-	String lhs_fileName,
-	String non_terminal_index_fileName,
-	String name_fileName,
+	char[] newLhs,
+	char[] newNonTerminalIndex,
+	String[] newName,
 	String[] tokens) throws java.io.IOException {
 		
 	StringBuffer buffer = new StringBuffer();
 	
-	char[] newLhs = readTable(lhs_fileName);
-	char[] newNonTerminal = readTable(non_terminal_index_fileName);
-	String[] newName = readNameTable(name_fileName);
 	boolean[] alreadyAdded = new boolean[newName.length];
 	
 	for (int i = 0; i < tokens.length; i = i + 2) {
-		int index = newNonTerminal[newLhs[Integer.parseInt(tokens[i])]];
+		int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i])]];
 		if(!alreadyAdded[index]) {
 			alreadyAdded[index] = true;
 			buffer.append(newName[index]);
@@ -405,16 +417,14 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	final String prefix = FILEPREFIX;
 	i = 0;
 	
-	String lhs_fileName = prefix + (++i) + ".rsc"; //$NON-NLS-1$
-	buildFileOfIntFor(lhs_fileName, "lhs", tokens); //$NON-NLS-1$
+	char[] newLhs = buildFileOfIntFor(prefix + (++i) + ".rsc", "lhs", tokens); //$NON-NLS-1$ //$NON-NLS-2$
 	buildFileOfShortFor(prefix + (++i) + ".rsc", "check_table", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "asb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "asr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "nasb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "nasr", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "terminal_index", tokens); //$NON-NLS-2$ //$NON-NLS-1$
-	String non_terminal_index_fileName = prefix + (++i) + ".rsc"; //$NON-NLS-1$
-	buildFileOfIntFor(non_terminal_index_fileName, "non_terminal_index", tokens); //$NON-NLS-1$
+	char[] newNonTerminalIndex = buildFileOfIntFor(prefix + (++i) + ".rsc", "non_terminal_index", tokens); //$NON-NLS-1$ //$NON-NLS-2$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "term_action", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_prefix", tokens); //$NON-NLS-2$ //$NON-NLS-1$
@@ -429,8 +439,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	buildFileOfByteFor(prefix + (++i) + ".rsc", "term_check", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfByteFor(prefix + (++i) + ".rsc", "scope_la", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	
-	String name_fileName = prefix + (++i) + ".rsc";//$NON-NLS-1$
-	buildFileForName(name_fileName, new String(contents));
+	String[] newName = buildFileForName(prefix + (++i) + ".rsc", new String(contents)); //$NON-NLS-1$
 	
 	contents = new char[] {};
 	try {
@@ -445,7 +454,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	while (st.hasMoreTokens()) {
 		tokens[i++] = st.nextToken();
 	}
-	buildFileForReadableName(READABLE_NAMES_FILE+".properties", lhs_fileName, non_terminal_index_fileName, name_fileName, tokens);//$NON-NLS-1$
+	buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
 	
 	System.out.println(Util.bind("parser.moveFiles")); //$NON-NLS-1$
 }
