@@ -36,6 +36,10 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 	 */
 	protected final static char ATTACHMENT_PROPERTY_DELIMITER= '*';
 	/*
+	 * No source attachment property
+	 */
+	protected final static String NO_SOURCE_ATTACHMENT = ""; //$NON-NLS-1$
+	/*
 	 * No source mapper singleton
 	 */
 	protected final static SourceMapper NO_SOURCE_MAPPER = new SourceMapper();
@@ -619,7 +623,13 @@ protected String getSourceAttachmentProperty() throws JavaModelException {
 							? "" : //$NON-NLS-1$
 							(ATTACHMENT_PROPERTY_DELIMITER + rootPath.toString())); 
 				setSourceAttachmentProperty(propertyString);
+			} else {
+				// mark as being already looked up
+				setSourceAttachmentProperty(NO_SOURCE_ATTACHMENT);
 			}
+		} else if (NO_SOURCE_ATTACHMENT.equals(propertyString)) {
+			// already looked up and no source attachment found
+			return null;
 		}
 		return propertyString;
 	} catch (CoreException ce) {
