@@ -11,9 +11,8 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.SearchPattern;
 
-public abstract class VariablePattern extends SearchPattern {
+public abstract class VariablePattern extends JavaSearchPattern {
 
 protected boolean findDeclarations;
 protected boolean findReferences;

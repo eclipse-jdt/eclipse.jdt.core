@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.core.util.SimpleSet;
 /**
  * Query the index multiple times and do an 'and' on the results.
  */
-public abstract class AndPattern extends SearchPattern { // TODO should rename IntersectingPattern, and make AndPattern a true subclass
+public abstract class AndPattern extends JavaSearchPattern { // TODO should rename IntersectingPattern, and make AndPattern a true subclass
 	
 public AndPattern(int patternKind, int matchRule) {
 	super(patternKind, matchRule);

@@ -86,8 +86,9 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 
 
 public PatternLocator(SearchPattern pattern) {
-	this.matchMode = pattern.getMatchMode();
-	this.isCaseSensitive = pattern.isCaseSensitive();
+	int matchRule = pattern.getMatchRule();
+	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
+	this.matchMode = matchRule - (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
 }
 /**
  * Initializes this search pattern so that polymorphic search can be performed.

@@ -23,7 +23,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 protected SearchPattern[] patterns;
 
 public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
-	super(OR_PATTERN, Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
+	super(Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
+	((InternalSearchPattern)this).kind = OR_PATTERN;
 	((InternalSearchPattern)this).mustResolve = ((InternalSearchPattern) leftPattern).mustResolve || ((InternalSearchPattern) rightPattern).mustResolve;
 
 	SearchPattern[] leftPatterns = leftPattern instanceof OrPattern ? ((OrPattern) leftPattern).patterns : null;
@@ -50,6 +51,9 @@ void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticip
 	} finally {
 		index.stopQuery();
 	}
+}
+public SearchPattern getBlankPattern() {
+	return null;
 }
 boolean isPolymorphicSearch() {
 	for (int i = 0, length = this.patterns.length; i < length; i++)

@@ -61,7 +61,7 @@ public SearchPattern getBlankPattern() {
 public char[] getIndexKey() {
 	return this.name;
 }
-public char[][] getMatchCategories() {
+public char[][] getIndexCategories() {
 	if (this.findReferences)
 		return this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
 	if (this.findDeclarations)

@@ -52,7 +52,7 @@ public char[] getIndexKey() {
 		return this.segments[this.currentSegment];
 	return null;
 }
-public char[][] getMatchCategories() {
+public char[][] getIndexCategories() {
 	return CATEGORIES;
 }
 protected boolean hasNextQuery() {
