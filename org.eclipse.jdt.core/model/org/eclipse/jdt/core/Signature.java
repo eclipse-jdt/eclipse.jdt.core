@@ -489,6 +489,34 @@ public static String createMethodSignature(String[] parameterTypes, String retur
 }
 
 /**
+ * Creates a new type parameter signature with the given name and bounds.
+ *
+ * @param typeParameterName the type parameter name
+ * @param boundSignatures the signatures of associated bounds or empty array if none
+ * @return the encoded type parameter signature
+ * 
+ * @since 3.1
+ */
+public static char[] createCharArrayTypeParameterSignature(char[] typeParameterName, char[][] boundSignatures) {
+	int length = boundSignatures.length;
+	if (length == 0) return typeParameterName;
+	int boundsSize = 0;
+	for (int i = 0; i < length; i++) {
+		boundsSize += boundSignatures[i].length + 1;
+	}
+	int nameLength = typeParameterName.length;
+	char[] result = new char[nameLength + boundsSize];
+	System.arraycopy(typeParameterName, 0, result, 0, nameLength);
+	int index = nameLength;
+	for (int i = 0; i < length; i++) {
+		result[index++] = C_COLON;
+		int boundLength = boundSignatures[i].length;
+		System.arraycopy(boundSignatures[i], 0, result, index, boundLength);
+		index += boundLength;
+	}
+	return result;}
+
+/**
  * Creates a new type signature from the given type name encoded as a character
  * array. The type name may contain primitive types or array types. However,
  * parameterized types are not supported.
@@ -1365,8 +1393,8 @@ public static String getTypeVariable(String formalTypeParameterSignature) throws
 public static char[] getTypeVariable(char[] formalTypeParameterSignature) throws IllegalArgumentException {
 	int p = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
 	if (p < 0) {
-		// no ":" means can't be a formal type parameter signature
-		throw new IllegalArgumentException();
+		// no ":" means there was no bounds
+		return formalTypeParameterSignature;
 	}
 	return CharOperation.subarray(formalTypeParameterSignature, 0, p);
 }
@@ -1385,8 +1413,8 @@ public static char[] getTypeVariable(char[] formalTypeParameterSignature) throws
 public static char[][] getTypeParameterBounds(char[] formalTypeParameterSignature) throws IllegalArgumentException {
 	int p1 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
 	if (p1 < 0) {
-		// no ":" means can't be a formal type parameter signature
-		throw new IllegalArgumentException();
+		// no ":" means there was no bounds
+		return CharOperation.NO_CHAR_CHAR;
 	}
 	if (p1 == formalTypeParameterSignature.length - 1) {
 		// no class or interface bounds

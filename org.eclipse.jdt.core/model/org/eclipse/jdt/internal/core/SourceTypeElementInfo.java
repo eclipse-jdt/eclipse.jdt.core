@@ -261,10 +261,14 @@ public char[][] getTypeParameterSignatures() {
 			for (int i = 0; i < length; i++) {
 				char[][] bounds = this.typeParameterBounds[i];
 				if (bounds == null) {
-					this.typeParameterSignatures[i] = this.typeParameterNames[i];
+					this.typeParameterSignatures[i] = Signature.createCharArrayTypeParameterSignature(this.typeParameterNames[i], CharOperation.NO_CHAR_CHAR);
 				} else {
-					this.typeParameterSignatures[i] =
-						CharOperation.concatWith(this.typeParameterNames[i], bounds, Signature.C_COLON);
+					int boundsLength = bounds.length;
+					char[][] boundSignatures = new char[boundsLength][];
+					for (int j = 0; j < boundsLength; j++) {
+						boundSignatures[i] = Signature.createCharArrayTypeSignature(bounds[j], false);
+					}
+					this.typeParameterSignatures[i] = Signature.createCharArrayTypeParameterSignature(this.typeParameterNames[i], boundSignatures);
 				}
 			}
 		}
