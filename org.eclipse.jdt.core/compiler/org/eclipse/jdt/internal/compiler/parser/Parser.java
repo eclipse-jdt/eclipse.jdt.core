@@ -4870,6 +4870,25 @@ public int[] getJavaDocPositions() {
 	}
 	return positions;
 }
+	protected void getMethodBodies(CompilationUnitDeclaration unit) {
+		//fill the methods bodies in order for the code to be generated
+
+		if (unit == null) return;
+		
+		if (unit.ignoreMethodBodies) {
+			unit.ignoreFurtherInvestigation = true;
+			return;
+			// if initial diet parse did not work, no need to dig into method bodies.
+		}
+
+		//real parse of the method....
+		this.scanner.setSourceBuffer(
+			unit.compilationResult.compilationUnit.getContents());
+		if (unit.types != null) {
+			for (int i = unit.types.length; --i >= 0;)
+				unit.types[i].parseMethod(this, unit);
+		}
+	}
 protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
 This variable is a type reference and dim will be its dimensions*/
 
