@@ -372,6 +372,60 @@ public class DependencyTests extends Tests {
 		expectingNoProblems();
 	}
 
+	// 77272
+	// TODO (kent) dependency problem - need to record supertypes
+	public void _testInterfaceDeleting() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "p1", "Vehicle", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public interface Vehicle {}\n" //$NON-NLS-1$
+		);
+
+		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public interface Car extends Vehicle {}\n" //$NON-NLS-1$
+		);
+
+		env.addClass(root, "p1", "CarImpl", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class CarImpl implements Car {}\n" //$NON-NLS-1$
+		);
+
+		IPath testPath = env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+//			"public class Test { public Vehicle createVehicle() { return new CarImpl(); } }\n" //$NON-NLS-1$
+			"public class Test { public Vehicle createVehicle(CarImpl c) { return c; } }\n" //$NON-NLS-1$
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public interface Car {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingOnlyProblemsFor(testPath);
+		expectingSpecificProblemFor(testPath, new Problem("Test", "The type p1.A is not visible", testPath)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public interface Car {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testMemberTypeDeleting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

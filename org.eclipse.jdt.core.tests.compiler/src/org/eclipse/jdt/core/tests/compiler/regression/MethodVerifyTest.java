@@ -898,9 +898,24 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 		);
 	}
 
-	// cannot have 2 methods with compatible return types like Object & String so how is this legal?
-	public void _test016() { // 77228
+	public void _test016() { // 73971 and 77228
 		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"	static <E extends A> void m(E e) { System.out.print(\"A=\"+e.getClass()); }\n" + 
+				"	static <E extends B> void m(E e) { System.out.print(\"B=\"+e.getClass()); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		m(new A());\n" + 
+				"		m(new B());\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n"
+			},
+			"A=AB=B"
+		);
+		this.runConformTest(	// cannot have 2 methods with compatible return types like Object & String so how is this legal?
 			new String[] {
 				"X.java",
 				"class X implements I, J {\n" + 
