@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -12,14 +12,16 @@ package org.eclipse.jdt.internal.formatter;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.core.util.PublicScanner;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.align.*;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * This class is responsible for dumping formatted source
@@ -27,14 +29,18 @@ import org.eclipse.jdt.internal.formatter.align.*;
  */
 public class Scribe {
 
-	private StringBuffer buffer;
+	private static final int INITIAL_SIZE = 100;
+	
 	private boolean checkLineWrapping;
 	public int column;
 		
 	// Most specific alignment. 
 	public Alignment currentAlignment;
 	public int currentToken;
-	public Alignment memberAlignment;
+	
+	// edits management
+	public int editsIndex;
+	private OptimizedReplaceEdit[] edits;
 	
 	// TODO: to remove when the testing is done
 	private char fillingSpace;
@@ -43,25 +49,27 @@ public class Scribe {
 	public int lastNumberOfNewLines;
 	public int line;
 	private String lineSeparator;
+	public Alignment memberAlignment;
 	public boolean needSpace = false;
 	public int pageWidth;
 
-	public PublicScanner scanner;
+	public Scanner scanner;
 	public int scannerEndPosition;
 	public int tabSize;	
+	private int textRegionEnd;
+	private int textRegionStart;
 	public boolean useTab;
-	
-	// position mapping
-	int[] positionsToMap;
-	int[] mappedPositions;
-	int positionsIndex;
-	
-	Scribe(CodeFormatterVisitor formatter, Map settings) {
+
+	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
-			this.scanner = (PublicScanner) ToolFactory.createScanner(true, true, JavaCore.VERSION_1_4.equals(assertModeSetting), true);
+			if (assertModeSetting == null) {
+				this.scanner = new Scanner(true, true, false/*nls*/, JavaCore.VERSION_1_4.equals(assertModeSetting) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
+			} else {
+				this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
+			}
 		} else {
-			this.scanner = (PublicScanner) ToolFactory.createScanner(true, true, false, true);
+			this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		}
 		this.formatter = formatter;
 		this.pageWidth = formatter.preferences.page_width;
@@ -69,8 +77,80 @@ public class Scribe {
 		this.useTab = formatter.preferences.use_tab;
 		this.fillingSpace = formatter.preferences.filling_space;
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
+		this.textRegionStart = offset;
+		this.textRegionEnd = offset + length - 1; 
+		reset();
+	}
+	
+	private final void addDeleteEdit(int start, int end) {
+		if (end < start) return;
+		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
+			if (this.edits.length == this.editsIndex) {
+				// resize
+				resize();
+			}
+			addOptimizedReplaceEdit(start, end - start + 1, ""); //$NON-NLS-1$
+		}
+	}
+	
+	private final void addInsertEdit(int insertPosition, String insertedString) {
+		if (this.textRegionStart <= insertPosition && insertPosition <= this.textRegionEnd) {
+			if (this.edits.length == this.editsIndex) {
+				// resize
+				resize();
+			}
+			addOptimizedReplaceEdit(insertPosition, 0, insertedString);
+		}
+	}
 
-		reset(positionsToMap);
+	private final void addOptimizedReplaceEdit(int offset, int length, String replacement) {
+		if (this.editsIndex > 0) {
+			// try to merge last two edits
+			final OptimizedReplaceEdit previous = this.edits[this.editsIndex-1];
+			final int previousOffset = previous.offset;
+			final int previousLength = previous.length;
+			final int endOffsetOfPreviousEdit = previousOffset + previousLength;
+			final int replacementLength = replacement.length();
+			if (previousOffset == offset && previousLength == length && (replacementLength == 0 || previous.replacement.length() == 0)) {
+				if (this.currentAlignment != null) {
+					final Location location = this.currentAlignment.location;
+					if (location.editsIndex == this.editsIndex) {
+						location.editsIndex--;
+						location.textEdit = previous;
+					}
+				}
+				this.editsIndex--;
+				return;
+			}
+			if (endOffsetOfPreviousEdit == offset) {
+				if (length != 0) {
+					if (replacementLength != 0) {
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previous.replacement + replacement);
+					} else {
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previous.replacement);
+					}
+				} else {
+					if (replacementLength != 0) {
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength, previous.replacement + replacement);
+					}
+				}
+			} else {
+				this.edits[this.editsIndex++] = new OptimizedReplaceEdit(offset, length, replacement);
+			}
+		} else {
+			this.edits[this.editsIndex++] = new OptimizedReplaceEdit(offset, length, replacement);
+		}
+	}
+	
+	private final void addReplaceEdit(int start, int end, String replacement) {
+		if (end < start) return;
+		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
+			if (this.edits.length == this.editsIndex) {
+				// resize
+				resize();
+			}
+			addOptimizedReplaceEdit(start,  end - start + 1, replacement);
+		}
 	}
 
 	public void alignFragment(Alignment alignment, int fragmentIndex){
@@ -85,23 +165,13 @@ public class Scribe {
 	
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
 		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
-		// adjust break indentation
-/*		if (this.currentAlignment != null) {
-			Alignment current = this.currentAlignment;
-			while (current.enclosing != null) {
-				current = current.enclosing;
-			}
-			switch(current.chunkKind) {
-				case Alignment.CHUNK_METHOD :
-				case Alignment.CHUNK_TYPE :
-					alignment.breakIndentationLevel = this.indentationLevel + (this.useTab ? 1 : this.tabSize);
-					break;
-				case Alignment.CHUNK_FIELD :
-					alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? 1 : this.tabSize);
-					break;
-			}
-		}*/
 		return alignment; 
+	}
+	
+	public Alignment createMemberAlignment(String name, int mode, int count, int sourceRestart) {
+		Alignment mAlignment = createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
+		mAlignment.breakIndentationLevel = this.indentationLevel;
+		return mAlignment;
 	}
 	
 	public void enterAlignment(Alignment alignment){
@@ -145,11 +215,6 @@ public class Scribe {
 		this.indentationLevel = current.location.outputIndentationLevel;
 	}
 	
-	
-	public String formattedSource() {
-		return this.buffer.toString();
-	}
-	
 	public Alignment getAlignment(String name){
 		if (this.currentAlignment != null) {
 			return this.currentAlignment.getAlignment(name);
@@ -182,6 +247,13 @@ public class Scribe {
 		}
 	}	
 
+	public OptimizedReplaceEdit getLastEdit() {
+		if (this.editsIndex > 0) {
+			return this.edits[this.editsIndex - 1];
+		}
+		return null;
+	}
+	
 	Alignment getMemberAlignment() {
 		return this.memberAlignment;
 	}
@@ -200,6 +272,15 @@ public class Scribe {
 		}
 	}	
 
+	public TextEdit getRootEdit() {
+		MultiTextEdit edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
+		for (int i= 0, max = this.editsIndex; i < max; i++) {
+			OptimizedReplaceEdit currentEdit = edits[i];
+			edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
+		}
+		return edit;
+	}
+	
 	public void handleLineTooLong() {
 		
 		// search for closest breakable alignment, using tiebreak rules
@@ -237,26 +318,19 @@ public class Scribe {
 			this.indentationLevel += tabSize; 
 		}
 	}	
-	
-	private void mapPositions(int startOrigin, int startFormatted, int length) {
-		// positionsToMap is not null
-		for (; this.positionsIndex < this.positionsToMap.length; this.positionsIndex++) {
-			if (this.positionsToMap[this.positionsIndex] < startOrigin) {
-				this.mappedPositions[this.positionsIndex] = startFormatted;
-			} else if (this.positionsToMap[this.positionsIndex] < startOrigin + length) {
-				this.mappedPositions[this.positionsIndex] = this.positionsToMap[this.positionsIndex] - startOrigin + startFormatted;
-			} else {
-				return;
-			}
+
+	/**
+	 * @param compilationUnitSource
+	 */
+	public void initializeScanner(char[] compilationUnitSource) {
+		this.scanner.setSource(compilationUnitSource);
+		this.scannerEndPosition = compilationUnitSource.length;
+		this.scanner.resetTo(0, this.scannerEndPosition);
+		if (this.textRegionEnd == -1) {
+			this.textRegionEnd = this.scannerEndPosition;
 		}
-	}
-	
-	private void mapRemainingPositions() {
-		final int bufferLength = this.buffer.length() - 1;
-		for (; this.positionsIndex < this.positionsToMap.length; this.positionsIndex++) {
-			this.mappedPositions[this.positionsIndex] = bufferLength;
-		}
-	}
+		this.edits = new OptimizedReplaceEdit[INITIAL_SIZE];
+	}	
 	
 	private void preserveEmptyLines(int count) {
 		if (count > 0) {
@@ -269,96 +343,89 @@ public class Scribe {
 		}
 	}
 		
-	private void print(char[] s, int start, boolean considerSpaceIfAny) {
+	private void print(char[] s, boolean considerSpaceIfAny) {
 		if (checkLineWrapping && s.length + column > this.pageWidth) {
 			handleLineTooLong();
 		}
 		this.lastNumberOfNewLines = 0;
 		printIndentationIfNecessary();
 		if (considerSpaceIfAny) {
-			this.space();
+			this.space(this.scanner.getCurrentTokenStartPosition());
 		}
-		if (this.positionsToMap != null) {
-			mapPositions(start, this.buffer.length(), s.length);
-		}
-		this.buffer.append(s);
 		column += s.length;
 		needSpace = true;
 	}
-	public void printBlockComment(char[] s, int commentStart, boolean isJavadoc) {
-		String commentSource = new String(s);
-		StringTokenizer tokenizer = new StringTokenizer(commentSource, "\r\n");	//$NON-NLS-1$
-		printIndentationIfNecessary();
-		Location location = null;
-		int lineCounter = 0;
-		int startSearchIndex = 0;
+	private void printBlockComment(char[] s, boolean isJavadoc) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
 		
-		while(tokenizer.hasMoreElements()) {
-			String lineContents = tokenizer.nextToken();
-			if (lineContents.length() != 0) {
-				printIndentationIfNecessary();
-				if (lineCounter >= 1) {
-					buffer.append(" ");//$NON-NLS-1$
-				}
-				// remove leading whitespaces
-				int lineStartPosition = currentTokenStartPosition + commentSource.indexOf(lineContents, startSearchIndex);
-				this.scanner.resetTo(lineStartPosition, this.scannerEndPosition - 1);
-				String reduceLine = null;
-				try {
-					// TODO need investigation in term of edits
-					if (this.scanner.getNextToken() == ITerminalSymbols.TokenNameWHITESPACE) {
-						int begin = this.scanner.getCurrentTokenEndPosition() + 1 - lineStartPosition;
-						if (begin < lineContents.length()) {
-							reduceLine = lineContents.substring(begin);
-						} else {
-							reduceLine = ""; //$NON-NLS-1$
-						}
-					} else {
-						reduceLine = lineContents;
+		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
+		int currentCharacter;
+		boolean isNewLine = false;
+		int start = currentTokenStartPosition;
+		int nextCharacterStart = currentTokenStartPosition;
+		printIndentationIfNecessary();
+		int previousStart = currentTokenStartPosition;
+
+		while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
+			nextCharacterStart = this.scanner.currentPosition;
+
+			switch(currentCharacter) {
+				case '\r' :
+					start = previousStart;
+					isNewLine = true;
+					if (this.scanner.getNextChar('\n')) {
+						currentCharacter = '\n';
+						nextCharacterStart = this.scanner.currentPosition;
 					}
-				} catch (InvalidInputException e) {
-					// should not happen
-				}
-				final int reduceLineLength = reduceLine.length();
-				// add position mapping
-				int start = commentSource.indexOf(reduceLine, startSearchIndex);
-				if (this.positionsToMap != null) {
-					mapPositions(start + commentStart, this.buffer.length(), reduceLineLength);
-				}
-				startSearchIndex = start + reduceLineLength + 1;
-				buffer.append(reduceLine);
-				column += reduceLineLength;
-				location = new Location(this, 0);
-				buffer.append(this.lineSeparator);
-				this.line++;
-				lineCounter++;
-				column = 1;
+					break;
+				case '\n' :
+					start = previousStart;
+					isNewLine = true;
+					break;
+				default:
+					if (isNewLine) {
+						if (Character.isWhitespace((char) currentCharacter)) {
+							while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && Character.isWhitespace((char) currentCharacter)) {
+								previousStart = nextCharacterStart;
+								currentCharacter = this.scanner.getNextChar();
+								nextCharacterStart = this.scanner.currentPosition;
+							}
+						}
+						this.column = 1;
+						this.line++;
+
+						StringBuffer buffer = new StringBuffer();
+						buffer.append(this.lineSeparator);
+						printIndentationIfNecessary(buffer);
+						buffer.append(this.fillingSpace);
+				
+						addReplaceEdit(start, previousStart - 1, String.valueOf(buffer)); //$NON-NLS-1$
+					} else {
+						this.column += (nextCharacterStart - previousStart);
+					}
+					isNewLine = false;
 			}
-		}
-		if (location != null) {
-			resetAt(location);
+			previousStart = nextCharacterStart;
 		}
 		this.lastNumberOfNewLines = 0;
 		needSpace = false;
+		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 		if (isJavadoc) {
 			printNewLine();
 		}
-		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 	}
-
 	public void printComment() {
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasComment = false;
 			boolean hasLineComment = false;
-			boolean hasWhitespace = true;
-			while ((this.currentToken = this.scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+			boolean hasWhitespace = false;
+			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
-					case ITerminalSymbols.TokenNameWHITESPACE :
-						// TODO add a replace edit
+					case TerminalTokens.TokenNameWHITESPACE :
+						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						int count = 0;
 						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
 						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
@@ -390,31 +457,31 @@ public class Scribe {
 						}
 						currentTokenStartPosition = this.scanner.currentPosition;						
 						break;
-					case ITerminalSymbols.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
 						if (hasWhitespace) {
-							space();
+							space(this.scanner.getCurrentTokenStartPosition());
 						}
 						hasWhitespace = false;
-						this.printCommentLine(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
+						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = true;					
 						break;
-					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 						if (hasWhitespace) {
-							space();
+							space(this.scanner.getCurrentTokenStartPosition());
 						}
 						hasWhitespace = false;
-						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), false);
+						this.printBlockComment(this.scanner.getRawTokenSource(), false);
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						hasComment = true;
 						break;
-					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 						if (hasWhitespace) {
-							space();
+							space(this.scanner.getCurrentTokenStartPosition());
 						}
 						hasWhitespace = false;
-						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), true);
+						this.printBlockComment(this.scanner.getRawTokenSource(), true);
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						hasComment = true;
@@ -430,131 +497,58 @@ public class Scribe {
 		}
 	}
 	
-	public void printCommentLine(char[] s, int start) {
-		int length = s.length;
-		int index;
-		loop: for (index = length - 1; index >= 0; index--) {
-			switch(s[index]) {
+	private void printCommentLine(char[] s) {
+		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
+
+		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
+		int currentCharacter;
+		int start = currentTokenStartPosition;
+		int nextCharacterStart = currentTokenStartPosition;
+		printIndentationIfNecessary();
+		int previousStart = currentTokenStartPosition;
+
+		loop: while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
+			nextCharacterStart = this.scanner.currentPosition;
+
+			switch(currentCharacter) {
 				case '\r' :
+					start = previousStart;
+					break loop;
 				case '\n' :
-					break;
-				default:
+					start = previousStart;
 					break loop;
 			}
+			previousStart = nextCharacterStart;
 		}
-		printIndentationIfNecessary();
-		if (this.positionsToMap != null) {
-			mapPositions(start, this.buffer.length(), s.length);
+		if (start != currentTokenStartPosition) {
+			addReplaceEdit(start, currentTokenEndPosition - 1, lineSeparator);
 		}
-		this.buffer
-			.append(s, 0, index + 1)
-			.append(lineSeparator);
 		line++; 
 		column = 1;
 		needSpace = false;
 		lastNumberOfNewLines = 1;
+		// realign to the proper value
 		if (this.currentAlignment != null) {
-			this.indentationLevel = this.currentAlignment.breakIndentationLevel;
-		}
-	}
-
-	public void printIndentationIfNecessary() {
-		int indentationColumn = (this.useTab ? this.indentationLevel * this.tabSize : this.indentationLevel)+1;
-		if (this.column < indentationColumn) {
-			for (int i = getColumnIndentationLevel(), max = this.indentationLevel; i < max; i++) { 
-				if (this.useTab) {
-					this.tab();
+			if (this.memberAlignment != null) {
+				// select the last alignment
+				if (this.currentAlignment.location.inputOffset > this.memberAlignment.location.inputOffset) {
+					this.indentationLevel = this.currentAlignment.breakIndentationLevel;
 				} else {
-					this.column++;
-					this.buffer.append(this.fillingSpace); // indentation in term of space
-					this.needSpace = false;
+					this.indentationLevel = this.memberAlignment.breakIndentationLevel;
 				}
+			} else {
+				this.indentationLevel = this.currentAlignment.breakIndentationLevel;
 			}
 		}
-	}
-
-	public void printLastComment() {
-		this.printComment();
-		if (positionsToMap != null) {
-			this.mapRemainingPositions();
-		}
-	}
-
-	public void printModifiers() {
-		
-		try {
-			boolean firstComment = true;
-			boolean isFirstModifier = true;
-			int currentTokenStartPosition = this.scanner.currentPosition;
-			while ((this.currentToken = this.scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
-				switch(this.currentToken) {
-					case ITerminalSymbols.TokenNamepublic :
-					case ITerminalSymbols.TokenNameprotected :
-					case ITerminalSymbols.TokenNameprivate :
-					case ITerminalSymbols.TokenNamestatic :
-					case ITerminalSymbols.TokenNameabstract :
-					case ITerminalSymbols.TokenNamefinal :
-					case ITerminalSymbols.TokenNamenative :
-					case ITerminalSymbols.TokenNamesynchronized :
-					case ITerminalSymbols.TokenNametransient :
-					case ITerminalSymbols.TokenNamevolatile :
-						firstComment = false;
-						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), !isFirstModifier);
-						isFirstModifier = false;
-						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
-						break;
-					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
-						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), false);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						if (firstComment) {
-							this.printNewLine();
-						}
-						firstComment = false;
-						break;
-					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), true);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						if (firstComment) {
-							this.printNewLine();
-						}
-						firstComment = false;
-						break;
-					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
-						currentTokenStartPosition = this.scanner.currentPosition;
-						break;
-					case ITerminalSymbols.TokenNameWHITESPACE :
-						// TODO add a remove edit
-					    currentTokenStartPosition = this.scanner.currentPosition;
-						break;
-					default:
-						// step back one token
-						firstComment = false;
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-						return;					
-				}
-			}
-		} catch (InvalidInputException e) {
-			throw new AbortFormatting(e);
-		}
-	}
-	
-	public void printNewLine() {	
-		if (lastNumberOfNewLines >= 1) {
-			column = 1; // ensure that the scribe is at the beginning of a new line
-			return;
-		}
-		this.buffer.append(this.lineSeparator);
-		line++;
-		lastNumberOfNewLines = 1;
-		column = 1;
-		needSpace = false;
+		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 	}
 	public void printEmptyLines(int linesNumber) {
+		StringBuffer buffer = new StringBuffer();
 		if (lastNumberOfNewLines == 0) {
 			linesNumber++; // add an extra line breaks
 			for (int i = 0; i < linesNumber; i++) {
-				this.buffer.append(this.lineSeparator);
+				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += linesNumber;
 			line += linesNumber;
@@ -562,7 +556,7 @@ public class Scribe {
 			needSpace = false;
 		} else if (lastNumberOfNewLines == 1) {
 			for (int i = 0; i < linesNumber; i++) {
-				this.buffer.append(this.lineSeparator);
+				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += linesNumber;
 			line += linesNumber;
@@ -575,13 +569,132 @@ public class Scribe {
 			}
 			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
 			for (int i = 0; i < realNewLineNumber; i++) {
-				this.buffer.append(this.lineSeparator);
+				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += realNewLineNumber;
 			line += realNewLineNumber;
 			column = 1;
 			needSpace = false;
 		}
+		addInsertEdit(this.scanner.getCurrentTokenEndPosition() + 1, buffer.toString());
+	}
+
+	private void printIndentationIfNecessary() {
+		int indentationColumn = (this.useTab ? this.indentationLevel * this.tabSize : this.indentationLevel)+1;
+		if (this.column < indentationColumn) {
+			StringBuffer buffer = new StringBuffer();
+			for (int i = getColumnIndentationLevel(), max = this.indentationLevel; i < max; i++) { 
+				if (this.useTab) {
+					this.tab(buffer);
+				} else {
+					this.column++;
+					buffer.append(this.fillingSpace);
+					this.needSpace = false;
+				}
+			}
+			addInsertEdit(this.scanner.getCurrentTokenStartPosition(), buffer.toString());
+		}
+	}
+
+
+	private void printIndentationIfNecessary(StringBuffer buffer) {
+		int indentationColumn = (this.useTab ? this.indentationLevel * this.tabSize : this.indentationLevel)+1;
+		if (this.column < indentationColumn) {
+			for (int i = getColumnIndentationLevel(), max = this.indentationLevel; i < max; i++) { 
+				if (this.useTab) {
+					this.tab(buffer);
+				} else {
+					this.column++;
+					buffer.append(this.fillingSpace);
+					this.needSpace = false;
+				}
+			}
+		}
+	}
+
+	public void printModifiers() {
+		
+		try {
+			boolean isFirstModifier = true;
+			int currentTokenStartPosition = this.scanner.currentPosition;
+			boolean hasComment = false;
+			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(this.currentToken) {
+					case TerminalTokens.TokenNamepublic :
+					case TerminalTokens.TokenNameprotected :
+					case TerminalTokens.TokenNameprivate :
+					case TerminalTokens.TokenNamestatic :
+					case TerminalTokens.TokenNameabstract :
+					case TerminalTokens.TokenNamefinal :
+					case TerminalTokens.TokenNamenative :
+					case TerminalTokens.TokenNamesynchronized :
+					case TerminalTokens.TokenNametransient :
+					case TerminalTokens.TokenNamevolatile :
+						this.print(this.scanner.getRawTokenSource(), !isFirstModifier);
+						isFirstModifier = false;
+						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+						break;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						this.printBlockComment(this.scanner.getRawTokenSource(), false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasComment = true;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+						this.printBlockComment(this.scanner.getRawTokenSource(), true);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasComment = true;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						this.printCommentLine(this.scanner.getRawTokenSource());
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameWHITESPACE :
+						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						int count = 0;
+						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
+						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
+							switch(whiteSpaces[i]) {
+								case '\r' :
+									if ((i + 1) < max) {
+										if (whiteSpaces[i + 1] == '\n') {
+											i++;
+											count++;
+										}
+									} else {
+										count++; 
+									}
+									break;
+								case '\n' :
+									count++;
+							}
+						}
+						if (count >= 1 && hasComment) {
+							printNewLine();
+						}
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasComment = false;
+						break;
+					default:
+						// step back one token
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+						return;					
+				}
+			}
+		} catch (InvalidInputException e) {
+			throw new AbortFormatting(e);
+		}
+	}
+	
+	public void printNewLine() {
+		if (lastNumberOfNewLines >= 1) {
+			column = 1; // ensure that the scribe is at the beginning of a new line
+			return;
+		}
+		addInsertEdit(this.scanner.getCurrentTokenEndPosition() + 1, this.lineSeparator);
+		line++;
+		lastNumberOfNewLines = 1;
+		column = 1;
+		needSpace = false;
 	}
 	
 	public void printNextToken(int expectedTokenType){
@@ -596,7 +709,7 @@ public class Scribe {
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), considerSpaceIfAny);
+			this.print(currentTokenSource, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -610,7 +723,7 @@ public class Scribe {
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), considerSpaceIfAny);
+			this.print(currentTokenSource, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -631,7 +744,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), false);
+			this.print(currentTokenSource, false);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -652,7 +765,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), considerSpaceIfAny);
+			this.print(currentTokenSource, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -663,13 +776,13 @@ public class Scribe {
 			do {
 				this.printComment();
 				switch(this.currentToken = this.scanner.getNextToken()) {
-					case ITerminalSymbols.TokenNameEOF :
+					case TerminalTokens.TokenNameEOF :
 						return;
-					case ITerminalSymbols.TokenNameWHITESPACE :
-						// TODO add a remove edit
+					case TerminalTokens.TokenNameWHITESPACE :
+						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						break;
 					default: 
-						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), false);
+						this.print(this.scanner.getRawTokenSource(), false);
 						break;
 				}
 			} while (this.scanner.currentPosition < sourceEnd);
@@ -699,11 +812,10 @@ public class Scribe {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasLineComment = false;
-			boolean hasWhitespace = false;
-			while ((this.currentToken = this.scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
-					case ITerminalSymbols.TokenNameWHITESPACE :
-						// add a replace edit
+					case TerminalTokens.TokenNameWHITESPACE :
+						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						int count = 0;
 						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
 						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
@@ -734,44 +846,33 @@ public class Scribe {
 							printNewLine();
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
-						} else {
-							hasWhitespace = true;
 						}
 						break;
-					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						if (hasWhitespace) {
-							space();
-						}
-						hasWhitespace = false;
-						this.printCommentLine(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						space(this.scanner.getCurrentTokenStartPosition());
+						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = true;					
 						break;
-					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 						if (hasLineComment) {
 							printNewLine();
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
-						if (hasWhitespace) {
-							space();
-						}
-						hasWhitespace = false;
-						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), false);
+						space(this.scanner.getCurrentTokenStartPosition());
+						this.printBlockComment(this.scanner.getRawTokenSource(), false);
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						break;
-					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 						if (hasLineComment) {
 							printNewLine();
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
-						if (hasWhitespace) {
-							space();
-						}
-						hasWhitespace = false;
-						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), true);
+						space(this.scanner.getCurrentTokenStartPosition());
+						this.printBlockComment(this.scanner.getRawTokenSource(), true);
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
 						break;
@@ -809,30 +910,27 @@ public class Scribe {
 		this.formatter.lastLocalDeclarationSourceStart = -1;
 	}
 
-	public void reset(int[] positionsToMapValue) {
-		this.buffer = new StringBuffer();
+	public void reset() {
 		this.checkLineWrapping = true;
 		this.line = 0;
 		this.column = 1;
-		if (positionsToMapValue != null) {
-			this.positionsToMap = positionsToMapValue;
-			this.positionsIndex = 0;
-			this.mappedPositions = new int[positionsToMapValue.length];
-		} else {
-			this.positionsToMap = null;
-			this.positionsIndex = 0;
-			this.mappedPositions = null;
-		}
+		this.editsIndex = 0;
 	}
 		
-	public void resetAt(Location location) {
+	private void resetAt(Location location) {
 		this.line = location.outputLine;
 		this.column = location.outputColumn;
-		this.buffer.replace(location.outputOffset, this.buffer.length(), "");	//$NON-NLS-1$
 		this.indentationLevel = location.outputIndentationLevel;
 		this.lastNumberOfNewLines = location.lastNumberOfNewLines;
 		this.needSpace = location.needSpace;
-		this.positionsIndex = location.positionsIndex;
+		this.editsIndex = location.editsIndex;
+		if (this.editsIndex > 0) {
+			this.edits[this.editsIndex - 1] = location.textEdit;
+		}
+	}
+
+	private void resize() {
+		System.arraycopy(this.edits, 0, (this.edits = new OptimizedReplaceEdit[this.editsIndex * 2]), 0, this.editsIndex);
 	}
 
 	public void setLineSeparatorAndIdentationLevel(FormattingPreferences preferences) {
@@ -843,32 +941,31 @@ public class Scribe {
 			this.indentationLevel = preferences.initial_indentation_level * this.tabSize;
 		}
 	}
-
-	public int size() {
-		return this.buffer.length();
-	}
-
+	
 	public void space() {
-		
 		if (!this.needSpace) return;
 		this.lastNumberOfNewLines = 0;
-		if (CodeFormatterVisitor.DEBUG) {
-			this.buffer.append(this.fillingSpace);
-		} else {
-			this.buffer.append(' ');
-		}
+		addInsertEdit(this.scanner.getCurrentTokenEndPosition() + 1, " ");  //$NON-NLS-1$
 		this.column++;
-		this.needSpace = false;
+		this.needSpace = false;		
 	}
 
-	public void tab() {
+	private void space(int insertPosition) {
+		if (!this.needSpace) return;
+		this.lastNumberOfNewLines = 0;
+		addInsertEdit(insertPosition, " ");  //$NON-NLS-1$
+		this.column++;
+		this.needSpace = false;		
+	}
+
+	private void tab(StringBuffer buffer) {
 		this.lastNumberOfNewLines = 0;
 		int complement = this.tabSize - ((this.column - 1)% this.tabSize); // amount of space
 		if (this.useTab) {
-			this.buffer.append('\t');
+			buffer.append('\t');
 		} else {
 			for (int i = 0; i < complement; i++) {
-				this.buffer.append(this.fillingSpace);
+				buffer.append(this.fillingSpace);
 			}
 		}
 		this.column += complement;
@@ -876,27 +973,18 @@ public class Scribe {
 	}
 	
 	public String toString() {
-		if (CodeFormatterVisitor.DEBUG) {
-			StringBuffer stringBuffer = new StringBuffer();
-			stringBuffer
-				.append("(page witdh = " + this.pageWidth + ") - (useTab = " + this.useTab + ") - (tabSize = " + this.tabSize + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
-				.append(this.lineSeparator)
-				.append("(line = " + this.line + ") - (column = " + this.column + ") - (identationLevel = " + this.indentationLevel + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
-				.append(this.lineSeparator)
-				.append("(needSpace = " + this.needSpace + ") - (lastNumberOfNewLines = " + this.lastNumberOfNewLines + ") - (checkLineWrapping = " + this.checkLineWrapping + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
-				.append(this.lineSeparator)
-				.append("==================================================================================")	//$NON-NLS-1$
-				.append(this.lineSeparator);
-			printRule(stringBuffer);
-			stringBuffer
-				.append(this.lineSeparator)
-				.append(this.buffer.toString())
-				.append(this.lineSeparator);
-			printRule(stringBuffer);
-			return stringBuffer.toString();
-		} else {
-			return this.buffer.toString();
-		}			
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer
+			.append("(page witdh = " + this.pageWidth + ") - (useTab = " + this.useTab + ") - (tabSize = " + this.tabSize + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
+			.append(this.lineSeparator)
+			.append("(line = " + this.line + ") - (column = " + this.column + ") - (identationLevel = " + this.indentationLevel + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
+			.append(this.lineSeparator)
+			.append("(needSpace = " + this.needSpace + ") - (lastNumberOfNewLines = " + this.lastNumberOfNewLines + ") - (checkLineWrapping = " + this.checkLineWrapping + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
+			.append(this.lineSeparator)
+			.append("==================================================================================")	//$NON-NLS-1$
+			.append(this.lineSeparator);
+		printRule(stringBuffer);
+		return stringBuffer.toString();
 	}
 	
 	public void unIndent() {
@@ -905,5 +993,5 @@ public class Scribe {
 		} else {
 			this.indentationLevel -= tabSize;
 		}
-	}	
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@ import org.eclipse.jdt.internal.formatter.Location;
 import org.eclipse.jdt.internal.formatter.Scribe;
 
 /**
- *
+ * Alignment management
+ * 
  * @since 2.1
  */
 public class Alignment {
@@ -230,6 +231,9 @@ public class Alignment {
 		
 	public boolean couldBreak(){
 
+		if ((this.mode & M_NO_ALIGNMENT) != 0) {
+			return false;
+		}
 		int i;
 		switch(mode & SPLIT_MASK){
 
@@ -347,14 +351,6 @@ public class Alignment {
 				}
 				break;
 		}		
-		
-//		// if was break-indenting on current column, try again using original indentation level instead
-//		if ((mode & M_INDENT_ON_COLUMN) != 0) {
-//			this.mode &= ~M_INDENT_ON_COLUMN; // retry in different mode
-//			this.reinitialize();
-//			resetFragments(this.fragmentCount);
-//			return true;
-//		}
 		return false; // cannot split better
 	}
 	

@@ -13,10 +13,7 @@ package org.eclipse.jdt.internal.formatter;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.IScanner;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
@@ -95,14 +92,18 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * This class is responsible for formatting a valid java source code.
@@ -140,20 +141,20 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * This array needs to be SORTED.
 	 */
 	private static final int[] SINGLETYPEREFERENCE_EXPECTEDTOKENS = new int[] {
-		ITerminalSymbols.TokenNameIdentifier,
-		ITerminalSymbols.TokenNameboolean,
-		ITerminalSymbols.TokenNamebyte,
-		ITerminalSymbols.TokenNamechar,
-		ITerminalSymbols.TokenNamedouble,
-		ITerminalSymbols.TokenNamefloat,
-		ITerminalSymbols.TokenNameint,
-		ITerminalSymbols.TokenNamelong,
-		ITerminalSymbols.TokenNameshort,
-		ITerminalSymbols.TokenNamevoid
+		TerminalTokens.TokenNameIdentifier,
+		TerminalTokens.TokenNameboolean,
+		TerminalTokens.TokenNamebyte,
+		TerminalTokens.TokenNamechar,
+		TerminalTokens.TokenNamedouble,
+		TerminalTokens.TokenNamefloat,
+		TerminalTokens.TokenNameint,
+		TerminalTokens.TokenNamelong,
+		TerminalTokens.TokenNameshort,
+		TerminalTokens.TokenNamevoid
 	};
 	private int chunkKind;
 	public int lastLocalDeclarationSourceStart;
-	private IScanner localScanner;
+	private Scanner localScanner;
 	public FormattingPreferences preferences;
 	public Scribe scribe;
 	
@@ -162,24 +163,24 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * this constructor, but then there is no way to initialize the option used by the formatter.
 	 */ 
 	public CodeFormatterVisitor() {
-		this(FormattingPreferences.getSunSetttings(), JavaCore.getOptions());
+		this(FormattingPreferences.getSunSetttings(), JavaCore.getDefaultOptions(), 0, -1);
 	}
 
-	public CodeFormatterVisitor(FormattingPreferences preferences, Map settings) {
+	public CodeFormatterVisitor(FormattingPreferences preferences, Map settings, int offset, int length) {
 		if (settings != null) {
-			String compiler_source = (String) settings.get(JavaCore.COMPILER_SOURCE);
-			if (compiler_source == null) {
-				this.localScanner = ToolFactory.createScanner(false, false, false, false);
+			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
+			if (assertModeSetting == null) {
+				this.localScanner = new Scanner(true, false, false/*nls*/, JavaCore.VERSION_1_4.equals(assertModeSetting) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 			} else {
-				this.localScanner = ToolFactory.createScanner(false, false, false, compiler_source);
+				this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 			}
 		} else {
-			this.localScanner = ToolFactory.createScanner(false, false, false, false);
+			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		}
-		// TODO set the java core options when common preferences are changed
+		
 //		convertOldOptionsToPreferences(settings, preferences);
 		this.preferences = preferences;
-		this.scribe = new Scribe(this, settings);
+		this.scribe = new Scribe(this, settings, offset, length);
 	}
 	
 	/**
@@ -195,12 +196,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.AND_AND :
 				binaryExpression.left.traverse(builder, scope);
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND_AND));
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameAND_AND));
 				binaryExpression.right.traverse(builder, scope);
 				break;
 			case OperatorIds.OR_OR :
 				binaryExpression.left.traverse(builder, scope);
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR_OR));
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameOR_OR));
 				binaryExpression.right.traverse(builder, scope);
 				break;
 		}
@@ -297,6 +298,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (!(entry.getValue() instanceof String)) continue;
 			String optionID = (String) entry.getKey();
 			String optionValue = (String) entry.getValue();
+			if (optionID.indexOf(".formatter.") == -1) { //$NON-NLS-1$
+				continue;
+			}
 			
 			if(optionID.equals(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE)){
 				if (optionValue.equals(JavaCore.INSERT)){
@@ -450,14 +454,33 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false;
 	}
 
-	private String failedToFormat() {
+	private boolean dumpEqualityExpression(
+		BinaryExpression binaryExpression,
+		int operator,
+		BlockScope scope) {
+	
+		final int numberOfParens = (binaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+	
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(binaryExpression, numberOfParens);
+		}	
+		binaryExpression.left.traverse(this, scope);
+		this.scribe.printNextToken(operator, this.preferences.insert_space_before_binary_operator);
+		if (this.preferences.insert_space_after_binary_operator) {
+			this.scribe.space();
+		}
+		binaryExpression.right.traverse(this, scope);
+
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(binaryExpression, numberOfParens);
+		}
+		return false;
+	}
+
+	private final TextEdit failedToFormat() {
 		if (DEBUG) {
 			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
 			System.out.println(this.scribe);
-		}
-		int[] positions = this.scribe.positionsToMap;
-		if (positions != null) {
-			System.arraycopy(positions, 0, this.scribe.mappedPositions, 0, positions.length);
 		}
 		return null;
 	}
@@ -492,9 +515,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
-		if (fieldDeclaration.modifiers != NO_MODIFIERS) {
-			this.scribe.printModifiers();
-		}
+		this.scribe.printModifiers();
 		this.scribe.space();
 		/*
 		 * Field type
@@ -506,7 +527,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 */
 		this.scribe.alignFragment(fieldAlignment, 0);
 	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 	
 		/*
 		 * Check for extra dimensions
@@ -514,8 +535,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int extraDimensions = getExtraDimension();
 		if (extraDimensions != 0) {
 			 for (int i = 0; i < extraDimensions; i++) {
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			 }
 		}
 	
@@ -524,14 +545,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 */
 		if (fieldDeclaration.initialization != null) {
 			this.scribe.alignFragment(fieldAlignment, 1);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
+			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
 			if (this.preferences.insert_space_after_assignment_operators) {
 				this.scribe.space();
 			}
 			fieldDeclaration.initialization.traverse(this, scope);
 		}
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 
 		if (fieldAlignment != null) {
 			this.scribe.alignFragment(fieldAlignment, 2);
@@ -570,9 +591,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
-		if (multiFieldDeclaration.declarations[0].modifiers != NO_MODIFIERS) {
-			this.scribe.printModifiers();
-		}
+		this.scribe.printModifiers();
 		this.scribe.space();
 	
 		multiFieldDeclaration.declarations[0].type.traverse(this, scope);
@@ -597,7 +616,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					if (i == 0) {
 						this.scribe.alignFragment(fieldAlignment, 0);
 					}
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 			
 					/*
 					 * Check for extra dimensions
@@ -605,8 +624,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					int extraDimensions = getExtraDimension();
 					if (extraDimensions != 0) {
 						 for (int index = 0; index < extraDimensions; index++) {
-						 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-						 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+						 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+						 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 						 }
 					}
 				
@@ -617,7 +636,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						if (i == 0) {
 							this.scribe.alignFragment(fieldAlignment, 1);
 						}
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
+						this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
 						if (this.preferences.insert_space_after_assignment_operators) {
 							this.scribe.space();
 						}
@@ -625,7 +644,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					
 					if (i != length - 1) {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_field_declarations);
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_field_declarations);
 
 						this.scribe.alignFragment(multiFieldDeclarationsAlignment, i);
 
@@ -633,7 +652,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							this.scribe.space();
 						}
 					} else {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.alignFragment(fieldAlignment, 2);
 						this.scribe.printTrailingComment();
 					}
@@ -649,20 +668,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
 	 */
-	public String format(String string, int[] positions, AstNode[] nodes) {
+	public TextEdit format(String string, AstNode[] nodes) {
 		// reset the scribe
-		this.scribe.reset(positions);
+		this.scribe.reset();
 		
 		long startTime = System.currentTimeMillis();
 
 		final char[] compilationUnitSource = string.toCharArray();
 		
-		this.scribe.scanner.setSource(compilationUnitSource);
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.scannerEndPosition = compilationUnitSource.length;
-		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		this.scribe.initializeScanner(compilationUnitSource);
+
 		if (nodes == null) {
-			return string;
+			return null;
 		}
 
 		this.lastLocalDeclarationSourceStart = -1;
@@ -676,15 +694,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
-		return this.scribe.toString();
+		return this.scribe.getRootEdit();
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
 	 */
-	public String format(String string, int[] positions, CompilationUnitDeclaration compilationUnitDeclaration) {
+	public TextEdit format(String string, CompilationUnitDeclaration compilationUnitDeclaration) {
 		// reset the scribe
-		this.scribe.reset(positions);
+		this.scribe.reset();
 		
 		if (compilationUnitDeclaration == null || compilationUnitDeclaration.ignoreFurtherInvestigation) {
 			return failedToFormat();
@@ -694,10 +712,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		final char[] compilationUnitSource = string.toCharArray();
 		
-		this.scribe.scanner.setSource(compilationUnitSource);
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.scannerEndPosition = compilationUnitSource.length;
-		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		this.scribe.initializeScanner(compilationUnitSource);
 
 		this.lastLocalDeclarationSourceStart = -1;
 		try {
@@ -708,26 +724,25 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
-		return this.scribe.toString();
+		return this.scribe.getRootEdit();
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
 	 */
-	public String format(String string, int[] positions, ConstructorDeclaration constructorDeclaration) {
+	public TextEdit format(String string, ConstructorDeclaration constructorDeclaration) {
 		// reset the scribe
-		this.scribe.reset(positions);
+		this.scribe.reset();
 		
 		long startTime = System.currentTimeMillis();
 
 		final char[] compilationUnitSource = string.toCharArray();
 		
-		this.scribe.scanner.setSource(compilationUnitSource);
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.scannerEndPosition = compilationUnitSource.length;
-		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		this.scribe.initializeScanner(compilationUnitSource);
+
 		if (constructorDeclaration == null) {
-			return string;
+			return null;
 		}
 
 		this.lastLocalDeclarationSourceStart = -1;
@@ -740,64 +755,62 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (statements != null) {
 				formatStatements(null, statements, false);
 			}
-			this.scribe.printLastComment();
+			if (hasComments()) {
+				this.scribe.printNewLine();
+			}
+			this.scribe.printComment();
 		} catch(AbortFormatting e){
 			return failedToFormat();
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
-		return this.scribe.toString();
+		return this.scribe.getRootEdit();
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
 	 */
-	public String format(String string, int[] positions, Expression expression) {
+	public TextEdit format(String string, Expression expression) {
 		// reset the scribe
-		this.scribe.reset(positions);
+		this.scribe.reset();
 		
 		long startTime = System.currentTimeMillis();
 
 		final char[] compilationUnitSource = string.toCharArray();
 		
-		this.scribe.scanner.setSource(compilationUnitSource);
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.scannerEndPosition = compilationUnitSource.length;
-		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		this.scribe.initializeScanner(compilationUnitSource);
+
 		if (expression == null) {
-			return string;
+			return null;
 		}
 
 		this.lastLocalDeclarationSourceStart = -1;
 		try {
 			expression.traverse(this, null);
-			this.scribe.printLastComment();
+			this.scribe.printComment();
 		} catch(AbortFormatting e){
 			return failedToFormat();
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
-		return this.scribe.toString();
+		return this.scribe.getRootEdit();
 	}
 	
-	private void formatLastTypeDeclaration(TypeDeclaration typeDeclaration){
+	private void format(TypeDeclaration typeDeclaration){
 
-		if (typeDeclaration.modifiers != NO_MODIFIERS) {
-			this.scribe.printModifiers();
-		} else {
-			this.scribe.printComment();
-		}
+		this.scribe.printModifiers();
 		/*
 		 * Type name
 		 */
 		if (typeDeclaration.isInterface()) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameinterface, true); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameinterface, true); 
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameclass, true); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameclass, true); 
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 
 		/* 
 		 * Superclass 
@@ -814,7 +827,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			do {
 				try {
 					this.scribe.alignFragment(superclassAlignment, 0);
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameextends, true);
+					this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
 					this.scribe.alignFragment(superclassAlignment, 1);
 					this.scribe.space();
 					superclass.traverse(this, typeDeclaration.scope);
@@ -844,13 +857,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				try {
 					this.scribe.alignFragment(interfaceAlignment, 0);
 					if (typeDeclaration.isInterface()) {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameextends, true);
+						this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
 					} else  {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameimplements, true);
+						this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
 					}
 					for (int i = 0; i < superInterfaceLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
 							this.scribe.alignFragment(interfaceAlignment, i+1);
 							if (this.preferences.insert_space_after_comma_in_superinterfaces) {
 								this.scribe.space();
@@ -892,15 +905,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (this.preferences.insert_new_line_in_empty_type_declaration) {
 			this.scribe.printNewLine();
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
 		if (class_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}
-	}
-
-	private void format(TypeDeclaration typeDeclaration){
-		this.formatLastTypeDeclaration(typeDeclaration);
+		if (hasComments()) {
+			this.scribe.printNewLine();
+		}
 	}
 
 	/*
@@ -909,7 +921,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private void formatClassBodyDeclarations(AstNode[] nodes) {
 		final int FIELD = 1, METHOD = 2, TYPE = 3;
 		
-		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		Alignment memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
 		boolean isChunkStart = false;
 		boolean ok = false;
@@ -938,7 +950,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						format((MemberTypeDeclaration)member, null, isChunkStart);
 					}
 					if (isSemiColon()) {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
 					if (i != max - 1) {
@@ -952,7 +964,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		} while (!ok);		
 		this.scribe.exitMemberAlignment(memberAlignment);
-		this.scribe.printLastComment();
+		if (hasComments()) {
+			this.scribe.printNewLine();
+		}
+		this.scribe.printComment();
 	}
 	
 	private void formatEmptyStatement() {
@@ -960,19 +975,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (this.preferences.put_empty_statement_on_new_line) {
 			this.scribe.printNewLine();
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
 	}
 
 	private void formatGuardClauseBlock(Block block, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, this.preferences.insert_space_before_block_open_brace);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, this.preferences.insert_space_before_block_open_brace);
 		this.scribe.space();
 
 		final Statement[] statements = block.statements;
 		statements[0].traverse(this, scope);
 		this.scribe.space();
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, false, true);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, false, true);
 		this.scribe.printTrailingComment();
 	}	
 
@@ -983,10 +998,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		if (messageAlignment != null) {
 			this.scribe.alignFragment(messageAlignment, 0);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
+			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier); // selector
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 
 		final Expression[] arguments = messageSend.arguments;
 		if (arguments != null) {
@@ -1005,7 +1020,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
 						}
 						this.scribe.alignFragment(argumentsAlignment, i);
 						if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
@@ -1013,15 +1028,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						}
 						arguments[i].traverse(this, scope);
 					}
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
 					ok = true;
 				} catch (AlignmentException e) {
 					this.scribe.redoAlignment(e);
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
 		}
 	}
 
@@ -1034,7 +1049,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			boolean spaceBeforeComma, 
 			boolean spaceAfterComma) {
 				
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, spaceBeforeOpenParen); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen); 
 		
 		final Argument[] arguments = methodDeclaration.arguments;
 		if (arguments != null) {
@@ -1053,7 +1068,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, spaceBeforeComma);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, spaceBeforeComma);
 						}
 						this.scribe.alignFragment(argumentsAlignment, i);
 						if (i > 0 && spaceAfterComma) {
@@ -1068,9 +1083,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
 		
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, spaceBeforeClosingParen); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, spaceBeforeClosingParen); 
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, spaceBetweenEmptyArgument); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, spaceBetweenEmptyArgument); 
 		}	
 	}
 
@@ -1082,7 +1097,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNewLine();
 			this.scribe.indent();
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, insertSpaceBeforeBrace);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, insertSpaceBeforeBrace);
 
 		this.scribe.printTrailingComment();
 		this.scribe.printNewLine();
@@ -1094,7 +1109,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			final Statement statement = statements[i];
 			statement.traverse(this, scope);
 			if (statement instanceof Expression) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 			} else if (statement instanceof LocalDeclaration) {
 				LocalDeclaration currentLocal = (LocalDeclaration) statement;
@@ -1105,15 +1120,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					if (statements[i + 1] instanceof LocalDeclaration) {
 						LocalDeclaration nextLocal = (LocalDeclaration) statements[i + 1];
 						if (currentLocal.declarationSourceStart != nextLocal.declarationSourceStart) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 							this.scribe.printTrailingComment();
 						}
 					} else {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
 				} else {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				}
 			}
@@ -1142,12 +1157,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			do {
 				try {
 					this.scribe.alignFragment(throwsAlignment, 0);
-					this.scribe.printNextToken(ITerminalSymbols.TokenNamethrows, true); 
+					this.scribe.printNextToken(TerminalTokens.TokenNamethrows, true); 
 					this.scribe.space();
 		
 					for (int i = 0; i < thrownExceptionsLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, spaceBeforeComma);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, spaceBeforeComma);
 							if (spaceAfterComma) {
 								this.scribe.space();
 							}
@@ -1168,7 +1183,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * Merged traversal of member (types, fields, methods)
 	 */
 	private void formatTypeMembers(TypeDeclaration typeDeclaration) {
-		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 3, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		Alignment memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.type_member_alignment, 3, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
 		AstNode[] members = computeMergedMemberDeclarations(typeDeclaration);
 		boolean isChunkStart = false;
@@ -1215,7 +1230,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						format((MemberTypeDeclaration)member, typeDeclaration.scope, isChunkStart);
 					}
 					if (isSemiColon()) {
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
 					this.scribe.printNewLine();
@@ -1262,18 +1277,18 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int dimensions = 0;
 		try {
 			int token;
-			while ((token = this.localScanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+			while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case ITerminalSymbols.TokenNameRBRACKET://166 
+					case TerminalTokens.TokenNameRBRACKET://166 
 						dimensions++;
 						break;
-					case ITerminalSymbols.TokenNameIdentifier ://90						
-					case ITerminalSymbols.TokenNameLBRACE ://90						
-					case ITerminalSymbols.TokenNameLPAREN :
-					case ITerminalSymbols.TokenNameCOMMA ://90
-					case ITerminalSymbols.TokenNameEQUAL ://167
-					case ITerminalSymbols.TokenNameSEMICOLON ://64
-					case ITerminalSymbols.TokenNameRPAREN : //86
+					case TerminalTokens.TokenNameIdentifier ://90						
+					case TerminalTokens.TokenNameLBRACE ://90						
+					case TerminalTokens.TokenNameLPAREN :
+					case TerminalTokens.TokenNameCOMMA ://90
+					case TerminalTokens.TokenNameEQUAL ://167
+					case TerminalTokens.TokenNameSEMICOLON ://64
+					case TerminalTokens.TokenNameRPAREN : //86
 						return dimensions;
 				}
 			}
@@ -1287,7 +1302,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
-			return this.localScanner.getNextToken() == ITerminalSymbols.TokenNameCOMMA;
+			int token = this.localScanner.getNextToken();
+			loop: while(true) {
+				switch(token) {
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						token = this.localScanner.getNextToken();
+						continue loop;
+					default:
+						break loop;
+				}
+			}
+			return  token == TerminalTokens.TokenNameCOMMA;
 		} catch(InvalidInputException e) {
 			// ignore
 		}
@@ -1312,10 +1339,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
 			int token;
-			while ((token = this.localScanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+			while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case ITerminalSymbols.TokenNameCOMMA ://90
+					case TerminalTokens.TokenNameCOMMA ://90
 						return true;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						break;
 					default:
 						return false;
 				}
@@ -1330,7 +1361,35 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
-			return this.localScanner.getNextToken() == ITerminalSymbols.TokenNameSEMICOLON;
+			int token = this.localScanner.getNextToken();
+			loop: while(true) {
+				switch(token) {
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						token = this.localScanner.getNextToken();
+						continue loop;
+					default:
+						break loop;
+				}
+			}
+			return  token == TerminalTokens.TokenNameSEMICOLON;
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		return false;
+	}
+
+	private boolean hasComments() {
+
+		this.localScanner.resetTo(this.scribe.scanner.startPosition, this.scribe.scannerEndPosition - 1);
+		try {
+			switch(this.localScanner.getNextToken()) {
+				case TerminalTokens.TokenNameCOMMENT_BLOCK :
+				case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+				case TerminalTokens.TokenNameCOMMENT_LINE :
+					return true;
+			}
 		} catch(InvalidInputException e) {
 			// ignore
 		}
@@ -1339,13 +1398,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 	private void manageClosingParenthesizedExpression(Expression expression, int numberOfParens) {
 		for (int i = 0; i < numberOfParens; i++) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_parenthesized_expression);
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_parenthesized_expression);
 		}
 	}
 
 	private void manageOpeningParenthesizedExpression(Expression expression, int numberOfParens) {
 		for (int i = 0; i < numberOfParens; i++) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_open_paren_in_parenthesized_expression);
+			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_open_paren_in_parenthesized_expression);
 			if (this.preferences.insert_space_after_open_paren_in_parenthesized_expression) {
 				this.scribe.space();
 			}
@@ -1364,11 +1423,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(allocationExpression, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamenew);
+		this.scribe.printNextToken(TerminalTokens.TokenNamenew);
 		this.scribe.space();
 		allocationExpression.type.traverse(this, scope);
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 
 		final Expression[] arguments = allocationExpression.arguments;
 		if (arguments != null) {
@@ -1387,7 +1446,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
 						}
 						this.scribe.alignFragment(argumentsAlignment, i);
 						if (i > 0 && this.preferences.insert_space_after_comma_in_allocation_expression) {
@@ -1401,9 +1460,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
 		}
 		
 		if (numberOfParens > 0) {
@@ -1419,7 +1478,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		AND_AND_Expression and_and_Expression,
 		BlockScope scope) {
 			
-		return dumpBinaryExpression(and_and_Expression, ITerminalSymbols.TokenNameAND_AND, scope);
+		return dumpBinaryExpression(and_and_Expression, TerminalTokens.TokenNameAND_AND, scope);
 	}
 
 	/**
@@ -1444,7 +1503,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (this.preferences.insert_new_line_in_empty_anonymous_type_declaration) {
 			this.scribe.printNewLine();
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		if (anonymous_type_declaration_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}
@@ -1471,7 +1530,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		/*
 		 * Print the argument name
 		 */	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 
 
 		/*
@@ -1480,8 +1539,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int extraDimensions = getExtraDimension();
 		if (extraDimensions != 0) {
 			 for (int i = 0; i < extraDimensions; i++) {
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			 }
 		}
 		
@@ -1499,18 +1558,18 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayAllocationExpression, numberOfParens);
 			}
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamenew);
+			this.scribe.printNextToken(TerminalTokens.TokenNamenew);
 			this.scribe.space();
 			arrayAllocationExpression.type.traverse(this, scope);
 			
 			final Expression[] dimensions = arrayAllocationExpression.dimensions;
 			int dimensionsLength = dimensions.length;
 			for (int i = 0; i < dimensionsLength; i++) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
 				if (dimensions[i] != null) {
 					dimensions[i].traverse(this, scope);
 				}
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			}
 			final ArrayInitializer initializer = arrayAllocationExpression.initializer;
 			if (initializer != null) {
@@ -1532,14 +1591,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACE, this.preferences.insert_space_before_opening_brace_in_array_initializer);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, this.preferences.insert_space_before_opening_brace_in_array_initializer);
 		
 		final Expression[] expressions = arrayInitializer.expressions;
 		if (expressions != null) {
 			int expressionsLength = expressions.length;
 			if (expressionsLength > 1) {
 				Alignment expressionsAlignment =this.scribe.createAlignment(
-						"expressions",//$NON-NLS-1$
+						"array_initializer",//$NON-NLS-1$
 						this.preferences.array_initializer_expressions_alignment,
 						expressionsLength,
 						this.scribe.scanner.currentPosition);
@@ -1553,7 +1612,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.alignFragment(expressionsAlignment, 0);
 						expressions[0].traverse(this, scope);
 						for (int i = 1; i < expressionsLength; i++) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 							if (this.preferences.insert_space_after_comma_in_array_initializer) {
 								this.scribe.space();
 							}
@@ -1561,7 +1620,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							expressions[i].traverse(this, scope);
 							if (i == expressionsLength - 1) {
 								if (isComma()) {
-									this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+									this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 								}
 							}
 						}
@@ -1577,15 +1636,21 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.space();
 				}
 				expressions[0].traverse(this, scope);
-				for (int i = 1; i < expressionsLength; i++) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
-					if (this.preferences.insert_space_after_comma_in_array_initializer) {
-						this.scribe.space();
+				if (expressionsLength == 1) {
+					if (isComma()) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 					}
-					expressions[i].traverse(this, scope);
-					if (i == expressionsLength - 1) {
-						if (isComma()) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+				} else {
+					for (int i = 1; i < expressionsLength; i++) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+						if (this.preferences.insert_space_after_comma_in_array_initializer) {
+							this.scribe.space();
+						}
+						expressions[i].traverse(this, scope);
+						if (i == expressionsLength - 1) {
+							if (isComma()) {
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+							}
 						}
 					}
 				}
@@ -1593,12 +1658,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
 				this.scribe.printNewLine();
 			}
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
 		} else {
 			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
 				this.scribe.printNewLine();
 			}
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer, true);
+			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer, true);
 		}
 	
 		if (numberOfParens > 0) {
@@ -1622,8 +1687,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			int dimensions = getExtraDimension();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 				}
 			}
 			if (numberOfParens > 0) {
@@ -1647,8 +1712,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			int dimensions = getExtraDimension();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 				}
 			}
 			if (numberOfParens > 0) {
@@ -1668,12 +1733,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(arrayReference, numberOfParens);
 		}
 		arrayReference.receiver.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET, this.preferences.insert_space_before_bracket_in_array_reference);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, this.preferences.insert_space_before_bracket_in_array_reference);
 		if (this.preferences.insert_space_between_brackets_in_array_reference) {
 			this.scribe.space();
 		}
 		arrayReference.position.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET, this.preferences.insert_space_between_brackets_in_array_reference);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_brackets_in_array_reference);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(arrayReference, numberOfParens);
@@ -1700,11 +1765,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.space();
 			}
 			for (int i = 0; i < dimensions; i++) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
 				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
 					this.scribe.space();
 				}
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			}
 		}
 		if (numberOfParens > 0) {
@@ -1731,11 +1796,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.space();
 			}
 			for (int i = 0; i < dimensions; i++) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
 				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
 					this.scribe.space();
 				}
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			}
 		}
 		if (numberOfParens > 0) {
@@ -1749,18 +1814,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(AssertStatement assertStatement, BlockScope scope) {
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameassert);
+		this.scribe.printNextToken(TerminalTokens.TokenNameassert);
 		this.scribe.space();
 		assertStatement.assertExpression.traverse(this, scope);
 		
 		if (assertStatement.exceptionArgument != null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameCOLON, this.preferences.insert_space_before_colon_in_assert);
+			this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_assert);
 			if (this.preferences.insert_space_after_colon_in_assert) {
 				this.scribe.space();
 			}
 			assertStatement.exceptionArgument.traverse(this, scope);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);		
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);		
+		this.scribe.printTrailingComment();
 		return false;
 	}
 	
@@ -1774,7 +1840,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(assignment, numberOfParens);
 		}
 		assignment.lhs.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
+		this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
 		if (this.preferences.insert_space_after_assignment_operators) {
 			this.scribe.space();
 		}
@@ -1793,35 +1859,35 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.AND :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameAND, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameAND, scope);
 			case OperatorIds.DIVIDE :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameDIVIDE, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameDIVIDE, scope);
 			case OperatorIds.GREATER :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameGREATER, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameGREATER, scope);
 			case OperatorIds.GREATER_EQUAL :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameGREATER_EQUAL, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameGREATER_EQUAL, scope);
 			case OperatorIds.LEFT_SHIFT :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameLEFT_SHIFT, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameLEFT_SHIFT, scope);
 			case OperatorIds.LESS :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameLESS, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameLESS, scope);
 			case OperatorIds.LESS_EQUAL :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameLESS_EQUAL, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameLESS_EQUAL, scope);
 			case OperatorIds.MINUS :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameMINUS, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameMINUS, scope);
 			case OperatorIds.MULTIPLY :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameMULTIPLY, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameMULTIPLY, scope);
 			case OperatorIds.OR :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameOR, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameOR, scope);
 			case OperatorIds.PLUS :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNamePLUS, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNamePLUS, scope);
 			case OperatorIds.REMAINDER :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameREMAINDER, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameREMAINDER, scope);
 			case OperatorIds.RIGHT_SHIFT :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameRIGHT_SHIFT, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameRIGHT_SHIFT, scope);
 			case OperatorIds.UNSIGNED_RIGHT_SHIFT :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT, scope);
 			case OperatorIds.XOR :
-				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameXOR, scope);
+				return dumpBinaryExpression(binaryExpression, TerminalTokens.TokenNameXOR, scope);
 			default:
 				throw new IllegalStateException();
 		}
@@ -1849,7 +1915,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (this.preferences.indent_block_statements) {
 			this.scribe.unIndent();
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
 		if (block_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
@@ -1863,11 +1929,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(BreakStatement breakStatement, BlockScope scope) {
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamebreak);
+		this.scribe.printNextToken(TerminalTokens.TokenNamebreak);
 		if (breakStatement.label != null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printTrailingComment();
 		return false;
 	}
 
@@ -1876,13 +1943,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(CaseStatement caseStatement, BlockScope scope) {		
 		if (caseStatement.constantExpression == null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamedefault);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameCOLON, this.preferences.insert_space_before_colon_in_default);
+			this.scribe.printNextToken(TerminalTokens.TokenNamedefault);
+			this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_default);
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamecase);
+			this.scribe.printNextToken(TerminalTokens.TokenNamecase);
 			this.scribe.space();
 			caseStatement.constantExpression.traverse(this, scope);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameCOLON, this.preferences.insert_space_before_colon_in_case);
+			this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_case);
 		}
 		return false;
 	}
@@ -1898,13 +1965,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(castExpression, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN);
 		if (this.preferences.insert_space_after_opening_paren_in_cast) {
 			this.scribe.space();
 		}
 		castExpression.type.traverse(this, scope);
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_cast);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_cast);
 		if (this.preferences.insert_space_after_closing_paren_in_cast) {
 			this.scribe.space();
 		}
@@ -1925,7 +1992,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(charLiteral, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameCharacterLiteral);
+		this.scribe.printNextToken(TerminalTokens.TokenNameCharacterLiteral);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(charLiteral, numberOfParens);
@@ -1944,8 +2011,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(classLiteral, numberOfParens);
 		}
 		classLiteral.type.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameclass);
+		this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+		this.scribe.printNextToken(TerminalTokens.TokenNameclass);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(classLiteral, numberOfParens);
@@ -1978,11 +2045,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (blankLinesBeforePackage > 0) {
 				this.scribe.printEmptyLines(blankLinesBeforePackage - 1); // we substract 1, because this is the first line 
 			}
-			this.scribe.printComment();
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamepackage);
+			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
 			this.scribe.space();
 			this.scribe.printQualifiedReference(compilationUnitDeclaration.currentPackage.sourceEnd);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 			int blankLinesAfterPackage = this.preferences.blank_lines_after_package;
 			if (blankLinesAfterPackage > 0) {
@@ -2023,9 +2089,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			for (int i = 0; i < typesLength - 1; i++) {
 				types[i].traverse(this, scope);
 			}
-			formatLastTypeDeclaration(types[typesLength - 1]);
+			format(types[typesLength - 1]);
 		}
-		this.scribe.printLastComment();
+		this.scribe.printComment();
 		return false;
 	}
 
@@ -2048,37 +2114,37 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int operator;
 		switch(compoundAssignment.operator) {
 			case OperatorIds.PLUS :
-				operator = ITerminalSymbols.TokenNamePLUS_EQUAL;
+				operator = TerminalTokens.TokenNamePLUS_EQUAL;
 				break;
 			case OperatorIds.MINUS :
-				operator = ITerminalSymbols.TokenNameMINUS_EQUAL;
+				operator = TerminalTokens.TokenNameMINUS_EQUAL;
 				break;
 			case OperatorIds.MULTIPLY :
-				operator = ITerminalSymbols.TokenNameMULTIPLY_EQUAL;
+				operator = TerminalTokens.TokenNameMULTIPLY_EQUAL;
 				break;
 			case OperatorIds.DIVIDE :
-				operator = ITerminalSymbols.TokenNameDIVIDE_EQUAL;
+				operator = TerminalTokens.TokenNameDIVIDE_EQUAL;
 				break;
 			case OperatorIds.AND :
-				operator = ITerminalSymbols.TokenNameAND_EQUAL;
+				operator = TerminalTokens.TokenNameAND_EQUAL;
 				break;
 			case OperatorIds.OR :
-				operator = ITerminalSymbols.TokenNameOR_EQUAL;
+				operator = TerminalTokens.TokenNameOR_EQUAL;
 				break;
 			case OperatorIds.XOR :
-				operator = ITerminalSymbols.TokenNameXOR_EQUAL;
+				operator = TerminalTokens.TokenNameXOR_EQUAL;
 				break;
 			case OperatorIds.REMAINDER :
-				operator = ITerminalSymbols.TokenNameREMAINDER_EQUAL;
+				operator = TerminalTokens.TokenNameREMAINDER_EQUAL;
 				break;
 			case OperatorIds.LEFT_SHIFT :
-				operator = ITerminalSymbols.TokenNameLEFT_SHIFT_EQUAL;
+				operator = TerminalTokens.TokenNameLEFT_SHIFT_EQUAL;
 				break;
 			case OperatorIds.RIGHT_SHIFT :
-				operator = ITerminalSymbols.TokenNameRIGHT_SHIFT_EQUAL;
+				operator = TerminalTokens.TokenNameRIGHT_SHIFT_EQUAL;
 				break;
 			default: // OperatorIds.UNSIGNED_RIGHT_SHIFT :
-				operator = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL;
+				operator = TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL;
 		}
 		
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_assignment_operators);
@@ -2117,15 +2183,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		do {
 			try {
 				this.scribe.alignFragment(conditionalExpressionAlignment, 0);
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameQUESTION, this.preferences.insert_space_before_question_in_conditional);
+				this.scribe.printNextToken(TerminalTokens.TokenNameQUESTION, this.preferences.insert_space_before_question_in_conditional);
 
 				if (this.preferences.insert_space_after_question_in_conditional) {
 					this.scribe.space();
 				}
 				conditionalExpression.valueIfTrue.traverse(this, scope);
-
+				this.scribe.printTrailingComment();
 				this.scribe.alignFragment(conditionalExpressionAlignment, 1);
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameCOLON, this.preferences.insert_space_before_colon_in_conditional);
+				this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_conditional);
 
 				if (this.preferences.insert_space_after_colon_in_conditional) {
 					this.scribe.space();
@@ -2153,15 +2219,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		ConstructorDeclaration constructorDeclaration,
 		ClassScope scope) {
 			
-		if (constructorDeclaration.modifiers != NO_MODIFIERS) {
-			this.scribe.printModifiers();
-		} else {
-			this.scribe.printComment();
-		}			
+		this.scribe.printModifiers();
+		this.scribe.space();
 		/*
 		 * Print the method name
 		 */	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 
 		formatMethodArguments(
 			constructorDeclaration, 
@@ -2201,14 +2264,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 			this.scribe.printComment();
 			this.scribe.unIndent();
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
 			if (method_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 				this.scribe.unIndent();
 			}
 		} else {
 			// no method body
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 		}
 		return false;
@@ -2219,11 +2282,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamecontinue);
+		this.scribe.printNextToken(TerminalTokens.TokenNamecontinue);
 		if (continueStatement.label != null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true);
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printTrailingComment();
 		return false;
 	}
 
@@ -2233,7 +2297,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(DoStatement doStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamedo);
+		this.scribe.printNextToken(TerminalTokens.TokenNamedo);
 		
 		final Statement action = doStatement.action;
 		if (action != null) {
@@ -2247,7 +2311,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.printNewLine();
 			}
 			if (action instanceof Expression) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 				this.scribe.printNewLine();
 			}
@@ -2260,8 +2324,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.unIndent();
 		}
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamewhile, this.preferences.insert_space_after_block_close_brace);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_while_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNamewhile, this.preferences.insert_space_after_block_close_brace);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_while_condition);
 		
 		if (this.preferences.insert_space_in_while_condition) {
 			this.scribe.space();
@@ -2269,8 +2333,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		
 		doStatement.condition.traverse(this, scope);
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_while_condition);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_while_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printTrailingComment();
 		return false;
 	}
 
@@ -2285,9 +2350,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		Constant constant = doubleLiteral.constant;
 		if (constant != null && constant.doubleValue() < 0) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS);			
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameDoubleLiteral);
+		this.scribe.printNextToken(TerminalTokens.TokenNameDoubleLiteral);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(doubleLiteral, numberOfParens);
@@ -2310,9 +2375,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
 
 		if ((equalExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT == OperatorIds.EQUAL_EQUAL) {
-			return dumpBinaryExpression(equalExpression, ITerminalSymbols.TokenNameEQUAL_EQUAL, scope);
+			return dumpEqualityExpression(equalExpression, TerminalTokens.TokenNameEQUAL_EQUAL, scope);
 		} else {
-			return dumpBinaryExpression(equalExpression, ITerminalSymbols.TokenNameNOT_EQUAL, scope);
+			return dumpEqualityExpression(equalExpression, TerminalTokens.TokenNameNOT_EQUAL, scope);
 		}			
 	}
 
@@ -2332,11 +2397,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 
 		if (explicitConstructor.isSuperAccess()) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamesuper);
+			this.scribe.printNextToken(TerminalTokens.TokenNamesuper);
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamethis);
+			this.scribe.printNextToken(TerminalTokens.TokenNamethis);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 		
 		final Expression[] arguments = explicitConstructor.arguments;
 		if (arguments != null) {
@@ -2355,7 +2420,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_explicitconstructorcall_arguments);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_explicitconstructorcall_arguments);
 						}
 						this.scribe.alignFragment(argumentsAlignment, i);
 						if (i > 0 && this.preferences.insert_space_after_comma_in_explicitconstructorcall_arguments) {
@@ -2369,11 +2434,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
 		return false;
 	}
@@ -2387,7 +2452,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(falseLiteral, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamefalse);
+		this.scribe.printNextToken(TerminalTokens.TokenNamefalse);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(falseLiteral, numberOfParens);
@@ -2405,8 +2470,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(fieldReference, numberOfParens);
 		}
 		fieldReference.receiver.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier);
+		this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(fieldReference, numberOfParens);
@@ -2425,9 +2490,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		Constant constant = floatLiteral.constant;
 		if (constant != null && floatLiteral.constant.floatValue() < 0) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS);			
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameFloatingPointLiteral);
+		this.scribe.printNextToken(TerminalTokens.TokenNameFloatingPointLiteral);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(floatLiteral, numberOfParens);
@@ -2440,8 +2505,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(ForStatement forStatement, BlockScope scope) {
 	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamefor);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
+		this.scribe.printNextToken(TerminalTokens.TokenNamefor);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_for_paren);
 		
 		if (this.preferences.insert_space_in_for_parens) {
 			this.scribe.space();
@@ -2452,14 +2517,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			for (int i = 0; i < length; i++) {
 				initializations[i].traverse(this, scope);
 				if (i >= 0 && (i < length - 1) && !(initializations[i] instanceof LocalDeclaration)) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_inits);
+					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_inits);
 					if (this.preferences.insert_space_after_comma_in_for_inits) {
 						this.scribe.space();
 					}
 				}				
 			}
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		if (this.preferences.insert_space_after_semicolon_in_for) {
 			this.scribe.space();
 		}
@@ -2467,7 +2532,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (condition != null) {
 			condition.traverse(this, scope);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		if (this.preferences.insert_space_after_semicolon_in_for) {
 			this.scribe.space();
 		}
@@ -2476,14 +2541,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			for (int i = 0, length = increments.length; i < length; i++) {
 				increments[i].traverse(this, scope);
 				if (i != length - 1) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_increments);
+					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_for_increments);
 					if (this.preferences.insert_space_after_comma_in_for_increments) {
 						this.scribe.space();
 					}
 				}
 			}
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_for_parens);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_for_parens);
 		
 		final Statement action = forStatement.action;
 		if (action != null) {
@@ -2498,7 +2563,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.unIndent();
 			}
 			if (action instanceof Expression) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 			}
 		} else {
@@ -2518,13 +2583,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(IfStatement ifStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameif);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_if_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameif);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_if_condition);
 		if (this.preferences.insert_space_in_if_condition) {
 			this.scribe.space();
 		}
 		ifStatement.condition.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_if_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_if_condition);
 
 		final Statement thenStatement = ifStatement.thenStatement;
 		final Statement elseStatement = ifStatement.elseStatement;
@@ -2566,7 +2631,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.space();
 						thenStatement.traverse(this, scope);
 						if (thenStatement instanceof Expression) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						}
 						ok = true;
 					} catch (AlignmentException e) {
@@ -2578,7 +2643,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.space();
 				thenStatement.traverse(this, scope);
 				if (thenStatement instanceof Expression) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				}
 				if (elseStatement != null) {
@@ -2589,7 +2654,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.indent();
 				thenStatement.traverse(this, scope);
 				if (thenStatement instanceof Expression) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				}
 				if (elseStatement != null) {
@@ -2600,7 +2665,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		
 		if (elseStatement != null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameelse, true);
+			this.scribe.printNextToken(TerminalTokens.TokenNameelse, true);
 			if (this.preferences.insert_new_line_in_control_statements) {
 				this.scribe.printTrailingComment();
 			}
@@ -2619,7 +2684,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.space();
 				elseStatement.traverse(this, scope);
 				if (elseStatement instanceof Expression) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				}
 			} else {
@@ -2627,7 +2692,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.indent();
 				elseStatement.traverse(this, scope);
 				if (elseStatement instanceof Expression) {
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				}
 				this.scribe.unIndent();
 			}
@@ -2642,16 +2707,16 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		ImportReference importRef,
 		CompilationUnitScope scope) {
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameimport);
+		this.scribe.printNextToken(TerminalTokens.TokenNameimport);
 		this.scribe.space();
 		if (importRef.onDemand) {
 			this.scribe.printQualifiedReference(importRef.sourceEnd);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameMULTIPLY);			
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+			this.scribe.printNextToken(TerminalTokens.TokenNameMULTIPLY);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		} else {
 			this.scribe.printQualifiedReference(importRef.sourceEnd);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		}
 		this.scribe.printTrailingComment();
 		this.scribe.printNewLine();
@@ -2664,7 +2729,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	public boolean visit(Initializer initializer, MethodScope scope) {
 
 		if (initializer.isStatic()) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamestatic);
+			this.scribe.printNextToken(TerminalTokens.TokenNamestatic);
 		}
 		initializer.block.traverse(this, scope);
 		return false;
@@ -2682,7 +2747,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(instanceOfExpression, numberOfParens);
 		}
 		instanceOfExpression.expression.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameinstanceof, true);
+		this.scribe.printNextToken(TerminalTokens.TokenNameinstanceof, true);
 		this.scribe.space();
 		instanceOfExpression.type.traverse(this, scope);
 		
@@ -2703,9 +2768,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		Constant constant = intLiteral.constant;
 		if (constant != null && constant.intValue() < 0) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS);			
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIntegerLiteral);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIntegerLiteral);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(intLiteral, numberOfParens);
@@ -2719,8 +2784,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(LabeledStatement labeledStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameCOLON, this.preferences.insert_space_before_colon_in_labeled_statement);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
+		this.scribe.printNextToken(TerminalTokens.TokenNameCOLON, this.preferences.insert_space_before_colon_in_labeled_statement);
 		if (this.preferences.insert_space_after_colon_in_labeled_statement) {
 			this.scribe.space();
 		}
@@ -2749,15 +2814,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		/*
 		 * Print the argument name
 		 */	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 		/*
 		 * Check for extra dimensions
 		 */
 		int extraDimensions = getExtraDimension();
 		if (extraDimensions != 0) {
 			 for (int index = 0; index < extraDimensions; index++) {
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			 }
 		}
 	
@@ -2765,7 +2830,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			/*
 			 * Print the method name
 			 */	
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
+			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
 			if (this.preferences.insert_space_after_assignment_operators) {
 				this.scribe.space();
 			}			 
@@ -2773,7 +2838,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 
 		if (isPartOfMultipleLocalDeclaration()) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_local_declarations); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_local_declarations); 
 			if (this.preferences.insert_space_after_comma_in_multiple_local_declarations) {
 				this.scribe.space();
 			}
@@ -2803,9 +2868,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		Constant constant = longLiteral.constant;
 		if (constant != null && constant.longValue() < 0) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameMINUS);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS);			
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLongLiteral);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLongLiteral);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(longLiteral, numberOfParens);
@@ -2865,10 +2930,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		MethodDeclaration methodDeclaration,
 		ClassScope scope) {
 
-		if (methodDeclaration.modifiers != NO_MODIFIERS) {
-			this.scribe.printModifiers();
-			this.scribe.space();
-		}
+		this.scribe.printModifiers();
+		this.scribe.space();
 		
 		/*
 		 * Print the method return type
@@ -2882,7 +2945,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		/*
 		 * Print the method name
 		 */
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 
 		formatMethodArguments(
 			methodDeclaration, 
@@ -2899,8 +2962,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int extraDimensions = getExtraDimension();
 		if (extraDimensions != 0) {
 			 for (int i = 0; i < extraDimensions; i++) {
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			 }
 		}
 				
@@ -2929,14 +2992,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 			this.scribe.printComment();
 			this.scribe.unIndent();
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
 			if (method_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 				this.scribe.unIndent();
 			}
 		} else {
 			// no method body
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 		}
 		return false;
@@ -2951,7 +3014,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(nullLiteral, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamenull);
+		this.scribe.printNextToken(TerminalTokens.TokenNamenull);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(nullLiteral, numberOfParens);
@@ -2965,7 +3028,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 
-		return dumpBinaryExpression(or_or_Expression, ITerminalSymbols.TokenNameOR_OR, scope);
+		return dumpBinaryExpression(or_or_Expression, TerminalTokens.TokenNameOR_OR, scope);
 	}
 	
 	/**
@@ -2981,7 +3044,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		postfixExpression.lhs.traverse(this, scope);
 		int operator = postfixExpression.operator == OperatorIds.PLUS 
-			? ITerminalSymbols.TokenNamePLUS_PLUS : ITerminalSymbols.TokenNameMINUS_MINUS;
+			? TerminalTokens.TokenNamePLUS_PLUS : TerminalTokens.TokenNameMINUS_MINUS;
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_postfix_operator);
 		if (this.preferences.insert_space_after_postfix_operator) {
 			this.scribe.space();
@@ -3002,7 +3065,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(prefixExpression, numberOfParens);
 		}
 		int operator = prefixExpression.operator == OperatorIds.PLUS 
-			? ITerminalSymbols.TokenNamePLUS_PLUS : ITerminalSymbols.TokenNameMINUS_MINUS;
+			? TerminalTokens.TokenNamePLUS_PLUS : TerminalTokens.TokenNameMINUS_MINUS;
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_prefix_operator);
 		prefixExpression.lhs.traverse(this, scope);
 		if (this.preferences.insert_space_after_prefix_operator) {
@@ -3028,13 +3091,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final Expression enclosingInstance = qualifiedAllocationExpression.enclosingInstance;
 		if (enclosingInstance != null) {
 			enclosingInstance.traverse(this, scope);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
+			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamenew);
+		this.scribe.printNextToken(TerminalTokens.TokenNamenew);
 		this.scribe.space();
 		qualifiedAllocationExpression.type.traverse(this, scope);
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 
 		final Expression[] arguments = qualifiedAllocationExpression.arguments;
 		if (arguments != null) {
@@ -3053,7 +3116,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_allocation_expression);
 						}
 						this.scribe.alignFragment(argumentsAlignment, i);
 						if (i > 0 && this.preferences.insert_space_after_comma_in_allocation_expression) {
@@ -3067,9 +3130,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
 		} else {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments); 
 		}
 		final AnonymousLocalTypeDeclaration anonymousType = qualifiedAllocationExpression.anonymousType;
 		if (anonymousType != null) {
@@ -3112,8 +3175,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(qualifiedSuperReference, numberOfParens);
 		}
 		qualifiedSuperReference.qualification.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamesuper);
+		this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+		this.scribe.printNextToken(TerminalTokens.TokenNamesuper);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(qualifiedSuperReference, numberOfParens);
@@ -3133,8 +3196,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			manageOpeningParenthesizedExpression(qualifiedThisReference, numberOfParens);
 		}
 		qualifiedThisReference.qualification.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameDOT);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamethis);
+		this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+		this.scribe.printNextToken(TerminalTokens.TokenNamethis);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(qualifiedThisReference, numberOfParens);
@@ -3185,7 +3248,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(ReturnStatement returnStatement, BlockScope scope) {
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamereturn);
+		this.scribe.printNextToken(TerminalTokens.TokenNamereturn);
 		final Expression expression = returnStatement.expression;
 		if (expression != null) {
 			this.scribe.space();
@@ -3194,7 +3257,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		/*
 		 * Print the semi-colon
 		 */	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printTrailingComment();
 		return false;
 	}
 
@@ -3262,7 +3326,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameStringLiteral);
+		this.scribe.printNextToken(TerminalTokens.TokenNameStringLiteral);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(stringLiteral, numberOfParens);
@@ -3279,7 +3343,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(superReference, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamesuper);
+		this.scribe.printNextToken(TerminalTokens.TokenNamesuper);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(superReference, numberOfParens);
@@ -3291,15 +3355,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SwitchStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SwitchStatement switchStatement, BlockScope scope) {
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameswitch);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_switch_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameswitch);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_switch_condition);
 		
 		if (this.preferences.insert_space_in_switch_condition) {
 			this.scribe.space();
 		}
 		
 		switchStatement.testExpression.traverse(this, scope);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_switch_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_switch_condition);
 		/*
 		 * Type body
 		 */
@@ -3313,53 +3377,46 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final Statement[] statements = switchStatement.statements;
 		if (statements != null) {
 			int statementsLength = statements.length;
-			boolean wasABreak = false;
+			boolean wasACase = false;
+			boolean wasAStatement = false;
 			for (int i = 0; i < statementsLength; i++) {
 				final Statement statement = statements[i];
-				if (i == 0) {
-					// this is a case or a default statement
+				if (statement instanceof CaseStatement) {
 					statement.traverse(this, scope);
-					if (this.preferences.indent_switchstatements_compare_to_cases) {
-						this.scribe.indent();
-					}
-				} else if (statement instanceof CaseStatement) {
-					if (wasABreak) {
-						if (this.preferences.indent_breaks_compare_to_cases) {
-							this.scribe.unIndent();
-						}
-					} else if (this.preferences.indent_switchstatements_compare_to_cases) {
-						this.scribe.unIndent();
-					}
-					statement.traverse(this, scope);
-					wasABreak = false;
-					if (this.preferences.indent_switchstatements_compare_to_cases) {
-						this.scribe.indent();
-					}
+					wasACase = true;
+					wasAStatement = false;
 				} else if (statement instanceof BreakStatement) {
-					wasABreak = true;
-					if (this.preferences.indent_switchstatements_compare_to_cases) {
-						if (!this.preferences.indent_breaks_compare_to_cases) {
-							this.scribe.unIndent();
-						}
-					} else if (this.preferences.indent_breaks_compare_to_cases) {
+					if (wasAStatement && this.preferences.indent_switchstatements_compare_to_cases) {
+						this.scribe.indent();
+					}
+					if (wasACase && this.preferences.indent_breaks_compare_to_cases) {
 						this.scribe.indent();
 					}
 					statement.traverse(this, scope);
-					if (i == statementsLength - 1 && this.preferences.indent_breaks_compare_to_cases) {
+					if (wasACase && this.preferences.indent_breaks_compare_to_cases) {
 						this.scribe.unIndent();
 					}
+					if (wasAStatement && this.preferences.indent_switchstatements_compare_to_cases) {
+						this.scribe.unIndent();
+					}
+					wasACase = false;
+					wasAStatement = false;
 				} else {
-					wasABreak = false;
+					if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
+						this.scribe.indent();
+					}
 					statement.traverse(this, scope);
-					if (i == statementsLength - 1 && this.preferences.indent_switchstatements_compare_to_cases) {
+					if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
 						this.scribe.unIndent();
 					}
+					wasAStatement = true;
+					wasACase = false;
 				}
 				if (statement instanceof Expression) {
 					/*
 					 * Print the semi-colon
 					 */	
-					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				} else if (statement instanceof LocalDeclaration) {
 					LocalDeclaration currentLocal = (LocalDeclaration) statement;
@@ -3373,21 +3430,21 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 								/*
 								 * Print the semi-colon
 								 */	
-								this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+								this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 								this.scribe.printTrailingComment();
 							}
 						} else {
 							/*
 							 * Print the semi-colon
 							 */	
-							this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 							this.scribe.printTrailingComment();
 						}
 					} else {
 						/*
 						 * Print the semi-colon
 						 */	
-						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
 				}
@@ -3399,7 +3456,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.unIndent();
 		}
 		this.scribe.printNewLine();
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
 		if (switch_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
@@ -3414,15 +3471,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		SynchronizedStatement synchronizedStatement,
 		BlockScope scope) {
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamesynchronized);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_synchronized_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNamesynchronized);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_synchronized_condition);
 		
 		if (this.preferences.insert_space_in_synchronized_condition) {
 			this.scribe.space();
 		}
 		synchronizedStatement.expression.traverse(this, scope);
 	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_synchronized_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_synchronized_condition);
 		
 		synchronizedStatement.block.traverse(this, scope);
 		return false;
@@ -3437,7 +3494,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(thisReference, numberOfParens);
 			}
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamethis);
+			this.scribe.printNextToken(TerminalTokens.TokenNamethis);
 			
 			if (numberOfParens > 0) {
 				manageClosingParenthesizedExpression(thisReference, numberOfParens);
@@ -3451,13 +3508,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(ThrowStatement throwStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamethrow);
+		this.scribe.printNextToken(TerminalTokens.TokenNamethrow);
 		this.scribe.space();
 		throwStatement.exception.traverse(this, scope);
 		/*
 		 * Print the semi-colon
 		 */	
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printTrailingComment();
 		return false;
 	}
 
@@ -3470,7 +3528,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(trueLiteral, numberOfParens);
 		}
-		this.scribe.printNextToken(ITerminalSymbols.TokenNametrue);
+		this.scribe.printNextToken(TerminalTokens.TokenNametrue);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(trueLiteral, numberOfParens);
@@ -3483,15 +3541,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNametry);
+		this.scribe.printNextToken(TerminalTokens.TokenNametry);
 		tryStatement.tryBlock.traverse(this, scope);
 		if (this.preferences.insert_new_line_in_control_statements) {
 			this.scribe.printNewLine();
 		}	
 		if (tryStatement.catchArguments != null) {
 			for (int i = 0, max = tryStatement.catchBlocks.length; i < max; i++) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNamecatch, this.preferences.insert_space_after_block_close_brace);
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_catch_expression);
+				this.scribe.printNextToken(TerminalTokens.TokenNamecatch, this.preferences.insert_space_after_block_close_brace);
+				this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_catch_expression);
 				
 				if (this.preferences.insert_space_in_catch_expression) {
 					this.scribe.space();
@@ -3499,7 +3557,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				
 				tryStatement.catchArguments[i].traverse(this, scope);
 			
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_catch_expression);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_catch_expression);
 				
 				tryStatement.catchBlocks[i].traverse(this, scope);
 				if (this.preferences.insert_new_line_in_control_statements) {
@@ -3508,7 +3566,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		}
 		if (tryStatement.finallyBlock != null) {
-			this.scribe.printNextToken(ITerminalSymbols.TokenNamefinally, this.preferences.insert_space_after_block_close_brace);
+			this.scribe.printNextToken(TerminalTokens.TokenNamefinally, this.preferences.insert_space_after_block_close_brace);
 			tryStatement.finallyBlock.traverse(this, scope);
 		}
 		return false;
@@ -3541,19 +3599,19 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		int operator;
 		switch((unaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.PLUS:
-				operator = ITerminalSymbols.TokenNamePLUS;
+				operator = TerminalTokens.TokenNamePLUS;
 				break;
 			case OperatorIds.MINUS:
-				operator = ITerminalSymbols.TokenNameMINUS;
+				operator = TerminalTokens.TokenNameMINUS;
 				break;
 			case OperatorIds.TWIDDLE:
-				operator = ITerminalSymbols.TokenNameTWIDDLE;
+				operator = TerminalTokens.TokenNameTWIDDLE;
 				break;
 			default:
-				operator = ITerminalSymbols.TokenNameNOT;
+				operator = TerminalTokens.TokenNameNOT;
 		}
 
-		if (operator == ITerminalSymbols.TokenNameMINUS) {
+		if (operator == TerminalTokens.TokenNameMINUS) {
 			this.scribe.printNextToken(operator, true);
 		} else {
 			this.scribe.printNextToken(operator, this.preferences.insert_space_before_unary_operator);
@@ -3574,15 +3632,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
 
-		this.scribe.printNextToken(ITerminalSymbols.TokenNamewhile);
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameLPAREN, this.preferences.insert_space_before_while_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNamewhile);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_while_condition);
 		
 		if (this.preferences.insert_space_in_while_condition) {
 			this.scribe.space();
 		}
 		whileStatement.condition.traverse(this, scope);
 		
-		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_while_condition);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_while_condition);
 		
 		final Statement action = whileStatement.action;
 		if (action != null) {
@@ -3595,7 +3653,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.unIndent();
 			}
 			if (action instanceof Expression) {
-				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 			}
 		} else {
@@ -3606,7 +3664,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			formatEmptyStatement(); 
 			this.scribe.unIndent();
 		}
-
 		return false;
 	}
 }

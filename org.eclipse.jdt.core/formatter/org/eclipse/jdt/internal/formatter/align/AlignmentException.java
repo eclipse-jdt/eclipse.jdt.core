@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.formatter.align;
 
-/*
+/**
  * Exception used to backtrack and break available alignments
  * When the exception is thrown, it is assumed that some alignment will be changed.
  *

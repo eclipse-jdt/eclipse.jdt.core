@@ -1,14 +1,17 @@
-/*
- * Created on May 12, 2003
- *
- * To change this generated comment go to 
- * Window>Preferences>Java>Code Generation>Code Template
- */
+/*******************************************************************************
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
@@ -47,8 +50,9 @@ import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
-public class BinaryExpressionFragmentBuilder
+class BinaryExpressionFragmentBuilder
 	extends AbstractSyntaxTreeVisitorAdapter {
 		
 	ArrayList fragmentsList;
@@ -98,7 +102,7 @@ public class BinaryExpressionFragmentBuilder
 		AND_AND_Expression and_and_Expression,
 		BlockScope scope) {
 			if (buildFragments(and_and_Expression)) {
-				this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND_AND));
+				this.operatorsList.add(new Integer(TerminalTokens.TokenNameAND_AND));
 				return true;
 			} else {
 				return false;
@@ -245,7 +249,7 @@ public class BinaryExpressionFragmentBuilder
 
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 		if (buildFragments(or_or_Expression)) {
-			this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR_OR));
+			this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR_OR));
 			return true;
 		} else {
 			return false;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -20,15 +20,15 @@ public class Location {
 	public int inputOffset;
 	public int outputLine;
 	public int outputColumn;
-	public int outputOffset;
 	public int outputIndentationLevel;
 	public boolean needSpace;
 
 	// chunk management
 	public int lastNumberOfNewLines;	
 	
-	// position mapping management
-	int positionsIndex;
+	// edits management
+	int editsIndex;
+	OptimizedReplaceEdit textEdit;
 	
 	public Location(Scribe scribe, int sourceRestart){
 		update(scribe, sourceRestart);
@@ -37,11 +37,11 @@ public class Location {
 	public void update(Scribe scribe, int sourceRestart){
 		this.outputColumn = scribe.column;
 		this.outputLine = scribe.line;
-		this.outputOffset = scribe.size();
 		this.inputOffset = sourceRestart;
 		this.outputIndentationLevel = scribe.indentationLevel;
 		this.lastNumberOfNewLines = scribe.lastNumberOfNewLines;
 		this.needSpace = scribe.needSpace;
-		this.positionsIndex = scribe.positionsIndex;
+		this.editsIndex = scribe.editsIndex;
+		textEdit = scribe.getLastEdit();
 	}
 }

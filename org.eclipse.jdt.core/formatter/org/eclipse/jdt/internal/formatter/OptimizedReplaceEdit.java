@@ -10,21 +10,19 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-/**
- * Unchecked exception wrapping invalid input checked exception which may occur
- * when scanning original formatted source. 
- * 
- * @since 2.1
- */
-public class AbortFormatting extends RuntimeException {
-
-	Throwable nestedException;
+class OptimizedReplaceEdit {
 	
-	public AbortFormatting(String message) {
-		super(message);
+	int offset;
+	int length;
+	String replacement;
+	
+	OptimizedReplaceEdit(int offset, int length, String replacement) {
+		this.offset = offset;
+		this.length = length;
+		this.replacement = replacement;
 	}
-	public AbortFormatting(Throwable nestedException) {
-		super(nestedException.getMessage());
-		this.nestedException = nestedException;
+	
+	public String toString() {
+		return "(" + this.offset + ", length " + this.length + " :>" + this.replacement + "<"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}
 }

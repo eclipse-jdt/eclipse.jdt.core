@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -173,7 +173,7 @@ public class FormattingPreferences {
 	/**
 	 * Preferences defaults value	 */	
 	public static final int DEFAULT_PAGE_WIDTH = 80;
-	public static final boolean DEFAULT_USE_TAB = true;
+	public static final boolean DEFAULT_USE_TAB = false;
 	public static final int DEFAULT_TAB_SIZE = 4;
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");	//$NON-NLS-1$
 	public static final int DEFAULT_BLANK_LINES_BEFORE_PACKAGE = 0;
@@ -305,7 +305,7 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = true;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = true;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK = true;
-	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
+	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 1;
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
 	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;//$NON-NLS-1$
@@ -1163,6 +1163,7 @@ public class FormattingPreferences {
 		defaults.use_tab = DEFAULT_USE_TAB;
 		defaults.tab_size = DEFAULT_TAB_SIZE;
 		defaults.page_width = DEFAULT_PAGE_WIDTH;
+		defaults.insert_new_line_in_empty_block = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK;
 		defaults.blank_lines_before_package = DEFAULT_BLANK_LINES_BEFORE_PACKAGE;
 		defaults.blank_lines_after_package = DEFAULT_BLANK_LINES_AFTER_PACKAGE;
 		defaults.blank_lines_before_imports= DEFAULT_BLANK_LINES_BEFORE_PACKAGE;

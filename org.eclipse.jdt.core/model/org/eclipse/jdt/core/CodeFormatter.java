@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
-import java.util.Map;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Specification for a generic source code formatter. This is still subject to change.
@@ -46,49 +46,19 @@ public abstract class CodeFormatter {
 
 	/** 
 	 * Formats the String <code>sourceString</code>,
-	 * and returns a string containing the formatted version.
+	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
+	 * It returns null if the given string cannot be formatted.
 	 * 
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
 	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
 	 * @param string the string to format
+	 * @param region The region to format. If null, the whole given string is formatted.
 	 * @param indentationLevel the initial indentation level, used 
 	 *      to shift left/right the entire source fragment. An initial indentation
-	 *      level of zero has no effect.
-	 * @param positions an array of positions to map. These are
-	 *      character-based source positions inside the original source,
-	 * 		arranged in non-decreasing order, for which corresponding positions in 
-	 *     the formatted source will be computed (so as to relocate elements associated 
-	 *     with the original source). It updates the positions array with updated 
-	 *     positions. If set to <code>null</code>, then no positions are mapped.
+	 *      level of zero or below has no effect.
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @param options options used to set the source level
-	 * @return the formatted output string or null if the formatting failed
-	 * @see JavaCore#getOptions()
+	 * @return the text edit
 	 */
-	public abstract String format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator, Map options);
-	
-	/** 
-	 * Formats the String <code>sourceString</code>, and returns a string containing the formatted version corresponding
-	 * to the sourceString located between the given start and end positions.
-	 * 
-	 * @param string the compilation unit source to format
-	 * @param start the beginning of the selected code (inclusive)
-	 * @param end the end of the selected code (inclusive)
-	 * @param indentationLevel the initial indentation level, used 
-	 *      to shift left/right the entire source fragment. An initial indentation
-	 *      level of zero has no effect.
-	 * @param positions an array of positions to map. These are
-	 *      character-based source positions inside the original source,
-	 * 		arranged in non-decreasing order, for which corresponding positions in 
-	 *     the formatted source will be computed (so as to relocate elements associated 
-	 *     with the original source). All positions need to be located between the given start 
-	 *     and end values. It updates the positions array with updated positions. If set to
-	 *     <code>null</code>, then no positions are mapped.
-	 * @param lineSeparator the line separator to use in formatted source,
-	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @param options options used to set the source level
-	 * @return the formatted output string of the selected code
-	 */
-	public abstract String format(String string, int start, int end, int indentationLevel, int[] positions, String lineSeparator, Map options);
+	public abstract TextEdit format(int kind, String string, int offset, int length, int indentationLevel, String lineSeparator);
 }

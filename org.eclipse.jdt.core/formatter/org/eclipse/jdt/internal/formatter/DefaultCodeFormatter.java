@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -27,6 +27,10 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatter {
 
@@ -150,75 +154,50 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	
 	private CodeFormatterVisitor newCodeFormatter;
 	
-	private int[] positionsMapping;
 	private FormattingPreferences preferences;
+	private Map options;
 	
 	public DefaultCodeFormatter() {
-		this.preferences = FormattingPreferences.getDefault();
+		this(FormattingPreferences.getDefault(), JavaCore.getOptions());
+	}
+
+	public DefaultCodeFormatter(Map options) {
+		this(FormattingPreferences.getDefault(), options == null ? JavaCore.getOptions() : options);
 	}
 	
 	public DefaultCodeFormatter(FormattingPreferences preferences) {
+		this(preferences, JavaCore.getOptions());
+	}
+
+	public DefaultCodeFormatter(FormattingPreferences preferences, Map options) {
 		this.preferences = preferences;
+		this.options = options;
 	}
 
 	/**
 	 * @see CodeFormatter#format(int, String, int, int[], String, Map)
 	 */
-	public String format(
+	public TextEdit format(
 			int kind,
 			String source,
+			int offset,
+			int length,
 			int indentationLevel,
-			int[] positions,
-			String lineSeparator,
-			Map options) {
+			String lineSeparator) {
 
-		String result = source;				
 		switch(kind) {
 			case K_CLASS_BODY_DECLARATIONS :
-				result = formatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options);
-				break;
+				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, offset, length);
 			case K_COMPILATION_UNIT :
-				result = formatCompilationUnit(source, indentationLevel, positions, lineSeparator, options);
-				break;
+				return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
 			case K_EXPRESSION :
-				result = formatExpression(source, indentationLevel, positions, lineSeparator, options);
-				break;
+				return formatExpression(source, indentationLevel, lineSeparator, offset, length);
 			case K_STATEMENTS :
-				result = formatStatements(source, indentationLevel, positions, lineSeparator, options);
-				break;
+				return formatStatements(source, indentationLevel, lineSeparator, offset, length);
 			case K_UNKNOWN :
-				result = probeFormatting(source, indentationLevel, positions, lineSeparator, options);
+				return probeFormatting(source, indentationLevel, lineSeparator, offset, length);
 		}
-		this.positionsMapping = positions;
-		return result;
-	}
-	
-	public String format(
-		String string,
-		int start,
-		int end,
-		int indentationLevel,
-		int[] positions,
-		String lineSeparator,
-		Map options) {
-		
-		int[] newPositions = null;	
-		final int length = positions == null ? 0 : positions.length;
-		if (positions == null) {
-			newPositions = new int[] { start, end };
-		} else {
-			newPositions = new int[length + 2];
-			System.arraycopy(positions, 0, newPositions, 1, length);
-			newPositions[0] = start;
-			newPositions[length] = end;
-		}
-		String formattedString = formatCompilationUnit(string, indentationLevel, newPositions, lineSeparator, options);
-		if (positions != null) {
-			this.positionsMapping = positions;
-			System.arraycopy(newPositions, 1, this.positionsMapping, 0, length);
-		}
-		
-		return formattedString.substring(newPositions[0], newPositions[newPositions.length - 1] + 1);
+		return null;
 	}
 	
 	/**
@@ -230,135 +209,121 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		int[] positions,
 		String lineSeparator) {
 		
-		return format(K_UNKNOWN, source, indentationLevel, positions, lineSeparator, JavaCore.getOptions());
+		TextEdit textEdit = probeFormatting(source, indentationLevel, lineSeparator, 0, source.length());
+		if (textEdit == null) {
+			return source;
+		} else {
+			Document document = new Document(source);
+			try {
+				textEdit.apply(document, TextEdit.UPDATE_REGIONS);
+			} catch (MalformedTreeException e) {
+				e.printStackTrace();
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+			return document.get();
+		}
 	}
 
-	private String formatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
-		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), options);
+	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
-			this.positionsMapping = positions;
 			return null;
 		}
-		return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
+		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 	}
 
-	private String formatCompilationUnit(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
-		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), options);
+	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), this.options);
 		
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
 		
-		String result = this.newCodeFormatter.format(source, positions, compilationUnitDeclaration);
-		if (positions != null) {
-			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
-		}
-		this.positionsMapping = positions;
-		return result;
+		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
 
-	private String formatExpression(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
-		Expression expression = parseExpression(source.toCharArray(), options);
+	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		Expression expression = parseExpression(source.toCharArray(), this.options);
 		
 		if (expression == null) {
 			// a problem occured while parsing the source
-			this.positionsMapping = positions;
 			return null;
 		}
-		return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
+		return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 	}
 
-	private String formatStatements(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
+	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
-			this.positionsMapping = positions;
 			return null;
 		}
-		return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
+		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 	}
 
-	private String probeFormatting(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
-		Expression expression = parseExpression(source.toCharArray(), options);
+	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		Expression expression = parseExpression(source.toCharArray(), this.options);
 		
 		if (expression != null) {
-			return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
+			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
+		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements != null) {
-			return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
+			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 		
-		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), options);
+		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
 		
 		if (bodyDeclarations != null) {
-			return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
+			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 		}
 
-		return formatCompilationUnit(source, indentationLevel, positions, lineSeparator, options);
+		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
 	}
 
 	public String getDebugOutput() {
 		return this.newCodeFormatter.scribe.toString();
 	}
-	
-	public int[] getMappedPositions() {
-		return this.positionsMapping;
-	}
 
-	private String internalFormatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator, Map options, AstNode[] bodyDeclarations) {
+	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, AstNode[] bodyDeclarations, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
 		
-		String result = this.newCodeFormatter.format(source, positions, bodyDeclarations);
-		if (positions != null) {
-			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
-		}
-		this.positionsMapping = positions;
-		return result;
+		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
 
-	private String internalFormatExpression(String source, int indentationLevel, int[] positions, String lineSeparator, Map options, Expression expression) {
+	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
 		
-		String result = this.newCodeFormatter.format(source, positions, expression);
-		if (positions != null) {
-			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
-		}
-		this.positionsMapping = positions;
-		return result;
+		return this.newCodeFormatter.format(source, expression);
 	}
 	
-	private String internalFormatStatements(String source, int indentationLevel, int[] positions, String lineSeparator, Map options, ConstructorDeclaration constructorDeclaration) {
+	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
 		
-		String result = this.newCodeFormatter.format(source, positions, constructorDeclaration);
-		if (positions != null) {
-			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
-		}
-		this.positionsMapping = positions;
-		return result;
+		return  this.newCodeFormatter.format(source, constructorDeclaration);
 	}
 }
