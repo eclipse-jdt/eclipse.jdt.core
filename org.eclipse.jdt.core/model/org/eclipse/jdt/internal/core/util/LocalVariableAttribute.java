@@ -24,6 +24,7 @@ public class LocalVariableAttribute
 	extends ClassFileAttribute
 	implements ILocalVariableAttribute {
 
+	private static final ILocalVariableTableEntry[] NO_ENTRIES = new ILocalVariableTableEntry[0];
 	private int localVariableTableLength;
 	private ILocalVariableTableEntry[] localVariableTable;
 	
@@ -43,7 +44,10 @@ public class LocalVariableAttribute
 		this.localVariableTableLength = u2At(classFileBytes, 6, offset);
 		int readOffset = 8;
 		int length = this.localVariableTableLength;
-		this.localVariableTable = new LocalVariableTableEntry[length];
+		this.localVariableTable = NO_ENTRIES;
+		if (length != 0) {
+			this.localVariableTable = new LocalVariableTableEntry[length];
+		}
 		for (int i = 0; i < length; i++) {
 			this.localVariableTable[i] = new LocalVariableTableEntry(classFileBytes, constantPool, offset + readOffset);
 			readOffset += 10;

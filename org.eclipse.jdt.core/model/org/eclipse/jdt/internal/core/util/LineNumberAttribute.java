@@ -23,6 +23,7 @@ public class LineNumberAttribute
 	extends ClassFileAttribute
 	implements ILineNumberAttribute {
 
+	private static final int[][] NO_ENTRIES = new int[0][0];
 	private int lineNumberTableLength;
 	private int[][] lineNumberTable;
 	
@@ -41,7 +42,10 @@ public class LineNumberAttribute
 		super(classFileBytes, constantPool, offset);
 		
 		this.lineNumberTableLength = u2At(classFileBytes, 6, offset);
-		this.lineNumberTable = new int[this.lineNumberTableLength][2];
+		this.lineNumberTable = NO_ENTRIES;
+		if (this.lineNumberTableLength != 0) {
+			this.lineNumberTable = new int[this.lineNumberTableLength][2];
+		}
 		int readOffset = 8;
 		for (int i = 0, max = this.lineNumberTableLength; i < max; i++) {
 			this.lineNumberTable[i][0] = u2At(classFileBytes, readOffset, offset);

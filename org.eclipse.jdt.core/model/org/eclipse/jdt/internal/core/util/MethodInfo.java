@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
@@ -39,6 +40,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	private int attributeBytes;
 	private ICodeAttribute codeAttribute;
 	private IExceptionAttribute exceptionAttribute;
+	private IClassFileAttribute[] attributes;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -64,8 +66,13 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		this.descriptor = constantPoolEntry.getUtf8Value();
 		
 		this.attributesCount = u2At(classFileBytes, 6, offset);
+		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
+		if (this.attributesCount != 0) {
+			this.attributes = new IClassFileAttribute[this.attributesCount];
+		}
+		int attributesIndex = 0;
 		int readOffset = 8;
-		for (int i = 0; i < attributesCount; i++) {
+		for (int i = 0; i < this.attributesCount; i++) {
 			constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
@@ -73,12 +80,18 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 			char[] attributeName = constantPoolEntry.getUtf8Value();
 			if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
 				this.isDeprecated = true;
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
 				this.isSynthetic = true;
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.CODE)) {
 				this.codeAttribute = new CodeAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.codeAttribute;
 			} else if (equals(attributeName, IAttributeNamesConstants.EXCEPTIONS)) {
 				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.exceptionAttribute;
+			} else {
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
@@ -171,4 +184,11 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	int sizeInBytes() {
 		return attributeBytes;
 	}
+	/**
+	 * @see IMethodInfo#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
+	}
+
 }

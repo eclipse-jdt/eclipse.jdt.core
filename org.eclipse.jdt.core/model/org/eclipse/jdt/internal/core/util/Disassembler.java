@@ -22,8 +22,10 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.DecodingFlag;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
@@ -50,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 public class Disassembler implements IClassFileDisassembler {
 
 	private static final char[] ANY_EXCEPTION = "any".toCharArray();	
+	private static final String EMPTY_OUTPUT = ""; // NON-NLS
 	
 	private static final int ERROR = 0;
 	private static final int SINGLE_FILE = 1;
@@ -60,6 +63,8 @@ public class Disassembler implements IClassFileDisassembler {
 	 * Disassemble the class file reader.
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator) {
+		if (classFileReader == null) return EMPTY_OUTPUT;
+		
 		StringBuffer buffer = new StringBuffer();
 
 		buffer.append(Util.bind("classfileformat.magicnumber"));
@@ -81,6 +86,11 @@ public class Disassembler implements IClassFileDisassembler {
 			buffer.append(' ');
 			buffer.append(sourceAttribute.getSourceFileName());
 			writeNewLine(buffer, lineSeparator, 0);
+		}
+		char[] className = classFileReader.getClassName();
+		if (className == null) {
+			// incomplete initialization. We cannot go further.
+			return buffer.toString();
 		}
 		decodeModifiersForType(buffer, classFileReader.getAccessFlags());
 		if (classFileReader.isClass()) {
@@ -122,15 +132,28 @@ public class Disassembler implements IClassFileDisassembler {
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1);
 		writeNewLine(buffer, lineSeparator, 0);
 		writeNewLine(buffer, lineSeparator, 0);
-		disassemble(classFileReader.getInnerClassesAttribute(), buffer, lineSeparator, 1);
+		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
+		if (innerClassesAttribute != null) {
+			disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
+		}
+		writeNewLine(buffer, lineSeparator, 0);
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		length = attributes.length;
+		if (length != 0) {
+			for (int i = 0; i < length; i++) {
+				IClassFileAttribute attribute = attributes[i];
+				if (attribute != innerClassesAttribute
+					&& attribute != sourceAttribute) {
+					disassemble(attribute, buffer, lineSeparator, 0);
+				}
+			}
+		}		
+		writeNewLine(buffer, lineSeparator, 0);
 		buffer.append(Util.bind("disassembler.closetypedeclaration"));
 		return buffer.toString();
 	}
 
 	private void disassemble(IInnerClassesAttribute innerClassesAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		if (innerClassesAttribute == null) {
-			return;
-		}
 		buffer.append(Util.bind("disassembler.innerattributesheader"));
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		IInnerClassesAttributeEntry[] innerClassesAttributeEntries = innerClassesAttribute.getInnerClassAttributesEntries();
@@ -245,7 +268,6 @@ public class Disassembler implements IClassFileDisassembler {
 			.append(' ');
 		decodeModifiersForInnerClasses(buffer, accessFlags);
 		buffer.append(']');
-		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
 	
 	private void checkSuperFlags(StringBuffer buffer, int accessFlags, String lineSeparator, int tabNumber ) {
@@ -261,7 +283,7 @@ public class Disassembler implements IClassFileDisassembler {
 	}
 
 	
-	private void dumpTab(int tabNumber, StringBuffer buffer) {
+	private final void dumpTab(int tabNumber, StringBuffer buffer) {
 		for (int i = 0; i < tabNumber; i++) {
 			buffer.append('\t');
 		}
@@ -286,8 +308,8 @@ public class Disassembler implements IClassFileDisassembler {
 	}
 
 	private void writeNewLine(StringBuffer buffer, String lineSeparator, int tabNumber) {
-		dumpTab(tabNumber, buffer);
 		buffer.append(lineSeparator);
+		dumpTab(tabNumber, buffer);
 	}
  
 	/**
@@ -323,6 +345,16 @@ public class Disassembler implements IClassFileDisassembler {
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader"));
+		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
+		int length = attributes.length;
+		if (length != 0) {
+			for (int i = 0; i < length; i++) {
+				IClassFileAttribute attribute = attributes[i];
+				if (attribute != constantValueAttribute) {
+					disassemble(attribute, buffer, lineSeparator, tabNumber);
+				}
+			}
+		}
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		buffer
 			.append(Util.bind("disassembler.commentstart"))
@@ -342,15 +374,13 @@ public class Disassembler implements IClassFileDisassembler {
 	 */
 	private void disassemble(IClassFileReader classFileReader, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		int accessFlags = methodInfo.getAccessFlags();
-		checkDeprecated(methodInfo, buffer, lineSeparator, tabNumber);
-		checkSynthetic(methodInfo, buffer, lineSeparator, tabNumber);
 		decodeModifiersForMethod(buffer, accessFlags);
 		char[] methodDescriptor = methodInfo.getDescriptor();
 		CharOperation.replace(methodDescriptor, '/', '.');
 		char[] methodName = null;
 		if (methodInfo.isConstructor()) {
 			methodName = classFileReader.getClassName();
-			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor) , false, true));
+			buffer.append(Signature.toCharArray(methodDescriptor, methodName, getParameterNames(methodDescriptor) , true, false));
 		} else if (methodInfo.isClinit()) {
 			methodName = Util.bind("classfileformat.clinitname").toCharArray();
 			buffer.append(methodName);
@@ -389,60 +419,59 @@ public class Disassembler implements IClassFileDisassembler {
 			.append(methodInfo.getDescriptorIndex())
 			.append(' ')
 			.append(methodInfo.getDescriptor())
-			.append(' ');
+			.append(' ')
+			.append(Util.bind("disassembler.commentend"));
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		IClassFileAttribute[] attributes = methodInfo.getAttributes();
+		int length = attributes.length;
+		if (length != 0) {
+			for (int i = 0; i < length; i++) {
+				IClassFileAttribute attribute = attributes[i];
+				if ((attribute != codeAttribute) && (attribute != exceptionAttribute)) {
+					disassemble(attribute, buffer, lineSeparator, tabNumber);
+					writeNewLine(buffer, lineSeparator, tabNumber);
+				}
+			}
+		}
 		if (codeAttribute != null) {
-			buffer.append(Util.bind("disassembler.commentend"));
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			buffer
-				.append(Util.bind("disassembler.commentstart"))
-				.append(' ')
-				.append(Util.bind("classfileformat.maxStack"))
-				.append(codeAttribute.getMaxStack())
-				.append(' ')
-				.append(',')
-				.append(' ')
-				.append(Util.bind("classfileformat.maxLocals"))
-				.append(' ')
-				.append(codeAttribute.getMaxLocals())
-				.append(' ')
-				.append(Util.bind("disassembler.commentend"));
-			writeNewLine(buffer, lineSeparator, tabNumber);
 			disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
-		} else {
-			buffer.append(Util.bind("disassembler.commentend"));
 		}
 	}
 	
-	private void checkDeprecated(IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		if (methodInfo.isDeprecated()) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			buffer
-				.append(Util.bind("disassembler.commentstart"))
-				.append(' ')
-				.append(Util.bind("classfileformat.deprecated"))
-				.append(' ')
-				.append(Util.bind("disassembler.commentend"));
-			writeNewLine(buffer, lineSeparator, tabNumber);
-		}
-	}
 
-	private void checkSynthetic(IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		if (methodInfo.isSynthetic()) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			buffer
-				.append(Util.bind("disassembler.commentstart"))
-				.append(' ')
-				.append(Util.bind("classfileformat.synthetic"))
-				.append(' ')
-				.append(Util.bind("disassembler.commentend"));
-			writeNewLine(buffer, lineSeparator, tabNumber);
-		}
-	}
 
+	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		buffer.append(Util.bind("disassembler.genericattributeheader"));
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer
+			.append(Util.bind("disassembler.genericattributename"))
+			.append(' ')
+			.append(classFileAttribute.getAttributeName())
+			.append(' ')
+			.append(Util.bind("disassembler.genericattributelength"))
+			.append(' ')
+			.append(classFileAttribute.getAttributeLength());
+	}
+	
 	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		writeNewLine(buffer, lineSeparator, tabNumber);
-		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(buffer, lineSeparator, 1);
+		buffer.append(Util.bind("disassembler.codeattributeheader"));
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer
+			.append(Util.bind("disassembler.commentstart"))
+			.append(' ')
+			.append(Util.bind("classfileformat.maxStack"))
+			.append(codeAttribute.getMaxStack())
+			.append(' ')
+			.append(',')
+			.append(' ')
+			.append(Util.bind("classfileformat.maxLocals"))
+			.append(' ')
+			.append(codeAttribute.getMaxLocals())
+			.append(' ')
+			.append(Util.bind("disassembler.commentend"));
+		writeNewLine(buffer, lineSeparator, tabNumber - 1);
+		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(buffer, lineSeparator, tabNumber);
 		try {
 			codeAttribute.traverse(visitor);
 		} catch(ClassFormatException e) {
@@ -824,35 +853,12 @@ public class Disassembler implements IClassFileDisassembler {
 	}
 
 	private String disassembleSingleFile(String fileName) throws IOException {
-		IClassFileReader classFileReader = null;
-		try {
-			classFileReader = new ClassFileReader(Util.getBytes(fileName), DecodingFlag.ALL);
-		} catch(ClassFormatException e) {
-			return null;
-		} catch(IOException e) {
-			return null;
-		}
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(fileName, DecodingFlag.ALL);
 		return disassemble(classFileReader, System.getProperty("line.separator"));
 	}
 	
 	private String disassembleInsideZipFile(String fileName, String zipEntryName) {
-		IClassFileReader classFileReader = null;
-		try {
-			ZipFile zipFile = new ZipFile(fileName);
-			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
-			if (zipEntry == null) {
-				return null;
-			}
-			if (!zipEntryName.toLowerCase().endsWith(".class")) {
-				return null;
-			}
-			byte classFileBytes[] = Util.getZipEntryByteContent(zipEntry, zipFile);
-			classFileReader = new ClassFileReader(classFileBytes, DecodingFlag.ALL);
-		} catch(ClassFormatException e) {
-			return null;
-		} catch(IOException e) {
-			return null;
-		}
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(fileName, zipEntryName, DecodingFlag.ALL);
 		return disassemble(classFileReader, System.getProperty("line.separator"));
 	}
 	

@@ -25,6 +25,9 @@ import org.eclipse.jdt.core.util.ILocalVariableAttribute;
  * Default implementation of IExceptionAttribute.
  */
 public class ExceptionAttribute extends ClassFileAttribute implements IExceptionAttribute {
+	private static final int[] NO_EXCEPTION_INDEXES = new int[0];
+	private static final char[][] NO_EXCEPTION_NAMES = new char[0][0];
+	
 	private int exceptionsNumber;
 	private char[][] exceptionNames;
 	private int[] exceptionIndexes;
@@ -33,8 +36,12 @@ public class ExceptionAttribute extends ClassFileAttribute implements IException
 		super(classFileBytes, constantPool, offset);
 		this.exceptionsNumber = u2At(classFileBytes, 6, offset);
 		int exceptionLength = this.exceptionsNumber;
-		this.exceptionNames = new char[exceptionLength][];
-		this.exceptionIndexes = new int[exceptionLength];
+		this.exceptionNames = NO_EXCEPTION_NAMES;
+		this.exceptionIndexes = NO_EXCEPTION_INDEXES;
+		if (exceptionLength != 0) {
+			this.exceptionNames = new char[exceptionLength][];
+			this.exceptionIndexes = new int[exceptionLength];
+		}
 		int readOffset = 8;
 		IConstantPoolEntry constantPoolEntry;
 		for (int i = 0; i < exceptionLength; i++) {

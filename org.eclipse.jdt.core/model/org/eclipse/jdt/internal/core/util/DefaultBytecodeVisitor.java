@@ -44,7 +44,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	public DefaultBytecodeVisitor(StringBuffer buffer, String lineSeparator, int tabNumber) {
 		this.buffer = buffer;
 		this.lineSeparator = lineSeparator;
-		this.tabNumber = tabNumber;
+		this.tabNumber = tabNumber + 1;
 	}
 	/**
 	 * @see IBytecodeVisitor#_aaload(int)

@@ -11,7 +11,11 @@ Contributors:
 
 package org.eclipse.jdt.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -20,8 +24,12 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;
+import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.formatter.CodeFormatter;
 
@@ -96,6 +104,59 @@ public class ToolFactory {
 	public static IClassFileDisassembler createDefaultClassFileDisassembler(){
 		return new Disassembler();
 	}
+	
+	/**
+	 * Create a default classfile reader, able to expose the internal representation of a given classfile
+	 * according to the decoding flag used to initialize the reader.
+	 * Answer null if the file named fileName doesn't represent a valid .class file.
+	 * 
+	 * @param fileName the name of the file to be read
+	 * @param decodingFlag the flag used to decode the class file reader.
+	 * @return IClassFileReader
+	 * 
+	 * @see IClassFileReader
+	 */
+	public static IClassFileReader createDefaultClassFileReader(String fileName, int decodingFlag){
+		try {
+			return new ClassFileReader(Util.getFileByteContent(new File(fileName)), decodingFlag);
+		} catch(ClassFormatException e) {
+			return null;
+		} catch(IOException e) {
+			return null;
+		}
+	}	
+
+	/**
+	 * Create a default classfile reader, able to expose the internal representation of a given classfile
+	 * according to the decoding flag used to initialize the reader.
+	 * Answer null if the file named zipFileName doesn't represent a valid zip file or if the zipEntryName
+	 * is not a valid entry name for the specified zip file or if the bytes don't represent a valid
+	 * .class file according to the JVM specifications.
+	 * 
+	 * @param zipFileName the name of the zip file
+	 * @param zipEntryName the name of the entry in the zip file to be read
+	 * @param decodingFlag the flag used to decode the class file reader.
+	 * @return IClassFileReader
+	 * @see IClassFileReader
+	 */
+	public static IClassFileReader createDefaultClassFileReader(String zipFileName, String zipEntryName, int decodingFlag){
+		try {
+			ZipFile zipFile = new ZipFile(zipFileName);
+			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
+			if (zipEntry == null) {
+				return null;
+			}
+			if (!zipEntryName.toLowerCase().endsWith(".class")) {
+				return null;
+			}
+			byte classFileBytes[] = Util.getZipEntryByteContent(zipEntry, zipFile);
+			return new ClassFileReader(classFileBytes, decodingFlag);
+		} catch(ClassFormatException e) {
+			return null;
+		} catch(IOException e) {
+			return null;
+		}
+	}	
 	
 	/**
 	 * Create a scanner, indicating the level of detail requested for tokenizing. The scanner can then be

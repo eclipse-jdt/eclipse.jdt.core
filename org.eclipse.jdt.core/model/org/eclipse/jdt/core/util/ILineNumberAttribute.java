@@ -27,7 +27,7 @@ public interface ILineNumberAttribute extends IClassFileAttribute {
 
 	/**
 	 * Answer back the array of pairs (start pc, line number) as specified in the 
-	 * JVM specifications.
+	 * JVM specifications. Answer an empty array if none.
 	 * 
 	 * @return int[][]
 	 */

@@ -27,7 +27,7 @@ public interface ILocalVariableAttribute extends IClassFileAttribute {
 
 	/**
 	 * Answer back the local variable table of this entry as specified in
-	 * the JVM specifications.
+	 * the JVM specifications. Answer an empty array if none.
 	 * 
 	 * @return org.eclipse.jdt.core.util.ILocalVariableTableEntry[]
 	 */

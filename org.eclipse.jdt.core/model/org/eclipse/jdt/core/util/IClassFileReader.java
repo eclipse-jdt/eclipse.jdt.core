@@ -147,6 +147,15 @@ public interface IClassFileReader {
 	int getAttributeCount();
 	
 	/**
+	 * Answer back the collection of all attributes of the field info. It 
+	 * includes SyntheticAttribute, ConstantValueAttributes, etc. Answers an empty
+	 * array if none.
+	 * 
+	 * @return IClassFileAttribute[]
+	 */
+	IClassFileAttribute[] getAttributes();
+	
+	/**
 	 * Answer back the magic number.
 	 * 
 	 * @return <CODE>int</CODE>

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
@@ -46,6 +47,7 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	private int attributesCount;
 	private int attributeBytes;
 	private IConstantValueAttribute constantValueAttribute;
+	private IClassFileAttribute[] attributes;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -71,8 +73,12 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 		this.descriptor = constantPoolEntry.getUtf8Value();
 
 		this.attributesCount = u2At(classFileBytes, 6, offset);
+		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 		int readOffset = 8;
-
+		if (this.attributesCount != 0) {
+			this.attributes = new IClassFileAttribute[this.attributesCount];
+		}
+		int attributesIndex = 0;
 		for (int i = 0; i < attributesCount; i++) {
 			constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
@@ -81,10 +87,15 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 			char[] attributeName = constantPoolEntry.getUtf8Value();
 			if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
 				this.isDeprecated = true;
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
 				this.isSynthetic = true;
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.CONSTANT_VALUE)) {
 				this.constantValueAttribute = new ConstantValueAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.constantValueAttribute;
+			} else {
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
@@ -162,6 +173,13 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	 */
 	public int getNameIndex() {
 		return this.nameIndex;
+	}
+
+	/**
+	 * @see IFieldInfo#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
 	}
 
 }

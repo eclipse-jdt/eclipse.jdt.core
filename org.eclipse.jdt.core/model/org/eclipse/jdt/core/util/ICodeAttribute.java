@@ -78,6 +78,15 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	int getAttributesCount();
 
 	/**
+	 * Answer back the collection of all attributes of the field info. It 
+	 * includes the LineNumberAttribute and the LocalVariableTableAttribute.
+	 * Returns an empty collection if none.
+	 * 
+	 * @return IClassFileAttribute[]
+	 */
+	IClassFileAttribute[] getAttributes();
+
+	/**
 	 * Answer back the exception table length of the code attribute.
 	 * 
 	 * @return <CODE>int</CODE>

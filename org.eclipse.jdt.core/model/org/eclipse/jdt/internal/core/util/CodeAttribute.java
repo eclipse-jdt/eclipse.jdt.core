@@ -16,6 +16,7 @@ import java.io.Writer;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IBytecodeVisitor;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
@@ -30,7 +31,7 @@ import org.eclipse.jdt.core.util.IOpcodeMnemonics;
  * Default implementation of ICodeAttribute.
  */
 public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute {
-	private static final IExceptionTableEntry[] noExceptionTable = new IExceptionTableEntry[0];
+	private static final IExceptionTableEntry[] NO_EXCEPTION_TABLE = new IExceptionTableEntry[0];
 	private int maxLocals;
 	private int maxStack;
 	private ILineNumberAttribute lineNumberAttribute;
@@ -43,6 +44,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	private IConstantPool constantPool;
 	private int codeOffset;
 	private byte[] classFileBytes;
+	private IClassFileAttribute[] attributes;
 	
 	CodeAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
@@ -55,16 +57,20 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 		int readOffset = (int) (14 + this.codeLength);
 		this.exceptionTableLength = u2At(classFileBytes, readOffset, offset);
 		readOffset += 2;
+		this.exceptionTableEntries = NO_EXCEPTION_TABLE;
 		if (this.exceptionTableLength != 0) {
 			this.exceptionTableEntries = new ExceptionTableEntry[this.exceptionTableLength];
 			for (int i = 0; i < this.exceptionTableLength; i++) {
 				this.exceptionTableEntries [i] = new ExceptionTableEntry(classFileBytes, constantPool, offset + readOffset);
 				readOffset += 8;
 			}
-		} else {
-			this.exceptionTableEntries = noExceptionTable;
 		}
 		this.attributesCount = u2At(classFileBytes, readOffset, offset);
+		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
+		if (this.attributesCount != 0) {
+			this.attributes = new IClassFileAttribute[this.attributesCount];
+		}
+		int attributesIndex = 0;
 		readOffset += 2;
 		for (int i = 0; i < this.attributesCount; i++) {
 			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
@@ -74,8 +80,12 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			char[] attributeName = constantPoolEntry.getUtf8Value();
 			if (equals(attributeName, IAttributeNamesConstants.LINE_NUMBER)) {
 				this.lineNumberAttribute = new LineNumberAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.lineNumberAttribute;
 			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE)) {
 				this.localVariableAttribute = new LocalVariableAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++] = this.localVariableAttribute;
+			} else {
+				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
@@ -1154,4 +1164,11 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	public char[] getAttributeName() {
 		return IAttributeNamesConstants.CODE;
 	}
+	/**
+	 * @see ICodeAttribute#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
+	}
+
 }

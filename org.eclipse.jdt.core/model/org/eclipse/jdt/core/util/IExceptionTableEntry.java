@@ -46,6 +46,7 @@ public interface IExceptionTableEntry {
 
 	/**
 	 * Answer back the catch type name. Return null if getCatchTypeIndex() returns 0.
+	 * This is the case for any exception handler.
 	 * 
 	 * @return char[]
 	 */

@@ -1050,8 +1050,8 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 					if (fullyQualifyTypeNames) {
 						start = i+1;
 					} else {
-						start = CharOperation.lastIndexOf(C_DOT, methodSignature, i, end)+1;
-						if (start == -1) start = i+1;
+						start = CharOperation.lastIndexOf(C_DOT, methodSignature, i, end) + 1;
+						if (start == 0) start = i+1;
 					} 
 					resultLength += end-start;
 					i = end;

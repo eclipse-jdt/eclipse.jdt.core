@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
  * Default implementation of IClassFileAttribute
  */
 public class ClassFileAttribute extends ClassFileStruct implements IClassFileAttribute {
-
+	public static final IClassFileAttribute[] NO_ATTRIBUTES = new IClassFileAttribute[0];
 	private long attributeLength;
 	private int attributeNameIndex;
 	private char[] attributeName;

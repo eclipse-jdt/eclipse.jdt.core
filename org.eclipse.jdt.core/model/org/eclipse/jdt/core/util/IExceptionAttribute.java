@@ -26,14 +26,16 @@ public interface IExceptionAttribute extends IClassFileAttribute {
 	int getExceptionsNumber();
 
 	/**
-	 * Answer back the exception names of the exception attribute.
+	 * Answer back the exception names of the exception attribute. Answers an
+	 * empty collection if none.
 	 * 
 	 * @return char[][]
 	 */
 	char[][] getExceptionNames();
 
 	/**
-	 * Answer back the exception indexes of the exception attribute.
+	 * Answer back the exception indexes of the exception attribute. Answers an
+	 * empty collection if none.
 	 * 
 	 * @return int[]
 	 */

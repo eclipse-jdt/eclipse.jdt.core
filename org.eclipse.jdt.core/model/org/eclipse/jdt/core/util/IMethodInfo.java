@@ -109,4 +109,13 @@ public interface IMethodInfo {
 	 * @return <CODE>int</CODE>
 	 */
 	int getAttributeCount();
+	
+	/**
+	 * Answer back the collection of all attributes of the field info. It 
+	 * includes SyntheticAttribute, CodeAttributes, etc.
+	 * Returns an empty collection if none.
+	 * 
+	 * @return IClassFileAttribute[]
+	 */
+	IClassFileAttribute[] getAttributes();
 }

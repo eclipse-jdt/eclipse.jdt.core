@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.DecodingFlag;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
@@ -27,10 +28,10 @@ import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.ISourceAttribute;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
-	private static final IFieldInfo[] noFieldInfos = new IFieldInfo[0];
-	private static final IMethodInfo[] noMethodInfos = new IMethodInfo[0];
-	private static final int[] noInterfacesIndexes = new int[0];
-	private static final char[][] noInterfacesNames = new char[0][0];
+	private static final IFieldInfo[] NO_FIELD_INFOS = new IFieldInfo[0];
+	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
+	private static final int[] NO_INTERFACE_INDEXES = new int[0];
+	private static final char[][] NO_INTERFACES_NAMES = new char[0][0];
 
 	private IConstantPool constantPool;
 	private int magicNumber;
@@ -54,6 +55,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private int superclassNameIndex;
 	private int classIndex;
 	private int attributesCount;
+	private IClassFileAttribute[] attributes;
 	
 	/**
 	 * Constructor for ClassFileReader.
@@ -158,6 +160,8 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			// Read the interfaces, use exception handlers to catch bad format
 			this.interfacesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
+			this.interfaceNames = NO_INTERFACES_NAMES;
+			this.interfaceIndexes = NO_INTERFACE_INDEXES;
 			if (this.interfacesCount != 0) {
 				if ((decodingFlags & DecodingFlag.SUPER_INTERFACES) != 0) {
 					this.interfaceNames = new char[this.interfacesCount][];
@@ -168,17 +172,13 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						readOffset += 2;
 					}
 				} else {
-					this.interfaceNames = noInterfacesNames;
-					this.interfaceIndexes = noInterfacesIndexes;
 					readOffset += (2 * this.interfacesCount);
 				}
-			} else {
-				this.interfaceNames = noInterfacesNames;
-				this.interfaceIndexes = noInterfacesIndexes;
 			}
 			// Read the this.fields, use exception handlers to catch bad format
 			this.fieldsCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
+			this.fields = NO_FIELD_INFOS;
 			if (this.fieldsCount != 0) {
 				if ((decodingFlags & DecodingFlag.FIELD_INFOS) != 0) {
 					FieldInfo field;
@@ -204,6 +204,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			// Read the this.methods
 			this.methodsCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
+			this.methods = NO_METHOD_INFOS;
 			if (this.methodsCount != 0) {
 				if ((decodingFlags & DecodingFlag.METHOD_INFOS) != 0) {
 					this.methods = new MethodInfo[this.methodsCount];
@@ -231,20 +232,29 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			this.attributesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
 
+			int attributesIndex = 0;
+			this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 			if ((decodingFlags & DecodingFlag.CLASSFILE_ATTRIBUTES) != 0) {
+				if (this.attributesCount != 0) {
+					this.attributes = new IClassFileAttribute[this.attributesCount];
+				}
 				for (int i = 0; i < attributesCount; i++) {
 					int utf8Offset = constantPoolOffsets[u2At(classFileBytes, readOffset, 0)];
 					char[] attributeName = utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
 					if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
 						this.isDeprecated = true;
+						this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+					} else if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
+						this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
+						this.attributes[attributesIndex++] = this.innerClassesAttribute;
+					} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
+							this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.sourceFileAttribute;
+					} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
+							this.isSynthetic = true;
+							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 					} else {
-						if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
-							this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
-						} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
-								this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
-						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-								this.isSynthetic = true;
-						}
+						this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 					}
 					readOffset += (6 + u4At(classFileBytes, readOffset + 2, 0));
 				}
@@ -400,6 +410,13 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 */
 	public int getMethodsCount() {
 		return this.methodsCount;
+	}
+
+	/**
+	 * @see IClassFileReader#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
 	}
 
 }
