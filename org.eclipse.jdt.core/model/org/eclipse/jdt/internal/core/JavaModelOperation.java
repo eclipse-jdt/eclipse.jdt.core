@@ -281,6 +281,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		IContainer resource = (IContainer) fragment.getResource();
 	
 		try {
+			if (resource.isReadOnly()) {
+				resource.setReadOnly(false);
+			}
 			resource.delete(
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 				getSubProgressMonitor(1));
@@ -290,6 +293,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				// without deleting the package fragment root
 				resource = resource.getParent();
 				if (!resource.equals(rootResource) && resource.members().length == 0) {
+					if (resource.isReadOnly()) {
+						resource.setReadOnly(false);
+					}
 					resource.delete(
 						force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 						getSubProgressMonitor(1));

@@ -481,6 +481,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					for (int i = 0, length = remaining.length; i < length; i++) {
 						IResource file = remaining[i];
 						if (file instanceof IFile) {
+							if (file.isReadOnly()) {
+								file.setReadOnly(false);
+							}
 							this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 						} else {
 							isEmpty = false;
