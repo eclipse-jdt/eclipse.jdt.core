@@ -41,26 +41,48 @@ public static Test suite() {
 public void test001() {
 	this.runConformTest(
 		new String[] {
-			"p1/Test.java",
-			"package p1; \n"+
-			"public class Test { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		new Test().foo(); \n"+
-			"	} \n"+
-			"	class M { \n"+
-			"	} \n"+
-			"	void foo(){ \n"+
-			"		class Y extends Secondary { \n"+
-			"			M m; \n"+
-			"		}; \n"+
-			"		System.out.println(\"SUCCESS\");	\n" +
-			"	} \n"+
-			"} \n" +
-			"class Secondary { \n" +
-			"	class M {} \n" +
-			"} \n"
+			"X.java",
+			"public class X<Tx1 extends String, Tx2 extends Comparable>  extends XS<Tx2> {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Integer w = new X<String,Integer>().get(new Integer(12));\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class XS <Txs> {\n" + 
+			"    Txs get(Txs t) {\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"}\n"
 		},
 		"SUCCESS");
+}
+
+public void test002() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<Xp1 extends String, Xp2 extends Comparable>  extends XS<Xp2> {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Integer w = new X<String,Integer>().get(new Integer(12));\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    Xp2 get(Xp2 t){\n" + 
+			"        System.out.print(\"{X::get}\");\n" + 
+			"        return super.get(t);\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class XS <XSp1> {\n" + 
+			"    XSp1 get(XSp1 t) {\n" + 
+			"        System.out.print(\"{XS::get}\");\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"{XS::get}{X::get}SUCCESS");
 }
 
 public static Class testClass() {
