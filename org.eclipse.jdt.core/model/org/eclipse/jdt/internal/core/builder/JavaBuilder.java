@@ -10,34 +10,15 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.JavaModel;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.*;
+
+import java.io.*;
+import java.util.*;
 
 public class JavaBuilder extends IncrementalProjectBuilder {
 
@@ -221,6 +202,9 @@ private void createFolder(IContainer folder) throws CoreException {
 
 boolean filterResource(IResource resource) {
 	if (resourceFilters != null) {
+//		char[] path = resource.getProjectRelativePath().setDevice(null).toString().toCharArray();
+//		for (int i = 0, length = resourceFilters.length; i < length; i++)
+//			if (CharOperation.match(resourceFilters[i], path, true))
 		char[] name = resource.getName().toCharArray();
 		for (int i = 0, length = resourceFilters.length; i < length; i++)
 			if (CharOperation.match(resourceFilters[i], name, true))
@@ -401,42 +385,43 @@ private void initializeBuilder() throws CoreException {
 }
 
 private boolean isWorthBuilding() throws CoreException {
-//	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(OPTION_InvalidClasspathSwitch));
-//	if (abortBuilds) {
-//		IMarker[] markers =
-//			currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
-//		if (markers.length > 0) {
-//			if (DEBUG)
-//				System.out.println("Aborted build because project is involved in a cycle or has classpath problems"); //$NON-NLS-1$
-//
-//			// remove all existing class files... causes all dependent projects to do the same
-//			new BatchImageBuilder(this).scrubOutputFolder();
-//
-//			removeProblemsFor(currentProject); // make this the only problem for this project
-//			return false;
-//		}
-//	}
-//
-//	// make sure all prereq projects have valid build states
-//	IProject[] requiredProjects = getRequiredProjects();
-//	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
-//		IProject p = requiredProjects[i];
-//		if (getLastState(p) == null)  {
-//			if (!abortBuilds && !p.isOpen()) continue next; // skip closed projects if we're not aborting builds because of classpath problems
-//			if (DEBUG)
-//				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
-//					+ " was not built"); //$NON-NLS-1$
-//
-//			// remove all existing class files... causes all dependent projects to do the same
-//			new BatchImageBuilder(this).scrubOutputFolder();
-//
-//			removeProblemsFor(currentProject); // make this the only problem for this project
-//			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
-//			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
-//			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-//			return false;
-//		}
-//	}
+	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(OPTION_InvalidClasspathSwitch));
+	abortBuilds = true;
+	if (abortBuilds) {
+		IMarker[] markers =
+			currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+		if (markers.length > 0) {
+			if (DEBUG)
+				System.out.println("Aborted build because project is involved in a cycle or has classpath problems"); //$NON-NLS-1$
+
+			// remove all existing class files... causes all dependent projects to do the same
+			new BatchImageBuilder(this).scrubOutputFolder();
+
+			removeProblemsFor(currentProject); // make this the only problem for this project
+			return false;
+		}
+	}
+
+	// make sure all prereq projects have valid build states
+	IProject[] requiredProjects = getRequiredProjects();
+	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
+		IProject p = requiredProjects[i];
+		if (getLastState(p) == null)  {
+			if (!abortBuilds && !p.isOpen()) continue next; // skip closed projects if we're not aborting builds because of classpath problems
+			if (DEBUG)
+				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
+					+ " was not built"); //$NON-NLS-1$
+
+			// remove all existing class files... causes all dependent projects to do the same
+			new BatchImageBuilder(this).scrubOutputFolder();
+
+			removeProblemsFor(currentProject); // make this the only problem for this project
+			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			return false;
+		}
+	}
 	return true;
 }
 
