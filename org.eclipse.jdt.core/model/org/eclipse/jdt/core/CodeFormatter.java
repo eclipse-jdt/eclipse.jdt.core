@@ -20,6 +20,11 @@ import java.util.Map;
 public abstract class CodeFormatter {
 
 	/**
+	 * Unknown kind
+	 */
+	public static final int K_UNKNOWN = 0x00;
+
+	/**
 	 * Kind used to format an expression
 	 */
 	public static final int K_EXPRESSION = 0x01;
