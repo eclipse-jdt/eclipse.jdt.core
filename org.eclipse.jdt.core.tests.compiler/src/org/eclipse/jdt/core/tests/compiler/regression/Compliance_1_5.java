@@ -2925,7 +2925,25 @@ public void test088() {
 		"----------\n"
 	);
 }
-
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089
+ */
+public void test089() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"    @interface I1 {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String argv[])   {\n" + 
+			"    	System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
