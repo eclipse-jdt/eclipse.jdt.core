@@ -51,7 +51,11 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 					// we could improve error msg here telling "cannot use compound assignment on final local variable"
 				}
-				localBinding.useFlag = flowInfo.isReachable() ? LocalVariableBinding.USED : LocalVariableBinding.FAKE_USED;
+				if (flowInfo.isReachable()) {
+					localBinding.useFlag = LocalVariableBinding.USED;
+				} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
+					localBinding.useFlag = LocalVariableBinding.FAKE_USED;
+				}
 		}
 	}
 	if (assignment.expression != null) {
@@ -126,7 +130,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 			}
-			localBinding.useFlag = flowInfo.isReachable() ? LocalVariableBinding.USED : LocalVariableBinding.FAKE_USED;
+			if (flowInfo.isReachable()) {
+				localBinding.useFlag = LocalVariableBinding.USED;
+			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
+				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
+			}
 	}
 	if (valueRequired) {
 		manageEnclosingInstanceAccessIfNecessary(currentScope);

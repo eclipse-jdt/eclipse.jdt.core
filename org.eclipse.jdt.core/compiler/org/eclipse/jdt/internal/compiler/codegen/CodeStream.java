@@ -4027,6 +4027,9 @@ public final void load(LocalVariableBinding localBinding) {
 			case 3 :
 				this.iload_3();
 				break;
+			//case -1 :
+			// internal failure: trying to load variable not supposed to be generated
+			//	break;
 			default :
 				this.iload(resolvedPosition);
 		}
@@ -5154,6 +5157,8 @@ public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
 			sort(tab, lo, hi0, result);
 	}
 }
+
+// TODO: should be rewritten to use a switch(type.id)
 public final void store(LocalVariableBinding localBinding, boolean valueRequired) {
 	TypeBinding type = localBinding.type;
 	int position = localBinding.resolvedPosition;
@@ -5174,6 +5179,9 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 			case 3 :
 				this.istore_3();
 				break;
+			//case -1 :
+			// internal failure: trying to store into variable not supposed to be generated
+			//	break;
 			default :
 				this.istore(position);
 		}
