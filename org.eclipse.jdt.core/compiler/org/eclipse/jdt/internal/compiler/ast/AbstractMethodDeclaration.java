@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.parser.*;
 
 public abstract class AbstractMethodDeclaration
@@ -150,9 +151,34 @@ public abstract class AbstractMethodDeclaration
 		if (this.thrownExceptions != null
 			&& this.binding != null
 			&& this.binding.thrownExceptions != null) {
+			int thrownExceptionLength = this.thrownExceptions.length;
 			int length = this.binding.thrownExceptions.length;
-			for (int i = 0; i < length; i++) {
-				this.thrownExceptions[i].binding = this.binding.thrownExceptions[i];
+			if (length == thrownExceptionLength) {
+				for (int i = 0; i < length; i++) {
+					this.thrownExceptions[i].binding = this.binding.thrownExceptions[i];
+				}
+			} else {
+				int bindingIndex = 0;
+				for (int i = 0; i < thrownExceptionLength && bindingIndex < length; i++) {
+					TypeReference thrownException = this.thrownExceptions[i];
+					ReferenceBinding thrownExceptionBinding = this.binding.thrownExceptions[bindingIndex];
+					char[][] bindingCompoundName = thrownExceptionBinding.compoundName;
+					if (thrownException instanceof SingleTypeReference) {
+						// single type reference
+						int lengthName = bindingCompoundName.length;
+						char[] thrownExceptionTypeName = thrownException.getTypeName()[0];
+						if (CharOperation.equals(thrownExceptionTypeName, bindingCompoundName[lengthName - 1])) {
+							thrownException.binding = thrownExceptionBinding;
+							bindingIndex++;
+						}
+					} else {
+						// qualified type reference
+						if (CharOperation.equals(thrownException.getTypeName(), bindingCompoundName)) {
+							thrownException.binding = thrownExceptionBinding;
+							bindingIndex++;
+						}						
+					}
+				}
 			}
 		}
 	}
