@@ -11,7 +11,11 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
@@ -52,7 +56,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test432"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test436"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -73,6 +77,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return null;
 	}
 
+	private String getResource(String packageName, String resourceName) {
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = workspaceRoot.findMember(new Path("/Formatter/" + packageName + "/" + resourceName));
+		assertNotNull("No resource found", resource);
+		return resource.getLocation().toOSString();
+	}	
+	
 	public String getSourceWorkspacePath() {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
@@ -4922,9 +4933,62 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49351
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49370
 	 */
-	public void _test432() {
-		DecodeCodeFormatterPreferences.decodeCodeFormatterOptions("e:/downloads/Formatter_settings_bug49298.xml");
-	}	
+	public void test432() {
+		String resourcePath = getResource("test432", "formatter.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "AIS");
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test432", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49370
+	 */
+	public void test433() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test433", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49660
+	 */
+	public void test434() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.message_send_arguments_alignment = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN | Alignment.M_FORCE;
+		preferences.insert_space_within_message_send = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test434", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49772
+	 */
+	public void test435() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.method_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.block_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test435", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49772
+	 */
+	public void test436() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.method_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+		preferences.block_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test436", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

@@ -2374,6 +2374,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 * Package declaration
 		 */
 		if (compilationUnitDeclaration.currentPackage != null) {
+			this.scribe.printComment();
 			// OPTION
 			// dump the package keyword
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;

@@ -8,6 +8,7 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.parsers.FactoryConfigurationError;
@@ -21,10 +22,16 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class DecodeCodeFormatterPreferences extends DefaultHandler {
 	
-	public static Map decodeCodeFormatterOptions(String fileName) {
+	private boolean record;
+	private Map entries;
+	private String profileName;
+
+	public static Map decodeCodeFormatterOptions(String fileName, String profileName) {
 		try {
 			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			saxParser.parse(new File(fileName), new DecodeCodeFormatterPreferences());
+			final DecodeCodeFormatterPreferences preferences = new DecodeCodeFormatterPreferences(profileName);
+			saxParser.parse(new File(fileName), preferences);
+			return preferences.getEntries();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException e) {
@@ -33,8 +40,31 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		}
+		/*try {
+			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			Element rootNode;
+
+			try {
+				DocumentBuilder parser =
+					DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				rootNode = parser.parse(new InputSource(reader)).getDocumentElement();
+				return rootNode;
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+			} finally {
+				reader.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
 		return null;
+	}
+
+	DecodeCodeFormatterPreferences(String profileName) {
+		this.profileName = profileName;
 	}
 
 	/* (non-Javadoc)
@@ -42,11 +72,19 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 	 */
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
-		System.out.println(localName);
-		System.out.println(qName);
+		
 		int attributesLength = attributes.getLength();
-		for (int i = 0; i < attributesLength; i++) {
-			System.out.println("\t" + attributes.getValue(i));
+		if ("profile".equals(qName)) {
+			if (attributesLength == 1) {
+				if ("name".equals(attributes.getQName(0)) && profileName.equals(attributes.getValue(0))) {
+					record = true;
+					entries = new HashMap();
+				}
+			}
+		} else if ("setting".equals(qName) && record) {
+			if (attributesLength == 2) {
+				entries.put(attributes.getValue(0), attributes.getValue(1));
+			}
 		}
 	}
 	/* (non-Javadoc)
@@ -54,7 +92,14 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 	 */
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		System.out.println(localName);
-		System.out.println(qName);
+		if ("profile".equals(qName) && record) {
+			record = false;
+		}
+	}
+	/**
+	 * @return Returns the entries.
+	 */
+	public Map getEntries() {
+		return entries;
 	}
 }
