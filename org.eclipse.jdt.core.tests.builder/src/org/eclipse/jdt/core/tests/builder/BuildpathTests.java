@@ -227,4 +227,53 @@ public class BuildpathTests extends Tests {
 			bin.append("p2").append("Test3.class") //$NON-NLS-1$ //$NON-NLS-2$
 		});
 	}
+	public void testClasspathFileChange() throws JavaModelException {
+		// create project with src folder, and alternate unused src2 folder
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Test1 extends Zork1 {}" //$NON-NLS-1$
+		);
+		// not yet on the classpath
+		IPath src2Path = env.addFolder(projectPath, "src2"); //$NON-NLS-1$
+		IPath src2p1Path = env.addFolder(src2Path, "p1"); //$NON-NLS-1$
+		env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Zork1 {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved or is not a valid superclass", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		//----------------------------
+		//           Step 2
+		//----------------------------	
+		StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		buffer.append("<classpath>\n");
+		buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n");
+		buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change
+		String[] classlibs = Util.getJavaClassLibs();
+		for (int i = 0; i < classlibs.length; i++) {
+			buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n");
+		}
+		buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n");
+		buffer.append("</classpath>");
+		
+		boolean wasAutoBuilding = env.isAutoBuilding();
+		try {
+			// turn autobuild on
+			env.setAutoBuilding(true);
+			// write new .classpath
+			env.addFile(projectPath, ".classpath", buffer.toString());
+			// ensures the builder did see the classpath change
+			incrementalBuild();
+			expectingNoProblems();
+		} finally {
+			env.setAutoBuilding(wasAutoBuilding);
+		}
+	}	
 }
