@@ -61,6 +61,10 @@ public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModel
  * <p>
  * Resources must not overlap, e.g. one cannot include a folder and its children.
  * </p>
+ * Projects are treated specialy: if a project is included in the search scope, 
+ * its source folders, the jars internal to the project and its external jars 
+ * are added for free. Jars that are contained in other projects must be included 
+ * explicitely.
  *
  * @param resources the resources the scope is limited to
  * @return a new java search scope
