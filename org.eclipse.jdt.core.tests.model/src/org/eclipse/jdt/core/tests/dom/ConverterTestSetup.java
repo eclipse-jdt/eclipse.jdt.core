@@ -71,14 +71,14 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		} else {
 			//check that the two files, jclMin.jar and jclMinsrc.zip are present
 			//copy either file that is missing
-			if (!jclMin.exists()) {
-				java.io.File resourceJCLMin =
-					new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
+			java.io.File resourceJCLMin =
+				new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
+			if (!jclMin.exists() || jclMin.length() != resourceJCLMin.length()) {
 				copy(resourceJCLMin, jclMin);
 			}
-			if (!jclMinsrc.exists()) {
-				java.io.File resourceJCLMinsrc =
-					new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
+			java.io.File resourceJCLMinsrc =
+				new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
+			if (!jclMinsrc.exists() || jclMinsrc.length() != resourceJCLMinsrc.length()) {
 				copy(resourceJCLMinsrc, jclMinsrc);
 			}
 		}
