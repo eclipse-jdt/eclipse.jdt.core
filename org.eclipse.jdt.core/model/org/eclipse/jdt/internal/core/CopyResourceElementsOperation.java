@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.*;
 
 import org.eclipse.core.resources.*;
@@ -230,7 +228,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	private void processCompilationUnitResource(ICompilationUnit source, PackageFragment dest) throws JavaModelException {
 		String newCUName = getNewNameFor(source);
 		String destName = (newCUName != null) ? newCUName : source.getElementName();
-		String newContent = updatedContent(source, dest, newCUName); // null if unchanged
+		ASTRewrite rewrite = updateContent(source, dest, newCUName); // null if unchanged
 	
 		// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
 		// store encoding (fix bug 66898)
@@ -249,7 +247,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		if (!destFile.equals(sourceResource)) {
 			try {
 				if (destFile.exists()) {
-					if (force) {
+					if (this.force) {
 						// we can remove it
 						deleteResource(destFile, IResource.KEEP_HISTORY);
 					} else {
@@ -259,12 +257,12 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 							Util.bind("status.nameCollision", destFile.getFullPath().toString()))); //$NON-NLS-1$
 					}
 				}
-				int flags = force ? IResource.FORCE : IResource.NONE;
+				int flags = this.force ? IResource.FORCE : IResource.NONE;
 				if (this.isMove()) {
 					flags |= IResource.KEEP_HISTORY;
 					sourceResource.move(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 				} else {
-					if (newContent != null) flags |= IResource.KEEP_HISTORY;
+					if (rewrite != null) flags |= IResource.KEEP_HISTORY;
 					sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 				}
 				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
@@ -275,32 +273,12 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 	
 			// update new resource content
-			if (newContent != null){
+			if (rewrite != null){
 				boolean wasReadOnly = destFile.isReadOnly();
 				try {
-					String encoding = null;
-					try {
-						// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
-						// fix bug 66898
-						if (sourceEncoding != null) destFile.setCharset(sourceEncoding, this.progressMonitor);
-						// end todo
-						encoding = destFile.getCharset();
-					}
-					catch (CoreException ce) {
-						// use no encoding
-					}
-					// when the file was copied, its read-only flag was preserved -> temporary set it to false
-					// note this doesn't interfer with repository providers as this is a new resource that cannot be under
-					// version control yet
-					Util.setReadOnly(destFile, false);
-					
-					destFile.setContents(
-						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
-						force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-						getSubProgressMonitor(1));
-				} catch(IOException e) {
-					throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+					saveContent(dest, destName, rewrite, sourceEncoding, destFile);
 				} catch (CoreException e) {
+					if (e instanceof JavaModelException) throw (JavaModelException) e;
 					throw new JavaModelException(e);
 				} finally {
 					Util.setReadOnly(destFile, wasReadOnly);
@@ -319,7 +297,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				prepareDeltas(source.getType(oldName), destCU.getType(newName), isMove());
 			}
 		} else {
-			if (!force) {
+			if (!this.force) {
 				throw new JavaModelException(new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
 					Util.bind("status.nameCollision", destFile.getFullPath().toString()))); //$NON-NLS-1$
@@ -328,26 +306,11 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// in case we do a saveas on the same resource we have to simply update the contents
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 			try {
-				if (newContent != null){
-					String encoding = null;
-					try {
-						// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
-						// fix bug 66898
-						if (sourceEncoding != null) destFile.setCharset(sourceEncoding, this.progressMonitor);
-						// end todo
-						encoding = destFile.getCharset();
-					}
-					catch (CoreException ce) {
-						// use no encoding
-					}
-					destFile.setContents(
-						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
-						force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
-						getSubProgressMonitor(1));
+				if (rewrite != null){
+					saveContent(dest, destName, rewrite, sourceEncoding, destFile);
 				}
-			} catch(IOException e) {
-				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			} catch (CoreException e) {
+				if (e instanceof JavaModelException) throw (JavaModelException) e;
 				throw new JavaModelException(e);
 			}
 		}
@@ -498,7 +461,16 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						if (Util.isExcluded(cu.getPath(), inclusionPatterns, exclusionPatterns, false/*not a folder*/)) continue;
 						this.parser.setSource(cu);
 						CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
-						updatePackageStatement(astCU, newFragName, getDocument(cu));
+						AST ast = astCU.getAST();
+						ASTRewrite rewrite = ASTRewrite.create(ast);
+						updatePackageStatement(astCU, newFragName, rewrite);
+						IDocument document = getDocument(cu);
+						TextEdit edits = rewrite.rewriteAST(document, null);
+						try {
+							edits.apply(document);
+						} catch (BadLocationException e) {
+							throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
+						}			
 						cu.save(null, false);
 					}
 				}
@@ -553,13 +525,37 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			throw new JavaModelException(ce);
 		}
 	}
+	private void saveContent(PackageFragment dest, String destName, ASTRewrite rewrite, String sourceEncoding, IFile destFile) throws JavaModelException {
+		try {
+			// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
+			// fix bug 66898
+			if (sourceEncoding != null) destFile.setCharset(sourceEncoding, this.progressMonitor);
+			// end todo
+		}
+		catch (CoreException ce) {
+			// use no encoding
+		}
+		// when the file was copied, its read-only flag was preserved -> temporary set it to false
+		// note this doesn't interfer with repository providers as this is a new resource that cannot be under
+		// version control yet
+		Util.setReadOnly(destFile, false);
+		ICompilationUnit destCU = dest.getCompilationUnit(destName);
+		IDocument document = getDocument(destCU);
+		TextEdit edits = rewrite.rewriteAST(document, null);
+		try {
+			edits.apply(document);
+		} catch (BadLocationException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
+		}
+		destCU.save(getSubProgressMonitor(1), this.force);
+	}
 	/**
 	 * Updates the content of <code>cu</code>, modifying the type name and/or package
 	 * declaration as necessary.
 	 *
-	 * @return the new source
+	 * @return an AST rewrite or null if no rewrite needed
 	 */
-	private String updatedContent(ICompilationUnit cu, PackageFragment dest, String newName) throws JavaModelException {
+	private ASTRewrite updateContent(ICompilationUnit cu, PackageFragment dest, String newName) throws JavaModelException {
 		String[] currPackageName = ((PackageFragment) cu.getParent()).names;
 		String[] destPackageName = dest.names;
 		if (Util.equalArraysOrNull(currPackageName, destPackageName) && newName == null) {
@@ -571,16 +567,16 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			cu.makeConsistent(this.progressMonitor);
 			this.parser.setSource(cu);
 			CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
-			IDocument document = getDocument(cu);
-			updateTypeName(cu, astCU, cu.getElementName(), newName, document);
-			updatePackageStatement(astCU, destPackageName, document);
-			return document.get();
+			AST ast = astCU.getAST();
+			ASTRewrite rewrite = ASTRewrite.create(ast);
+			updateTypeName(cu, astCU, cu.getElementName(), newName, rewrite);
+			updatePackageStatement(astCU, destPackageName, rewrite);
+			return rewrite;
 		}
 	}
-	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, IDocument document) throws JavaModelException {
+	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, ASTRewrite rewriter) throws JavaModelException {
 		boolean defaultPackage = pkgName.length == 0;
 		AST ast = astCU.getAST();
-		ASTRewrite rewriter = ASTRewrite.create(ast);
 		if (defaultPackage) {
 			// remove existing package statement
 			if (astCU.getPackage() != null)
@@ -598,12 +594,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, pkg, null);
 			}
 		}
- 		TextEdit edits = rewriter.rewriteAST(document, null);
- 		try {
-	 		edits.apply(document);
- 		} catch (BadLocationException e) {
- 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
- 		}
 	}
 	
 	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, IPackageFragmentRoot root, String[] newFragName) {
@@ -634,12 +624,11 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		/**
 	 * Renames the main type in <code>cu</code>.
 	 */
-	private void updateTypeName(ICompilationUnit cu, CompilationUnit astCU, String oldName, String newName, IDocument document) throws JavaModelException {
+	private void updateTypeName(ICompilationUnit cu, CompilationUnit astCU, String oldName, String newName, ASTRewrite rewriter) throws JavaModelException {
 		if (newName != null) {
 			String oldTypeName= oldName.substring(0, oldName.length() - 5);
 			String newTypeName= newName.substring(0, newName.length() - 5);
 			AST ast = astCU.getAST();
-			ASTRewrite rewriter = ASTRewrite.create(ast);
 			// update main type name
 			IType[] types = cu.getTypes();
 			for (int i = 0, max = types.length; i < max; i++) {
@@ -665,12 +654,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					}
 				}
 			}
-	 		TextEdit edits = rewriter.rewriteAST(document, null);
-	 		try {
-		 		edits.apply(document);
-	 		} catch (BadLocationException e) {
-	 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
-	 		}
 		}
 	}
 	/**

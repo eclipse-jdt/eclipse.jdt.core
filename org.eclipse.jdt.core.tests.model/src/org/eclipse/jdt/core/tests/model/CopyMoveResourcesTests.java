@@ -126,9 +126,10 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 			} else {
 				moved = generateHandle(element, names[i], destinations[i]);
 			}
-			// ensure the original element no longer exists, unless moving within the same container
+			// ensure the original element no longer exists, unless moving within the same container, or moving a primary working copy
 			if (!destinations[i].equals(element.getParent())) {
-				assertTrue("The original element must not exist", !element.exists());
+				if (element.getElementType() != IJavaElement.COMPILATION_UNIT || !((ICompilationUnit) element).isWorkingCopy())
+					assertTrue("The original element must not exist", !element.exists());
 			}
 			assertTrue("Moved element should exist", moved.exists());
 	
@@ -950,6 +951,34 @@ public void testMoveWorkingCopy() throws CoreException {
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
 	
 		moveNegative(copy, pkgDest, null, null, false, IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
+	} finally {
+		if (copy != null) copy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensures that a primary working copy can be moved to a different package
+ * and that its buffer doesn't contain unsaved changed after the move.
+ * (regression test for bug 83599 CU dirty after move refactoring)
+ */
+public void testMoveWorkingCopy2() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		copy = getCompilationUnit("/P/src/p1/X.java");
+		copy.becomeWorkingCopy(null, null);
+	
+		this.createFolder("/P/src/p2");
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+	
+		movePositive(copy, pkgDest, null, null, false);
+		assertTrue("Should not have unsaved changes", !copy.getBuffer().hasUnsavedChanges());
 	} finally {
 		if (copy != null) copy.discardWorkingCopy();
 	}
