@@ -6,7 +6,7 @@ STREAM: 2.0
 
   JBL
   ================================================================================
-  * Search PRs.
+  * Search PRs. 
 
   KJ
   ================================================================================
@@ -39,7 +39,6 @@ STREAM: 2.0
 
   PM
   ================================================================================
-  * Classpath rework (classpath entry export feature)
   * JCK1.4 compliance flow analysis
   1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
   1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - DASG - assigned variable before catch block after return statement
@@ -110,7 +109,25 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
+  * Classpath entries (except for source folders) can be tagged as exported. When
+    exported, an entry is contributed to dependent projects along with its output
+    location.
+    Added APIs:
+    
+    Testing and changing status of a given entry
+     + IClasspathEntry.isExported()
+     + IClasspathEntry.setExported(boolean)
+     
+    Creating entries with export flag
+     + JavaCore.newProjectEntry(IPath, boolean)
+     + JavaCore.newLibraryEntry(IPath, IPath, IPath, boolean)
+     + JavaCore.newVariableEntry(IPath, boolean)
+     
+    Helper method computing a resolved and expanded path (all exports from prerequisites)
+     + IJavaProject.getExpandedClasspath(boolean)
+
   * CodeAssist inserts qualification on field/method references in case of ambiguities.
+
   * API Changes on ICompletionRequestor
   	+ Added API for answering method declaration completions:
       void acceptMethodDeclaration(
@@ -168,7 +185,7 @@ STREAM: 2.0
   ===============================================================================
   1GKRLZ4: ITPJCORE:WIN2000 - Compiler overzealous with commas
   1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as a compilation unit?
-
+  1G98XR7: ITPJCORE:WIN2000 - Feature Request for JavaDoc CodeAssist
 
 **********************************************************************************
 *** STABLE CONTENT (2.0 STREAM, v_202_01) ****************************************
@@ -195,7 +212,8 @@ STREAM: 2.0
   1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath: Compares against variable name
   1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown  
   1GKM4M9: ITPJCORE:WINNT - DCR: code select should work on declarations
-
+  1G2NZVT: ITPJUI:WIN2000 - DCR - OpenOnSelection - Code resolve doesn't work for declarations
+  
   PRs Closed in this Release
   ===============================================================================
   1GKK930: ITPJCORE:WINNT - No code assist for Inner type

@@ -65,7 +65,7 @@ private Object[] computeNonJavaResources(JavaProject project) {
 	boolean srcIsProject = false;
 	boolean binIsProject = false;
 	try {
-		IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+		IClasspathEntry[] classpath = project.getExpandedClasspath(true);
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (projectPath.equals(entry.getPath())) {

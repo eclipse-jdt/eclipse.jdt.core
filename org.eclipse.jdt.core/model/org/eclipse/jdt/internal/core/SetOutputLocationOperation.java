@@ -67,7 +67,7 @@ protected Vector determineAffectedPackageFragments(IPath location) throws JavaMo
 	if (resource != null && resource.getType() == IResource.FOLDER) {
 		IFolder folder = (IFolder) resource;
 		// only changes if it actually existed
-		IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+		IClasspathEntry[] classpath = project.getExpandedClasspath(true);
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
 			IPath path = classpath[i].getPath();
@@ -171,7 +171,7 @@ public IJavaModelStatus verify() {
 	IJavaProject javaProject= (IJavaProject)getElementToProcess();
 	IPath projectPath= javaProject.getProject().getFullPath();	
 	try {
-		classpath = javaProject.getResolvedClasspath(true);
+		classpath = javaProject.getExpandedClasspath(true);
 	} catch (JavaModelException e) {
 		return e.getJavaModelStatus();
 	}

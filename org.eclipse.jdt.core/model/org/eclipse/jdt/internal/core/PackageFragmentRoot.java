@@ -122,7 +122,7 @@ public IPackageFragment createPackageFragment(String name, boolean force, IProgr
  * 		not exist.
  */
 protected int determineKind(IResource underlyingResource) throws JavaModelException {
-	IClasspathEntry[] entries= getJavaProject().getResolvedClasspath(true);
+	IClasspathEntry[] entries= getJavaProject().getExpandedClasspath(true);
 	for (int i= 0; i < entries.length; i++) {
 		IClasspathEntry entry= entries[i];
 		if (entry.getPath().equals(underlyingResource.getFullPath())) {

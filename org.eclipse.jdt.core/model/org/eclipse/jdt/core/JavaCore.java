@@ -321,7 +321,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// Create a jar package fragment root only if on the classpath
 		IPath resourcePath = file.getFullPath();
 		try {
-			IClasspathEntry[] entries = project.getResolvedClasspath(true);
+			IClasspathEntry[] entries = project.getExpandedClasspath(true);
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				IPath rootPath = entry.getPath();
@@ -343,7 +343,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		IJavaProject project) {
 		IPath resourcePath = resource.getFullPath();
 		try {
-			IClasspathEntry[] entries = project.getResolvedClasspath(true);
+			IClasspathEntry[] entries = project.getExpandedClasspath(true);
 			for (int i = 0; i < entries.length; i++) {
 				IClasspathEntry entry = entries[i];
 				IPath rootPath = entry.getPath();
@@ -1062,7 +1062,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 									&& sourcePath.segment(0).equals(variableName))
 								|| ((sourceRootPath = oldEntry.getSourceAttachmentRootPath()) != null
 									&& sourceRootPath.segment(0).equals(variableName))) {
-								affectedProjects.put(projects[i], projects[i].getResolvedClasspath(true));
+								affectedProjects.put(projects[i], projects[i].getExpandedClasspath(true));
 								continue nextProject;
 							}
 						}

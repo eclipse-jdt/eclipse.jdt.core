@@ -18,7 +18,7 @@ import java.util.*;
  * A Java-specific scope for searching relative to one or more projects.
  * The scope can be configured to follow the respective classpath of 
  * in-scope projects, and to not search binaries. By default, both classpaths 
- * and binaries are included.
+ * and binaries are included. 
  */
 public class JavaSearchScope extends AbstractSearchScope implements IJavaSearchScope {
 
@@ -47,7 +47,7 @@ public void add(IResource element) {
 		IJavaModel javaModel = JavaModelManager.getJavaModel(element.getWorkspace());
 		IJavaProject javaProject = javaModel.getJavaProject(element.getName());
 		try {
-			IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
+			IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				this.add(entry.getPath());
@@ -137,7 +137,7 @@ public IPath[] enclosingProjectsAndJars() {
 				if (!paths.contains(path)) paths.add(path);
 				if (this.includesClasspaths) {
 					IJavaProject javaProject = javaModel.getJavaProject(project.getName());
-					IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
+					IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
 					for (int j = 0; j < entries.length; j++) {
 						IClasspathEntry entry = entries[j];
 						switch (entry.getEntryKind()) {

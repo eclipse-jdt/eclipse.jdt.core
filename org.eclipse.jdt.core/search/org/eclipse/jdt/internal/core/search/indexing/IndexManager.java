@@ -228,6 +228,7 @@ public void indexAll(IProject project){
 	try {
 		IJavaModel model = JavaModelManager.getJavaModel(this.workspace);
 		IJavaProject javaProject = ((JavaModel) model).getJavaProject(project);	
+		// only consider immediate libraries - each project will do the same
 		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);	
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
