@@ -320,7 +320,7 @@ public void test007() {
 		assertTrue(false);
 	}
 }
-public void _test008() { 
+public void test008() { 
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
