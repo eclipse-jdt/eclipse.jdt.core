@@ -439,17 +439,17 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	/**
-	 * @see IClasspathEntry#isExported()
-	 */
-	public boolean isExported() {
-		return this.isExported;
-	}
-
-	/**
 	 * @see IClasspathEntry#isCleaningOutputLocation()
 	 */
 	public boolean isCleaningOutputLocation() {
 		return this.isCleaningOutputLocation;
+	}
+
+	/**
+	 * @see IClasspathEntry#isExported()
+	 */
+	public boolean isExported() {
+		return this.isExported;
 	}
 
 	/**

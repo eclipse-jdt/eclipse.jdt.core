@@ -53,7 +53,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	boolean needSave;
 	
 	IPath newOutputLocation;
-	boolean newIsCleaning; // TODO: implement change wrt newIsCleaning
+	boolean newIsCleaning; 
 	
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
 	public static final IClasspathEntry[] UpdateClasspath = new IClasspathEntry[0];

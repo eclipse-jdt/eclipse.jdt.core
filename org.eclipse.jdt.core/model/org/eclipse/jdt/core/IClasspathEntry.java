@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added exclusion patterns to source entries
- *     IBM             Corporation - added specific output location to source entries, and cleaning flag
+ *     IBM Corporation - added specific output location to source entries, and cleaning flag
  * *****************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -331,6 +331,15 @@ public interface IClasspathEntry {
 	IPath getSourceAttachmentRootPath();
 	
 	/**
+	 * Returns whether the Java builder is allowed to clean the specific
+	 * output location for this source entry (entry kind <code>CPE_SOURCE</code>).
+	 * <p>
+	 * @return <code>true</code> if the output location can be cleaned by the Java builder.
+	 * @since 2.1
+	 */
+	boolean isCleaningOutputLocation();
+
+	/**
 	 * Returns whether this entry is exported to dependent projects.
 	 * Always returns <code>false</code> for source entries (kind
 	 * <code>CPE_SOURCE</code>), which cannot be exported.
@@ -339,15 +348,6 @@ public interface IClasspathEntry {
 	 * @since 2.0
 	 */
 	boolean isExported();
-	
-	/**
-	 * Returns whether the Java builder is allowed to clean the specific
-	 * output location for this source entry (entry kind <code>CPE_SOURCE</code>).
-	 * <p>
-	 * @return <code>true</code> if the output location can be cleaned by the Java builder.
-	 * @since 2.1
-	 */
-	boolean isCleaningOutputLocation();
 	
 	/**
 	 * This is a helper method, which returns the resolved classpath entry denoted 
