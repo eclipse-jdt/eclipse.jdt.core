@@ -335,7 +335,7 @@ protected int determineKind(IResource underlyingResource) throws JavaModelExcept
 /**
  * Compares two objects for equality;
  * for <code>PackageFragmentRoot</code>s, equality is having the
- * same <code>JavaModel</code>, same resources, and occurrence count.
+ * same parent, same resources, and occurrence count.
  *
  */
 public boolean equals(Object o) {
@@ -345,7 +345,8 @@ public boolean equals(Object o) {
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return this.resource.equals(other.resource) &&
-			this.occurrenceCount == other.occurrenceCount;
+			this.occurrenceCount == other.occurrenceCount && 
+			this.parent.equals(other.parent);
 }
 
 /**
@@ -832,19 +833,19 @@ public void move(
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
-	if (getElementName().length() == 0) {
-		buffer.append("<project root>"); //$NON-NLS-1$
-	} else {
-		IPath path = getPath();
-		if (getJavaProject().getElementName().equals(path.segment(0))) {
+	IPath path = getPath();
+	if (getJavaProject().getElementName().equals(path.segment(0))) {
+	    if (path.segmentCount() == 1) {
+	buffer.append("<project root>"); //$NON-NLS-1$
+	    } else {
 			buffer.append(path.removeFirstSegments(1).makeRelative());
-		} else {
-		    if (isExternal()) {
-				buffer.append(path.toOSString());
-		    } else {
-				buffer.append(path);
-		    }
-		}
+	    }
+	} else {
+	    if (isExternal()) {
+			buffer.append(path.toOSString());
+	    } else {
+			buffer.append(path);
+	    }
 	}
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$

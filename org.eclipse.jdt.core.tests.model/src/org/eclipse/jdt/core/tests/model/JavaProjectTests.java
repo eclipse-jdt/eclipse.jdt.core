@@ -68,6 +68,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testProjectGetPackageFragments"));
 	suite.addTest(new JavaProjectTests("testRootGetPackageFragments"));
 	suite.addTest(new JavaProjectTests("testRootGetPackageFragments2"));
+	suite.addTest(new JavaProjectTests("testRootGetPackageFragments3"));
 	suite.addTest(new JavaProjectTests("testInternalArchiveCorrespondingResource"));
 	suite.addTest(new JavaProjectTests("testExternalArchiveCorrespondingResource"));
 	suite.addTest(new JavaProjectTests("testProjectCorrespondingResource"));
@@ -832,7 +833,7 @@ public void testProjectClose() throws JavaModelException, CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[-]: {}\n" + 
+			"JavaProjectTests[*]: {CLOSED}\n" + 
 			"ResourceDelta(/JavaProjectTests)"
 		);
 	} finally {
@@ -842,7 +843,7 @@ public void testProjectClose() throws JavaModelException, CoreException {
 			project.open(null);
 			assertDeltas(
 				"Unexpected delta 2",
-				"JavaProjectTests[+]: {}\n" + 
+				"JavaProjectTests[*]: {OPENED}\n" + 
 				"ResourceDelta(/JavaProjectTests)"
 			);
 
@@ -941,6 +942,44 @@ public void testRootGetPackageFragments2() throws CoreException {
 			root.getChildren());
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/**
+ * Test that the correct package fragments exist in the project.
+ * (regression test for bug 65693 Package Explorer shows .class files instead of .java)
+ */
+public void testRootGetPackageFragments3() throws CoreException {
+	try {
+		IJavaProject p1 = createJavaProject("P1");
+		createFile(
+			"/P1/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		getProject("P1").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IJavaProject p2 = createJavaProject("P2");
+		editFile(
+			"/P2/.classpath", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"\"/>\n" +
+			"    <classpathentry kind=\"lib\" path=\"/P1\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"\"/>\n" +
+			"</classpath>"
+		);
+		IPackageFragment pkg = p1.getPackageFragmentRoot(p1.getProject()).getPackageFragment("");
+		assertElementsEqual(
+			"Unexpected packages for P1",
+			"X.java [in <default> [in <project root> [in P1]]]",
+			pkg.getChildren());
+		pkg = p2.getPackageFragmentRoot(p1.getProject()).getPackageFragment("");
+		assertElementsEqual(
+			"Unexpected packages for P2",
+			"X.class [in <default> [in /P1 [in P2]]]",
+			pkg.getChildren());	
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /**
