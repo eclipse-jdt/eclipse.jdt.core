@@ -17,4 +17,5 @@ package org.eclipse.jdt.core;
  * </p>
  */
 public interface IInitializer extends IMember {
+	// interface used as a marker: defines no member
 }

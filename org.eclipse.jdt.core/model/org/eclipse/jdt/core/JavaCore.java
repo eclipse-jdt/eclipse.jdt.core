@@ -2913,6 +2913,7 @@ public final class JavaCore extends Plugin {
 		try {
 			updateVariableValues(new String[]{ variableName}, new IPath[]{ null }, monitor);
 		} catch (JavaModelException e) {
+			// cannot happen: ignore
 		}
 	}
 
