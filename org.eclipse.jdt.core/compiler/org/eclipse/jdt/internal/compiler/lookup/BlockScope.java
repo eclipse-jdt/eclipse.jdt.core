@@ -216,7 +216,8 @@ public class BlockScope extends Scope {
 				boolean generatesLocal =
 					(local.used && (local.constant == Constant.NotAConstant)) || local.isArgument;
 				if (!local.used
-					&& (local.declaration != null)) { // unused (and non secret) local
+					&& (local.declaration != null) // unused (and non secret) local
+					&& ((local.declaration.bits & AstNode.IsReachableMASK) != 0)) { // declaration is reachable
 					if (local.isArgument) // method argument
 						this.problemReporter().unusedArgument(local.declaration);
 					else if (!(local.declaration instanceof Argument)) // catch variable

@@ -1201,6 +1201,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "1.3", "1.4" }
 	 *     - default:				"1.3"
 	 * 
+	 * COMPILER / Setting JCK Compliance Level
+	 *    Select the JCK compliance level for the compiler.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.compliance"
+	 *     - possible values:	{ "1.3", "1.4" }
+	 *     - default:				"1.3"
+	 * 
 	 *	JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
 	 *    the classpath prerequisite chain. When requesting to compute, this takes over

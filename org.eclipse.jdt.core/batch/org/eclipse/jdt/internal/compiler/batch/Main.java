@@ -267,6 +267,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	final int InsideLog = 8;
 	final int InsideRepetition = 16;
 	final int InsideSource = 32;
+	final int InsideJCK = 64;
 	final int Default = 0;
 	int DEFAULT_SIZE_CLASSPATH = 4;
 	boolean warnOptionInUsed = false;
@@ -305,6 +306,10 @@ private void configure(String[] argv) throws InvalidInputException {
 		}
 		if (currentArg.equals("-source")) { //$NON-NLS-1$
 			mode = InsideSource;
+			continue;
+		}
+		if (currentArg.equals("-jck")) { //$NON-NLS-1$
+			mode = InsideJCK;
 			continue;
 		}
 		if (currentArg.equals("-d")) { //$NON-NLS-1$
@@ -506,6 +511,17 @@ private void configure(String[] argv) throws InvalidInputException {
 				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.source",currentArg)); //$NON-NLS-1$
+			}
+			mode = Default;
+			continue;
+		}
+		if (mode == InsideJCK){
+			if (currentArg.equals("1.3")) { //$NON-NLS-1$
+				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+			} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+			} else {
+				throw new InvalidInputException(Main.bind("configure.jck",currentArg)); //$NON-NLS-1$
 			}
 			mode = Default;
 			continue;

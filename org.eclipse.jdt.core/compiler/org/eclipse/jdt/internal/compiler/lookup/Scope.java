@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -956,6 +957,10 @@ public abstract class Scope
 									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
 							}
 							if (memberType.isValidBinding()) {
+								// from 1.4 on, the JLS 8.5.1 is followed
+								if (environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+									return memberType;
+								}
 								if (sourceType == memberType.enclosingType()) {
 									// found a valid type in the 'immediate' scope (ie. not inherited)
 									if (foundType == null)

@@ -36,9 +36,9 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
+	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
 
 	/* should surface ??? */
-	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
 
 	/**
@@ -97,6 +97,10 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 	public static final int JDK1_4 = 3;
 	
 	public int targetJDK = JDK1_1; // default generates for JVM1.1
+	public int complianceLevel = JDK1_3; // by default produce be compliant with 1.3
+
+	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
+	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
 
 	// 1.4 feature
 	public boolean assertMode = false; //1.3 behavior by default
@@ -115,9 +119,6 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 
 	// exception raised for unresolved compile errors
 	public String runtimeExceptionNameForCompileError = "java.lang.Error"; //$NON-NLS-1$
-
-	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
-	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
 
 	/** 
 	 * Initializing the compiler options with defaults
@@ -215,6 +216,19 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 					this.targetJDK = JDK1_3;
 				} else if (optionValue.equals(VERSION_1_4)) {
 					this.targetJDK = JDK1_4;
+				}
+				continue;
+			} 
+			// Define the JDK compliance level
+			if(optionID.equals(OPTION_Compliance)){
+				if (optionValue.equals(VERSION_1_1)) {
+					this.complianceLevel = JDK1_1;
+				} else if (optionValue.equals(VERSION_1_2)) {
+					this.complianceLevel = JDK1_2;
+				} else if (optionValue.equals(VERSION_1_3)) {
+					this.complianceLevel = JDK1_3;
+				} else if (optionValue.equals(VERSION_1_4)) {
+					this.complianceLevel = JDK1_4;
 				}
 				continue;
 			} 

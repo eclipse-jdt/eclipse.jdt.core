@@ -16,10 +16,6 @@ public void find(File f, String pattern, boolean verbose) {
 	}
 	find0(f, pattern, verbose);
 	System.arraycopy(resultFiles, 0, (resultFiles = new String[counter]), 0, counter);
-	if (verbose) {
-		System.out.println();
-		System.out.println(Main.bind("scanning.done",f.getAbsolutePath())); //$NON-NLS-1$
-	}
 }
 public void find0(File f, String pattern, boolean verbose) {
 	if (f.isDirectory()) {
