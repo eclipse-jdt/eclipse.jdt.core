@@ -67,7 +67,7 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 		extType = "class"; //$NON-NLS-1$
 	}
 	try {
-		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).getExclusionPatterns();
+		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).fullExclusionPatternChars();
 		IResource[] members = ((IContainer) resource).members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];

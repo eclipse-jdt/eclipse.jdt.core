@@ -65,7 +65,7 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 		// is actually the package fragment root)
 		if (fResource.getType() == IResource.FOLDER || fResource.getType() == IResource.PROJECT) {
 			ArrayList vChildren = new ArrayList(5);
-			char[][] exclusionPatterns = getExclusionPatterns();
+			char[][] exclusionPatterns = fullExclusionPatternChars();
 			computeFolderChildren((IContainer) fResource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
@@ -173,7 +173,7 @@ public boolean exists() {
 }
 /*
  * Returns the exclusion patterns from the classpath entry associated with this root. */
-char[][] getExclusionPatterns() {
+char[][] fullExclusionPatternChars() {
 	try {
 		ClasspathEntry entry = (ClasspathEntry)getRawClasspathEntry();
 		if (entry == null) {

@@ -46,7 +46,7 @@ Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot r
 				PackageFragmentRootInfo.computeFolderNonJavaResources(
 					(JavaProject)rootHandle.getJavaProject(), 
 					(IContainer)underlyingResource, 
-					rootHandle.getExclusionPatterns());
+					rootHandle.fullExclusionPatternChars());
 		} catch (JavaModelException e) {
 		}
 		fNonJavaResources = nonJavaResources;

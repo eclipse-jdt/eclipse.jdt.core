@@ -133,7 +133,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 		JavaElementDelta projectDelta = null;
 		String[] names = org.eclipse.jdt.internal.core.Util.getTrimmedSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
-		char[][] exclusionsPatterns = ((PackageFragmentRoot)root).getExclusionPatterns();
+		char[][] exclusionsPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 		for (int i = 0; i < names.length; i++) {
 			String subFolderName = names[i];
 			sideEffectPackageName.append(subFolderName);

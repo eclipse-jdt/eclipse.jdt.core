@@ -71,7 +71,7 @@ protected void executeOperation() throws JavaModelException {
 	IContainer parentFolder = (IContainer) root.getResource();
 	String sideEffectPackageName = ""; //$NON-NLS-1$
 	ArrayList resultElements = new ArrayList(names.length);
-	char[][] exclusionPatterns = ((PackageFragmentRoot)root).getExclusionPatterns();
+	char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 	int i;
 	for (i = 0; i < names.length; i++) {
 		String subFolderName = names[i];

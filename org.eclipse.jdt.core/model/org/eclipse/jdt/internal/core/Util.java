@@ -668,11 +668,11 @@ public class Util {
 			case IJavaElement.PACKAGE_FRAGMENT:
 				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				IResource resource = element.getResource();
-				return resource != null && Util.isExcluded(resource, root.getExclusionPatterns());
+				return resource != null && Util.isExcluded(resource, root.fullExclusionPatternChars());
 			case IJavaElement.COMPILATION_UNIT:
 				root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				resource = element.getResource();
-				if (resource != null && Util.isExcluded(resource, root.getExclusionPatterns()))
+				if (resource != null && Util.isExcluded(resource, root.fullExclusionPatternChars()))
 					return true;
 				return isExcluded(element.getParent());
 			default:

@@ -101,7 +101,7 @@ private Object[] computeNonJavaResources(IJavaProject project, IResource underly
 				computeFolderNonJavaResources(
 					(JavaProject)project, 
 					(IContainer) underlyingResource,  
-					handle.getExclusionPatterns());
+					handle.fullExclusionPatternChars());
 		}
 	} catch (JavaModelException e) {
 	}
