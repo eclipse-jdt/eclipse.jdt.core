@@ -37,12 +37,14 @@ public abstract class IndexRequest implements IJob {
 		this.manager.aboutToUpdateIndex(indexPath, updatedIndexState());
 		return true;
 	}
+	/*
+	 * This code is assumed to be invoked while monitor has read lock
+	 */
 	protected void saveIfNecessary(IIndex index, ReadWriteMonitor monitor) throws IOException {
 		/* if index has changed, commit these before querying */
 		if (index.hasChanged()) {
 			try {
-				monitor.exitRead(); // free read lock
-				monitor.enterWrite(); // ask permission to write
+				monitor.exitReadEnterWrite(); // free read lock, and ask permission to write
 				this.manager.saveIndex(index);
 			} finally {
 				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
