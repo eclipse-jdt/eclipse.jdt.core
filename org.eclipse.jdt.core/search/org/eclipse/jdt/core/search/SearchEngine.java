@@ -90,18 +90,6 @@ public class SearchEngine {
 		public void endReporting() {
 			this.resultCollector.done();
 		}
-		/**
-		 * @see org.eclipse.jdt.core.search.SearchRequestor#enterParticipant(org.eclipse.jdt.core.search.SearchParticipant)
-		 */
-		public void enterParticipant(SearchParticipant participant) {
-			// Nothing to do since only one Java search participant
-		}
-		/**
-		 * @see org.eclipse.jdt.core.search.SearchRequestor#exitParticipant(org.eclipse.jdt.core.search.SearchParticipant)
-		 */
-		public void exitParticipant(SearchParticipant participant) {
-			// Nothing to do since only one Java search participant
-		}
 	}
 		
 	/*

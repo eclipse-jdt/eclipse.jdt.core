@@ -13,21 +13,17 @@ package org.eclipse.jdt.core.search;
 import org.eclipse.core.runtime.CoreException;
 
 /**
- * A <code>SearchRequestor</code> collects search results from a <code>search</code>
- * query to a <code>SearchEngine</code>. Clients must implement this interface and pass
- * an instance to the <code>search(...)</code> methods. When a search starts, the <code>beginReporting()</code>
- * method is called, then 0 or more call to <code>acceptSearchMatch(...)</code> are done, finally the
- * <code>endReporting()</code> method is called.
+ * Collects the results from a search engine query. 
+ * Clients implement a subclass to pass to <code>SearchEngine.search</code>
+ * and implement the {@link #acceptSearchMatch(SearchMatch)} method, and
+ * possibly override other life cycle methods.
  * <p>
- * Results provided to this collector may be accurate - in this case they have an <code>A_ACCURATE</code> accuracy -
- * or they might be potential matches only - they have a <code>A_INACCURATE</code> accuracy. This last
- * case can occur when a problem prevented the <code>SearchEngine</code> from resolving the match.
- * </p>
- * <p>
- * The order of the results is unspecified. Clients must not rely on this order to display results, 
- * but they should sort these results (for example, in syntactical order).
- * <p>
- * Clients may subclass this class.
+ * The search engine calls <code>beginReporting()</code> when a search starts,
+ * then calls <code>acceptSearchMatch(...)</code> for each search result, and
+ * finally calls <code>endReporting()</code>. The order of the search results
+ * is unspecified and may vary from request to request; when displaying results,
+ * clients should not rely on the order but should instead arrange the results
+ * in an order that would be more meaningful to the user.
  * </p>
  *
  * @see SearchEngine
@@ -39,35 +35,61 @@ public abstract class SearchRequestor {
 	 * Accepts the given search match.
 	 *
 	 * @param match the found match
-	 * @exception CoreException if this collector had a problem accepting the search result
 	 */
+	// TODO (jerome) - remove throws CoreException
 	public abstract void acceptSearchMatch(SearchMatch match) throws CoreException;
 
 	/**
 	 * Notification sent before starting the search action.
-	 * Typically, this would tell a search requestor to clear previously recorded search results.
+	 * Typically, this would tell a search requestor to clear previously
+	 * recorded search results.
+	 * <p>
+	 * The default implementation of this method does nothing. Subclasses
+	 * may override.
+	 * </p>
 	 */
-	public abstract void beginReporting();
+	public void beginReporting() {
+		// do nothing
+	}
 
 	/**
 	 * Notification sent after having completed the search action.
 	 * Typically, this would tell a search requestor collector that no more results  should be expected in this
 	 * iteration.
+	 * <p>
+	 * The default implementation of this method does nothing. Subclasses
+	 * may override.
+	 * </p>
 	 */
-	public abstract void endReporting();
+	public void endReporting() {
+		// do nothing
+	}
 
 	/**
-	 * Intermediate notification sent when a given participant is starting to contribute.
+	 * Intermediate notification sent when a given participant is starting to
+	 * contribute.
+	 * <p>
+	 * The default implementation of this method does nothing. Subclasses
+	 * may override.
+	 * </p>
 	 * 
 	 * @param participant the participant that is starting to contribute
 	 */
-	public abstract void enterParticipant(SearchParticipant participant);
+	public void enterParticipant(SearchParticipant participant) {
+		// do nothing
+	}
 
 	/**
-	 * Intermediate notification sent when a given participant is finished contributing.
+	 * Intermediate notification sent when a given participant is finished
+	 * contributing.
+	 * <p>
+	 * The default implementation of this method does nothing. Subclasses
+	 * may override.
+	 * </p>
 	 * 
 	 * @param participant the participant that finished contributing
 	 */
-	public abstract void exitParticipant(SearchParticipant participant);
-
+	public void exitParticipant(SearchParticipant participant) {
+		// do nothing
+	}
 }

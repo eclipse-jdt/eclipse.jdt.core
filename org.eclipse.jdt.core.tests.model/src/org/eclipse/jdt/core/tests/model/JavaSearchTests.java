@@ -264,17 +264,6 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 			results.append(((JavaElement)type).occurrenceCount);
 		}
 	}
-	public void beginReporting() {
-	}
-	public void endReporting() {
-	}
-	public void enterParticipant(SearchParticipant participant) {
-	}
-	public void exitParticipant(SearchParticipant participant) {
-	}
-	public IProgressMonitor getProgressMonitor() {
-		return null;
-	}
 	public String toString() {
 		return results.toString();
 	}
@@ -692,10 +681,6 @@ public void testCoreException() throws CoreException {
 		public void acceptSearchMatch(SearchMatch match) throws CoreException {
 			throw new CoreException(new JavaModelStatus(-1, "test"));
 		}
-		public void beginReporting() {}
-		public void endReporting() {}
-		public void enterParticipant(SearchParticipant participant) {}
-		public void exitParticipant(SearchParticipant participant) {}
 	};
 	try {
 		search(
