@@ -1677,7 +1677,10 @@ class ASTConverter {
 	public AssertStatement convert(org.eclipse.jdt.internal.compiler.ast.AssertStatement statement) {
 		AssertStatement assertStatement = this.ast.newAssertStatement();
 		assertStatement.setExpression(convert(statement.assertExpression));
-		assertStatement.setMessage(convert(statement.exceptionArgument));
+		org.eclipse.jdt.internal.compiler.ast.Expression exceptionArgument = statement.exceptionArgument;
+		if (exceptionArgument != null) {
+			assertStatement.setMessage(convert(exceptionArgument));
+		}
 		assertStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		return assertStatement;
 	}
