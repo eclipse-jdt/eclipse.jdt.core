@@ -13318,4 +13318,32 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83611
+	public void test493() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public class M<T> { M(Class<T> templateClass) {} }\n" + 
+				"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"	void test() { M<X> m = new M<X>(X.class); }\n" + 
+				"}\n"			
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"	void test() { M<X> m = new M<X>(X.class); }\n" + 
+				"}\n"			
+			},
+			"",
+			null,
+			false,
+			null
+		);
+	}
 }

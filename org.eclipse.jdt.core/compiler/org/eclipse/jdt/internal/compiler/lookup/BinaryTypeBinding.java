@@ -373,12 +373,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 				wrapper.start++; // skip ')'
 			} else {
 				java.util.ArrayList types = new java.util.ArrayList(2);
-				int startIndex = (method.isConstructor() && isMemberType() && !isStatic()) ? 1 : 0;
-				if (startIndex == 1)
-					environment.getTypeFromTypeSignature(wrapper, typeVars, this); // skip synthetic argument
-				while (wrapper.signature[wrapper.start] != ')') {
+				while (wrapper.signature[wrapper.start] != ')')
 					types.add(environment.getTypeFromTypeSignature(wrapper, typeVars, this));
-				}
 				wrapper.start++; // skip ')'
 				parameters = new TypeBinding[types.size()];
 				types.toArray(parameters);
@@ -413,14 +409,12 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
-	if (use15specifics) {
+	if (use15specifics)
 		result.tagBits |= method.getTagBits();
-	}
 	result.typeVariables = typeVars;
 	// fixup the declaring element of the type variable
-	for (int i = 0, length = typeVars.length; i < length; i++) {
+	for (int i = 0, length = typeVars.length; i < length; i++)
 		typeVars[i].declaringElement = result;
-	}
 	return result;
 }
 /**
