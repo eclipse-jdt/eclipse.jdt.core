@@ -97,31 +97,62 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(name);
+		if (node != null) {
+			if (node instanceof SingleNameReference) {
+				SingleNameReference singleNameReference = (SingleNameReference) node;
+				if (singleNameReference.isTypeReference()) {
+					return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
+				} else {
+					// this is a variable or a field
+					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
+				}
+			} else if (node instanceof QualifiedNameReference) {
+				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
+				
+				if (qualifiedNameReference.isTypeReference()) {
+					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+				} else {
+					// this is a variable or a field
+					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1]);				
+				}
+			}
+		}
+		// this might be a inner qualified name or simple name inside a qualified name
+		int index = 1;
+		QualifiedName firstQualifier = null;
+		Name firstName = name;
+		if (name.isSimpleName()) {
+			if (name.getParent() instanceof QualifiedName) {
+				name = (QualifiedName) name.getParent();
+				firstQualifier = (QualifiedName) name;
+			} else {
+				return super.resolveName(name);
+			}
+		}
+		while (name.getParent() instanceof QualifiedName) {
+			index++;
+			name = (QualifiedName) name.getParent();
+		}
+		// now we can retrieve the enclosing compiler's node corresponding to the inner name
+		node = (AstNode) this.newAstToOldAst.get(name);
 		if (node == null) {
 			return super.resolveName(name);
-		}
-		if (node instanceof SingleNameReference) {
-			SingleNameReference singleNameReference = (SingleNameReference) node;
-			if (singleNameReference.isFieldReference()) {
-				return this.getVariableBinding(singleNameReference.fieldBinding());
-			} else if (singleNameReference.isTypeReference()) {
-				return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
-			} else {
-				// this is a variable
-				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
-			}
-		} else if (node instanceof QualifiedNameReference) {
+		} else {
 			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
-			if (qualifiedNameReference.isFieldReference()) {
-				return this.getVariableBinding(qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1]);
-			} else if (qualifiedNameReference.isTypeReference()) {
-				this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+			if (firstQualifier != null) {
+				// handle the first simple name in a qualified name a.b.c.d (handles the 'a' case)
+				Name firstQualifierName = firstQualifier.getQualifier();
+				if (firstQualifierName.isSimpleName() && firstName == firstQualifierName) {
+					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
+				}
+			}
+			if (qualifiedNameReference.isTypeReference()) {
+				return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
 			} else {
-				// this is a variable
-				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1]);				
+				// this is a variable or a field
+				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - index]);				
 			}
 		}
-		return super.resolveName(name);
 	}
 
 	/**
@@ -209,6 +240,9 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (expression instanceof Name) {
 			IBinding binding = this.resolveName((Name) expression);
+			if (binding == null) {
+				return null;
+			}
 			switch(binding.getKind()) {
 				case IBinding.TYPE :
 					return (ITypeBinding) binding;
