@@ -125,7 +125,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 							if (copiedResource.exists()) {
 								IMarker marker = resource.createMarker(ProblemMarkerTag);
 								marker.setAttribute(IMarker.MESSAGE, Util.bind("build.duplicateResource"));
-								marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+								marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
 							} else {
 								resource.copy(copiedResource.getFullPath(), true, null);
 							}
