@@ -1012,14 +1012,21 @@ public abstract class Scope
 		boolean isCompliant14 = unitScope.environment.options.complianceLevel >= ClassFileConstants.JDK1_4;
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
+		boolean mustBePublic = receiverType.isInterface();
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 
-			if (isCompliant14 && matchingMethod != null || found.size > 0) {
+			if (isCompliant14 && (mustBePublic || matchingMethod != null || found.size > 0)) {
 				nextMethod: for (int i = 0; i < currentLength; i++) {
 					MethodBinding currentMethod = currentMethods[i];
+					if (mustBePublic && !currentMethod.isPublic()) { // only public methods from Object are visible to interface receiverTypes
+						currentLength--;
+						currentMethods[i] = null;
+						continue nextMethod;
+					}
+
 					// if 1.4 compliant, must filter out redundant protected methods from superclasses
 					// protected method need to be checked only - default access is already dealt with in #canBeSeen implementation
 					// when checking that p.C -> q.B -> p.A cannot see default access members from A through B.

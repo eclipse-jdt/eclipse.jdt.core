@@ -3374,6 +3374,26 @@ public void test098() {
 		"Duplicate field X.Y.this$0\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=77349
+public void test099() {
+	this.runNegativeTest(
+		new String[] {
+			"I.java",
+			"public interface I extends Cloneable {\n" + 
+			"	class Inner {\n" +
+			"		Object bar(I i) throws CloneNotSupportedException { return i.clone(); }\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in I.java (at line 3)\n" + 
+		"	Object bar(I i) throws CloneNotSupportedException { return i.clone(); }\n" + 
+		"	                                                             ^^^^^\n" + 
+		"The method clone() is undefined for the type I\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
