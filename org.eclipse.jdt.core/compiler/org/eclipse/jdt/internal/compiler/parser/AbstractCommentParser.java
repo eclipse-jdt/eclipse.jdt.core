@@ -453,6 +453,7 @@ public abstract class AbstractCommentParser {
 			}
 			if (typeRef == null) {
 				if (firstArg && this.currentTokenType == TerminalTokens.TokenNameRPAREN) {
+					this.lineStarted = true;
 					return createMethodReference(receiver, null);
 				}
 				break nextArg;
@@ -614,6 +615,12 @@ public abstract class AbstractCommentParser {
 		int end = getEndPosition() - 1;
 		end = start > end ? getEndPosition() : end;
 		if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeReference(start, end);
+		// Reset position: we want to rescan last token
+		if (this.currentTokenType != -1) {
+			this.index = getEndPosition();
+			this.scanner.currentPosition = getEndPosition();
+			this.currentTokenType = -1;
+		}
 		return null;
 	}
 
@@ -705,6 +712,12 @@ public abstract class AbstractCommentParser {
 						return null;
 					}
 					if ((iToken % 2) == 0) { // cannot leave on a dot
+						// Reset position: we want to rescan last token
+						if (this.kind == DOM_PARSER && this.currentTokenType != -1) {
+							this.index = previousPosition;
+							this.scanner.currentPosition = previousPosition;
+							this.currentTokenType = -1;
+						}
 						throw new InvalidInputException();
 					}
 					break nextToken;
