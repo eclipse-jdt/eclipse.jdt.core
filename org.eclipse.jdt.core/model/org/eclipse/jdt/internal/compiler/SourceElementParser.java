@@ -1136,7 +1136,7 @@ private ISourceElementRequestor.TypeParameterInfo[] getTypeParameterInfos(TypePa
 		typeParameterInfo.name = typeParameter.name;
 		typeParameterInfo.nameSourceStart = typeParameter.sourceStart;
 		typeParameterInfo.nameSourceEnd = typeParameter.sourceEnd;
-		typeParameterInfo.typeParameterBounds = typeParameterBounds;
+		typeParameterInfo.bounds = typeParameterBounds;
 		result[i] = typeParameterInfo;
 	}
 	return result;

@@ -271,13 +271,13 @@ protected void enterAbtractMethod(MethodInfo methodInfo) {
 public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
 	if (currentMethod.typeParameterNames == null) {
 		currentMethod.typeParameterNames = new char[][] {typeParameterInfo.name};
-		currentMethod.typeParameterBounds = new char[][][] {typeParameterInfo.typeParameterBounds};
+		currentMethod.typeParameterBounds = new char[][][] {typeParameterInfo.bounds};
 	} else {
 		int length = currentMethod.typeParameterNames.length;
 		System.arraycopy(currentMethod.typeParameterNames, 0, currentMethod.typeParameterNames = new char[length+1][],0, length);
 		currentMethod.typeParameterNames[length] = typeParameterInfo.name;
 		System.arraycopy(currentMethod.typeParameterBounds, 0, currentMethod.typeParameterBounds = new char[length+1][][],0, length);
-		currentMethod.typeParameterBounds[length] = typeParameterInfo.typeParameterBounds;
+		currentMethod.typeParameterBounds[length] = typeParameterInfo.bounds;
 	}
 }
 public void exitClass(int declarationEnd) {

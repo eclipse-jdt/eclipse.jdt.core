@@ -156,7 +156,7 @@ public void enterClass(TypeInfo typeInfo) {
 		typeParameterSignatures = new char[typeParametersLength][];
 		for (int i = 0; i < typeParametersLength; i++) {
 			ISourceElementRequestor.TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.typeParameterBounds == null ? CharOperation.NO_CHAR_CHAR : typeParameterInfo.typeParameterBounds);
+			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.bounds == null ? CharOperation.NO_CHAR_CHAR : typeParameterInfo.bounds);
 		}
 	}
 	this.indexer.addClassDeclaration(typeInfo.modifiers, this.packageName, typeInfo.name, typeNames, typeInfo.superclass, typeInfo.superinterfaces, typeParameterSignatures);
@@ -229,7 +229,7 @@ public void enterInterface(TypeInfo typeInfo) {
 		typeParameterSignatures = new char[typeParametersLength][];
 		for (int i = 0; i < typeParametersLength; i++) {
 			ISourceElementRequestor.TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.typeParameterBounds);
+			typeParameterSignatures[i] = Signature.createTypeParameterSignature(typeParameterInfo.name, typeParameterInfo.bounds);
 		}
 	}
 	this.indexer.addInterfaceDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames, typeInfo.superinterfaces, typeParameterSignatures);

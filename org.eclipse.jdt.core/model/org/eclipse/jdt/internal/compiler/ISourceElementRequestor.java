@@ -54,7 +54,7 @@ public interface ISourceElementRequestor {
 		public char[] name;
 		public int nameSourceStart;
 		public int nameSourceEnd;
-		public char[][] typeParameterBounds;
+		public char[][] bounds;
 	}
 	
 	public static class MethodInfo {
