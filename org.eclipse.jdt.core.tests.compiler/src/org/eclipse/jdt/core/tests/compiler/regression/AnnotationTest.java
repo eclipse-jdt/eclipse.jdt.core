@@ -642,7 +642,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			new String[] {
 				"Foo.java",
 				"public @interface Foo {\n" + 
-				"		byte value() default 255;\n" + 
+				"		byte value() default (byte)255;\n" + 
 				"}\n"
 			},
 			"");
@@ -714,7 +714,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			new String[] {
 				"Foo.java",
 				"public @interface Foo {\n" + 
-				"		short value() default 1024;\n" + 
+				"		short value() default (short)1024;\n" + 
 				"}\n"
 			},
 			"");
@@ -1026,6 +1026,35 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	protected int value = 0;\n" + 
 			"	              ^^^^^\n" + 
 			"Illegal modifier for the annotation field X.value; only public, static & final are permitted\n" + 
+			"----------\n");
+	}
+	
+	// check incompatible default values
+	public void test045() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface X {\n" + 
+				"    int id () default 10L; \n" + 
+				"    int[] ids() default { 10L };\n" + 
+				"    Class cls() default new Object();\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int id () default 10L; \n" + 
+			"	                  ^^^\n" + 
+			"Type mismatch: cannot convert from long to int\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	int[] ids() default { 10L };\n" + 
+			"	                      ^^^\n" + 
+			"Type mismatch: cannot convert from long to int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	Class cls() default new Object();\n" + 
+			"	                    ^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to Class\n" + 
 			"----------\n");
 	}			
 }

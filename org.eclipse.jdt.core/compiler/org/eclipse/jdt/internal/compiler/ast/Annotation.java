@@ -50,6 +50,16 @@ public abstract class Annotation extends Expression {
 		if (memberValue == null) 
 			return;
 		
+		TypeBinding memberValueType = memberValue.resolvedType;
+		if (memberValueType != null) {
+			if (!memberValueType.isCompatibleWith(requiredType)) {
+				scope.problemReporter().typeMismatchError(memberValueType, requiredType, memberValue);
+				return; // may allow to proceed to find more errors at once
+			} else {
+				scope.compilationUnitScope().recordTypeConversion(requiredType, memberValueType);
+			}
+		}
+		
 		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
 		checkAnnotationMethodType: {
 			TypeBinding leafType = requiredType.leafComponentType();
