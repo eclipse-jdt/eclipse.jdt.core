@@ -576,6 +576,9 @@ public class CodeFormatter implements TerminalSymbols {
 					}
 				}
 				switch (token) {
+					case TokenNamesynchronized :
+						indentationLevel += pushControlStatement(token);
+						break;
 					case TokenNameelse :
 					case TokenNamefinally :
 						expectingOpenBrace = true;
