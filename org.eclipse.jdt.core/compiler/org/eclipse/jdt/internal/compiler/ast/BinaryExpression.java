@@ -1670,14 +1670,36 @@ public class BinaryExpression extends OperatorExpression {
 			constant = Constant.NotAConstant;
 			return null;
 		}
-		int leftTypeId = leftType.id;
-		int rightTypeId = rightType.id;
-		if (leftTypeId > 15
-			|| rightTypeId > 15) { // must convert String + Object || Object + String
-			if (leftTypeId == T_String) {
-				rightTypeId = T_Object;
-			} else if (rightTypeId == T_String) {
-				leftTypeId = T_Object;
+
+		int leftTypeID = leftType.id;
+		int rightTypeID = rightType.id;
+
+		// autoboxing support
+		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		boolean unboxedLeft = false, unboxedRight = false;
+		if (use15specifics) {
+			if (leftType.isBaseType()) {
+				if (!rightType.isBaseType()) {
+					int unboxedID = scope.computeBoxingType(rightType).id;
+					if (unboxedID != rightTypeID) {
+						rightTypeID = unboxedID;
+						unboxedRight = true;
+					}
+				}
+			} else if (rightType.isBaseType()) {
+				int unboxedID = scope.computeBoxingType(leftType).id;
+					if (unboxedID != leftTypeID) {
+						leftTypeID = unboxedID;
+						unboxedLeft = true;
+					}
+			}
+		}
+		if (leftTypeID > 15
+			|| rightTypeID > 15) { // must convert String + Object || Object + String
+			if (leftTypeID == T_String) {
+				rightTypeID = T_Object;
+			} else if (rightTypeID == T_String) {
+				leftTypeID = T_Object;
 			} else {
 				constant = Constant.NotAConstant;
 				scope.problemReporter().invalidOperator(this, leftType, rightType);
@@ -1685,13 +1707,13 @@ public class BinaryExpression extends OperatorExpression {
 			}
 		}
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
-			if (leftTypeId == T_String) {
+			if (leftTypeID == T_String) {
 				this.left.computeConversion(scope, leftType, leftType);
 				if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == CharBinding) {
 					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
 				}
 			}
-			if (rightTypeId == T_String) {
+			if (rightTypeID == T_String) {
 				this.right.computeConversion(scope, rightType, rightType);
 				if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == CharBinding) {
 					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
@@ -1707,9 +1729,9 @@ public class BinaryExpression extends OperatorExpression {
 		// Don't test for result = 0. If it is zero, some more work is done.
 		// On the one hand when it is not zero (correct code) we avoid doing the test	
 		int operator = (bits & OperatorMASK) >> OperatorSHIFT;
-		int operatorSignature = OperatorSignatures[operator][(leftTypeId << 4) + rightTypeId];
-		left.implicitConversion = operatorSignature >>> 12;
-		right.implicitConversion = (operatorSignature >>> 4) & 0xFF;
+		int operatorSignature = OperatorSignatures[operator][(leftTypeID << 4) + rightTypeID];
+		left.implicitConversion = (unboxedLeft ? UNBOXING : 0) | (operatorSignature >>> 12);
+		right.implicitConversion = (unboxedRight ? UNBOXING : 0) | ((operatorSignature >>> 4) & 0xFF);
 
 		bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // record the current ReturnTypeID
@@ -1746,10 +1768,10 @@ public class BinaryExpression extends OperatorExpression {
 
 		// check need for operand cast
 		if (leftIsCast || rightIsCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, operator, operatorSignature, left, leftTypeId, leftIsCast, right, rightTypeId, rightIsCast);
+			CastExpression.checkNeedForArgumentCasts(scope, operator, operatorSignature, left, leftTypeID, leftIsCast, right, rightTypeID, rightIsCast);
 		}
 		// compute the constant when valid
-		computeConstant(scope, leftTypeId, rightTypeId);
+		computeConstant(scope, leftTypeID, rightTypeID);
 		return this.resolvedType;
 	}
 
