@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
  * Default implementation of IAnnotationComponent
  */
 public class AnnotationComponentValue extends ClassFileStruct implements IAnnotationComponentValue {
+	private static final IAnnotationComponentValue[] NO_VALUES = new AnnotationComponentValue[0];
+	
 	private IAnnotationComponentValue[] annotationComponentValues;
 	private IAnnotation attributeValue;
 	private IConstantPoolEntry classFileInfo;
@@ -121,6 +123,8 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 						this.annotationComponentValues[i] = value;
 						this.readOffset += value.sizeInBytes();
 					}
+				} else {
+					this.annotationComponentValues = NO_VALUES;
 				}
 				break;
 		}
