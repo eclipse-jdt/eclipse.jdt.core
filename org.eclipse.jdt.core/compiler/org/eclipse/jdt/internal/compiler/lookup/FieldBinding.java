@@ -84,6 +84,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 					return false;
 				}
 				if (isStatic()){
+					if (depth > 0) invocationSite.setDepth(depth);
 					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
 				}
 				if (currentType == receiverType || currentType.isSuperclassOf((ReferenceBinding) receiverType)){
