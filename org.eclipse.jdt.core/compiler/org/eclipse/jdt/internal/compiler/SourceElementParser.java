@@ -432,7 +432,6 @@ public NameReference getUnspecifiedReference() {
 				identifierPositionStack[identifierPtr--]); 
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
-//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	} else {
@@ -447,10 +446,6 @@ public NameReference getUnspecifiedReference() {
 				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
-/*			requestor.acceptUnknownReference(
-				ref.tokens, 
-				ref.sourceStart(), 
-				ref.sourceEnd()); */
 		}
 		return ref;
 	}
@@ -474,7 +469,6 @@ public NameReference getUnspecifiedReferenceOptimized() {
 		ref.bits |= LOCAL | FIELD;
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
-//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	}
@@ -498,10 +492,6 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	ref.bits |= LOCAL | FIELD;
 	if (reportReferenceInfo) {
 		this.addUnknownRef(ref);
-/*		requestor.acceptUnknownReference(
-			ref.tokens, 
-			ref.sourceStart(), 
-			ref.sourceEnd());*/
 	}
 	return ref;
 }
