@@ -427,10 +427,12 @@ public final class CompilationUnitSorter {
 	 * sorted. Reasons include:
 	 * <ul>
 	 * <li> The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * <li> The given compilation unit is not a working copy</li>
+	 * <li> The given compilation unit is not a working copy (INVALID_ELEMENT_TYPES)</li>
 	 * <li> A <code>CoreException</code> occurred while accessing the underlying
 	 * resource
 	 * </ul>
+	 * @exception IllegalArgumentException if the given compilation unit is null or if the given
+	 * comparator is null.
 	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
 	 * @see #DefaultJavaElementComparator
 	 * @see #RELATIVE_ORDER
