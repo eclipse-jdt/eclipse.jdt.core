@@ -106,7 +106,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"	}\n" + 
 					"}\n"
 			},
-			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:54:SNZ:D"
+			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:41:SNZ:D"
 		);
 	}
 	// check assignment to enum constant is disallowed
