@@ -10438,4 +10438,93 @@ class C extends B implements IDoubles {
 			""
 		);
 	}		
+	
+	// 76132
+	public void test397() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface K1<A> { \n" + 
+				"        public <B extends A> void kk(K1<B> x); \n" + 
+				"} \n" + 
+				" \n" + 
+				"class K2<C> implements K1<C> { \n" + 
+				"        public <D extends C> void kk(K1<D> y) { \n" + 
+				"                System.out.println(\"K2::kk(\" + y.toString() + \")\"); \n" + 
+				"        } \n" + 
+				"} \n" + 
+				" \n" + 
+				"// --------------------------------------------------- \n" + 
+				" \n" + 
+				"interface L1<E> { \n" + 
+				"        public void ll(L1<? extends E> a); \n" + 
+				"} \n" + 
+				" \n" + 
+				"class L2<KK> implements L1<KK> { \n" + 
+				"        public void ll(L1<? extends KK> b) { \n" + 
+				"                ll2(b); \n" + 
+				"        } \n" + 
+				" \n" + 
+				"        private <LL extends KK> void ll2(L1<LL> c) { \n" + 
+				"                System.out.println(\"L2::ll2(\" + c.toString() + \")\"); \n" + 
+				"        } \n" + 
+				"} \n" + 
+				" \n" + 
+				"// --------------------------------------------------- \n" + 
+				" \n" + 
+				"interface M1<H> { \n" + 
+				"        public void mm(M1<? extends H> p); \n" + 
+				"} \n" + 
+				" \n" + 
+				"class M2<I> implements M1<I> { \n" + 
+				"        public <J extends I> void mm(M1<J> q) { \n" + 
+				"                System.out.println(\"M2::mm(\" + q.toString() + \")\"); \n" + 
+				"        } \n" + 
+				"} \n" + 
+				" \n" + 
+				"// =================================================== \n" + 
+				" \n" + 
+				"class XX            { public String toString() { return \"XX\"; } } \n" + 
+				"class YY extends XX { public String toString() { return \"YY\"; } } \n" + 
+				"class ZZ extends YY { public String toString() { return \"ZZ\"; } } \n" + 
+				" \n" + 
+				"// --------------------------------------------------- \n" + 
+				" \n" + 
+				"public class X { \n" + 
+				"        public static void main(String arg[]) { \n" + 
+				"                goK(new K2<YY>()); \n" + 
+				"                goL(new L2<YY>()); \n" + 
+				"                goM(new M2<YY>()); \n" + 
+				"        } \n" + 
+				" \n" + 
+				" \n" + 
+				"        public static void goK(K1<YY> k) { \n" + 
+				"                // k.kk(new K2<XX>()); // Would fail \n" + 
+				"                k.kk(new K2<YY>()); \n" + 
+				"                k.kk(new K2<ZZ>()); \n" + 
+				"        } \n" + 
+				" \n" + 
+				" \n" + 
+				"        public static void goL(L1<YY> l) { \n" + 
+				"                // l.ll(new L2<XX>()); // Would fail \n" + 
+				"                l.ll(new L2<YY>()); \n" + 
+				"                l.ll(new L2<ZZ>()); \n" + 
+				"        } \n" + 
+				" \n" + 
+				" \n" + 
+				"        public static void goM(M1<YY> m) { \n" + 
+				"                // m.mm(new M2<XX>()); // Would fail \n" + 
+				"                m.mm(new M2<YY>()); \n" + 
+				"                m.mm(new M2<ZZ>()); \n" + 
+				"        } \n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 34)\n" + 
+			"	public <J extends I> void mm(M1<J> q) { \n" + 
+			"	                          ^^^^^^^^^^^\n" + 
+			"Name clash : The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<I> but does not override it\n" + 
+			"----------\n"
+		);
+	}			
 }
