@@ -88,8 +88,8 @@ public class IfStatement extends Statement {
 					thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
 			}
 		}
-		// optimizing the jump around the ELSE part
-		this.thenExit =  thenFlowInfo == FlowInfo.DEAD_END;
+		// code gen: optimizing the jump around the ELSE part
+		this.thenExit =  !thenFlowInfo.isReachable();
 
 		// process the ELSE part
 		FlowInfo elseFlowInfo = flowInfo.initsWhenFalse().copy();
@@ -106,36 +106,17 @@ public class IfStatement extends Statement {
 			}
 		}
 
-		boolean elseExit = elseFlowInfo == FlowInfo.DEAD_END;
-		
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo;
-//		if (isConditionOptimizedTrue){
-//			if (!this.thenExit) {
-//				mergedInfo = thenFlowInfo;
-//			} else {
-//				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
-//			}
-//
-//		} else if (isConditionOptimizedFalse) {
-//			if (!elseExit) {
-//				mergedInfo = elseFlowInfo;
-//			} else {
-//				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
-//			}
-//
-//		} else {
-//			mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
-//		}
 		if (isConditionOptimizedTrue){
-			if (!this.thenExit) {
+			if (thenFlowInfo != FlowInfo.DEAD_END) {
 				mergedInfo = thenFlowInfo.addPotentialInitializationsFrom(elseFlowInfo);
 			} else {
 				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
 
 		} else if (isConditionOptimizedFalse) {
-			if (!elseExit) {
+			if (elseFlowInfo != FlowInfo.DEAD_END) {
 				mergedInfo = elseFlowInfo.addPotentialInitializationsFrom(thenFlowInfo);
 			} else {
 				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
