@@ -345,28 +345,28 @@ public final class Signature {
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
-	public static int CLASS_TYPE_SIGNATURE = 1;
+	public static final int CLASS_TYPE_SIGNATURE = 1;
 
 	/**
 	 * Kind constant for a base (primitive or void) type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
-	public static int BASE_TYPE_SIGNATURE = 2;
+	public static final int BASE_TYPE_SIGNATURE = 2;
 
 	/**
 	 * Kind constant for a type variable signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
-	public static int TYPE_VARIABLE_SIGNATURE = 3;
+	public static final int TYPE_VARIABLE_SIGNATURE = 3;
 
 	/**
 	 * Kind constant for an array type signature.
 	 * @see #getTypeSignatureKind(String)
 	 * @since 3.0
 	 */
-	public static int ARRAY_TYPE_SIGNATURE = 4;
+	public static final int ARRAY_TYPE_SIGNATURE = 4;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
