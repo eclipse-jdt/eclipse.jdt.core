@@ -50,6 +50,8 @@ public class MethodReferenceMatch extends SearchMatch {
 	}
 
 	/**
+	 * Returns whether the reference is on a constructor.
+	 *
 	 * @return Returns whether the reference is on a constructor or not.
 	 */
 	public final boolean isConstructor() {
