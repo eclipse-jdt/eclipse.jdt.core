@@ -39,6 +39,7 @@ public static Test suite() {
 		addTest(suite, Compliance_1_4.class);	
 	}
 
+	addTest(suite, AnnotationTest.class);
 	addTest(suite, ArrayTest.class);
 	addTest(suite, AssignmentTest.class);
 	addTest(suite, BatchCompilerTest.class);
