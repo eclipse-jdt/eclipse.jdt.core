@@ -20,12 +20,10 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.test.performance.Dimension;
 
 public class BuildBatchCompilerTest extends Tests {
 
@@ -50,7 +48,7 @@ public class BuildBatchCompilerTest extends Tests {
 		return null;
 	}
 		
-	public void testBuildCompilerUsingBatchCompiler() throws IOException, CoreException {
+	public void testBuildCompilerUsingBatchCompiler() throws IOException {
 		String batchCompilerSource = getPluginDirectoryPath() + File.separator + "compiler-R3_0.zip"; //$NON-NLS-1$
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
@@ -61,7 +59,7 @@ public class BuildBatchCompilerTest extends Tests {
 		final String logs = compilerPath + File.separator + "log.txt"; //$NON-NLS-1$
 		Util.unzip(batchCompilerSource, targetWorkspacePath);
 
-		tagAsGlobalSummary("Build compiler source using batch compiler", Dimension.CPU_TIME); //$NON-NLS-1$
+		// Note this test is not a finger print test, so we don't want to use tagAsGlobalSummary(...)
 		Main.compile(sources + " -1.4 -g -preserveAllLocals -enableJavadoc -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
 		for (int i = 0; i < 10; i++) {
 			startMeasuring();
