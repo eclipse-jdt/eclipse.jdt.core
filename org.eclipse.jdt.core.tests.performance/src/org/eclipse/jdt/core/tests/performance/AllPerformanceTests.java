@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.performance;
 
 import org.eclipse.jdt.core.tests.junit.extension.PerformanceTestSuite;
-import org.eclipse.jdt.core.tests.model.NameLookupTests2;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -21,7 +20,6 @@ public class AllPerformanceTests extends TestCase {
 	public static Test suite() {
 		PerformanceTestSuite suite = new PerformanceTestSuite(AllPerformanceTests.class.getName());
 		suite.addTestSuite(FullSourceWorkspaceTests.class);
-		suite.addTestSuite(NameLookupTests2.class);
 		return suite;
 	}
 }

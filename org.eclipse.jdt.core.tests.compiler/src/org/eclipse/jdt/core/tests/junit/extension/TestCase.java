@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.junit.extension;
 
+import org.eclipse.test.performance.PerformanceTestCase;
+
 import junit.framework.ComparisonFailure;
 
-public class TestCase extends junit.framework.TestCase {
+public class TestCase extends PerformanceTestCase {
 	public TestCase(String name) {
 		super(name);
 	}

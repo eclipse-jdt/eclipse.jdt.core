@@ -15,6 +15,7 @@ import java.net.ServerSocket;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
@@ -465,6 +466,58 @@ public static String toNativePath(String path) {
 		nativePath.endsWith("/") || nativePath.endsWith("\\") ?
 			nativePath.substring(0, nativePath.length() - 1) :
 			nativePath;
+}
+/**
+ * Unzip the contents of the given zip in the given directory (create it if it doesn't exist)
+ */
+public static void unzip(String zipPath, String destDirPath) throws IOException {
+
+	InputStream zipIn = new FileInputStream(zipPath);
+	byte[] buf = new byte[8192];
+	File destDir = new File(destDirPath);
+	ZipInputStream zis = new ZipInputStream(zipIn);
+	FileOutputStream fos = null;
+	try {
+		ZipEntry zEntry;
+		while ((zEntry = zis.getNextEntry()) != null) {
+			// if it is empty directory, create it
+			if (zEntry.isDirectory()) {
+				new File(destDir, zEntry.getName()).mkdirs();
+				continue;
+			}
+			// if it is a file, extract it
+			String filePath = zEntry.getName();
+			int lastSeparator = filePath.lastIndexOf("/"); //$NON-NLS-1$
+			String fileDir = ""; //$NON-NLS-1$
+			if (lastSeparator >= 0) {
+				fileDir = filePath.substring(0, lastSeparator);
+			}
+			//create directory for a file
+			new File(destDir, fileDir).mkdirs();
+			//write file
+			File outFile = new File(destDir, filePath);
+			fos = new FileOutputStream(outFile);
+			int n = 0;
+			while ((n = zis.read(buf)) >= 0) {
+				fos.write(buf, 0, n);
+			}
+			fos.close();
+		}
+	} catch (IOException ioe) {
+		if (fos != null) {
+			try {
+				fos.close();
+			} catch (IOException ioe2) {
+			}
+		}
+	} finally {
+		try {
+			zipIn.close();
+			if (zis != null)
+				zis.close();
+		} catch (IOException ioe) {
+		}
+	}
 }
 public static void writeToFile(String contents, String destinationFilePath) {
 	File destFile = new File(destinationFilePath);
