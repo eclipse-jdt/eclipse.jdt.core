@@ -808,6 +808,9 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 					fieldDecls[f].binding = null;
 					return null;
 				}
+				if ((fieldType.tagBits & TagBits.UseTypeVariable) != 0) {
+					field.modifiers |= AccUseTypeVariable;
+				}				
 			} finally {
 			    initializationScope.initializedField = previousField;
 			}
