@@ -2440,7 +2440,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * for the project's source folder identified by the given absolute 
 	 * workspace-relative path but excluding all source files with paths
 	 * matching any of the given patterns, and associated with a specific output location
-	 * (i.e. ".class" files are not going to the project default output location). 
+	 * (that is, ".class" files are not going to the project default output location). 
 	 * All package fragments within the root will have children of type 
 	 * <code>ICompilationUnit</code>.
 	 * <p>
