@@ -100,11 +100,15 @@ public class SourceTypeConverter implements CompilerModifiers {
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult) {
 			
+//		long start = System.currentTimeMillis();
+		SourceTypeConverter converter = new SourceTypeConverter(flags, problemReporter);
 		try {
-			return new SourceTypeConverter(flags, problemReporter).convert(sourceTypes, compilationResult);
+			return converter.convert(sourceTypes, compilationResult);
 		} catch (JavaModelException e) {
 			return null;
-		}
+/*		} finally {
+			System.out.println("Spent " + (System.currentTimeMillis() - start) + "ms to convert " + ((JavaElement) converter.cu).toStringWithAncestors());
+*/		}
 	}
 
 	/*
@@ -120,6 +124,11 @@ public class SourceTypeConverter implements CompilerModifiers {
 		SourceTypeElementInfo topLevelTypeInfo = (SourceTypeElementInfo) sourceTypes[0];
 		this.cu = (ICompilationUnit) topLevelTypeInfo.getHandle().getCompilationUnit();
 		this.annotationPositions = ((CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo()).annotationPositions;
+
+		if (this.annotationPositions != null && this.annotationPositions.size() > 10) { // experimental value
+			// if more than 10 annotations, diet parse as this is faster
+			return new Parser(this.problemReporter, true).dietParse(this.cu, compilationResult);
+		}
 
 		/* only positions available */
 		int start = topLevelTypeInfo.getNameSourceStart();
