@@ -505,6 +505,42 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensures that computing binding for an AST tales the owner's working copies into account.
+	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
+	 */
+	public void testParseCompilationUnit2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = getCompilationUnit("P/Y.java").getWorkingCopy(owner, null, null);
+			workingCopy.getBuffer().setContents(
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy.makeConsistent(null);
+
+			CompilationUnit cu = AST.parseCompilationUnit(
+				("public class Z extends Y {\n" +
+				"}").toCharArray(),
+				 "Z.java",
+				 getJavaProject("P"),
+				 owner);
+			List types = cu.types();
+			assertEquals("Unexpected number of types in AST", 1, types.size());
+			TypeDeclaration type = (TypeDeclaration)types.get(0);
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertEquals(
+				"Unexpected super type", 
+				"Y",
+				typeBinding.getSuperclass().getQualifiedName());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
 	 * Ensures that searching takes the owner's working copies into account.
 	 */
 	public void testSearch1() throws CoreException {
