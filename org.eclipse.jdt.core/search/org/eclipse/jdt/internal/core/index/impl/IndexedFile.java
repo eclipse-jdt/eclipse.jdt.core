@@ -155,7 +155,8 @@ public class IndexedFile implements IQueryResult {
 	 * getPropertyNames method comment.
 	 */
 	public void setProperty(String propertyName, String value) {
-		properties = new Hashtable();
+		if (properties == null)
+			properties = new Hashtable(3);
 		propertiesSize += (INFO_SEPARATOR.length() + propertyName.length() + INFO_VALUE_SEPARATOR.length() + value.length()) * 2;
 		if (propertiesSize < MAX_PROPERTIES_SIZE)
 			properties.put(propertyName, value);
