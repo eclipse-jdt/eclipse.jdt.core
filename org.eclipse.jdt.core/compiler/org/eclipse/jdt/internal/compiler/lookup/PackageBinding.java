@@ -153,10 +153,6 @@ ReferenceBinding getType0(char[] name) {
 
 public Binding getTypeOrPackage(char[] name) {
 	PackageBinding packageBinding = getPackage0(name);
-	if (packageBinding == null) {
-		// find the package
-		packageBinding = findPackage(name);
-	}
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage)
 		return packageBinding;
 
@@ -167,6 +163,12 @@ public Binding getTypeOrPackage(char[] name) {
 		if (typeBinding.isNestedType())
 			return new ProblemReferenceBinding(name, InternalNameProvided);
 		return typeBinding;
+	}
+
+	if (packageBinding == null) {
+		// find the package
+		packageBinding = findPackage(name);
+		if (packageBinding != null) return packageBinding; 
 	}
 
 	if (typeBinding == null) {
