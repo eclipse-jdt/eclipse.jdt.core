@@ -12,13 +12,15 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ThisReference extends Reference {
-	
+
 	public static ThisReference implicitThis(){
 
-		ThisReference implicitThis = new ThisReference(0, 0);
+		ThisReference implicitThis = new ThisReference(0, 0); 
 		implicitThis.bits |= IsImplicitThisMask;
 		return implicitThis;
 	}
@@ -27,6 +29,14 @@ public class ThisReference extends Reference {
 	
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
+	}
+
+	/* 
+	 * @see Reference#analyseAssignment(...)
+	 */
+	public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
+
+		return flowInfo; // this cannot be assigned
 	}
 
 	public boolean checkAccess(MethodScope methodScope) {
@@ -45,12 +55,36 @@ public class ThisReference extends Reference {
 		return true;
 	}
 
+	/* 
+	 * @see Reference#generateAssignment(...)
+	 */
+	public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
+
+		 // this cannot be assigned
+	}
+
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	
 		int pc = codeStream.position;
 		if (valueRequired)
 			codeStream.aload_0();
 		if ((this.bits & IsImplicitThisMask) == 0) codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+
+	/* 
+	 * @see Reference#generateCompoundAssignment(...)
+	 */
+	public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion,  boolean valueRequired) {
+
+		 // this cannot be assigned
+	}
+	
+	/* 
+	 * @see org.eclipse.jdt.internal.compiler.ast.Reference#generatePostIncrement()
+	 */
+	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
+
+		 // this cannot be assigned
 	}
 	
 	public boolean isImplicitThis() {
