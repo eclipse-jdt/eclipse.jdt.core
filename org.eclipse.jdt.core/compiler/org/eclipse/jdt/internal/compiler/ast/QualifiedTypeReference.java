@@ -72,7 +72,7 @@ public class QualifiedTypeReference extends TypeReference {
 				return this.resolvedType;
 			
 			if (isClassScope)
-				if (((ClassScope) scope).detectCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
+				if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
 					return null;
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (currentType.isGenericType()) {

@@ -2556,7 +2556,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<T> extends X {}\n" + 
 			"	                          ^\n" + 
-			"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
+			"Cycle detected: the type X<T> cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}
 	public void test097() {
@@ -2569,7 +2569,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<T> extends X<String> {}\n" + 
 			"	                          ^\n" + 
-			"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
+			"Cycle detected: the type X<T> cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}	
 	public void test098() {

@@ -709,7 +709,7 @@ public class ClassScope extends Scope {
 			if (sourceType.isEnum())
 				return connectEnumSuperclass();
 			sourceType.superclass = getJavaLangObject();
-			return !detectCycle(sourceType, sourceType.superclass, null);
+			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		}
 		TypeReference superclassRef = referenceContext.superclass;
 		ReferenceBinding superclass = findSupertype(superclassRef);
@@ -731,7 +731,7 @@ public class ClassScope extends Scope {
 		sourceType.tagBits |= HierarchyHasProblems;
 		sourceType.superclass = getJavaLangObject();
 		if ((sourceType.superclass.tagBits & BeginHierarchyCheck) == 0)
-			detectCycle(sourceType, sourceType.superclass, null);
+			detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
 	}
 
@@ -741,7 +741,7 @@ public class ClassScope extends Scope {
 	private boolean connectEnumSuperclass() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		ReferenceBinding rootEnumType = getJavaLangEnum();
-		boolean foundCycle = detectCycle(sourceType, rootEnumType, null);
+		boolean foundCycle = detectHierarchyCycle(sourceType, rootEnumType, null);
 		// arity check for well-known Enum<E>
 		TypeVariableBinding[] refTypeVariables = rootEnumType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic
@@ -887,7 +887,19 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
 
-	public boolean detectCycle(TypeBinding superType, TypeReference reference, TypeBinding[] argTypes) {
+	public boolean detectAnnotationCycle(TypeBinding sourceType, TypeBinding annotationElementType, TypeReference reference) {
+		if (!annotationElementType.isAnnotationType()) 
+			return false;
+
+		if (sourceType == annotationElementType) {
+			problemReporter().annotationCircularity(sourceType, annotationElementType, reference);
+			return true;
+		}
+		// TODO (kent) add support for detecting indirect cases using TagBits.BeginAnnotationCheck/EndAnnotationCheck
+		return false;
+	}
+
+	public boolean detectHierarchyCycle(TypeBinding superType, TypeReference reference, TypeBinding[] argTypes) {
 		if (!(superType instanceof ReferenceBinding)) return false;
 
 		if (argTypes != null) {
@@ -907,7 +919,7 @@ public class ClassScope extends Scope {
 			if (superType.isParameterizedType())
 				superType = ((ParameterizedTypeBinding) superType).type;
 			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
-			return detectCycle(referenceContext.binding, (ReferenceBinding) superType, reference);
+			return detectHierarchyCycle(referenceContext.binding, (ReferenceBinding) superType, reference);
 		}
 
 		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
@@ -917,7 +929,7 @@ public class ClassScope extends Scope {
 	}
 
 	// Answer whether a cycle was found between the sourceType & the superType
-	private boolean detectCycle(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
+	private boolean detectHierarchyCycle(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
 		if (superType.isRawType())
 			superType = ((RawTypeBinding) superType).type;
 		// by this point the superType must be a binary or source type
@@ -955,7 +967,7 @@ public class ClassScope extends Scope {
 				ReferenceBinding parentType = superType.superclass();
 				if (parentType.isParameterizedType())
 					parentType = ((ParameterizedTypeBinding) parentType).type;
-				hasCycle |= detectCycle(sourceType, parentType, reference);
+				hasCycle |= detectHierarchyCycle(sourceType, parentType, reference);
 				if ((parentType.tagBits & HierarchyHasProblems) != 0) {
 					sourceType.tagBits |= HierarchyHasProblems;
 					parentType.tagBits |= HierarchyHasProblems; // propagate down the hierarchy
@@ -974,7 +986,7 @@ public class ClassScope extends Scope {
 					}
 					if (anInterface.isParameterizedType())
 						anInterface = ((ParameterizedTypeBinding) anInterface).type;
-					hasCycle |= detectCycle(sourceType, anInterface, reference);
+					hasCycle |= detectHierarchyCycle(sourceType, anInterface, reference);
 					if ((anInterface.tagBits & HierarchyHasProblems) != 0) {
 						sourceType.tagBits |= HierarchyHasProblems;
 						superType.tagBits |= HierarchyHasProblems;

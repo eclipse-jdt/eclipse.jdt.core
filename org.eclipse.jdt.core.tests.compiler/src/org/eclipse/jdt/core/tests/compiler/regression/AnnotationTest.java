@@ -86,7 +86,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}
 	
 	// check annotation method cannot indirectly return annotation type (circular ref)
-	// TODO (philippe) reenable once addressed
+	// TODO (kent) reenable once addressed
 	public void _test003() {
 		this.runNegativeTest(
 			new String[] {
@@ -103,8 +103,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}		
 
 	// check annotation method cannot directly return annotation type
-	// TODO (philippe) reenable once addressed
-	public void _test004() {
+	public void test004() {
 		this.runNegativeTest(
 			new String[] {
 				"Foo.java",
@@ -112,7 +111,12 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"	Foo value();\n" +
 				"}\n"
 			},
-			"invalid self reference to annotation");
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 2)\n" + 
+			"	Foo value();\n" + 
+			"	^^^\n" + 
+			"Cycle detected: the annotation type Foo cannot contain members of the same type\n" + 
+			"----------\n");
 	}		
 
 	// check annotation type cannot have superclass
@@ -213,7 +217,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	Runnable value();\n" + 
 			"	^^^^^^^^\n" + 
-			"Invalid return type Runnable for the annotation method X.value(); only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
+			"Invalid type Runnable for the annotation method X.value(); only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
 			"----------\n");
 	}
 	

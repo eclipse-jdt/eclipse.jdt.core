@@ -57,7 +57,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 				if (leafReturnType.isEnum())
 					break checkAnnotationMethodType;
 				if (leafReturnType.isAnnotationType()) {
-					//checkCircularAnnotationReference(leafReturnType);
+					scope.classScope().detectAnnotationCycle(scope.enclosingSourceType(), leafReturnType, this.returnType);
 					break checkAnnotationMethodType;
 				}
 				scope.problemReporter().invalidAnnotationMethodType(this);

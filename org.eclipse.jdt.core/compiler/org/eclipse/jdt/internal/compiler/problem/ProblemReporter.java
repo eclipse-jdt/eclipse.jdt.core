@@ -119,6 +119,23 @@ public void alreadyDefinedLabel(char[] labelName, ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void annotationCircularity(TypeBinding sourceType, TypeBinding otherType, TypeReference reference) {
+	if (sourceType == otherType)
+		this.handle(
+			IProblem.AnnotationCircularitySelfReference,
+			new String[] {new String(sourceType.readableName())},
+			new String[] {new String(sourceType.shortReadableName())},
+			reference.sourceStart,
+			reference.sourceEnd);
+	else
+		this.handle(
+			IProblem.AnnotationCircularity,
+			new String[] {new String(sourceType.readableName()), new String(otherType.readableName())},
+			new String[] {new String(sourceType.shortReadableName()), new String(otherType.shortReadableName())},
+			reference.sourceStart,
+			reference.sourceEnd);
+}
+
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
 		IProblem.AnonymousClassCannotExtendFinalClass,
@@ -1218,8 +1235,6 @@ public void hidingEnclosingType(TypeDeclaration typeDecl) {
 public void hierarchyCircularity(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
 	int start = 0;
 	int end = 0;
-	String typeName = new String(superType.readableName());
-	String shortTypeName = new String(superType.sourceName());
 
 	if (reference == null) {	// can only happen when java.lang.Object is busted
 		start = sourceType.sourceStart();
@@ -1227,25 +1242,20 @@ public void hierarchyCircularity(SourceTypeBinding sourceType, ReferenceBinding 
 	} else {
 		start = reference.sourceStart;
 		end = reference.sourceEnd;
-		if (sourceType != superType) {
-			char[][] qName = reference.getTypeName();
-			typeName = CharOperation.toString(qName);
-			shortTypeName = new String(qName[qName.length-1]);
-		}
 	}
 
 	if (sourceType == superType)
 		this.handle(
 			IProblem.HierarchyCircularitySelfReference,
-			new String[] {typeName},
-			new String[] {shortTypeName},
+			new String[] {new String(sourceType.readableName()) },
+			new String[] {new String(sourceType.shortReadableName()) },
 			start,
 			end);
 	else
 		this.handle(
 			IProblem.HierarchyCircularity,
-			new String[] {new String(sourceType.sourceName()), typeName},
-			new String[] {new String(sourceType.sourceName()), shortTypeName},
+			new String[] {new String(sourceType.readableName()), new String(superType.readableName())},
+			new String[] {new String(sourceType.shortReadableName()), new String(superType.shortReadableName())},
 			start,
 			end);
 }

@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  */
 abstract public class TypeBinding extends Binding implements BaseTypes, TagBits, TypeConstants, TypeIds {
 	public int id = NoId;
-	public int tagBits = 0; // See values in the interface TagBits below
+	public long tagBits = 0; // See values in the interface TagBits below
 /**
  * Match a well-known type id to its binding
  */

@@ -169,7 +169,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (argHasError) return null;
 // TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 				if (isClassScope)
-					if (((ClassScope) scope).detectCycle(currentType, this, argTypes))
+					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
 						return null;
 
 			    TypeVariableBinding[] typeVariables = currentType.typeVariables();
@@ -196,7 +196,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		    } else {
 // TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 				if (isClassScope)
-					if (((ClassScope) scope).detectCycle(currentType, this, null))
+					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, null))
 						return null;
 				if (currentType.isGenericType()) {
 	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {

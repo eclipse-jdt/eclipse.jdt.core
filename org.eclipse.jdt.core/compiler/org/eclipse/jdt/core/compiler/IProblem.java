@@ -992,7 +992,10 @@ public interface IProblem {
 	int IllegalModifierForAnnotationMemberType = TypeRelated + 604;
     /** @since 3.1 */
 	int InvalidAnnotationMethodType = TypeRelated + 605;	
-	
+    /** @since 3.1 */
+	int AnnotationCircularitySelfReference = TypeRelated + 606;
+    /** @since 3.1 */
+	int AnnotationCircularity = TypeRelated + 607;
 	
 	/**
 	 * Corrupted binaries

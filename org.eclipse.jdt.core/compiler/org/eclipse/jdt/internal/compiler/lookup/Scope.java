@@ -475,10 +475,6 @@ public abstract class Scope
 		return typeVariableBindings;
 	}
 
-	public boolean detectCycle(ReferenceBinding superType) {
-		return false;
-	}
-
 	public final ClassScope enclosingClassScope() {
 		Scope scope = this;
 		while ((scope = scope.parent) != null) {
