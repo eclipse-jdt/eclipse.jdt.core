@@ -2907,7 +2907,9 @@ protected void consumeEnumConstantWithClassBody() {
    this.astLengthPtr--;
    anonymousType.bodyEnd = this.endPosition;
    anonymousType.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
-   ((FieldDeclaration) this.astStack[this.astPtr]).declarationSourceEnd = anonymousType.declarationSourceEnd;
+   final FieldDeclaration fieldDeclaration = ((FieldDeclaration) this.astStack[this.astPtr]);
+   fieldDeclaration.declarationEnd = this.endStatementPosition;
+   fieldDeclaration.declarationSourceEnd = anonymousType.declarationSourceEnd;
 }
 protected void consumeEnumDeclaration() {
 	// EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
