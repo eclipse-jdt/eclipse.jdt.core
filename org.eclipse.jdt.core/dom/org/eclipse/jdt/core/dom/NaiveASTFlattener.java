@@ -351,10 +351,10 @@ class NaiveASTFlattener extends ASTVisitor {
 			node.getName().accept(this);
 		}
 		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
-			if (!node.typeParameters().isEmpty()) {
+			if (!node.typeArguments().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
-					TypeParameter t = (TypeParameter) it.next();
+				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -413,6 +413,19 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(ConstructorInvocation)
 	 */
 	public boolean visit(ConstructorInvocation node) {
+		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
+			if (!node.typeArguments().isEmpty()) {
+				this.buffer.append("<");//$NON-NLS-1$
+				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
+					t.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(",");//$NON-NLS-1$
+					}
+				}
+				this.buffer.append(">");//$NON-NLS-1$
+			}
+		}
 		this.buffer.append("this(");//$NON-NLS-1$
 		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
@@ -866,6 +879,19 @@ class NaiveASTFlattener extends ASTVisitor {
 			node.getExpression().accept(this);
 			this.buffer.append(".");//$NON-NLS-1$
 		}
+		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
+			if (!node.typeArguments().isEmpty()) {
+				this.buffer.append("<");//$NON-NLS-1$
+				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
+					t.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(",");//$NON-NLS-1$
+					}
+				}
+				this.buffer.append(">");//$NON-NLS-1$
+			}
+		}
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
 		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
@@ -1104,6 +1130,19 @@ class NaiveASTFlattener extends ASTVisitor {
 			node.getExpression().accept(this);
 			this.buffer.append(".");//$NON-NLS-1$
 		}
+		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
+			if (!node.typeArguments().isEmpty()) {
+				this.buffer.append("<");//$NON-NLS-1$
+				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
+					t.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(",");//$NON-NLS-1$
+					}
+				}
+				this.buffer.append(">");//$NON-NLS-1$
+			}
+		}
 		this.buffer.append("super(");//$NON-NLS-1$
 		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
@@ -1138,6 +1177,19 @@ class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append(".");//$NON-NLS-1$
 		}
 		this.buffer.append("super.");//$NON-NLS-1$
+		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
+			if (!node.typeArguments().isEmpty()) {
+				this.buffer.append("<");//$NON-NLS-1$
+				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
+					t.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(",");//$NON-NLS-1$
+					}
+				}
+				this.buffer.append(">");//$NON-NLS-1$
+			}
+		}
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
 		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {

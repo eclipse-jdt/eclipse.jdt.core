@@ -8,14 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.core.dom;
 
 import java.util.List;
 
 /**
  * Array creation expression AST node type.
- *
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * ArrayCreation:
  *		<b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
@@ -32,6 +31,16 @@ import java.util.List;
  *   list.</li>
  * </ul>
  * </p>
+ * For 3.0 (corresponding to JLS3), type arguments are added:
+ * <pre>
+ * ArrayCreation:
+ *		<b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
+ *		<b>new</b> TypeName [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *              <b>[</b> Expression ]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
+ *		<b>new</b> PrimitiveType <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
+ * 		<b>new</b> TypeName [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *              <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
+ * </pre>
  *
  * @since 2.0
  */

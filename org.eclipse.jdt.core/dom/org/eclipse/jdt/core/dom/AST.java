@@ -2779,7 +2779,8 @@ public final class AST {
 	/**
 	 * Creates an unparented method invocation expression node owned by this 
 	 * AST. By default, the name of the method is unspecified (but legal) 
-	 * there is no receiver expression, and the list of arguments is empty.
+	 * there is no receiver expression, no type arguments, and the list of
+	 * arguments is empty.
 	 * 
 	 * @return a new unparented method invocation expression node
 	 */
@@ -2791,7 +2792,7 @@ public final class AST {
 	/**
 	 * Creates an unparented "super" method invocation expression node owned by 
 	 * this AST. By default, the name of the method is unspecified (but legal) 
-	 * there is no qualifier, and the list of arguments is empty.
+	 * there is no qualifier, no type arguments, and the list of arguments is empty.
 	 * 
 	 * @return a new unparented  "super" method invocation 
 	 *    expression node
@@ -2803,8 +2804,8 @@ public final class AST {
 	
 	/**
 	 * Creates an unparented alternate constructor ("this(...);") invocation 
-	 * statement node owned by this AST. By default, the list of arguments
-	 * is empty.
+	 * statement node owned by this AST. By default, the lists of arguments
+	 * and type arguments are both empty.
 	 * <p>
 	 * Note that this type of node is a Statement, whereas a regular
 	 * method invocation is an Expression. The only valid use of these 
@@ -2821,7 +2822,7 @@ public final class AST {
 	/**
 	 * Creates an unparented alternate super constructor ("super(...);") 
 	 * invocation statement node owned by this AST. By default, there is no
-	 * qualifier and the list of arguments is empty.
+	 * qualifier, no type arguments, and the list of arguments is empty.
 	 * <p>
 	 * Note that this type of node is a Statement, whereas a regular
 	 * super method invocation is an Expression. The only valid use of these 

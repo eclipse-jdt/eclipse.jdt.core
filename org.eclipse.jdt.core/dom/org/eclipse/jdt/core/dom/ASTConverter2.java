@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -310,21 +311,40 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression allocation) {
-		if (allocation.anonymousType != null) {
-			ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
-			classInstanceCreation.setType(convertType(allocation.type));
-			if (allocation.enclosingInstance != null) {
-				classInstanceCreation.setExpression(convert(allocation.enclosingInstance));
+		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
+		if (allocation.enclosingInstance != null) {
+			classInstanceCreation.setExpression(convert(allocation.enclosingInstance));
+		}
+		classInstanceCreation.setType(convertType(allocation.type));
+		org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = allocation.arguments;
+		if (arguments != null) {
+			int length = arguments.length;
+			for (int i = 0; i < length; i++) {
+				Expression argument = convert(arguments[i]);
+				if (this.resolveBindings) {
+					recordNodes(argument, arguments[i]);
+				}
+				classInstanceCreation.arguments().add(argument);
 			}
+		}
+		if (allocation instanceof ParameterizedQualifiedAllocationExpression) {
+			switch(this.ast.apiLevel) {
+				case AST.LEVEL_2_0 :
+					classInstanceCreation.setFlags(ASTNode.MALFORMED);
+					break;
+				case AST.LEVEL_3_0 :
+					ParameterizedQualifiedAllocationExpression parameterizedQualifiedAllocationExpression = (ParameterizedQualifiedAllocationExpression) allocation;
+					TypeReference[] typeArguments = parameterizedQualifiedAllocationExpression.typeArguments;
+					if (typeArguments != null) {
+						for (int i = 0, max = typeArguments.length; i < max; i++) {
+							classInstanceCreation.typeArguments().add(convert(typeArguments[i]));
+						}
+					}
+			}			
+		}
+		if (allocation.anonymousType != null) {
 			int declarationSourceStart = allocation.sourceStart;
 			classInstanceCreation.setSourceRange(declarationSourceStart, allocation.anonymousType.bodyEnd - declarationSourceStart + 1);
-			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = allocation.arguments;
-			if (arguments != null) {
-				int length = arguments.length;
-				for (int i = 0; i < length; i++) {
-					classInstanceCreation.arguments().add(convert(arguments[i]));
-				}
-			}
 			AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
 			int start = retrieveStartBlockPosition(allocation.anonymousType.sourceEnd, allocation.anonymousType.bodyEnd);
 			anonymousClassDeclaration.setSourceRange(start, allocation.anonymousType.bodyEnd - start + 1);
@@ -337,21 +357,7 @@ class ASTConverter2 extends ASTConverter {
 			}
 			return classInstanceCreation;			
 		} else {
-			ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
-			classInstanceCreation.setExpression(convert(allocation.enclosingInstance));
-			classInstanceCreation.setType(convertType(allocation.type));
 			classInstanceCreation.setSourceRange(allocation.sourceStart, allocation.sourceEnd - allocation.sourceStart + 1);
-			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = allocation.arguments;
-			if (arguments != null) {
-				int length = arguments.length;
-				for (int i = 0; i < length; i++) {
-					Expression argument = convert(arguments[i]);
-					if (this.resolveBindings) {
-						recordNodes(argument, arguments[i]);
-					}
-					classInstanceCreation.arguments().add(argument);
-				}
-			}
 			if (this.resolveBindings) {
 				recordNodes(classInstanceCreation, allocation);
 			}

@@ -33,8 +33,11 @@ public interface IModifierConstants {
 	int ACC_NATIVE       = 0x0100;
 	int ACC_INTERFACE    = 0x0200;
 	int ACC_ABSTRACT     = 0x0400;
-	int ACC_STRICT       = 0x0800;	
+	int ACC_STRICT       = 0x0800;
+	/** @since 3.1 */
 	int ACC_SYNTHETIC    = 0x1000;
+	/** @since 3.1 */
 	int ACC_ANNOTATION   = 0x2000;
+	/** @since 3.1 */
 	int ACC_ENUM         = 0x4000;
 }
