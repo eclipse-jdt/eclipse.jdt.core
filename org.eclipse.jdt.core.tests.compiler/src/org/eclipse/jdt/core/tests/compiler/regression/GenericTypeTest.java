@@ -3407,7 +3407,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");		
 	}				
-	// TODO (kent) reenable once binary member signature for generics are supported
+	// TODO (philippe) reenable once generic methods are supported
 	public void _test118() {
 		this.runConformTest(
 			new String[] {
@@ -3423,4 +3423,43 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	// test binary member types
+	public void _test119() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        \n" + 
+				"        new X<X.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    void foo(X<X.MX.MMX>.MX.MMX<X> mx) {\n" + 
+				"    }\n" + 
+				"    void foo2(X.MX.MMX<X> mx) {\n" + 
+				"    }\n" + 
+				"    void foo3(X<X.MX<Runnable>.MMX<Iterable<String>> mx) {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    class MX <MT> {\n" + 
+				"        class MMX <MMT> {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false, // do not flush output
+			null);		
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}			
 }
