@@ -73,7 +73,7 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testClasspathValidation23",  "testClasspathValidation28",  "testClasspathValidation28"};
+//	testsNames = new String[] { "testRemoveDuplicates"};
 //	testsNumbers = new int[] { 23, 28, 38 };
 //	testsRange = new int[] { 21, 38 };
 }
@@ -2932,5 +2932,25 @@ public void testBug55992b() throws CoreException {
 		this.deleteProject("P");
 		preferences.setAutoBuilding(autoBuild);
 	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61214
+ */
+public void testRemoveDuplicates() throws CoreException {
+	IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
+	IClasspathEntry[] p1ClasspathEntries = new IClasspathEntry[]{JavaCore.newLibraryEntry(getExternalJCLPath(), null, null, true)};
+	setClasspath(p1, p1ClasspathEntries);
+	IJavaProject  p2 = this.createJavaProject("P2", new String[] {""}, "");
+	IClasspathEntry[] p2ClasspathEntries = new IClasspathEntry[]{
+			JavaCore.newProjectEntry(new Path("/P1")),
+			JavaCore.newLibraryEntry(getExternalJCLPath(), null, null, false)
+	};
+	setClasspath(p2, p2ClasspathEntries);
+
+	IClasspathEntry[] classpath = ((JavaProject)p2).getExpandedClasspath(true);
+	assertEquals("Unexpected number of classpath entries", 2, classpath.length);
+	assertEquals("Unexpected first entry", "/P1", classpath[0].getPath().toString());
+	assertEquals("Unexpected second entry", getExternalJCLPathString(), classpath[1].getPath().toOSString());
+	
 }
 }
