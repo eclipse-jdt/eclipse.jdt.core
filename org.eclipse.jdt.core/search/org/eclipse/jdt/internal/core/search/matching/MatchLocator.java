@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.WorkingCopy;
 
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -381,9 +382,6 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 	public void locateMatches(String[] filePaths, IWorkspace workspace, IWorkingCopy[] workingCopies)
 		throws JavaModelException {
 			
-		// sort file paths projects
-		Util.sort(filePaths); 
-		
 		// initialize handle factory (used as a cache of handles so as to optimize space)
 		if (this.handleFactory == null) {
 			this.handleFactory = new HandleFactory(workspace);
@@ -391,18 +389,30 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 		
 		// initialize locator with working copies
 		this.workingCopies = workingCopies;
-		HashSet wcPaths = new HashSet(); // a set of Strings
-		if (workingCopies != null) {
-			for (int i = 0, length = workingCopies.length; i < length; i++) {
+		
+		// substitute compilation units with working copies
+		HashMap wcPaths = new HashMap(); // a map from path to working copies
+		int wcLength;
+		if (workingCopies != null && (wcLength = workingCopies.length) > 0) {
+			String[] newPaths = new String[wcLength];
+			for (int i = 0; i < wcLength; i++) {
 				IWorkingCopy workingCopy = workingCopies[i];
 				try {
 					IResource res = workingCopy.getOriginalElement().getUnderlyingResource();
-					wcPaths.add(res.getFullPath().toString());
+					String path = res.getFullPath().toString();
+					wcPaths.put(path, workingCopy);
+					newPaths[i] = path;
 				} catch (JavaModelException e) {
 					// continue with next working copy
 				}
 			}
+			int filePathsLength = filePaths.length;
+			System.arraycopy(filePaths, 0, filePaths = new String[filePathsLength+wcLength], 0, filePathsLength);
+			System.arraycopy(newPaths, 0, filePaths, filePathsLength, wcLength);
 		}
+		
+		// sort file paths projects
+		Util.sort(filePaths); 
 		
 		// initialize pattern for polymorphic search (ie. method reference pattern)
 		this.pattern.initializePolymorphicSearch(this, this.collector.getProgressMonitor());
@@ -412,7 +422,7 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 		double increment = 100.0 / length;
 		double totalWork = 0;
 		int lastProgress = 0;
-		this.initializeMatchingOpenables(workingCopies);
+		this.matchingOpenables = new MatchingOpenableSet();
 		for (int i = 0; i < length; i++) {
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
@@ -420,19 +430,29 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 			}
 			String pathString = filePaths[i];
 			
-			// skip paths that are hidden by a working copy
-			if (wcPaths.contains(pathString)) continue;
+			// skip duplicate paths
+			if (i > 0 && pathString.equals(filePaths[i-1])) continue;
 			
-			Openable openable = this.handleFactory.createOpenable(pathString);
-			if (openable == null)
-				continue; // match is outside classpath
+			Openable openable;
+			IWorkingCopy workingCopy = (IWorkingCopy)wcPaths.get(pathString);
+			if (workingCopy != null) {
+				openable = (Openable)workingCopy;
+			} else {
+				openable = this.handleFactory.createOpenable(pathString);
+				if (openable == null)
+					continue; // match is outside classpath
+			}
 
 			// create new parser and lookup environment if this is a new project
 			IResource resource = null;
 			JavaProject javaProject = null;
 			try {
 				javaProject = (JavaProject) openable.getJavaProject();
-				resource = openable.getUnderlyingResource();
+				if (workingCopy != null) {
+					resource = workingCopy.getOriginalElement().getUnderlyingResource();
+				} else {
+					resource = openable.getUnderlyingResource();
+				}
 				if (resource == null) { // case of a file in an external jar
 					resource = javaProject.getProject();
 				}
@@ -448,7 +468,7 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 								// problem with classpath in this project -> skip it
 							}
 						}
-						this.initializeMatchingOpenables(workingCopies);
+						this.matchingOpenables = new MatchingOpenableSet();
 					}
 
 					// create parser for this project
@@ -482,8 +502,8 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 					// problem with classpath in last project -> skip it
 				}
 			}
-			this.initializeMatchingOpenables(workingCopies);
-		}
+			this.matchingOpenables = new MatchingOpenableSet();
+		} 
 
 	}
 
