@@ -11,19 +11,25 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class NullConstant extends Constant {
+
 	public static final NullConstant Default = new NullConstant();
+	public static final String NullString = new StringBuffer(4).append((String)null).toString();
 
-	final static String NullString = new StringBuffer(4).append((String)null).toString();
-private NullConstant() {
-}
-public String stringValue() {
+	private NullConstant() {
+	}
+
+	public String stringValue() {
+		
+		return NullString;
+	}
+
+	public String toString(){
 	
-	return NullString;
-}
-public String toString(){
+		return "(null)" + null ;  //$NON-NLS-1$
+	}
 
-	return "(null)" + null ; } //$NON-NLS-1$
-public int typeID() {
-	return T_null;
-}
+	public int typeID() {
+
+		return T_null;
+	}
 }
