@@ -1062,7 +1062,7 @@ public abstract class Scope
 							}
 							if (memberType.isValidBinding()) {
 								if (sourceType == memberType.enclosingType()
-									|| environment().options.complianceLevel >= CompilerOptions.JDK1_4) {
+										|| environment().options.complianceLevel >= CompilerOptions.JDK1_4) {
 									// found a valid type in the 'immediate' scope (ie. not inherited)
 									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundType == null)
