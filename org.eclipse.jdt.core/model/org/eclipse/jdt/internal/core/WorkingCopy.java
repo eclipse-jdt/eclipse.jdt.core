@@ -20,6 +20,10 @@ import org.eclipse.jdt.core.*;
 
 public class WorkingCopy extends CompilationUnit {
 
+	/**
+	 * If set, this is the factory that will be used to create the buffer.
+	 */
+	protected IBufferFactory bufferFactory;
 	
 	/**
 	 * A boolean indicating if this working copy has been
@@ -31,8 +35,9 @@ public class WorkingCopy extends CompilationUnit {
 	protected boolean fDestroyed= false;
 /**
  */
-protected WorkingCopy(IPackageFragment parent, String name) {
+protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory) {
 	super(parent, name);
+	this.bufferFactory = bufferFactory;
 }
 /**
  * @see IWorkingCopy
@@ -229,6 +234,12 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	buf.addBufferChangedListener(this);
 	return buf;	
 }
+protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+	if (buffer == null && this.bufferFactory != null) {
+		buffer = this.bufferFactory.createBuffer(this);
+	}
+	super.openWhenClosed(pm, buffer);
+}
 /**
  * @see IWorkingCopy
  */
@@ -314,7 +325,8 @@ public IJavaElement rootedAt(IJavaProject project) {
 	return
 		new WorkingCopy(
 			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
-			fName);
+			fName,
+			this.bufferFactory);
 
 }
 /**

@@ -31,6 +31,10 @@ version so as to trigger automatic reindexing on workspace startup (and thus add
 from the binary index files). Subsequent startups will not reindex any further (only if inconsistency is detected, 
 e.g. signature version is different).
 </li>
+<li> The <code>IBufferFactory</code> used when creating an <code>IWorkingCopy</code>
+(see <code>ICompilationUnit.getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory)</code>)
+is now remembered and will be reused if the working copy is closed then reopen.
+</li>
 </ul>
 
 <h3>

@@ -421,7 +421,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IWorkingCopy getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
-	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName());
+	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory);
 	// open the working copy now to ensure contents are that of the current state of this element
 	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
 	workingCopy.open(pm, buffer);

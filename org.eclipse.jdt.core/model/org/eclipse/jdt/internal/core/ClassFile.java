@@ -294,7 +294,7 @@ public WorkingCopy getWorkingCopy() {
 	String name = getElementName();
 	name = name.substring(0, name.length() - 6); // remove ".class"
 	name = name + ".java"; //$NON-NLS-1$
-	return new WorkingCopy((IPackageFragment) getParent(), name);
+	return new WorkingCopy((IPackageFragment) getParent(), name, null);
 }
 /**
  * @see Openable

@@ -200,10 +200,15 @@ IType getType(String name);
  */
 IType[] getTypes() throws JavaModelException;
 /**
- * Returns an open working copy of this compilation unit.
+ * Returns an open working copy of this compilation unit using the given factory to create
+ * the buffer.
+ * Note that this factory will be used for the life time of this working copy, i.e. if the 
+ * working copy is closed then reopened, this factory will be used.
  *
  * @param monitor a progress monitor used to report progress while opening this compilation unit
+ *                 or <code>null</code> if no progress should be reported 
  * @param factory the factory that creates a buffer that is used to get the content of the working copy
+ *                 or <code>null</code> if the internal factory should be used
  * @exception JavaModelException if the contents of this element can
  *   not be determined. Reasons include:
  * <ul>
