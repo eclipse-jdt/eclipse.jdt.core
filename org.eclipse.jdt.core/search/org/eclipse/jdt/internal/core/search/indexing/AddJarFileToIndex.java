@@ -206,16 +206,7 @@ public int hashCode() {
 	 */
 	public String toString() {
 		if (toString == null) {
-			if (resource != null) {
-				IPath location = resource.getLocation();
-				if (location == null) {
-					toString = "indexing "; //$NON-NLS-1$
-				} else {
-					toString = "indexing " + location.toFile().toString(); //$NON-NLS-1$
-				}
-			} else {
-				toString = "indexing " + this.path.toFile().toString(); //$NON-NLS-1$
-			}
+			toString = "indexing " + this.path.toString(); //$NON-NLS-1$
 		}
 		return toString;
 	}
