@@ -302,4 +302,9 @@ public interface IJavaModelStatusConstants {
 	 * @since 3.1
 	 */
 	public static final int ELEMENT_NOT_ON_CLASSPATH	= 1006;	
+	/**
+	 * Status constant indicating that a compiler option is invalid.
+	 * @since 3.1
+	 */
+//	public static final int INVALID_COMPILER_OPTION = 1007;	
 }
