@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.BranchStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoStatement;
 import org.eclipse.jdt.internal.compiler.ast.ForStatement;
@@ -51,6 +52,10 @@ public class ResetStateForCodeGenerationVisitor
 		branchStatement.resetStateForCodeGeneration();
 		return true;
 	}
-	
+
+	public boolean visit(TryStatement tryStatement, BlockScope scope) {
+		tryStatement.resetStateForCodeGeneration();
+		return true;
+	}	
 }
 

@@ -3499,6 +3499,10 @@ final public void ixor() {
 	}
 }
 final public void jsr(Label lbl) {
+	if (this.wideMode) {
+		this.jsr_w(lbl);
+		return;
+	}
 	countLabels = 0;
 	try {
 		position++;

@@ -385,6 +385,11 @@ public class TryStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public void resetStateForCodeGeneration() {
+
+		this.subRoutineStartLabel.resetStateForCodeGeneration();
+	}	
+
 	public void resolve(BlockScope upperScope) {
 
 		// special scope for secret locals optimization.	
