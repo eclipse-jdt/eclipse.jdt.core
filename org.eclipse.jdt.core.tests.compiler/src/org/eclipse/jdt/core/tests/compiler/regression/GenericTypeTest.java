@@ -32,7 +32,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
 //		TESTS_NUMBERS = new int[] { 469 };
-//		TESTS_RANGE = new int[] { 379, -1 };
+//		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
@@ -13555,7 +13555,7 @@ public void test498(){
 		null,
 		true,
 		customOptions);
-}	
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85157
 public void test499(){
 	this.runNegativeTest(
@@ -13621,7 +13621,7 @@ public void test500(){
 			"}\n"
 		},
 		"");
-}	
+}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
 	public void test501() {
 		this.runConformTest(
@@ -14443,4 +14443,86 @@ public void test500(){
 			"Type mismatch: cannot convert from Throwable to Exception\n" + 
 			"----------\n");
 	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82955
+	public void test514(){
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	static <T extends Base> T infer( T t1, T t2 ) { return null; }\n" + 
+				"	public static void main( String [] args ) {\n" + 
+				"		Base base = infer( new Sub1(), new Sub2() );\n" + 
+				"		// Note: Eclipse 3.1 says this is an error, but it\'s not\n" + 
+				"		Runnable runnable = infer( new Sub1(), new Sub2() );\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Base { }\n" + 
+				"class Sub1 extends Base implements Runnable { public void run() { } }\n" + 
+				"class Sub2 extends Base implements Runnable { public void run() { } }\n"
+			}
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84348
+	public void test515(){
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	public static <T> void myMethod(final List<? extends File> fileList) {\n" + 
+				"		Collections.sort(fileList, new Comparator<File>(){\n" + 
+				"			public int compare(File f1, File f2) { return 0; }\n" + 
+				"		});\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class List<T> {}\n" + 
+				"class File {}\n" + 
+				"interface Comparator<T> {}\n" + 
+				"class Collections {\n" + 
+				"	static <T> void sort(List<T> list, Comparator<? super T> c) {}\n" + 
+				"}"
+			}
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84944
+	public void test516(){
+		runConformTest(
+			new String[] {
+				"parser/AbstractParser.java",
+				"package parser;\n" + 
+				"public abstract class AbstractParser<T> implements ValueParser<T> {\n" + 
+				"	public T parse( final String string ) {\n" + 
+				"		return valueOf(string); \n" + 
+				"	}\n" + 
+				"	protected abstract T valueOf(final String string);	\n" + 
+				"}\n" + 
+				"interface ValueParser<T> {\n" + 
+				"	T parse(final String string);\n" + 
+				"}\n",
+				"parser/BooleanParser.java",
+				"package parser;\n" + 
+				"public class BooleanParser extends AbstractParser<Boolean> {\n" + 
+				"	protected Boolean valueOf(final String string ) {\n" + 
+				"		return Boolean.valueOf(string); 		\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+		runConformTest(
+			new String[] {
+				"test/BooleanParserTest.java",
+				"package test;\n" + 
+				"import parser.BooleanParser;\n" + 
+				"public class BooleanParserTest {\n" + 
+				"	static final boolean getBoolean(final String value) {\n" + 
+				"		return new BooleanParser().parse(value).booleanValue(); // The type Boolean is not visible\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			null,
+			null,
+			false, // do not flush output directory
+			null
+		);
+	}
 }
