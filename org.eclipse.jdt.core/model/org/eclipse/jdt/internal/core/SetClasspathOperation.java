@@ -287,10 +287,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+		boolean hasDelta = false;
 		if (this.classpathWasSaved) {
 			delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
+			hasDelta = true;
 		}
-		boolean hasDelta = false;
 		int oldLength = oldResolvedPath.length;
 		int newLength = newResolvedPath.length;
 			

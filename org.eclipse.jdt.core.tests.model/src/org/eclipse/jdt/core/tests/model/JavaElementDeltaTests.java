@@ -1768,8 +1768,8 @@ public void testRemoveAddJavaProject() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CONTENT}\n" +
-			"	ResourceDelta(/P/.classpath)[*]\n" +
+			"P[*]: {CONTENT | CLASSPATH CHANGED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
 			"	ResourceDelta(/P/.project)[*]"
 		);
 	} finally {

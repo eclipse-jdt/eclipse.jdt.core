@@ -1656,6 +1656,41 @@ public void testEmptyClasspath() throws CoreException {
 	}
 }
 /**
+ * Ensures that adding an empty classpath container
+ * generates the correct deltas.
+ */
+public void testEmptyContainer() throws CoreException {
+	try {
+		IJavaProject proj = createJavaProject("P", new String[] {}, "bin");
+
+		startDeltas();
+
+		// create container
+		JavaCore.setClasspathContainer(
+			new Path("container/default"), 
+			new IJavaProject[]{ proj },
+			new IClasspathContainer[] {
+				new TestContainer(
+					new Path("container/default"),
+					new IClasspathEntry[] {}) 
+			}, 
+			null);
+
+		// set P's classpath with this container
+		IClasspathEntry container = JavaCore.newContainerEntry(new Path("container/default"), true);
+		proj.setRawClasspath(new IClasspathEntry[] {container}, new Path("/P"), null);
+
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CONTENT | CLASSPATH CHANGED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/**
  * Exporting a container should make it visible to its dependent project.
  * (regression test for bug 21749 Exported libraries and source folders)
  */
