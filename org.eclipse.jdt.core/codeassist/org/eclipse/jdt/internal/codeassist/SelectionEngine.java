@@ -53,8 +53,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	
 	private char[][][] acceptedClasses;
 	private char[][][] acceptedInterfaces;
+	private char[][][] acceptedEnums;
+	private char[][][] acceptedAnnotations;
 	int acceptedClassesCount;
 	int acceptedInterfacesCount;
+	int acceptedEnumsCount;
+	int acceptedAnnotationsCount;
 	
 	boolean noProposal = true;
 	IProblem problem = null;
@@ -123,7 +127,34 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 
 	public void acceptAnnotation(char[] packageName, char[] typeName, int modifiers, AccessRestriction accessRestriction) {
-		this.acceptInterface(packageName, typeName, modifiers, accessRestriction);
+		if (CharOperation.equals(typeName, this.selectedIdentifier)) {
+			if(mustQualifyType(packageName, typeName)) {
+				char[][] acceptedAnnotation = new char[2][];
+				acceptedAnnotation[0] = packageName;
+				acceptedAnnotation[1] = typeName;
+				
+				if(this.acceptedAnnotations == null) {
+					this.acceptedAnnotations = new char[10][][];
+					this.acceptedAnnotationsCount = 0;
+				}
+				int length = this.acceptedAnnotations.length;
+				if(length == this.acceptedAnnotationsCount) {
+					System.arraycopy(this.acceptedAnnotations, 0, this.acceptedAnnotations = new char[(length + 1)* 2][][], 0, length);
+				}
+				this.acceptedAnnotations[this.acceptedAnnotationsCount++] = acceptedAnnotation;
+				
+			} else {
+				this.noProposal = false;
+				this.requestor.acceptAnnotation(
+					packageName,
+					typeName,
+					false,
+					null,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+				this.acceptedAnswer = true;
+			}
+		}
 	}
 	
 	/**
@@ -169,7 +200,34 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 
 	public void acceptEnum(char[] packageName, char[] typeName, int modifiers, AccessRestriction accessRestriction) {
-		this.acceptClass(packageName, typeName, modifiers, accessRestriction);
+		if (CharOperation.equals(typeName, this.selectedIdentifier)) {
+			if(mustQualifyType(packageName, typeName)) {
+				char[][] acceptedEnum = new char[2][];
+				acceptedEnum[0] = packageName;
+				acceptedEnum[1] = typeName;
+				
+				if(this.acceptedEnums == null) {
+					this.acceptedEnums = new char[10][][];
+					this.acceptedEnumsCount = 0;
+				}
+				int length = this.acceptedEnums.length;
+				if(length == this.acceptedEnumsCount) {
+					System.arraycopy(this.acceptedEnums, 0, this.acceptedEnums = new char[(length + 1)* 2][][], 0, length);
+				}
+				this.acceptedEnums[this.acceptedEnumsCount++] = acceptedEnum;
+				
+			} else {
+				this.noProposal = false;
+				this.requestor.acceptEnum(
+					packageName,
+					typeName,
+					false,
+					null,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+				this.acceptedAnswer = true;
+			}
+		}
 	}
 	/**
 	 * One result of the search consists of a new interface.
@@ -257,6 +315,36 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			this.acceptedInterfaces = null;
 			this.acceptedInterfacesCount = 0;
+		}
+		if(this.acceptedAnnotations != null){
+			this.acceptedAnswer = true;
+			for (int i = 0; i < this.acceptedAnnotationsCount; i++) {
+				this.noProposal = false;
+				this.requestor.acceptAnnotation(
+					this.acceptedAnnotations[i][0],
+					this.acceptedAnnotations[i][1],
+					false,
+					null,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			}
+			this.acceptedAnnotations = null;
+			this.acceptedAnnotationsCount = 0;
+		}
+		if(this.acceptedEnums != null){
+			this.acceptedAnswer = true;
+			for (int i = 0; i < this.acceptedEnumsCount; i++) {
+				this.noProposal = false;
+				this.requestor.acceptEnum(
+					this.acceptedEnums[i][0],
+					this.acceptedEnums[i][1],
+					false,
+					null,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			}
+			this.acceptedEnums = null;
+			this.acceptedEnumsCount = 0;
 		}
 	}
 	private boolean checkSelection(
@@ -689,19 +777,34 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedAnswer = true;
 		} else if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
-			if (typeBinding.isInterface()) {
+			
+			if(typeBinding instanceof ProblemReferenceBinding) {
+				typeBinding = ((ProblemReferenceBinding) typeBinding).original;
+			}
+			
+			if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
 				this.noProposal = false;
-				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
-					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
-						completeLocalTypes(typeBinding);
-					}
-					((SelectionRequestor)this.requestor).acceptLocalType(typeBinding);
-				} else {
-					char[] genericTypeSignature = null;
-					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
-						completeLocalTypes(typeBinding);
-						genericTypeSignature = typeBinding.computeUniqueKey();
-					}
+				if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
+					completeLocalTypes(typeBinding);
+				}
+				((SelectionRequestor)this.requestor).acceptLocalType(typeBinding);
+			} else {
+				this.noProposal = false;
+				
+				char[] genericTypeSignature = null;
+				if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
+					completeLocalTypes(typeBinding);
+					genericTypeSignature = typeBinding.computeUniqueKey();
+				}
+				if (typeBinding.isAnnotationType()) {
+					this.requestor.acceptAnnotation(
+						typeBinding.qualifiedPackageName(),
+						typeBinding.qualifiedSourceName(),
+						false,
+						genericTypeSignature,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+				} else if (typeBinding.isInterface()) {
 					this.requestor.acceptInterface(
 						typeBinding.qualifiedPackageName(),
 						typeBinding.qualifiedSourceName(),
@@ -709,43 +812,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						genericTypeSignature,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
-				}
-			} else if(typeBinding instanceof ProblemReferenceBinding){
-				ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).original;
-				if(original == null) return;
-				this.noProposal = false;
-				if (isLocal(original) && this.requestor instanceof SelectionRequestor) {
-					if(original.isParameterizedType() || typeBinding.isRawType()) {
-						completeLocalTypes(original);
-					}
-					((SelectionRequestor)this.requestor).acceptLocalType(original);
-				} else {
-					char[] genericTypeSignature = null;
-					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
-						completeLocalTypes(typeBinding);
-						genericTypeSignature = typeBinding.computeUniqueKey();
-					}
-					this.requestor.acceptClass(
-						original.qualifiedPackageName(),
-						original.qualifiedSourceName(),
+				} else if (typeBinding.isEnum()) {
+					this.requestor.acceptEnum(
+						typeBinding.qualifiedPackageName(),
+						typeBinding.qualifiedSourceName(),
 						false,
 						genericTypeSignature,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
-				}
-			} else {
-				this.noProposal = false;
-				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
-					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
-						completeLocalTypes(typeBinding);
-					}
-					((SelectionRequestor)this.requestor).acceptLocalType(typeBinding);
 				} else {
-					char[] genericTypeSignature = null;
-					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
-						completeLocalTypes(typeBinding);
-						genericTypeSignature = typeBinding.computeUniqueKey();
-					}
+					this.noProposal = false;
 					this.requestor.acceptClass(
 						typeBinding.qualifiedPackageName(),
 						typeBinding.qualifiedSourceName(),
@@ -1088,7 +1164,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.actualSelectionEnd);
 					break;
 				case IGenericType.ENUM_DECL :
-					this.requestor.acceptClass(
+					this.requestor.acceptEnum(
 						packageName,
 						qualifiedSourceName,
 						true,
@@ -1097,7 +1173,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.actualSelectionEnd);
 					break;
 				case IGenericType.ANNOTATION_TYPE_DECL :
-					this.requestor.acceptInterface(
+					this.requestor.acceptAnnotation(
 						packageName,
 						qualifiedSourceName,
 						true,

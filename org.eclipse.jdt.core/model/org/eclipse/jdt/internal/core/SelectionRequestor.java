@@ -98,10 +98,22 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 	}
 }
 /**
+ * Resolve the annotation.
+ */
+public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+	acceptType(packageName, annotationName, NameLookup.ACCEPT_ANNOTATIONS, isDeclaration, genericTypeSignature, start, end);
+}
+/**
  * Resolve the class.
  */
 public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
 	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, isDeclaration, genericTypeSignature, start, end);
+}
+/**
+ * Resolve the enum.
+ */
+public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+	acceptType(packageName, enumName, NameLookup.ACCEPT_ENUMS, isDeclaration, genericTypeSignature, start, end);
 }
 /**
  * @see ISelectionRequestor#acceptError

@@ -17,6 +17,39 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 public interface ISelectionRequestor {
 	/**
+	 * Code assist notification of a enum selection.
+	 * @param packageName char[]
+	 * 		Declaring package name of the type.
+	 * 
+	 * @param annotationName char[]
+	 * 		Name of the type.
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected type is a declaration
+	 *  
+	 * @param uniqueKey
+	 *  	unique key of the selected type if it is a
+	 *  	parameterized type ({@link org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()})
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
+	 *
+	 * NOTE - All package and type names are presented in their readable form:
+	 *    Package names are in the form "a.b.c".
+	 *    Nested type names are in the qualified form "A.M".
+	 *    The default package is represented by an empty array.
+	 */
+	void acceptAnnotation(
+		char[] packageName,
+		char[] annotationName,
+		boolean isDeclaration,
+		char[] uniqueKey,
+		int start,
+		int end);
+	/**
 	 * Code assist notification of a class selection.
 	 * @param packageName char[]
 	 * 		Declaring package name of the class.
@@ -45,6 +78,40 @@ public interface ISelectionRequestor {
 	void acceptClass(
 		char[] packageName,
 		char[] className,
+		boolean isDeclaration,
+		char[] uniqueKey,
+		int start,
+		int end);
+	
+	/**
+	 * Code assist notification of a enum selection.
+	 * @param packageName char[]
+	 * 		Declaring package name of the type.
+	 * 
+	 * @param enumName char[]
+	 * 		Name of the class.
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected type is a declaration
+	 *  
+	 * @param uniqueKey
+	 *  	unique key of the selected type if it is a
+	 *  	parameterized type ({@link org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()})
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
+	 *
+	 * NOTE - All package and type names are presented in their readable form:
+	 *    Package names are in the form "a.b.c".
+	 *    Nested type names are in the qualified form "A.M".
+	 *    The default package is represented by an empty array.
+	 */
+	void acceptEnum(
+		char[] packageName,
+		char[] enumName,
 		boolean isDeclaration,
 		char[] uniqueKey,
 		int start,

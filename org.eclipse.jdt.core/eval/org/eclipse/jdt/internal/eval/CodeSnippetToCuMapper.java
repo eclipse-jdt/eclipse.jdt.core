@@ -248,8 +248,14 @@ public char[] getImport(int lineNumber) {
  */
 public ISelectionRequestor getSelectionRequestor(final ISelectionRequestor originalRequestor) {
 	return new ISelectionRequestor() {
+		public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+			originalRequestor.acceptAnnotation(packageName, annotationName, isDeclaration, uniqueKey, start, end);
+		}
 		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			originalRequestor.acceptClass(packageName, className, isDeclaration, uniqueKey, start, end);
+		}
+		public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+			originalRequestor.acceptClass(packageName, enumName, isDeclaration, uniqueKey, start, end);
 		}
 		public void acceptError(IProblem error) {
 			error.setSourceLineNumber(error.getSourceLineNumber() -  CodeSnippetToCuMapper.this.lineNumberOffset);

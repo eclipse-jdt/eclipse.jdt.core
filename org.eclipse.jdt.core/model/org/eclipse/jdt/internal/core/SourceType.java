@@ -764,10 +764,15 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				this.answers[length] = answer;
 			}
 		}
+		public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+			acceptType(new String[]  { new String(packageName), new String(annotationName) });
+		}
 		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(className) });
 		}
-		
+		public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+			acceptType(new String[]  { new String(packageName), new String(enumName) });
+		}
 		public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
 		}
