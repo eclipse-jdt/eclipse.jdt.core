@@ -5,7 +5,9 @@
    version="2.1.0">
 
    <runtime>
-      <library name="jdtcoretestscompiler.jar"/>
+      <library name="jdtcoretestscompiler.jar">
+         <export name="*"/>
+      </library>
    </runtime>
    <requires>
       <import plugin="org.junit"/>
