@@ -586,8 +586,8 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
-		buf.append("class E <X> extends A {}\n");
-		buf.append("class F <X> {}\n");
+		buf.append("class E<X> extends A {}\n");
+		buf.append("class F<X> {}\n");
 		buf.append("class G extends A {}\n");
 		buf.append("class H {}\n");	
 		assertEqualString(preview, buf.toString());

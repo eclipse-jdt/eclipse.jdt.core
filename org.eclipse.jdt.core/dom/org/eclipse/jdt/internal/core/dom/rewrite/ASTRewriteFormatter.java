@@ -420,11 +420,11 @@ import org.eclipse.jdt.core.dom.Statement;
     
 
     public static interface Prefix {
-		String getPrefix(int indent, String lineDelim);
+		String getPrefix(int indent);
 	}
 	
 	public static interface BlockContext {
-		String[] getPrefixAndSuffix(int indent, String lineDelim, ASTNode node, RewriteEventStore events);
+		String[] getPrefixAndSuffix(int indent, ASTNode node, RewriteEventStore events);
 	}	
 	
 	public static class ConstPrefix implements Prefix {
@@ -434,7 +434,7 @@ import org.eclipse.jdt.core.dom.Statement;
 			this.prefix= prefix;
 		}
 		
-		public String getPrefix(int indent, String lineDelim) {
+		public String getPrefix(int indent) {
 			return this.prefix;
 		}
 	}
@@ -452,10 +452,10 @@ import org.eclipse.jdt.core.dom.Statement;
 			this.kind= kind;
 		}
 		
-		public String getPrefix(int indent, String lineDelim) {
+		public String getPrefix(int indent) {
 			Position pos= new Position(this.start, this.length);
 			String str= this.string;
-			TextEdit res= formatString(this.kind, str, indent, lineDelim, getOptions());
+			TextEdit res= formatString(this.kind, str, indent, lineDelimiter, getOptions());
 			if (res != null) {
 				str= evaluateFormatterEdit(str, res, new Position[] { pos });
 			}
@@ -472,12 +472,12 @@ import org.eclipse.jdt.core.dom.Statement;
 			this.prefix= prefix;
 		}
 		
-		public String[] getPrefixAndSuffix(int indent, String lineDelim, ASTNode node, RewriteEventStore events) {
+		public String[] getPrefixAndSuffix(int indent, ASTNode node, RewriteEventStore events) {
 			String nodeString= ASTRewriteFlattener.asString(node, events);
 			String str= this.prefix + nodeString;
 			Position pos= new Position(this.start, this.prefix.length() + 1 - this.start);
 
-			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, indent, lineDelim, getOptions());
+			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, indent, lineDelimiter, getOptions());
 			if (res != null) {
 				str= evaluateFormatterEdit(str, res, new Position[] { pos });
 			}
@@ -496,7 +496,7 @@ import org.eclipse.jdt.core.dom.Statement;
 			this.prefix= prefix;
 		}
 		
-		public String[] getPrefixAndSuffix(int indent, String lineDelim, ASTNode node, RewriteEventStore events) {
+		public String[] getPrefixAndSuffix(int indent, ASTNode node, RewriteEventStore events) {
 			String nodeString= ASTRewriteFlattener.asString(node, events);
 			int nodeStart= this.prefix.length();
 			int nodeEnd= nodeStart + nodeString.length() - 1;
@@ -506,7 +506,7 @@ import org.eclipse.jdt.core.dom.Statement;
 			Position pos1= new Position(this.start, nodeStart + 1 - this.start);
 			Position pos2= new Position(nodeEnd, 2);
 
-			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, indent, lineDelim, getOptions());
+			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, indent, lineDelimiter, getOptions());
 			if (res != null) {
 				str= evaluateFormatterEdit(str, res, new Position[] { pos1, pos2 });
 			}
