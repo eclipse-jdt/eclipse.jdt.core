@@ -123,6 +123,9 @@ public abstract class Scope
 		        }
 				break;
 
+			case Binding.TYPE:
+				if (!originalType.isMemberType()) break;
+				// fall thru in case enclosing is generic
 			case Binding.GENERIC_TYPE:
 				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
 				originalEnclosing = originalType.enclosingType();

@@ -13045,5 +13045,67 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The method m(Y<T>, Y<T>) in the type X is not applicable for the arguments (Y<Short>, Y<Integer>)\n" + 
 			"----------\n");
 	}			
-	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82349
+	public void test484() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Base<T> {\n" + 
+				"	public class Inner {\n" + 
+				"	}\n" + 
+				"	Inner a;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends Base<Integer> {\n" + 
+				"	class DerivedInner extends Inner {\n" + 
+				"	}\n" + 
+				"	X() {\n" + 
+				"		a = new DerivedInner();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82349 - variation
+	public void test485() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Base<T> {\n" + 
+				"	public class Inner<U> {\n" + 
+				"	}\n" + 
+				"	Inner a;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends Base<Integer> {\n" + 
+				"	class DerivedInner extends Inner {\n" + 
+				"	}\n" + 
+				"	X() {\n" + 
+				"		a = new DerivedInner();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82349 - variation
+	public void test486() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Base<T> {\n" + 
+				"	public class Inner<U> {\n" + 
+				"	}\n" + 
+				"	Inner a;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends Base<Integer> {\n" + 
+				"	class DerivedInner extends Inner<Float> {\n" + 
+				"	}\n" + 
+				"	X() {\n" + 
+				"		a = new DerivedInner();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
 }
