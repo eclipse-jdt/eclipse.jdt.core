@@ -415,7 +415,11 @@ public abstract class JobManager implements Runnable {
 public String toString() {
 	StringBuffer buffer = new StringBuffer(10);
 	buffer.append("Enabled:").append(this.enabled).append('\n'); //$NON-NLS-1$
-	buffer.append("Jobs in queue:").append(jobEnd - jobStart + 1).append('\n'); //$NON-NLS-1$
+	int numJobs = jobEnd - jobStart + 1;
+	buffer.append("Jobs in queue:").append(numJobs).append('\n'); //$NON-NLS-1$
+	if (numJobs > 0) {
+		buffer.append("First job: ").append(awaitingJobs[jobStart].toString()).append('\n'); //$NON-NLS-1$ 
+	}
 	return buffer.toString();
 }	
 }
