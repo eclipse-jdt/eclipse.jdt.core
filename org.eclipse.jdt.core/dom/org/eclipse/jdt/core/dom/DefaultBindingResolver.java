@@ -239,12 +239,7 @@ class DefaultBindingResolver extends BindingResolver {
 				return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
 			} else {
 				// this is a variable or a field
-				Binding binding = singleNameReference.binding;
-				if (binding != null && binding.isValidBinding()) {
-					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
-				} else {
-					return null;
-				}
+				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) singleNameReference.binding);				
 			}
 		} else if (node instanceof QualifiedSuperReference) {
 			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
@@ -740,6 +735,7 @@ class DefaultBindingResolver extends BindingResolver {
 					switch(problemFieldBinding.problemId()) {
 						case ProblemReasons.NotVisible : 
 						case ProblemReasons.NonStaticReferenceInStaticContext :
+						case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 							ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
 							if (variableBinding != null) {
 								FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name);
@@ -780,6 +776,7 @@ class DefaultBindingResolver extends BindingResolver {
 				switch(methodBinding.problemId()) {
 					case ProblemReasons.NotVisible : 
 					case ProblemReasons.NonStaticReferenceInStaticContext :
+					case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 						ReferenceBinding declaringClass = methodBinding.declaringClass;
 						if (declaringClass != null) {
 							org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
