@@ -190,6 +190,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	private void acceptQualifiedTypes() {
 		if(acceptedClasses != null){
+			acceptedAnswer = true;
 			for (int i = 0; i < acceptedClassesCount; i++) {
 				requestor.acceptClass(
 					acceptedClasses[i][0],
@@ -200,6 +201,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			acceptedClassesCount = 0;
 		}
 		if(acceptedInterfaces != null){
+			acceptedAnswer = true;
 			for (int i = 0; i < acceptedInterfacesCount; i++) {
 				requestor.acceptInterface(
 					acceptedInterfaces[i][0],
@@ -416,9 +418,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), this);
-							if (!acceptedAnswer)
-								nameEnvironment.findTypes(selectedIdentifier, this);
-							// try with simple type name
+							// accept qualified types only if no unqualified type was accepted
+							if(!acceptedAnswer) {
+								acceptQualifiedTypes();
+								if (!acceptedAnswer) {
+									nameEnvironment.findTypes(selectedIdentifier, this);
+									// try with simple type name
+									if(!acceptedAnswer) {
+										acceptQualifiedTypes();
+									}
+								}
+							}
 							return;
 						}
 					}
