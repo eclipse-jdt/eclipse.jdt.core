@@ -41,7 +41,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-static final byte VERSION = 0x0009; // added AccessRestrictions
+static final byte VERSION = 0x0010; // reordered patterns in AccessRestrictions
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -579,8 +579,8 @@ private void writeRestriction(AccessRestriction restriction, DataOutputStream ou
 	} else {
 		out.writeBoolean(true);
 		out.writeUTF(restriction.getMessageTemplate());
+		writeNames(restriction.getInclusionPatterns(), out); // inclusion patterns come first, see readRestriction()
 		writeNames(restriction.getExclusionPatterns(), out);
-		writeNames(restriction.getInclusionPatterns(), out);
 		// skip the AccessRestriction.furtherRestriction until we decide if it will be used
 	}
 }
