@@ -102,6 +102,31 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 	message = new String(messageWithNoDoubleQuotes);
 
+/*
+	// dequalify problem arguments, using following heuristic:
+	// - if no segment is uppercased, then keep it all
+	// - if one segment is uppercased, then only preserve the trailing portion, starting from this segment
+	// e.g. 	java.lang.Object --> Object
+	// 		int --> int
+	//			java.lang --> java.lang
+	//			p.X.Y --> X.Y
+	for (int i = 0; i < problemArguments.length; i++){
+		String problemArgument = problemArguments[i];
+		int length = problemArgument.length();
+		
+		if (length > 0 && Character.isLowerCase(problemArgument.charAt(0))) {
+			int start = 0;
+			while (start < length) {
+				int index = problemArgument.indexOf('.', start);
+				if (index == -1) break;
+				if (index < length && Character.isUpperCase(problemArgument.charAt(index+1))){
+					problemArguments[i] = problemArgument.substring(index+1);
+				}
+				start = index+1;
+			}
+		}
+	}
+*/	
 	int length = message.length();
 	int start = -1, end = length;
 	while (true) {
