@@ -766,7 +766,9 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(SwitchCase node) {
 		buffer.append("case ");//$NON-NLS-1$
-		node.getExpression().accept(this);
+		if (!node.isDefault()) {
+			node.getExpression().accept(this);
+		}
 		buffer.append(": ");//$NON-NLS-1$
 		return false;
 	}
