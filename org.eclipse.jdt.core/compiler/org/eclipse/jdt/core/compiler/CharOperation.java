@@ -200,6 +200,31 @@ public final class CharOperation {
 		return result;
 	}
 
+	public static final int compareWith(char[] array, char[] prefix, boolean isCaseSensitive) {
+		int arrayLength = array.length;
+		int prefixLength = prefix.length;
+		int min = Math.min(arrayLength, prefixLength);
+		int i = 0;
+		if (isCaseSensitive) {
+			while (min-- != 0) {
+				char c1 = array[i];
+				char c2 = prefix[i++];
+				if (c1 != c2)
+					return c1 - c2;
+			}
+		} else {
+			while (min-- != 0) {
+				char c1 = Character.toLowerCase(array[i]);
+				char c2 = Character.toLowerCase(prefix[i++]);
+				if (c1 != c2)
+					return c1 - c2;
+			}
+		}
+		if (prefixLength == i)
+			return 0;
+		return 1;	
+	}
+
 	/**
 	 * Answers the concatenation of the two arrays. It answers null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
@@ -443,31 +468,6 @@ public final class CharOperation {
 		result[length1 + length2 + 1] = sep2;
 		System.arraycopy(third, 0, result, length1 + length2 + 2, length3);
 		return result;
-	}
-
-	public static final int compareWith(char[] array, char[] prefix, boolean isCaseSensitive) {
-		int arrayLength = array.length;
-		int prefixLength = prefix.length;
-		int min = Math.min(arrayLength, prefixLength);
-		int i = 0;
-		if (isCaseSensitive) {
-			while (min-- != 0) {
-				char c1 = array[i];
-				char c2 = prefix[i++];
-				if (c1 != c2)
-					return c1 - c2;
-			}
-		} else {
-			while (min-- != 0) {
-				char c1 = Character.toLowerCase(array[i]);
-				char c2 = Character.toLowerCase(prefix[i++]);
-				if (c1 != c2)
-					return c1 - c2;
-			}
-		}
-		if (prefixLength == i)
-			return 0;
-		return 1;	
 	}
 
 	/**
