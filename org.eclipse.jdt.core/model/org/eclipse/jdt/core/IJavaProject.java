@@ -782,7 +782,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
 	 * before setting the classpath.
 	 * <p>
-	 * This operation acquires a lock on the ".classpath" file of this project.
+	 * This operation acquires a lock on this project.
 	 *
 	 * @param entries a list of classpath entries
 	 * @param monitor the given progress monitor
@@ -824,7 +824,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * the classpath.
 	 * </p>
 	 * <p>
-	 * This operation acquires a lock on the ".classpath" file of this project.
+	 * This operation acquires a lock on this project.
 	 * </p>
 	 * 
 	 * @param entries a list of classpath entries

@@ -518,8 +518,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 	}
 
 	protected ISchedulingRule getSchedulingRule() {
-		// only lock the .classpath file during a set classpath operation
-		return this.project.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
+		// only lock the project during a set classpath operation
+		return this.project.getProject();
 	}
 	/*
 	 * Returns the source attachment flag for the delta between the 2 give source paths.
