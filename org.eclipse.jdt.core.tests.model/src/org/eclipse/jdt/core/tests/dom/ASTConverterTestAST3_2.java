@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0572"));
+		suite.addTest(new ASTConverterTestAST3_2("test0575"));
 		return suite;
 	}
 	/**
@@ -5274,5 +5274,57 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong type", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		final IProblem[] problems = unit.getProblems();
 		assertEquals("Wrong number of problems", 1, problems.length); //$NON-NLS-1$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78735
+	 */
+	public void test0574() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0574", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("Missing node", node);
+		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		node = getASTNode(unit, 0, 1, 0);
+		assertNotNull("Missing node", node);
+		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding2 = fragment.resolveBinding();
+		assertFalse("are Equals", variableBinding.isEqualTo(variableBinding2));
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78735
+	 */
+	public void test0575() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0575", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 2);
+		assertNotNull("Missing node", node);
+		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		node = getASTNode(unit, 0, 1, 1);
+		assertNotNull("Missing node", node);
+		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+		assertFalse("are Equals", methodBinding.isEqualTo(methodBinding2));
 	}
 }

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -104,7 +105,8 @@ class BindingComparator {
 				&& isEqual(methodBinding.returnType, methodBinding2.returnType) 
 				&& isEqual(methodBinding.parameters, methodBinding2.parameters)
 				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions)
-				&& isEqual(methodBinding.typeVariables, methodBinding2.typeVariables));
+				&& isEqual(methodBinding.typeVariables, methodBinding2.typeVariables))
+				&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass);
 	}
 			
 	static boolean isEqualWithoutTypeVariables(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding,
@@ -120,6 +122,13 @@ class BindingComparator {
 		return variableBinding.modifiers == variableBinding2.modifiers
 				&& CharOperation.equals(variableBinding.name, variableBinding2.name)
 				&& isEqual(variableBinding.type, variableBinding2.type);
+	}
+
+	static boolean isEqual(FieldBinding fieldBinding, FieldBinding fieldBinding2) {
+		return fieldBinding.modifiers == fieldBinding2.modifiers
+				&& CharOperation.equals(fieldBinding.name, fieldBinding2.name)
+				&& isEqual(fieldBinding.type, fieldBinding2.type)
+				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass);
 	}
 
 	/**

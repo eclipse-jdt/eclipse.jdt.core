@@ -216,8 +216,15 @@ class VariableBinding implements IVariableBinding {
 			return false;
 		}
 		org.eclipse.jdt.internal.compiler.lookup.VariableBinding otherBinding = ((VariableBinding) other).binding;
-		// check return type
-		return BindingComparator.isEqual(this.binding, otherBinding);
+		if (this.binding instanceof FieldBinding) {
+			if (otherBinding instanceof FieldBinding) {
+				return BindingComparator.isEqual((FieldBinding) this.binding, (FieldBinding) otherBinding);
+			} else {
+				return false;
+			}
+		} else {
+			return BindingComparator.isEqual(this.binding, otherBinding);
+		}
 	}
 	
 	/*
