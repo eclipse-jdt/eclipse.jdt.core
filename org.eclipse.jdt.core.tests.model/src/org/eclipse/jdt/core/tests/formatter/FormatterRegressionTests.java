@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
 
-		if (false) {
+		if (true) {
 			Class c = FormatterRegressionTests.class;
 			Method[] methods = c.getMethods();
 			for (int i = 0, max = methods.length; i < max; i++) {
@@ -184,31 +184,24 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	private String[] createArrayOfString(String s) {
-		String delim = null;
-		int indexOfBackslashN = s.indexOf('\n');
-		int indexOfBackslashR = s.indexOf('\r');
-		if (indexOfBackslashN != -1) {
-			if (indexOfBackslashR != -1) {
-				delim = "\r\n";
-			} else {
-				delim = "\n";
-			}
-		} else if (indexOfBackslashR != -1) {
-			delim = "\r";
-		} else {
-			return new String[] {s};
-		}
-		int start = 0;
 		ArrayList arrayList = new ArrayList();
-		int index = s.indexOf(delim, start);
-
-		while (index != -1) {
-			arrayList.add(s.substring(start, index));
-			start = index + delim.length();
-			index = s.indexOf(delim, start);
-		}
-		if (s.endsWith(delim)) {
-			arrayList.add("");
+		int start = 0;
+		char[] source = s.toCharArray();
+		for (int i = 0, max = source.length; i < max; i++) {
+			switch(source[i]) {
+				case '\r':
+					arrayList.add(s.substring(start, i));
+					if ((i + 1) < max) {
+						if (source[i + 1] == '\n') {
+							i++;
+						}
+					}
+					start = i + 1;
+					break;
+				case '\n' :
+					arrayList.add(s.substring(start, i));
+					start = i + 1;
+			}
 		}
 		return (String[]) arrayList.toArray(new String[arrayList.size()]);
 	}
@@ -3685,5 +3678,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test336", "A.java", CodeFormatter.K_STATEMENTS, 8);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46150
+	 */
+	public void test337() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test337", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 }
