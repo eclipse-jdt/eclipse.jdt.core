@@ -11444,5 +11444,37 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			false, // do not flush output
 			null);		
 	}			
-	
+	public void test431() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<Type> {\n" + 
+				"  private class Element {\n" + 
+				"  }\n" + 
+				"  public X() {\n" + 
+				"    Element[] eArray = new Element[10];\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Element[] eArray = new Element[10];\n" + 
+		"	                   ^^^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of X<Type>.Element\n" + 
+		"----------\n");
+	}		
+	public void test432() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<Type> {\n" + 
+				"  private static class Element {\n" + 
+				"  }\n" + 
+				"  public X() {\n" + 
+				"    Element[] eArray = new Element[10];\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+		"");
+	}		
 }

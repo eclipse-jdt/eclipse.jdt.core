@@ -281,20 +281,29 @@ public boolean isRawType() {
 public boolean isReifiable() {
 	
 	TypeBinding leafType = leafComponentType();
-	switch(leafType.bindingType()) {
-		
-		case Binding.TYPE_PARAMETER :
-		case Binding.WILDCARD_TYPE :
-		case Binding.GENERIC_TYPE :
-			return false;
+	if (!(leafType instanceof ReferenceBinding)) 
+		return true;
+	ReferenceBinding current = (ReferenceBinding) leafType;
+	do {
+		switch(current.bindingType()) {
 			
-		case Binding.PARAMETERIZED_TYPE :
-			return !isBoundParameterizedType();
-			
-		case Binding.RAW_TYPE :
-		default :
+			case Binding.TYPE_PARAMETER :
+			case Binding.WILDCARD_TYPE :
+			case Binding.GENERIC_TYPE :
+				return false;
+				
+			case Binding.PARAMETERIZED_TYPE :
+				if (isBoundParameterizedType()) 
+					return false;
+				break;
+				
+			case Binding.RAW_TYPE :
+				return true;
+		}
+		if (current.isStatic()) 
 			return true;
-	}
+	} while ((current = current.enclosingType()) != null);
+	return true;
 }
 
 // JLS3: 4.5.1.1
