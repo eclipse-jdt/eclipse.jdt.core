@@ -2112,6 +2112,7 @@ public final class JavaCore extends Plugin {
 		}
 		return options;
 	}
+	// TODO (olivier) remove after M7
 	private static String getConvertedValue(Preferences preferences, String key) {
 		String value = preferences.getString(key);
 		if (value != null) {
@@ -2266,7 +2267,7 @@ public final class JavaCore extends Plugin {
 			return null;
 		}
 	}
-	// TODO remove after M7
+	// TODO (olivier) remove after M7
 	private static void convertFormatterOptions(String key, String value, Map options) {
 		if (DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT.equals(key)) {
 			options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION, value);
