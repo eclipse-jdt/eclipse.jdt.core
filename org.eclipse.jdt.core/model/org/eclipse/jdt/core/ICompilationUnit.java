@@ -183,12 +183,14 @@ IPackageDeclaration getPackageDeclaration(String name);
 IPackageDeclaration[] getPackageDeclarations() throws JavaModelException;
 /**
  * Returns the top-level type declared in this compilation unit with the given simple type name.
+ * The type name has to be a valid compilation unit name.
  * This is a handle-only method. The type may or may not exist.
  *
  * @param name the simple name of the requested type in the compilation unit
  * @return a handle onto the corresponding type. The type may or may not exist.
+ * @see JavaConventions#validateCompilationUnitName(String name)
  */
-IType getType(String name) ;
+IType getType(String name);
 /**
  * Returns the top-level types declared in this compilation unit
  * in the order in which they appear in the source.
