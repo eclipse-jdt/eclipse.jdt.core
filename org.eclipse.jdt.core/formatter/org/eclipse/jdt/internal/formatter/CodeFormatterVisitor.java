@@ -2621,9 +2621,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			/*
 			 * Method body
 			 */
-			String method_declaration_brace = this.preferences.brace_position_for_constructor_declaration;
-			formatLeftCurlyBrace(line, method_declaration_brace);
-			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_opening_brace_in_constructor_declaration);
+			String constructor_declaration_brace = this.preferences.brace_position_for_constructor_declaration;
+			formatLeftCurlyBrace(line, constructor_declaration_brace);
+			formatOpeningBrace(constructor_declaration_brace, this.preferences.insert_space_before_opening_brace_in_constructor_declaration);
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.blank_lines_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
 				this.scribe.printEmptyLines(numberOfBlankLinesAtBeginningOfMethodBody);
@@ -2661,7 +2661,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
-			if (method_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+			if (constructor_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 				this.scribe.unIndent();
 			}
 		} else {
