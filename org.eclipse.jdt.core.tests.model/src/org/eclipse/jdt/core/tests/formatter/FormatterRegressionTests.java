@@ -48,7 +48,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
@@ -4924,7 +4924,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49351
 	 */
-	public void test432() {
+	public void _test432() {
 		DecodeCodeFormatterPreferences.decodeCodeFormatterOptions("e:/downloads/Formatter_settings_bug49298.xml");
 	}	
 }
