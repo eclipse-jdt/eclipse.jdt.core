@@ -1016,6 +1016,7 @@ public void saving(ISaveContext context) throws CoreException {
 		info.developmentContext.setCurrentState(state);
 	}
 	public void setLastBuiltState2(IProject project, Object state) {
+		setLastBuiltState(project, null); // TEMPORARY
 		PerProjectInfo info = getPerProjectInfo(project);
 //		info.triedRead= true; // no point trying to re-read once using setter
 		info.savedState = state;

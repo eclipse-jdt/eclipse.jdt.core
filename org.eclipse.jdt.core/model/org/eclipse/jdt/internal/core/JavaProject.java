@@ -1306,7 +1306,9 @@ public class JavaProject
 	 */
 	public boolean hasBuildState() {
 
-		return JavaModelManager.getJavaModelManager().getLastBuiltState(this.getProject(), null) != null;
+		return JavaModelManager.getJavaModelManager().getLastBuiltState(this.getProject(), null) != null
+			// TEMPORARY
+			|| JavaModelManager.getJavaModelManager().getLastBuiltState2(this.getProject(), null) != null;
 	}
 
 	/**
