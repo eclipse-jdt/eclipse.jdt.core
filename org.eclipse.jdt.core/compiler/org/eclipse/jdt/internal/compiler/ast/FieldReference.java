@@ -508,7 +508,6 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (binding.isStatic()) {
 			// static field accessed through receiver? legal but unoptimal (optional warning)
 			if (!(isImplicitThisRcv
-					|| receiver.isSuper()
 					|| (receiver instanceof NameReference 
 						&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
 				scope.problemReporter().nonStaticAccessToStaticField(this, binding);
