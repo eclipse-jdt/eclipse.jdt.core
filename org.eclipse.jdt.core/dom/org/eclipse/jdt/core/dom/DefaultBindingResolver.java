@@ -89,9 +89,16 @@ class DefaultBindingResolver extends BindingResolver {
 	private CompilationUnitScope scope;
 	
 	/**
+	 * Check if the binding resolver has to ensure the modification cound
+	 * didn't change
+	 */
+	private boolean checkModificationCount;
+	
+	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
 	DefaultBindingResolver() {
+		checkModificationCount = false;
 		this.newAstToOldAst = new HashMap();
 		this.compilerBindingsToASTBindings = new HashMap();
 		this.bindingsToAstNodes = new HashMap();
@@ -110,7 +117,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	IBinding resolveName(Name name) {
-		if (this.modificationCount != name.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != name.getAST().modificationCount()) {
 			return null;
 		}
 		ASTNode parent = name.getParent();
@@ -155,7 +162,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveType(Type type) {
-		if (this.modificationCount != type.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != type.getAST().modificationCount()) {
 			return null;
 		}
 		// retrieve the old ast node
@@ -222,7 +229,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveType(TypeDeclaration type) {
-		if (this.modificationCount != type.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != type.getAST().modificationCount()) {
 			return null;
 		}
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.newAstToOldAst.get(type);
@@ -237,7 +244,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	IMethodBinding resolveMethod(MethodDeclaration method) {
-		if (this.modificationCount != method.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != method.getAST().modificationCount()) {
 			return null;
 		}
 		AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) this.newAstToOldAst.get(method);
@@ -252,7 +259,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
-		if (this.modificationCount != variable.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != variable.getAST().modificationCount()) {
 			return null;
 		}
 		AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) this.newAstToOldAst.get(variable);
@@ -270,7 +277,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	IVariableBinding resolveVariable(FieldDeclaration variable) {
-		if (this.modificationCount != variable.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != variable.getAST().modificationCount()) {
 			return null;
 		}
 		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) this.newAstToOldAst.get(variable);
@@ -282,7 +289,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveExpressionType(Expression expression) {
-		if (this.modificationCount != expression.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != expression.getAST().modificationCount()) {
 			return null;
 		}
 		if (expression instanceof ClassInstanceCreation) {
@@ -407,7 +414,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveImport(ImportDeclaration)
 	 */
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
-		if (this.modificationCount != importDeclaration.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != importDeclaration.getAST().modificationCount()) {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(importDeclaration);
@@ -436,7 +443,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolvePackage(PackageDeclaration)
 	 */
 	IPackageBinding resolvePackage(PackageDeclaration pkg) {
-		if (this.modificationCount != pkg.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != pkg.getAST().modificationCount()) {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(pkg);
@@ -732,7 +739,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveConstructor(ClassInstanceCreation)
 	 */
 	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
-		if (this.modificationCount != expression.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != expression.getAST().modificationCount()) {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
@@ -749,7 +756,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveConstructor(ConstructorInvocation)
 	 */
 	IMethodBinding resolveConstructor(ConstructorInvocation expression) {
-		if (this.modificationCount != expression.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != expression.getAST().modificationCount()) {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
@@ -764,7 +771,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveConstructor(SuperConstructorInvocation)
 	 */
 	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
-		if (this.modificationCount != expression.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != expression.getAST().modificationCount()) {
 			return null;
 		}
 		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
@@ -778,7 +785,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveType(AnonymousClassDeclaration)
 	 */
 	ITypeBinding resolveType(AnonymousClassDeclaration type) {
-		if (this.modificationCount != type.getAST().modificationCount()) {
+		if (this.checkModificationCount && this.modificationCount != type.getAST().modificationCount()) {
 			return null;
 		}
 		org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration) this.newAstToOldAst.get(type);
@@ -790,4 +797,13 @@ class DefaultBindingResolver extends BindingResolver {
 		return super.resolveType(type);
 	}
 
+	/**
+	 * Store the number of modifications done using the ast. This is used to validate
+	 * resolveBinding methods. If the number changed, all resolve bindings methods
+	 * simply return null.
+	 */
+	protected void storeModificationCount(long modificationCount) {
+		super.storeModificationCount(modificationCount);
+		this.checkModificationCount = true;
+	}
 }

@@ -155,7 +155,6 @@ class ASTConverter {
 		setJavaDocComment(typeDecl);
 		if (resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			typeDecl.resolveBinding();
 		}
 		return typeDecl;
@@ -467,7 +466,6 @@ class ASTConverter {
 		setJavaDocComment(typeDecl);
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			typeDecl.resolveBinding();
 		}
 		return typeDecl;
@@ -624,7 +622,6 @@ class ASTConverter {
 		setJavaDocComment(methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			methodDecl.resolveBinding();
 		}
 		return methodDecl;
@@ -786,7 +783,6 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(classInstanceCreation, expression);
 			recordNodes(anonymousClassDeclaration, expression);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			classInstanceCreation.resolveTypeBinding();
 		}
 		return classInstanceCreation;
@@ -2328,7 +2324,6 @@ class ASTConverter {
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd ));
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, fieldDeclaration);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			variableDeclarationFragment.resolveBinding();
 		}
 		return variableDeclarationFragment;
@@ -2355,7 +2350,6 @@ class ASTConverter {
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSource.length));
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			variableDeclarationFragment.resolveBinding();
 		}
 		return variableDeclarationFragment;
@@ -2366,7 +2360,6 @@ class ASTConverter {
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(variableDeclarationFragment);
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, fieldDecl);
-			this.ast.getBindingResolver().storeModificationCount(this.ast.modificationCount());
 			variableDeclarationFragment.resolveBinding();
 		}
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);

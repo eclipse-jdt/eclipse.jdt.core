@@ -38,7 +38,7 @@ class BindingResolver {
 	 * resolveBinding methods. If the number changed, all resolve bindings methods
 	 * simply return null.
 	 */
-	void storeModificationCount(long modificationCount) {
+	protected void storeModificationCount(long modificationCount) {
 		this.modificationCount = modificationCount;
 	}
 	
