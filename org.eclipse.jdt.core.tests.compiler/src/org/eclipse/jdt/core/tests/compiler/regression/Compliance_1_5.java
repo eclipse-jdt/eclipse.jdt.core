@@ -2920,7 +2920,7 @@ public void test088() {
 		"4. WARNING in p\\X.java (at line 39)\n" + 
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Varargs argument should be cast to Class[] when passed to the method getMethod(String, Class...) from the type Class\n" + 
+		"Varargs argument null should be cast to Class[] when passed to the method getMethod(String, Class...) from type Class\n" + 
 		"----------\n"
 	);
 }

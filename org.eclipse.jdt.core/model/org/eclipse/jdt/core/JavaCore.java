@@ -401,7 +401,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
-	public static final String COMPILER_PB_AMBIGUOUS_VARARGS_ARGUMENT = PLUGIN_ID + ".compiler.problem.ambiguousVarargsArgument"; //$NON-NLS-1$
+	public static final String COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST = PLUGIN_ID + ".compiler.problem.varargsArgumentNeedCast"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1802,11 +1802,11 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
-	 * COMPILER / Reporting Ambiguous Argument for Varargs Method/Constructor Invocation
-	 *    When enabled, the compiler will issue an error or a warning whenever a varargs method/constructor is invoked with an ambiguous 
-	 *    argument (e.g. Class.getMethod(String name, Class ... args )  invoked with arguments ("foo", null))
-	 *    wich should rather be explicitly casted to varargs type since will be passed as is.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.ambiguousVarargsArgument"
+	 * COMPILER / Reporting Varargs Argument Needing a Cast in Method/Constructor Invocation
+	 *    When enabled, the compiler will issue an error or a warning whenever a varargs arguments should be cast
+	 *    when passed to a method/constructor invocation. (e.g. Class.getMethod(String name, Class ... args )  
+	 *    invoked with arguments ("foo", null)).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 

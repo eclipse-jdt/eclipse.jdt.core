@@ -482,6 +482,18 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			"BLEU10BLANCROUGE");
 	}			
+	// check enum constants with empty arguments
+	public void test017() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	\n" + 
+				"	BLEU()\n" + 
+				"}\n"
+			},
+			"");
+	}			
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

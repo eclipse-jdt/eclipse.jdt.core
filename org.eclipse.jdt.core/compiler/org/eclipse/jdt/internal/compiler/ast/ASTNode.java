@@ -178,15 +178,15 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				TypeBinding lastArgType = argumentTypes[varargIndex];
 				if (lastArgType == NullBinding) {
 					if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
-						scope.problemReporter().castArgumentToVarargsMethod(method, invocationSite);
+						scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 				} else if (varargType.dimensions <= lastArgType.dimensions()) {
 					int dimensions = lastArgType.dimensions();
 					if (lastArgType.leafComponentType().isBaseType())
 						dimensions--;
 					if (varargType.dimensions < dimensions)
-						scope.problemReporter().castArgumentToVarargsMethod(method, invocationSite);
+						scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 					else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
-						scope.problemReporter().castArgumentToVarargsMethod(method, invocationSite);
+						scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 				}
 			}
 		} else {

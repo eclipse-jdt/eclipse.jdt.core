@@ -361,24 +361,6 @@ public void caseExpressionMustBeConstant(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void castArgumentToVarargsMethod(MethodBinding method, InvocationSite location) {
-	TypeBinding lastParam = method.parameters[method.parameters.length-1];
-	if (method.isConstructor()) {
-		this.handle(
-			IProblem.CastArgumentToVarargsConstructor,
-			new String[] {new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
-			new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
-			location.sourceStart(),
-			location.sourceEnd());
-	} else {
-		this.handle(
-			IProblem.CastArgumentToVarargsMethod,
-			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
-			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
-			location.sourceStart(),
-			location.sourceEnd());
-	}
-}
 public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
@@ -548,9 +530,9 @@ public int computeSeverity(int problemId){
 		case IProblem.ForbiddenReference:
 			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
 
-		case IProblem.CastArgumentToVarargsConstructor :
-		case IProblem.CastArgumentToVarargsMethod :
-			return this.options.getSeverity(CompilerOptions.CastVarargsArgument);
+		case IProblem.MethodVarargsArgumentNeedCast :
+		case IProblem.ConstructorVarargsArgumentNeedCast :
+			return this.options.getSeverity(CompilerOptions.VarargsArgumentNeedCast);
 
 		/*
 		 * Javadoc syntax errors
@@ -4775,6 +4757,24 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 		NoArgument,
 		sourceStart,
 		sourceEnd);	
+}
+public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentType, InvocationSite location) {
+	TypeBinding lastParam = method.parameters[method.parameters.length-1];
+	if (method.isConstructor()) {
+		this.handle(
+			IProblem.ConstructorVarargsArgumentNeedCast,
+			new String[] {new String(argumentType.readableName()), new String(lastParam.readableName()), new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false), },
+			new String[] {new String(argumentType.shortReadableName()), new String(lastParam.shortReadableName()), new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true), },
+			location.sourceStart(),
+			location.sourceEnd());
+	} else {
+		this.handle(
+			IProblem.MethodVarargsArgumentNeedCast,
+			new String[] { new String(argumentType.readableName()), new String(lastParam.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false), new String(method.declaringClass.readableName()), },
+			new String[] { new String(argumentType.shortReadableName()), new String(lastParam.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), new String(method.declaringClass.shortReadableName()), },
+			location.sourceStart(),
+			location.sourceEnd());
+	}
 }
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};

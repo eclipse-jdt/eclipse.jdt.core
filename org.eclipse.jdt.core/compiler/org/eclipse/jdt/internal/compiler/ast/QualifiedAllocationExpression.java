@@ -352,7 +352,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					this.typeArguments[i].traverse(visitor, scope);
 				}					
 			}
-			if (this.type != null) type.traverse(visitor, scope);
+			if (this.type != null) 
+				this.type.traverse(visitor, scope);
 			if (arguments != null) {
 				int argumentsLength = arguments.length;
 				for (int i = 0; i < argumentsLength; i++)
