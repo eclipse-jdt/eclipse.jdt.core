@@ -113,8 +113,7 @@ void recordLastStructuralChanges(IProject prereqProject, int prereqBuildNumber) 
 	structuralBuildNumbers.put(prereqProject.getName(), new Integer(prereqBuildNumber));
 }
 
-void remove(IPath filePath) {
-	String locationToRemove = filePath.toString();
+void remove(String locationToRemove) {
 	references.removeKey(locationToRemove);
 	typeLocations.removeValue(locationToRemove);
 }
@@ -130,7 +129,7 @@ void removePackage(IResourceDelta sourceDelta) {
 		case IResource.FILE :
 			IPath location = resource.getLocation();
 			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(location.getFileExtension()))
-				remove(location);
+				remove(location.toString());
 	}
 }
 

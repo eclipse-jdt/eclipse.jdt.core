@@ -333,7 +333,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 							for (int i = 0, length = definedTypeNames.length; i < length; i++)
 								removeClassFile(packagePath.append(new String(definedTypeNames[i])));
 						}
-						newState.remove(location);
+						newState.remove(sourceLocation);
 						return;
 					case IResourceDelta.CHANGED :
 						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0)
