@@ -28,7 +28,7 @@ public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] c
 	this.completionIdentifier = completionIdentifier;
 }
 public void aboutToResolve(Scope scope) {
-	getTypeBinding(scope.parent); // step up from the ClassScope
+	getTypeBinding(scope);
 }
 /*
  * No expansion of the completion reference into an array one
@@ -38,7 +38,7 @@ public TypeReference copyDims(int dim){
 }
 public TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
-	Binding binding = scope.getTypeOrPackage(tokens);
+	Binding binding = scope.parent.getTypeOrPackage(tokens); // step up from the ClassScope
 	if (!binding.isValidBinding()) {
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		throw new CompletionNodeFound();
