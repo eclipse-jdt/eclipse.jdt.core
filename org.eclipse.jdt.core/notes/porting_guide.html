@@ -7,7 +7,9 @@
 <body>
 
 <h1>JDT Core 3.0 Porting Guide</h1>
-<p>Last modified 13:40 CET November 18, 2003</p>
+<p>Last modified 16:45 CET November 18, 2003</p>
+
+<a name="bug_36987"></a>
 <h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
 <ul>
 	<li>Prior to 3.0, <code>IWorkingCopy</code> gathered all working copy concerns, and <code>ICompilationUnit</code> 
@@ -15,11 +17,13 @@
   		the entire working copy contract., which was not relevant to clients (implementation detail).
         <code>IWorkingCopy</code> also implemented the spec'ed factory method, but it didn't work for these.
 	</li>
-	<li>Interface <code>IWorkingCopy</code> is removed and all its functionality is merged into <code>ICompilationUnit</code>. 
-		This allows to better close the gap in between resource based compilation units and working copies (need to detail).
+	<li>One possible solution would have been to inverse the hierarchy and make <code>IWorkingCopy</code> implement
+	     <code>ICompilationUnit</code>. However as explained in the next <a href="#bug_36888">section</a>, closing the gap 
+	     between resource based compilation units and working copies required to merge these two interfaces. As a consequence 
+	     the interface <code>IWorkingCopy</code> is removed and all its functionality is merged into <code>ICompilationUnit</code>. 
 	</li>
-	<li>Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can adapt to this change by referencing <code>ICompilationUnit</code> instead of 
-         <code>IWorkingCopy</code> when a working copy is needed. For example:
+	<li>Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can adapt to this change by referencing 
+	     <code>ICompilationUnit</code> instead of <code>IWorkingCopy</code> when a working copy is needed. For example:
          <pre>
          ICompilationUnit compilationUnit = ...;
          IWorkingCopy workingCopy = (IWorkingCopy)compilationUnit.getWorkingCopy();
@@ -32,7 +36,96 @@
          workingCopy.reconcile(true/*force problem detection*/, null/*no progress monitor*/);
          </pre>
 	</li>
+	<li>To convert usage of <code>IWorkingCopy</code> functionality into usage of <code>ICompilationUnit</code> use this table:
+		<p>
+		<table BORDER CELLSPACING=2 CELLPADDING=2 >
+		<th>IWorkingCopy</th>
+		<th>ICompilationUnit</th>
+		<th>Note</th>
+		<tr>
+		<td>commit(boolean, IProgressMonitor)</td>
+		<td>commitWorkingCopy(boolean, IProgressMonitor)</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>destroy()</td>
+		<td>discardWorkingCopy()</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>findElements(IJavaElement)</td>
+		<td>findElements(IJavaElement)</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>findPrimaryType()</td>
+		<td>findPrimaryType()</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>findSharedWorkingCopy(IBufferFactory)</td>
+		<td>&nbsp;</td>
+		<td>No direct correspondance. See <a href="#bug_36888">next section</a> for details.</td>
+		</tr>
+		<tr>
+		<td>getOriginal(IJavaElement)</td>
+		<td>&nbsp;</td>
+		<td>Use IJavaElement.getPrimaryElement() instead.</td>
+		</tr>
+		<tr>
+		<td>getOriginalElement()</td>
+		<td>getPrimary()</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</td>
+		<td>getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</td>
+		<td>See <a href="#bug_36888">next section</a> for details.</td>
+		</tr>
+		<tr>
+		<td>getWorkingCopy()</td>
+		<td>getWorkingCopy(IProgressMonitor)</td>
+		<td>The returned object is no longer an <code>IJavaElement</code> but an <code>ICompilationUnit</code>.</td>
+		</tr>
+		<tr>
+		<td>getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</td>
+		<td>&nbsp;</td>
+		<td>No direct correspondance. See <a href="#bug_36888">next section</a> for details.</td>
+		</tr>
+		<tr>
+		<td>isBasedOn(IResource)</td>
+		<td>hasResourceChanged()</td>
+		<td>The IResource was always the working copy's resource. There was no need to pass it in.</td>
+		</tr>
+		<tr>
+		<td>isWorkingCopy()</td>
+		<td>isWorkingCopy()</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>reconcile()</td>
+		<td>reconcile(boolean, IProgressMonitor)</td>
+		<td>Pass in <code>false</code> to have the equivalent functionality. Note that this method doesn't return anything.</td>
+		</tr>
+		<tr>
+		<td>reconcile(boolean, IProgressMonitor)</td>
+		<td>reconcile(boolean, IProgressMonitor)</td>
+		<td>&nbsp;</td>
+		</tr>
+		<tr>
+		<td>restore()</td>
+		<td>restore()</td>
+		<td>&nbsp;</td>
+		</tr>
+		</table>
+		</p>
+	</li>
 </ul>
+
+<a name="bug_36888"></a>
+<h4>Interface ICompilationUnit (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)<br>
+        (closing the gap between between resource based compilation units and working copies)</h4>
+TO DO
 
 </body>
 
