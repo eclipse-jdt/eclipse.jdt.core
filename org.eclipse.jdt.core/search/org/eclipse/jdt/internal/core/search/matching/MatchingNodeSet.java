@@ -117,19 +117,11 @@ protected AstNode[] matchingNodes(int start, int end) {
 }
 public Object removePossibleMatch(AstNode node) {
 	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
-	AstNode existing = (AstNode) this.possibleMatchingNodesKeys.get(key);
-	if (existing == null) return null;
-	if (existing != node) throw new IllegalArgumentException();
-
 	this.possibleMatchingNodesKeys.put(key, null);
 	return this.possibleMatchingNodesSet.remove(node);
 }
 public Object removeTrustedMatch(AstNode node) {
 	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
-	AstNode existing = (AstNode) this.matchingNodesKeys.get(key);
-	if (existing == null) return null;
-	if (existing != node) throw new IllegalArgumentException();
-
 	this.matchingNodesKeys.put(key, null);
 	return this.matchingNodes.removeKey(node);
 }
