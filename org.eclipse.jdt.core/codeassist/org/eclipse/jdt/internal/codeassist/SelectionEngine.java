@@ -781,7 +781,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if(typeBinding instanceof ProblemReferenceBinding) {
 				typeBinding = ((ProblemReferenceBinding) typeBinding).original;
 			}
-			
+			if (typeBinding == null) return;
 			if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
 				this.noProposal = false;
 				if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {

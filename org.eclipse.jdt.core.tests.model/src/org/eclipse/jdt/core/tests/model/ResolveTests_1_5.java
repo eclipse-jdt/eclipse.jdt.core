@@ -1849,4 +1849,25 @@ public void test0085() throws JavaModelException {
 			"Member");
 	assertEquals("test0085.Test<T>.Member", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80957
+public void test0086() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0086/Test.java",
+			"package test0080;\n" +
+			"public class Test {\n" +
+			"   List<Integer> list;\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "List";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
 }
