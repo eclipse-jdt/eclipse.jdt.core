@@ -39,7 +39,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -1136,10 +1135,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 		return false;
 	}
 
-	private JavaModelException newInvalidElementType() {
-		return new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES));
-	}
-	
 	/**
 	 * Generic processing for elements with changed contents:<ul>
 	 * <li>The element is closed such that any subsequent accesses will re-open
@@ -1852,101 +1847,96 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * @throws a JavaModelException if the delta doesn't correspond to a java element of the given type.
 	 */
 	private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType, RootInfo rootInfo) {
-		try {
-			Openable element;
-			switch (delta.getKind()) {
-				case IResourceDelta.ADDED :
-					IResource deltaRes = delta.getResource();
-					element = this.createElement(deltaRes, elementType, rootInfo);
-					if (element == null) {
-						// resource might be containing shared roots (see bug 19058)
-						this.updateRoots(deltaRes.getFullPath(), delta);
-						throw newInvalidElementType();
-					}
-					this.updateIndex(element, delta);
-					this.elementAdded(element, delta, rootInfo);
+		Openable element;
+		switch (delta.getKind()) {
+			case IResourceDelta.ADDED :
+				IResource deltaRes = delta.getResource();
+				element = this.createElement(deltaRes, elementType, rootInfo);
+				if (element == null) {
+					// resource might be containing shared roots (see bug 19058)
+					this.updateRoots(deltaRes.getFullPath(), delta);
 					return false;
-				case IResourceDelta.REMOVED :
-					deltaRes = delta.getResource();
-					element = this.createElement(deltaRes, elementType, rootInfo);
-					if (element == null) {
-						// resource might be containing shared roots (see bug 19058)
-						this.updateRoots(deltaRes.getFullPath(), delta);
-						throw newInvalidElementType();
-					}
-					this.updateIndex(element, delta);
-					this.elementRemoved(element, delta, rootInfo);
-		
-					if (deltaRes.getType() == IResource.PROJECT){			
-						// reset the corresponding project built state, since cannot reuse if added back
-						this.manager.setLastBuiltState((IProject)deltaRes, null /*no state*/);
-					}
+				}
+				this.updateIndex(element, delta);
+				this.elementAdded(element, delta, rootInfo);
+				return false;
+			case IResourceDelta.REMOVED :
+				deltaRes = delta.getResource();
+				element = this.createElement(deltaRes, elementType, rootInfo);
+				if (element == null) {
+					// resource might be containing shared roots (see bug 19058)
+					this.updateRoots(deltaRes.getFullPath(), delta);
 					return false;
-				case IResourceDelta.CHANGED :
-					int flags = delta.getFlags();
-					if ((flags & IResourceDelta.CONTENT) != 0) {
-						// content has changed
-						element = this.createElement(delta.getResource(), elementType, rootInfo);
-						if (element == null) throw newInvalidElementType();
-						this.updateIndex(element, delta);
-						this.contentChanged(element, delta);
-					} else if (elementType == IJavaElement.JAVA_PROJECT) {
-						if ((flags & IResourceDelta.OPEN) != 0) {
-							// project has been opened or closed
-							IProject res = (IProject)delta.getResource();
-							element = this.createElement(res, elementType, rootInfo);
-							if (element == null) {
-								// resource might be containing shared roots (see bug 19058)
-								this.updateRoots(res.getFullPath(), delta);
-								throw newInvalidElementType();
-							}
-							if (res.isOpen()) {
-								if (JavaProject.hasJavaNature(res)) {
-									this.elementAdded(element, delta, rootInfo);
-									this.indexManager.indexAll(res);
-								}
-							} else {
-								JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
-								boolean wasJavaProject = javaModel.findJavaProject(res) != null;
-								if (wasJavaProject) {
-									this.elementRemoved(element, delta, rootInfo);
-									this.indexManager.discardJobs(element.getElementName());
-									this.indexManager.removeIndexFamily(res.getFullPath());
-									
-								}
-							}
-							return false; // when a project is open/closed don't process children
+				}
+				this.updateIndex(element, delta);
+				this.elementRemoved(element, delta, rootInfo);
+	
+				if (deltaRes.getType() == IResource.PROJECT){			
+					// reset the corresponding project built state, since cannot reuse if added back
+					this.manager.setLastBuiltState((IProject)deltaRes, null /*no state*/);
+				}
+				return false;
+			case IResourceDelta.CHANGED :
+				int flags = delta.getFlags();
+				if ((flags & IResourceDelta.CONTENT) != 0) {
+					// content has changed
+					element = this.createElement(delta.getResource(), elementType, rootInfo);
+					if (element == null) return false;
+					this.updateIndex(element, delta);
+					this.contentChanged(element, delta);
+				} else if (elementType == IJavaElement.JAVA_PROJECT) {
+					if ((flags & IResourceDelta.OPEN) != 0) {
+						// project has been opened or closed
+						IProject res = (IProject)delta.getResource();
+						element = this.createElement(res, elementType, rootInfo);
+						if (element == null) {
+							// resource might be containing shared roots (see bug 19058)
+							this.updateRoots(res.getFullPath(), delta);
+							return false;
 						}
-						if ((flags & IResourceDelta.DESCRIPTION) != 0) {
-							IProject res = (IProject)delta.getResource();
+						if (res.isOpen()) {
+							if (JavaProject.hasJavaNature(res)) {
+								this.elementAdded(element, delta, rootInfo);
+								this.indexManager.indexAll(res);
+							}
+						} else {
 							JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
 							boolean wasJavaProject = javaModel.findJavaProject(res) != null;
-							boolean isJavaProject = JavaProject.hasJavaNature(res);
-							if (wasJavaProject != isJavaProject) {
-								// project's nature has been added or removed
-								element = this.createElement(res, elementType, rootInfo);
-								if (element == null) throw newInvalidElementType(); // note its resources are still visible as roots to other projects
-								if (isJavaProject) {
-									this.elementAdded(element, delta, rootInfo);
-									this.indexManager.indexAll(res);
-								} else {
-									this.elementRemoved(element, delta, rootInfo);
-									this.indexManager.discardJobs(element.getElementName());
-									this.indexManager.removeIndexFamily(res.getFullPath());
-									// reset the corresponding project built state, since cannot reuse if added back
-									this.manager.setLastBuiltState(res, null /*no state*/);
-								}
-								return false; // when a project's nature is added/removed don't process children
+							if (wasJavaProject) {
+								this.elementRemoved(element, delta, rootInfo);
+								this.indexManager.discardJobs(element.getElementName());
+								this.indexManager.removeIndexFamily(res.getFullPath());
+								
 							}
 						}
+						return false; // when a project is open/closed don't process children
 					}
-					return true;
-			}
-			return true;
-		} catch (JavaModelException e) {
-			// non java resource or invalid project
-			return false;
+					if ((flags & IResourceDelta.DESCRIPTION) != 0) {
+						IProject res = (IProject)delta.getResource();
+						JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
+						boolean wasJavaProject = javaModel.findJavaProject(res) != null;
+						boolean isJavaProject = JavaProject.hasJavaNature(res);
+						if (wasJavaProject != isJavaProject) {
+							// project's nature has been added or removed
+							element = this.createElement(res, elementType, rootInfo);
+							if (element == null) return false; // note its resources are still visible as roots to other projects
+							if (isJavaProject) {
+								this.elementAdded(element, delta, rootInfo);
+								this.indexManager.indexAll(res);
+							} else {
+								this.elementRemoved(element, delta, rootInfo);
+								this.indexManager.discardJobs(element.getElementName());
+								this.indexManager.removeIndexFamily(res.getFullPath());
+								// reset the corresponding project built state, since cannot reuse if added back
+								this.manager.setLastBuiltState(res, null /*no state*/);
+							}
+							return false; // when a project's nature is added/removed don't process children
+						}
+					}
+				}
+				return true;
 		}
+		return true;
 	}
 
 	/**
