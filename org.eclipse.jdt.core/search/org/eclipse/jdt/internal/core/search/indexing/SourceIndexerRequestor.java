@@ -35,7 +35,7 @@ public SourceIndexerRequestor(SourceIndexer indexer, IDocument document) {
 	this.document= document;
 }
 /**
- * acceptConstructorReference method comment.
+ * @see ISourceElementRequestor#acceptConstructorReference(char[], int, int)
  */
 public void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition) {
 	this.indexer.addConstructorReference(typeName, argCount);
@@ -48,13 +48,13 @@ public void acceptConstructorReference(char[] typeName, int argCount, int source
 	}
 }
 /**
- * acceptFieldReference method comment.
+ * @see ISourceElementRequestor#acceptFieldReference(char[], int)
  */
 public void acceptFieldReference(char[] fieldName, int sourcePosition) {
 	this.indexer.addFieldReference(fieldName);
 }
 /**
- * acceptImport method comment.
+ * @see ISourceElementRequestor#acceptImport(int, int, char[], boolean, int)
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
 	char[][] qualification = CharOperation.splitOn('.', CharOperation.subarray(name, 0, CharOperation.lastIndexOf('.', name)));
@@ -87,7 +87,7 @@ public void acceptProblem(IProblem problem) {
 	// implements interface method
 }
 /**
- * acceptTypeReference method comment.
+ * @see ISourceElementRequestor#acceptTypeReference(char[][], int, int)
  */
 public void acceptTypeReference(char[][] typeName, int sourceStart, int sourceEnd) {
 	int length = typeName.length;
@@ -96,13 +96,13 @@ public void acceptTypeReference(char[][] typeName, int sourceStart, int sourceEn
 	acceptTypeReference(typeName[length - 1], 0);
 }
 /**
- * acceptTypeReference method comment.
+ * @see ISourceElementRequestor#acceptTypeReference(char[], int)
  */
 public void acceptTypeReference(char[] simpleTypeName, int sourcePosition) {
 	this.indexer.addTypeReference(simpleTypeName);
 }
 /**
- * acceptUnknownReference method comment.
+ * @see ISourceElementRequestor#acceptUnknownReference(char[][], int, int)
  */
 public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd) {
 	for (int i = 0; i < name.length; i++) {
@@ -110,7 +110,7 @@ public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd
 	}
 }
 /**
- * acceptUnknownReference method comment.
+ * @see ISourceElementRequestor#acceptUnknownReference(char[], int)
  */
 public void acceptUnknownReference(char[] name, int sourcePosition) {
 	this.indexer.addNameReference(name);
@@ -131,7 +131,7 @@ public char[][] enclosingTypeNames(){
 	return qualification;
 }
 /**
- * enterClass method comment.
+ * @see ISourceElementRequestor#enterClass(int, int, char[], int, int, char[], char[][])
  */
 public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces) {
 

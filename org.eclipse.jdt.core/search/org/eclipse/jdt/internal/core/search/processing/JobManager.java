@@ -105,6 +105,7 @@ public abstract class JobManager implements Runnable {
 							JobManager.verbose("-> waiting end of current background job - " + currentJob); //$NON-NLS-1$ //$NON-NLS-2$
 						Thread.sleep(50);
 					} catch(InterruptedException e){
+						// ignore
 					}
 				}
 			}
@@ -163,6 +164,7 @@ public abstract class JobManager implements Runnable {
 	 * When idle, give chance to do something
 	 */
 	protected void notifyIdle(long idlingTime) {
+		// do nothing
 	}
 	/**
 	 * This API is allowing to run one job in concurrence with background processing.
@@ -262,6 +264,7 @@ public abstract class JobManager implements Runnable {
 							try {
 								Thread.sleep(50);
 							} catch (InterruptedException e) {
+								// ignore
 							}
 						}
 					} finally {
@@ -427,6 +430,7 @@ public abstract class JobManager implements Runnable {
 				thread.join();
 			}
 		} catch (InterruptedException e) {
+			// ignore
 		}
 	}
 public String toString() {
