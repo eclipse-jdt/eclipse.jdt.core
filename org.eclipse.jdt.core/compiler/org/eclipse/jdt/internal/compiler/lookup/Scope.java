@@ -989,7 +989,8 @@ public abstract class Scope
 		// binding is now a ReferenceBinding
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
 		if (checkVisibility) // handles the fall through case
-			if (!typeBinding.canBeSeenBy(this))
+			// canBeSeenBy doesn't support CompilationUnitScope (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21485)
+			if (!(this instanceof CompilationUnitScope) && !typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					typeBinding,

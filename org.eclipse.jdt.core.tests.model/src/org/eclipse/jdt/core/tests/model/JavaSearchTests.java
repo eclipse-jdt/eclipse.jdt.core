@@ -213,6 +213,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceInThrows"));
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference1"));
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference2"));
+	suite.addTest(new JavaSearchTests("testInnacurateTypeReference3"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -943,6 +944,25 @@ public void testInnacurateTypeReference2() throws JavaModelException, CoreExcept
 		"src/b5/A.java b5.A.{} [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]",
+		resultCollector.toString());
+}
+/**
+ * Type reference test.
+ * (Regression test for bug 21485  NPE when doing a reference search to a package)
+ */
+public void testInnacurateTypeReference3() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "r3", "A21485.java").getType("A21485");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showAccuracy = true;
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/r4/B21485.java [r3.A21485] EXACT_MATCH\n" +
+		"src/r4/B21485.java r4.B21485 [A21485] POTENTIAL_MATCH",
 		resultCollector.toString());
 }
 
@@ -2229,6 +2249,7 @@ public void testNegativeTypeReference() throws JavaModelException, CoreException
 		"",
 		resultCollector.toString());
 }
+
 /**
  * Various package declarations test.
  */
