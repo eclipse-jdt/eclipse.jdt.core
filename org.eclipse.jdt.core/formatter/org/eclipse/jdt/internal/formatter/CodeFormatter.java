@@ -143,23 +143,14 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	 * Creates a new instance of Code Formatter using the given settings.
 	 */
 	public CodeFormatter(Map settings) {
-
-		// initialize internal state
-		constructionsCount = 0;
-		constructions = new int[10];
-		currentLineIndentationLevel = indentationLevel = initialIndentationLevel;
-		currentCommentOffset = -1;
-
 		// initialize primary and secondary scanners
 		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/); // regular scanner for forming lines
+		// to record positions of the beginning of lines.
 		scanner.recordLineSeparator = true;
 
-		// to remind of the position of the beginning of the line.
-		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment */, null /*taskTags*/, null/*taskPriorities*/);
 		// secondary scanner to split long lines formed by primary scanning
+		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment */, null /*taskTags*/, null/*taskPriorities*/);
 
-		// initialize current line buffer
-		currentLineBuffer = new StringBuffer();
 		this.options = new FormatterOptions(settings);
 	}
 
@@ -297,6 +288,8 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	 * Formats the input string.
 	 */
 	private void format() {
+		reset();
+		
 		int token = 0;
 		int previousToken = 0;
 		int previousCompilableToken = 0;
@@ -1965,7 +1958,20 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 		constructions[constructionsCount++] = token;
 		return 1;
 	}
-	
+
+	private void reset() {
+		// initialize internal state
+		constructionsCount = 0;
+		if (constructions == null) {
+			constructions = new int[10];		
+		}
+		currentLineIndentationLevel = indentationLevel = initialIndentationLevel;
+		currentCommentOffset = -1;
+
+		// initialize current line buffer
+		currentLineBuffer = new StringBuffer();
+	}
+
 	private static boolean separateFirstArgumentOn(int currentToken) {
 		//return (currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON);
 		return currentToken != TokenNameif
