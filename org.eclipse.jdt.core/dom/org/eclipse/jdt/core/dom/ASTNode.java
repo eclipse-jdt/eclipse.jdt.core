@@ -1983,6 +1983,8 @@ public abstract class ASTNode {
 				this.ast.preRemoveChildEvent(this, oldChild, property);
 			}
 			oldChild.setParent(null, null);
+		} else {
+			this.ast.preAddChildEvent(this, newChild, property);
 		}
 		// link new child to parent
 		if (newChild != null) {
@@ -2006,6 +2008,8 @@ public abstract class ASTNode {
 			} else {
 				this.ast.postAddChildEvent(this, newChild, property);
 			}
+		} else {
+			this.ast.postRemoveChildEvent(this, oldChild, property);
 		}
 	}
 	
@@ -2040,6 +2044,7 @@ public abstract class ASTNode {
 			// this node is protected => cannot change valure of properties
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
+		this.ast.preValueChangeEvent(this, property);
 		this.ast.modifying();
 	}
 

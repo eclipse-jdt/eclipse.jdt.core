@@ -381,6 +381,30 @@ public final class AST {
 	}
 	
 	/**
+	 * Reports that the given node jsut lost a child.
+	 * 
+	 * @param node the node that was modified
+	 * @param child the child node that was removed
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void postRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preRemoveChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
 	 * Reports that the given node is about have a child replaced.
 	 * 
 	 * @param node the node about to be modified
@@ -431,6 +455,30 @@ public final class AST {
 	}
 	
 	/**
+	 * Reports that the given node is about to gain a child.
+	 * 
+	 * @param node the node that to be modified
+	 * @param child the node that to be added as a child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void preAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postAddChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
 	 * Reports that the given node has just gained a child.
 	 * 
 	 * @param node the node that was modified
@@ -447,6 +495,30 @@ public final class AST {
 		try {
 			this.disableEvents++;
 			this.eventHandler.postAddChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node is about to change the value of a
+	 * non-child property.
+	 * 
+	 * @param node the node to be modified
+	 * @param property the property descriptor
+	 * @since 3.0
+	 */
+	void preValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postValueChangeEvent(node, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {

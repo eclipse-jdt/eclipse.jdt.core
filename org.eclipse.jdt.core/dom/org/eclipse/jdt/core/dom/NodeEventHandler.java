@@ -31,16 +31,32 @@ class NodeEventHandler {
 	
 	/**
 	 * Reports that the given node is about to lose a child.
-	 * The default implementation does nothing.
+	 * The first half of an event pair. The default implementation does nothing.
 	 * 
 	 * @param node the node about to be modified
 	 * @param child the node about to be removed
 	 * @param property the child or child list property descriptor
+	 * @see #postRemoveChildEvent(ASTNode, ASTNode, StructuralPropertyDescriptor)
 	 * @since 3.0
 	 */
 	void preRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("DEL " + property); //$NON-NLS-1$
+		// System.out.println("DEL1 " + property); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Reports that the given node has just lose a child.
+	 * The second half of an event pair. The default implementation does nothing.
+	 * 
+	 * @param node the node that was modified
+	 * @param child the child that was removed; note that this node is unparented
+	 * @param property the child or child list property descriptor
+	 * @see #preRemoveChildEvent(ASTNode, ASTNode, StructuralPropertyDescriptor)
+	 * @since 3.0
+	 */
+	void postRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		// do nothing
+		// System.out.println("DEL2 " + property); //$NON-NLS-1$
 	}
 	
 	/**
@@ -50,14 +66,14 @@ class NodeEventHandler {
 	 * 
 	 * @param node the node about to be modified
 	 * @param child the node about to be replaced
-	 * @param newChild the replacement child
+	 * @param newChild the replacement child; note that this node is unparented
 	 * @param property the child or child list property descriptor
 	 * @see #preReplaceChildEvent(ASTNode, ASTNode, ASTNode, StructuralPropertyDescriptor)
 	 * @since 3.0
 	 */
 	void preReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("RP1 " + property); //$NON-NLS-1$
+		// System.out.println("REP1 " + property); //$NON-NLS-1$
 	}
 	
 	/**
@@ -65,7 +81,7 @@ class NodeEventHandler {
 	 * of an event pair. The default implementation does nothing.
 	 * 
 	 * @param node the node that was modified
-	 * @param child the node that was replaced
+	 * @param child the node that was replaced; note that this node is unparented
 	 * @param newChild the replacement child
 	 * @param property the child or child list property descriptor
 	 * @see #postReplaceChildEvent(ASTNode, ASTNode, ASTNode, StructuralPropertyDescriptor)
@@ -73,33 +89,70 @@ class NodeEventHandler {
 	 */
 	void postReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("RP2 " + property); //$NON-NLS-1$
+		// System.out.println("REP2 " + property); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Reports that the given node is about to gain a child.
+	 * The first half of an event pair. The default implementation does nothing.
+	 * 
+	 * @param node the node that to be modified
+	 * @param child the node that is to be added as a child; note that this
+	 * node is unparented; in the case of a child list property, the exact
+	 * location of insertion is not supplied (but is known on the
+	 * corresponding <code>postAddChildEvent</code> to
+	 * follow)
+	 * @param property the child or child list property descriptor
+	 * @see #postAddChildEvent(ASTNode, ASTNode, StructuralPropertyDescriptor)
+	 * @since 3.0
+	 */
+	void preAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		// do nothing
+		// System.out.println("ADD1 " + property); //$NON-NLS-1$
 	}
 	
 	/**
 	 * Reports that the given node has just gained a child.
-	 * The default implementation does nothing.
+	 * The second half of an event pair. The default implementation does nothing.
 	 * 
 	 * @param node the node that was modified
 	 * @param child the node that was added as a child
 	 * @param property the child or child list property descriptor
+	 * @see #preAddChildEvent(ASTNode, ASTNode, StructuralPropertyDescriptor)
 	 * @since 3.0
 	 */
 	void postAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("ADD " + property); //$NON-NLS-1$
+		// System.out.println("ADD2 " + property); //$NON-NLS-1$
 	}
 	
 	/**
+	 * Reports that the given node is about to change the value of a
+	 * non-child property. The first half of an event pair.
+	 * The default implementation does nothing.
+	 * 
+	 * @param node the node to be modified
+	 * @param property the property descriptor
+	 * @see #postValueChangeEvent(ASTNode, SimplePropertyDescriptor)
+	 * @since 3.0
+	 */
+	void preValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
+		// do nothing
+		// System.out.println("MOD1 " + property); //$NON-NLS-1$
+	}
+
+	/**
 	 * Reports that the given node has just changed the value of a
-	 * non-child property. The default implementation does nothing.
+	 * non-child property. The second half of an event pair.
+	 * The default implementation does nothing.
 	 * 
 	 * @param node the node that was modified
 	 * @param property the property descriptor
+	 * @see #preValueChangeEvent(ASTNode, SimplePropertyDescriptor)
 	 * @since 3.0
 	 */
 	void postValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
 		// do nothing
-		// System.out.println("MOD " + property); //$NON-NLS-1$
+		// System.out.println("MOD2 " + property); //$NON-NLS-1$
 	}
 }
