@@ -77,7 +77,7 @@ public class Util {
 
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
-	public static char[][] JAVA_LIKE_EXTENSIONS;
+	private static char[][] JAVA_LIKE_EXTENSIONS;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -788,7 +788,26 @@ public class Util {
 	 */
 	public static char[][] getJavaLikeExtensions() {
 		if (JAVA_LIKE_EXTENSIONS == null) {
-			JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.SUFFIX_java, SuffixConstants.SUFFIX_JAVA};
+				
+			Plugin jdtCorePlugin = JavaCore.getPlugin();
+			if (jdtCorePlugin == null) return null;
+	
+			ArrayList fileExtensionsList = new ArrayList(5);
+			fileExtensionsList.add(SuffixConstants.SUFFIX_java);
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.EXTRA_JAVA_LIKE_FILE_EXTENSIONS_EXTPOINT_ID);
+			if (extension != null) {
+				IExtension[] extensions =  extension.getExtensions();
+				for(int i = 0; i < extensions.length; i++){
+					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+					for(int j = 0; j < configElements.length; j++){
+						String fileExtensionAttribute = configElements[j].getAttribute("extension"); //$NON-NLS-1$
+						if (fileExtensionAttribute != null) fileExtensionsList.add(('.' + fileExtensionAttribute).toCharArray());
+					}
+				}	
+			}
+			JAVA_LIKE_EXTENSIONS = new char[fileExtensionsList.size()][];
+			fileExtensionsList.toArray(JAVA_LIKE_EXTENSIONS);
+	
 		}
 		return JAVA_LIKE_EXTENSIONS;
 	}

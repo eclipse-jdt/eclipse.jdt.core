@@ -138,7 +138,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		for (int i = 0; i < invalidNames.length; i++) {
 			assertTrue("compilation unit name not recognized as invalid: " + invalidNames[i], !JavaConventions.validateCompilationUnitName(invalidNames[i]).isOK());
 		}
-		String[] validNames = new String[] {"Object.java", "Object.JAVA", "object.java", "package-info.java"};
+		String[] validNames = new String[] {"Object.java", "OBJECT.java", "object.java", "package-info.java"};
 		for (int i = 0; i < validNames.length; i++) {
 			assertTrue("compilation unit name not recognized as valid: " + validNames[i], JavaConventions.validateCompilationUnitName(validNames[i]).isOK());
 		}

@@ -106,6 +106,8 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources4"));
 	suite.addTest(new JavaProjectTests("testSourceFolderWithJarName"));
 	suite.addTest(new JavaProjectTests("testJdkLevelRoot"));
+	suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension1"));
+	suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension2"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -291,6 +293,43 @@ public void testExternalArchiveCorrespondingResource() throws JavaModelException
 	IPackageFragmentRoot element= project.getPackageFragmentRoot(getExternalJCLPathString());
 	IResource corr= element.getCorrespondingResource();
 	assertTrue("incorrect corresponding resource", corr == null);
+}
+/*
+ * Ensures that a file with an extra Java-like extension is listed in the children of a package.
+ */
+public void testExtraJavaLikeExtension1() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/pack");
+		createFile("/P/pack/X.java", "package pack; public class X {}");
+		createFile("/P/pack/Y.bar", "package pack; public class Y {}");
+		IPackageFragment pkg = getPackage("/P/pack");
+		assertElementsEqual(
+			"Unexpected children of package pack", 
+			"X.java [in pack [in <project root> [in P]]]\n" + 
+			"Y.bar [in pack [in <project root> [in P]]]",
+			pkg.getChildren());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a file with an extra Java-like extension is not listed in the non-Java resources of a package.
+ */
+public void testExtraJavaLikeExtension2() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/pack");
+		createFile("/P/pack/X.txt", "");
+		createFile("/P/pack/Y.bar", "package pack; public class Y {}");
+		IPackageFragment pkg = getPackage("/P/pack");
+		assertResourcesEqual(
+			"Unexpected non-Java resources of package pack", 
+			"X.txt",
+			pkg.getNonJavaResources());
+	} finally {
+		deleteProject("P");
+	}
 }
 /**
  * Test that a compilation unit can be found for a binary type
@@ -762,12 +801,12 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
 		
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
 		assertEquals("wrong number of entries:", length, roots.length);
-		long start = System.currentTimeMillis();
+		//long start = System.currentTimeMillis();
 		for (int i = 0; i < roots.length; i++){
 			IClasspathEntry rawEntry = roots[i].getRawClasspathEntry();
 			assertEquals("unexpected root raw entry:", classpath[i], rawEntry);
 		}
-		System.out.println((System.currentTimeMillis() - start)+ "ms for "+roots.length+" roots");
+		//System.out.println((System.currentTimeMillis() - start)+ "ms for "+roots.length+" roots");
 	} finally {
 		if (libDir != null) {
 			String[] libJars = libDir.list();

@@ -43,6 +43,12 @@
 			class="org.eclipse.jdt.core.tests.model.ContainerInitializer"/>
 	</extension>
 
+	<!-- Extra Java-like file extensions -->
+	<extension point="org.eclipse.jdt.core.extraJavaLikeFileExtensions">            
+	   <extraJavaLikeFile extension="foo"/>
+	   <extraJavaLikeFile extension="bar"/>
+	</extension>
+
 	<!-- Repository provider -->
 	<extension point="org.eclipse.team.core.repository">
 		<repository
