@@ -3,5 +3,6 @@
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
     <classpathentry kind="lib" path="lib.jar"/>
+    <classpathentry kind="lib" path="lib48459"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

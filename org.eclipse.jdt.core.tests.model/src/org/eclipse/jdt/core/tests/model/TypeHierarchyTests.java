@@ -227,6 +227,22 @@ public void testBinaryTypeGetSuperInterfaces2() throws JavaModelException {
 		"rich.I3\n", 
 		superInterfaces);
 }
+/*
+ * Ensures that a hierarchy with a binary subclass that is also referenced can be computed
+ * (regression test for bug 48459 NPE in Type hierarchy)
+ */
+public  void testBinarySubclass() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy/src/p48459/p1/X48459.java").getType("X48459");
+	ITypeHierarchy h = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: X48459 [in X48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in foo [in Z48459 [in Z48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  Y48459 [in Y48459.class [in p48459.p2 [in lib48459 [in TypeHierarchy]]]]\n",
+		h);
+}
 /**
  * Ensures that contains(...) returns true for a type that is part of the
  * hierarchy and false otherwise.
