@@ -22,6 +22,7 @@ protected char[] qualification;
 protected char[] simpleName;
 	
 // Additional information for generics search
+CompilationUnitScope unitScope;
 protected boolean declaration;	// show whether the search is based on a declaration or an instance
 protected char[][] typeNames;	// type arguments names storage
 protected TypeBinding[] typeBindings;	// cache for type arguments bindings
@@ -57,6 +58,7 @@ public TypeReferencePattern(char[] qualification, char[] simpleName, char[][] ty
 	if (typeNames != null) {
 		// store type arguments as is even if patter is not case sensitive
 		this.typeNames= typeNames;
+		this.typeBindings = new TypeBinding[typeNames.length];
 	}
 	this.declaration = fromJavaElement;
 	this.wildcards = wildcards;
@@ -87,13 +89,11 @@ public char[][] getIndexCategories() {
  * Cache is lazy initialized and if no binding is found, then store a problem binding
  * to avoid making research twice...
  */
-protected TypeBinding getTypeNameBinding(CompilationUnitScope unitScope, int index) {
-	int length = this.typeNames.length;
-	if (this.typeBindings == null) this.typeBindings = new TypeBinding[length];
-	if (index <0 || index > length) return null;
+protected TypeBinding getTypeNameBinding(int index) {
+	if (this.unitScope == null || index <0 || index > this.typeNames.length) return null;
 	TypeBinding typeBinding = this.typeBindings[index];
 	if (typeBinding == null) {
-		typeBinding = unitScope.getType(this.typeNames[index]);
+		typeBinding = this.unitScope.getType(this.typeNames[index]);
 		this.typeBindings[index] = typeBinding;
 	}
 	if (!typeBinding.isValidBinding()) {
@@ -116,6 +116,14 @@ protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
 	if (this.segments != null)
 		this.currentSegment = this.segments.length - 1;
+}
+protected void setUnitScope(CompilationUnitScope unitScope) {
+	if (unitScope != this.unitScope) {
+		this.unitScope = unitScope;
+		// reset bindings
+		if (typeNames != null)
+			this.typeBindings = new TypeBinding[typeNames.length];
+	}
 }
 /*
  * Show if selection should be extended. While selecting text on a search match, we nee to extend

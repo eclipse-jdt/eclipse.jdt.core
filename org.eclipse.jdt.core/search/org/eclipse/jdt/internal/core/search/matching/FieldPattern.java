@@ -27,6 +27,7 @@ protected char[] typeQualification;
 protected char[] typeSimpleName;
 	
 // Additional information for generics search
+CompilationUnitScope unitScope;
 protected boolean declaration;	// show whether the search is based on a declaration or an instance
 protected char[][] typeNames;	// type arguments names storage
 protected TypeBinding[] typeBindings;	// cache for type arguments bindings
@@ -80,6 +81,7 @@ public FieldPattern(
 
 	if (typeNames != null) {
 		this.typeNames= typeNames;
+		this.typeBindings = new TypeBinding[typeNames.length];
 	}
 	this.wildcards = wildcards;
 }
@@ -104,13 +106,11 @@ public char[][] getIndexCategories() {
  * Cache is lazy initialized and if no binding is found, then store a problem binding
  * to avoid making research twice...
  */
-protected TypeBinding getTypeNameBinding(CompilationUnitScope unitScope, int index) {
-	int length = this.typeNames.length;
-	if (this.typeBindings == null) this.typeBindings = new TypeBinding[length];
-	if (index <0 || index > length) return null;
+protected TypeBinding getTypeNameBinding(int index) {
+	if (this.typeNames == null || index <0 || index > this.typeNames.length) return null;
 	TypeBinding typeBinding = this.typeBindings[index];
 	if (typeBinding == null) {
-		typeBinding = unitScope.getType(this.typeNames[index]);
+		typeBinding = this.unitScope.getType(this.typeNames[index]);
 		this.typeBindings[index] = typeBinding;
 	} 
 	if (!typeBinding.isValidBinding()) {
@@ -126,6 +126,14 @@ protected boolean mustResolve() {
 	if (this.typeSimpleName != null || this.typeQualification != null) return true;
 
 	return super.mustResolve();
+}
+protected void setUnitScope(CompilationUnitScope unitScope) {
+	if (unitScope != this.unitScope) {
+		this.unitScope = unitScope;
+		// reset bindings
+		if (typeNames != null)
+			this.typeBindings = new TypeBinding[typeNames.length];
+	}
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);

@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -37,6 +38,11 @@ public int parameterCount;
 
 // extra reference info
 protected IType declaringType;
+
+// extra info for bindings
+CompilationUnitScope unitScope;
+protected TypeBinding declaringTypeBinding;
+protected MethodBinding methodBinding;
 
 protected static char[][] REF_CATEGORIES = { METHOD_REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { METHOD_REF, METHOD_DECL };
@@ -111,6 +117,38 @@ public char[][] getIndexCategories() {
 		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
 }
+/**
+ * @return Returns the methodBinding.
+ */
+public MethodBinding getMethodBinding() {
+	if (this.methodBinding == null) {
+		IJavaElement focus = ((InternalSearchPattern) this).focus;
+		MethodBinding binding = null;
+		if (focus != null && this.unitScope != null && focus.getElementType() == IJavaElement.METHOD) {
+			IMethod method = (IMethod) focus;
+			this.declaringTypeBinding = this.unitScope.getType(method.getDeclaringType().getElementName().toCharArray());
+			if (this.declaringTypeBinding.isValidBinding() && !this.declaringTypeBinding.isBaseType()) {
+				if (this.declaringTypeBinding.isArrayType()) {
+					this.declaringTypeBinding = this.declaringTypeBinding.leafComponentType();
+				}
+			}
+			if (this.declaringTypeBinding.isValidBinding()) {
+				if (this.declaringTypeBinding.isValidBinding() && !this.declaringTypeBinding.isBaseType()) {
+					String[] parameterTypes = method.getParameterTypes();
+					int length = parameterTypes.length;
+					TypeBinding[] parameters = new TypeBinding[length];
+					for (int i=0;  i<length; i++) {
+						parameters[i] = this.unitScope.getType(Signature.toCharArray(parameterTypes[i].toCharArray()));
+					}
+					ReferenceBinding referenceBinding = (ReferenceBinding) this.declaringTypeBinding;
+					binding = referenceBinding.getExactMethod(this.selector, parameters);
+				}
+			}
+		}
+		this.methodBinding = binding != null ? binding : new ProblemMethodBinding(selector, null, ProblemReasons.NotFound);
+	}
+	return this.methodBinding;
+}
 boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
@@ -163,6 +201,16 @@ EntryResult[] queryIn(Index index) throws IOException {
 	}
 
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
+}
+/**
+ * @param unitScope The unitScope to set.
+ */
+protected void setUnitScope(CompilationUnitScope unitScope) {
+	if (unitScope != this.unitScope) {
+		this.unitScope = unitScope;
+		// reset method binding
+		this.methodBinding = null;
+	}
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);

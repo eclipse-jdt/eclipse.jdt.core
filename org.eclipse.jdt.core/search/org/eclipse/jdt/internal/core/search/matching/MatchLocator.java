@@ -1172,8 +1172,12 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 
 			reduceParseTree(unit);
 
-			if (unit.scope != null)
-				unit.scope.faultInTypes(); // fault in fields & methods
+			if (unit.scope != null) {
+				// fault in fields & methods
+				unit.scope.faultInTypes();
+				// verify inherited methods
+				unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
+			}
 			unit.resolve();
 
 			reportMatching(unit, true);
@@ -1495,7 +1499,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	MatchingNodeSet nodeSet = this.currentPossibleMatch.nodeSet;
 	if (mustResolve) {
 		CompilationUnitScope unitScope= unit.scope.compilationUnitScope();
-		this.patternLocator.unitScope = unitScope;
+		this.patternLocator.setUnitScope(unitScope);
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
 		Object[] nodes = nodeSet.possibleMatchingNodesSet.values;
 		for (int i = 0, l = nodes.length; i < l; i++) {
@@ -1516,7 +1520,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 	} else {
-		this.patternLocator.unitScope = null;
+		this.patternLocator.setUnitScope(null);
 	}
 
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found

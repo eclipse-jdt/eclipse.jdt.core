@@ -35,7 +35,7 @@ public FieldLocator(FieldPattern pattern) {
  * Delegate this search to the pattern which can cache results.
  */
 protected TypeBinding getTypeNameBinding(int index) {
-	return ((FieldPattern) this.pattern).getTypeNameBinding(this.unitScope, index);
+	return ((FieldPattern) this.pattern).getTypeNameBinding(index);
 }
 //public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -322,5 +322,8 @@ protected int resolveLevelForType (char[] simpleNamePattern, char[] qualificatio
 		match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(type), this.isCaseSensitive);
 	}
 	return match ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+}
+protected void setUnitScope(CompilationUnitScope unitScope) {
+	((FieldPattern)this.pattern).setUnitScope(unitScope);
 }
 }

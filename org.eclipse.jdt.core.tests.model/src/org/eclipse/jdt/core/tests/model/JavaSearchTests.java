@@ -304,14 +304,15 @@ public JavaSearchTests(String name) {
 }
 public static Test suite() {
 	return buildTestSuite(JavaSearchTests.class);
+//	return buildTestSuite(JavaSearchTests.class, "testMethodReference", null);
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testTypeReferenceBug73696" };
+//	testsNames = new String[] { "testMethodReferenceBug74776" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 2, 12 };
+//	testsNumbers = new int[] { 1, 2, 3, 9, 11, 16 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //	testsRange = new int[] { 16, -1 };
 	}
@@ -320,6 +321,9 @@ IJavaSearchScope getJavaSearchScope() {
 }
 IJavaSearchScope getJavaSearchScope15() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch15")});
+}
+IJavaSearchScope getJavaSearchScopeBugs() {
+	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
 IJavaSearchScope getJavaSearchPackageScope(String packageName) throws JavaModelException {
 	return getJavaSearchPackageScope(packageName, false);
@@ -1350,15 +1354,15 @@ public void testFieldReferenceBug73112a() throws CoreException {
 		"fieldA73112*",
 		FIELD,
 		ALL_OCCURRENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScopeBugs(), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/bug73112/A.java bug73112.A.fieldA73112a [fieldA73112a]\n" + 
-		"src/bug73112/A.java bug73112.A.fieldA73112b [fieldA73112b]\n" + 
-		"src/bug73112/A.java bug73112.A.fieldA73112c [fieldA73112c]\n" + 
-		"src/bug73112/A.java bug73112.A.fieldA73112c [fieldA73112a]\n" + 
-		"src/bug73112/A.java bug73112.A.fieldA73112c [fieldA73112b]\n" + 
-		"src/bug73112/A.java bug73112.A.fieldA73112d [fieldA73112d]",
+		"src/b73112/A.java b73112.A.fieldA73112a [fieldA73112a]\n" + 
+		"src/b73112/A.java b73112.A.fieldA73112b [fieldA73112b]\n" + 
+		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112c]\n" + 
+		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112a]\n" + 
+		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112b]\n" + 
+		"src/b73112/A.java b73112.A.fieldA73112d [fieldA73112d]",
 		this.resultCollector);
 }
 public void testFieldReferenceBug73112b() throws CoreException {
@@ -1367,18 +1371,18 @@ public void testFieldReferenceBug73112b() throws CoreException {
 		"fieldB73112*",
 		FIELD,
 		ALL_OCCURRENCES,
-		getJavaSearchScope(), 
+		getJavaSearchScopeBugs(), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/bug73112/B.java bug73112.B.fieldB73112a [fieldB73112a]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112b [fieldB73112b]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112c [fieldB73112c]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112c [fieldB73112a]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112c [fieldB73112b]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112d [fieldB73112d]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112d [fieldB73112c]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112d [fieldB73112a]\n" + 
-		"src/bug73112/B.java bug73112.B.fieldB73112e [fieldB73112e]",
+		"src/b73112/B.java b73112.B.fieldB73112a [fieldB73112a]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112b [fieldB73112b]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112c]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112a]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112b]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112d]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112c]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112a]\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112e [fieldB73112e]",
 		this.resultCollector);
 }
 /**
@@ -1975,6 +1979,43 @@ public void testMethodReference16() throws CoreException {
 	assertSearchResults(
 		"src/p2/Y.java void p2.Y.bar() [foo(this)]",
 		this.resultCollector);
+}
+/**
+ * Regression test for bug 41018: Method reference not found
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018)
+ */
+public void testMethodReferenceBug41018() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs", "src", "b41018", "A.java").getType("A");
+	IMethod method = type.getMethod("methodA", new String[] { "QClassB.InnerInterface;" });
+//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		method, 
+		REFERENCES, 
+		getJavaSearchScopeBugs(), 
+		this.resultCollector);
+	assertSearchResults(
+		"src/b41018/A.java void b41018.A.anotherMethod() [methodA(null)]",
+		this.resultCollector);
+}
+/**
+ * Regression test for bug 70827: [Search] wrong reference match to private method of supertype
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827)
+ */
+public void testMethodReferenceBug70827() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs", "src", "b70827", "A.java").getType("A");
+	IMethod method = type.getMethod("privateMethod", new String[] {});
+	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults("", resultCollector);
+}
+/**
+ * Regression test for bug 74776: [Search] Wrong search results for almost identical method
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74776)
+ */
+public void testMethodReferenceBug74776() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs", "src", "b74776", "A.java").getType("A");
+	IMethod method = type.getMethod("foo", new String[] { "QRegion;" });
+	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults("", resultCollector);
 }
 /**
  * OrPattern test.
@@ -3490,23 +3531,6 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
-		this.resultCollector);
-}
-/**
- * Regression test for bug 41018: Method reference not found
- * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018)
- */
-public void testBug41018() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch", "src", "bug41018", "A.java").getType("A");
-	IMethod method = type.getMethod("methodA", new String[] { "QClassB.InnerInterface;" });
-//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(
-		method, 
-		REFERENCES, 
-		getJavaSearchScope(), 
-		this.resultCollector);
-	assertSearchResults(
-		"src/bug41018/A.java void bug41018.A.anotherMethod() [methodA(null)]",
 		this.resultCollector);
 }
 }

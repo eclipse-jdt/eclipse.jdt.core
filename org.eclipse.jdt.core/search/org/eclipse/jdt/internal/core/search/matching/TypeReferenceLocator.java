@@ -46,7 +46,7 @@ protected IJavaElement findElement(IJavaElement element, int accuracy) {
  * Delegate this search to the pattern which can cache results.
  */
 protected TypeBinding getTypeNameBinding(int index) {
-	return this.pattern.getTypeNameBinding(this.unitScope, index);
+	return this.pattern.getTypeNameBinding(index);
 }
 public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
@@ -509,6 +509,9 @@ protected int resolveLevelForTypeOrEnclosingTypes(char[] simpleNamePattern, char
 		}
 	}
 	return IMPOSSIBLE_MATCH;
+}
+protected void setUnitScope(CompilationUnitScope unitScope) {
+	this.pattern.setUnitScope(unitScope);
 }
 public String toString() {
 	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$

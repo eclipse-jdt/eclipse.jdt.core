@@ -22,7 +22,6 @@ public abstract class PatternLocator implements IIndexConstants {
 
 protected int matchMode;
 protected boolean isCaseSensitive;
-protected CompilationUnitScope unitScope;
 
 /* match levels */
 public static final int IMPOSSIBLE_MATCH = 0;
@@ -521,6 +520,9 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 		}
 		return level;
 	}
+}
+protected void setUnitScope(CompilationUnitScope unitScope) {
+	// do nothing
 }
 public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$

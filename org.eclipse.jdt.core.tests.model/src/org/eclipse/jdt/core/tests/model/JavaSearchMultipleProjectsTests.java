@@ -33,12 +33,18 @@ public JavaSearchMultipleProjectsTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(JavaSearchMultipleProjectsTests.class.getName());
-		suite.addTest(new JavaSearchMultipleProjectsTests("testReferenceInWorkingCopies"));
-		return suite;
-	}
-	return new Suite(JavaSearchMultipleProjectsTests.class);
+	return buildTestSuite(JavaSearchMultipleProjectsTests.class);
+//	return buildTestSuite(JavaSearchMultipleProjectsTests.class, "testJavaSearchScope", null);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	testsNames = new String[] { "testMethodOccurences" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 2, 12 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	testsRange = new int[] { 16, -1 };
 }
 protected void tearDown() throws Exception {
 	// Cleanup caches
