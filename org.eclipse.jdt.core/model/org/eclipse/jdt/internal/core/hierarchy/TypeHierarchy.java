@@ -1358,6 +1358,7 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 			b2 = new byte[bytes.length - j];
 			System.arraycopy(bytes, j, b2, 0, bytes.length - j);
 			superInterfaces[interfaceCount++] = types[new Integer(new String(b2)).intValue()];
+			System.arraycopy(superInterfaces, 0, superInterfaces = new IType[interfaceCount], 0, interfaceCount);
 			
 			typeHierarchy.cacheSuperInterfaces(
 				types[subClass],
