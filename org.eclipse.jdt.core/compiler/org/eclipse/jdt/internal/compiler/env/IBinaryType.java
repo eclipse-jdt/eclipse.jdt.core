@@ -73,7 +73,7 @@ char[] getName();
  * 
  * @return the receiver's signature, null if none
  */
-char[] getSignature();
+char[] getSignature(); // TODO (kent) should be renamed into #getGenericSignature() to make things clear
 
 /**
  * Answer the resolved name of the receiver's superclass in the

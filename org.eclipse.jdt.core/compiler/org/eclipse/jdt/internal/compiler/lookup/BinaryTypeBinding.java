@@ -42,6 +42,7 @@ public final class BinaryTypeBinding extends ReferenceBinding {
     
 	// For the link with the principle structure
 	private LookupEnvironment environment;
+	
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {
 	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
 	computeId();
