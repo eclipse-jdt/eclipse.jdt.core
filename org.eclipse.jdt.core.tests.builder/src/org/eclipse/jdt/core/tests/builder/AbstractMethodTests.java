@@ -16,16 +16,13 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractMethodTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 	
 	public AbstractMethodTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(AbstractMethodTests.class);
-		return suite;
+		return new TestSuite(AbstractMethodTests.class);
 	}
 
 	public void test001() throws JavaModelException {

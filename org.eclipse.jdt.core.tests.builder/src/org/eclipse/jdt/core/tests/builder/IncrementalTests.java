@@ -69,6 +69,45 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 	}
 
+	// TODO: excluded test
+	public void _testNewJCL() {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		fullBuild();
+		expectingNoProblems();
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		IPath object = env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
+			"package java.lang;\n" + //$NON-NLS-1$
+			"public class Object {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+
+		incrementalBuild();
+		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.Throwable (typically some required class file is referencing a type outside the classpath)", object)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		//----------------------------
+		//           Step 3
+		//----------------------------
+		IPath throwable = env.addClass(root, "java.lang", "Throwable", //$NON-NLS-1$ //$NON-NLS-2$
+			"package java.lang;\n" + //$NON-NLS-1$
+			"public class Throwable {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+
+		incrementalBuild();
+		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", object)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(throwable, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", throwable)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=17329
 	 */
@@ -511,6 +550,43 @@ public class IncrementalTests extends Tests {
 			assertTrue("Infinite loop in cycle detection", false); //$NON-NLS-1$
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Bugs 6461 
+	 * TODO: excluded test
+	 */
+	public void _testWrongCompilationUnitLocation() throws JavaModelException {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath x = env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		
+		fullBuild();
+		expectingNoProblems();
+		expectingPresenceOf(bin.append("X.class")); //$NON-NLS-1$
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		incrementalBuild();
+		expectingProblemsFor(x);
+		expectingNoPresenceOf(bin.append("X.class")); //$NON-NLS-1$
 	}
 	
 }

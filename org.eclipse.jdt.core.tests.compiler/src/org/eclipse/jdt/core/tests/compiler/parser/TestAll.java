@@ -14,19 +14,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.tests.junit.extension.ExcludedTestSuite;
-
 /**
  * Run all parser regression tests
  */
 public class TestAll extends TestCase {
-	public static boolean EXPERT; // an expert doesn't exclude any tests
-	public static String[] EXCLUDED_TESTS = new String[] {
-		"CompletionParserTest", "testVB_2", // completion on field access on anonymous inner class with syntax error
-		"CompletionParserTest", "testVB_4", // completion on field access on anonymous inner class with syntax error
-		"CompletionParserTest", "testVB_5", // completion on field access on anonymous inner class with syntax error
-		"LabelStatementCompletionTest", "testInLabeledInnerClassWithErrorBefore", // cannot get labels in recovery mode yet
-	};
+
 /**
  * TestAll constructor comment.
  * @param testName java.lang.String
@@ -75,10 +67,6 @@ public static Test suite() {
 	/* syntax error diagnosis tests */
 	addTest(suite, SyntaxErrorTest.class);
 
-	if (EXPERT) {
-		return suite;
-	} else {
-		return new ExcludedTestSuite(suite, EXCLUDED_TESTS);
-	}
+	return suite;
 }
 }

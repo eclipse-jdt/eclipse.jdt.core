@@ -19,16 +19,13 @@ import org.eclipse.jdt.core.tests.util.Util;
  * Basic tests of the image builder.
  */
 public class CopyResourceTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 	
 	public CopyResourceTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(CopyResourceTests.class);
-		return suite;
+		return new TestSuite(CopyResourceTests.class);
 	}
 
 	public void testSimpleProject() throws JavaModelException {

@@ -6263,7 +6263,8 @@ public void testVB_1() {
 		expectedReplacedSource,
 		testName); 
 }
-public void testVB_2() {
+// TODO: excluded test (completion on field access on anonymous inner class with syntax error)
+public void _testVB_2() {
 	String str = 
 		"package p; \n" + 
 		"public class VB {\n" + 
@@ -6357,7 +6358,8 @@ public void testVB_3() {
 		expectedReplacedSource,
 		testName); 
 }
-public void testVB_4() {
+// TODO: excluded test (completion on field access on anonymous inner class with syntax error)
+public void _testVB_4() {
 	String str = 
 		"package p; \n" + 
 		"public class VB {\n" + 
@@ -6415,7 +6417,8 @@ public void testVB_4() {
 		expectedReplacedSource,
 		testName); 
 }
-public void testVB_5() {
+// TODO: excluded test (completion on field access on anonymous inner class with syntax error)
+public void _testVB_5() {
 	String str = 
 		"package p; \n" + 
 		"public class VB {\n" + 

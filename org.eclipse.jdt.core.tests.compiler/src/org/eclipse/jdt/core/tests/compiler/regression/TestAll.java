@@ -14,14 +14,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.tests.junit.extension.ExcludedTestSuite;
-
 /**
  * Run all compiler regression tests
  */
 public class TestAll extends TestCase {
-	public static boolean EXPERT; // an expert doesn't exclude any tests
-	static String[] EXCLUDED_TESTS = new String[] {};
+
 public TestAll(String testName) {
 	super(testName);
 }
@@ -52,10 +49,6 @@ public static Test suite() {
 	addTest(suite, UtilTest.class);
 	addTest(suite, ScannerTest.class);
 		
-	if (EXPERT) {
-		return new RegressionTestSetup(suite);
-	} else {
-		return new RegressionTestSetup(new ExcludedTestSuite(suite, EXCLUDED_TESTS));
-	}
+	return new RegressionTestSetup(suite);
 }
 }

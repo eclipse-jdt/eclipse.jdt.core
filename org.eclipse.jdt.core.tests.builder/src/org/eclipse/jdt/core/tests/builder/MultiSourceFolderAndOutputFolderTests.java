@@ -21,16 +21,13 @@ import org.eclipse.jdt.core.tests.util.Util;
  * Basic tests of the image builder.
  */
 public class MultiSourceFolderAndOutputFolderTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 
 	public MultiSourceFolderAndOutputFolderTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(MultiSourceFolderAndOutputFolderTests.class);
-		return suite;
+		return new TestSuite(MultiSourceFolderAndOutputFolderTests.class);
 	}
 
 	public void test0001() throws JavaModelException {

@@ -22,16 +22,13 @@ import org.eclipse.jdt.internal.core.JavaProject;
  * Basic tests of the image builder.
  */
 public class OutputFolderTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 
 	public OutputFolderTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(OutputFolderTests.class);
-		return suite;
+		return new TestSuite(OutputFolderTests.class);
 	}
 
 	public void testChangeOutputFolder() throws JavaModelException {

@@ -16,16 +16,13 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class StaticFinalTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 	
 	public StaticFinalTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(StaticFinalTests.class);
-		return suite;
+		return new TestSuite(StaticFinalTests.class);
 	}
 
 	public void testBoolean() throws JavaModelException {

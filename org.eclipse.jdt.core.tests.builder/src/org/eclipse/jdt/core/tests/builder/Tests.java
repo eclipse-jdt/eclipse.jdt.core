@@ -30,9 +30,6 @@ public class Tests extends TestCase {
 	protected static TestingEnvironment env = null;
 	protected EfficiencyCompilerRequestor debugRequestor = null;
 
-	private static String[] EXCLUDED_TESTS = {
-	};
-
 	public Tests(String name) {
 		super(name);
 	}
@@ -391,19 +388,17 @@ public class Tests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
+		TestSuite suite = new TestSuite();
 
 		/* tests */
 		suite.addTest(AbstractMethodTests.suite());
 		suite.addTest(BasicBuildTests.suite());
 		suite.addTest(ClasspathTests.suite());
-		suite.addTest(CompilationUnitLocationTests.suite());
 		suite.addTest(CopyResourceTests.suite());
 		suite.addTest(ErrorsTests.suite());
 		suite.addTest(EfficiencyTests.suite());
 		suite.addTest(ExecutionTests.suite());
 		suite.addTest(IncrementalTests.suite());
-		suite.addTest(JCLTests.suite());
 		suite.addTest(MultiProjectTests.suite());
 		suite.addTest(MultiSourceFolderAndOutputFolderTests.suite());
 		suite.addTest(OutputFolderTests.suite());

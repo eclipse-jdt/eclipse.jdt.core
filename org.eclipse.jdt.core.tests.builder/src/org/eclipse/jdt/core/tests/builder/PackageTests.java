@@ -16,17 +16,13 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class PackageTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {
-	};
 	
 	public PackageTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(PackageTests.class);
-		return suite;
+		return new TestSuite(PackageTests.class);
 	}
 	
 	/**

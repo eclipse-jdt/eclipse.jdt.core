@@ -20,16 +20,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 
 public class MultiProjectTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 	
 	public MultiProjectTests(String name) {
 		super(name);
 	}
 	
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(MultiProjectTests.class);
-		return suite;
+		return new TestSuite(MultiProjectTests.class);
 	}
 	
 	public void testCompileOnlyDependent() throws JavaModelException {

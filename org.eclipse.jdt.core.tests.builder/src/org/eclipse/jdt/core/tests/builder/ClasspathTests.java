@@ -19,16 +19,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 import java.util.*;
 
 public class ClasspathTests extends Tests {
-	private static String[] EXCLUDED_TESTS = {};
 
 	public ClasspathTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
-		suite.addTestSuite(ClasspathTests.class);
-		return suite;
+		return new TestSuite(ClasspathTests.class);
 	}
 
 	public void testClosedProject() throws JavaModelException {
