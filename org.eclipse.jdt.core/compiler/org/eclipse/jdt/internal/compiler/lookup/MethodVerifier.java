@@ -296,9 +296,6 @@ private void checkInheritedMethods(MethodBinding[] methods, int length) {
 			this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
 		}
 		return;
-	} else if ((concreteMethod.declaringClass == this.type.scope.getJavaLangObject()) && this.type.isInterface() ){
-		// no reason to compare Object's method against inherited interface methods
-		return;
 	}
 
 	MethodBinding[] abstractMethods = new MethodBinding[length - 1];
@@ -383,6 +380,18 @@ private void checkMethods() {
 		}
 	}
 }
+/*
+Binding creation is responsible for reporting:
+	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations)
+		- plus invalid modifiers given the context... examples:
+			- interface methods can only be public
+			- abstract methods can only be defined by abstract classes
+	- collisions... 2 methods with identical vmSelectors
+	- multiple methods with the same message pattern but different return types
+	- ambiguous, invisible or missing return/argument/exception types
+	- check the type of any array is not void
+	- check that each exception type is Throwable or a subclass of it
+*/
 private void computeInheritedMethods() {
 	this.inheritedMethods = new HashtableOfObject(51); // maps method selectors to an array of methods... must search to match paramaters & return type
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
@@ -455,21 +464,6 @@ private void computeInheritedMethods() {
 				}
 			}
 		}
-	} else {
-		MethodBinding[] methods = this.type.scope.getJavaLangObject().methods();
-		for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
-			if (!method.isConstructor()) {
-				MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
-				if (existingMethods == null)
-					existingMethods = new MethodBinding[1];
-				else
-					System.arraycopy(existingMethods, 0,
-						(existingMethods = new MethodBinding[existingMethods.length + 1]), 0, existingMethods.length - 1);
-				existingMethods[existingMethods.length - 1] = method;
-				this.inheritedMethods.put(method.selector, existingMethods);
-			}
-		}
 	}
 
 	for (int i = 0; i <= lastPosition; i++) {
@@ -510,7 +504,6 @@ private void computeInheritedMethods() {
 			interfaces[j].tagBits &= ~InterfaceVisited;
 	}
 }
-
 /*
 computeInheritedMethodMembers
 
