@@ -16062,4 +16062,30 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");	
 	}	
+	public void test566() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	void bar2() {\n" + 
+				"		List<X1> le = new ArrayList<X1>(5);\n" + 
+				"		le = fill(le, new X2());\n" + 
+				"	}\n" + 
+				"	<T> List<T> fill(List<? super T> lt, T t) { return null; }\n" + 
+				"}\n" + 
+				"class X1 {}\n" + 
+				"class X2 extends X1 {\n" + 
+				"	void foo(){}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	le = fill(le, new X2());\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<X2> to List<X1>\n" + 
+			"----------\n");	
+	}		
 }
