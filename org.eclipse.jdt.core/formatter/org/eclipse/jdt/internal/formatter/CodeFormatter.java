@@ -767,8 +767,18 @@ public class CodeFormatter implements TerminalSymbols {
 						for (int i = scanner.startPosition, max = scanner.currentPosition;
 							i < max;
 							i++) {
-							if (source[i] == '\n') {
-								newLinesInWhitespace++;
+							if (source[i] == '\r') {
+								if (i < max - 1) {
+									if (source[++i] == '\n') {
+										newLinesInWhitespace++;
+									} else {
+										newLinesInWhitespace++;
+									}
+								} else {
+									newLinesInWhitespace++;
+								}
+							} else if (source[i] == '\n') {
+									newLinesInWhitespace++;
 							}
 						}
 						increaseLineDelta(scanner.startPosition - scanner.currentPosition);
@@ -1281,6 +1291,7 @@ public class CodeFormatter implements TerminalSymbols {
 					char currentCharacter = source[i];
 					switch (currentCharacter) {
 						case '\r' :
+							updateMappedPositions(i);
 							pendingCarriageReturn = true;
 							endOfLine = true;
 							break;
@@ -1297,6 +1308,13 @@ public class CodeFormatter implements TerminalSymbols {
 							endOfLine = true;
 							break;
 						case '\t' :
+							if (pendingCarriageReturn) {
+								pendingCarriageReturn = false;
+								increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
+								currentLineBuffer.append(options.lineSeparatorSequence);
+								beginningOfLineSpaces = 0;
+								endOfLine = true;
+							}
 							if (endOfLine) {
 								// we remove a maximum of currentCommentOffset characters (tabs are converted to space numbers).
 								beginningOfLineSpaces += options.tabSize;
@@ -1310,6 +1328,13 @@ public class CodeFormatter implements TerminalSymbols {
 							}
 							break;
 						case ' ' :
+							if (pendingCarriageReturn) {
+								pendingCarriageReturn = false;
+								increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
+								currentLineBuffer.append(options.lineSeparatorSequence);
+								beginningOfLineSpaces = 0;
+								endOfLine = true;
+							}
 							if (endOfLine) {
 								// we remove a maximum of currentCommentOffset characters (tabs are converted to space numbers).
 								beginningOfLineSpaces++;
@@ -1325,11 +1350,10 @@ public class CodeFormatter implements TerminalSymbols {
 						default :
 							if (pendingCarriageReturn) {
 								pendingCarriageReturn = false;
-								updateMappedPositions(i);
 								increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
 								currentLineBuffer.append(options.lineSeparatorSequence);
 								beginningOfLineSpaces = 0;
-								endOfLine = false;
+								endOfLine = true;
 							} else {
 								beginningOfLineSpaces = 0;
 								currentLineBuffer.append(currentCharacter);
