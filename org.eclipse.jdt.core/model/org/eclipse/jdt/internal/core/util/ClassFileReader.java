@@ -74,11 +74,11 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 		// all subsequent uses of the constant pool element faster.
 		int constantPoolCount;
 		int[] constantPoolOffsets;
-		this.magicNumber = (int) u4At(classFileBytes, 0, 0);
-		int readOffset = 10;
-		this.minorVersion = this.u2At(classFileBytes, 4, 0);
-		this.majorVersion = this.u2At(classFileBytes, 6, 0);
 		try {
+			this.magicNumber = (int) u4At(classFileBytes, 0, 0);
+			int readOffset = 10;
+			this.minorVersion = this.u2At(classFileBytes, 4, 0);
+			this.majorVersion = this.u2At(classFileBytes, 6, 0);
 			
 			if ((decodingFlags & IClassFileReader.CONSTANT_POOL) == 0) {
 				// no need to go further
