@@ -148,17 +148,28 @@ public class DeltaProcessor implements IResourceChangeListener {
 	}
 	class RootInfo {
 		IJavaProject project;
+		IPath rootPath;
 		char[][] exclusionPatterns;
-		RootInfo(IJavaProject project, char[][] exclusionPatterns) {
+		RootInfo(IJavaProject project, IPath rootPath, char[][] exclusionPatterns) {
 			this.project = project;
+			this.rootPath = rootPath;
 			this.exclusionPatterns = exclusionPatterns;
+		}
+		boolean isRootOfProject(IPath path) {
+			return this.rootPath.equals(path) && this.project.getProject().getFullPath().isPrefixOf(path);
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer("project="); //$NON-NLS-1$
 			if (this.project == null) {
 				buffer.append("null"); //$NON-NLS-1$
 			} else {
-				buffer.append(this.project.toString());
+				buffer.append(this.project.getElementName());
+			}
+			buffer.append("\npath="); //$NON-NLS-1$
+			if (this.rootPath == null) {
+				buffer.append("null"); //$NON-NLS-1$
+			} else {
+				buffer.append(this.rootPath.toString());
 			}
 			buffer.append("\nexcluding="); //$NON-NLS-1$
 			if (this.exclusionPatterns == null) {
@@ -973,10 +984,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 				if (rootInfo == null) {
 					rootInfo = this.rootInfo(res.getFullPath());
 				}
-				if (rootInfo != null && (rootInfo.project.getProject().getFullPath().isPrefixOf(res.getFullPath()))) {
+				if (rootInfo != null && rootInfo.isRootOfProject(res.getFullPath())) {
 					return IJavaElement.PACKAGE_FRAGMENT_ROOT;
 				} else {
-					return NON_JAVA_RESOURCE; // not yet in a package fragment root
+					return NON_JAVA_RESOURCE; // not yet in a package fragment root or root of another project
 				}
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			case IJavaElement.PACKAGE_FRAGMENT:
@@ -1084,14 +1095,14 @@ public class DeltaProcessor implements IResourceChangeListener {
 				// root path
 				IPath path = entry.getPath();
 				if (this.roots.get(path) == null) {
-					this.roots.put(path, new RootInfo(project, ((ClasspathEntry)entry).fullExclusionPatternChars()));
+					this.roots.put(path, new RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
 				} else {
 					ArrayList rootList = (ArrayList)this.otherRoots.get(path);
 					if (rootList == null) {
 						rootList = new ArrayList();
 						this.otherRoots.put(path, rootList);
 					}
-					rootList.add(new RootInfo(project, ((ClasspathEntry)entry).fullExclusionPatternChars()));
+					rootList.add(new RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
 				}
 				
 				// source attachment path
@@ -1366,7 +1377,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					elementType = NON_JAVA_RESOURCE;
 				} else {
 					rootInfo = this.rootInfo(res.getFullPath());
-					if (rootInfo != null && (rootInfo.project.getProject().getFullPath().isPrefixOf(res.getFullPath()))) {
+					if (rootInfo != null && rootInfo.isRootOfProject(res.getFullPath())) {
 						elementType = IJavaElement.PACKAGE_FRAGMENT_ROOT;
 					} else {
 						elementType = IJavaElement.JAVA_PROJECT; 
@@ -1719,7 +1730,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				// find out whether the child is a package fragment root of the current project
 				IPath childPath = childRes.getFullPath();
 				RootInfo childRootInfo = (RootInfo)this.roots.get(childPath);
-				if (childRootInfo != null && !childRootInfo.project.getProject().getFullPath().isPrefixOf(childPath)) {
+				if (childRootInfo != null && !childRootInfo.isRootOfProject(childPath)) {
 					// package fragment root of another project (dealt with later)
 					childRootInfo = null;
 				}

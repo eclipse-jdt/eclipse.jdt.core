@@ -175,6 +175,37 @@ public void testAddExclusionOnPackage() throws CoreException {
 		root.getNonJavaResources());
 }
 /*
+ * Ensure that adding a file to a folder that is excluded reports the correct delta.
+ * (regression test for bug 29621 Wrong Delta When Adding to Filtered Folder)
+ */
+public void testAddToExcludedFolder() throws CoreException {
+	this.createFolder("/P/src/icons");
+	
+	// exclude folder and its contents
+	this.setClasspath(new String[] {"/P/src", "icons/"});
+	
+	clearDeltas();
+	this.createFile("/P/src/icons/my.txt", "");
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CONTENT}\n" + 
+		"		ResourceDelta(/P/src/icons)[*]"
+	);
+	
+	// exclude folder only (not its contents)
+	this.setClasspath(new String[] {"/P/src", "icons"});
+	
+	clearDeltas();
+	this.deleteFile("/P/src/icons/my.txt");
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CONTENT}\n" + 
+		"		ResourceDelta(/P/src/icons)[*]"
+	);
+}
+/*
  * Ensure that creating an excluded compilation unit 
  * doesn't make it appear as a child of its package but it is a non-java resource. */
 public void testCreateExcludedCompilationUnit() throws CoreException {
