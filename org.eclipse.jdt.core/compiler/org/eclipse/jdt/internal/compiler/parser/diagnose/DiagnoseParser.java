@@ -2168,19 +2168,19 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	public String toString() {
 		StringBuffer res = new StringBuffer();
 		
-		res.append("buffer:name= {");
+		res.append("buffer:name= {");//$NON-NLS-1$
 		for (int i = 0; i < buffer.length; i++) {
 			res.append('\'');
 			res.append(lexStream.name(buffer[i]));
 			res.append('\'');
 			res.append(',');
 		}
-		res.append("\nbuffer:kind= {");
+		res.append("\nbuffer:kind= {");//$NON-NLS-1
 		for (int i = 0; i < buffer.length; i++) {
 			res.append(lexStream.kind(buffer[i]));
 			res.append(',');
 		}
-		res.append("}\n");
+		res.append("}\n");//$NON-NLS-1
 		
 		String source = new String(parser.scanner.source);
 		if(currentToken <= 0) {

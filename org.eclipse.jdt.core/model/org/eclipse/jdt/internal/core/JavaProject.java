@@ -1078,14 +1078,12 @@ public class JavaProject
 		IResource underlyingResource) throws JavaModelException {
 	
 		if (getProject().isOpen()) {
-			// put the info now, because computing the roots requires it
-			//JavaModelManager.getJavaModelManager().putInfo(this, info);
-	
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot wRoot = workspace.getRoot();
-			IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, false  /*don't refresh CP markers (see bug 37274)*/);
+			// cannot refresh cp markers on opening (emulate cp check on startup) since can create deadlocks (see bug 37274)
+			IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
 	
-			// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
+			// compute the pkg fragment roots
 			computeChildren((JavaProjectElementInfo)info);				
 	
 			// remember the timestamps of external libraries the first time they are looked up

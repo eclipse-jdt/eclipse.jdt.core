@@ -18,16 +18,16 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
 public class Util {
 	private static int pos;
-	private static int[] intervalStart;
-	private static int[] intervalEnd;
+	private static int[] intervalStarts;
+	private static int[] intervalEnds;
 	
 	private static void addInterval(int start, int end){
-		if(pos >= intervalStart.length) {
-			System.arraycopy(intervalStart, 0, intervalStart = new int[pos * 2], 0, pos);
-			System.arraycopy(intervalEnd, 0, intervalEnd = new int[pos * 2], 0, pos);
+		if(pos >= intervalStarts.length) {
+			System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos * 2], 0, pos);
+			System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos * 2], 0, pos);
 		}
-		intervalStart[pos] = start;
-		intervalEnd[pos] = end;
+		intervalStarts[pos] = start;
+		intervalEnds[pos] = end;
 		pos++;
 	}
 	
@@ -72,19 +72,19 @@ public class Util {
 			return new int[2][0];
 		} else {
 			pos = 0;
-			intervalStart = new int[10];
-			intervalEnd = new int[10];
+			intervalStarts = new int[10];
+			intervalEnds = new int[10];
 			computeDietRange0(types);
 			
-			System.arraycopy(intervalStart, 0, intervalStart = new int[pos], 0, pos);
-			System.arraycopy(intervalEnd, 0, intervalEnd = new int[pos], 0, pos);
+			System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos], 0, pos);
+			System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos], 0, pos);
 
-			if (intervalStart.length > 1) {
-				quickSort(intervalStart, intervalEnd, 0, intervalStart.length - 1);
+			if (intervalStarts.length > 1) {
+				quickSort(intervalStarts, intervalEnds, 0, intervalStarts.length - 1);
 			}
-			int[][] res = new int[][]{intervalStart, intervalEnd};
-			intervalStart = null;
-			intervalEnd = null;
+			int[][] res = new int[][]{intervalStarts, intervalEnds};
+			intervalStarts = null;
+			intervalEnds = null;
 			return res;
 		}
 	}
