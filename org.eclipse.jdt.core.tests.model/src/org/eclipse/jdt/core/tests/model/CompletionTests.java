@@ -640,7 +640,7 @@ public void testCompletionCaseInsensitivePackage() throws JavaModelException {
 		"element:jarpack1    completion:jarpack1    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
 		"element:jarpack2    completion:jarpack2    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
 		"element:java    completion:java    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
-		"element:java.lang    completion:java.io    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
+		"element:java.io    completion:java.io    relevance:"+(R_DEFAULT + R_INTERESTING)+"\n" +
 		"element:java.lang    completion:java.lang    relevance:"+(R_DEFAULT + R_INTERESTING),
 		requestor.getResults());
 }
