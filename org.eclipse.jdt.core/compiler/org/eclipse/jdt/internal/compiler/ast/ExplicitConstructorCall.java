@@ -208,8 +208,16 @@ public class ExplicitConstructorCall
 
 		// mark the fact that we are in a constructor call.....
 		// unmark at all returns
+		MethodScope methodScope = scope.methodScope();
 		try {
-			((MethodScope) scope).isConstructorCall = true;
+			AbstractMethodDeclaration methodDeclaration = methodScope.referenceMethod();
+			if (methodDeclaration == null 
+					|| !methodDeclaration.isConstructor()
+					|| ((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
+				scope.problemReporter().invalidExplicitConstructorCall(this);
+				return;
+			}
+			methodScope.isConstructorCall = true;
 			ReferenceBinding receiverType = scope.enclosingSourceType();
 			if (accessMode != This)
 				receiverType = receiverType.superclass();
@@ -270,7 +278,7 @@ public class ExplicitConstructorCall
 				scope.problemReporter().invalidConstructor(this, binding);
 			}
 		} finally {
-			((MethodScope) scope).isConstructorCall = false;
+			methodScope.isConstructorCall = false;
 		}
 	}
 

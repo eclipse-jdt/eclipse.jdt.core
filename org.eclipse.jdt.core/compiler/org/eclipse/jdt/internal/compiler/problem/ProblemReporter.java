@@ -1607,6 +1607,16 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+
+public void invalidExplicitConstructorCall(AstNode location) {
+	
+	this.handle(
+		IProblem.InvalidExplicitConstructorCall,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void invalidContinue(AstNode location) {
 	this.handle(
 		IProblem.InvalidContinue,

@@ -2311,6 +2311,8 @@ protected void consumeInvalidConstructorDeclaration() {
 	cd.bodyEnd = endPosition; // position just before the trailing semi-colon
 	cd.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
 	// report the problem and continue the parsing - narrowing the problem onto the method
+	
+	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
 }
 protected void consumeConstructorHeader() {
 	// ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderThrowsClauseopt
@@ -2322,6 +2324,16 @@ protected void consumeConstructorHeader() {
 	}
 	// recovery
 	if (currentElement != null){
+// TODO: (david) investigate why the following breaks regression tests
+// it should just be the same as for consumeMethodHeader()
+//		if (currentToken == TokenNameSEMICOLON){ // for invalid constructors
+//			method.modifiers |= AccSemicolonBody;			
+//			method.declarationSourceEnd = scanner.currentPosition-1;
+//			method.bodyEnd = scanner.currentPosition-1;
+//			if (currentElement.parent != null){ // --> suspecting this is the offending part causing breakage
+//				currentElement = currentElement.parent;
+//			}
+//		}		
 		restartRecovery = true; // used to avoid branching back into the regular automaton
 	}		
 }

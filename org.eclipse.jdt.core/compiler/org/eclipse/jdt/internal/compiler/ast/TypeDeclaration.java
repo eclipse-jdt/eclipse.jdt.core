@@ -204,8 +204,7 @@ public class TypeDeclaration
 						// the constructor was in fact a method with no return type
 						// unless an explicit constructor call was supplied
 						ConstructorDeclaration c = (ConstructorDeclaration) am;
-						if ((c.constructorCall == null)
-							|| (c.constructorCall.isImplicitSuper())) { //changed to a method
+						if (c.constructorCall == null || c.constructorCall.isImplicitSuper()) { //changed to a method
 							MethodDeclaration m = new MethodDeclaration(this.compilationResult);
 							m.sourceStart = c.sourceStart;
 							m.sourceEnd = c.sourceEnd;
