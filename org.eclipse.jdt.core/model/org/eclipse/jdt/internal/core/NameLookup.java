@@ -747,7 +747,9 @@ public class NameLookup implements SuffixConstants {
 				return;
 			ICompilationUnit compilationUnit= compilationUnits[i];
 			
-			if (!potentialMemberType || nameMatches(unitName, compilationUnit, partialMatch)) {
+			if ((!potentialMemberType && workingCopies != null && workingCopies.containsValue(compilationUnit))
+					|| nameMatches(unitName, compilationUnit, partialMatch)) {
+						
 				IType[] types= null;
 				try {
 					types= compilationUnit.getTypes();
