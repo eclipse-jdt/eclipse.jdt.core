@@ -80,12 +80,21 @@ public String[] getCommandLine() {
 	Vector commandLine= new Vector();
 	
 	// VM binary
-	commandLine.addElement(
-		this.vmPath + 
-		(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-		"bin" + 
-		File.separator + 
-		"java");
+	if ("1.4.2-b28".equals(System.getProperty("java.vm.version"))) {
+		commandLine.addElement(
+			this.vmPath + 
+			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
+			"bin" + 
+			File.separator + 
+			"java");
+	} else {
+		commandLine.addElement(
+			this.vmPath + 
+			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
+			"bin" + 
+			File.separator + 
+			"javaw");
+	}
 
 	// VM arguments
 	if (this.vmArguments != null) {
@@ -187,6 +196,7 @@ protected void writeBatchFile(String fileName, Vector commandLine) {
 			try {
 				output.close();
 			} catch (IOException e2) {
+				// ignore
 			}
 		}
 	}
