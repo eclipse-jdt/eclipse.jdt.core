@@ -21,11 +21,19 @@ constructors (i.e. allow them to throw any exceptions).
 <li> The compiler now enforces that interface methods be compatible with Object ones.
 <li> The batch compiler will no longer create package directory structure anymore when the command line
 argument '-d' <tt><destination></tt> is omitted (compliant with standard batch compilers).
+<li> A type hierarchy that misses a super type is not rooted at Object any longer,
+     but the subtype (of the missing type) will be a root (this is the behavior of
+     VA/Java and VAME.)
+<li> Adding a type that was missing from a hierarchy will update the hierarchy correctly.
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7422">7422</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3192">3192</a>
+Invalid type hierarchy when missing type(s) in hierarchy (1GF5RN4)  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3304">3304</a>
+Hierarchy not updated when changing classpath (1GF5QSW)  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7422">7422</a>
 Missing project references on some imported Java projects
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=5067">5067</a>
 CodeAssist - no variable name suggestion for base type
@@ -68,9 +76,7 @@ erroneous warning of unused variables
 
 <h3>
 Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6984">6984</a>
-DCR - more fault-tolerance in presence of inconsistent binaries  
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7302">7302</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7302">7302</a>
 Need visibility in search results 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7305">7305</a>
 interface methods are marked abstract

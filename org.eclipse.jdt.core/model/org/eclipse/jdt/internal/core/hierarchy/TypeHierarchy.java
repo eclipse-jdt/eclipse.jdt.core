@@ -760,6 +760,9 @@ protected void initialize(int size) {
 	}
 	int smallSize = (size / 2);
 	this.classToSuperclass = new HashMap(size);
+	this.interfaces = new ArrayList(smallSize);
+	this.missingTypes = new ArrayList(smallSize);
+	this.rootClasses = new TypeVector();
 	this.typeToSubtypes = new HashMap(smallSize);
 	this.typeToSuperInterfaces = new HashMap(smallSize);
 }
