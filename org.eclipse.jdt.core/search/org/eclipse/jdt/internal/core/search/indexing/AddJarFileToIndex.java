@@ -187,6 +187,7 @@ public int hashCode() {
 							new BinaryIndexer(true));
 					}
 				}
+				index.save();
 				if (JobManager.VERBOSE)
 					JobManager.verbose(
 						"-> done indexing of " //$NON-NLS-1$
