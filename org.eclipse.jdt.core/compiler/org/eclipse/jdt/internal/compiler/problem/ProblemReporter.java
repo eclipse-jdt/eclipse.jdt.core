@@ -3959,13 +3959,13 @@ public void invalidUsageOfStaticImports(ImportReference staticImport) {
 		staticImport.declarationSourceStart,
 		staticImport.declarationSourceEnd);
 }
-public void invalidUsageOfForeachStatements(ForeachStatement foreachStatement) {
+public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Expression collection) {
 	this.handle(
 		IProblem.InvalidUsageOfForeachStatements,
 		new String[] {}, 
 		new String[] {}, 
-		foreachStatement.elementVariable.sourceStart,
-		foreachStatement.collection.sourceEnd);
+		elementVariable.sourceStart,
+		collection.sourceEnd);
 }
 public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
 	this.handle(
@@ -3988,7 +3988,7 @@ public void invalidUsageOfVarargs(Argument argument) {
 		IProblem.InvalidUsageOfVarargs,
 		new String[] {}, 
 		new String[] {}, 
-		argument.sourceStart,
+		argument.type.sourceStart,
 		argument.sourceEnd);
 }
 }

@@ -28,8 +28,11 @@ $break
 
 
 $readableName 
-/.$rule_number=./
-
+/.1#$rule_number=./
+$compliance
+/.2#$rule_number=./
+$recovery
+/.2#$rule_number= recovery./
 -- here it starts really ------------------------------------------
 $Terminals
 
@@ -583,6 +586,7 @@ FormalParameter ::= Modifiersopt Type VariableDeclaratorId
 FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
 /.$putCase consumeFormalParameter(true); $break ./
 /:$readableName FormalParameter:/
+/:$compliance 1.5:/
 
 ClassTypeList -> ClassTypeElt
 ClassTypeList ::= ClassTypeList ',' ClassTypeElt
@@ -667,8 +671,6 @@ ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 
 ExplicitConstructorInvocation ::= Name '.' OnlyTypeArguments 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocationWithTypeArguments(2, ExplicitConstructorCall.This); $break ./
-/:$readableName ExplicitConstructorInvocation:/
-
 /:$readableName ExplicitConstructorInvocation:/
 
 --18.9 Productions from 9: Interface Declarations
@@ -941,10 +943,12 @@ StatementExpressionList ::= StatementExpressionList ',' StatementExpression
 -- 1.4 feature
 AssertStatement ::= 'assert' Expression ';'
 /.$putCase consumeSimpleAssertStatement() ; $break ./
+/:$compliance 1.4:/
 
 AssertStatement ::= 'assert' Expression ':' Expression ';'
 /.$putCase consumeAssertStatement() ; $break ./
 /:$readableName AssertStatement:/
+/:$compliance 1.4:/
 
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
@@ -1504,6 +1508,7 @@ EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
 EnumHeader ::= Modifiersopt 'enum' Identifier
 /. $putCase consumeEnumHeader(); $break ./
 /:$readableName EnumHeader:/
+/:$compliance 1.5:/
 
 EnumBody ::= '{' EnumBodyDeclarationsopt '}'
 /. $putCase consumeEnumBodyNoConstants(); $break ./
@@ -1546,17 +1551,22 @@ EnumBodyDeclarationsopt -> EnumDeclarations
 -----------------------------------------------
 -- 1.5 features : enhanced for statement
 -----------------------------------------------
-EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
-/.$putCase consumeEnhancedForStatement(false); $break ./
-EnhancedForStatement ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')' Statement
-/.$putCase consumeEnhancedForStatement(true); $break ./
+EnhancedForStatement ::= EnhancedForStatementHeader Statement
+/.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatement:/
 
-EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
-/.$putCase consumeEnhancedForStatement(false); $break ./
-EnhancedForStatementNoShortIf ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
-/.$putCase consumeEnhancedForStatement(true); $break ./
+EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
+/.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
+
+EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
+/.$putCase consumeEnhancedForStatementHeader(false); $break ./
+/:$readableName EnhancedForStatementHeader:/
+/:$compliance 1.5:/
+EnhancedForStatementHeader ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')'
+/.$putCase consumeEnhancedForStatementHeader(true); $break ./
+/:$readableName EnhancedForStatementHeader:/
+/:$compliance 1.5:/
 
 -----------------------------------------------
 -- 1.5 features : static imports
@@ -1568,6 +1578,7 @@ SingleStaticImportDeclaration ::= SingleStaticImportDeclarationName ';'
 SingleStaticImportDeclarationName ::= 'import' 'static' Name
 /.$putCase consumeSingleStaticImportDeclarationName(); $break ./
 /:$readableName SingleStaticImportDeclarationName:/
+/:$compliance 1.5:/
 
 StaticImportOnDemandDeclaration ::= StaticImportOnDemandDeclarationName ';'
 /.$putCase consumeImportDeclaration(); $break ./
@@ -1576,6 +1587,7 @@ StaticImportOnDemandDeclaration ::= StaticImportOnDemandDeclarationName ';'
 StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 /.$putCase consumeStaticImportOnDemandDeclarationName(); $break ./
 /:$readableName StaticImportOnDemandDeclarationName:/
+/:$compliance 1.5:/
 
 -----------------------------------------------
 -- 1.5 features : generics
@@ -1583,130 +1595,174 @@ StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 TypeArguments ::= '<' TypeArgumentList1
 /.$putCase consumeTypeArguments(); $break ./
 /:$readableName TypeArguments:/
+/:$compliance 1.5:/
 
 OnlyTypeArguments ::= '<' TypeArgumentList1
 /.$putCase consumeOnlyTypeArguments(); $break ./
 /:$readableName TypeArguments:/
+/:$compliance 1.5:/
 
 TypeArgumentList1 -> TypeArgument1
+/:$compliance 1.5:/
 TypeArgumentList1 ::= TypeArgumentList ',' TypeArgument1
 /.$putCase consumeTypeArgumentList1(); $break ./
 /:$readableName TypeArgumentList1:/
+/:$compliance 1.5:/
 
 TypeArgumentList -> TypeArgument
+/:$compliance 1.5:/
 TypeArgumentList ::= TypeArgumentList ',' TypeArgument
 /.$putCase consumeTypeArgumentList(); $break ./
 /:$readableName TypeArgumentList:/
+/:$compliance 1.5:/
 
 TypeArgument ::= ReferenceType
 /.$putCase consumeTypeArgument(); $break ./
+/:$compliance 1.5:/
 TypeArgument -> Wildcard
 /:$readableName TypeArgument:/
+/:$compliance 1.5:/
 
 TypeArgument1 -> ReferenceType1
+/:$compliance 1.5:/
 TypeArgument1 -> Wildcard1
 /:$readableName TypeArgument1:/
+/:$compliance 1.5:/
 
 ReferenceType1 ::= ReferenceType '>'
 /.$putCase consumeReferenceType1(); $break ./
+/:$compliance 1.5:/
 ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
 /.$putCase consumeTypeArgumentReferenceType1(); $break ./
 /:$readableName ReferenceType1:/
+/:$compliance 1.5:/
 
 TypeArgumentList2 -> TypeArgument2
+/:$compliance 1.5:/
 TypeArgumentList2 ::= TypeArgumentList ',' TypeArgument2
 /.$putCase consumeTypeArgumentList2(); $break ./
 /:$readableName TypeArgumentList2:/
+/:$compliance 1.5:/
 
 TypeArgument2 -> ReferenceType2
+/:$compliance 1.5:/
 TypeArgument2 -> Wildcard2
 /:$readableName TypeArgument2:/
+/:$compliance 1.5:/
 
 ReferenceType2 ::= ReferenceType '>>'
 /.$putCase consumeReferenceType2(); $break ./
+/:$compliance 1.5:/
 ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
 /.$putCase consumeTypeArgumentReferenceType2(); $break ./
 /:$readableName ReferenceType2:/
+/:$compliance 1.5:/
 
 TypeArgumentList3 -> TypeArgument3
 TypeArgumentList3 ::= TypeArgumentList ',' TypeArgument3
 /.$putCase consumeTypeArgumentList3(); $break ./
 /:$readableName TypeArgumentList3:/
+/:$compliance 1.5:/
 
 TypeArgument3 -> ReferenceType3
 TypeArgument3 -> Wildcard3
 /:$readableName TypeArgument3:/
+/:$compliance 1.5:/
 
 ReferenceType3 ::= ReferenceType '>>>'
 /.$putCase consumeReferenceType3(); $break ./
 /:$readableName ReferenceType3:/
+/:$compliance 1.5:/
 
 Wildcard ::= '?'
 /.$putCase consumeWildcard(); $break ./
+/:$compliance 1.5:/
 Wildcard ::= '?' WildcardBounds
 /.$putCase consumeWildcardWithBounds(); $break ./
 /:$readableName Wildcard:/
+/:$compliance 1.5:/
 
 WildcardBounds ::= 'extends' ReferenceType
 /.$putCase consumeWildcardBoundsExtends(); $break ./
+/:$compliance 1.5:/
 WildcardBounds ::= 'super' ReferenceType
 /.$putCase consumeWildcardBoundsSuper(); $break ./
 /:$readableName WildcardBounds:/
+/:$compliance 1.5:/
 
 Wildcard1 ::= '?' '>'
 /.$putCase consumeWildcard1(); $break ./
+/:$compliance 1.5:/
 Wildcard1 ::= '?' WildcardBounds1
 /.$putCase consumeWildcard1WithBounds(); $break ./
 /:$readableName Wildcard1:/
+/:$compliance 1.5:/
 
 WildcardBounds1 ::= 'extends' ReferenceType1
 /.$putCase consumeWildcardBounds1Extends(); $break ./
+/:$compliance 1.5:/
 WildcardBounds1 ::= 'super' ReferenceType1
 /.$putCase consumeWildcardBounds1Super(); $break ./
 /:$readableName WildcardBounds1:/
+/:$compliance 1.5:/
 
 Wildcard2 ::= '?' '>>'
 /.$putCase consumeWildcard2(); $break ./
+/:$compliance 1.5:/
 Wildcard2 ::= '?' WildcardBounds2
 /.$putCase consumeWildcard2WithBounds(); $break ./
 /:$readableName Wildcard2:/
+/:$compliance 1.5:/
 
 WildcardBounds2 ::= 'extends' ReferenceType2
 /.$putCase consumeWildcardBounds2Extends(); $break ./
+/:$compliance 1.5:/
 WildcardBounds2 ::= 'super' ReferenceType2
 /.$putCase consumeWildcardBounds2Super(); $break ./
 /:$readableName WildcardBounds2:/
+/:$compliance 1.5:/
 
 Wildcard3 ::= '?' '>>>'
 /.$putCase consumeWildcard3(); $break ./
+/:$compliance 1.5:/
 Wildcard3 ::= '?' WildcardBounds3
 /.$putCase consumeWildcard3WithBounds(); $break ./
 /:$readableName Wildcard3:/
+/:$compliance 1.5:/
 
 WildcardBounds3 ::= 'extends' ReferenceType3
 /.$putCase consumeWildcardBounds3Extends(); $break ./
+/:$compliance 1.5:/
 WildcardBounds3 ::= 'super' ReferenceType3
 /.$putCase consumeWildcardBounds3Super(); $break ./
 /:$readableName WildcardBound3:/
+/:$compliance 1.5:/
 
 TypeParameters ::= '<' TypeParameterList1
 /.$putCase consumeTypeParameters(); $break ./
 /:$readableName TypeParameters:/
+/:$compliance 1.5:/
 
 TypeParameterList -> TypeParameter
+/:$compliance 1.5:/
 TypeParameterList ::= TypeParameterList ',' TypeParameter
 /.$putCase consumeTypeParameterList(); $break ./
 /:$readableName TypeParameterList:/
+/:$compliance 1.5:/
 
 TypeParameter ::= Identifier
 /.$putCase consumeTypeParameter(); $break ./
+/:$compliance 1.5:/
 TypeParameter ::= Identifier 'extends' ReferenceType
 /.$putCase consumeTypeParameterWithExtends(); $break ./
+/:$compliance 1.5:/
 TypeParameter ::= Identifier 'extends' ReferenceType AdditionalBoundList
 /.$putCase consumeTypeParameterWithExtendsAndBounds(); $break ./
 /:$readableName TypeParameter:/
+/:$compliance 1.5:/
 
 AdditionalBoundList -> AdditionalBound
+/:$compliance 1.5:/
 AdditionalBoundList ::= AdditionalBoundList AdditionalBound
 /.$putCase consumeAdditionalBoundList(); $break ./
 /:$readableName AdditionalBoundList:/
@@ -1714,28 +1770,37 @@ AdditionalBoundList ::= AdditionalBoundList AdditionalBound
 AdditionalBound ::= '&' ReferenceType
 /.$putCase consumeAdditionalBound(); $break ./
 /:$readableName AdditionalBound:/
+/:$compliance 1.5:/
 
 TypeParameterList1 -> TypeParameter1
+/:$compliance 1.5:/
 TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
 /.$putCase consumeTypeParameterList1(); $break ./
 /:$readableName TypeParameterList1:/
+/:$compliance 1.5:/
 
 TypeParameter1 ::= Identifier '>'
 /.$putCase consumeTypeParameter1(); $break ./
+/:$compliance 1.5:/
 TypeParameter1 ::= Identifier 'extends' ReferenceType1
 /.$putCase consumeTypeParameter1WithExtends(); $break ./
+/:$compliance 1.5:/
 TypeParameter1 ::= Identifier 'extends' ReferenceType AdditionalBoundList1
 /.$putCase consumeTypeParameter1WithExtendsAndBounds(); $break ./
 /:$readableName TypeParameter1:/
+/:$compliance 1.5:/
 
 AdditionalBoundList1 -> AdditionalBound1
+/:$compliance 1.5:/
 AdditionalBoundList1 ::= AdditionalBoundList AdditionalBound1
 /.$putCase consumeAdditionalBoundList1(); $break ./
 /:$readableName AdditionalBoundList1:/
+/:$compliance 1.5:/
 
 AdditionalBound1 ::= '&' ReferenceType1
 /.$putCase consumeAdditionalBound1(); $break ./
 /:$readableName AdditionalBound1:/
+/:$compliance 1.5:/
 
 -------------------------------------------------
 -- Duplicate rules to remove ambiguity for (x) --
@@ -1896,94 +1961,131 @@ Expression_NotName -> AssignmentExpression_NotName
 -----------------------------------------------
 AnnotationTypeDeclaration ::= Modifiers '@' interface Identifier AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
+/:$compliance 1.5:/
 AnnotationTypeDeclaration ::= '@' interface Identifier AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$readableName AnnotationTypeDeclaration:/
+/:$compliance 1.5:/
 
 AnnotationTypeBody ::= '{' AnnotationTypeMemberDeclarationsopt '}'
 /.$putCase consumeAnnotationTypeBody() ; $break ./
 /:$readableName AnnotationTypeBody:/
+/:$compliance 1.5:/
 
 AnnotationTypeMemberDeclarationsopt ::= $empty
 /.$putCase consumeEmptyAnnotationTypeMemberDeclarations() ; $break ./
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclarationsopt -> AnnotationTypeMemberDeclarations
 /:$readableName AnnotationTypeMemberDeclarationsopt:/
+/:$compliance 1.5:/
 
 AnnotationTypeMemberDeclarations -> AnnotationTypeMemberDeclaration
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations AnnotationTypeMemberDeclaration
 /.$putCase consumeAnnotationTypeMemberDeclarations() ; $break ./
 /:$readableName AnnotationTypeMemberDeclarations:/
+/:$compliance 1.5:/
 
 AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' DefaultValueopt ';'
 /.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration ::= ';'
 /.$putCase consumeEmptyAnnotationTypeMemberDeclaration() ; $break ./
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> ConstantDeclaration
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> ClassDeclaration
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> InterfaceDeclaration
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> EnumDeclaration
+/:$compliance 1.5:/
 AnnotationTypeMemberDeclaration -> AnnotationTypeDeclaration
 /:$readableName AnnotationTypeMemberDeclaration:/
+/:$compliance 1.5:/
 
 DefaultValueopt ::= $empty
 /.$putCase consumeEmptyDefaultValue() ; $break ./
+/:$compliance 1.5:/
 DefaultValueopt -> DefaultValue
 /:$readableName DefaultValueopt:/
+/:$compliance 1.5:/
 
 DefaultValue ::= 'default' MemberValue
 /.$putCase consumeDefaultValue() ; $break ./
 /:$readableName DefaultValue:/
+/:$compliance 1.5:/
 
 Annotation -> NormalAnnotation
+/:$compliance 1.5:/
 Annotation -> MarkerAnnotation
+/:$compliance 1.5:/
 Annotation -> SingleMemberAnnotation
 /:$readableName Annotation:/
+/:$compliance 1.5:/
 
 NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
 /.$putCase consumeNormalAnnotation() ; $break ./
 /:$readableName NormalAnnotation:/
+/:$compliance 1.5:/
 
 MemberValuePairsopt ::= $empty
 /.$putCase consumeEmptyMemberValuePairs() ; $break ./
+/:$compliance 1.5:/
 MemberValuePairsopt -> MemberValuePairs
 /:$readableName MemberValuePairsopt:/
+/:$compliance 1.5:/
 
 MemberValuePairs -> MemberValuePair
+/:$compliance 1.5:/
 MemberValuePairs ::= MemberValuePairs ',' MemberValuePair
 /.$putCase consumeMemberValuePairs() ; $break ./
 /:$readableName MemberValuePairs:/
+/:$compliance 1.5:/
 
 MemberValuePair ::= SimpleName '=' MemberValue
 /.$putCase consumeMemberValuePair() ; $break ./
 /:$readableName MemberValuePair:/
+/:$compliance 1.5:/
 
 MemberValue -> ConditionalExpression_NotName
+/:$compliance 1.5:/
 MemberValue -> Annotation
+/:$compliance 1.5:/
 MemberValue -> MemberValueArrayInitializer
 /:$readableName MemberValue:/
+/:$compliance 1.5:/
 
 MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
+/:$compliance 1.5:/
 MemberValueArrayInitializer ::= '{' MemberValues '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
+/:$compliance 1.5:/
 MemberValueArrayInitializer ::= '{' ',' '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
+/:$compliance 1.5:/
 MemberValueArrayInitializer ::= '{' '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
 /:$readableName MemberValueArrayInitializer:/
+/:$compliance 1.5:/
 
 MemberValues -> MemberValue
+/:$compliance 1.5:/
 MemberValues ::= MemberValues ',' MemberValue
 /.$putCase consumeMemberValues() ; $break ./
 /:$readableName MemberValues:/
+/:$compliance 1.5:/
 
 MarkerAnnotation ::= '@' Name
 /.$putCase consumeMarkerAnnotation() ; $break ./
 /:$readableName MarkerAnnotation:/
+/:$compliance 1.5:/
 
 SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 /.$putCase consumeSingleMemberAnnotation() ; $break ./
 /:$readableName SingleMemberAnnotation:/
+/:$compliance 1.5:/
 -----------------------------------------------
 -- 1.5 features : end of annotation
 -----------------------------------------------

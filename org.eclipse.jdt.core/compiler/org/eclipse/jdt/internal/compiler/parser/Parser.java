@@ -71,7 +71,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public static String readableName[] = null;
 	
 	public static byte rhs[] = null;
-
+	
+	public static long rules_compliance[] =  null;
+	
 	public static final int RoundBracket = 0;
     
     public static byte scope_la[] = null;
@@ -142,6 +144,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	//error recovery management
 	protected int lastCheckPoint;
 	protected int lastErrorEndPosition;
+	protected int lastErrorEndPositionBeforeRecovery = -1;
 	protected int lastIgnoredToken, nextIgnoredToken;
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 	protected int lParenPos,rParenPos; //accurate only when used !
@@ -256,16 +259,18 @@ private static void buildFileForReadableName(
 	
 	boolean[] alreadyAdded = new boolean[newName.length];
 	
-	for (int i = 0; i < tokens.length; i = i + 2) {
-		int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i])]];
-		StringBuffer buffer = new StringBuffer();
-		if(!alreadyAdded[index]) {
-			alreadyAdded[index] = true;
-			buffer.append(newName[index]);
-			buffer.append('=');
-			buffer.append(tokens[i+1].trim());
-			buffer.append('\n');
-			entries.add(String.valueOf(buffer));
+	for (int i = 0; i < tokens.length; i = i + 3) {
+		if("1".equals(tokens[i])) { //$NON-NLS-1$
+			int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i + 1])]];
+			StringBuffer buffer = new StringBuffer();
+			if(!alreadyAdded[index]) {
+				alreadyAdded[index] = true;
+				buffer.append(newName[index]);
+				buffer.append('=');
+				buffer.append(tokens[i+2].trim());
+				buffer.append('\n');
+				entries.add(String.valueOf(buffer));
+			}
 		}
 	}
 	int i = 1;
@@ -279,6 +284,33 @@ private static void buildFileForReadableName(
 	Collections.sort(entries);
 	buildFile(file, entries);
 }
+private static void buildFileForCompliance(
+		String file,
+		int length,
+		String[] tokens) throws java.io.IOException {
+
+		byte[] result = new byte[length * 2];
+		
+		for (int i = 0; i < tokens.length; i = i + 3) {
+			if("2".equals(tokens[i])) { //$NON-NLS-1$
+				int index = Integer.parseInt(tokens[i + 1]);
+				String token = tokens[i + 2].trim();
+				long compliance = 0;
+				if("1.4".equals(token)) { //$NON-NLS-1$
+					compliance = ClassFileConstants.JDK1_4;
+				} else if("1.5".equals(token)) { //$NON-NLS-1$
+					compliance = ClassFileConstants.JDK1_5;
+				} else if("recovery".equals(token)) { //$NON-NLS-1$
+					compliance = ClassFileConstants.JDK_DEFERRED;
+				}
+				
+				result[index * 2] = (byte)(compliance >> 16);
+				result[index * 2 + 1] = (byte) compliance;
+			}
+		}
+
+		buildFileForTable(file, result); //$NON-NLS-1$
+	}
 private final static void buildFileForTable(String filename, byte[] bytes) throws java.io.IOException {
 	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
 	stream.write(bytes);
@@ -298,7 +330,7 @@ private final static void buildFileForTable(String filename, char[] chars) throw
 	stream.close();
 	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
-private final static void buildFileOfByteFor(String filename, String tag, String[] tokens) throws java.io.IOException {
+private final static byte[] buildFileOfByteFor(String filename, String tag, String[] tokens) throws java.io.IOException {
 
 	//transform the String tokens into chars before dumping then into file
 
@@ -319,6 +351,7 @@ private final static void buildFileOfByteFor(String filename, String tag, String
 	System.arraycopy(bytes, 0, bytes = new byte[ic], 0, ic);
 
 	buildFileForTable(filename, bytes);
+	return bytes;
 }
 private final static char[] buildFileOfIntFor(String filename, String tag, String[] tokens) throws java.io.IOException {
 
@@ -384,12 +417,12 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	java.util.StringTokenizer st = 
 		new java.util.StringTokenizer(new String(contents), " \t\n\r[]={,;");  //$NON-NLS-1$
 	String[] tokens = new String[st.countTokens()];
-	int i = 0;
+	int j = 0;
 	while (st.hasMoreTokens()) {
-		tokens[i++] = st.nextToken();
+		tokens[j++] = st.nextToken();
 	}
 	final String prefix = FILEPREFIX;
-	i = 0;
+	int i = 0;
 	
 	char[] newLhs = buildFileOfIntFor(prefix + (++i) + ".rsc", "lhs", tokens); //$NON-NLS-1$ //$NON-NLS-2$
 	buildFileOfShortFor(prefix + (++i) + ".rsc", "check_table", tokens); //$NON-NLS-2$ //$NON-NLS-1$
@@ -409,7 +442,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "scope_state", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfIntFor(prefix + (++i) + ".rsc", "in_symb", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	
-	buildFileOfByteFor(prefix + (++i) + ".rsc", "rhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
+	byte[] newRhs = buildFileOfByteFor(prefix + (++i) + ".rsc", "rhs", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfByteFor(prefix + (++i) + ".rsc", "term_check", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	buildFileOfByteFor(prefix + (++i) + ".rsc", "scope_la", tokens); //$NON-NLS-2$ //$NON-NLS-1$
 	
@@ -422,12 +455,14 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
 		return;
 	}
-	st = new java.util.StringTokenizer(new String(contents), "\t\n\r=");  //$NON-NLS-1$
+	st = new java.util.StringTokenizer(new String(contents), "\t\n\r=#");  //$NON-NLS-1$
 	tokens = new String[st.countTokens()];
-	i = 0;
+	j = 0;
 	while (st.hasMoreTokens()) {
-		tokens[i++] = st.nextToken();
+		tokens[j++] = st.nextToken();
 	}
+	
+	buildFileForCompliance(prefix + (++i) + ".rsc", newRhs.length, tokens);//$NON-NLS-1$
 	buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
 	
 	System.out.println(Util.bind("parser.moveFiles")); //$NON-NLS-1$
@@ -466,6 +501,13 @@ public final static void initTables() throws java.io.IOException {
 	scope_la = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
 	
 	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	
+	byte[] bytes = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
+	rules_compliance = new long[bytes.length / 2];
+	for (int j = 0; j < rules_compliance.length; j++) {
+		rules_compliance[j] = (long)(bytes[j * 2]  << 16) + bytes[j * 2 + 1];
+	}
+	
 	readableName = readReadableNameTable(READABLE_NAMES_FILE_NAME);
 	
 	base_action = lhs;
@@ -536,6 +578,38 @@ protected static String[] readReadableNameTable(String filename) {
 			}
 		} catch(MissingResourceException e) {
 			result[i] = name[i];
+		}
+	}
+	return result;
+}
+protected static long[] readComplianceTable(String filename) {
+	int length = rhs.length;
+	long[] result = new long[length];
+
+	ResourceBundle bundle;
+	try {
+		bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
+	} catch(MissingResourceException e) {
+		System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+		throw e;
+	}
+
+	for (int i = 0; i < length; i++) {
+		try {
+			String n = bundle.getString(String.valueOf(i));
+			if(n != null && n.length() > 0) {
+				if("1.4".equals(n)) { //$NON-NLS-1$
+					result[i] = ClassFileConstants.JDK1_4;
+				} else if("1.5".equals(n)) { //$NON-NLS-1$
+					result[i] = ClassFileConstants.JDK1_5;
+				} else {
+					result[i] = 0;
+				}
+			} else {
+				result[i] = 0;
+			}
+		} catch(MissingResourceException e) {
+			result[i] = 0;
 		}
 	}
 	return result;
@@ -645,6 +719,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	 * also rebuild bracket balance 
 	 */
 	this.lastCheckPoint = 0;
+	this.lastErrorEndPositionBeforeRecovery = this.scanner.currentPosition;
 
 	RecoveredElement element = null;
 	if (this.referenceContext instanceof CompilationUnitDeclaration){
@@ -2229,21 +2304,10 @@ protected void consumeEmptyTypeDeclarationsopt() {
 protected void consumeEmptyWildcardBounds() {
 	// TODO Auto-generated method stub	
 }
-protected void consumeEnhancedForStatement(boolean hasModifiers) {
-	// EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
-	// EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
-
-	Expression collection = null;
+protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
+	//	 EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
+	// EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')'
 	TypeReference type;
-	//statements
-	this.astLengthPtr--;
-	Statement statement = (Statement) this.astStack[this.astPtr--];
-
-	//updates are on the expresion stack
-	if (this.expressionLengthStack[this.expressionLengthPtr--] == 1) {
-		this.expressionPtr--;
-		collection = this.expressionStack[this.expressionPtr + 1];
-	}
 
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
@@ -2269,6 +2333,34 @@ protected void consumeEnhancedForStatement(boolean hasModifiers) {
 		localDeclaration.modifiers = modifiersValue;
 	}
 	localDeclaration.type = type;
+
+	pushOnAstStack(localDeclaration);
+		
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition && 
+			this.expressionLengthStack[this.expressionLengthPtr] == 1) {
+		this.problemReporter().invalidUsageOfForeachStatements(localDeclaration, this.expressionStack[this.expressionPtr]);
+	}
+}
+protected void consumeEnhancedForStatement() {
+	// EnhancedForStatement ::= EnhancedForStatementHeader Statement
+	// EnhancedForStatementNoShortIf ::= EnhancedForStatementHeader StatementNoShortIf
+
+	Expression collection = null;
+	//statements
+	this.astLengthPtr--;
+	Statement statement = (Statement) this.astStack[this.astPtr--];
+
+	//updates are on the expresion stack
+	if (this.expressionLengthStack[this.expressionLengthPtr--] == 1) {
+		this.expressionPtr--;
+		collection = this.expressionStack[this.expressionPtr + 1];
+	}
+
+	//	local declaration
+	this.astLengthPtr--;
+	LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr--];
+	
 	ForeachStatement iteratorForStatement =
 		new ForeachStatement(
 			localDeclaration,
@@ -2277,10 +2369,6 @@ protected void consumeEnhancedForStatement(boolean hasModifiers) {
 			this.intStack[this.intPtr--], 
 			this.endStatementPosition); 
 	pushOnAstStack(iteratorForStatement);
-		
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
-		this.problemReporter().invalidUsageOfForeachStatements(iteratorForStatement);
-	}
 }
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
@@ -2607,7 +2695,8 @@ protected void consumeEnumHeader() {
 
 	this.listLength = 0; // will be updated when reading super-interfaces
 	
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5&&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		//TODO this code will be never run while 'enum' is an identfier in 1.3 scanner 
 		this.problemReporter().invalidUsageOfEnumsDeclarations(enumDeclaration);
 	}
@@ -2878,7 +2967,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		indicating that some arguments are available on the stack */
 	this.listLength++; 	
 	
-	if(isVarArgs && options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(isVarArgs &&
+			options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfVarargs(arg);
 	}
 }
@@ -3634,7 +3725,8 @@ protected void consumeOnlySynchronized() {
 	resetModifiers();
 }
 protected void consumeOnlyTypeArguments() {
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		int length = this.genericsLengthStack[this.genericsLengthPtr];
 		this.problemReporter().invalidUsageOfTypeArguments(
 			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
@@ -4896,20 +4988,20 @@ protected void consumeRule(int act) {
 		    consumeEmptyEnumDeclarations();  
 			break;
  
-    case 489 : if (DEBUG) { System.out.println("EnhancedForStatement ::= for LPAREN Type PushModifiers"); }  //$NON-NLS-1$
-		    consumeEnhancedForStatement(false);  
+    case 489 : if (DEBUG) { System.out.println("EnhancedForStatement ::= EnhancedForStatementHeader..."); }  //$NON-NLS-1$
+		    consumeEnhancedForStatement();  
 			break;
  
-    case 490 : if (DEBUG) { System.out.println("EnhancedForStatement ::= for LPAREN Modifiers Type..."); }  //$NON-NLS-1$
-		    consumeEnhancedForStatement(true);  
+    case 490 : if (DEBUG) { System.out.println("EnhancedForStatementNoShortIf ::=..."); }  //$NON-NLS-1$
+		    consumeEnhancedForStatement();  
 			break;
  
-    case 491 : if (DEBUG) { System.out.println("EnhancedForStatementNoShortIf ::= for LPAREN Type..."); }  //$NON-NLS-1$
-		    consumeEnhancedForStatement(false);  
+    case 491 : if (DEBUG) { System.out.println("EnhancedForStatementHeader ::= for LPAREN Type..."); }  //$NON-NLS-1$
+		    consumeEnhancedForStatementHeader(false);  
 			break;
  
-    case 492 : if (DEBUG) { System.out.println("EnhancedForStatementNoShortIf ::= for LPAREN Modifiers"); }  //$NON-NLS-1$
-		    consumeEnhancedForStatement(true);  
+    case 492 : if (DEBUG) { System.out.println("EnhancedForStatementHeader ::= for LPAREN Modifiers Type"); }  //$NON-NLS-1$
+		    consumeEnhancedForStatementHeader(true);  
 			break;
  
     case 493 : if (DEBUG) { System.out.println("SingleStaticImportDeclaration ::=..."); }  //$NON-NLS-1$
@@ -5392,7 +5484,8 @@ protected void consumeSingleStaticImportDeclarationName() {
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfStaticImports(impt);
 	}
 	
@@ -5759,7 +5852,8 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfStaticImports(impt);
 	}
 	
@@ -5856,7 +5950,8 @@ protected void consumeToken(int type) {
 	switch (type) {
 		case TokenNameIdentifier :
 			pushIdentifier();
-			if (this.scanner.useAssertAsAnIndentifier) {
+			if (this.scanner.useAssertAsAnIndentifier  &&
+					this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 				long positions = this.identifierPositionStack[this.identifierPtr];
 				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
 			}
@@ -6141,7 +6236,8 @@ protected void consumeTypeArgumentReferenceType2() {
 }
 protected void consumeTypeArguments() {
 	concatGenericsLists();
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		int length = this.genericsLengthStack[this.genericsLengthPtr];
 		this.problemReporter().invalidUsageOfTypeArguments(
 			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
@@ -6250,7 +6346,8 @@ protected void consumeTypeParameterList1() {
 	concatGenericsLists();
 }
 protected void consumeTypeParameters() {
-	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5&&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		int length = this.genericsLengthStack[this.genericsLengthPtr];
 		this.problemReporter().invalidUsageOfTypeParameters(
 			(TypeParameter) this.genericsStack[genericsPtr - length + 1],
@@ -7404,6 +7501,7 @@ public void initialize() {
 	this.recoveredStaticInitializerStart = 0;
 	this.lastIgnoredToken = -1;
 	this.lastErrorEndPosition = -1;
+	this.lastErrorEndPositionBeforeRecovery = -1;
 	this.listLength = 0;
 	
 	this.rBraceStart = 0;
@@ -8313,13 +8411,13 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 		TypeDeclaration[] types = this.compilationUnit.types;
 		
 		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.RangeUtil.computeDietRange(types);
-		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2]);
+		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2], this.options);
 		diagnoseParser.diagnoseParse();
 		
 		reportSyntaxErrorsForSkippedMethod(types);
 		this.scanner.resetTo(start, end);
 	} else {
-		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end);
+		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, this.options);
 		diagnoseParser.diagnoseParse();
 	}
 }
@@ -8336,7 +8434,7 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 				for (int j = 0; j < methods.length; j++) {
 					AbstractMethodDeclaration method = methods[j];
 					if(methods[j].errorInSignature) {
-						DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameDIVIDE, method.declarationSourceStart, method.declarationSourceEnd);
+						DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameDIVIDE, method.declarationSourceStart, method.declarationSourceEnd, this.options);
 						diagnoseParser.diagnoseParse();
 					}
 				}
@@ -8349,7 +8447,7 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 					if (fields[j] instanceof Initializer) {
 						Initializer initializer = (Initializer)fields[j];
 						if(initializer.errorInSignature){
-							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd);
+							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd, this.options);
 							diagnoseParser.diagnoseParse();
 						}
 					}

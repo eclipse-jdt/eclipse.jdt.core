@@ -61,7 +61,7 @@ public class TestAll extends TestCase {
 		testClasses.add(SyntaxErrorTest.class);
 		testClasses.add(DualParseSyntaxErrorTest.class);
 		testClasses.add(ParserTest.class);
-		testClasses.add(ComplianceParserTest.class);
+		testClasses.add(ComplianceDiagnoseTest.class);
 
 		return AbstractCompilerTest.suite(TestAll.class.getName(), CompilerTestSetup.class, testClasses);
 	}

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -38,6 +39,8 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	private static final int BUFF_SIZE    = 32;
 	private static final int MAX_DISTANCE = 30;
 	private static final int MIN_DISTANCE = 3;
+	
+	private CompilerOptions options;
 	
 	private LexStream lexStream;
 	private int errorToken;
@@ -133,12 +136,13 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	    }
 	}
 
-	public DiagnoseParser(Parser parser, int firstToken, int start, int end) {
-		this(parser, firstToken, start, end, new int[0], new int[0], new int[0]);
+	public DiagnoseParser(Parser parser, int firstToken, int start, int end, CompilerOptions options) {
+		this(parser, firstToken, start, end, new int[0], new int[0], new int[0], options);
 	}
 
-	public DiagnoseParser(Parser parser, int firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip) {
+	public DiagnoseParser(Parser parser, int firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, CompilerOptions options) {
 		this.parser = parser;
+		this.options = options;
 		this.lexStream = new LexStream(BUFF_SIZE, parser.scanner, intervalStartToSkip, intervalEndToSkip, intervalFlagsToSkip, firstToken, start, end);
 	}
 	
@@ -1909,6 +1913,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			act = Parser.ntAction(act, lhs_symbol);
 			if (act <= NUM_RULES) {
 				do {
+					if(Parser.rules_compliance[act] > this.options.sourceLevel) {
+					 	return 0;
+					}
 					tempStackTop -= (Parser.rhs[act]-1);
 					lhs_symbol = Parser.lhs[act];
 					act = (tempStackTop > max_pos
@@ -1945,6 +1952,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				lexStream.reset(lexStream.next(buffer[indx]));
 				if (act > ERROR_ACTION) {
 					 act -= ERROR_ACTION;
+					 if(Parser.rules_compliance[act] > this.options.sourceLevel) {
+					 	return 0;
+					 }
 				} else {
 					continue process_terminal;
 				}
@@ -1956,6 +1966,11 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 
 			process_non_terminal:
 			do {
+				if(act <= NUM_RULES) {
+					if(Parser.rules_compliance[act] > this.options.sourceLevel) {
+					 	return 0;
+					}
+				}
 				tempStackTop -= (Parser.rhs[act]-1);
 				int lhs_symbol = Parser.lhs[act];
 				act = (tempStackTop > max_pos
