@@ -8,7 +8,7 @@
     name = "%pluginName"
     id = "org.eclipse.jdt.core"
     version = "2.0.0"
-    provider-name = "Object Technology International, Inc."
+    provider-name = "%providerName"
     class="org.eclipse.jdt.core.JavaCore">
 
 <!-- =================================================================================== -->

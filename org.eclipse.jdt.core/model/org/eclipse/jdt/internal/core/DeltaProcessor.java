@@ -188,7 +188,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 								try {
 									project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
 								} catch (JavaModelException e) {
-									Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
+									if (project.getProject().isAccessible()){
+										Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
+									}
 								}
 								break;
 							case IResourceDelta.CHANGED :
