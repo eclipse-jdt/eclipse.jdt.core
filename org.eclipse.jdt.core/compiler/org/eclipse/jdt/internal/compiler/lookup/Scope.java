@@ -798,13 +798,15 @@ public abstract class Scope
 				// (if no default abstract) must explicitly look for one instead, which could be a better match
 				if (!matchingMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
-					MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
+					MethodBinding interfaceMethod =
+						findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
 					if (interfaceMethod != null) return interfaceMethod;
 					compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
 					return matchingMethod;
 				}
 			} 
-			matchingMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			matchingMethod =
+				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (matchingMethod != null) return matchingMethod;
 			return problemMethod;
 		}
@@ -832,6 +834,17 @@ public abstract class Scope
 				return methodBinding;
 			}
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
+		}
+
+		// check for duplicate parameterized methods
+		if (compilationUnitScope().environment.options.complianceLevel >= ClassFileConstants.JDK1_5) {
+			for (int i = 0; i < candidatesCount; i++) {
+				MethodBinding current = candidates[i];
+				if (current instanceof ParameterizedMethodBinding)
+					for (int j = i + 1; j < candidatesCount; j++)
+						if (current.declaringClass == candidates[j].declaringClass && current.areParametersEqual(candidates[j]))
+							return new ProblemMethodBinding(candidates[i].selector, candidates[i].parameters, Ambiguous);
+			}
 		}
 
 		// tiebreak using visibility check

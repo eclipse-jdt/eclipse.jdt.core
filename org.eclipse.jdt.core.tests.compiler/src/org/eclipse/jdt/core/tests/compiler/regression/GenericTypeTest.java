@@ -1209,8 +1209,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}	
 	
-	// TODO (kent) reenable once ambiguity is detected
-	public void _test038() {
+	public void test038() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1224,10 +1223,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n" + 
 				"class XY extends Thread implements Cloneable {\n" + 
 				"}\n" ,
-			},
-			"foo invocation is ambiguous");
-	}	
-	
+			},		"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	x.foo(new XY());\n" + 
+			"	  ^^^\n" + 
+			"The method foo(XY) is ambiguous for the type X<XY,XY>\n" + 
+			"----------\n");
+	}
+
 	public void test039() {
 		this.runNegativeTest(
 			new String[] {
