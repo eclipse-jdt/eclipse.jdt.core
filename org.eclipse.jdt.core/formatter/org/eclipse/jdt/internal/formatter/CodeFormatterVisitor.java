@@ -99,6 +99,7 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
 import org.eclipse.text.edits.TextEdit;
@@ -152,16 +153,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private Scanner localScanner;
 	public DefaultCodeFormatterOptions preferences;
 	public Scribe scribe;
-	
-	/*
-	 * TODO See how to choose the formatter's options. The extension point is calling
-	 * this constructor, but then there is no way to initialize the option used by the formatter.
-	 */ 
-	public CodeFormatterVisitor() {
-		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings()), JavaCore.getDefaultOptions(), 0, -1);
-	}
 
-	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length) {
+	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
 			if (assertModeSetting == null) {
@@ -174,7 +167,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		
 		this.preferences = preferences;
-		this.scribe = new Scribe(this, settings, offset, length);
+		this.scribe = new Scribe(this, settings, offset, length, codeSnippetParsingUtil);
 	}
 	
 	/**
