@@ -245,17 +245,27 @@ public final class AST {
 	 * 
 	 * @param kind the given kind to parse
 	 * @param source the string to be parsed
+	 * @param offset the given offset
+	 * @param length the given length
+	 * @param options the given options. If null, <code>JavaCore.getOptions()</code> is used.
+	 * 
 	 * @return ASTNode
 	 * @see ASTNode#getStartPosition()
 	 * @see ASTNode#getLength()
 	 * @see AST#K_CLASS_BODY_DECLARATIONS
 	 * @see AST#K_EXPRESSION
 	 * @see AST#K_STATEMENTS
+	 * @see JavaCore#getOptions()
 	 * @since 3.0
 	 */
 	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options) {
+		if (options == null) {
+			options = JavaCore.getOptions();
+		}
 		ASTConverter converter = new ASTConverter(options, false);
 		converter.compilationUnitSource = source;
+		converter.scanner.setSource(source);
+		
 		AST ast = new AST();
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
@@ -946,7 +956,7 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
-	 * @param options options to use while parsing the file
+	 * @param options options to use while parsing the file. If null, <code>JavaCore.getOptions()</code> is used.
 	 * @return CompilationUnit
 	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
@@ -956,6 +966,9 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public static CompilationUnit parseCompilationUnit(char[] source, Map options) {
+		if (options == null) {
+			options = JavaCore.getOptions();
+		}
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
