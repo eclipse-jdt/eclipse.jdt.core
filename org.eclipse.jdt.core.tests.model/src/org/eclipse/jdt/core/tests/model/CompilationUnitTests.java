@@ -461,6 +461,20 @@ public void testHasResourceChanged() {
 		"A compilation unit's resource should not have changed", 
 		!this.cu.hasResourceChanged());
 }
+/*
+ * Ensures that hasChildren doesn't return true for an import container that doesn't exist
+ * (regression test for bug 76761 [model] ImportContainer.hasChildren() should not return true
+ */
+public void testImportContainerHasChildren() throws JavaModelException {
+	IImportContainer importContainer = getCompilationUnit("/Test/DoesNotExist.java").getImportContainer();
+	boolean gotException = false;
+	try {
+		importContainer.hasChildren();
+	} catch (JavaModelException e) {
+		gotException = e.isDoesNotExist();
+	}
+	assertTrue("Should get a not present exception", gotException);
+}
 /**
  * Ensures that a compilation unit that does not exist responds
  * false to #exists() and #isOpen()

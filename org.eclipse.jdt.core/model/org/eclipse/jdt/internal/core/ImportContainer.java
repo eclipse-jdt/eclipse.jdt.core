@@ -85,13 +85,6 @@ public ISourceRange getSourceRange() throws JavaModelException {
 	return range;
 }
 /**
- * Import containers only exist if they have children.
- * @see IParent
- */
-public boolean hasChildren() {
-	return true;
-}
-/**
  */
 public String readableName() {
 
