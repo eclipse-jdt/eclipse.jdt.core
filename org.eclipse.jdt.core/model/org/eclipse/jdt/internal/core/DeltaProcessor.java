@@ -1122,19 +1122,23 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 
-	private boolean isOutputFiltered(OutputInfo info, IResource childRes, int childType) {
+	/*
+	 * Returns whether the given resource is in the given output folder and if
+	 * it is filtered out from this output folder.
+	 */
+	private boolean isResFilteredFromOutput(OutputInfo info, IResource res, int elementType) {
 		boolean outputIsFiltered = false;
-		if (info != null && info.path.isPrefixOf(childRes.getFullPath())) {
+		if (info != null && info.path.isPrefixOf(res.getFullPath())) {
 			if (info.traverseMode != IGNORE) {
 				// case of bin=src
-				if (info.traverseMode == SOURCE && childType == IJavaElement.CLASS_FILE) {
+				if (info.traverseMode == SOURCE && elementType == IJavaElement.CLASS_FILE) {
 					outputIsFiltered = true;
 				} else {
 					// case of .class file under project and no source folder
 					// proj=bin
-					if (childType == IJavaElement.JAVA_PROJECT 
-							&& childRes instanceof IFile 
-							&& Util.isValidClassFileName(childRes.getName())) {
+					if (elementType == IJavaElement.JAVA_PROJECT 
+							&& res instanceof IFile 
+							&& Util.isValidClassFileName(res.getName())) {
 						outputIsFiltered = true;
 					}
 				}
@@ -1657,7 +1661,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 			IResourceDelta[] children = delta.getAffectedChildren();
 			boolean oneChildOnClasspath = false;
 			int length = children.length;
-			IResourceDelta[] orphanChildren = new IResourceDelta[length];
+			IResourceDelta[] orphanChildren = null;
 			Openable parent = null;
 			boolean isValidParent = true;
 			for (int i = 0; i < length; i++) {
@@ -1685,17 +1689,19 @@ public class DeltaProcessor implements IResourceChangeListener {
 						rootInfo == null ? childInfo : rootInfo
 					);
 						
-				// are changes in output location filtered out ?
-				boolean outputIsFiltered = this.isOutputFiltered(outputInfo, childRes, childType);
+				// is childRes in the output folder and is it filtered out ?
+				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(outputInfo, childRes, childType);
 				
-				// traverse delta for child in the same project
-				if (!outputIsFiltered) {
+				if (!isResFilteredFromOutput) {
 					if (childType == -1
-						|| !this.traverseDelta(child, childType, rootInfo == null ? childInfo : rootInfo, outputInfo)) {
+							|| !this.traverseDelta(child, childType, rootInfo == null ? childInfo : rootInfo, outputInfo)) { // traverse delta for child in the same project
+						
+						// it is a non-java resource
 						try {
-							if (rootInfo != null) {
+							if (rootInfo != null) { // if inside a package fragment root
 								if (!isValidParent) continue; 
 								if (parent == null) {
+									// find the parent of the non-java resource to attach to
 									if (this.currentElement == null 
 											|| !this.currentElement.getJavaProject().equals(rootInfo.project)) {
 										// force the currentProject to be used
@@ -1717,6 +1723,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 								// add child as non java resource
 								nonJavaResourcesChanged(parent, child);
 							} else {
+								// the non-java resource (or its parent folder) will be attached to the java project
+								if (orphanChildren == null) orphanChildren = new IResourceDelta[length];
 								orphanChildren[i] = child;
 							}
 						} catch (JavaModelException e) {
@@ -1743,12 +1751,15 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 				}
 			}
-			if (oneChildOnClasspath || res instanceof IProject) {
-				// add orphan children (case of non java resources under project)
+			if (orphanChildren != null
+					&& (oneChildOnClasspath // orphan children are siblings of a package fragment root
+						|| res instanceof IProject)) { // non-java resource directly under a project
+						
+				// attach orphan children
 				IProject rscProject = res.getProject();
 				JavaProject adoptiveProject = (JavaProject)JavaCore.create(rscProject);
 				if (adoptiveProject != null 
-					&& this.hasJavaNature(rscProject)) { // delta iff Java project (18698)
+						&& this.hasJavaNature(rscProject)) { // delta iff Java project (18698)
 					for (int i = 0; i < length; i++) {
 						if (orphanChildren[i] != null) {
 							try {
