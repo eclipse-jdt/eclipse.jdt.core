@@ -110,14 +110,22 @@ public void build(boolean computeSubtypes) {
 				
 		if (computeSubtypes) {
 			// Note by construction there always is a focus type here
-			boolean focusIsObject = getType().getElementName().equals(new String(IIndexConstants.OBJECT));
+			IType focusType = getType();
+			boolean focusIsObject = focusType.getElementName().equals(new String(IIndexConstants.OBJECT));
 			int amountOfWorkForSubtypes = focusIsObject ? 5 : 80; // percentage of work needed to get possible subtypes
 			IProgressMonitor possibleSubtypesMonitor = 
 				this.hierarchy.progressMonitor == null ? 
 					null : 
 					new SubProgressMonitor(this.hierarchy.progressMonitor, amountOfWorkForSubtypes);
 			HashSet localTypes = new HashSet(10); // contains the paths that have potential subtypes that are local/anonymous types
-			String[] allPossibleSubtypes = this.determinePossibleSubTypes(localTypes, possibleSubtypesMonitor);
+			String[] allPossibleSubtypes;
+			if (((Member)focusType).getOuterMostLocalContext() == null) {
+				// top level or member type
+				allPossibleSubtypes = this.determinePossibleSubTypes(localTypes, possibleSubtypesMonitor);
+			} else {
+				// local or anonymous type
+				allPossibleSubtypes = new String[0];
+			}
 			if (allPossibleSubtypes != null) {
 				IProgressMonitor buildMonitor = 
 					this.hierarchy.progressMonitor == null ? 
