@@ -41,7 +41,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * has been closed. This flag is only valid if the element is an <code>IJavaProject</code>.</li>
  * <li><code>F_CONTENT</code> - The contents of the element have been altered.  This flag
  * is only valid for elements which correspond to files.</li>
- *<li><code>F_FINE_GRAINED</code> - The delta is a fine-grained delta, i.e.&nbsp;an analysis down
+ *<li><code>F_FINE_GRAINED</code> - The delta is a fine-grained delta, that is, an analysis down
  * to the members level was done to determine if there were structural changes to members of the element.</li>
  * <li><code>F_MODIFIERS</code> - The modifiers on the element have changed in some way. 
  * This flag is only valid if the element is an <code>IMember</code>.</li>
@@ -214,7 +214,7 @@ public interface IJavaElementDelta {
 	public int F_SOURCEDETACHED = 0x2000;	
 	
 	/**
-	 * Change flag indicating that this is a fine-grained delta, i.e.&nbsp;an analysis down
+	 * Change flag indicating that this is a fine-grained delta, that is, an analysis down
 	 * to the members level was done to determine if there were structural changes to
 	 * members.
 	 * <p>

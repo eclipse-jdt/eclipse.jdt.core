@@ -210,14 +210,14 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Compare the contents of the two arrays array and prefix and answers:
+	 * Compares the contents of the two arrays array and prefix. Returns
 	 * <ul>
 	 * <li>zero if the array starts with the prefix contents</li>
 	 * <li>the difference between the first two characters that are not equal </li>
 	 * <li>one if array length is lower than the prefix length and that the prefix starts with the 
 	 * array contents.</li>
 	 * </ul>
-	 * <br>
+	 * <p>
 	 * For example:
 	 * <ol>
 	 * <li><pre>
@@ -257,6 +257,7 @@ public final class CharOperation {
 	 * </pre>
 	 * </li>
 	 * </ol>
+	 * </p>
 	 * 
 	 * @param array the given array
 	 * @param prefix the given prefix
@@ -793,9 +794,8 @@ public final class CharOperation {
 	 * 
 	 * @param character the character to search
 	 * @param array the array in which the search is done
-	 * @exception NullPointerException if array is null.
-	 * 
 	 * @return true if the array contains an occurrence of character, false otherwise.
+	 * @exception NullPointerException if array is null.
 	 */
 	public static final boolean contains(char character, char[][] array) {
 		for (int i = array.length; --i >= 0;) {
@@ -830,9 +830,8 @@ public final class CharOperation {
 	 * 
 	 * @param character the character to search
 	 * @param array the array in which the search is done
-	 * @exception NullPointerException if array is null.
-	 * 
 	 * @return true if the array contains an occurrence of character, false otherwise.
+	 * @exception NullPointerException if array is null.
 	 */
 	public static final boolean contains(char character, char[] array) {
 		for (int i = array.length; --i >= 0;)
@@ -883,9 +882,9 @@ public final class CharOperation {
 	 * 
 	 * @param array the array to check
 	 * @param toBeFound the array to find
-	 * @exception NullPointerException if array is null or toBeFound is null
 	 * @return true if array ends with the sequence of characters contained in toBeFound, 
 	 * otherwise false.
+	 * @exception NullPointerException if array is null or toBeFound is null
 	 */
 	public static final boolean endsWith(char[] array, char[] toBeFound) {
 		int i = toBeFound.length;
