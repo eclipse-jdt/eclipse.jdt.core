@@ -219,6 +219,8 @@ public class ReturnStatement extends Statement {
 		if (methodType == null) 
 			return;
 	
+		if (methodType != expressionType) // must call before computeConversion() and typeMismatchError()
+			scope.compilationUnitScope().recordTypeConversion(methodType, expressionType);
 		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)
 				|| expressionType.isCompatibleWith(methodType)) {
 

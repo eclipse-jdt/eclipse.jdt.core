@@ -196,6 +196,8 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			    this.initialization.setExpectedType(variableType);
 				TypeBinding initializationType = this.initialization.resolveType(scope);
 				if (initializationType != null) {
+					if (variableType != initializationType) // must call before computeConversion() and typeMismatchError()
+						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
 					if (initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
 						|| (variableType.isBaseType() && BaseTypeBinding.isWidening(variableType.id, initializationType.id))
 						|| initializationType.isCompatibleWith(variableType)) {

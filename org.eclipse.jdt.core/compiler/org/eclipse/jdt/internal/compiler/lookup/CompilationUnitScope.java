@@ -559,6 +559,9 @@ void recordSuperTypeReference(TypeBinding type) {
 	if (actualType != null && !referencedSuperTypes.containsIdentical(actualType))
 		referencedSuperTypes.add(actualType);
 }
+public void recordTypeConversion(TypeBinding superType, TypeBinding subType) {
+	recordSuperTypeReference(subType); // must record the hierarchy of the subType that is converted to the superType
+}
 void recordTypeReference(TypeBinding type) {
 	if (referencedTypes == null) return; // not recording dependencies
 
@@ -567,17 +570,15 @@ void recordTypeReference(TypeBinding type) {
 		referencedTypes.add(actualType);
 }
 void recordTypeReferences(TypeBinding[] types) {
-	if (qualifiedReferences == null) return; // not recording dependencies
+	if (referencedTypes == null) return; // not recording dependencies
 	if (types == null || types.length == 0) return;
 
 	for (int i = 0, max = types.length; i < max; i++) {
 		// No need to record supertypes of method arguments & thrown exceptions, just the compoundName
 		// If a field/method is retrieved from such a type then a separate call does the job
 		ReferenceBinding actualType = typeToRecord(types[i]);
-		if (actualType != null)
-			recordQualifiedReference(actualType.isMemberType()
-				? CharOperation.splitOn('.', actualType.readableName())
-				: actualType.compoundName);
+		if (actualType != null && !referencedTypes.containsIdentical(actualType))
+			referencedTypes.add(actualType);
 	}
 }
 Binding resolveSingleImport(ImportBinding importBinding) {
@@ -645,18 +646,20 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 	if (type.isArrayType())
 		type = ((ArrayBinding) type).leafComponentType;
 
-	if (type.isParameterizedType())
-		type = type.erasure();
-	else if (type.isRawType())
-		type = type.erasure();
-	else if (type.isWildcard()) 
-	    return null;
+	switch (type.bindingType()) {
+		case Binding.TYPE_PARAMETER :
+		case Binding.WILDCARD_TYPE :
+			return null;
+		case Binding.PARAMETERIZED_TYPE :
+		case Binding.RAW_TYPE :
+			type = type.erasure();
+	}
 
-	if (type.isBaseType()) return null;
-	if (type.isTypeVariable()) return null;
-	if (((ReferenceBinding) type).isLocalType()) return null;
-
-	return (ReferenceBinding) type;
+	if (type instanceof ReferenceBinding) {
+		ReferenceBinding refType = (ReferenceBinding) type;
+		if (!refType.isLocalType()) return refType;
+	}
+	return null;
 }
 public void verifyMethods(MethodVerifier verifier) {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)

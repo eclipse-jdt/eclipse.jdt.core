@@ -157,6 +157,8 @@ public class ArrayInitializer extends Expression {
 						return null;
 	
 					// Compile-time conversion required?
+					if (expectedElementsTb != expressionTb) // must call before computeConversion() and typeMismatchError()
+						scope.compilationUnitScope().recordTypeConversion(expectedElementsTb, expressionTb);
 					if (expression.isConstantValueOfTypeAssignableToType(expressionTb, expectedElementsTb)) {
 						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else if (BaseTypeBinding.isWidening(expectedElementsTb.id, expressionTb.id)) {

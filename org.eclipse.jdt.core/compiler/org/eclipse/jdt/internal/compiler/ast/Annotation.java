@@ -140,6 +140,8 @@ public abstract class Annotation extends Expression {
 					
 					// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 					// may require to widen the rhs expression at runtime
+					if (expectedValueType != valueType) // must call before computeConversion() and typeMismatchError()
+						scope.compilationUnitScope().recordTypeConversion(expectedValueType, valueType);
 					if ((memberValue.isConstantValueOfTypeAssignableToType(valueType, expectedValueType)
 							|| (expectedValueType.isBaseType() && BaseTypeBinding.isWidening(expectedValueType.id, valueType.id)))
 							|| valueType.isCompatibleWith(expectedValueType)) {

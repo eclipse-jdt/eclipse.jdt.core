@@ -200,6 +200,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 						}
 					} else if ((initializationType = this.initialization.resolveType(initializationScope)) != null) {
 
+						if (fieldType != initializationType) // must call before computeConversion() and typeMismatchError()
+							initializationScope.compilationUnitScope().recordTypeConversion(fieldType, initializationType);
 						if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, fieldType)
 								|| (fieldType.isBaseType() && BaseTypeBinding.isWidening(fieldType.id, initializationType.id))
 								|| initializationType.isCompatibleWith(fieldType)) {

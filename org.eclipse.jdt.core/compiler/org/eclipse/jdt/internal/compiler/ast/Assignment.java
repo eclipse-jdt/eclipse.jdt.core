@@ -162,6 +162,8 @@ public class Assignment extends Expression {
 
 		// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 		// may require to widen the rhs expression at runtime
+		if (lhsType != rhsType) // must call before computeConversion() and typeMismatchError()
+			scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
 		if ((expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
 				|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
 				|| rhsType.isCompatibleWith(lhsType)) {

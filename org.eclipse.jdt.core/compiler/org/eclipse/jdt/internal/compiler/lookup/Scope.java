@@ -633,6 +633,8 @@ public abstract class Scope
 	*/
 	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve) {
 		if (receiverType.isBaseType()) return null;
+
+		compilationUnitScope().recordTypeReference(receiverType);
 		if (receiverType.isArrayType()) {
 			TypeBinding leafType = receiverType.leafComponentType();
 			if (leafType instanceof ReferenceBinding) {
@@ -643,8 +645,6 @@ public abstract class Scope
 				return ArrayBinding.ArrayLength;
 			return null;
 		}
-
-		compilationUnitScope().recordTypeReference(receiverType);
 
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
 		if (!currentType.canBeSeenBy(this))
@@ -1675,12 +1675,11 @@ public abstract class Scope
 					SourceTypeBinding receiverType = classScope.referenceContext.binding;
 					boolean isExactMatch = true;
 					// retrieve an exact visible match (if possible)
+					// compilationUnitScope().recordTypeReference(receiverType);   not needed since receiver is the source type
 					MethodBinding methodBinding =
 						(foundMethod == null)
 							? classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite)
 							: classScope.findExactMethod(receiverType, foundMethod.selector, foundMethod.parameters, invocationSite);
-					//		? findExactMethod(receiverType, selector, argumentTypes, invocationSite)
-					//		: findExactMethod(receiverType, foundMethod.selector, foundMethod.parameters, invocationSite);
 					if (methodBinding == null) {
 						// answers closest approximation, may not check argumentTypes or visibility
 						isExactMatch = false;
@@ -1974,11 +1973,13 @@ public abstract class Scope
 
 	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
-			if (receiverType.isArrayType())
-				return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
 			if (receiverType.isBaseType())
 				return new ProblemMethodBinding(selector, argumentTypes, NotFound);
-	
+
+			compilationUnitScope().recordTypeReference(receiverType);
+			if (receiverType.isArrayType())
+				return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
+
 			ReferenceBinding currentType = (ReferenceBinding) receiverType;
 			if (!currentType.canBeSeenBy(this))
 				return new ProblemMethodBinding(selector, argumentTypes, ReceiverTypeNotVisible);

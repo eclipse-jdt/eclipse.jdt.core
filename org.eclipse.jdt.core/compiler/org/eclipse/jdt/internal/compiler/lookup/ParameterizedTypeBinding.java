@@ -235,9 +235,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactMethod(char[], TypeBinding[])
 	 */
 	public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
-		if (refScope != null)
-			refScope.recordTypeReference(this);
-
+		// sender from refScope calls recordTypeReference(this)
 		int argCount = argumentTypes.length;
 		int selectorLength = selector.length;
 		boolean foundNothing = true;
@@ -277,9 +275,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 		if (foundNothing) {
 			if (isInterface()) {
-				 if (superInterfaces().length == 1)
+				 if (superInterfaces().length == 1) {
+					if (refScope != null)
+						refScope.recordTypeReference(superInterfaces[0]);
 					return superInterfaces[0].getExactMethod(selector, argumentTypes, refScope);
+				 }
 			} else if (superclass() != null) {
+				if (refScope != null)
+					refScope.recordTypeReference(superclass);
 				return superclass.getExactMethod(selector, argumentTypes, refScope);
 			}
 		}

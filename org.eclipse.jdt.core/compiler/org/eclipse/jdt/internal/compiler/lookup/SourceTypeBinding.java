@@ -605,9 +605,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 // searches up the hierarchy as long as no potential (but not exact) match was found.
 
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
-	if (refScope != null)
-		refScope.recordTypeReference(this);
-
+	// sender from refScope calls recordTypeReference(this)
 	int argCount = argumentTypes.length;
 	int selectorLength = selector.length;
 	boolean foundNothing = true;
@@ -643,9 +641,14 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 
 	if (foundNothing) {
 		if (isInterface()) {
-			 if (superInterfaces.length == 1)
+			 if (superInterfaces.length == 1) {
+				if (refScope != null)
+					refScope.recordTypeReference(superInterfaces[0]);
 				return superInterfaces[0].getExactMethod(selector, argumentTypes, refScope);
+			 }
 		} else if (superclass != null) {
+			if (refScope != null)
+				refScope.recordTypeReference(superclass);
 			return superclass.getExactMethod(selector, argumentTypes, refScope);
 		}
 	}
