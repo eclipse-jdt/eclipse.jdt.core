@@ -520,7 +520,10 @@ public static void searchAllPossibleSubTypes(
 		indexManager.performConcurrentJob(
 			job, 
 			waitingPolicy, 
-			(progressMonitor == null || ++ticks > MAXTICKS) ? null : new SubProgressMonitor(progressMonitor, 1));
+			null); // don't pass a sub progress monitor as this is too costly for deep hierarchies
+		if (progressMonitor != null && ++ticks <= MAXTICKS) {
+			progressMonitor.worked(1);
+		}
 		/* in case, we search all subtypes, no need to search further */
 		if (currentTypeName == null) break;
 	}
