@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     IBM Corporation - added exclusion patterms to source entries
+ *     IBM Corporation - added exclusion patterns to source entries
  ******************************************************************************/
 package org.eclipse.jdt.core;
 

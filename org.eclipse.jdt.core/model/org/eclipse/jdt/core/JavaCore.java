@@ -14,7 +14,7 @@
  *                                 CORE_CIRCULAR_CLASSPATH
  *                                 CORE_INCOMPLETE_CLASSPATH
  *     IBM Corporation - added run(IWorkspaceRunnable, IProgressMonitor)
- *     IBM Corporation - added exclusion patterms to source classpath entries
+ *     IBM Corporation - added exclusion patterns to source classpath entries
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
