@@ -507,15 +507,10 @@ private boolean isWorthBuilding() throws CoreException {
 				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
 					+ " was not built"); //$NON-NLS-1$
 
-			// remove all existing class files... causes all dependent projects to do the same only if the .classpath file could be read
-			IClasspathEntry[] prereqClasspath = prereq.getRawClasspath();
-			if (prereqClasspath != JavaProject.INVALID_CLASSPATH)
-				new BatchImageBuilder(this).cleanOutputFolders();
-
 			removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttribute(IMarker.MESSAGE,
-				isClasspathBroken(prereqClasspath, p)
+				isClasspathBroken(prereq.getRawClasspath(), p)
 					? Util.bind("build.prereqProjectHasClasspathProblems", p.getName()) //$NON-NLS-1$
 					: Util.bind("build.prereqProjectMustBeRebuilt", p.getName())); //$NON-NLS-1$
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
