@@ -1193,6 +1193,13 @@ public class JavaModelManager implements ISaveParticipant {
 					rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
 					insertedTree = true;
 				}
+				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
+				if (resourceDeltas != null) {
+					for (int i = 0, length = resourceDeltas.length; i < length; i++) {
+						rootDelta.addResourceDelta(resourceDeltas[i]);
+						insertedTree = true;
+					}
+				}
 			} else {
 				rootDelta.insertDeltaTree(element, delta);
 				insertedTree = true;

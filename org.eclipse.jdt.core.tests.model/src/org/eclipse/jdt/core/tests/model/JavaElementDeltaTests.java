@@ -111,7 +111,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testOpenNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProjectUpdateDependent"));
-	suite.addTest(new JavaElementDeltaTests("testRenameProject"));
+	suite.addTest(new JavaElementDeltaTests("testRenameNonJavaProject"));
 	// TO DO: suite.addTest(new JavaElementDeltaTests("testChangeNonJavaProject"));
 	
 	// package fragment roots
@@ -1674,15 +1674,17 @@ public void testRenameOuterPkgFragment() throws CoreException {
 }
 /*
  * Rename a non-java project.
+ * (regression test for bug 30224 No JavaElement delta when renaming non-Java project)
  */
-public void testRenameProject() throws CoreException {
+public void testRenameNonJavaProject() throws CoreException {
 	try {
 		this.createProject("P");
 		this.startDeltas();
 		this.renameProject("P", "P1");
 		assertDeltas(
 			"Unexpected delta", 
-			""
+			"ResourceDelta(/P)\n" + 
+			"ResourceDelta(/P1)"
 		);
 	} finally {
 		this.stopDeltas();
