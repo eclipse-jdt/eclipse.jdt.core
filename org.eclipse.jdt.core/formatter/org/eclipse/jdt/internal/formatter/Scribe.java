@@ -344,6 +344,8 @@ public class Scribe {
 		MultiTextEdit edit = null;
 		if (this.textRegionStart < 0) {
 			edit = new MultiTextEdit(0, this.textRegionEnd + 1);
+		} else if (this.textRegionStart == 0 && this.textRegionEnd == 0) {
+			edit = new MultiTextEdit(0, 0);
 		} else {
 			edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
 		}

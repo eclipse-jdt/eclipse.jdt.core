@@ -29,7 +29,7 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public interface ITypeBinding extends IBinding {
-	
+
 	/**
 	 * Returns the binary name of this type binding.
 	 * The binary name of a class is defined in the Java Language 
@@ -351,17 +351,19 @@ public interface ITypeBinding extends IBinding {
 	public boolean isMember();
 	
 	/**
-	 * Returns whether this type binding represents a local class or
-	 * interface.
+	 * Returns whether this type binding represents a local class.
 	 * <p>
-	 * A local type is any nested class or interface not declared as a member of
-	 * another class or interface. A local type is a subspecies of nested
+	 * A local class is any nested class not declared as a member of
+	 * another class or interface. A local class is a subspecies of nested
 	 * type, and mutually exclusive with member types. Note that anonymous
-	 * classes are a subspecies of local types.
+	 * classes are a subspecies of local classes.
+	 * </p>
+	 * <p>
+	 * Also note that an interface cannot be local.
 	 * </p>
 	 *
-	 * @return <code>true</code> if this type binding is for a local class
-	 *   or interface, and <code>false</code> otherwise
+	 * @return <code>true</code> if this type binding is for a local class,
+	 *   and <code>false</code> otherwise
 	 */
 	public boolean isLocal();
 	

@@ -112,7 +112,7 @@ public class QualifiedName extends Name {
 	/**
 	 * Sets the qualifier of this qualified name to the given name.
 	 * 
-	 * @param the qualifier of this qualified name
+	 * @param qualifier the qualifier of this qualified name
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>

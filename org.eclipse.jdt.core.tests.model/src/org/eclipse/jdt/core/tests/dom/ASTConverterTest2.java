@@ -20,6 +20,9 @@ import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaProject;
@@ -3365,7 +3368,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not an empty statement", statement2.getNodeType() == ASTNode.EMPTY_STATEMENT);
 		checkSourceRange(statement2, ";", source);
 	}
-	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
 	 */
@@ -3379,7 +3381,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions(), null/*no progress monitor*/);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
@@ -3387,8 +3389,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
-	}
-	
+	}	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
 	 */
@@ -3402,7 +3403,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions(), null/*no progress monitor*/);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
@@ -3411,7 +3412,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
 	}
-	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
 	 */
@@ -3425,7 +3425,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions(), null/*no progress monitor*/);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) result2;
@@ -3433,8 +3433,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
-	}	
-	
+	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
 	 */
@@ -3446,8 +3445,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
-		ASTNode statement = (ASTNode) node;
-		ASTNode result2 = AST.parse(AST.K_STATEMENTS, source, statement.getStartPosition(), statement.getLength(), JavaCore.getOptions());
+		ASTNode statement = node;
+		ASTNode result2 = AST.parse(AST.K_STATEMENTS, source, statement.getStartPosition(), statement.getLength(), JavaCore.getOptions(), null/*no progress monitor*/);
 		assertNotNull("No node", result2);
 		assertTrue("not a block", result2.getNodeType() == ASTNode.BLOCK);
 		Block block = (Block) result2;
@@ -3470,9 +3469,64 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a block", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		ASTNode result2 = AST.parse(AST.K_EXPRESSION, source, expression.getStartPosition(), expression.getLength(), JavaCore.getOptions());
+		ASTNode result2 = AST.parse(AST.K_EXPRESSION, source, expression.getStartPosition(), expression.getLength(), JavaCore.getOptions(), null/*no progress monitor*/);
 		assertNotNull("No node", result2);
 		assertTrue("not a method invocation", result2.getNodeType() == ASTNode.METHOD_INVOCATION);
 		assertTrue(expression.subtreeMatch(new ASTMatcher(), result2));
+	}
+	/*
+	 * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
+	 */
+	public void test0521() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0521", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		
+		// count the number of time isCanceled() is called when converting this source unit
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		class Counter implements IProgressMonitor {
+			int count = 0;
+			public void beginTask(String name, int totalWork) {}
+			public void done() {}
+			public void internalWorked(double work) {}
+			public boolean isCanceled() {
+				count++;
+				return false;
+			}
+			public void setCanceled(boolean value) {}
+			public void setTaskName(String name) {}
+			public void subTask(String name) {}
+			public void worked(int work) {}
+		}
+		Counter counter = new Counter();
+		AST.parseCompilationUnit(sourceUnit, true, owner, counter);
+		
+		// throw an OperatonCanceledException at each point isCanceled() is called
+		class Canceler implements IProgressMonitor {
+			int count;
+			Canceler(int count) {
+				this.count = count;
+			}
+			public void beginTask(String name, int totalWork) {}
+			public void done() {}
+			public void internalWorked(double work) {}
+			public boolean isCanceled() {
+				return --count < 0;
+			}
+			public void setCanceled(boolean value) {}
+			public void setTaskName(String name) {}
+			public void subTask(String name) {}
+			public void worked(int work) {}
+		}
+		for (int i = 0; i < counter.count; i++) {
+			boolean gotException = false;
+			try {
+				AST.parseCompilationUnit(sourceUnit, true, owner, new Canceler(i));
+			} catch (OperationCanceledException e) {
+				gotException = true;
+			}
+			assertTrue("Should get an OperationCanceledException (" + i + ")", gotException);
+		}
+		
+		// last should not throw an OperationCanceledException
+		AST.parseCompilationUnit(sourceUnit, true, owner, new Canceler(counter.count));
 	}
 }

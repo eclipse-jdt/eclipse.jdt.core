@@ -33,11 +33,30 @@
   </tr>
 </table>
 
-<a name="v_398"></a>
+<a name="v_399"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK 3.0M7 Build - ?th January 2004
+<br>Project org.eclipse.jdt.core v_399
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_399">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50225">50225</a>
+Calling the default formatter with an empty string returns an invalid Edit 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44876">44876</a>
+"Unnecessary declaration of thrown exception" problems
+
+
+<a name="v_398"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M7 Build - 20th January 2004
 <br>Project org.eclipse.jdt.core v_398
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_398">cvs</a>).
 <h2>
@@ -48,6 +67,8 @@ The old constants have been deprecated and will be removed before M7. So we enco
 you modified the default settings. The UI will provide an automatic conversion to the new options.
 </li>
 <li>Added API for alignment options in the code formatter.  See <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49968">49968</a>.
+</li>
+<li>Changed 3.0 APIs on <code>org.eclipse.jdt.core.dom.AST</code> to take an <code>IProgressMonitor</code>. This progress monitor is checked for the cancelation of the AST creation only.
 </li>
 <li>Added API on <code>org.eclipse.jdt.core.dom.AST</code> to parse an expression or statements or class body declarations without requiring the parsing
 of the whole compilation unit. This is still subject to change before 3.0.
@@ -92,6 +113,7 @@ of the whole compilation unit. This is still subject to change before 3.0.
 	 * @param offset the given offset
 	 * @param length the given length
 	 * @param options the given options. If null, <code>JavaCore.getOptions()</code> is used.
+	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
 	 * 
 	 * @return ASTNode
 	 * @see ASTNode#getStartPosition()
@@ -102,7 +124,7 @@ of the whole compilation unit. This is still subject to change before 3.0.
 	 * @see JavaCore#getOptions()
 	 * @since 3.0
 	 */
-	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options);
+	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options, IProgressMonitor monitor);
 </pre>
 </li>
 <li>Added API on <code>org.eclipse.jdt.core.dom.AST</code> to parse a compilation unit and specify
@@ -143,6 +165,7 @@ statements.
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
 	 * @param options options to use while parsing the file. If null, <code>JavaCore.getOptions()</code> is used.
+	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
 	 * @return CompilationUnit
 	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
@@ -151,13 +174,19 @@ statements.
 	 * @see JavaCore#getOptions()
 	 * @since 3.0
 	 */
-	public static CompilationUnit parseCompilationUnit(char[] source, Map options);
+	public static CompilationUnit parseCompilationUnit(char[] source, Map options, IProgressMonitor monitor);
 </pre>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48489">48489</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50258">50258</a>
+AST.parseCompilationUnit(... IWorkingCopyOwner..) should allow null 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49937">49937</a>
+JavaDoc of ITypeBinding#isLocal() talks about local interfaces 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49845">49845</a>
+DCR: Allow to cancel the AST creation 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48489">48489</a>
 [DCR] AST support for a single expression (vs. CU)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49327">49327</a>
 formatter can return null TextEdit when parsing valid java

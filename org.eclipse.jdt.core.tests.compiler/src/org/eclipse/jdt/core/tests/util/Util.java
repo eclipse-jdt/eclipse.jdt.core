@@ -383,17 +383,6 @@ public static String getOutputDirectory() {
 	}
 }
 /**
- * Returns whether one of the arguments is "-expert".
- */
-public static boolean isExpert(String[] args) {
-	for (int i = 0; i < args.length; i++) {
-		if (args[i].toLowerCase().equals("-expert")) {
-			return true;
-		}
-	}
-	return false;
-}
-/**
  * Returns the next available port number on the local host.
  */
 public static int getFreePort() {

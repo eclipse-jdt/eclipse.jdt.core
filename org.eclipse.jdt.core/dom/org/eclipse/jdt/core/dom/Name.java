@@ -37,7 +37,7 @@ public abstract class Name extends Expression {
 	static final int BASE_NAME_NODE_SIZE = BASE_NODE_SIZE + 1 * 4;
 	
 	/**
-	 * This index reprensents the position inside a qualified name.
+	 * This index represents the position inside a qualified name.
 	 */
 	int index;
 	

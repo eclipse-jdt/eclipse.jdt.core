@@ -162,6 +162,26 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "}\n" });
 	}
 	
+	public void test006() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	String s1 = \"non-terminated;\n" + 
+				"	void foo() {}\n" + 
+				"	String s2 = \"terminated\";\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	String s1 = \"non-terminated;\n" + 
+				"	            ^^^^^^^^^^^^^^^^\n" + 
+				"String literal is not properly closed by a double-quote\n" + 
+				"----------\n"
+		);
+	}
+	
 	public void test010() {
 		this.runNegativeTest(
 			new String[] {
@@ -1879,6 +1899,97 @@ public class JavadocTestMixed extends JavadocTest {
 				"	* @param str Last comment\n" + 
 				"	         ^^^\n" + 
 				"Javadoc: Duplicate tag for parameter\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 48376.
+	 * When this bug happened, compiler complained on duplicated throws tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48376">48376</a>
+	 */
+	public void testBug48376() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">IBM Home Page</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+					"	*          IBM Home Page</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+					"	*          IBM Home Page\n" + 
+					"	* 			</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+					"	*\n" + 
+					"	*          IBM\n" + 
+					"	*\n" + 
+					"	*          Home Page\n" + 
+					"	*\n" + 
+					"	*\n" + 
+					"	* 			</a>\n" + 
+					"	* @see Object\n" + 
+					"	*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug48376a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">IBM Home Page\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+					"	*          IBM Home Page\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+					"	*          IBM Home Page<\n" + 
+					"	* 			/a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+					"	*\n" + 
+					"	*          IBM\n" + 
+					"	*\n" + 
+					"	*          Home Page\n" + 
+					"	*\n" + 
+					"	*\n" + 
+					"	* 			\n" + 
+					"	* @see Unknown\n" + 
+					"	*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\">IBM Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+				"	*          IBM Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+				"	*          IBM Home Page<\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+				"	*\n" + 
+				"	*          IBM\n" + 
+				"	*\n" + 
+				"	*          Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid URL link format\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 16)\n" + 
+				"	* @see Unknown\n" + 
+				"	       ^^^^^^^\n" + 
+				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
 				"----------\n"
 		);
 	}

@@ -1402,6 +1402,10 @@ public class JavaProject
 				return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
 			}
 			return preferences.getString(propertyName).trim();
+		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
+			// TODO (olivier) remove after M7
+			Preferences preferences = getPreferences();
+			return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : Util.getConvertedDeprecatedValue(preferences, propertyName);
 		}
 		return null;
 	}
@@ -1461,11 +1465,15 @@ public class JavaProject
 				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
 			}
 			// end bug 46854
+			// TODO (olivier) Remove after M7
+			else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
+				Util.convertFormatterDeprecatedOptions(propertyName, value, options);
+			}
 		}		
 
 		return options;
 	}
-	
+
 	/**
 	 * @see IJavaProject
 	 */

@@ -11,6 +11,10 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
+import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -203,18 +207,19 @@ class CompilationUnitResolver extends Compiler {
 		ICompilationUnit unitElement,
 		boolean cleanUp,
 		char[] source,
-		WorkingCopyOwner owner)
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
 		JavaProject project = (JavaProject) unitElement.getJavaProject();
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
-				project.newSearchableNameEnvironment(owner),
+				getNameEnvironment(project, owner, monitor),
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
-				new DefaultProblemFactory());
+				getProblemFactory(monitor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -244,6 +249,31 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 	
+	private static ISearchableNameEnvironment getNameEnvironment(JavaProject project, WorkingCopyOwner owner, final IProgressMonitor monitor) throws JavaModelException {
+		return new SearchableEnvironment(project, owner) {
+			private void checkCanceled() {
+				if (monitor != null && monitor.isCanceled()) 
+					throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
+			}
+			public void findPackages(char[] prefix, ISearchRequestor requestor) {
+				checkCanceled();
+				super.findPackages(prefix, requestor);
+			}
+			public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
+				checkCanceled();
+				return super.findType(name, packageName);
+			}
+			public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
+				checkCanceled();
+				return super.findType(compoundTypeName);
+			}
+			public void findTypes(char[] prefix, ISearchRequestor storage) {
+				checkCanceled();
+				super.findTypes(prefix, storage);
+			}
+		};
+	}
+
 	public static CompilationUnitDeclaration parse(char[] source, Map settings) {
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -333,16 +363,17 @@ class CompilationUnitResolver extends Compiler {
 		String unitName,
 		IJavaProject javaProject,
 		boolean cleanUp,
-		WorkingCopyOwner owner)
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
-				((JavaProject)javaProject).newSearchableNameEnvironment(owner),
+				getNameEnvironment((JavaProject)javaProject, owner, monitor),
 				getHandlingPolicy(),
 				javaProject.getOptions(true),
 				getRequestor(),
-				new DefaultProblemFactory());
+				getProblemFactory(monitor));
 	
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -371,7 +402,8 @@ class CompilationUnitResolver extends Compiler {
 		NodeSearcher nodeSearcher,
 		boolean cleanUp,
 		char[] source,
-		WorkingCopyOwner owner)
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
 		throws JavaModelException {
 
 		CompilationUnitDeclaration unit = null;
@@ -380,11 +412,11 @@ class CompilationUnitResolver extends Compiler {
 			JavaProject project = (JavaProject) unitElement.getJavaProject();
 			CompilationUnitResolver compilationUnitVisitor =
 				new CompilationUnitResolver(
-					project.newSearchableNameEnvironment(owner),
+					getNameEnvironment(project, owner, monitor),
 					getHandlingPolicy(),
 					project.getOptions(true),
 					getRequestor(),
-					new DefaultProblemFactory());
+					getProblemFactory(monitor));
 	
 			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 	
@@ -418,16 +450,17 @@ class CompilationUnitResolver extends Compiler {
 		String unitName,
 		IJavaProject javaProject,
 		boolean cleanUp,
-		WorkingCopyOwner owner)
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
 		throws JavaModelException {
 	
 		CompilationUnitResolver compilationUnitVisitor =
 			new CompilationUnitResolver(
-				((JavaProject)javaProject).newSearchableNameEnvironment(owner),
+				getNameEnvironment((JavaProject)javaProject, owner, monitor),
 				getHandlingPolicy(),
 				javaProject.getOptions(true),
 				getRequestor(),
-				new DefaultProblemFactory());
+				getProblemFactory(monitor));
 	
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -450,6 +483,16 @@ class CompilationUnitResolver extends Compiler {
 			}
 		}
 	}
+	private static DefaultProblemFactory getProblemFactory(final IProgressMonitor monitor) {
+		return new DefaultProblemFactory() {
+			public IProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments, String[] messageArguments, int severity, int startPosition, int endPosition, int lineNumber) {
+				if (monitor != null && monitor.isCanceled()) 
+					throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
+				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber);
+			}
+		};
+	}
+
 	/*
 	 * When unit result is about to be accepted, removed back pointers
 	 * to unresolved bindings

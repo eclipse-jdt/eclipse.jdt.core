@@ -932,7 +932,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			);
 			workingCopy2.makeConsistent(null);
 
-			CompilationUnit cu = AST.parseCompilationUnit(workingCopy1, true, owner);
+			CompilationUnit cu = AST.parseCompilationUnit(workingCopy1, true, owner, null);
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);
@@ -971,7 +971,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"}").toCharArray(),
 				 "Z.java",
 				getJavaProject("P"),
-				owner);
+				owner,
+				null);
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);
@@ -1037,7 +1038,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			CompilationUnit cu = AST.parseCompilationUnit(
 				classFile,
 				true,
-				owner);
+				owner,
+				null);
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);

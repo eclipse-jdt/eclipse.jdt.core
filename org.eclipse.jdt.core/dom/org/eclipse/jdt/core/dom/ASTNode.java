@@ -645,8 +645,6 @@ public abstract class ASTNode {
 	
 	/**
 	 * An unmodifiable empty map (used to implement <code>properties()</code>).
-	 * 
-	 * @see #properties
 	 */
 	private static Map UNMODIFIABLE_EMPTY_MAP
 		= Collections.unmodifiableMap(new HashMap(1));
@@ -817,21 +815,21 @@ public abstract class ASTNode {
 			this.nodeType = nodeType;
 		}
 	
-		/**
+		/* (non-javadoc)
 		 * @see java.util.AbstractCollection#size()
 		 */
 		public int size() {
 			return store.size();
 		}
 	
-		/**
+		/* (non-javadoc)
 		 * @see AbstractList#get(int)
 		 */
 		public Object get(int index) {
 			return store.get(index);
 		}
 	
-		/**
+		/* (non-javadoc)
 		 * @see List#set(int, java.lang.Object)
 		 */
 		public Object set(int index, Object element) {
@@ -849,7 +847,7 @@ public abstract class ASTNode {
 			return result;
 		}
 		
-		/**
+		/* (non-javadoc)
 		 * @see List#add(int, java.lang.Object)
 		 */
 		public void add(int index, Object element) {
@@ -862,7 +860,7 @@ public abstract class ASTNode {
 			newChild.setParent(ASTNode.this);
 		}
 		
-		/**
+		/* (non-javadoc)
 		 * @see List#remove(int)
 		 */
 		public Object remove(int index) {
@@ -1146,7 +1144,7 @@ public abstract class ASTNode {
 	 * 
 	 * @param propertyName the property name
 	 * @return the property value, or <code>null</code> if none
-	 * @see #setProperty
+	 * @see #setProperty(String,Object)
 	 */
 	public Object getProperty(String propertyName) {
 		if (propertyName == null) {
@@ -1186,7 +1184,7 @@ public abstract class ASTNode {
 	 * 
 	 * @param propertyName the property name
 	 * @param data the new property value, or <code>null</code> if none
-	 * @see #getProperty
+	 * @see #getProperty(String)
 	 */
 	public void setProperty(String propertyName, Object data) {
 		if (propertyName == null) {
@@ -1292,11 +1290,11 @@ public abstract class ASTNode {
 	 * </p>
 	 * 
 	 * @return the bitwise-or of individual flags
-	 * @see #setFlags
+	 * @see #setFlags(int)
 	 * @see #MALFORMED
 	 */
 	public int getFlags() {
-		return flags;
+		return this.flags;
 	}
 	
 	/**
@@ -1312,7 +1310,7 @@ public abstract class ASTNode {
 	 * </p>
 	 * 
 	 * @param flags the bitwise-or of individual flags
-	 * @see #getFlags
+	 * @see #getFlags()
 	 * @see #MALFORMED
 	 */
 	public void setFlags(int flags) {
@@ -1522,11 +1520,11 @@ public abstract class ASTNode {
 	 * 
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
-	 * @see #getLength
+	 * @see #getLength()
 	 * @see AST#parseCompilationUnit
 	 */
 	public int getStartPosition() {
-		return startPosition;
+		return this.startPosition;
 	}
 
 	/**
@@ -1544,7 +1542,7 @@ public abstract class ASTNode {
 	 * @see AST#parseCompilationUnit
 	 */
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 	
 	/**
@@ -1561,8 +1559,8 @@ public abstract class ASTNode {
 	 * @param length a (possibly 0) length, 
 	 *    or <code>0</code> if no source position information is recorded 
 	 *    for this node
-	 * @see #getStartPosition
-	 * @see #getLength
+	 * @see #getStartPosition()
+	 * @see #getLength()
 	 * @see AST#parseCompilationUnit
 	 */
 	public void setSourceRange(int startPosition, int length) {
