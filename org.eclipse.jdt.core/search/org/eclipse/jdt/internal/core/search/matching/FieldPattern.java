@@ -74,7 +74,7 @@ protected void acceptPath(IIndexSearchRequestor requestor, String path) {
 protected void decodeIndexEntry(IEntryResult entryResult) {
 	this.decodedName = CharOperation.subarray(entryResult.getWord(), this.currentTag.length, -1);
 }
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 	// in the new story this will be a single call with a mask
@@ -84,7 +84,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 			: DECL_TAGS;
 	for (int i = 0, max = possibleTags.length; i < max; i++) {
 		this.currentTag = possibleTags[i];
-		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);
+		super.findIndexMatches(input, requestor, progressMonitor, scope);
 	}
 }
 /**

@@ -104,17 +104,17 @@ protected void decodeIndexEntry(IEntryResult entryResult){
 	this.decodedParameterCount = Integer.parseInt(new String(word, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
 	this.decodedSelector = CharOperation.subarray(word, this.currentTag.length, lastSeparatorIndex);
 }
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 	// in the new story this will be a single call with a mask
 	if (this.findReferences) {
 		this.currentTag = METHOD_REF;
-		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);
+		super.findIndexMatches(input, requestor, progressMonitor, scope);
 	}
 	if (this.findDeclarations) {
 		this.currentTag = METHOD_DECL;
-		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);
+		super.findIndexMatches(input, requestor, progressMonitor, scope);
 	}
 }
 /**

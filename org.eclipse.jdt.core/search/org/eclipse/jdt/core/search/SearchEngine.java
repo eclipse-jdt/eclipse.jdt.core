@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
 import org.eclipse.jdt.internal.core.search.IndexSearchAdapter;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.IInfoConstants;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
@@ -570,11 +569,9 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		}
 
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		matchLocator = 
 			new MatchLocator(
 				pattern, 
-				detailLevel, 
 				resultCollector, 
 				scope,
 				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 95)
@@ -584,9 +581,6 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 			new PatternSearchJob(
 				pattern, 
 				scope, 
-				pattern.focus,
-				pattern.isPolymorphicSearch(),
-				detailLevel, 
 				pathCollector, 
 				indexManager),
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
@@ -724,7 +718,7 @@ public void searchAllTypeNames(
 		}
 		// add type names from indexes
 		indexManager.performConcurrentJob(
-			new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
+			new PatternSearchJob(pattern, scope, searchRequestor, indexManager),
 			waitingPolicy,
 			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
 			
@@ -874,7 +868,6 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
-			IInfoConstants.DeclarationInfo,
 			resultCollector,
 			scope,
 			resultCollector.getProgressMonitor());
@@ -932,7 +925,6 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
-			IInfoConstants.DeclarationInfo,
 			resultCollector,
 			scope,
 			resultCollector.getProgressMonitor());
@@ -993,7 +985,6 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
-			IInfoConstants.DeclarationInfo,
 			resultCollector,
 			scope,
 			resultCollector.getProgressMonitor());

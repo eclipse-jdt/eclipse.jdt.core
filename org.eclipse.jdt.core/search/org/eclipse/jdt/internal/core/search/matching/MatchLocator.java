@@ -48,7 +48,6 @@ public static final int MAX_AT_ONCE = 500;
 public SearchPattern pattern;
 public PatternLocator patternLocator;
 public int matchContainer;
-public int detailLevel;
 public IJavaSearchResultCollector collector;
 public IJavaSearchScope scope;
 public IProgressMonitor progressMonitor;
@@ -170,7 +169,6 @@ public static ClassFileReader classFileReader(IType type) {
 
 public MatchLocator(
 	SearchPattern pattern,
-	int detailLevel,
 	IJavaSearchResultCollector collector,
 	IJavaSearchScope scope,
 	IProgressMonitor progressMonitor) {
@@ -178,7 +176,6 @@ public MatchLocator(
 	this.pattern = pattern;
 	this.patternLocator = PatternLocator.patternLocator(this.pattern);
 	this.matchContainer = this.patternLocator.matchContainer();
-	this.detailLevel = detailLevel;
 	this.collector = collector;
 	this.scope = scope;
 	this.progressMonitor = progressMonitor;
@@ -315,7 +312,7 @@ protected char[][][] computeSuperTypeNames(IType focusType) {
 			this.pattern, 
 			simpleName,
 			qualification,
-			new MatchLocator(this.pattern, this.detailLevel, this.collector, this.scope, this.progressMonitor), // clone MatchLocator so that it has no side effect
+			new MatchLocator(this.pattern, this.collector, this.scope, this.progressMonitor), // clone MatchLocator so that it has no side effect
 			focusType, 
 			this.progressMonitor);
 	try {

@@ -33,11 +33,11 @@ public interface IJob {
 	 */
 	public void cancel();
 	/**
+	 * Ensures that this job is ready to run.
+	 */
+	public void ensureReadyToRun();
+	/**
 	 * Execute the current job, answer whether it was successful.
 	 */
 	public boolean execute(IProgressMonitor progress);
-	/**
-	 * Answer whether the job is ready to run.
-	 */
-	public boolean isReadyToRun();
 }

@@ -38,7 +38,7 @@ protected void acceptPath(IIndexSearchRequestor requestor, String path) {
 /*
  * @see SearchPattern#findIndexMatches
  */
-public void findIndexMatches(IIndex index, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) {
+public void findIndexMatches(IIndex index, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) {
 	String path = this.localVariable.getPath().toString();
 	if (scope.encloses(path))
 		acceptPath(requestor, path);

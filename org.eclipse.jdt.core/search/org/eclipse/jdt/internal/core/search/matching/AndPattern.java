@@ -27,7 +27,7 @@ public abstract class AndPattern extends SearchPattern {
 public AndPattern(int kind, int matchMode, boolean isCaseSensitive) {
 	super(kind, matchMode, isCaseSensitive);
 }
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
+public void feedIndexRequestor(IIndexSearchRequestor requestor, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
 	for (int i = 0, max = references.length; i < max; i++) {
 		int reference = references[i];
 		if (reference != -1) { // if the reference has not been eliminated
@@ -43,7 +43,7 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 /**
  * Query a given index for matching entries. 
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	
@@ -111,7 +111,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 				refs[refsLength++] = reference;
 		}
 		System.arraycopy(refs, 0, refs = new int[refsLength], 0, refsLength);
-		this.feedIndexRequestor(requestor, detailLevel, refs, input, scope);
+		this.feedIndexRequestor(requestor, refs, input, scope);
 	}
 }
 /**
