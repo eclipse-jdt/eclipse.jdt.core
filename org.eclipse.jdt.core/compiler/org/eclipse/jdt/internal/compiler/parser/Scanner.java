@@ -1197,12 +1197,15 @@ public int getNextToken() throws InvalidInputException {
 						}
 						if (test > 0) { //traditional and annotation comment
 							boolean isJavadoc = false, star = false;
+							boolean isUnicode = false;
 							// consume next character
 							unicodeAsBackSlash = false;
 							if (((currentCharacter = source[currentPosition++]) == '\\')
 								&& (source[currentPosition] == 'u')) {
 								getNextUnicodeChar();
+								isUnicode = true;
 							} else {
+								isUnicode = false;
 								if (withoutUnicodePtr != 0) {
 									withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
 								}
@@ -1215,16 +1218,22 @@ public int getNextToken() throws InvalidInputException {
 							if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
 								checkNonExternalizeString();
 								if (recordLineSeparator) {
-									pushLineSeparator();
+									if (!isUnicode) {
+										pushLineSeparator();
+									}
 								} else {
 									currentLine = null;
 								}
 							}
+							isUnicode = false;
 							try { //get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
 									getNextUnicodeChar();
+									isUnicode = true;
+								} else {
+									isUnicode = false;
 								}
 								//handle the \\u case manually into comment
 								if (currentCharacter == '\\') {
@@ -1240,7 +1249,9 @@ public int getNextToken() throws InvalidInputException {
 									if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
 										checkNonExternalizeString();
 										if (recordLineSeparator) {
-											pushLineSeparator();
+											if (!isUnicode) {
+												pushLineSeparator();
+											}
 										} else {
 											currentLine = null;
 										}
@@ -1251,6 +1262,9 @@ public int getNextToken() throws InvalidInputException {
 										&& (source[currentPosition] == 'u')) {
 										//-------------unicode traitement ------------
 										getNextUnicodeChar();
+										isUnicode = true;
+									} else {
+										isUnicode = false;
 									}
 									//handle the \\u case manually into comment
 									if (currentCharacter == '\\') {
@@ -1450,12 +1464,14 @@ public final void jumpOverMethodBody() {
 				case '/' :
 					{
 						int test;
+						boolean isUnicode;
 						if ((test = getNextChar('/', '*')) == 0) { //line comment 
 							try {
 								//get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
+									isUnicode = true;
 									int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 									currentPosition++;
 									while (source[currentPosition] == 'u') {
@@ -1474,6 +1490,8 @@ public final void jumpOverMethodBody() {
 									else {
 										currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 									}
+								} else {
+									isUnicode = false;
 								}
 
 								while (currentCharacter != '\r' && currentCharacter != '\n') {
@@ -1483,6 +1501,7 @@ public final void jumpOverMethodBody() {
 										//-------------unicode traitement ------------
 										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 										currentPosition++;
+										isUnicode = true;
 										while (source[currentPosition] == 'u') {
 											currentPosition++;
 										}
@@ -1499,23 +1518,31 @@ public final void jumpOverMethodBody() {
 										else {
 											currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 										}
+									} else {
+										isUnicode = false;
 									}
 								}
 								if (recordLineSeparator
-									&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-									pushLineSeparator();
+									&& ((currentCharacter == '\r') || (currentCharacter == '\n'))) {
+										if (!isUnicode) {
+											pushLineSeparator();
+										}
+									}
 							} catch (IndexOutOfBoundsException e) {
 							} //an eof will them be generated
 							break;
 						}
 						if (test > 0) { //traditional and annotation comment
+							isUnicode = false;
 							boolean star = false;
 							try { // consume next character
 								unicodeAsBackSlash = false;
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
 									getNextUnicodeChar();
+									isUnicode = true;
 								} else {
+									isUnicode = false;
 									if (withoutUnicodePtr != 0) {
 										withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
 									}
@@ -1526,12 +1553,16 @@ public final void jumpOverMethodBody() {
 								star = true;
 							}
 							if (recordLineSeparator
-								&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-								pushLineSeparator();
+								&& ((currentCharacter == '\r') || (currentCharacter == '\n'))) {
+									if (!isUnicode) {
+										pushLineSeparator();
+									}
+							}
 							try { //get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
+									isUnicode = true;
 									int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 									currentPosition++;
 									while (source[currentPosition] == 'u') {
@@ -1550,17 +1581,23 @@ public final void jumpOverMethodBody() {
 									else {
 										currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 									}
+								} else {
+									isUnicode = false;
 								}
 								//loop until end of comment */ 
 								while ((currentCharacter != '/') || (!star)) {
 									if (recordLineSeparator
-										&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-										pushLineSeparator();
+										&& ((currentCharacter == '\r') || (currentCharacter == '\n'))) {
+											if (!isUnicode) {
+												pushLineSeparator();
+											}
+									}
 									star = currentCharacter == '*';
 									//get next char
 									if (((currentCharacter = source[currentPosition++]) == '\\')
 										&& (source[currentPosition] == 'u')) {
 										//-------------unicode traitement ------------
+										isUnicode = true;
 										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 										currentPosition++;
 										while (source[currentPosition] == 'u') {
@@ -1579,6 +1616,8 @@ public final void jumpOverMethodBody() {
 										else {
 											currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 										}
+									} else {
+										isUnicode = false;
 									}
 								}
 							} catch (IndexOutOfBoundsException e) {
@@ -1975,13 +2014,6 @@ public final void pushLineSeparator() throws InvalidInputException {
 	}
 }
 public final void pushUnicodeLineSeparator() {
-	// isUnicode means that the \r or \n has been read as a unicode character
-	
-	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
-
-	final int INCREMENT = 250;
-	//currentCharacter is at position currentPosition-1
-
 	if (this.checkNonExternalizedStringLiterals) {
 	// reinitialize the current line for non externalize strings purpose
 		currentLine = null;
@@ -1989,24 +2021,7 @@ public final void pushUnicodeLineSeparator() {
 	
 	// cr 000D
 	if (currentCharacter == '\r') {
-		int separatorPos = currentPosition - 6;
-		if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;
-		//System.out.println("CR-" + separatorPos);
-		try {
-			lineEnds[++linePtr] = separatorPos;
-		} catch (IndexOutOfBoundsException e) {
-			//linePtr value is correct
-			int oldLength = lineEnds.length;
-			int[] old = lineEnds;
-			lineEnds = new int[oldLength + INCREMENT];
-			System.arraycopy(old, 0, lineEnds, 0, oldLength);
-			lineEnds[linePtr] = separatorPos;
-		}
-		// look-ahead for merged cr+lf
 		if (source[currentPosition] == '\n') {
-			//System.out.println("look-ahead LF-" + currentPosition);			
-			lineEnds[linePtr] = currentPosition;
-			currentPosition++;
 			wasAcr = false;
 		} else {
 			wasAcr = true;
@@ -2014,24 +2029,6 @@ public final void pushUnicodeLineSeparator() {
 	} else {
 		// lf 000A
 		if (currentCharacter == '\n') { //must merge eventual cr followed by lf
-			if (wasAcr && (lineEnds[linePtr] == (currentPosition - 7))) {
-				//System.out.println("merge LF-" + (currentPosition - 1));							
-				lineEnds[linePtr] = currentPosition - 6;
-			} else {
-				int separatorPos = currentPosition - 6;
-				if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;
-				// System.out.println("LF-" + separatorPos);							
-				try {
-					lineEnds[++linePtr] = separatorPos;
-				} catch (IndexOutOfBoundsException e) {
-					//linePtr value is correct
-					int oldLength = lineEnds.length;
-					int[] old = lineEnds;
-					lineEnds = new int[oldLength + INCREMENT];
-					System.arraycopy(old, 0, lineEnds, 0, oldLength);
-					lineEnds[linePtr] = separatorPos;
-				}
-			}
 			wasAcr = false;
 		}
 	}

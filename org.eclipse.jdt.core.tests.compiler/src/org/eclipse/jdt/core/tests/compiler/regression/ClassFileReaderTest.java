@@ -126,11 +126,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
 	 */
 	public void test002() {
-/*		try {
+		try {
 			String sourceA002 =
 				"public class A002 {\n" +
 				"	public static void main(String[] args) {\n" +
-				"		System.out.println(); /* \\u000d: CARRIAGE RETURN * /\n" +
+				"		System.out.println(); /* \\u000d: CARRIAGE RETURN */\n" +
 				"		System.out.println();\n" +
 				"	}\n" +
 				"}";
@@ -154,6 +154,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
 		} finally {
 			removeTempClass("A002");
-		}*/
+		}
 	}
 }
