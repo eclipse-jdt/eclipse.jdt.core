@@ -126,12 +126,8 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 	IBuffer buffer = getBuffer();
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
-		IType current = this.getType();
-		IType parentType;
-		while ((parentType = current.getDeclaringType()) != null){
-			current = parentType;
-		}
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + SUFFIX_STRING_java, null);
+	    String topLevelTypeName = getTopLevelTypeName();
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, topLevelTypeName + SUFFIX_STRING_java, null);
 		return super.codeSelect(cu, offset, length, owner);
 	} else {
 		//has no associated souce
@@ -191,7 +187,7 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
  * @exception JavaModelException when the IFile resource or JAR is not available
  * or when this class file is not present in the JAR
  */
-private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
+public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	JavaElement le = (JavaElement) getParent();
 	if (le instanceof JarPackageFragment) {
 		try {
@@ -347,6 +343,19 @@ public ISourceRange getSourceRange() throws JavaModelException {
 	} else {
 		return null;
 	}
+}
+/*
+ * Returns the name of the toplevel type of this class file.
+ */
+public String getTopLevelTypeName() {
+    String topLevelTypeName = getElementName();
+    int firstDollar = topLevelTypeName.indexOf('$');
+    if (firstDollar != -1) {
+        topLevelTypeName = topLevelTypeName.substring(0, firstDollar);
+    } else {
+        topLevelTypeName = topLevelTypeName.substring(0, topLevelTypeName.length()-SUFFIX_CLASS.length);
+    }
+    return topLevelTypeName;
 }
 /**
  * @see IClassFile

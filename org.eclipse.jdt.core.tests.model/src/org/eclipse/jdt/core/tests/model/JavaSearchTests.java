@@ -2717,7 +2717,7 @@ public void testTypeDeclarationInJar2() throws CoreException {
 		scope, 
 		resultCollector);
 	assertSearchResults(
-		"test20631.jar void X.foo():Y#1",
+		"test20631.jar void X.foo()",
 		resultCollector);
 }
 /**

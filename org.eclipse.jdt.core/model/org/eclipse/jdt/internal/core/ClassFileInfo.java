@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
@@ -44,11 +46,11 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 	/**
 	 * Back-pointer to the IClassFile to allow lazy initialization.
 	 */
-	protected IClassFile classFile = null;
+	protected ClassFile classFile = null;
 /**
  * Creates a new <code>ClassFileInfo</code> for <code>classFile</code>.
  */
-ClassFileInfo(IClassFile classFile) {
+ClassFileInfo(ClassFile classFile) {
 	this.classFile = classFile;
 }
 /**
@@ -145,6 +147,10 @@ protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
 		type = (BinaryType) this.classFile.getType();
 		if (typeInfo == null) {
 			typeInfo = (IBinaryType) newElements.get(type);
+			if (typeInfo == null) {
+				// create a classfile reader 
+			    typeInfo = classFile.getBinaryTypeInfo((IFile)classFile.getResource());
+			}
 		}
 	} catch (JavaModelException npe) {
 		return;

@@ -240,9 +240,14 @@ public ISourceRange getNameRange() throws JavaModelException {
  * @see IMember
  */
 public IType getType(String typeName, int count) {
-	SourceType type = new SourceType(this, typeName);
-	type.occurrenceCount = count;
-	return type;
+	// TODO (jerome) disable after M6
+//	if (isBinary()) {
+//		throw new IllegalArgumentException("Not a source member " + toStringWithAncestors()); //$NON-NLS-1$
+//	} else {
+		SourceType type = new SourceType(this, typeName);
+		type.occurrenceCount = count;
+		return type;
+//	}
 }
 /**
  * @see IMember

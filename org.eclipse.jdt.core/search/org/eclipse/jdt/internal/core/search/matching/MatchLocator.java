@@ -1260,7 +1260,11 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	} else if (enclosingElement instanceof IType) {
 		enclosingElement = ((IType) parent).getType(new String(type.name));
 	} else if (enclosingElement instanceof IMember) {
-		enclosingElement = ((IMember) parent).getType(new String(type.name), occurrenceCount);
+	    IMember member = (IMember) parent;
+	    if (member.isBinary()) 
+	        enclosingElement = parent;
+	    else
+			enclosingElement = member.getType(new String(type.name), occurrenceCount);
 	}
 	if (enclosingElement == null) return;
 

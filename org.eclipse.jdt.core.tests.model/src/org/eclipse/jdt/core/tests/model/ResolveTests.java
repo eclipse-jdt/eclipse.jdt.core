@@ -589,6 +589,20 @@ public void testLocalMethodDeclaration() throws JavaModelException {
 	);
 }
 /**
+ * Resolve method declaration
+ * (regression test for bug 47795 NPE selecting method in anonymous 2 level deep)
+ */
+public void testLocalMethodDeclaration2() throws JavaModelException {
+	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMethodDeclaration2.java");
+	IJavaElement[] elements = codeSelect(cu, "selectMe(", "selectMe");
+	assertElementsEqual(
+		"Unexpected elements",
+		"selectMe() [in <anonymous #1> [in bar() [in <anonymous #1> [in foo() [in ResolveLocalMethodDeclaration2 [in ResolveLocalMethodDeclaration2.java [in <default> [in src [in Resolve]]]]]]]]]",
+		elements
+	);
+}
+/**
  * Resolve a local declaration name
  */
 public void testLocalName1() throws JavaModelException {
