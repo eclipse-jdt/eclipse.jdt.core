@@ -147,7 +147,8 @@ protected void addAffectedSourceFiles() {
 					for (int j = 0, m = sourceLocations.length; j < m; j++) {
 						if (sourceLocations[j].sourceFolder.getFullPath().isPrefixOf(sourceFileFullPath)) {
 							md = sourceLocations[j];
-							break;
+							if (md.exclusionPatterns == null || !Util.isExcluded(file, md.exclusionPatterns))
+								break;
 						}
 					}
 				}
@@ -421,7 +422,6 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 							System.out.println("Copying added file " + resourcePath); //$NON-NLS-1$
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
-//						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DEEP, null);
 						outputFile.setDerived(true);
 						return;
 					case IResourceDelta.REMOVED :
@@ -443,7 +443,6 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 							System.out.println("Copying changed file " + resourcePath); //$NON-NLS-1$
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
-//						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DEEP, null);
 						outputFile.setDerived(true);
 				}
 				return;
