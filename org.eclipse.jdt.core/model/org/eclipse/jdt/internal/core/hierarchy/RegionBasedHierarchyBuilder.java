@@ -27,6 +27,7 @@ public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 			ArrayList allTypesInRegion = determineTypesInRegion();
 			this.hierarchy.initialize(allTypesInRegion.size());
 			createTypeHierarchyBasedOnRegion(allTypesInRegion);
+			((RegionBasedTypeHierarchy)this.hierarchy).pruneDeadBranches();
 		} else {
 			this.hierarchy.initialize(1);
 			this.buildSupertypes();

@@ -1123,20 +1123,7 @@ protected void refreshCancelled(OperationCanceledException oce) throws JavaModel
 	this.progressMonitor = null;
 	throw oce;
 }
-/**
- * Removes all the subtypes of the given type from the type hierarchy,
- * and removes its superclass entry.
- */
-protected void removeType(IType type) throws JavaModelException {
-	IType[] subtypes= getSubtypes(type);
-	this.typeToSubtypes.remove(type);
-	this.classToSuperclass.remove(type);
-	if (subtypes != null) {
-		for (int i= 0; i < subtypes.length; i++) {
-			removeType(subtypes[i]);
-		}
-	}
-}
+
 /**
  * @see ITypeHierarchy
  */

@@ -4,6 +4,8 @@ package org.eclipse.jdt.internal.core.hierarchy;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
@@ -18,6 +20,7 @@ import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.TypeVector;
 
 public class RegionBasedTypeHierarchy extends TypeHierarchy {
 	/**
@@ -89,6 +92,59 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
  */
 public IJavaProject javaProject() {
 	return fProject;
+}
+public void pruneDeadBranches() {
+	this.pruneDeadBranches(this.getRootClasses(), false);
+}
+private void pruneDeadBranches(IType[] types, boolean superInRegion) {
+	for (int i = 0, length = types.length; i < length; i++) {
+		IType type = types[i];
+		if (fRegion.contains(type)) {
+			TypeVector subtypes = (TypeVector)this.typeToSubtypes.get(type);
+			if (subtypes != null) {
+				this.pruneDeadBranches(subtypes.copy().elements(), true);
+			}
+		} else {
+			if (superInRegion) {
+				this.removeType(type);
+			} else {
+				TypeVector subtypes = (TypeVector)this.typeToSubtypes.get(type);
+				if (subtypes != null) {
+					this.pruneDeadBranches(subtypes.copy().elements(), false);
+				}
+				subtypes = (TypeVector)this.typeToSubtypes.get(type);
+				if (subtypes == null || subtypes.size == 0) {
+					this.removeType(type);
+				} 
+			}
+		}
+	}
+}
+/**
+ * Removes all the subtypes of the given type from the type hierarchy,
+ * removes its superclass entry and removes the references from its super types.
+ */
+protected void removeType(IType type) {
+	IType[] subtypes = this.getSubtypes(type);
+	this.typeToSubtypes.remove(type);
+	if (subtypes != null) {
+		for (int i= 0; i < subtypes.length; i++) {
+			this.removeType(subtypes[i]);
+		}
+	}
+	IType superclass = (IType)this.classToSuperclass.remove(type);
+	if (superclass != null) {
+		TypeVector types = (TypeVector)this.typeToSubtypes.get(superclass);
+		types.remove(type);
+	}
+	IType[] superinterfaces = (IType[])this.typeToSuperInterfaces.remove(type);
+	if (superinterfaces != null) {
+		for (int i = 0, length = superinterfaces.length; i < length; i++) {
+			IType superinterface = superinterfaces[i];
+			TypeVector types = (TypeVector)this.typeToSubtypes.get(superinterface);
+			types.remove(type);
+		}
+	}
 }
 
 }
