@@ -2681,7 +2681,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 									.setRawClasspath(
 										project.getRawClasspath(),
 										SetClasspathOperation.ReuseOutputLocation,
-										monitor,
+										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
 										!JavaModelManager.isResourceTreeLocked(), // can change resources
 										(IClasspathEntry[]) affectedProjects.get(project),
 										false, // updating - no validation
