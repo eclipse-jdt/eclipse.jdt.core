@@ -11,10 +11,12 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -80,9 +82,43 @@ public class IteratorForStatement extends Statement {
 
 		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
 		flowInfo = this.localDeclaration.analyseCode(scope, flowContext, flowInfo);
+
+		// the local is always initialized
+		flowInfo.markAsDefinitelyAssigned(this.localDeclaration.binding);
 		
-		flowInfo = this.action.analyseCode(scope, flowContext, flowInfo);
-		return flowInfo;
+		// process the action
+		LoopingFlowContext loopingContext;
+		FlowInfo actionInfo;
+		if (action == null 
+			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
+			actionInfo = flowInfo.initsWhenTrue().copy();
+			loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
+		} else {
+			loopingContext =
+				new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
+			FlowInfo initsWhenTrue = flowInfo.initsWhenTrue();
+			actionInfo = initsWhenTrue.copy();
+			if (!this.action.complainIfUnreachable(actionInfo, scope, false)) {
+				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
+			}
+
+			// code generation can be optimized when no need to continue in the loop
+			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
+				continueLabel = null;
+			} else {
+				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
+				loopingContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
+			}
+		}
+
+		//end of loop
+		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
+				loopingContext.initsOnBreak, 
+				false, 
+				flowInfo.initsWhenFalse(), 
+				false, 
+				true);
+		return mergedInfo;
 	}
 
 	/**
