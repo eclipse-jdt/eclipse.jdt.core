@@ -225,8 +225,8 @@ public class MatchLocator implements ITypeRequestor {
 	}
 	public  ClassFileReader classFileReader(IType type) {
 		IClassFile classFile = type.getClassFile(); 
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		if (((IOpenable)classFile).isOpen()) {
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			synchronized(manager){
 				return (ClassFileReader)manager.getInfo(type);
 			}
@@ -242,25 +242,21 @@ public class MatchLocator implements ITypeRequestor {
 						if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 							System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
 						}
-						// TODO: (jerome) should use JavaModelManager.getZipFile(...) instead
-						zipFile = new ZipFile(zipPath.toOSString());
+						zipFile = manager.getZipFile(zipPath);
 						char[] pkgPath = pkg.getElementName().toCharArray();
 						CharOperation.replace(pkgPath, '.', '/');
 						char[] classFileName = classFile.getElementName().toCharArray();
 						char[] path = pkgPath.length == 0 ? classFileName : CharOperation.concat(pkgPath, classFileName, '/');
 						return ClassFileReader.read(zipFile, new String(path));
 					} finally {
-						if (zipFile != null) {
-							try {
-								zipFile.close();
-							} catch (IOException e) {
-							}
-						}
+						manager.closeZipFile(zipFile);
 					}
 				} else {
 					return ClassFileReader.read(type.getPath().toOSString());
 				}
 			} catch (ClassFormatException e) {
+				return null;
+			} catch (CoreException e) {
 				return null;
 			} catch (IOException e) {
 				return null;
