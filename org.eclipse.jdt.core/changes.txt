@@ -40,7 +40,7 @@ STREAM: 2.0
   PM
   ================================================================================
   * JCK1.4 compliance flow analysis
-  1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
+  3386     JCK 1.4 - EXCP - checked exception in variable initializer of anonymous class (1GK7B5L)  
   
   JCK1.4 remaining defects:
   ================================================================================
