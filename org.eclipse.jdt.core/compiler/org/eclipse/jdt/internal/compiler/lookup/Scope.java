@@ -12,10 +12,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -978,9 +974,8 @@ public abstract class Scope
 				scope = scope.parent;
 			}
 
-			if (foundInsideProblem != null){
+			if (foundInsideProblem != null)
 				return foundInsideProblem;
-			}
 			if (foundField != null) {
 				if (foundField.isValidBinding()){
 					if (foundDepth > 0){
@@ -1006,10 +1001,50 @@ public abstract class Scope
 			if ((binding = environment().getTopLevelPackage(name)) != null)
 				return binding;
 		}
-		if (problemField != null)
-			return problemField;
-		else
-			return new ProblemBinding(name, enclosingSourceType(), NotFound);
+		if (problemField != null) return problemField;
+		return new ProblemBinding(name, enclosingSourceType(), NotFound);
+	}
+
+	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		compilationUnitScope().recordTypeReference(receiverType);
+		compilationUnitScope().recordTypeReferences(argumentTypes);
+		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
+		if (methodBinding != null && methodBinding.canBeSeenBy(invocationSite, this))
+			return methodBinding;
+		MethodBinding[] methods = receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
+		if (methods == NoMethods)
+			return new ProblemMethodBinding(
+				ConstructorDeclaration.ConstantPoolName,
+				argumentTypes,
+				NotFound);
+
+		MethodBinding[] compatible = new MethodBinding[methods.length];
+		int compatibleIndex = 0;
+		for (int i = 0, length = methods.length; i < length; i++)
+			if (areParametersAssignable(methods[i].parameters, argumentTypes))
+				compatible[compatibleIndex++] = methods[i];
+		if (compatibleIndex == 0)
+			return new ProblemMethodBinding(
+				ConstructorDeclaration.ConstantPoolName,
+				argumentTypes,
+				NotFound);
+		// need a more descriptive error... cannot convert from X to Y
+
+		MethodBinding[] visible = new MethodBinding[compatibleIndex];
+		int visibleIndex = 0;
+		for (int i = 0; i < compatibleIndex; i++) {
+			MethodBinding method = compatible[i];
+			if (method.canBeSeenBy(invocationSite, this))
+				visible[visibleIndex++] = method;
+		}
+		if (visibleIndex == 1) return visible[0];
+		if (visibleIndex == 0)
+			return new ProblemMethodBinding(
+				compatible[0],
+				ConstructorDeclaration.ConstantPoolName,
+				compatible[0].parameters,
+				NotVisible);
+		return mostSpecificClassMethodBinding(visible, visibleIndex);
 	}
 
 	public final PackageBinding getCurrentPackage() {
@@ -1017,6 +1052,16 @@ public abstract class Scope
 		while ((scope = unitScope.parent) != null)
 			unitScope = scope;
 		return ((CompilationUnitScope) unitScope).fPackage;
+	}
+
+	public FieldBinding getField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
+		FieldBinding field = findField(receiverType, fieldName, invocationSite, true /*resolve*/);
+		if (field != null) return field;
+
+		return new ProblemFieldBinding(
+			receiverType instanceof ReferenceBinding ? (ReferenceBinding) receiverType : null,
+			fieldName,
+			NotFound);
 	}
 
 	public final ReferenceBinding getJavaIoSerializable() {
@@ -1105,6 +1150,41 @@ public abstract class Scope
 		ReferenceBinding memberType = findMemberType(typeName, enclosingType);
 		if (memberType != null) return memberType;
 		return new ProblemReferenceBinding(typeName, NotFound);
+	}
+
+	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		if (receiverType.isArrayType())
+			return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
+		if (receiverType.isBaseType())
+			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
+
+		ReferenceBinding currentType = (ReferenceBinding) receiverType;
+		if (!currentType.canBeSeenBy(this))
+			return new ProblemMethodBinding(selector, argumentTypes, ReceiverTypeNotVisible);
+
+		// retrieve an exact visible match (if possible)
+		MethodBinding methodBinding = findExactMethod(currentType, selector, argumentTypes, invocationSite);
+		if (methodBinding != null) return methodBinding;
+
+		// answers closest approximation, may not check argumentTypes or visibility
+		methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite);
+		if (methodBinding == null)
+			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
+		if (methodBinding.isValidBinding()) {
+			if (!areParametersAssignable(methodBinding.parameters, argumentTypes))
+				return new ProblemMethodBinding(
+					methodBinding,
+					selector,
+					argumentTypes,
+					NotFound);
+			if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
+				return new ProblemMethodBinding(
+					methodBinding,
+					selector,
+					methodBinding.parameters,
+					NotVisible);
+		}
+		return methodBinding;
 	}
 
 	/* Answer the type binding corresponding to the compoundName.
@@ -1404,23 +1484,7 @@ public abstract class Scope
 				return true;
 		return false;
 	}
-	
-	/**
-	 * Returns whether the current scope is on a block or not.
-	 * @return true if scope is on a block, false otherwise
-	 */
-	public boolean isBlockScope() {
-		return false;
-	}
 
-	/**
-	 * Returns whether the current scope is on a class or not.
-	 * @return true if scope is on a class, false otherwise
-	 */
-	public boolean isClassScope() {
-		return false;
-	}
-	
 	/* Answer true if the scope is nested inside a given field declaration.
      * Note: it works as long as the scope.fieldDeclarationIndex is reflecting the field being traversed 
      * e.g. during name resolution.
@@ -1645,109 +1709,5 @@ public abstract class Scope
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return 0;
-	}
-
-	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	
-		if (receiverType.isArrayType())
-			return findMethodForArray(
-				(ArrayBinding) receiverType,
-				selector,
-				argumentTypes,
-				invocationSite);
-		if (receiverType.isBaseType())
-			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
-	
-		ReferenceBinding currentType = (ReferenceBinding) receiverType;
-		if (!currentType.canBeSeenBy(this))
-			return new ProblemMethodBinding(selector, argumentTypes, ReceiverTypeNotVisible);
-	
-		// retrieve an exact visible match (if possible)
-		MethodBinding methodBinding =
-			findExactMethod(currentType, selector, argumentTypes, invocationSite);
-		if (methodBinding != null)
-			return methodBinding;
-	
-		// answers closest approximation, may not check argumentTypes or visibility
-		methodBinding =
-			findMethod(currentType, selector, argumentTypes, invocationSite);
-		if (methodBinding == null)
-			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
-		if (methodBinding.isValidBinding()) {
-			if (!areParametersAssignable(methodBinding.parameters, argumentTypes))
-				return new ProblemMethodBinding(
-					methodBinding,
-					selector,
-					argumentTypes,
-					NotFound);
-			if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
-				return new ProblemMethodBinding(
-					methodBinding,
-					selector,
-					methodBinding.parameters,
-					NotVisible);
-		}
-		return methodBinding;
-	}
-
-	public FieldBinding getField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
-	
-		FieldBinding field = findField(receiverType, fieldName, invocationSite, true /*resolve*/);
-		if (field == null)
-			return new ProblemFieldBinding(
-				receiverType instanceof ReferenceBinding
-					? (ReferenceBinding) receiverType
-					: null,
-				fieldName,
-				NotFound);
-		else
-			return field;
-	}
-
-	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	
-		compilationUnitScope().recordTypeReference(receiverType);
-		compilationUnitScope().recordTypeReferences(argumentTypes);
-		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
-		if (methodBinding != null) {
-			if (methodBinding.canBeSeenBy(invocationSite, this))
-				return methodBinding;
-		}
-		MethodBinding[] methods =
-			receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
-		if (methods == NoMethods) {
-			return new ProblemMethodBinding(
-				ConstructorDeclaration.ConstantPoolName,
-				argumentTypes,
-				NotFound);
-		}
-		MethodBinding[] compatible = new MethodBinding[methods.length];
-		int compatibleIndex = 0;
-		for (int i = 0, length = methods.length; i < length; i++)
-			if (areParametersAssignable(methods[i].parameters, argumentTypes))
-				compatible[compatibleIndex++] = methods[i];
-		if (compatibleIndex == 0)
-			return new ProblemMethodBinding(
-				ConstructorDeclaration.ConstantPoolName,
-				argumentTypes,
-				NotFound);
-		// need a more descriptive error... cannot convert from X to Y
-	
-		MethodBinding[] visible = new MethodBinding[compatibleIndex];
-		int visibleIndex = 0;
-		for (int i = 0; i < compatibleIndex; i++) {
-			MethodBinding method = compatible[i];
-			if (method.canBeSeenBy(invocationSite, this))
-				visible[visibleIndex++] = method;
-		}
-		if (visibleIndex == 1)
-			return visible[0];
-		if (visibleIndex == 0)
-			return new ProblemMethodBinding(
-				compatible[0],
-				ConstructorDeclaration.ConstantPoolName,
-				compatible[0].parameters,
-				NotVisible);
-		return mostSpecificClassMethodBinding(visible, visibleIndex);
 	}
 }

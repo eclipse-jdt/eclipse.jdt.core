@@ -841,13 +841,6 @@ public class ClassScope extends Scope {
 		return superType;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.Scope#isClassScope()
-	 */
-	public boolean isClassScope() {
-		return true;
-	}
-
 	/* Answer the problem reporter to use for raising new problems.
 	*
 	* Note that as a side-effect, this updates the current reference context

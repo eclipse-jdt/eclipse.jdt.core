@@ -903,13 +903,6 @@ public class BlockScope extends Scope {
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.Scope#isBlockScope()
-	 */
-	public boolean isBlockScope() {
-		return true;
-	}
-	
 	/* Answer true if the variable name already exists within the receiver's scope.
 	 */
 	public final boolean isDuplicateLocalVariable(char[] name) {

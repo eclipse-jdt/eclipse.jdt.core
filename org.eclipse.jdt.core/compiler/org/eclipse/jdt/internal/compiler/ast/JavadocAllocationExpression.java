@@ -30,7 +30,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		constant = NotAConstant;
-		if (scope.isClassScope()) {
+		if (scope.kind == Scope.CLASS_SCOPE) {
 			this.resolvedType = type.resolveType((ClassScope)scope);
 		} else {
 			this.resolvedType = type.resolveType((BlockScope)scope);
@@ -45,7 +45,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
-				if (scope.isClassScope()) {
+				if (scope.kind == Scope.CLASS_SCOPE) {
 					argumentTypes[i] = argument.resolveType((ClassScope)scope);
 				} else {
 					argumentTypes[i] = argument.resolveType((BlockScope)scope);

@@ -34,7 +34,7 @@ public class JavadocFieldReference extends FieldReference {
 			this.receiverType = sourceTypeBinding;
 			this.receiver = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		} else {
-			if (scope.isClassScope()) {
+			if (scope.kind == Scope.CLASS_SCOPE) {
 				this.receiverType = receiver.resolveType((ClassScope)scope);
 			} else {
 				this.receiverType = receiver.resolveType((BlockScope)scope);

@@ -45,7 +45,7 @@ public class JavadocMessageSend extends MessageSend {
 			this.receiver = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		}
 		else {
-			if (scope.isClassScope()) {
+			if (scope.kind == Scope.CLASS_SCOPE) {
 				this.receiverType = receiver.resolveType((ClassScope)scope);
 			} else {
 				this.receiverType = receiver.resolveType((BlockScope)scope);
@@ -61,7 +61,7 @@ public class JavadocMessageSend extends MessageSend {
 			argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++){
 				Expression argument = arguments[i];
-				if (scope.isClassScope()) {
+				if (scope.kind == Scope.CLASS_SCOPE) {
 					argumentTypes[i] = argument.resolveType((ClassScope)scope);
 				} else {
 					argumentTypes[i] = argument.resolveType((BlockScope)scope);
