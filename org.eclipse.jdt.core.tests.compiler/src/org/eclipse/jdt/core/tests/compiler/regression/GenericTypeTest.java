@@ -6704,7 +6704,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"----------\n");
 	}		
 	// TODO (kent) simple covariance cases
-	public void _test243() {
+	public void test243() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
