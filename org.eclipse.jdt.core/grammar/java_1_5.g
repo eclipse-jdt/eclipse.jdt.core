@@ -495,6 +495,7 @@ ClassMemberDeclaration -> ClassDeclaration
 ClassMemberDeclaration -> InterfaceDeclaration
 -- 1.5 feature
 ClassMemberDeclaration -> EnumDeclaration
+ClassMemberDeclaration -> AnnotationTypeDeclaration
 /:$readableName ClassMemberDeclaration:/
 
 -- Empty declarations are not valid Java ClassMemberDeclarations.

@@ -558,7 +558,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Check for extra dimensions
 		 */
-		int extraDimensions = getExtraDimension();
+		int extraDimensions = getDimensions();
 		if (extraDimensions != 0) {
 			 for (int i = 0; i < extraDimensions; i++) {
 			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
@@ -642,7 +642,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					/*
 					 * Check for extra dimensions
 					 */
-					int extraDimensions = getExtraDimension();
+					int extraDimensions = getDimensions();
 					if (extraDimensions != 0) {
 						 for (int index = 0; index < extraDimensions; index++) {
 						 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
@@ -1408,7 +1408,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Check for extra dimensions
 		 */
-		int extraDimensions = getExtraDimension();
+		int extraDimensions = getDimensions();
 		if (extraDimensions != 0) {
 			 for (int index = 0; index < extraDimensions; index++) {
 			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
@@ -1850,7 +1850,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNewLine();
 		}
 	}
-	private int getExtraDimension() {
+	private int getDimensions() {
 
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		int dimensions = 0;
@@ -2229,7 +2229,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Check for extra dimensions
 		 */
-		int extraDimensions = getExtraDimension();
+		int extraDimensions = getDimensions();
 		if (extraDimensions != 0) {
 			 for (int i = 0; i < extraDimensions; i++) {
 			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
@@ -2407,7 +2407,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
 			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
-			int dimensions = getExtraDimension();
+			int dimensions = getDimensions();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
@@ -2432,7 +2432,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
 			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
-			int dimensions = getExtraDimension();
+			int dimensions = getDimensions();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
@@ -2482,7 +2482,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS);
 		
-		int dimensions = getExtraDimension();
+		int dimensions = getDimensions();
 		if (dimensions != 0) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
@@ -2513,7 +2513,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
 		}
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS);
-		int dimensions = getExtraDimension();
+		int dimensions = getDimensions();
 		if (dimensions != 0) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
@@ -4254,7 +4254,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Check for extra dimensions
 		 */
-		int extraDimensions = getExtraDimension();
+		int extraDimensions = getDimensions();
 		if (extraDimensions != 0) {
 			 for (int i = 0; i < extraDimensions; i++) {
 			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
