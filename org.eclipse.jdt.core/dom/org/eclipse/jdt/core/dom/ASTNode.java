@@ -621,7 +621,7 @@ public abstract class ASTNode {
 		 * Be stingy on storage - assume that list will be empty.
 		 * </p>
 		 */
-		private ArrayList store = new ArrayList(0);
+		ArrayList store = new ArrayList(0);
 		
 		/**
 		 * Indicated whether cycles are a risk. A cycle is possible
