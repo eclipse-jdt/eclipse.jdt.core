@@ -860,7 +860,7 @@ public void testCompletionMethodDeclaration() throws JavaModelException {
 	assertEquals(
 		"should have two completions", 
 		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -877,7 +877,7 @@ public void testCompletionMethodDeclaration2() throws JavaModelException {
 	assertEquals(
 		"should have two completions", 
 		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -896,7 +896,7 @@ public void testCompletionMethodDeclaration3() throws JavaModelException {
 
 	assertEquals(
 		"should have one completion", 
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -914,7 +914,7 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n"+
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 
@@ -933,7 +933,7 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 		"element:CompletionMethodDeclaration5    completion:CompletionMethodDeclaration5    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
 		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
 		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
 		"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
 		"element:hashCode    completion:public int hashCode()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
 		"element:toString    completion:public String toString()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
@@ -2175,7 +2175,7 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 
 	assertEquals(
 		"element:eqFoo    completion:public int eqFoo(int a,Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD)+"\n" +
-		"element:equals    completion:public boolean equals(Object arg0)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 /*

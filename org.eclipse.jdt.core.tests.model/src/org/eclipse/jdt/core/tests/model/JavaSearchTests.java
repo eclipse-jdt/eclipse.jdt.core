@@ -1755,53 +1755,67 @@ public void testPatternMatchTypeReference() throws CoreException {
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
 public void testPotentialMatchInBinary() throws JavaModelException, CoreException {
-	// potential match for a field declaration
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	resultCollector.showAccuracy = true;
-	new SearchEngine().search(
-		getWorkspace(),
-		"MissingFieldType.*",
-		FIELD, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
-		resultCollector);
-	assertEquals(
-		"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] POTENTIAL_MATCH\n" +
-		"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH\n" +
-		"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] POTENTIAL_MATCH", 
-		resultCollector.toString());
-
-	// potential match for a method declaration
-	resultCollector = new JavaSearchResultCollector();
-	resultCollector.showAccuracy = true;
-	new SearchEngine().search(
-		getWorkspace(),
-		"MissingArgumentType.foo*",
-		METHOD, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
-		resultCollector);
-	assertEquals(
-		"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo() -> void [No source] POTENTIAL_MATCH\n" +
-		"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo(java.util.EventListener) -> void [No source] POTENTIAL_MATCH\n" +
-		"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo2() -> void [No source] POTENTIAL_MATCH", 
-		resultCollector.toString());
-
-	// potential match for a type declaration
-	resultCollector = new JavaSearchResultCollector();
-	resultCollector.showAccuracy = true;
-	new SearchEngine().search(
-		getWorkspace(),
-		"Missing*",
-		TYPE, 
-		DECLARATIONS, 
-		getJavaSearchScope(), 
-		resultCollector);
-	assertEquals(
-		"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
-		"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" +
-		"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH", 
-		resultCollector.toString());
+	IJavaProject project = this.getJavaProject("JavaSearch");
+	IClasspathEntry[] classpath = project.getRawClasspath();
+	try {
+		// add AbortCompilation.jar to classpath
+		int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(classpath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
+		project.setRawClasspath(newClasspath, null);
+		
+		// potential match for a field declaration
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			getWorkspace(),
+			"MissingFieldType.*",
+			FIELD, 
+			DECLARATIONS, 
+			getJavaSearchScope(), 
+			resultCollector);
+		assertEquals(
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] POTENTIAL_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] POTENTIAL_MATCH", 
+			resultCollector.toString());
+	
+		// potential match for a method declaration
+		resultCollector = new JavaSearchResultCollector();
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			getWorkspace(),
+			"MissingArgumentType.foo*",
+			METHOD, 
+			DECLARATIONS, 
+			getJavaSearchScope(), 
+			resultCollector);
+		assertEquals(
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo() -> void [No source] POTENTIAL_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo(java.util.EventListener) -> void [No source] POTENTIAL_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo2() -> void [No source] POTENTIAL_MATCH", 
+			resultCollector.toString());
+	
+		// potential match for a type declaration
+		resultCollector = new JavaSearchResultCollector();
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			getWorkspace(),
+			"Missing*",
+			TYPE, 
+			DECLARATIONS, 
+			getJavaSearchScope(), 
+			resultCollector);
+		assertEquals(
+			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH", 
+			resultCollector.toString());
+	} finally {
+		// reset classpath
+		project.setRawClasspath(classpath, null);
+	}
 }
 /**
  * Read and write access reference in compound expression test.

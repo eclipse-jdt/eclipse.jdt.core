@@ -303,4 +303,38 @@ public void testRootPath() throws JavaModelException {
 	
 	root.close();
 }
+/**
+ * Attaches a source zip to a jar specifying an invalid root path.  
+ * Ensures that the root path is just used as a hint, and that the source is still retrieved.
+ */
+public void testRootPath2() throws JavaModelException {
+	IJavaProject project = getJavaProject("AttachSourceTests");
+	IFile jar = (IFile) project.getProject().findMember("attach2.jar");
+	IFile srcZip=(IFile) project.getProject().findMember("attach2src.zip");
+	JarPackageFragmentRoot root = (JarPackageFragmentRoot) project.getPackageFragmentRoot(jar);
+	root.attachSource(srcZip.getFullPath(), new Path(""), null);
+
+	IClassFile cf = root.getPackageFragment("x.y").getClassFile("B.class");
+	assertTrue("source code does not exist for the entire attached compilation unit", cf.getSource() != null);
+	root.close();
+}
+/**
+ * Attaches a sa source folder can be attached to a lib folder specifying an invalid root path.  
+ * Ensures that the root path is just used as a hint, and that the source is still retrieved.
+ */
+public void testRootPath3() throws JavaModelException {
+	IPackageFragmentRoot root = this.getPackageFragmentRoot("/AttachSourceTests/lib");
+	this.attachSource(root, "/AttachSourceTests/srcLib", "invalid");
+	
+	IClassFile cf = root.getPackageFragment("p").getClassFile("X.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p;\n" +
+		"public class X {\n" +
+		"	public void foo() {\n" +
+		"	}\n" +
+		"}",
+		cf.getSource());
+	root.close();
+}
 }

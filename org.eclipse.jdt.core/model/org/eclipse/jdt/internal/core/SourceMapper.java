@@ -736,6 +736,32 @@ public class SourceMapper
 			fullName = name;
 		}
 
+		char[] source = findSource(fullName);
+		if (source == null) {
+			// root path may just have been a hint: try recomputing it
+			String rootPath = this.computeRootPath();
+			String newFullName;
+			if (rootPath != null && !rootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
+				if (rootPath.endsWith("/")) { //$NON-NLS-1$
+					newFullName = rootPath + name;
+				} else {
+					newFullName = rootPath + '/' + name;
+				}
+			} else {
+				newFullName = name;
+			}
+			if (!fullName.equals(newFullName)) {
+				source = this.findSource(newFullName);
+				if (source != null) {
+					// remember right root path
+					this.rootPath = rootPath;
+				}
+			}
+		}
+		return source;
+	}
+
+	public char[] findSource(String fullName) {
 		char[] source = null;
 		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
 			// try to get the entry
