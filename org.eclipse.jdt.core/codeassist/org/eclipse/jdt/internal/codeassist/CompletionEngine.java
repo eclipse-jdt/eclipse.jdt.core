@@ -2073,7 +2073,7 @@ public final class CompletionEngine
 						if(method.declaringClass == scope.getJavaLangObject())
 							continue next;
 						
-						if (method
+						if (!superCall && method
 							.declaringClass
 							.implementsInterface(otherMethod.declaringClass, true))
 							continue next;
@@ -2087,7 +2087,9 @@ public final class CompletionEngine
 						
 					if(receiverType.isAnonymousType()) continue next;
 					
-					prefixRequired = true;
+					if(!superCall) {
+						prefixRequired = true;
+					}
 				}
 			}
 

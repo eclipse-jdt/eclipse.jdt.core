@@ -149,7 +149,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration6"));
 	suite.addTest(new CompletionTests("testCompletionStaticMethod1"));
 	suite.addTest(new CompletionTests("testCompletionAfterSwitch"));
-	
+	suite.addTest(new CompletionTests("testCompletionAfterSupercall1"));
+
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent2"));
@@ -8498,6 +8499,19 @@ public void testCompletionAfterSwitch() throws JavaModelException {
 
 	assertEquals(
 			"element:bar    completion:bar()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME),
+			requestor.getResults());
+}
+public void testCompletionAfterSupercall1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAfterSupercall1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "super.foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:foo    completion:foo()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_STATIC),
 			requestor.getResults());
 }
 }
