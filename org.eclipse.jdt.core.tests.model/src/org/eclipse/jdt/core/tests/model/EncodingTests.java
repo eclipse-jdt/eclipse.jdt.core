@@ -585,7 +585,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Test fix for bug 66898: refactor-rename: encoding is not preserved
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898">66898</a>
 	 */
-	public void testBug66898() throws JavaModelException, CoreException, UnsupportedEncodingException {
+	public void testBug66898() throws JavaModelException, CoreException {
 
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
