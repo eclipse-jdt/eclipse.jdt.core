@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0 
+ * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
  * 
@@ -30,7 +30,7 @@
  *                                 CODEASSIST_STATIC_FIELD_PREFIXES
  *                                 CODEASSIST_STATIC_FIELD_SUFFIXES
  *                                 COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION
- ******************************************************************************/
+ *******************************************************************************/
 package org.eclipse.jdt.core;
 
 import java.io.File;
