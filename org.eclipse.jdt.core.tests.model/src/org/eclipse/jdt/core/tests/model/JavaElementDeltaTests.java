@@ -144,6 +144,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testMoveTwoResInRoot"));
 	suite.addTest(new JavaElementDeltaTests("testMergeResourceDeltas"));
 	suite.addTest(new JavaElementDeltaTests("testAddFileToNonJavaProject"));
+	suite.addTest(new JavaElementDeltaTests("testDeleteNonJavaFolder"));
 	
 	// listeners
 	suite.addTest(new JavaElementDeltaTests("testListenerAutoBuild"));
@@ -570,8 +571,31 @@ public void testDeleteInnerJar() throws CoreException {
 		file.delete(false, null);
 		assertDeltas(
 			"Unexpected deltas",
-			"P[*]: {CHILDREN}\n" + 
-			"	lib/x.jar[-]: {}"
+			"P[*]: {CHILDREN | CONTENT}\n" + 
+			"	lib/x.jar[-]: {}\n" + 
+			"	ResourceDelta(/P/lib)[*]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that deleting a non-Java folder that contains a source root folder reports
+ * a removed root delta as well as a resource delta for the removed folder.
+ * (regression test for bug 24045 Error deleting parent folder of source folder)
+ */
+public void testDeleteNonJavaFolder() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"foo/bar"}, "bin");
+		IFolder folder = this.getFolder("/P/foo");
+		this.startDeltas();
+		folder.delete(false, null);
+		assertDeltas(
+			"Unexpected deltas",
+			"P[*]: {CHILDREN | CONTENT}\n" + 
+			"	foo/bar[-]: {}\n" + 
+			"	ResourceDelta(/P/foo)[-]"
 		);
 	} finally {
 		this.stopDeltas();

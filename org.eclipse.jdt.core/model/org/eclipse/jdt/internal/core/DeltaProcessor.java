@@ -1874,7 +1874,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 				}
 			} // else resource delta will be added by parent
-			return elementType != NON_JAVA_RESOURCE || oneChildOnClasspath;
+			return elementType != NON_JAVA_RESOURCE; // TODO: (jerome) do we still need to return? (check could be done by caller)
 		} else {
 			return elementType != NON_JAVA_RESOURCE;
 		}
