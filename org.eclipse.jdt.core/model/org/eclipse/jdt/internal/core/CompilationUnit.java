@@ -92,7 +92,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	}
 	
 	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
-	if (this.owner != DefaultWorkingCopyOwner.PRIMARY && !isWorkingCopy()) {
+	if (this.owner != DefaultWorkingCopyOwner.PRIMARY && getPerWorkingCopyInfo() == null) {
 		throw newNotPresentException();
 	}
 
