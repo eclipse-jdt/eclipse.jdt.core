@@ -172,8 +172,8 @@ protected void addAffectedSourceFiles() {
 	}
 }
 
-protected void addDependentsOf(IPath path, boolean hasStructuralChanges) {
-	if (hasStructuralChanges) {
+protected void addDependentsOf(IPath path, boolean isStructuralChange) {
+	if (isStructuralChange) {
 		newState.tagAsStructurallyChanged();
 		this.hasStructuralChanges = true;
 	}
