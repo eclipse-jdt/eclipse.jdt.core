@@ -68,12 +68,13 @@ public class SourceMethodElementInfo extends MemberElementInfo implements ISourc
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
 	
 	/*
-	 * The default member value of an annotation member.
-	 * This is null if the method is not an annotation method.
-	 * This is an empty char[] if the method is an annotation method with no default value.
-	 * This is the source of the expression representing the default value.
+	 * The positions of a default member value of an annotation member.
+	 * These are {-1, -1} if the method is not an annotation method.
+	 * These are {0, -1} if the method is an annotation method with no default value.
+	 * Otherwise these are the start and end (inclusive) of the expression representing the default value.
 	 */
-	protected char[] defaultAnnotationValue;
+	protected int defaultValueStart;
+	protected int defaultValueEnd;
 
 
 public char[][] getArgumentNames() {
@@ -82,10 +83,10 @@ public char[][] getArgumentNames() {
 public char[][] getArgumentTypeNames() {
 	return this.argumentTypeNames;
 }
-public char[] getDefaultValueSource() {
-	if (this.defaultAnnotationValue == CharOperation.NO_CHAR) 
+public char[] getDefaultValueSource(char[] cuSource) {
+	if (this.defaultValueStart == 0 && this.defaultValueEnd == 0) 
 		return null;
-	return this.defaultAnnotationValue;
+	return CharOperation.subarray(cuSource, this.defaultValueStart, this.defaultValueEnd+1);
 }
 public char[][] getExceptionTypeNames() {
 	return this.exceptionTypes;
@@ -130,7 +131,7 @@ public boolean isConstructor() {
 	return this.isConstructor;
 }
 public boolean isAnnotationMethod() {
-	return this.defaultAnnotationValue != null;
+	return this.defaultValueStart != -1;
 }
 protected void setArgumentNames(char[][] names) {
 	this.argumentNames = names;

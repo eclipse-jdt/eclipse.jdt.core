@@ -79,6 +79,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	private CompilationUnitDeclaration unit;
 	private Parser parser;
 	private ProblemReporter problemReporter;
+	private ICompilationUnit source;
 	
 	int namePos;
 	
@@ -113,19 +114,20 @@ public class SourceTypeConverter implements CompilerModifiers {
 		// not filled at this point
 
 		if (sourceTypes.length == 0) return this.unit;
-		ISourceType sourceType = sourceTypes[0];
+		SourceTypeElementInfo typeInfo = (SourceTypeElementInfo) sourceTypes[0];
+		this.source = (ICompilationUnit) typeInfo.getHandle().getCompilationUnit();
 
 		/* only positions available */
-		int start = sourceType.getNameSourceStart();
-		int end = sourceType.getNameSourceEnd();
+		int start = typeInfo.getNameSourceStart();
+		int end = typeInfo.getNameSourceEnd();
 
 		/* convert package and imports */
-		if (sourceType.getPackageName() != null
-			&& sourceType.getPackageName().length > 0)
+		if (typeInfo.getPackageName() != null
+			&& typeInfo.getPackageName().length > 0)
 			// if its null then it is defined in the default package
 			this.unit.currentPackage =
-				createImportReference(sourceType.getPackageName(), start, end, false, AccDefault);
-		ISourceImport[]  sourceImports = sourceType.getImports();
+				createImportReference(typeInfo.getPackageName(), start, end, false, AccDefault);
+		ISourceImport[]  sourceImports = typeInfo.getImports();
 		int importCount = sourceImports.length;
 		this.unit.imports = new ImportReference[importCount];
 		for (int i = 0; i < importCount; i++) {
@@ -293,7 +295,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 				/* conversion of default value */
 				if ((this.flags & FIELD_INITIALIZATION) != 0) {
-					char[] defaultValueSource = methodInfo.getDefaultValueSource();
+					char[] defaultValueSource = methodInfo.getDefaultValueSource(this.source.getContents());
 					if (defaultValueSource != null) {
 						if (this.parser == null) {
 							this.parser = new Parser(this.problemReporter, true);
