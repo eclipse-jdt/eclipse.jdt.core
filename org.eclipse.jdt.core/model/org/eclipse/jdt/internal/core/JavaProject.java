@@ -2258,32 +2258,32 @@ public class JavaProject
 	 * Update cycle markers for all java projects
 	 */
 	public static void updateAllCycleMarkers() throws JavaModelException {
-		
+
+		//long start = System.currentTimeMillis();
+
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		HashSet cycleParticipants = new HashSet();
+		HashSet traversed = new HashSet();
 		int length = projects.length;
 		
-		/* alternate implementation for cycle participants computation
-		computeCycleParticipants(projects, cycleParticipants);
-		*/
-
 		// compute cycle participants
-		ArrayList visited = new ArrayList();
+		ArrayList prereqChain = new ArrayList();
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
-			if (!cycleParticipants.contains(project)){
-				visited.clear();
-				project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+			if (!traversed.contains(project.getPath())){
+				prereqChain.clear();
+				project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, traversed);
 			}
 		}
-		
+		//System.out.println("updateAllCycleMarkers: " + (System.currentTimeMillis() - start) + " ms");
+
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
 			
-			if (cycleParticipants.contains(project)){
+			if (cycleParticipants.contains(project.getPath())){
 				IMarker cycleMarker = project.getCycleMarker();
 				String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
 				int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
@@ -2309,38 +2309,46 @@ public class JavaProject
 	}
 
 	/**
-	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly),
+	 * If a cycle is detected, then cycleParticipants contains all the paths of projects involved in this cycle (directly and indirectly),
 	 * no cycle if the set is empty (and started empty)
 	 */
-	public void updateCycleParticipants(IClasspathEntry[] preferredClasspath, ArrayList visited, HashSet cycleParticipants, IWorkspaceRoot workspaceRoot){
-		visited.add(this);
+	public void updateCycleParticipants(
+			IClasspathEntry[] preferredClasspath, 
+			ArrayList prereqChain, 
+			HashSet cycleParticipants, 
+			IWorkspaceRoot workspaceRoot,
+			HashSet traversed){
+
+		IPath path = this.getPath();
+		prereqChain.add(path);
+		traversed.add(path);
 		try {
 			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
-					IPath entryPath = entry.getPath();
-					IResource member = workspaceRoot.findMember(entryPath);
-					if (member != null && member.getType() == IResource.PROJECT){
-						JavaProject project = (JavaProject)JavaCore.create((IProject)member);
-						int index = visited.indexOf(project);
-						if (index == -1 && cycleParticipants.contains(project))
-							index = visited.indexOf(this); // another loop in the cycle exists
-						if (index >= 0) { // only consider direct participants inside the cycle
-							for (int size = visited.size(); index < size; index++)
-								cycleParticipants.add(visited.get(index)); 
-						} else {
-							project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+					IPath prereqProjectPath = entry.getPath();
+					int index = cycleParticipants.contains(prereqProjectPath) ? 0 : prereqChain.indexOf(prereqProjectPath);
+					if (index >= 0) { // refer to cycle, or in cycle itself
+						for (int size = prereqChain.size(); index < size; index++) {
+							cycleParticipants.add(prereqChain.get(index)); 
+						}
+					} else {
+						if (!traversed.contains(prereqProjectPath)) {
+							IResource member = workspaceRoot.findMember(prereqProjectPath);
+							if (member != null && member.getType() == IResource.PROJECT){
+								JavaProject project = (JavaProject)JavaCore.create((IProject)member);
+								project.updateCycleParticipants(null, prereqChain, cycleParticipants, workspaceRoot, traversed);
+							}
 						}
 					}
 				}
 			}
 		} catch(JavaModelException e){
 		}
-		visited.remove(this);
+		prereqChain.remove(path);
 	}
-		
 	/**
 	 * Reset the collection of package fragment roots (local ones) - only if opened.
 	 * Need to check *all* package fragment roots in order to reset NameLookup
@@ -2380,6 +2388,4 @@ public class JavaProject
 				}
 			}
 	}
-
-
 }
