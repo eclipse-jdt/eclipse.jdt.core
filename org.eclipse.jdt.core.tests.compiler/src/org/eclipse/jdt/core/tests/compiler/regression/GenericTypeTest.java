@@ -7712,10 +7712,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"foo, bar");	
 	}
 	// 72644
-	// TODO (kent) this should generate:
-	// X is not abstract and does not override abstract method putAll(java.util.Map<? extends java.lang.String,? extends V>) in java.util.Map
-	public void test298() {
-		this.runConformTest(
+	public void _test298() {
+		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
 				"import java.util.Collection;\n" + 
@@ -7724,10 +7722,6 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"\n" + 
 				"public class X<V> implements Map<String, V> {\n" + 
 				"   private Map<String, V> backingMap;\n" + 
-				"   \n" + 
-				"   public static void main(String [] args) {\n" + 
-				"        System.out.println(\"SUCCESS\");\n" + 
-				"   }\n" + 
 				"   public int size() { return 0; }\n" + 
 				"   public boolean isEmpty() { return false; }\n" + 
 				"   public boolean containsKey(Object key) { return false; }\n" + 
@@ -7744,15 +7738,38 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"   }\n" + 
 				"}\n",
 			},
-			"SUCCESS");
-/* Also
-name clash: putAll(java.util.Map<? extends java.lang.String,? extends V>) in GenericMap<S,V> and putAll(java.util.Map<? extends K,? extends V>)
-in java.util.Map<S,V> have the same erasure, yet neither overrides the other
-
-abstract class GenericMap<S, V> implements java.util.Map<S, V> {
-   public void putAll(java.util.Map<? extends String, ? extends V> t) { }
-}
- */
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	public class X<V> implements Map<String, V> {\n" + 
+			"	             ^\n" + 
+			"Class must implement the inherited abstract method Map<String,V>.putAll(Map<? extends String,? extends V>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	public void putAll(Map<String, ? extends V> t) { }\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method putAll(Map<String,? extends V>) of type X<V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<String,V> but does not override it\n" + 
+			"----------\n");
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public abstract class X<S, V> implements java.util.Map<Object, Object> {\n" + 
+				"   public void putAll(java.util.Map<?, ?> t) { }\n" + 
+				"}\n",
+			},
+			"");
+		this.runNegativeTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public abstract class X<S, V> implements java.util.Map<S, V> {\n" + 
+				"   public void putAll(java.util.Map<? extends String, ? extends V> t) { }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public void putAll(java.util.Map<? extends String, ? extends V> t) { }\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method putAll(Map<? extends String,? extends V>) of type X<S,V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<S,V> but does not override it\n" + 
+			"----------\n");
 	}
 	// 74244
 	public void test299() {
@@ -9146,42 +9163,30 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 	}	
 	// checking scenario where generic type and method share the same type parameter name
 	// TODO (kent) we shouldn't be issuing a warning for method override unchecked conversion
-	public void test348() {
+	public void _test348() {
 		this.runNegativeTest(
 			new String[] {	
 				"X.java",
 				"import java.io.IOException;\n" + 
-				"\n" + 
 				"public abstract class X<T extends Runnable> {\n" + 
-				"	\n" + 
 				"	public abstract <T extends Exception> T bar(T t);\n" + 
-				"\n" + 
 				"	static void foo(X x) {\n" + 
 				"		x.<Exception>bar(null);\n" + 
-				"		\n" + 
 				"		class R implements Runnable {\n" + 
-				"			public void run() {\n" + 
-				"			}\n" + 
+				"			public void run() {}\n" + 
 				"		}\n" + 
 				"		X<R> xr = new X<R>(){  \n" + 
-				"			public <T extends Exception> T bar(T t) { \n" + 
-				"				return t; \n" + 
-				"			}\n" + 
+				"			public <T extends Exception> T bar(T t) { return t; }\n" + 
 				"		};\n" + 
 				"		IOException e = xr.bar(new IOException());\n" + 
 				"	}\n" + 
 				"}\n"		
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
 			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 15)\n" + 
-			"	public <T extends Exception> T bar(T t) { \n" + 
-			"	                             ^\n" + 
-			"Type safety: The return type T of the method bar(T) of type new X<R>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
 			"----------\n");
 	}	
 	// test wildcard compatibilities
@@ -9948,4 +9953,181 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				}
 		);
 	}
-}	
+
+	public void _test381() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	void foo(Class<? extends String> s) {}\n" + 
+				"}\n" + 
+				"class Y {\n" +
+				"	void foo(Class<String> s) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(Class<? extends String> s) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<? extends String>) of type X has the same erasure as foo(Class<String>) of type Y but does not override it\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	void foo(Class<String> s) {}\n" + 
+				"}\n" + 
+				"class Y {\n" +
+				"	void foo(Class<? extends String> s) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(Class<String> s) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<String>) of type X has the same erasure as foo(Class<? extends String>) of type Y but does not override it\n" + 
+			"----------\n");
+	}
+	public void _test382() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y implements I {}\n" + 
+				"interface I { void foo(Class<? extends String> s); }\n" + 
+				"class Y { void foo(Class<String> s) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I {}\n" + 
+			"	             ^\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	class Y { void foo(Class<String> s) {} }\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<String>) of type Y has the same erasure as foo(Class<? extends String>) of type I but does not override it\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X extends Y implements I {}\n" + 
+				"interface I { void foo(Class<String> s); }\n" + 
+				"class Y { void foo(Class<? extends String> s) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	class Y { void foo(Class<? extends String> s) {} }\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<? extends String>) of type Y has the same erasure as foo(Class<String>) of type I but does not override it\n" + 
+			"----------\n");
+	}
+	public void _test383() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y implements I {}\n" + 
+				"interface I { <T, S> void foo(Class<T> s); }\n" + 
+				"class Y { <T> void foo(Class<T> s) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I {}\n" + 
+			"	             ^\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	class Y { <T> void foo(Class<T> s) {} }\n" + 
+			"	                   ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X extends Y implements I {}\n" + 
+				"interface I { <T> void foo(Class<T> s); }\n" + 
+				"class Y { <T, S> void foo(Class<T> s) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	class Y { <T, S> void foo(Class<T> s) {} }\n" + 
+			"	                      ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"----------\n");
+	}
+	public void _test384() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	<T> java.util.List<T> foo3(java.util.List<T> t) { return t; }\n" + 
+				"	Class<String> foo4() { return null; }\n" + 
+				"	Class<String>[] foo5() { return null; }\n" + 
+				"}\n" + 
+				"class Y {\n" +
+				"	<T> java.util.List<T> foo3(java.util.List<T> t) { return t; }\n" + 
+				"	Class<? extends String> foo4() { return null; }\n" + 
+				"	Class<? extends String>[] foo5() { return null; }\n" + 
+				"}\n"
+			},
+			"");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y {\n" + 
+				"	Class<? extends String> foo() { return null; }\n" + 
+				"	Class<? extends String>[] foo2() { return null; }\n" + 
+				"}\n" + 
+				"class Y {\n" +
+				"	Class<String> foo() { return null; }\n" + 
+				"	Class<String>[] foo2() { return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	Class<? extends String> foo() { return null; }\r\n" + 
+			"	                        ^^^^^\n" + 
+			"The return type is incompatible with Y.foo()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
+			"	Class<? extends String>[] foo2() { return null; }\r\n" + 
+			"	                          ^^^^^^\n" + 
+			"The return type is incompatible with Y.foo2()\n" + 
+			"----------\n");
+	}
+
+/*
+X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
+class A implements IDoubles {
+^
+X.java:4: getList() in A cannot implement getList() in IDoubles; attempting to use incompatible return type
+found   : java.util.List<java.lang.String>
+required: java.util.List<java.lang.Double>
+	public List<String> getList() { return null; }
+                            ^
+X.java:9: C is not abstract and does not override abstract method getList() in IDoubles
+class C extends B implements IDoubles {
+ */	
+	public void _test385() { // 77496
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"interface IDoubles { List<Double> getList(); }\n" +
+				"class A implements IDoubles {\n" + 
+				"	public List<String> getList() { return null; }\n" + 
+				"}\n" + 
+				"class B {\n" + 
+				"	 public List<String> getList() { return null; }\n" + 
+				"}\n" + 
+				"class C extends B implements IDoubles {\n" + 
+				"	void use() { List<String> l= getList(); }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
+			"	public List<String> getList() { return null; }\r\n" + 
+			"	                    ^^^^^^^^^\n" + 
+			"The return type is incompatible with IDoubles.getList()\n" + 
+			"----------\n");
+	}
+}
