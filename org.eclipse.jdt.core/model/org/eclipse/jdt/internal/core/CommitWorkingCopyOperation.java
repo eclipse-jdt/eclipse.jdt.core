@@ -64,7 +64,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
-			CompilationUnit workingCopy = (CompilationUnit)getCompilationUnit();
+			CompilationUnit workingCopy = getCompilationUnit();
 			IFile resource = (IFile)workingCopy.getResource();
 			ICompilationUnit primary = workingCopy.getPrimary();
 			boolean isPrimary = workingCopy.isPrimary();
@@ -182,7 +182,6 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 		if (!cu.isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, cu);
 		}
-		IResource resource = cu.getResource();
 		if (cu.hasResourceChanged() && !fForce) {
 			return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 		}
