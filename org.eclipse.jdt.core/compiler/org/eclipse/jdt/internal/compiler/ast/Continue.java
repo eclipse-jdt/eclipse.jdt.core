@@ -63,15 +63,18 @@ public class Continue extends BranchStatement {
 					break;
 				}
 			}
-			traversedContext.recordContinueFrom(flowInfo);
 			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());//TODO: not only if disctinct from target?
 
 			AstNode node;
 			if ((node = traversedContext.associatedNode) instanceof TryStatement) {
 				TryStatement tryStatement = (TryStatement) node;
 				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
+			} else if (traversedContext == targetContext) {
+				// only record continue info once accumulated through subroutines, and only against target context
+				targetContext.recordContinueFrom(flowInfo);
+				break;
 			}
-		} while (traversedContext != targetContext && (traversedContext = traversedContext.parent) != null);
+		} while ((traversedContext = traversedContext.parent) != null);
 		
 		// resize subroutines
 		if (subIndex != maxSub) {

@@ -58,16 +58,19 @@ public class Break extends BranchStatement {
 					break;
 				}
 			}
-			traversedContext.recordBreakFrom(flowInfo);
 			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 
 			AstNode node;
 			if ((node = traversedContext.associatedNode) instanceof TryStatement) {
 				TryStatement tryStatement = (TryStatement) node;
 				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
+			} else if (traversedContext == targetContext) {
+				// only record break info once accumulated through subroutines, and only against target context
+				targetContext.recordBreakFrom(flowInfo);
+				break;
 			}
-		} while (traversedContext != targetContext && (traversedContext = traversedContext.parent) != null);
-
+		} while ((traversedContext = traversedContext.parent) != null);
+		
 		// resize subroutines
 		if (subIndex != maxSub) {
 			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
