@@ -247,7 +247,11 @@ public class HandleFactory {
 				return true;
 			}
 			public void endVisit(TypeDeclaration node, ClassScope scope) {
-				currentElement = currentElement.getParent();
+				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
+					currentElement = ((IType)currentElement).getDeclaringType();
+				} else {
+					currentElement = currentElement.getParent();
+				}
 			}
 
 			public boolean visit(MethodDeclaration node, ClassScope scope) {
