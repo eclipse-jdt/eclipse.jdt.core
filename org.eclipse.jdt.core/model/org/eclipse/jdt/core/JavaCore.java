@@ -1283,7 +1283,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Variable source attachment path and root path are also resolved and recorded in the resulting classpath entry.
 	 * <p>
 	 * NOTE: This helper method does not handle classpath containers, for which should rather be used
-	 * <code>JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)</code>.
+	 * <code>JavaCore#getClasspathContainer(IPath, IJavaProject)</code>.
 	 * <p>
 	 * 
 	 * @param entry the given variable entry
