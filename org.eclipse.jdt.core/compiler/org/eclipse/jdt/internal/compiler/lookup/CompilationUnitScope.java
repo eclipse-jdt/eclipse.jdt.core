@@ -450,12 +450,14 @@ Binding resolveSingleTypeImport(ImportBinding importBinding) {
 	if (importBinding.resolvedImport == null) {
 		importBinding.resolvedImport = findSingleTypeImport(importBinding.compoundName);
 		if (!importBinding.resolvedImport.isValidBinding() || importBinding.resolvedImport instanceof PackageBinding) {
-			ImportBinding[] newImports = new ImportBinding[imports.length - 1];
-			for (int i = 0, n = 0, max = imports.length; i < max; i++)
-				if (imports[i] != importBinding){
-					newImports[n++] = imports[i];
-				}
-			this.imports = newImports;
+			if (this.imports != null){
+				ImportBinding[] newImports = new ImportBinding[imports.length - 1];
+				for (int i = 0, n = 0, max = this.imports.length; i < max; i++)
+					if (this.imports[i] != importBinding){
+						newImports[n++] = this.imports[i];
+					}
+				this.imports = newImports;
+			}
 			return null;
 		}
 	}
