@@ -270,11 +270,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		cmd.createArgument().setValue("-time"); //$NON-NLS-1$
 
 		/*
-		 * extra option allowed by the Eclipse compiler
-		 */
-		cmd.createArgument().setValue("-noImportError"); //$NON-NLS-1$
-
-		/*
 		 * Eclipse compiler doesn't have a -sourcepath option. This is
 		 * handled through the javac task that collects all source files in
 		 * srcdir option.
