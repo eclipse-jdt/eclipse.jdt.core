@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -451,27 +451,29 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean hasClasspathCycle(IClasspathEntry[] entries);
 	/**
 	 * Returns whether the given element is on the classpath of this project, 
-	 * i.e. referenced from a classpath entry, and not explicitly excluded using an 
-	 * exclusion pattern (as defined by <code>IClasspathEntry#getExclusionPatterns()</code>.
+	 * that is, referenced from a classpath entry and not explicitly excluded
+	 * using an exclusion pattern. 
 	 * 
 	 * @param element the given element
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
-	 * @return true if the given element is on the classpath of this project, false otherwise
-	 * @see IClasspathEntry#getExclusionPatterns()
+	 * @return <code>true</code> if the given element is on the classpath of
+	 * this project, <code>false</code> otherwise
+	 * @see IClasspathEntry#getExclusionPatterns
 	 * @since 2.0
 	 */
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	/**
 	 * Returns whether the given resource is on the classpath of this project,
-	 * i.e. referenced from a classpath entry, and not explicitly excluded using an 
-	 * exclusion pattern (as defined by <code>IClasspathEntry#getExclusionPatterns()</code>.
+	 * that is, referenced from a classpath entry and not explicitly excluded
+	 * using an exclusion pattern.
 	 * 
 	 * @param element the given element
 	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
-	 * @return true if the given resource is on the classpath of this project, false otherwise
-	 * @see IClasspathEntry#getExclusionPatterns()
+	 * @return <code>true</code> if the given resource is on the classpath of
+	 * this project, <code>false</code> otherwise
+	 * @see IClasspathEntry#getExclusionPatterns
 	 * @since 2.1
 	 */
 	boolean isOnClasspath(IResource resource) throws JavaModelException;
