@@ -219,9 +219,10 @@ class MethodBinding implements IMethodBinding {
 		} else {
 			// case of method not in the created AST
 			String selector = getName();
-			char[] methodSignature = this.binding.genericSignature();
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = this.binding.original();
+			char[] methodSignature = original.genericSignature();
 			if (methodSignature == null)
-				methodSignature = this.binding.signature();
+				methodSignature = original.signature();
 			methodSignature = CharOperation.replaceOnCopy(methodSignature, '/', '.');
 			char[][] parameterSignatures = Signature.getParameterTypes(methodSignature);
 			String[] parameters = CharOperation.toStrings(parameterSignatures);

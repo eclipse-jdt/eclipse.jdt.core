@@ -735,6 +735,33 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a parameterized method is correct.
+	 * (regression test for bug 82382 IMethodBinding#getJavaElement() for method m(T t) in parameterized type Gen<T> is null)
+	 */
+	public void testMethod5() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X<T> {\n" + 
+			"    void m(T t) { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y {\n" + 
+			"    {\n" + 
+			"        /*start*/new X<String>().m(\"s\")/*end*/;\n" + 
+			"    }\n" + 
+			"}"
+		);
+		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"m(T) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a package is correct.
 	 */
 	public void testPackage1() throws CoreException {
