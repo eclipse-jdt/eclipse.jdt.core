@@ -43,6 +43,16 @@
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.dom.RunAllTests"/>
     </ant>
+    
+    <!-- Formatter tests -->
+    <property name="formatter-folder" 
+              value="${eclipse-home}/formatter-folder"/>
+    <delete dir="${formatter-folder}" quiet="true"/>
+    <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
+      <property name="data-dir" value="${formatter-folder}"/>
+      <property name="plugin-name" value="${plugin-name}"/>
+      <property name="classname" value="org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests"/>
+    </ant>
   </target>
 
   <!-- This target holds code to cleanup the testing environment after -->

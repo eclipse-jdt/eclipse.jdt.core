@@ -1,0 +1,4 @@
+/*
+*			// another comment
+*/
+int i;
