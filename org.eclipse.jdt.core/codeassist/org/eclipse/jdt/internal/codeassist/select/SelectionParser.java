@@ -698,6 +698,8 @@ protected NameReference getUnspecifiedReference() {
 			// discard 'super' from identifier stacks
 			identifierLengthStack[identifierLengthPtr] = completionIndex;
 			int ptr = identifierPtr -= (length - completionIndex);
+			pushOnAstLengthStack(0);
+			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 			reference = 
 				new SelectionOnQualifiedSuperReference(
 					getTypeReference(0), 

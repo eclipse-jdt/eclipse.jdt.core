@@ -303,12 +303,17 @@ private void buildMoreCompletionContext(Expression expression) {
 						if(invocType == ALLOCATION) {
 							AllocationExpression allocationExpr = new AllocationExpression();
 							allocationExpr.arguments = arguments;
+							pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+							pushOnAstLengthStack(0);
 							allocationExpr.type = getTypeReference(0);
 							assistNodeParent = allocationExpr;
 						} else {
 							QualifiedAllocationExpression allocationExpr = new QualifiedAllocationExpression();
 							allocationExpr.enclosingInstance = this.expressionStack[qualifierExprPtr];
 							allocationExpr.arguments = arguments;
+							pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+							pushOnAstLengthStack(0);
+							
 							allocationExpr.type = getTypeReference(0);
 							assistNodeParent = allocationExpr;
 						}
@@ -393,6 +398,8 @@ private void buildMoreCompletionContext(Expression expression) {
 				
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_ARRAY_CREATION) {
 					ArrayAllocationExpression allocationExpression = new ArrayAllocationExpression();
+					pushOnAstLengthStack(0);
+					pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 					allocationExpression.type = getTypeReference(0);
 					int length = expressionLengthStack[expressionLengthPtr];
 					allocationExpression.dimensions = new Expression[length];
@@ -541,16 +548,12 @@ private boolean checkClassInstanceCreation() {
 		if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_INSIDE_THROW_STATEMENT
 			&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 1) == this.bracketDepth) {
 			pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
-			type = getTypeReference(0);
 			popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
-		} else {
-			type = getTypeReference(0);
 		}
-		this.assistNode = type;
-		this.lastCheckPoint = type.sourceEnd + 1;
 		if (this.invocationType == ALLOCATION) {
 			// non qualified allocation expression
 			AllocationExpression allocExpr = new AllocationExpression();
+			type = getTypeReference(0);
 			allocExpr.type = type;
 			allocExpr.sourceStart = type.sourceStart;
 			allocExpr.sourceEnd = type.sourceEnd;
@@ -559,6 +562,9 @@ private boolean checkClassInstanceCreation() {
 		} else {
 			// qualified allocation expression
 			QualifiedAllocationExpression allocExpr = new QualifiedAllocationExpression();
+			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnAstLengthStack(0);
+			type = getTypeReference(0);
 			allocExpr.type = type;
 			allocExpr.enclosingInstance = this.expressionStack[this.qualifier];
 			allocExpr.sourceStart = this.intStack[this.intPtr--];
@@ -566,6 +572,9 @@ private boolean checkClassInstanceCreation() {
 			this.expressionStack[this.qualifier] = allocExpr; // attach it now (it replaces the qualifier expression)
 			this.isOrphanCompletionNode = false;
 		}
+		this.assistNode = type;
+		this.lastCheckPoint = type.sourceEnd + 1;
+		
 		popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
 		return true;
 	}
@@ -616,7 +625,11 @@ private boolean checkClassLiteralAccess() {
 			this.identifierLengthPtr--; // it can only be a simple identifier (so its length is one)
 			
 			// get the type reference
-			TypeReference typeRef = getTypeReference(this.intStack[this.intPtr--]);
+			int dims = this.intStack[this.intPtr--];
+			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnAstLengthStack(0);
+
+			TypeReference typeRef = getTypeReference(dims);
 			
 			// build the completion on class literal access node
 			CompletionOnClassLiteralAccess access = new CompletionOnClassLiteralAccess(pos, typeRef);
@@ -827,6 +840,8 @@ private boolean checkInvocation() {
 				// creates an allocation expression 
 				CompletionOnQualifiedAllocationExpression allocExpr = new CompletionOnQualifiedAllocationExpression();
 				allocExpr.arguments = arguments;
+				pushOnAstLengthStack(0);
+				pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 				allocExpr.type = super.getTypeReference(0); // we don't want a completion node here, so call super
 				if (invocType == QUALIFIED_ALLOCATION) {
 					allocExpr.enclosingInstance = this.expressionStack[qualifierExprPtr];
@@ -1251,8 +1266,10 @@ protected void consumeEnterVariable() {
 			if(!checkKeyword() && !(currentElement instanceof RecoveredUnit && ((RecoveredUnit)currentElement).typeCount == 0)) {
 				int nameSourceStart = (int)(identifierPositionStack[identifierPtr] >>> 32);
 				intPtr--;
-				
-				TypeReference type = getTypeReference(intStack[intPtr--]);
+				int dims = intStack[intPtr--];
+				pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+				pushOnAstLengthStack(0);
+				TypeReference type = getTypeReference(dims);
 				intPtr--;
 				
 				if (!(currentElement instanceof RecoveredType)

@@ -692,11 +692,15 @@ protected TypeReference getTypeReference(int dim) {
 	/* build specific assist on type reference */
 	TypeReference reference;
 	if (index == 0) {
+		intPtr--;
+		astLengthPtr--;
 		/* assist inside first identifier */
 		reference = this.createSingleAssistTypeReference(
 						assistIdentifier(), 
 						positions[0]);
 	} else {
+		intPtr--;
+		astLengthPtr--;
 		/* assist inside subsequent identifier */
 		reference =	this.createQualifiedAssistTypeReference(
 						subset,  
