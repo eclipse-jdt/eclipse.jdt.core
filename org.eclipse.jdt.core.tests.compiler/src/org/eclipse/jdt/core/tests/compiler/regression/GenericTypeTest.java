@@ -4730,6 +4730,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"			return t;\n" + 
 				"		} else if (t instanceof X<String>) {\n" + 
 				"			return t;\n" + 
+				"		} else if (t instanceof X<?>) {\n" +  // ok
+				"			return t;\n" + 
 				"		} else 	if (t instanceof T) {\n" + 
 				"			return t;\n" + 
 				"		} else if (t instanceof X) {\n" + 
@@ -4750,7 +4752,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"	           ^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type X<String>. Use instead its raw form X since generic type information will be erased at runtime\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
 			"	} else 	if (t instanceof T) {\n" + 
 			"	       	    ^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object since generic type information will be erased at runtime\n" + 
