@@ -420,16 +420,14 @@ boolean isWorkingCopy();
  * this delta.
  * <p>
  * The boolean argument allows to force problem detection even if the
- * working copy is already consistent.
+ * working copy is already consistent.</p>
  * <p>
  * Compilation problems found in the new contents are notified through the
  * <code>IProblemRequestor</code> interface which was passed at
  * creation, and no longer as transient markers. Therefore this API answers
- * nothing.
+ * nothing.</p>
  * <p>
- * Note: It has been assumed that added inner types should
- * not generate change deltas.  The implementation has been
- * modified to reflect this assumption.
+ * Note: Since 3.0 added/removed/changed inner types generate change deltas.</p>
  *
  * @param forceProblemDetection boolean indicating whether problem should be recomputed
  *   even if the source hasn't changed.
@@ -460,9 +458,7 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  * creation, and no longer as transient markers. Therefore this API answers
  * nothing.
  * </p><p>
- * Note: It has been assumed that added inner types should
- * not generate change deltas.  The implementation has been
- * modified to reflect this assumption.
+ * Note: Since 3.0 added/removed/changed inner types generate change deltas.</p>
  * </p>
  *
  * @param forceProblemDetection boolean indicating whether problem should be recomputed

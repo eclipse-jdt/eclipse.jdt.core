@@ -67,39 +67,48 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 			CompilationUnit workingCopy = (CompilationUnit)getCompilationUnit();
 			IFile resource = (IFile)workingCopy.getResource();
 			ICompilationUnit primary = workingCopy.getPrimary();
+			boolean isPrimary = workingCopy.isPrimary();
 
 			JavaElementDeltaBuilder deltaBuilder = null;
 			
 			PackageFragmentRoot root = (PackageFragmentRoot)workingCopy.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			if (root.isOnClasspath() && resource.isAccessible()) {
-			
+				
 				// force opening so that the delta builder can get the old info
-				if (!primary.isOpen()) {
+				if (!isPrimary && !primary.isOpen()) {
 					primary.open(null);
 				}
 
-				// creates the delta builder (this remembers the content of the cu)	
-				if (!Util.isExcluded(primary)) {
+				// creates the delta builder (this remembers the content of the cu) if:
+				// - it is not excluded
+				// - and it is not a primary or it is a non-consistent primary
+				if (!Util.isExcluded(workingCopy) && (!isPrimary || !workingCopy.isConsistent())) {
 					deltaBuilder = new JavaElementDeltaBuilder(primary);
 				}
 			
 				// save the cu
 				IBuffer primaryBuffer = primary.getBuffer();
-				if (primaryBuffer == null) return;
-				char[] primaryContents = primaryBuffer.getCharacters();
-				boolean hasSaved = false;
-				try {
-					IBuffer workingCopyBuffer = workingCopy.getBuffer();
-					if (workingCopyBuffer == null) return;
-					primaryBuffer.setContents(workingCopyBuffer.getCharacters());
+				if (!isPrimary) {
+					if (primaryBuffer == null) return;
+					char[] primaryContents = primaryBuffer.getCharacters();
+					boolean hasSaved = false;
+					try {
+						IBuffer workingCopyBuffer = workingCopy.getBuffer();
+						if (workingCopyBuffer == null) return;
+						primaryBuffer.setContents(workingCopyBuffer.getCharacters());
+						primaryBuffer.save(fMonitor, fForce);
+						primary.makeConsistent(this);
+						hasSaved = true;
+					} finally {
+						if (!hasSaved){
+							// restore original buffer contents since something went wrong
+							primaryBuffer.setContents(primaryContents);
+						}
+					}
+				} else {
+					// for a primary working copy no need to set the content of the buffer again
 					primaryBuffer.save(fMonitor, fForce);
 					primary.makeConsistent(this);
-					hasSaved = true;
-				} finally {
-					if (!hasSaved){
-						// restore original buffer contents since something went wrong
-						primaryBuffer.setContents(primaryContents);
-					}
 				}
 			} else {
 				// working copy on cu outside classpath OR resource doesn't exist yet
