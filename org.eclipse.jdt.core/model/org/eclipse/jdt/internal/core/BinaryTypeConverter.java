@@ -107,12 +107,15 @@ public class BinaryTypeConverter {
 		methodDeclaration.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
 			String argumentTypeName = argumentTypeNames[i];
+			TypeReference typeReference = createTypeReference(Signature.toString(argumentTypeName).toCharArray());
+			if (isVarargs && i == argumentCount-1) {
+				typeReference.bits |= ASTNode.IsVarArgs;
+			}
 			methodDeclaration.arguments[i] = new Argument(
 				argumentNames[i].toCharArray(),
 				0,
-				createTypeReference(Signature.toString(argumentTypeName).toCharArray()),
-				CompilerModifiers.AccDefault,
-				isVarargs && i == argumentCount-1);
+				typeReference,
+				CompilerModifiers.AccDefault);
 			// do not care whether was final or not
 		}
 

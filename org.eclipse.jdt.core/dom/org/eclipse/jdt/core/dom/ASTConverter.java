@@ -811,7 +811,7 @@ class ASTConverter {
 		final int typeSourceEnd = argument.type.sourceEnd;
 		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, typeSourceEnd);
 		variableDecl.setExtraDimensions(extraDimensions);
-		final boolean isVarArgs = argument.isVarArgs;
+		final boolean isVarArgs = argument.isVarArgs();
 		if (isVarArgs && extraDimensions == 0) {
 			// remove the ellipsis from the type source end
 			argument.type.sourceEnd = retrieveEllipsisStartPosition(argument.type.sourceStart, typeSourceEnd);

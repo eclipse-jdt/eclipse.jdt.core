@@ -62,9 +62,16 @@ public class ArrayTypeReference extends SingleTypeReference {
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 	
-		super.printExpression(indent, output)  ;
-		for (int i= 0 ; i < dimensions ; i++) {
-			output.append("[]"); //$NON-NLS-1$
+		super.printExpression(indent, output);
+		if ((this.bits & IsVarArgs) != 0) {
+			for (int i= 0 ; i < dimensions - 1; i++) {
+				output.append("[]"); //$NON-NLS-1$
+			}
+			output.append("..."); //$NON-NLS-1$
+		} else {
+			for (int i= 0 ; i < dimensions; i++) {
+				output.append("[]"); //$NON-NLS-1$
+			}
 		}
 		return output;
 	}

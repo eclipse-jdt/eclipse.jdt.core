@@ -18,16 +18,14 @@ public class Argument extends LocalDeclaration {
 	
 	// prefix for setter method (to recognize special hiding argument)
 	private final static char[] SET = "set".toCharArray(); //$NON-NLS-1$
-	public boolean isVarArgs;
 	
-	public Argument(char[] name, long posNom, TypeReference tr, int modifiers, boolean isVarArgs) {
+	public Argument(char[] name, long posNom, TypeReference tr, int modifiers) {
 
 		super(name, (int) (posNom >>> 32), (int) posNom);
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		type = tr;
 		this.bits |= IsLocalDeclarationReachableMASK;
-		this.isVarArgs = isVarArgs;
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
@@ -63,6 +61,10 @@ public class Argument extends LocalDeclaration {
 		//true stand for argument instead of just local
 		this.binding.declaration = this;
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
+	}
+
+	public boolean isVarArgs() {
+		return (this.type.bits & IsVarArgs) != 0;
 	}
 
 	public StringBuffer print(int indent, StringBuffer output) {

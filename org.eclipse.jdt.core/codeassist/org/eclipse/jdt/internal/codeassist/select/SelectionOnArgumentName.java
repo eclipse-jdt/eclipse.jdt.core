@@ -18,9 +18,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnArgumentName extends Argument {
 	
-	public SelectionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers, boolean isVarArgs){
+	public SelectionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers){
 
-		super(name, posNom, tr, modifiers, isVarArgs);
+		super(name, posNom, tr, modifiers);
 	}
 	
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {

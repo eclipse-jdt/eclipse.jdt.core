@@ -301,13 +301,16 @@ public class SourceTypeConverter implements CompilerModifiers {
 		long position = ((long) start << 32) + end;
 		method.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
+			TypeReference typeReference = createTypeReference(argumentTypeNames[i], start, end);
+			if (isVarargs && i == argumentCount-1) {
+				typeReference.bits |= ASTNode.IsVarArgs;
+			}
 			method.arguments[i] =
 				new Argument(
 					argumentNames[i],
 					position,
-					createTypeReference(argumentTypeNames[i], start, end),
-					AccDefault,
-					isVarargs && i == argumentCount-1);
+					typeReference,
+					AccDefault);
 			// do not care whether was final or not
 		}
 

@@ -3198,7 +3198,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	this.intStack : dim dim
 	 ==>
 	this.astStack : Argument
-	this.identifierStack :  
+	this.identifierStack :   
 	this.intStack :  
 	*/
 
@@ -3218,6 +3218,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		if (extendedDimensions == 0) {
 			type.sourceEnd = endOfEllipsis;
 		}
+		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 	}
 	int modifierPositions = this.intStack[this.intPtr--];
 	this.intPtr--;
@@ -3226,8 +3227,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			identifierName, 
 			namePositions, 
 			type, 
-			this.intStack[this.intPtr + 1] & ~AccDeprecated,
-			isVarArgs); // modifiers
+			this.intStack[this.intPtr + 1] & ~AccDeprecated); // modifiers
 	arg.declarationSourceStart = modifierPositions;
 	// consume annotations
 	int length;

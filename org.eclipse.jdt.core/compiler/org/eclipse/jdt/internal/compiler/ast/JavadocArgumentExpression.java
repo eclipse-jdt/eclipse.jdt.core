@@ -26,7 +26,7 @@ public class JavadocArgumentExpression extends Expression {
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
 		long pos = (((long) startPos) << 32) + endPos;
-		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault, false);
+		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault);
 		this.bits |= InsideJavadoc;
 	}
 

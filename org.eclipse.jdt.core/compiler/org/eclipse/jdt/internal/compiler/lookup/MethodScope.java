@@ -317,10 +317,10 @@ public class MethodScope extends BlockScope {
 		Argument[] argTypes = method.arguments;
 		int argLength = argTypes == null ? 0 : argTypes.length;
 		if (argLength > 0 && environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
-			if (argTypes[--argLength].isVarArgs)
+			if (argTypes[--argLength].isVarArgs())
 				method.binding.modifiers |= AccVarargs;
 			while (--argLength >= 0) {
-				if (argTypes[argLength].isVarArgs)
+				if (argTypes[argLength].isVarArgs())
 					problemReporter().illegalVararg(argTypes[argLength], method);
 			}
 		}

@@ -2169,7 +2169,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			argument.type.traverse(this, scope);
 		}
 		
-		if (argument.isVarArgs) {
+		if (argument.isVarArgs()) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameELLIPSIS, this.preferences.insert_space_before_ellipsis);
 			if (this.preferences.insert_space_after_ellipsis) {
 				this.scribe.space();

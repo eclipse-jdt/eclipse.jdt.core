@@ -979,7 +979,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			argumentTypes[i] = CharOperation.concatWith(arguments[i].type.getParameterizedTypeName(), '.');
 			argumentNames[i] = arguments[i].name;
 		}
-		isVarArgs = arguments[argumentLength-1].isVarArgs;
+		isVarArgs = arguments[argumentLength-1].isVarArgs();
 	}
 	char[][] thrownExceptionTypes = null;
 	TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;

@@ -1585,6 +1585,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			if (extendedDimensions == 0) {
 				type.sourceEnd = endOfEllipsis;
 			}
+			type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 		}
 		intPtr -= 2;
 		CompletionOnArgumentName arg = 
@@ -1592,8 +1593,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				identifierName, 
 				namePositions, 
 				type, 
-				intStack[intPtr + 1] & ~AccDeprecated,
-				isVarArgs); // modifiers
+				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
 		// consume annotations
 		int length;
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {

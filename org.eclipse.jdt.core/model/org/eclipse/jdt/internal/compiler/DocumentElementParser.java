@@ -598,6 +598,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		if (extendedDimensions == 0) {
 			type.sourceEnd = endOfEllipsis;
 		}
+		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 	}
 	intPtr -= 3;
 	Argument arg = 
@@ -605,8 +606,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			parameterName, 
 			namePositions, 
 			type, 
-			intStack[intPtr + 1], // modifiers
-			isVarArgs);
+			intStack[intPtr + 1]);// modifiers
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
