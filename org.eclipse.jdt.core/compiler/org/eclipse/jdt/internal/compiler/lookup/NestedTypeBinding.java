@@ -182,7 +182,7 @@ public class NestedTypeBinding extends SourceTypeBinding {
 
 	public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 
-		return outerLocalVariables;		// is null if no enclosing instances are required
+		return outerLocalVariables;		// is null if no outer locals are required
 	}
 
 	/*
