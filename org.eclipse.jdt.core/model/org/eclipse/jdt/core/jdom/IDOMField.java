@@ -18,6 +18,9 @@ package org.eclipse.jdt.core.jdom;
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
 public interface IDOMField extends IDOMMember {
 /**

@@ -12,13 +12,15 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Stack;
 
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 /**
  * An abstract DOM builder that contains shared functionality of DOMBuilder and SimpleDOMBuilder.
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
 public class AbstractDOMBuilder extends ReferenceInfoAdapter implements ILineStartFinder {
 	/**
@@ -149,7 +151,7 @@ public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUni
  */
 public void enterCompilationUnit() {
  	if (fBuildingCU) {
-	 	IDOMCompilationUnit cu= new DOMCompilationUnit(fDocument, new int[] {0, fDocument.length - 1});
+ 		IDOMCompilationUnit cu= new DOMCompilationUnit(fDocument, new int[] {0, fDocument.length - 1});
  		fStack.push(cu);
  	}
 }

@@ -40,12 +40,6 @@ public static Test suite() {
 	// Source attachment tests
 	suite.addTest(AttachSourceTests.suite());
 	
-	//Create type source tests
-	suite.addTest(CreateTypeSourceExamplesTests.suite());
-
-	//Create method source tests
-	suite.addTest(CreateMethodSourceExamplesTests.suite());
-		
 	// Java search tests
 	suite.addTest(JavaSearchTests.suite());
 	suite.addTest(JavaSearchMultipleProjectsTests.suite());
@@ -162,8 +156,21 @@ public static Test suite() {
 
 	// Create compilation units tests
 	suite.addTest(CreateCompilationUnitTests.suite());
+	
+	includeDeprecatedJDOMTests(suite);
 
 	return suite;
+}
+
+/**
+ * @deprecated JDOM is obsolete
+ */
+private static void includeDeprecatedJDOMTests(TestSuite suite) {
+	//Create type source tests
+	suite.addTest(CreateTypeSourceExamplesTests.suite());
+
+	//Create method source tests
+	suite.addTest(CreateMethodSourceExamplesTests.suite());
 }
 
 }

@@ -13,8 +13,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.jdom.IDOMImport;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
@@ -23,8 +22,11 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  *
  * @see IDOMImport
  * @see DOMNode
- * TODO (jerome) - add implementation support for 1.5 features
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
+// TODO (jerome) - add implementation support for 1.5 features
 class DOMImport extends DOMNode implements IDOMImport {
 	/**
 	 * Indicates if this import is an on demand type import
@@ -166,7 +168,7 @@ public String toString() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMImport#getFlags()
+ * @see IDOMImport#getFlags()
  * @since 3.0
  */
 public int getFlags() {
@@ -174,7 +176,7 @@ public int getFlags() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMImport#setFlags(int)
+ * @see IDOMImport#setFlags(int)
  * @since 3.0
  */
 public void setFlags(int flags) {

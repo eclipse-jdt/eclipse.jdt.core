@@ -17,9 +17,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
-import org.eclipse.jdt.core.jdom.IDOMType;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
@@ -29,8 +27,11 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see IDOMType
  * @see DOMNode
- * TODO (jerome) - add implementation support for 1.5 features
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */ 
+// TODO (jerome) - add implementation support for 1.5 features
 /* package */ class DOMType extends DOMMember implements IDOMType {
 
 	private static final String[] EMPTY_SUPERINTERFACES = new String[] {};
@@ -735,7 +736,7 @@ public String toString() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMType#getTypeParameters()
+ * @see IDOMType#getTypeParameters()
  * @since 3.0
  */
 public String[] getTypeParameters() {
@@ -743,7 +744,7 @@ public String[] getTypeParameters() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMType#isEnum()
+ * @see IDOMType#isEnum()
  * @since 3.0
  */
 public boolean isEnum() {
@@ -751,7 +752,7 @@ public boolean isEnum() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMType#isAnnotation()
+ * @see IDOMType#isAnnotation()
  * @since 3.0
  */
 public boolean isAnnotation() {
@@ -759,7 +760,7 @@ public boolean isAnnotation() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMType#setEnum(boolean)
+ * @see IDOMType#setEnum(boolean)
  * @since 3.0
  */
 public void setEnum(boolean b) {
@@ -772,7 +773,7 @@ public void setEnum(boolean b) {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMType#setAnnotation(boolean)
+ * @see IDOMType#setAnnotation(boolean)
  * @since 3.0
  */
 public void setAnnotation(boolean b) {
@@ -786,7 +787,7 @@ public void setAnnotation(boolean b) {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMType#setTypeParameters(java.lang.String[])
+ * @see IDOMType#setTypeParameters(java.lang.String[])
  * @since 3.0
  */
 public void setTypeParameters(String[] typeParameters) {

@@ -21,9 +21,7 @@ import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -126,11 +124,21 @@ private String getSourceFor(IJavaElement element) throws JavaModelException {
 		IMember member = (IMember)element;
 		ICompilationUnit cu = member.getCompilationUnit();
 		String cuSource = cu.getSource();
-		IDOMCompilationUnit domCU = new DOMFactory().createCompilationUnit(cuSource, cu.getElementName());
-		IDOMNode node = ((JavaElement)element).findNode(domCU);
-		source = new String(node.getCharacters());
+		String cuName = cu.getElementName();
+		source = computeSourceForElement(element, cuSource, cuName);
 		this.sources.put(element, source);
 	}
+	return source;
+}
+/**
+ * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+ */
+// TODO - JDOM - remove once model ported off of JDOM
+private String computeSourceForElement(IJavaElement element, String cuSource, String cuName) {
+	String source;
+	IDOMCompilationUnit domCU = new DOMFactory().createCompilationUnit(cuSource, cuName);
+	IDOMNode node = ((JavaElement)element).findNode(domCU);
+	source = new String(node.getCharacters());
 	return source;
 }
 /**

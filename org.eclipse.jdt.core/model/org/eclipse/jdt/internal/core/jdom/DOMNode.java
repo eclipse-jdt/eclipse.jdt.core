@@ -12,12 +12,7 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
 
-import org.eclipse.jdt.core.jdom.DOMException;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.core.jdom.IDOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -53,6 +48,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  * node. 
  *
  * @see IDOMNode
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
 public abstract class DOMNode implements IDOMNode {
 

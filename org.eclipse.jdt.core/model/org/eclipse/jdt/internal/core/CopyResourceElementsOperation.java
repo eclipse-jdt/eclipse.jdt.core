@@ -61,7 +61,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	/**
 	 * The <code>DOMFactory</code> used to manipulate the source code of
 	 * <code>ICompilationUnit</code>.
+	 * @deprecated JDOM is obsolete
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	protected DOMFactory fFactory;
 	/**
 	 * A collection of renamed compilation units.  These cus do
@@ -83,6 +85,13 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 */
 	public CopyResourceElementsOperation(IJavaElement[] resourcesToCopy, IJavaElement[] destContainers, boolean force) {
 		super(resourcesToCopy, destContainers, force);
+		initializeDOMFactory();
+	}
+	/**
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+	 */
+    // TODO - JDOM - remove once model ported off of JDOM
+	private void initializeDOMFactory() {
 		fFactory = new DOMFactory();
 	}
 	/**
@@ -378,7 +387,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 *
 	 * @exception JavaModelException if the operation is unable to
 	 * complete
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	private void processPackageFragmentResource(IPackageFragment source, IPackageFragmentRoot root, String newName) throws JavaModelException {
 		try {
 			String newFragName = (newName == null) ? source.getElementName() : newName;
@@ -545,7 +556,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * declaration as necessary.
 	 *
 	 * @return the new source
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	private String updatedContent(ICompilationUnit cu, IPackageFragment dest, String newName) throws JavaModelException {
 		String currPackageName = cu.getParent().getElementName();
 		String destPackageName = dest.getElementName();
@@ -567,7 +580,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	}
 	/**
 	 * Makes sure that <code>cu</code> declares to be in the <code>pkgName</code> package.
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) {
 		boolean defaultPackage = pkgName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		boolean seenPackageNode = false;
@@ -630,7 +645,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	}
 		/**
 		 * Renames the main type in <code>cu</code>.
+	     * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 		 */
+        // TODO - JDOM - remove once model ported off of JDOM
 		private void updateTypeName(ICompilationUnit cu, IDOMCompilationUnit domCU, String oldName, String newName) throws JavaModelException {
 			if (newName != null) {
 				if (fRenamedCompilationUnits == null) {

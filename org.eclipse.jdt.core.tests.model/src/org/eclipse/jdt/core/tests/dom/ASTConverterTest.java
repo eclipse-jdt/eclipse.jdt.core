@@ -8342,6 +8342,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=15657
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
 	public void test0342() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0342", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

@@ -15,6 +15,9 @@ import org.eclipse.jdt.core.jdom.*;
 
 import junit.framework.Test;
 
+/**
+ * @deprecated JDOM is obsolete
+ */
 public class CreateMethodSourceExamplesTests extends AbstractJavaModelTests {
 	
 	IDOMFactory domFactory;

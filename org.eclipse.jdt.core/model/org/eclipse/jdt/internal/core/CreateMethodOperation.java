@@ -16,9 +16,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -42,10 +40,12 @@ public CreateMethodOperation(IType parentElement, String source, boolean force) 
 /**
  * Returns the type signatures of the parameter types of the
  * current <code>DOMMethod</code>
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected String[] convertDOMMethodTypesToSignatures() {
 	if (fParameterTypes == null) {
-		if (fDOMNode != null) {
+		if (isDOMNodeNull()) {
 			String[] domParameterTypes = ((IDOMMethod)fDOMNode).getParameterTypes();
 			if (domParameterTypes != null) {
 				fParameterTypes = new String[domParameterTypes.length];
@@ -61,7 +61,9 @@ protected String[] convertDOMMethodTypesToSignatures() {
 }
 /**
  * @see CreateTypeMemberOperation#generateElementDOM
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected IDOMNode generateElementDOM() throws JavaModelException {
 	if (fDOMNode == null) {
 		fDOMNode = (new DOMFactory()).createMethod(fSource);
@@ -72,7 +74,7 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 			}
 		}
-		if (fAlteredName != null && fDOMNode != null) {
+		if (fAlteredName != null && isDOMNodeNull()) {
 			fDOMNode.setName(fAlteredName);
 		}
 	}
@@ -86,13 +88,28 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
  */
 protected IJavaElement generateResultHandle() {
 	String[] types = convertDOMMethodTypesToSignatures();
+	String name = computeName();
+	return getType().getMethod(name, types);
+}
+/**
+ * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+ */
+// TODO - JDOM - remove once model ported off of JDOM
+private String computeName() {
 	String name;
 	if (((IDOMMethod) fDOMNode).isConstructor()) {
 		name = fDOMNode.getParent().getName();
 	} else {
-		name = fDOMNode.getName();
+		name = getDOMNodeName();
 	}
-	return getType().getMethod(name, types);
+	return name;
+}
+/**
+ * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+ */
+// TODO - JDOM - remove once model ported off of JDOM
+private String getDOMNodeName() {
+	return fDOMNode.getName();
 }
 /**
  * @see CreateElementInCUOperation#getMainTaskName()
@@ -104,9 +121,9 @@ public String getMainTaskName(){
  * @see CreateTypeMemberOperation#verifyNameCollision
  */
 protected IJavaModelStatus verifyNameCollision() {
-	if (fDOMNode != null) {
+	if (isDOMNodeNull()) {
 		IType type = getType();
-		String name = fDOMNode.getName();
+		String name = getDOMNodeName();
 		if (name == null) { //constructor
 			name = type.getElementName();
 		}
@@ -118,5 +135,12 @@ protected IJavaModelStatus verifyNameCollision() {
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;
+}
+/**
+ * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+ */
+// TODO - JDOM - remove once model ported off of JDOM
+private boolean isDOMNodeNull() {
+	return fDOMNode != null;
 }
 }
