@@ -20,7 +20,7 @@ public class Annotation extends AstNode {
 		this.sourceEnd = sourceEnd;
 	}
 		
-	/* (non-Javadoc)
+	/* 
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
