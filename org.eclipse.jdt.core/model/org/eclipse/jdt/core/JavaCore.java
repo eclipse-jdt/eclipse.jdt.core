@@ -195,29 +195,30 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (folder == null) {
 			return null;
 		}
-		if (folder.getName().indexOf('.') < 0) {
-			JavaProject project = (JavaProject) create(folder.getProject());
-			if (project == null)
+		JavaProject project = (JavaProject) create(folder.getProject());
+		if (project == null)
+			return null;
+		IJavaElement element = determineIfOnClasspath(folder, project);
+		try {
+			IPath outputLocation = project.getOutputLocation();
+			if (outputLocation == null)
 				return null;
-			IJavaElement element = determineIfOnClasspath(folder, project);
-			try {
-				IPath outputLocation = project.getOutputLocation();
-				if (outputLocation == null)
-					return null;
-				if (outputLocation.isPrefixOf(folder.getFullPath())) {
-					if (project.getClasspathEntryFor(outputLocation) != null) {
-						// if the output location is the same as an input location, return the element
-						return element;
-					} else {
-						// otherwise, do not create elements for folders in the output location
-						return null;
-					}
-				} else {
+			if (outputLocation.isPrefixOf(folder.getFullPath())) {
+				if (project.getClasspathEntryFor(outputLocation) != null) {
+					// if the output location is the same as an input location, return the element
 					return element;
+				} else {
+					// otherwise, do not create elements for folders in the output location
+					return null;
 				}
-			} catch (JavaModelException e) {
-				return null;
+			} else {
+				if (folder.getName().indexOf('.') >= 0 && !(element instanceof IPackageFragmentRoot)) {
+					return null; // only package fragment roots are allowed with dot names
+				}
+
+				return element;
 			}
+		} catch (JavaModelException e) {
 		}
 		return null;
 	}
