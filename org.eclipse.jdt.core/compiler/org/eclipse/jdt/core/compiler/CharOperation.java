@@ -168,7 +168,7 @@ public final class CharOperation {
 	 * 
 	 * @param charArrays the char array to convert
 	 * @return the char arrays as an array of Strings or null if the given char arrays is null.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static String[] charArrayToStringArray(char[][] charArrays) {
 		if (charArrays == null) {
@@ -185,7 +185,7 @@ public final class CharOperation {
 
 	 * @param charArray the char array to convert
 	 * @return the char array as a String or null if the given char array is null.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static String charToString(char[] charArray) {
 		if (charArray == null) {

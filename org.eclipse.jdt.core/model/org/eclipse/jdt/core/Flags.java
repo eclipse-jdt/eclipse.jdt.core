@@ -32,7 +32,7 @@ public final class Flags {
 
 	/**
 	 * Constant representing the absence of any flag
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static final int AccDefault = 0;
 	/**

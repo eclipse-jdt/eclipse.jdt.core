@@ -146,7 +146,7 @@ public class SuperFieldAccess extends Expression {
 	 *
 	 * @return the variable binding, or <code>null</code> if the binding cannot
 	 * be resolved
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public IVariableBinding resolveFieldBinding() {
 		return getAST().getBindingResolver().resolveField(this);

@@ -41,7 +41,7 @@ String getElementName();
  *      exception occurs while accessing its corresponding resource.
  * @return the modifier flags for this import
  * @see Flags
- * @since 2.2
+ * @since 3.0
  */
 // TODO: 1.5 feature disabled for now, will re-enable at a later stage
 //int getFlags() throws JavaModelException;

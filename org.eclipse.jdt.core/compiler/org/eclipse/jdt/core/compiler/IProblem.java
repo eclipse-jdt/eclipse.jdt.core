@@ -255,37 +255,37 @@ public interface IProblem {
 	// variable hiding
 	/**
 	 * The local variable {0} is hiding another local variable defined in an enclosing type scope 
-	 * @since 2.2 
+	 * @since 3.0
 	 */
 	int LocalVariableHidingLocalVariable = Internal + 90;		
 
 	/**
 	 * The local variable {0} is hiding the field {1}.{2} 
-	 * @since 2.2 
+	 * @since 3.0
 	 */
 	int LocalVariableHidingField = Internal + FieldRelated + 91;		
 	 
 	/**
 	 * The field {0}.{1} is hiding another local variable defined in an enclosing type scope
-	 * @since 2.2 
+	 * @since 3.0 
 	 */
 	int FieldHidingLocalVariable = Internal + FieldRelated + 92;		
 
 	/**
 	 * The field {0}.{1} is hiding the field {2}.{3}
-	 * @since 2.2 
+	 * @since 3.0 
 	 */
 	int FieldHidingField = Internal + FieldRelated + 93;		
 
 	/**
 	 * The argument {0} is hiding another local variable defined in an enclosing type scope
-	 * @since 2.2 
+	 * @since 3.0 
 	 */
 	int ArgumentHidingLocalVariable = Internal + 94;		
 
 	/**
 	 * The argument {0} is hiding the field {2}.{3}
-	 * @since 2.2 
+	 * @since 3.0 
 	 */
 	int ArgumentHidingField = Internal + 95;		
 
@@ -376,7 +376,7 @@ public interface IProblem {
 	// assignment
 	/** @since 2.1 */
 	int AssignmentHasNoEffect = Internal + 178;
-	/** @since 2.2 */
+	/** @since 3.0 */
 	int PossibleAccidentalBooleanAssignment = Internal + 179;
 
 	// inner emulation
