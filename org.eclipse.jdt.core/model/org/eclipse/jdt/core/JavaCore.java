@@ -2101,7 +2101,7 @@ public final class JavaCore extends Plugin {
 				}
 				// end bug 46854
 				// TODO Remove after M7
-				if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
+				else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
 					convertFormatterOptions(propertyName, value, options);
 				}
 			}
