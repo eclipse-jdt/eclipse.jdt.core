@@ -58,7 +58,7 @@ public class CastExpression extends Expression {
 		TypeBinding castType,
 		TypeBinding expressionType) {
 
-		// see specifications p.68
+		// see specifications 5.5
 		// handle errors and process constant when needed
 
 		// if either one of the type is null ==>
@@ -67,7 +67,10 @@ public class CastExpression extends Expression {
 
 		needRuntimeCheckcast = false;
 		if (castType == null || expressionType == null) return;
-		
+
+		// identity conversion cannot be performed upfront, due to side-effects
+		// like constant propagation
+				
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
@@ -75,7 +78,7 @@ public class CastExpression extends Expression {
 					constant = expression.constant; //use the same constant
 					return;
 				}
-				if (Scope.areTypesCompatible(expressionType, castType)
+				if (expressionType.isCompatibleWith(castType)
 					|| BaseTypeBinding.isNarrowing(castType.id, expressionType.id)) {
 					expression.implicitConversion = (castType.id << 4) + expressionType.id;
 					if (expression.constant != Constant.NotAConstant)
@@ -88,15 +91,20 @@ public class CastExpression extends Expression {
 		}
 
 		//-----------cast to something which is NOT a base type--------------------------	
-		if (expressionType == NullBinding) 
+		if (expressionType == NullBinding) {
+			//	if (castType.isArrayType()){ // 26903 - need checkcast when casting null to array type
+			//		needRuntimeCheckcast = true;
+			//	}
 			return; //null is compatible with every thing
-
+		}
 		if (expressionType.isBaseType()) {
 			scope.problemReporter().typeCastError(this, castType, expressionType);
 			return;
 		}
 
 		if (expressionType.isArrayType()) {
+			if (castType == expressionType) return; // identity conversion
+
 			if (castType.isArrayType()) {
 				//------- (castType.isArray) expressionType.isArray -----------
 				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType(scope);
@@ -136,13 +144,12 @@ public class CastExpression extends Expression {
 					needRuntimeCheckcast = true;
 					return;
 				}
-			} else if (
-				castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
-				if (Scope.areTypesCompatible(expressionType, castType)){ // no runtime error
+			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
+				if (expressionType.isCompatibleWith(castType)){ // no runtime error
 					if (castType.id == T_String) constant = expression.constant; // (String) cst is still a constant
 					return;
 				}
-				if (Scope.areTypesCompatible(castType, expressionType)) {
+				if (castType.isCompatibleWith(expressionType)) {
 					// potential runtime  error
 					needRuntimeCheckcast = true;
 					return;
@@ -150,7 +157,7 @@ public class CastExpression extends Expression {
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 				if (((ReferenceBinding) expressionType).isFinal()) {
 					// no subclass for expressionType, thus compile-time check is valid
-					if (Scope.areTypesCompatible(expressionType, castType)) 
+					if (expressionType.isCompatibleWith(castType)) 
 						return;
 				} else { // a subclass may implement the interface ==> no check at compile time
 					needRuntimeCheckcast = true;
@@ -175,15 +182,15 @@ public class CastExpression extends Expression {
 				return;
 			if (((ReferenceBinding) castType).isFinal()) {
 				// no subclass for castType, thus compile-time check is valid
-				if (!Scope.areTypesCompatible(castType, expressionType)) {
+				if (!castType.isCompatibleWith(expressionType)) {
 					// potential runtime error
 					scope.problemReporter().typeCastError(this, castType, expressionType);
 					return;
 				}
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
-			if (castType != expressionType
-					&& (Scope.compareTypes(castType, expressionType) == NotRelated)) {
+			if (castType == expressionType) return; // identity conversion
+			if (Scope.compareTypes(castType, expressionType) == NotRelated) {
 				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
 				MethodBinding[] expressionTypeMethods =
 					((ReferenceBinding) expressionType).methods();
@@ -197,7 +204,6 @@ public class CastExpression extends Expression {
 						}
 					}
 			}
-			return;
 		}
 		needRuntimeCheckcast = true;
 		return;
@@ -242,6 +248,14 @@ public class CastExpression extends Expression {
 				codeStream.generateImplicitConversion(implicitConversion);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+
+	public Expression innermostCastedExpression(){ 
+		Expression current = this.expression;
+		while (current instanceof CastExpression) {
+			current = ((CastExpression) current).expression;
+		}
+		return current;
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {

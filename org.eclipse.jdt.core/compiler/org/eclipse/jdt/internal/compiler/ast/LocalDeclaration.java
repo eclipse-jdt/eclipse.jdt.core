@@ -103,6 +103,13 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				initialization.generateCode(currentScope, codeStream, true);
 				// if binding unused generate then discard the value
 				if (binding.resolvedPosition != -1) {
+					// 26903, need extra cast to store null in array local var	
+					if (binding.type.isArrayType() 
+						&& (initialization.resolvedType == NullBinding	// arrayLoc = null
+							|| ((initialization instanceof CastExpression)	// arrayLoc = (type[])null
+								&& (((CastExpression)initialization).innermostCastedExpression().resolvedType == NullBinding)))){
+						codeStream.checkcast(binding.type); 
+					}					
 					codeStream.store(binding, false);
 					if (binding.initializationCount == 0) {
 						/* Variable may have been initialized during the code initializing it
@@ -178,7 +185,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				if (initTb != null) {
 					if (initialization.isConstantValueOfTypeAssignableToType(initTb, tb)
 						|| (tb.isBaseType() && BaseTypeBinding.isWidening(tb.id, initTb.id))
-						|| Scope.areTypesCompatible(initTb, tb))
+						|| initTb.isCompatibleWith(tb))
 						initialization.implicitWidening(tb, initTb);
 					else
 						scope.problemReporter().typeMismatchError(initTb, tb, this);
