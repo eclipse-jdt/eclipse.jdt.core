@@ -3031,16 +3031,16 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n" + 
 				"\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public class X <T extends String> {\n" + 
-		"	^\n" + 
-		"Type mismatch: Cannot convert from ? extends AX to the bounded parameter <T extends String> of the type X<T>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
-		"	                          ^^\n" + 
-		"Type mismatch: Cannot convert from AX<String> to the bounded parameter <T extends String> of the type X<T>\n" + 
-		"----------\n");		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
+			"	  ^^^^^^^^^^^^\n" + 
+			"Type mismatch: Cannot convert from ? extends AX to the bounded parameter <T extends String> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
+			"	                          ^^\n" + 
+			"Type mismatch: Cannot convert from AX<String> to the bounded parameter <T extends String> of the type X<T>\n" + 
+			"----------\n");		
 	}		
 }
