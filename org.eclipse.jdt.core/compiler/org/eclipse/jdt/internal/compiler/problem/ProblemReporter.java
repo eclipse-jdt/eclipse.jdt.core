@@ -2127,6 +2127,9 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		compUnitDecl == null ? 0 : compUnitDecl.sourceStart,
 		compUnitDecl == null ? 1 : compUnitDecl.sourceEnd);
 }
+public void javadocDuplicateReturnTag(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocDuplicateReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
 public void javadocInvalidParamName(JavadocSingleNameReference param, boolean duplicated) {
 	String[] arguments = new String[] {String.valueOf(param.token)};
 	this.handle(
@@ -2135,14 +2138,6 @@ public void javadocInvalidParamName(JavadocSingleNameReference param, boolean du
 					  arguments,
 					  param.sourceStart,
 					  param.sourceEnd);
-}
-public void javadocInvalidReturnTag(int sourceStart, int sourceEnd, boolean missing){
-	this.handle(
-			missing?IProblem.JavadocMissingReturnTag:IProblem.JavadocDuplicateReturnTag,
-				   NoArgument,
-				   NoArgument,
-				   sourceStart,
-				   sourceEnd);
 }
 public void javadocInvalidSeeReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -2179,6 +2174,9 @@ public void javadocMissingParamTag(Argument param) {
 			arguments,
 			param.sourceStart,
 			param.sourceEnd);
+}
+public void javadocMissingReturnTag(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissingReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingSeeReference(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);

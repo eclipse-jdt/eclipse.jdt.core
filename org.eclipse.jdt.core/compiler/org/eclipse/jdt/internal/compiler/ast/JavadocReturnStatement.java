@@ -33,14 +33,7 @@ public class JavadocReturnStatement extends ReturnStatement {
 					: methodBinding.returnType)
 				: VoidBinding;
 		if (methodType == VoidBinding) {
-			if (this.description != null) {
-				scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
-			}
-		}
-		else{
-			if (this.description == null) {
-				scope.problemReporter().javadocInvalidReturnTag(this.sourceStart, this.sourceEnd, true);
-			}
+			scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
 		}
 	}
 
