@@ -5811,5 +5811,25 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			false, // do not flush output
 			null);		
 	}			
-	
+	// check type variable equivalence
+	public void test212() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X<T>{\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"	X<T> _recurse; \n" + 
+				"	public List<T> toList(){\n" + 
+				"		List<T> result = new ArrayList<T>();\n" + 
+				"		result.addAll(_recurse.toList()); // should be applicable\n" + 
+				"		return result;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
 }
