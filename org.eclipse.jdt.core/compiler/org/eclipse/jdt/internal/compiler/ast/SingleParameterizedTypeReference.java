@@ -52,6 +52,22 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		return resolvedType;
 	}
 
+	public StringBuffer printExpression(int indent, StringBuffer output){
+		output.append(token);
+		output.append("<"); //$NON-NLS-1$
+		int max = typeArguments.length - 1;
+		for (int i= 0; i < max; i++) {
+			typeArguments[i].print(0, output);
+			output.append(", ");//$NON-NLS-1$
+		}
+		typeArguments[max].print(0, output);
+		output.append(">"); //$NON-NLS-1$
+		for (int i= 0 ; i < dimensions ; i++) {
+			output.append("[]"); //$NON-NLS-1$
+		}
+		return output;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(IAbstractSyntaxTreeVisitor, ClassScope)
 	 */

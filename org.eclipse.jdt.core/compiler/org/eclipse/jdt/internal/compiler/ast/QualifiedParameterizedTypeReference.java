@@ -27,4 +27,38 @@ public class QualifiedParameterizedTypeReference extends ArrayQualifiedTypeRefer
 		super(tokens, dim, positions);
 		this.typeArguments = typeArguments;
 	}
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		int length = tokens.length;
+		for (int i = 0; i < length - 1; i++) {
+			output.append(tokens[i]);
+			TypeReference[] typeArgument = typeArguments[i];
+			if (typeArgument != null) {
+				output.append('<');//$NON-NLS-1$
+				int max = typeArgument.length - 1;
+				for (int j = 0; j < max; j++) {
+					typeArgument[j].print(0, output);
+					output.append(", ");//$NON-NLS-1$
+				}
+				typeArgument[max].print(0, output);
+				output.append('>');
+			}
+			output.append('.');
+		}
+		output.append(tokens[length - 1]);
+		TypeReference[] typeArgument = typeArguments[length - 1];
+		if (typeArgument != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArgument.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArgument[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArgument[max].print(0, output);
+			output.append('>');
+		}
+		for (int i= 0 ; i < dimensions ; i++) {
+			output.append("[]"); //$NON-NLS-1$
+		}
+		return output;
+	}	
 }
