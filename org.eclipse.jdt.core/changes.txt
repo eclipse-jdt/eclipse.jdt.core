@@ -109,7 +109,7 @@ STREAM: 2.0
   What's new in this drop
   ================================================================================
   * CodeAssist provides variable name suggestions. 
-    API Changes on ICompletionRequestor
+    (breaking) API Changes on ICompletionRequestor
     + Added API for suggest variable name:
       void acceptVariableName(
           char[] typePackageName,
