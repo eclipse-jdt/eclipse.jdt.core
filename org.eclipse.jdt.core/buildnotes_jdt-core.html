@@ -148,7 +148,9 @@ Note: alternatively, it could be specified on a per project basis, by adding lin
 <b><font color="#0000ff">import static</font></b> <i><font color="#A0A0A0">type</font></i>.*;
 <b><font color="#0000ff">import static</font></b> <i><font color="#A0A0A0">type</font></i>.<i><font color="#A0A0A0">identifier</font></i>;
 </pre>
-Search supports this new syntax and is able to find referenced type, field and/or member.
+Search now supports this new syntax and is able to find referenced type, field and/or member.
+This support requires the index version to be incremented. Indexes will be automatically regenerated upon
+subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
 </ul>
 
