@@ -2168,6 +2168,14 @@ public void notCompatibleTypesError(InstanceOfExpression expression, TypeBinding
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void objectCannotHaveSuperTypes(SourceTypeBinding type) {
+	this.handle(
+		IProblem.ObjectCannotHaveSuperTypes,
+		NoArgument,
+		NoArgument,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 public void operatorOnlyValidOnNumericType(CompoundAssignment  assignment, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());

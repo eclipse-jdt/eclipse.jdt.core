@@ -388,6 +388,7 @@ public interface IProblem {
 	int MustSpecifyPackage = 326;
 	int HierarchyHasProblems = TypeRelated + 327;
 	int PackageIsNotExpectedPackage = 328;
+	int ObjectCannotHaveSuperTypes = 329;
 
 	// int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
