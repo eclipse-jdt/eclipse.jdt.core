@@ -16,6 +16,12 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Changed the package fragment caching policy so as to accomodate large workspaces. It used to be an overflowing LRU cache of size 1000
+package fragments. It now is a simple table, which is never emptied implicitly any longer. Memory overhead looks negligeable, and it allows to
+deal much better with very large workspaces. Other similar improvements were made on the same front so as to improve JRE switching with such
+workspaces.
+
+</li>
 <li> ElementChangedEvent got added notion of type (similar to IResourceChangeEvent), so as to better
 allow clients to react to JavaModel changes: 
 	<ul> 
@@ -122,7 +128,9 @@ allow clients to react to JavaModel changes:
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13233">13233</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13393 ">13393 </a>
+Extremely poor java editor performance in 2002040x
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13233">13233</a>
 IllegalArgumentException on variable declaration in evaluation 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13625">13625</a>
 Remove deprecated method from AST/DOM 
