@@ -45,13 +45,9 @@ class BindingComparator {
 			for (int i = 0; i < length; i++) {
 				TypeVariableBinding typeVariableBinding = bindings[i];
 				TypeVariableBinding typeVariableBinding2 = otherBindings[i];
-				if (CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
-						&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, false)
-						&& isEqual(typeVariableBinding.superclass, typeVariableBinding2.superclass, false)
-						&& isEqual(typeVariableBinding.superInterfaces, typeVariableBinding2.superInterfaces, false)) {
-					continue;
+				if (!isEqual(typeVariableBinding, typeVariableBinding2)) {
+					return false;
 				}
-				return false;
 			}
 			return true;
 		}
@@ -112,15 +108,15 @@ class BindingComparator {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding2,
 			boolean checkTypeVariables) {
 		if (checkTypeVariables) {
-			if (!isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, false)) {
+			if (!isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, true)
+					|| !isEqual(methodBinding.parameters, methodBinding2.parameters, true)) {
 				return false;
 			}
 		}
 		return (methodBinding == null && methodBinding2 == null)
 			|| (CharOperation.equals(methodBinding.selector, methodBinding2.selector)
-				&& isEqual(methodBinding.returnType, methodBinding2.returnType, false) 
-				&& isEqual(methodBinding.parameters, methodBinding2.parameters, false)
-				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, false)
+				&& isEqual(methodBinding.returnType, methodBinding2.returnType, checkTypeVariables) 
+				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, checkTypeVariables)
 				&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass, true));
 	}
 
@@ -134,8 +130,8 @@ class BindingComparator {
 	static boolean isEqual(FieldBinding fieldBinding, FieldBinding fieldBinding2) {
 		return fieldBinding.modifiers == fieldBinding2.modifiers
 				&& CharOperation.equals(fieldBinding.name, fieldBinding2.name)
-				&& isEqual(fieldBinding.type, fieldBinding2.type, false)
-				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass, false);
+				&& isEqual(fieldBinding.type, fieldBinding2.type, true)
+				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass, true);
 	}
 
 	/**
@@ -224,7 +220,7 @@ class BindingComparator {
 					return false;
 				}
 				if (checkTypeVariables) {
-					if (!isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), false)) {
+					if (!isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), true)) {
 						return false;
 					}
 				}
@@ -244,8 +240,8 @@ class BindingComparator {
 				if (checkTypeVariables) {
 					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
 						&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, false)
-						&& isEqual(typeVariableBinding.superclass, typeVariableBinding2.superclass, false)
-						&& isEqual(typeVariableBinding.superInterfaces, typeVariableBinding2.superInterfaces, false);
+						&& isEqual(typeVariableBinding.superclass, typeVariableBinding2.superclass, true)
+						&& isEqual(typeVariableBinding.superInterfaces, typeVariableBinding2.superInterfaces, true);
 				} else {
 					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName);
 				}
