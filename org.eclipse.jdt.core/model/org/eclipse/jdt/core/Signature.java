@@ -209,13 +209,20 @@ public final class Signature {
 	public static final char C_STAR	= '*';
 	
 	/**
+	 * Character constant indicating an exception in a signature.
+	 * Value is <code>'^'</code>.
+	 * @since 3.1
+	 */
+	public static final char C_EXCEPTION_START	= '^';
+	
+	/**
 	 * Character constant indicating a bound wildcard type argument 
 	 * in a signature with extends clause.
 	 * Value is <code>'+'</code>.
 	 * @since 3.1
 	 */
 	public static final char C_EXTENDS	= '+';
-	
+
 	/**
 	 * Character constant indicating a bound wildcard type argument 
 	 * in a signature with super clause.
@@ -1125,18 +1132,28 @@ public static String[] getThrownExceptionTypes(String methodSignature) throws Il
  */
 public static char[][] getThrownExceptionTypes(char[] methodSignature) throws IllegalArgumentException {
 	// skip type parameters
-	int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
-	if (paren == -1) {
+	int exceptionStart = CharOperation.indexOf(C_EXCEPTION_START, methodSignature);
+	if (exceptionStart == -1) {
+		int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
+		if (paren == -1) {
+			throw new IllegalArgumentException();
+		}
+		// ignore return type
+		exceptionStart = Util.scanTypeSignature(methodSignature, paren+1) + 1;
+		int length = methodSignature.length;
+		if (exceptionStart == length) return CharOperation.NO_CHAR_CHAR;
 		throw new IllegalArgumentException();
 	}
-	// ignore return type
-	int exceptionStart = Util.scanTypeSignature(methodSignature, paren+1) + 1;
 	int length = methodSignature.length;
-	if (exceptionStart == length) return CharOperation.NO_CHAR_CHAR;
-	
-	ArrayList exceptionList = new ArrayList(1);
 	int i = exceptionStart;
+	ArrayList exceptionList = new ArrayList(1);
 	while (i < length) {
+		if (methodSignature[i] == C_EXCEPTION_START) {
+			exceptionStart++;
+			i++;
+		} else {
+			throw new IllegalArgumentException();			
+		}
 		i = Util.scanTypeSignature(methodSignature, i) + 1;
 		exceptionList.add(CharOperation.subarray(methodSignature, exceptionStart,i));	
 		exceptionStart = i;

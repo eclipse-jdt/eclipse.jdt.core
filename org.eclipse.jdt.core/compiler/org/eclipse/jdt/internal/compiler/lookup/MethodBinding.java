@@ -352,8 +352,8 @@ public char[] genericSignature() {
 		}
 	}
 	if (needExceptionSignatures) {
-		sig.append('^');
 		for (int i = 0; i < length; i++) {
+			sig.append('^');
 			sig.append(this.thrownExceptions[i].genericTypeSignature());
 		}
 	}

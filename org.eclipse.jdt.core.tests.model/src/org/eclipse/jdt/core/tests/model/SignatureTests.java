@@ -398,12 +398,32 @@ public void testGetThrownExceptionTypes() {
 	}
 	
 	// tests with 1.5-specific elements
-	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)IQexception;Qerror;";
+	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)I^Qexception;^Qerror;";
 	assertStringsEqual("Signature#getThrownExceptionTypes is not correct2", "Qexception;\nQerror;\n",
 			Signature.getThrownExceptionTypes(methodSig));
-	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;Qexception<TT;>;Qerror;";
+	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;^Qexception<TT;>;^Qerror;";
 	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "Qexception<TT;>;\nQerror;\n",
 			Signature.getThrownExceptionTypes(methodSig));
+	
+	methodSig = "<T:Ljava/lang/Exception;>()V^TT;";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "TT;\n",
+			Signature.getThrownExceptionTypes(methodSig));
+	methodSig = "<T:Ljava/lang/Exception;>()V^TT;^Ljava/lang/Exception;";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "TT;\nLjava/lang/Exception;\n",
+			Signature.getThrownExceptionTypes(methodSig));
+	
+	try {
+		Signature.getThrownExceptionTypes("<T:Ljava/lang/Exception;>()VTT;");
+		assertTrue("Signature#getThrownExceptionTypes is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+	
+	try {
+		Signature.getThrownExceptionTypes("<T:Ljava/lang/Exception;>()V^TT;Ljava/lang/Exception;");
+		assertTrue("Signature#getThrownExceptionTypes is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {}
+
 }
 /**
  * @see Signature
