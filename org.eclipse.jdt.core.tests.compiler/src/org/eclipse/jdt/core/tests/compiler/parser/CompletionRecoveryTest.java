@@ -830,7 +830,7 @@ public void test21() {
 		"public class Test {					\n" +
 		"	void foo() {						\n" +
 		"		try {							\n" +
-		"			crap						\n" +
+		"			bar						\n" +
 		"		} catch (Exception e) {			\n" +
 		"			e							\n" +
 		"		}								\n" +

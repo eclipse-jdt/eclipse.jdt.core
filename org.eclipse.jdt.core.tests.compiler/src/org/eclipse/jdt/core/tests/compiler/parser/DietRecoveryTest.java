@@ -5078,13 +5078,13 @@ public void test91() {
 		"public interface Spew {		\n" +
 		"	void foo();					\n" +
 		"	void bar();					\n" +
-		"	public spew(Crap x, int y);	\n" +
+		"	public spew(X x, int y);	\n" +
 		"}								\n";
 	String expectedDietUnitToString = 
 		"public interface Spew {\n" + 
 		"  void foo();\n" + 
 		"  void bar();\n" + 
-		"  public spew(Crap x, int y) {\n" + 
+		"  public spew(X x, int y) {\n" + 
 		"  }\n" + 
 		"}\n";
 	
