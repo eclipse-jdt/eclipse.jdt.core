@@ -3365,6 +3365,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The compilation unit is malformed", !isMalformed(result)); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
+		assertTrue("The method is not original", isOriginal(node)); //$NON-NLS-1$
 		assertTrue("The method is not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 

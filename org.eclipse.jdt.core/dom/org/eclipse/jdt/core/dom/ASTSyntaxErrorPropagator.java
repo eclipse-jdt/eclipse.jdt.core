@@ -57,7 +57,7 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 			int start = node.getStartPosition();
 			int end = start + node.getLength();
 			if ((start <= position) && (position <= end)) {
-				node.setFlags(ASTNode.MALFORMED);
+				node.setFlags(node.getFlags() | ASTNode.MALFORMED);
 				// clear the bits on parent
 				ASTNode currentNode = node.getParent();
 				while (currentNode != null) {

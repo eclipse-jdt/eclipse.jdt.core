@@ -769,7 +769,7 @@ class ASTConverter {
 				}
 			}
 			if (block != null && (Modifier.isAbstract(methodDecl.getModifiers()) || Modifier.isNative(methodDecl.getModifiers()))) {
-				methodDecl.setFlags(ASTNode.MALFORMED);
+				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 			}
 		} else {
 			// syntax error in this method declaration
@@ -2674,7 +2674,7 @@ class ASTConverter {
 		int end = retrievePositionBeforeNextCommaOrSemiColon(fieldDeclaration.sourceEnd, fieldDeclaration.declarationSourceEnd);
 		if (end == -1) {
 			variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.declarationSourceEnd - fieldDeclaration.sourceStart + 1);
-			variableDeclarationFragment.setFlags(ASTNode.MALFORMED);
+			variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
 		} else {
 			variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, end - fieldDeclaration.sourceStart + 1);
 		}
