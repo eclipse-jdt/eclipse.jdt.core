@@ -1488,12 +1488,14 @@ protected void assertDeltas(String message, String expected) {
 			//copy either file that is missing or less recent than the one in workspace
 			java.io.File resourceJCLMin =
 				new java.io.File(resourceJCLDir + separator + jclName + ".jar");
-			if (jclMin.lastModified() < resourceJCLMin.lastModified()) {
+			if ((jclMin.lastModified() < resourceJCLMin.lastModified())
+                    || (jclMin.length() != resourceJCLMin.length())) {
 				copy(resourceJCLMin, jclMin);
 			}
 			java.io.File resourceJCLMinsrc =
 				new java.io.File(resourceJCLDir + separator + jclName + "src.zip");
-			if (jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified()) {
+			if ((jclMinsrc.lastModified() < resourceJCLMinsrc.lastModified())
+                    || (jclMinsrc.length() != resourceJCLMinsrc.length())) {
 				copy(resourceJCLMinsrc, jclMinsrc);
 			}
 		}
