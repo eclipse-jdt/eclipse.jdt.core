@@ -333,11 +333,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		}
 
 		if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)) {
-			if (targetSetting != null && targetSetting.equals("1.1")) { //$NON-NLS-1$	
-				cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
-			} else {
-				cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
-			}
+			cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
 		} else {
 			cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
 		}
