@@ -23,4 +23,5 @@ public interface ProblemReasons {
 	final int IllegalSuperTypeVariable = 9;
 	final int ParameterBoundMismatch = 10; // for generic method
 	final int TypeParameterArityMismatch = 11; // for generic method
+	final int ParameterizedMethodTypeMismatch = 12; // for generic method
 }

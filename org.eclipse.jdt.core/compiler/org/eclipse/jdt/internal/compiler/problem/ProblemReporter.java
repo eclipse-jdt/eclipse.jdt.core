@@ -1730,7 +1730,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			shownConstructor = problemConstructor.closestMatch;
 			if (shownConstructor.typeVariables == TypeConstants.NoTypeVariables) {
 				this.handle(
-					IProblem.NonGenericConstructor ,
+					IProblem.NonGenericConstructor,
 					new String[] { 
 					        new String(shownConstructor.declaringClass.sourceName()),
 					        parametersAsString(shownConstructor.parameters, false), 
@@ -1762,7 +1762,26 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 					statement.sourceEnd);		    
 			}
 			return;
-
+		case ParameterizedMethodTypeMismatch :
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			shownConstructor = problemConstructor.closestMatch;
+			this.handle(
+				IProblem.ParameterizedConstructorArgumentTypeMismatch,
+				new String[] { 
+				        new String(shownConstructor.declaringClass.sourceName()),
+				        parametersAsString(shownConstructor.parameters, false), 
+				        new String(shownConstructor.declaringClass.readableName()), 
+						parametersAsString(((ParameterizedGenericMethodBinding)shownConstructor).typeArguments, false),
+				        parametersAsString(targetConstructor.parameters, false) },
+				new String[] { 
+				        new String(shownConstructor.declaringClass.sourceName()),
+				        parametersAsString(shownConstructor.parameters, true), 
+				        new String(shownConstructor.declaringClass.shortReadableName()), 
+						parametersAsString(((ParameterizedGenericMethodBinding)shownConstructor).typeArguments, true),
+				        parametersAsString(targetConstructor.parameters, true) },
+				statement.sourceStart,
+				statement.sourceEnd);		    
+			return;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -2127,6 +2146,26 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					(int) (messageSend.nameSourcePosition >>> 32),
 					(int) messageSend.nameSourcePosition);		    
 			}
+			return;
+		case ParameterizedMethodTypeMismatch :
+			problemMethod = (ProblemMethodBinding) method;
+			shownMethod = problemMethod.closestMatch;
+			this.handle(
+				IProblem.ParameterizedMethodArgumentTypeMismatch,
+				new String[] { 
+				        new String(shownMethod.selector),
+				        parametersAsString(shownMethod.parameters, false), 
+				        new String(shownMethod.declaringClass.readableName()), 
+						parametersAsString(((ParameterizedGenericMethodBinding)shownMethod).typeArguments, false),
+				        parametersAsString(method.parameters, false) },
+				new String[] { 
+				        new String(shownMethod.selector),
+				        parametersAsString(shownMethod.parameters, true), 
+				        new String(shownMethod.declaringClass.shortReadableName()), 
+						parametersAsString(((ParameterizedGenericMethodBinding)shownMethod).typeArguments, true),
+				        parametersAsString(method.parameters, true) },
+				(int) (messageSend.nameSourcePosition >>> 32),
+				(int) messageSend.nameSourcePosition);		    
 			return;
 			
 		case NoError : // 0

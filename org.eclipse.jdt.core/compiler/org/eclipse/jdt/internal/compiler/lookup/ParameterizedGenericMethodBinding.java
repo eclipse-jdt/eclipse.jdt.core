@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  */
 public class ParameterizedGenericMethodBinding extends ParameterizedMethodBinding implements Substitution {
 
-    private TypeBinding[] typeArguments; 
+    public TypeBinding[] typeArguments; 
     private LookupEnvironment environment;
     public boolean inferredReturnType;
     

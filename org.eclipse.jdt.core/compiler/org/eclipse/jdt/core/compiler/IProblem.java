@@ -896,9 +896,13 @@ public interface IProblem {
 	/** @since 3.1 */
 	int IncorrectArityForParameterizedMethod = TypeRelated + 551;
 	/** @since 3.1 */
-	int NonGenericConstructor = TypeRelated + 552;
+	int ParameterizedMethodArgumentTypeMismatch = TypeRelated + 552;
 	/** @since 3.1 */
-	int IncorrectArityForParameterizedConstructor = TypeRelated + 553;
+	int NonGenericConstructor = TypeRelated + 553;
+	/** @since 3.1 */
+	int IncorrectArityForParameterizedConstructor = TypeRelated + 554;
+	/** @since 3.1 */
+	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 555;
 	
 	/**
 	 * Foreach

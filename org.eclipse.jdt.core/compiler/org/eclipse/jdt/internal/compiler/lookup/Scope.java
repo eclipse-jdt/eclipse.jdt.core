@@ -107,6 +107,9 @@ public abstract class Scope
 					break argumentCompatibility;
 			return method; // compatible
 		}
+		if (genericTypeArguments != null) {
+			return new ProblemMethodBinding(method, method.selector, arguments, ParameterizedMethodTypeMismatch);
+		}
 		return null; // incompatible
 	}
 	
@@ -1268,8 +1271,12 @@ public abstract class Scope
 			compilationUnitScope().recordTypeReference(receiverType);
 			compilationUnitScope().recordTypeReferences(argumentTypes);
 			MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
-			if (methodBinding != null && methodBinding.canBeSeenBy(invocationSite, this))
+			if (methodBinding != null && methodBinding.canBeSeenBy(invocationSite, this)) {
+			    // targeting a non generic constructor with type arguments ?
+			    if (invocationSite.genericTypeArguments() != null)
+			    	methodBinding = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);				
 				return methodBinding;
+			}
 			MethodBinding[] methods = receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
 			if (methods == NoMethods)
 				return new ProblemMethodBinding(

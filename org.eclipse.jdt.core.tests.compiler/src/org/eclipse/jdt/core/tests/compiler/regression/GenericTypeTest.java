@@ -5332,4 +5332,109 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The method foo() of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
 			"----------\n");
 	}		
+	// parameterized allocation
+	public void test190() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T> X(T t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new <String>X(\"SUCCESS\");\n" + 
+				"	\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}		
+	// parameterized allocation - wrong arity
+	public void test191() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T> X(T t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new <String, String>X(\"FAILED\");\n" + 
+				"	\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	new <String, String>X(\"FAILED\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Incorrect number of type arguments for generic constructor <T>X(T) of type X; it cannot be parameterized with arguments <String, String>\n" + 
+			"----------\n");
+	}			
+	// parameterized allocation - non generic target constructor
+	public void test192() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public X(String t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new <String>X(\"FAILED\");\n" + 
+				"	\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	new <String>X(\"FAILED\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	}			
+	// parameterized allocation - argument type mismatch
+	public void test193() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T> X(T t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new <String>X(new X(null));\n" + 
+				"	\n" + 
+				"}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	new <String>X(new X(null));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
+			"----------\n");
+	}			
+	// parameterized invocation - argument type mismatch
+	public void test194() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	<T> void foo(T t) {\n" + 
+				"		return;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(new X().<String>foo(new X()));\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(new X().<String>foo(new X()));\n" + 
+			"	                                   ^^^\n" + 
+			"The parameterized method <String>foo(String) of type X is not applicable for the arguments (X)\n" + 
+			"----------\n");
+	}
 }
