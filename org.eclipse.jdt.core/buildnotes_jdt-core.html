@@ -16,6 +16,12 @@ Eclipse SDK Build 200203?? - ??th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Performance improvement of index queries with the <code>WaitUntilReady</code> policy. 
+	The background indexer now takes all the CPU when another thread is waiting for it to 
+	finish indexing.
+    User will notice this improvement when doing a search or opening a type and there are 
+    still files to index.
+</li>
 <li>Scanner API
 	<ul>
 		<li>defined scanner API (see <code>org.eclipse.jdt.core.compiler.IScanner</code>). </li>
