@@ -2662,7 +2662,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <code>ClasspathContainerInitializer</code> for each referenced container 
 	 * (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
 	 * <p>
-	 * 
+	 * Note: setting a container to <code>null</code> will cause it to be lazily resolved again whenever
+	 * its value is required. In particular, this will cause a registered initializer to be invoked
+	 * again.
+	 * <p>
 	 * @param containerPath - the name of the container reference, which is being updated
 	 * @param affectedProjects - the set of projects for which this container is being bound
 	 * @param respectiveContainers - the set of respective containers for the affected projects
