@@ -12677,7 +12677,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"	);
 	}		
 
-		//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671 - variation
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671 - variation
 	public void test472() {
 		this.runNegativeTest(
 			new String[] {
@@ -12751,5 +12751,59 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^^^^^^^^^^^^\n" + 
 			"The type Foo.Bar is not visible\n" + 
 			"----------\n");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81594
+	public void test473() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X\n" + 
+				"{\n" + 
+				"	List<B> itsList;\n" + 
+				"	B itsB;\n" + 
+				"	MyTyped itsTyped;\n" + 
+				"	\n" + 
+				"	\n" + 
+				"	public void test()\n" + 
+				"	{\n" + 
+				"		method (itsList, itsB, itsTyped);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public <T> void method (List<? extends T> arg1, T arg2, Typed<? super T> arg3)\n" + 
+				"	{\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	interface A{}\n" + 
+				"	class B implements A{}\n" + 
+				"	class Typed<T>{}\n" + 
+				"	class MyTyped extends Typed<A>{}\n" + 
+				"\n" + 
+				"}\n"
+			},
+			"");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81594 - variation
+	public void test474() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	Typed<B> itsList;\n" + 
+				"	Typed<A> itsTyped;\n" + 
+				"	public void test() {\n" + 
+				"		method(itsList, itsTyped);\n" + 
+				"	}\n" + 
+				"	public <T> void method(Typed<? extends T> arg1, Typed<? super T> arg3) {\n" + 
+				"	}\n" + 
+				"	interface A {\n" + 
+				"	}\n" + 
+				"	class B implements A {\n" + 
+				"	}\n" + 
+				"	class Typed<T> {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
 	}	
 }
