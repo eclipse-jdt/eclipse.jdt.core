@@ -14,12 +14,13 @@ import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 
 import junit.framework.*;
 
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
-	
+	WorkingCopyOwner owner = null; 
 public static Test suite() {
 	TestSuite suite = new Suite(ResolveTests_1_5.class.getName());		
 
@@ -40,12 +41,15 @@ public static Test suite() {
 public ResolveTests_1_5(String name) {
 	super(name);
 }
+public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+	return super.getWorkingCopy(path, source, this.owner, null);
+}
 private IJavaElement[] select(String path, String source, String selection) throws JavaModelException {
 	this.wc = getWorkingCopy(path, source);
 	String str = wc.getSource();
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
-	return wc.codeSelect(start, length);
+	return wc.codeSelect(start, length, this.owner);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -54,7 +58,11 @@ public void setUpSuite() throws Exception {
 	
 	waitUntilIndexesReady();
 }
-
+protected void setUp() throws Exception {
+	super.setUp();
+	
+	this.owner = new WorkingCopyOwner(){};
+}
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
 	
@@ -1869,5 +1877,67 @@ public void test0086() throws JavaModelException {
 		"",
 		elements
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82137
+public void test0087() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/p/MyClass0087.java",
+				"package p;\n" +
+				"public class MyClass0087 {\n" +
+				"   public static int bar = 0;\n" +
+				"}");
+		
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0087/Test.java",
+				"import static p.MyClass0087.bar;\n" +
+				"package test0087;\n" +
+				"public class Test {\n" +
+				"}",
+				"bar");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"bar [in MyClass0087 [in [Working copy] MyClass0087.java [in p [in src2 [in Resolve]]]]]",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82137
+public void test0088() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/p/MyClass0088.java",
+				"package p;\n" +
+				"public class MyClass0088 {\n" +
+				"   public static void foo() {}\n" +
+				"   public static void foo(int i) {}\n" +
+				"}");
+		
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0088/Test.java",
+				"import static p.MyClass0088.foo;\n" +
+				"package test0088;\n" +
+				"public class Test {\n" +
+				"}",
+				"foo");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"foo(int) [in MyClass0088 [in [Working copy] MyClass0088.java [in p [in src2 [in Resolve]]]]]\n" + 
+			"foo() [in MyClass0088 [in [Working copy] MyClass0088.java [in p [in src2 [in Resolve]]]]]",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
 }
 }

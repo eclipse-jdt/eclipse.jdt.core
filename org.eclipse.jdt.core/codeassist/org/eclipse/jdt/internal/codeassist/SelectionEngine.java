@@ -669,6 +669,23 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.noProposal = false;
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), this);
+							
+							if(importReference.isStatic()) {
+								this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+								if ((this.unitScope = parsedUnit.scope) != null) {
+									int tokenCount = tokens.length;
+									char[] lastToken = tokens[tokenCount - 1];
+									char[][] qualifierTokens = CharOperation.subarray(tokens, 0, tokenCount - 1);
+									
+									Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
+									if(binding != null && binding instanceof ReferenceBinding) {
+										ReferenceBinding ref = (ReferenceBinding) binding;
+										selectStaticFieldFromStaticImport(parsedUnit, lastToken, ref);
+										selectStaticMethodFromStaticImport(parsedUnit, lastToken, ref);
+									}
+								}
+							}
+							
 							// accept qualified types only if no unqualified type was accepted
 							if(!this.acceptedAnswer) {
 								acceptQualifiedTypes();
@@ -742,6 +759,52 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		} finally {
 			reset();
+		}
+	}
+
+	private void selectStaticFieldFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
+		int fieldLength = lastToken.length;
+		FieldBinding[] fields = ref.fields();
+		next : for (int j = 0; j < fields.length; j++) {
+			FieldBinding field = fields[j];
+			
+			if (fieldLength > field.name.length)
+				continue next;
+			
+			if (field.isSynthetic())
+				continue next;
+
+			if (!field.isStatic())
+				continue next;
+
+			if (!CharOperation.equals(lastToken, field.name, true))
+				continue next;
+			
+			this.selectFrom(field, parsedUnit, false);
+		}
+	}
+	
+	private void selectStaticMethodFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
+		int methodLength = lastToken.length;
+		MethodBinding[] methods = ref.methods();
+		next : for (int j = 0; j < methods.length; j++) {
+			MethodBinding method = methods[j];
+			
+			if (method.isSynthetic()) continue next;
+
+			if (method.isDefaultAbstract())	continue next;
+
+			if (method.isConstructor()) continue next;
+
+			if (!method.isStatic()) continue next;
+
+			if (methodLength > method.selector.length)
+				continue next;
+
+			if (!CharOperation.equals(lastToken, method.selector, true))
+				continue next;
+			
+			this.selectFrom(method, parsedUnit, false);
 		}
 	}
 

@@ -291,6 +291,11 @@ public void acceptLocalVariable(LocalVariableBinding binding) {
  * Resolve the method
  */
 public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+	IJavaElement[] previousElement = this.elements;
+	int previousElementIndex = this.elementIndex;
+	this.elements = JavaElement.NO_ELEMENTS;
+	this.elementIndex = -1;
+	
 	if(isDeclaration) {
 		IType type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
 				NameLookup.ACCEPT_ALL,
@@ -332,6 +337,15 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, uniqueKey);
 			}
 		}
+	}
+	
+	if(previousElementIndex > -1) {
+		int elementsLength = this.elementIndex + previousElementIndex + 2;
+		if(elementsLength > this.elements.length) {
+			System.arraycopy(this.elements, 0, this.elements = new IJavaElement[elementsLength * 2 + 1], 0, this.elementIndex + 1);
+		}
+		System.arraycopy(previousElement, 0, this.elements, this.elementIndex + 1, previousElementIndex + 1);
+		this.elementIndex += previousElementIndex + 1;
 	}
 }
 /**
