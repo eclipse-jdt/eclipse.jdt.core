@@ -478,7 +478,7 @@ public class TryStatement extends SubRoutineStatement {
 				MethodScope methodScope = scope.methodScope();
 	
 				// the type does not matter as long as it is not a base type
-				if (upperScope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
+				if (upperScope.environment().options.targetJDK < ClassFileConstants.JDK_DEFERRED) {
 					this.returnAddressVariable =
 						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);
