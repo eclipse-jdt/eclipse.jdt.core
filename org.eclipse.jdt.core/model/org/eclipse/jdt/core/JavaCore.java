@@ -80,6 +80,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String ZIP_ACCESS_DEBUG = PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String HIERARCHY_DEBUG = PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
 	private static final String BUILDER_DEBUG = PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
@@ -925,6 +926,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
 			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
+			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
 			option = Platform.getDebugOption(DELTA_DEBUG);
 			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$

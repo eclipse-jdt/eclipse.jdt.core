@@ -30,6 +30,9 @@ public class JarEntryFile extends PlatformObject implements IStorage {
 public InputStream getContents() throws CoreException {
 
 	try {
+		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+			System.out.println("Creating ZipFile on " + this.zipName + " [JavaModelJarEntryFile.getContents()]"); //$NON-NLS-1$ //$NON-NLS-2$	
+		}
 		ZipFile zipFile = new ZipFile(this.zipName); 
 		ZipEntry zipEntry = zipFile.getEntry(this.entryName);
 		if (zipEntry == null){

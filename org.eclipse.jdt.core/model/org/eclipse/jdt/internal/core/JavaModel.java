@@ -453,6 +453,13 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 
 	if (path == null) return null;
 	
+	String extension;
+	if (JavaModelManager.ZIP_ACCESS_VERBOSE && (extension = path.getFileExtension()) != null 
+		&& (extension.toLowerCase().equals("zip") || extension.toLowerCase().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			
+		System.out.println("Getting target for " + path.toString() + " checkResourceExistence=" + checkResourceExistence); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
 	// lookup - inside the container
 	IResource resource = container.findMember(path);
 	if (resource != null){

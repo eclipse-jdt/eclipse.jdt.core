@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import java.io.*;
 import java.util.*;
@@ -28,6 +29,9 @@ void buildDirectoryStructure() {
 	this.directoryCache = new SimpleLookupTable(101);
 
 	try {
+		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+			System.out.println("Creating ZipFile on " + zipFilename + " [ClasspathJar.buildDirectoryStructure()]"); //$NON-NLS-1$ //$NON-NLS-2$	
+		}
 		this.zipFile = new ZipFile(zipFilename);
 	} catch(IOException e) {
 		return;

@@ -10,6 +10,9 @@ org.eclipse.jdt.core/debug/compiler=true
 # Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel=true
 
+# Reports access to zip and jar files through the Java model
+org.eclipse.jdt.core/debug/zipaccess=true
+
 # Print notified Java element deltas
 org.eclipse.jdt.core/debug/javadelta=true
 
