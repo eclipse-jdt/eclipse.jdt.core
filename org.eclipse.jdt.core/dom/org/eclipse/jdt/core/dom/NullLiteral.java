@@ -65,7 +65,7 @@ public class NullLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE;
 	}
 	
 	/* (omit javadoc for this method)
