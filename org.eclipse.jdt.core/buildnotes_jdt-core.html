@@ -47,6 +47,10 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new kind of type signature: <code>Signature#WILDCARD_TYPE_SIGNATURE</code>.<br>
+<code>Signature#getTypeSignatureKind(char[])</code> and <code>Signature#getTypeSignatureKind(String)</code>
+now return <code>Signature#WILDCARD_TYPE_SIGNATURE</code> if the signature is a wildcard : * or +Ljava.lang.Object; or -Ljava.lang.Object;
+</li>
 <li>Added new completion API to describe context in which the completion occurs.<br>
 Currently only the expected types of the potential completion proposals are proposed.
 <pre>
@@ -73,7 +77,9 @@ public class CompletionRequestor {
 </li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87762">87762</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85713">85713</a>
+Signature.getTypeSignatureKind does not like wildcard types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87762">87762</a>
 [model] suspicious huge amount of IPackageFragmentRoot[]
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88252">88252</a>
 Deleting a MemberValuePair with a NormalAnnotation child does not work

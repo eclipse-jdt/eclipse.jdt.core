@@ -374,6 +374,13 @@ public final class Signature {
 	 * @since 3.0
 	 */
 	public static final int ARRAY_TYPE_SIGNATURE = 4;
+	
+	/**
+	 * Kind constant for a wildcard type signature.
+	 * @see #getTypeSignatureKind(String)
+	 * @since 3.1
+	 */
+	public static final int WILDCARD_TYPE_SIGNATURE = 5;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -967,7 +974,8 @@ public static int getParameterCount(char[] methodSignature) throws IllegalArgume
  * @param typeSignature the type signature string
  * @return the kind of type signature; one of the kind constants:
  * {@link #ARRAY_TYPE_SIGNATURE}, {@link #CLASS_TYPE_SIGNATURE},
- * {@link #BASE_TYPE_SIGNATURE}, or {@link #TYPE_VARIABLE_SIGNATURE}
+ * {@link #BASE_TYPE_SIGNATURE}, {@link #TYPE_VARIABLE_SIGNATURE}
+ * or {@link #WILDCARD_TYPE_SIGNATURE}
  * @exception IllegalArgumentException if this is not a type signature
  * @since 3.0
  */
@@ -995,6 +1003,10 @@ public static int getTypeSignatureKind(char[] typeSignature) {
 		case C_SHORT :
 		case C_VOID :
 			return BASE_TYPE_SIGNATURE;
+		case C_STAR :
+		case C_SUPER :
+		case C_EXTENDS :
+			return WILDCARD_TYPE_SIGNATURE;
 		default :
 			throw new IllegalArgumentException();
 	}
@@ -1034,6 +1046,10 @@ public static int getTypeSignatureKind(String typeSignature) {
 		case C_SHORT :
 		case C_VOID :
 			return BASE_TYPE_SIGNATURE;
+		case C_STAR :
+		case C_SUPER :
+		case C_EXTENDS :
+			return WILDCARD_TYPE_SIGNATURE;
 		default :
 			throw new IllegalArgumentException();
 	}

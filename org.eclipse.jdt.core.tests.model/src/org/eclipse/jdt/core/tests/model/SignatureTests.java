@@ -1012,6 +1012,18 @@ public void testGetTypeSignatureKind() {
 		"Signature#getTypeSignatureKind(String) is not correct 21", 
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 22", 
+		Signature.WILDCARD_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("*"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 23", 
+		Signature.WILDCARD_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("-Ljava.lang.Object;"));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 24", 
+		Signature.WILDCARD_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("+Ljava.lang.Object;"));
 }
 
 /**
@@ -1104,6 +1116,19 @@ public void testGetTypeSignatureKind2() {
 		"Signature#getTypeSignatureKind(char[]) is not correct 21", 
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 22", 
+		Signature.WILDCARD_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("*".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 23", 
+		Signature.WILDCARD_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("-Ljava.lang.Object;".toCharArray()));
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 24", 
+		Signature.WILDCARD_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("+Ljava.lang.Object;".toCharArray()));
+	
 }
 public void testGetTypeFragment01() {
 	assertEquals(
