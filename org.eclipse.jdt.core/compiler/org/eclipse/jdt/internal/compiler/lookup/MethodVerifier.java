@@ -298,64 +298,69 @@ private void computeInheritedMethods() {
 	ReferenceBinding superType = this.type.isClass()
 		? this.type.superclass()
 		: this.type.scope.getJavaLangObject(); // check interface methods against Object
-	MethodBinding[] nonVisibleDefaultMethods = null;
-	int nonVisibleCount = 0;
+	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
+	boolean allSuperclassesAreAbstract = true;
 
 	while (superType != null) {
 		if (superType.isValidBinding()) {
-			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+			if (allSuperclassesAreAbstract = allSuperclassesAreAbstract && superType.isAbstract()) {
+				// only need to include superinterfaces if immediate superclasses are abstract
+				if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+					if (++lastPosition == interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+					interfacesToVisit[lastPosition] = itsInterfaces;
+				}
 			}
 
 			MethodBinding[] methods = superType.unResolvedMethods();
 			nextMethod : for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
-				if (!(method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())) {
-					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
-					if (existingMethods != null) {
-						for (int i = 0, length = existingMethods.length; i < length; i++) {
-							if (areTypesEqual(method.returnType, existingMethods[i].returnType) && areParametersEqual(method, existingMethods[i])) {
-								if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
-									checkPackagePrivateAbstractMethod(method);
-								continue nextMethod;
-							}
+				if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
+					continue nextMethod;
+				MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
+				if (existingMethods != null) {
+					for (int i = 0, length = existingMethods.length; i < length; i++) {
+						if (areTypesEqual(method.returnType, existingMethods[i].returnType) && areParametersEqual(method, existingMethods[i])) {
+							if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
+								checkPackagePrivateAbstractMethod(method);
+							continue nextMethod;
 						}
 					}
-					if (nonVisibleDefaultMethods != null)
-						for (int i = 0; i < nonVisibleCount; i++)
-							if (CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
-								&& areTypesEqual(method.returnType, nonVisibleDefaultMethods[i].returnType)
-								&& areParametersEqual(method, nonVisibleDefaultMethods[i])) 
-									continue nextMethod;
+				}
+				MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(method.selector);
+				if (nonVisible != null)
+					for (int i = 0, l = nonVisible.length; i < l; i++)
+						if (areTypesEqual(method.returnType, nonVisible[i].returnType) && areParametersEqual(method, nonVisible[i])) 
+							continue nextMethod;
 
-					if (!method.isDefault() || method.declaringClass.fPackage == type.fPackage) {
-						if (existingMethods == null)
-							existingMethods = new MethodBinding[1];
-						else
-							System.arraycopy(existingMethods, 0,
-								(existingMethods = new MethodBinding[existingMethods.length + 1]), 0, existingMethods.length - 1);
-						existingMethods[existingMethods.length - 1] = method;
-						this.inheritedMethods.put(method.selector, existingMethods);
+				if (!method.isDefault() || method.declaringClass.fPackage == type.fPackage) {
+					if (existingMethods == null) {
+						existingMethods = new MethodBinding[] {method};
 					} else {
-						if (nonVisibleDefaultMethods == null)
-							nonVisibleDefaultMethods = new MethodBinding[10];
-						else if (nonVisibleCount == nonVisibleDefaultMethods.length)
-							System.arraycopy(nonVisibleDefaultMethods, 0,
-								(nonVisibleDefaultMethods = new MethodBinding[nonVisibleCount * 2]), 0, nonVisibleCount);
-						nonVisibleDefaultMethods[nonVisibleCount++] = method;
+						int length = existingMethods.length;
+						System.arraycopy(existingMethods, 0, existingMethods = new MethodBinding[length + 1], 0, length);
+						existingMethods[length] = method;
+					}
+					this.inheritedMethods.put(method.selector, existingMethods);
+				} else {
+					if (nonVisible == null) {
+						nonVisible = new MethodBinding[] {method};
+					} else {
+						int length = nonVisible.length;
+						System.arraycopy(nonVisible, 0, nonVisible = new MethodBinding[length + 1], 0, length);
+						nonVisible[length] = method;
+					}
+					nonVisibleDefaultMethods.put(method.selector, nonVisible);
 
-						if (method.isAbstract() && !this.type.isAbstract()) // non visible abstract methods cannot be overridden so the type must be defined abstract
-							this.problemReporter().abstractMethodCannotBeOverridden(this.type, method);
+					if (method.isAbstract() && !this.type.isAbstract()) // non visible abstract methods cannot be overridden so the type must be defined abstract
+						this.problemReporter().abstractMethodCannotBeOverridden(this.type, method);
 
-						MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
-						if (current != null) { // non visible methods cannot be overridden so a warning is issued
-							foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-								if (areTypesEqual(method.returnType, current[i].returnType) && areParametersEqual(method, current[i])) {
-									this.problemReporter().overridesPackageDefaultMethod(current[i], method);
-									break foundMatch;
-								}
+					MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
+					if (current != null) { // non visible methods cannot be overridden so a warning is issued
+						foundMatch : for (int i = 0, length = current.length; i < length; i++) {
+							if (areTypesEqual(method.returnType, current[i].returnType) && areParametersEqual(method, current[i])) {
+								this.problemReporter().overridesPackageDefaultMethod(current[i], method);
+								break foundMatch;
 							}
 						}
 					}
@@ -367,7 +372,7 @@ private void computeInheritedMethods() {
 
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
-		for (int j = 0, length = interfaces.length; j < length; j++) {
+		for (int j = 0, l = interfaces.length; j < l; j++) {
 			superType = interfaces[j];
 			if ((superType.tagBits & InterfaceVisited) == 0) {
 				superType.tagBits |= InterfaceVisited;
@@ -379,15 +384,21 @@ private void computeInheritedMethods() {
 					}
 
 					MethodBinding[] methods = superType.unResolvedMethods();
-					for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
+					nextMethod : for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
 						MethodBinding method = methods[m];
 						MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
-						if (existingMethods == null)
-							existingMethods = new MethodBinding[1];
-						else
-							System.arraycopy(existingMethods, 0,
-								(existingMethods = new MethodBinding[existingMethods.length + 1]), 0, existingMethods.length - 1);
-						existingMethods[existingMethods.length - 1] = method;
+						if (existingMethods == null) {
+							existingMethods = new MethodBinding[] {method};
+						} else {
+							int length = existingMethods.length;
+							for (int e = 0; e < length; e++) {
+								MethodBinding existing = existingMethods[e];
+								if (areParametersEqual(method, existing) && existing.declaringClass.implementsInterface(superType, true))
+									continue nextMethod; // skip methods with the same signature if visible to its declaringClass
+							}
+							System.arraycopy(existingMethods, 0, existingMethods = new MethodBinding[length + 1], 0, length);
+							existingMethods[length] = method;
+						}
 						this.inheritedMethods.put(method.selector, existingMethods);
 					}
 				}
