@@ -4,11 +4,27 @@ STREAM: 2.0
 *** ONGOING WORK *****************************************************************
 **********************************************************************************
 
-  * Search in JARs, in innerclasses (JBL)
+  JBL
+    -> Search in JARs, in innerclasses
+    -> JCK1.4, investigate new exclude lists
 
-  * Image builder rework (KJ)
+  KJ
+    -> Image builder rework
 
-  * JCK1.4 compliance defects (OT, JBL, PM)
+  OT
+    -> JCK1.4 compliance diagnosing
+
+  DA
+    -> CodeAssist improvements
+
+  JdR
+    -> Java DOM
+
+  PM
+    -> JCK1.4 compliance flow analysis
+
+  -----
+  JCK1.4 remaining defects:
 	1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
 	1GK2B6D: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value before the second operand of the boolean operator &&
 	1GK2AWS: ITPJCORE:WIN2000 - JCK 1.4 - illegal method declaration for interface
@@ -20,11 +36,7 @@ STREAM: 2.0
     1GHW0DF: ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
     1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
     1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump  
-
-  * CodeAssist improvements (DA, PM)
-
-  * Java DOM (JdR, PM)
-    
+      
 **********************************************************************************
 *** HEAD CONTENT *****************************************************************
 **********************************************************************************
