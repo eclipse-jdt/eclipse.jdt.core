@@ -153,12 +153,17 @@ void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, c
 
 void recordLocatorForType(String qualifiedTypeName, String typeLocator) {
 	this.knownPackageNames = null;
+	// in the common case, the qualifiedTypeName is a substring of the typeLocator so share the char[] by using String.substring()
+	int start = typeLocator.indexOf(qualifiedTypeName, 0);
+	if (start > 0)
+		qualifiedTypeName = typeLocator.substring(start, start + qualifiedTypeName.length());
 	typeLocators.put(qualifiedTypeName, typeLocator);
 }
 
 void recordStructuralDependency(IProject prereqProject, State prereqState) {
 	if (prereqState != null)
-		structuralBuildTimes.put(prereqProject.getName(), new Long(prereqState.lastStructuralBuildTime));
+		if (prereqState.lastStructuralBuildTime > 0) // can skip if 0 (full build) since its assumed to be 0 if unknown
+			structuralBuildTimes.put(prereqProject.getName(), new Long(prereqState.lastStructuralBuildTime));
 }
 
 void removeLocator(String typeLocatorToRemove) {
@@ -253,7 +258,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 
 	newState.typeLocators = new SimpleLookupTable(length = in.readInt());
 	for (int i = 0; i < length; i++)
-		newState.typeLocators.put(in.readUTF(), internedTypeLocators[in.readInt()]);
+		newState.recordLocatorForType(in.readUTF(), internedTypeLocators[in.readInt()]);
 
 	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(readNames(in), false);
 	char[][][] internedQualifiedNames = new char[length = in.readInt()][][];
