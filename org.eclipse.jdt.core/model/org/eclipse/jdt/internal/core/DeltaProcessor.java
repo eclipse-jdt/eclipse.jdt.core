@@ -1109,20 +1109,27 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-			switch (delta.getKind()) {
-				case IResourceDelta.ADDED:
-				case IResourceDelta.CHANGED:
-					if (element instanceof JarPackageFragmentRoot) {
-						JarPackageFragmentRoot root = (JarPackageFragmentRoot)element;
-						// index jar file only once (if the root is in its declaring project)
-						if (root.getJavaProject().getProject().getFullPath().isPrefixOf(root.getPath())) {
-							indexManager.indexLibrary(root.getPath(), root.getJavaProject().getProject());
-						}
-					}
-					break;
-				case IResourceDelta.REMOVED:
-					// keep index in case it is added back later in this session
-					break;
+			if (element instanceof JarPackageFragmentRoot) {
+				JarPackageFragmentRoot root = (JarPackageFragmentRoot)element;
+				// index jar file only once (if the root is in its declaring project)
+				IPath jarPath = root.getPath();
+				switch (delta.getKind()) {
+					case IResourceDelta.ADDED:
+						// index the new jar
+						indexManager.indexLibrary(jarPath, root.getJavaProject().getProject());
+						break;
+					case IResourceDelta.CHANGED:
+						// first remove the index so that it is forced to be re-indexed
+						indexManager.removeIndex(jarPath);
+						// then index the jar
+						indexManager.indexLibrary(jarPath, root.getJavaProject().getProject());
+						break;
+					case IResourceDelta.REMOVED:
+						// the jar was physically removed: remove the index
+						indexManager.removeIndex(jarPath);
+						break;
+				}
+				break;
 			}
 			// don't break as packages of the package fragment root can be indexed below
 		case IJavaElement.PACKAGE_FRAGMENT :

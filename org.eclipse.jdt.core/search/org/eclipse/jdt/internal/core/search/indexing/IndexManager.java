@@ -305,6 +305,18 @@ public synchronized IIndex recreateIndex(IPath path) {
 public void remove(String resourceName, IPath indexedContainer){
 	request(new RemoveFromIndex(resourceName, indexedContainer, this));
 }
+/**
+ * Removes the index for a given path. 
+ * This is a no-op if the index did not exist.
+ */
+public synchronized void removeIndex(IPath path) {
+	IPath canonicalPath = JavaProject.canonicalizedPath(path);
+	IIndex index = (IIndex)this.indexes.get(canonicalPath);
+	if (index == null) return;
+	index.getIndexFile().delete();
+	this.indexes.remove(canonicalPath);
+	this.monitors.remove(index);
+}
 
 /**
  * Flush current state
