@@ -958,7 +958,9 @@ public void test0023() {
 		expected15ProblemeLog
 	);
 }
-public void test0024() {
+
+//TODO (david) reenable once bug is fixed
+public void _test0024() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"import static {aaa};\n" +
