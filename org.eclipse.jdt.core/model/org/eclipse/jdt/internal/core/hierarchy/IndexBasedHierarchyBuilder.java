@@ -150,7 +150,7 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		if (computeSubtypes) {
 			// Note by construction there always is a focus type here
 			boolean focusIsObject = getType().getElementName().equals(new String(IIndexConstants.OBJECT));
-			int amountOfWorkForSubtypes = focusIsObject ? 5 : 70; // percentage of work needed to get possible subtypes
+			int amountOfWorkForSubtypes = focusIsObject ? 5 : 80; // percentage of work needed to get possible subtypes
 			IProgressMonitor possibleSubtypesMonitor = 
 				this.hierarchy.progressMonitor == null ? 
 					null : 
