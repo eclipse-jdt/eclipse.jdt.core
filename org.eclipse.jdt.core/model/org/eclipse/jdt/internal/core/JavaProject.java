@@ -846,35 +846,8 @@ public class JavaProject
 				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
 				// read classpath property (contains actual classpath and output location settings)
+				IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 				IPath outputLocation = null;
-				IClasspathEntry[] classpath = null;
-
-				// read from file
-				try {
-					String sharedClasspath = loadClasspath();
-					if (sharedClasspath != null) {
-						classpath = readPaths(sharedClasspath);
-					}
-				} catch(JavaModelException e) {
-					if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-							Util.log(e, 
-								"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-								+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
-					}
-				} catch(IOException e){
-					if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-						Util.log(e, 
-							"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-							+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
-					}
-				} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
-					if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-						Util.log(e, 
-							"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-							+"/.classpath, will be marked as invalid"); //$NON-NLS-1$
-					}
-					classpath = INVALID_CLASSPATH;
-				}
 
 				// extract out the output location
 				if (classpath != null && classpath.length > 0) {
@@ -1169,31 +1142,8 @@ public class JavaProject
 		if (!this.getProject().exists()){
 			throw newNotPresentException();
 		}
-		IClasspathEntry[] classpath = null;
-		try {
-			String sharedClasspath = loadClasspath();
-			if (sharedClasspath != null) {
-				classpath = readPaths(sharedClasspath);
-			}
-		} catch(JavaModelException e) {
-			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
-			}
-		} catch(IOException e){
-			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
-			}
-		} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
-			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
-			}
-		}
+		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
+
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
 			IClasspathEntry entry = classpath[classpath.length - 1];
@@ -1403,31 +1353,7 @@ public class JavaProject
 		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 		IClasspathEntry[] classpath = perProjectInfo.classpath;
 		if (classpath != null) return classpath;
-		try {
-			String sharedClasspath = loadClasspath();
-			if (sharedClasspath != null) {
-				classpath = readPaths(sharedClasspath);
-			}
-		} catch(JavaModelException e) {
-			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
-			}
-		} catch(IOException e){
-			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
-			}
-		} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
-			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will be marked as invalid"); //$NON-NLS-1$
-			}
-			classpath = INVALID_CLASSPATH;
-		}
+		classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
 		
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
@@ -1775,17 +1701,7 @@ public class JavaProject
 		return this.findPackageFragmentRoot0(rootPath) != null;
 	}
 
-	/**
-	 * load the classpath from a shareable format (VCM-wise)
-	 */
-	public String loadClasspath() throws JavaModelException {
 
-		try {
-			return getSharedProperty(CLASSPATH_FILENAME);
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
-		}
-	}
 
 	/*
 	 * load preferences from a shareable format (VCM-wise)
@@ -1898,125 +1814,172 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns a collection of <code>IClasspathEntry</code>s from the given
-	 * classpath string in XML format.
-	 *
-	 * @exception IOException if the stream cannot be read 
+	 * Reads the .classpath file from disk and returns the list of entries it contains (including output location entry)
+	 * Returns null if .classfile is not present.
+	 * Returns INVALID_CLASSPATH if it has a format problem.
 	 */
-	protected IClasspathEntry[] readPaths(String xmlClasspath) throws IOException {
+	protected IClasspathEntry[] readClasspathFile(boolean createMarker, boolean logProblems) {
 
-		IPath projectPath = getProject().getFullPath();
-		StringReader reader = new StringReader(xmlClasspath);
-		Element cpElement;
-
-		try {
-			DocumentBuilder parser =
-				DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-		} catch (SAXException e) {
-			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
-		} catch (ParserConfigurationException e) {
-			reader.close();
-			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
-		} finally {
-			reader.close();
-		}
-
-		if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
-			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
-		}
-		NodeList list = cpElement.getChildNodes();
 		ArrayList paths = new ArrayList();
-		int length = list.getLength();
-
-		for (int i = 0; i < length; ++i) {
-			Node node = list.item(i);
-			short type = node.getNodeType();
-			if (type == Node.ELEMENT_NODE) {
-				Element cpeElement = (Element) node;
-
-				if (cpeElement.getNodeName().equalsIgnoreCase("classpathentry")) { //$NON-NLS-1$
-					String cpeElementKind = cpeElement.getAttribute("kind"); //$NON-NLS-1$
-					String pathStr = cpeElement.getAttribute("path"); //$NON-NLS-1$
-					// ensure path is absolute
-					IPath path = new Path(pathStr);
-					int kind = kindFromString(cpeElementKind);
-					if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
-						path = projectPath.append(path);
-					}
-					// source attachment info (optional)
-					String sourceAttachmentPathStr = cpeElement.getAttribute("sourcepath");	//$NON-NLS-1$
-					IPath sourceAttachmentPath =
-						sourceAttachmentPathStr.equals("") ? null : new Path(sourceAttachmentPathStr); //$NON-NLS-1$
-					String sourceAttachmentRootPathStr = cpeElement.getAttribute("rootpath"); //$NON-NLS-1$
-					IPath sourceAttachmentRootPath =
-						sourceAttachmentRootPathStr.equals("") //$NON-NLS-1$
-							? null
-							: new Path(sourceAttachmentRootPathStr);
-					
-					// exported flag
-					boolean isExported = cpeElement.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
-
-					// recreate the CP entry
-					switch (kind) {
-			
-						case IClasspathEntry.CPE_PROJECT :
-							if (!path.isAbsolute()) return null;
-							paths.add(JavaCore.newProjectEntry(path, isExported));
-							break;
-							
-						case IClasspathEntry.CPE_LIBRARY :
-							if (!path.isAbsolute()) return null;
-							paths.add(JavaCore.newLibraryEntry(
-															path,
-															sourceAttachmentPath,
-															sourceAttachmentRootPath,
-															isExported));
-							break;
-							
-						case IClasspathEntry.CPE_SOURCE :
-							if (!path.isAbsolute()) return null;
-							// must be an entry in this project or specify another project
-							String projSegment = path.segment(0);
-							if (projSegment != null && projSegment.equals(getElementName())) {
-								// this project
-								paths.add(JavaCore.newSourceEntry(path));
-							} else {
-								// another project
+		try {
+			String xmlClasspath = getSharedProperty(CLASSPATH_FILENAME);
+			if (xmlClasspath == null) return null;
+			StringReader reader = new StringReader(xmlClasspath);
+			Element cpElement;
+	
+			try {
+				DocumentBuilder parser =
+					DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
+			} catch (SAXException e) {
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			} catch (ParserConfigurationException e) {
+				reader.close();
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			} finally {
+				reader.close();
+			}
+	
+			if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			}
+			IPath projectPath = getProject().getFullPath();
+			NodeList list = cpElement.getChildNodes();
+			int length = list.getLength();
+	
+			for (int i = 0; i < length; ++i) {
+				Node node = list.item(i);
+				short type = node.getNodeType();
+				if (type == Node.ELEMENT_NODE) {
+					Element cpeElement = (Element) node;
+	
+					if (cpeElement.getNodeName().equalsIgnoreCase("classpathentry")) { //$NON-NLS-1$
+						String cpeElementKind = cpeElement.getAttribute("kind"); //$NON-NLS-1$
+						String pathStr = cpeElement.getAttribute("path"); //$NON-NLS-1$
+						// ensure path is absolute
+						IPath path = new Path(pathStr);
+						int kind = kindFromString(cpeElementKind);
+						if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
+							path = projectPath.append(path);
+						}
+						// source attachment info (optional)
+						String sourceAttachmentPathStr = cpeElement.getAttribute("sourcepath");	//$NON-NLS-1$
+						IPath sourceAttachmentPath =
+							sourceAttachmentPathStr.equals("") ? null : new Path(sourceAttachmentPathStr); //$NON-NLS-1$
+						String sourceAttachmentRootPathStr = cpeElement.getAttribute("rootpath"); //$NON-NLS-1$
+						IPath sourceAttachmentRootPath =
+							sourceAttachmentRootPathStr.equals("") //$NON-NLS-1$
+								? null
+								: new Path(sourceAttachmentRootPathStr);
+						
+						// exported flag
+						boolean isExported = cpeElement.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
+	
+						// recreate the CP entry
+						switch (kind) {
+				
+							case IClasspathEntry.CPE_PROJECT :
+								if (!path.isAbsolute()) return null;
 								paths.add(JavaCore.newProjectEntry(path, isExported));
-							}
-							break;
-			
-						case IClasspathEntry.CPE_VARIABLE :
-							paths.add(JavaCore.newVariableEntry(
-									path,
-									sourceAttachmentPath,
-									sourceAttachmentRootPath, 
-									isExported));
-							break;
-							
-						case IClasspathEntry.CPE_CONTAINER :
-							paths.add(JavaCore.newContainerEntry(
-									path,
-									isExported));
-							break;
-
-						case ClasspathEntry.K_OUTPUT :
-							if (!path.isAbsolute()) return null;
-							paths.add(new ClasspathEntry(
-									ClasspathEntry.K_OUTPUT,
-									IClasspathEntry.CPE_LIBRARY,
-									path,
-									null,
-									null,
-									false));
-							break;
-							
-						default:
-							throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", cpeElementKind)); //$NON-NLS-1$
+								break;
+								
+							case IClasspathEntry.CPE_LIBRARY :
+								if (!path.isAbsolute()) return null;
+								paths.add(JavaCore.newLibraryEntry(
+																path,
+																sourceAttachmentPath,
+																sourceAttachmentRootPath,
+																isExported));
+								break;
+								
+							case IClasspathEntry.CPE_SOURCE :
+								if (!path.isAbsolute()) return null;
+								// must be an entry in this project or specify another project
+								String projSegment = path.segment(0);
+								if (projSegment != null && projSegment.equals(getElementName())) {
+									// this project
+									paths.add(JavaCore.newSourceEntry(path));
+								} else {
+									// another project
+									paths.add(JavaCore.newProjectEntry(path, isExported));
+								}
+								break;
+				
+							case IClasspathEntry.CPE_VARIABLE :
+								paths.add(JavaCore.newVariableEntry(
+										path,
+										sourceAttachmentPath,
+										sourceAttachmentRootPath, 
+										isExported));
+								break;
+								
+							case IClasspathEntry.CPE_CONTAINER :
+								paths.add(JavaCore.newContainerEntry(
+										path,
+										isExported));
+								break;
+	
+							case ClasspathEntry.K_OUTPUT :
+								if (!path.isAbsolute()) return null;
+								paths.add(new ClasspathEntry(
+										ClasspathEntry.K_OUTPUT,
+										IClasspathEntry.CPE_LIBRARY,
+										path,
+										null,
+										null,
+										false));
+								break;
+								
+							default:
+								throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", cpeElementKind)); //$NON-NLS-1$
+						}
 					}
 				}
 			}
+		} catch(CoreException e) {
+			// file does not exist (or not accessible)
+			if (createMarker && this.getProject().isAccessible()) {
+				this.createClasspathProblemMarker(
+					Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
+					IMarker.SEVERITY_ERROR,
+					false,	//  cycle error
+					true);	//	file format error
+			}
+			if (logProblems) {
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+			}
+		} catch (IOException e) {
+			// bad format
+			if (createMarker && this.getProject().isAccessible()) {
+				this.createClasspathProblemMarker(
+					Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
+					IMarker.SEVERITY_ERROR,
+					false,	//  cycle error
+					true);	//	file format error
+			}
+			if (logProblems) {
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+			}
+			return INVALID_CLASSPATH;
+		} catch (Assert.AssertionFailedException e) { 
+			// failed creating CP entries from file
+			if (createMarker && this.getProject().isAccessible()) {
+				this.createClasspathProblemMarker(
+					Util.bind("classpath.illegalEntryInClasspathFile", this.getElementName(), e.getMessage()), //$NON-NLS-1$
+					IMarker.SEVERITY_ERROR,
+					false,	//  cycle error
+					true);	//	file format error
+			}
+			if (logProblems) {
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
+			}
+			return INVALID_CLASSPATH;
 		}
 		if (paths.size() > 0) {
 			IClasspathEntry[] ips = new IClasspathEntry[paths.size()];
@@ -2074,19 +2037,10 @@ public class JavaProject
 
 		if (!getProject().exists()) return false;
 
-		try {
-			// attempt to prove the classpath has not changed
-			String fileClasspathString = getSharedProperty(CLASSPATH_FILENAME);
-			if (fileClasspathString != null) {
-				IClasspathEntry[] fileEntries = readPaths(fileClasspathString);
-				if (isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
-					// no need to save it, it is the same
-					return false;
-				}
-			}
-		} catch (IOException e) {
-		} catch (RuntimeException e) {
-		} catch (CoreException e) {
+		IClasspathEntry[] fileEntries = readClasspathFile(false /*don't create markers*/, false/*don't log problems*/);
+		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
+			// no need to save it, it is the same
+			return false;
 		}
 
 		// actual file saving

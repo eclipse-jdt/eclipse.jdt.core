@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1240,37 +1239,7 @@ private JavaModelException newInvalidElementType() {
 				boolean wasSuccessful = false; // flag recording if .classpath file change got reflected
 				try {
 					// force to (re)read the property file
-					IClasspathEntry[] fileEntries = null;
-					try {
-						String fileClasspathString = project.loadClasspath();
-						if (fileClasspathString != null) {
-							fileEntries = project.readPaths(fileClasspathString);
-						}
-					} catch(JavaModelException e) {
-						if (project.getProject().isAccessible()) {
-							project.createClasspathProblemMarker(
-								Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-								IMarker.SEVERITY_ERROR,
-								false,	//  cycle error
-								true);	//	file format error
-						}
-					} catch (IOException e) {
-						if (project.getProject().isAccessible()) {
-							project.createClasspathProblemMarker(
-								Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-								IMarker.SEVERITY_ERROR,
-								false,	//  cycle error
-								true);	//	file format error
-						}
-					} catch (Assert.AssertionFailedException e) { // failed creating CP entries from file
-						if (project.getProject().isAccessible()) {
-							project.createClasspathProblemMarker(
-								Util.bind("classpath.illegalEntryInClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
-								IMarker.SEVERITY_ERROR,
-								false,	//  cycle error
-								true);	//	file format error
-						}
-					}
+					IClasspathEntry[] fileEntries = project.readClasspathFile(true/*create markers*/, false/*don't log problems*/);
 					if (fileEntries == null)
 						break; // could not read, ignore 
 					if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries)) {

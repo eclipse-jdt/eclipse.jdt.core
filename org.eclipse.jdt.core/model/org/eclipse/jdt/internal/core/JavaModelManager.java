@@ -912,7 +912,7 @@ public class JavaModelManager implements ISaveParticipant {
 	
 	/*
 	 * Returns  the per-project info for the given project.
-	 * If the info if the info doesn't exist, check for the project existence and create the info.
+	 * If the info doesn't exist, check for the project existence and create the info.
 	 * @throws JavaModelException if the project doesn't exist.	 */
 	public PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
 		JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
