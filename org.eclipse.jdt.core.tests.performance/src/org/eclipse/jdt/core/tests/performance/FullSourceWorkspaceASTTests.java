@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.PrintStream;
 import java.text.NumberFormat;
 import java.util.List;
 import junit.framework.*;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -23,6 +25,12 @@ import org.eclipse.test.performance.Dimension;
  */
 public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
+    // Tests counter
+    private static int TESTS_COUNT = 0;
+
+    // Log files
+    private static PrintStream[] LOG_STREAMS = new PrintStream[4];
+
 	/**
 	 * @param name
 	 */
@@ -31,7 +39,28 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	public static Test suite() {
-		return buildSuite(FullSourceWorkspaceASTTests.class);
+        Test suite = buildSuite(testClass());
+        TESTS_COUNT = suite.countTestCases();
+        createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+        return suite;
+    }
+
+    private static Class testClass() {
+        return FullSourceWorkspaceASTTests.class;
+    }
+
+    /* (non-Javadoc)
+     * @see junit.framework.TestCase#tearDown()
+     */
+    protected void tearDown() throws Exception {
+        TESTS_COUNT--;
+
+        // Log perf result
+        if (LOG_DIR != null) {
+            logPerfResult(LOG_STREAMS, TESTS_COUNT);
+        }
+
+        super.tearDown();
 	}
 
 	/**
