@@ -2106,7 +2106,7 @@ public class JavaProject
 		throws JavaModelException {
 
 		if (path == null) {
-			throw new IllegalArgumentException(Util.bind("path.nullpath")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Util.bind("path.nullPath")); //$NON-NLS-1$
 		}
 		if (path.equals(getOutputLocation())) {
 			return;

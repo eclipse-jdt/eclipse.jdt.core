@@ -219,7 +219,7 @@ public final class JavaConventions {
 		int index;
 		index = name.lastIndexOf('.');
 		if (index == -1) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notJavaName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
 		}
 		identifier = name.substring(0, index);
 		IStatus status = validateIdentifier(identifier);

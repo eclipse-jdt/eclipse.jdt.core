@@ -245,7 +245,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		problemReporter.abortDueToInternalError(
 			Util.bind(
-				"abort.againstSourceModel " , //$NON-NLS-1$
+				"abort.againstSourceModel" , //$NON-NLS-1$
 				String.valueOf(sourceTypes[0].getName()),
 				String.valueOf(sourceTypes[0].getFileName())));
 	}
