@@ -44,6 +44,7 @@ public interface IScanner {
 	 * 
 	 * @return the current identifier source, before unicode escape sequences have
 	 * been translated into unicode characters
+	 * @since 2.1
 	 */
 	char[] getRawTokenSource();	
 

@@ -483,5 +483,6 @@ public interface IProblem {
 	int UseAssertAsAnIdentifier = Internal + 440;
 	
 	// detected task
+	/** @since 2.1 */
 	int Task = Internal + 450;
 }
