@@ -221,7 +221,7 @@ public class Scribe {
 			while (current.enclosing != null) {
 				current = current.enclosing;
 			}
-			if (current.mode != Alignment.M_NO_ALIGNMENT) {
+			if ((current.mode & Alignment.M_MULTICOLUMN) != 0) {
 				final int indentSize = this.useTab ? 1 : this.tabSize;
 				switch(current.chunkKind) {
 					case Alignment.CHUNK_METHOD :
@@ -240,6 +240,35 @@ public class Scribe {
 							alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
 						}
 						alignment.update();
+						break;
+				}
+			} else {
+				switch(current.mode & Alignment.SPLIT_MASK) {
+					case Alignment.M_COMPACT_SPLIT :
+					case Alignment.M_COMPACT_FIRST_BREAK_SPLIT :
+					case Alignment.M_NEXT_PER_LINE_SPLIT :
+					case Alignment.M_NEXT_SHIFTED_SPLIT :
+					case Alignment.M_ONE_PER_LINE_SPLIT :
+						final int indentSize = this.useTab ? 1 : this.tabSize;
+						switch(current.chunkKind) {
+							case Alignment.CHUNK_METHOD :
+							case Alignment.CHUNK_TYPE :
+								if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+									alignment.breakIndentationLevel = this.indentationLevel + indentSize;
+								} else {
+									alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * indentSize;
+								}
+								alignment.update();
+								break;
+							case Alignment.CHUNK_FIELD :
+								if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+									alignment.breakIndentationLevel = current.originalIndentationLevel + indentSize;
+								} else {
+									alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
+								}
+								alignment.update();
+								break;
+						}
 						break;
 				}
 			}
