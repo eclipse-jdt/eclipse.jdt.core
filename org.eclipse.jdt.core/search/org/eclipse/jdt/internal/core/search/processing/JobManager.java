@@ -101,13 +101,15 @@ public abstract class JobManager implements Runnable {
 			synchronized(this) {
 				for (int i = this.jobStart; i <= this.jobEnd; i++) {
 					currentJob = this.awaitingJobs[i];
-					this.awaitingJobs[i] = null;
-					if (!(jobFamily == null || currentJob.belongsTo(jobFamily))) { // copy down, compacting
-						this.awaitingJobs[++loc] = currentJob;
-					} else {
-						if (VERBOSE)
-							Util.verbose("-> discarding background job  - " + currentJob); //$NON-NLS-1$
-						currentJob.cancel();
+					if (currentJob != null) { // sanity check
+						this.awaitingJobs[i] = null;
+						if (!(jobFamily == null || currentJob.belongsTo(jobFamily))) { // copy down, compacting
+							this.awaitingJobs[++loc] = currentJob;
+						} else {
+							if (VERBOSE)
+								Util.verbose("-> discarding background job  - " + currentJob); //$NON-NLS-1$
+							currentJob.cancel();
+						}
 					}
 				}
 				this.jobStart = 0;
@@ -124,6 +126,11 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			Util.verbose("ENABLING  background indexing"); //$NON-NLS-1$
 		this.notifyAll(); // wake up the background thread if it is waiting (context must be synchronized)			
+	}
+	protected synchronized boolean isJobWaiting(IJob request) {
+		for (int i = this.jobEnd; i > this.jobStart; i--) // don't check job at jobStart, as it may have already started
+			if (request.equals(this.awaitingJobs[i])) return true;
+		return false;
 	}
 	/**
 	 * Advance to the next available job, once the current one has been completed.

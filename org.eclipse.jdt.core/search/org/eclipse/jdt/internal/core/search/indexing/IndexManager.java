@@ -318,9 +318,8 @@ public void indexAll(IProject project) {
 
 	// check if the same request is not already in the queue
 	IndexRequest request = new IndexAllProject(project, this);
-	for (int i = this.jobEnd; i > this.jobStart; i--) // NB: don't check job at jobStart, as it may have already started (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32488)
-		if (request.equals(this.awaitingJobs[i])) return;
-	this.request(request);
+	if (!isJobWaiting(request))
+		this.request(request);
 }
 /**
  * Trigger addition of a library to an index
@@ -347,9 +346,8 @@ public void indexLibrary(IPath path, IProject requestingProject) {
 	}
 
 	// check if the same request is not already in the queue
-	for (int i = this.jobEnd; i > this.jobStart; i--)  // NB: don't check job at jobStart, as it may have already started (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32488)
-		if (request.equals(this.awaitingJobs[i])) return;
-	this.request(request);
+	if (!isJobWaiting(request))
+		this.request(request);
 }
 /**
  * Index the content of the given source folder.
@@ -357,10 +355,9 @@ public void indexLibrary(IPath path, IProject requestingProject) {
 public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
 	if (this.jobEnd > this.jobStart) {
-		// check if a job to index the project is not already in the queue
+		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
-		for (int i = this.jobEnd; i > this.jobStart; i--) // NB: don't check job at jobStart, as it may have already started (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32488)
-			if (request.equals(this.awaitingJobs[i])) return;
+		if (isJobWaiting(request)) return;
 	}
 
 	this.request(new AddFolderToIndex(sourceFolder, project, inclusionPatterns, exclusionPatterns, this));
@@ -499,10 +496,9 @@ public synchronized void removeIndexFamily(IPath path) {
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
 	if (this.jobEnd > this.jobStart) {
-		// check if a job to index the project is not already in the queue
+		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
-		for (int i = this.jobEnd; i > this.jobStart; i--) // NB: don't check job at jobStart, as it may have already started (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32488)
-			if (request.equals(this.awaitingJobs[i])) return;
+		if (isJobWaiting(request)) return;
 	}
 
 	this.request(new RemoveFolderFromIndex(sourceFolder, inclusionPatterns, exclusionPatterns, project, this));
@@ -531,10 +527,12 @@ public void saveIndex(Index index) throws IOException {
 	if (this.jobEnd > this.jobStart) {
 		Object containerPath = this.indexLocations.keyForValue(indexLocation);
 		if (containerPath != null) {
-			for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
-				IJob job = this.awaitingJobs[i];
-				if (job instanceof IndexRequest)
-					if (((IndexRequest) job).containerPath.equals(containerPath)) return;
+			synchronized(this) {
+				for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
+					IJob job = this.awaitingJobs[i];
+					if (job instanceof IndexRequest)
+						if (((IndexRequest) job).containerPath.equals(containerPath)) return;
+				}
 			}
 		}
 	}
