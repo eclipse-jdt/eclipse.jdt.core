@@ -735,18 +735,18 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns a list of method bindings representing all the methods and 
-	 * constructors declared for this class, interface, or enum. These include
-	 * public, protected, default (package-private) access, and private methods. 
-	 * Synthetic methods and constructors may or may not be included. Returns
-	 * an empty list if the class, interface, or enum declares no methods or 
-	 * constructors, or if this type binding represents some other kind of type
-	 * bindings. The resulting bindings are in no particular order.
+	 * constructors declared for this class, interface, enum, or annotation
+	 * type. These include public, protected, default (package-private) access,
+	 * and private methods Synthetic methods and constructors may or may not be
+	 * included. Returns an empty list if the class, interface, or enum,
+	 * type declares no methods or constructors, if the annotation type declares
+	 * no members, or if this type binding represents some other kind of type
+	 * binding. The resulting bindings are in no particular order.
 	 * 
 	 * @return the list of method bindings for the methods and constructors
-	 *   declared by this class, interface, or enum type, or the empty list if
-	 * this type does not declare any methods or constructors
+	 *   declared by this class, interface, enum type, or annotation type, 
+	 *   or the empty list if this type does not declare any methods or constructors
 	 */
-	// TODO (jeem) - should result include bindings for annotation type members?
 	public IMethodBinding[] getDeclaredMethods();
 	
 	/**
