@@ -1069,7 +1069,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								affectedProjects.put(projects[i], ((JavaProject)projects[i]).getExpandedClasspath(true));
 								continue nextProject;
 							}
-						}//marche pas bien s
+						}
 					}
 				}
 			}

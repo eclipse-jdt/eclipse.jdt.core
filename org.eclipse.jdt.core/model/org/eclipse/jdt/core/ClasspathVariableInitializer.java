@@ -14,13 +14,14 @@ package org.eclipse.jdt.core;
  * variable initializer. The subclass must have a public 0-argument
  * constructor and a concrete implementation of <code>initialize</code>.
  * </p>
+ * @since 2.0
  */
 public abstract class ClasspathVariableInitializer {
 
     /**
      * Creates a new classpath variable initializer.
      */
-    protected ClasspathVariableInitializer() {
+    public ClasspathVariableInitializer() {
     }
 
     /**
@@ -31,5 +32,5 @@ public abstract class ClasspathVariableInitializer {
      *    that requires a binding
      * @see JavaCore#setClasspathVariable     
      */
-    protected abstract void initialize(String variable);
+    public abstract void initialize(String variable);
 }
