@@ -1290,6 +1290,7 @@ public int getNextToken() throws InvalidInputException {
 											this.currentPosition++;
 									} //jump over the \\
 								}
+								recordComment(TokenNameCOMMENT_LINE);
 								/*
 								 * We need to completely consume the line break
 								 */
@@ -1328,7 +1329,6 @@ public int getNextToken() throws InvalidInputException {
 										}
 									}
 							   	}
-								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 									checkNonExternalizedString();
@@ -1640,14 +1640,12 @@ public final void jumpOverMethodBody() {
 				case '/' :
 					{
 						int test;
-						boolean isUnicode;
 						if ((test = getNextChar('/', '*')) == 0) { //line comment 
 							try {
 								//get the next char 
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
-									isUnicode = true;
 									int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 									this.currentPosition++;
 									while (this.source[this.currentPosition] == 'u') {
@@ -1666,18 +1664,22 @@ public final void jumpOverMethodBody() {
 									else {
 										this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 									}
-								} else {
-									isUnicode = false;
 								}
-
+								//handle the \\u case manually into comment
+								if (this.currentCharacter == '\\') {
+									if (this.source[this.currentPosition] == '\\')
+										this.currentPosition++;
+								} //jump over the \\
+								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
 									//get the next char 
+									isUnicode = false;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 										&& (this.source[this.currentPosition] == 'u')) {
+										isUnicode = true;
 										//-------------unicode traitement ------------
 										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 										this.currentPosition++;
-										isUnicode = true;
 										while (this.source[this.currentPosition] == 'u') {
 											this.currentPosition++;
 										}
@@ -1694,25 +1696,75 @@ public final void jumpOverMethodBody() {
 										else {
 											this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 										}
-									} else {
-										isUnicode = false;
 									}
+									//handle the \\u case manually into comment
+									if (this.currentCharacter == '\\') {
+										if (this.source[this.currentPosition] == '\\')
+											this.currentPosition++;
+									} //jump over the \\
 								}
+								recordComment(TokenNameCOMMENT_LINE);
+								/*
+								 * We need to completely consume the line break
+								 */
+								if (this.currentCharacter == '\r'
+								   && this.source.length > this.currentPosition) {
+								   	if (this.source[this.currentPosition] == '\n') {
+										this.currentPosition++;
+										this.currentCharacter = '\n';
+								   	} else if ((this.source[this.currentPosition] == '\\')
+										&& (this.source[this.currentPosition + 1] == 'u')) {
+										isUnicode = true;
+										char unicodeChar;
+										int index = this.currentPosition + 1;
+										index++;
+										while (this.source[index] == 'u') {
+											index++;
+										}
+										//-------------unicode traitement ------------
+										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+										if ((c1 = Character.getNumericValue(this.source[index++])) > 15
+											|| c1 < 0
+											|| (c2 = Character.getNumericValue(this.source[index++])) > 15
+											|| c2 < 0
+											|| (c3 = Character.getNumericValue(this.source[index++])) > 15
+											|| c3 < 0
+											|| (c4 = Character.getNumericValue(this.source[index++])) > 15
+											|| c4 < 0) { //error don't care of the value
+											unicodeChar = 'A';
+										} else {
+											unicodeChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+										}
+										if (unicodeChar == '\n') {
+											this.currentPosition = index;
+											this.currentCharacter = '\n';
+										}
+									}
+							   	}
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-										if (!isUnicode) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
 											pushLineSeparator();
 										}
 									}
 							} catch (IndexOutOfBoundsException e) {
 								 //an eof will then be generated
+								this.currentPosition--;
+								recordComment(TokenNameCOMMENT_LINE);
+								if (!this.tokenizeComments) {
+									this.currentPosition++; 
+								}
 							}
 							break;
 						}
 						if (test > 0) { //traditional and javadoc comment
-							isUnicode = false;
-							boolean star = false;
-							try { // consume next character
+							boolean isJavadoc = false;
+							try { //get the next char
+								boolean star = false;
+								boolean isUnicode = false;
+								// consume next character
 								this.unicodeAsBackSlash = false;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
@@ -1724,80 +1776,70 @@ public final void jumpOverMethodBody() {
 										this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
 									}
 								}
-							} catch (InvalidInputException ex) {
- 								// ignore
- 							}
-							if (this.currentCharacter == '*') {
-								star = true;
-							}
-							if (this.recordLineSeparator
-								&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-									if (!isUnicode) {
-										pushLineSeparator();
+	
+								if (this.currentCharacter == '*') {
+									isJavadoc = true;
+									star = true;
+								}
+								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+									if (this.recordLineSeparator) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
+											pushLineSeparator();
+										}
+									} else {
+										this.currentLine = null;
 									}
-							}
-							try { //get the next char 
+								}
+								isUnicode = false;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
+									getNextUnicodeChar();
 									isUnicode = true;
-									int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-									this.currentPosition++;
-									while (this.source[this.currentPosition] == 'u') {
-										this.currentPosition++;
-									}
-									if ((c1 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-										|| c1 < 0
-										|| (c2 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-										|| c2 < 0
-										|| (c3 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-										|| c3 < 0
-										|| (c4 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-										|| c4 < 0) { //error don't care of the value
-										this.currentCharacter = 'A';
-									} //something different from * and /
-									else {
-										this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-									}
 								} else {
 									isUnicode = false;
 								}
-								//loop until end of comment */ 
+								//handle the \\u case manually into comment
+								if (this.currentCharacter == '\\') {
+									if (this.source[this.currentPosition] == '\\')
+										this.currentPosition++; //jump over the \\
+								}
+								// empty comment is not a javadoc /**/
+								if (this.currentCharacter == '/') { 
+									isJavadoc = false;
+								}
+								//loop until end of comment */
 								while ((this.currentCharacter != '/') || (!star)) {
-									if (this.recordLineSeparator
-										&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-											if (!isUnicode) {
+									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+										if (this.recordLineSeparator) {
+											if (isUnicode) {
+												pushUnicodeLineSeparator();
+											} else {
 												pushLineSeparator();
 											}
+										} else {
+											this.currentLine = null;
+										}
 									}
 									star = this.currentCharacter == '*';
 									//get next char
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 										&& (this.source[this.currentPosition] == 'u')) {
 										//-------------unicode traitement ------------
+										getNextUnicodeChar();
 										isUnicode = true;
-										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-										this.currentPosition++;
-										while (this.source[this.currentPosition] == 'u') {
-											this.currentPosition++;
-										}
-										if ((c1 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-											|| c1 < 0
-											|| (c2 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-											|| c2 < 0
-											|| (c3 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-											|| c3 < 0
-											|| (c4 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-											|| c4 < 0) { //error don't care of the value
-											this.currentCharacter = 'A';
-										} //something different from * and /
-										else {
-											this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-										}
 									} else {
 										isUnicode = false;
 									}
+									//handle the \\u case manually into comment
+									if (this.currentCharacter == '\\') {
+										if (this.source[this.currentPosition] == '\\')
+											this.currentPosition++;
+									} //jump over the \\
 								}
+								recordComment(isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK);
 							} catch (IndexOutOfBoundsException e) {
 								return;
 							}
@@ -2242,16 +2284,26 @@ public final void pushUnicodeLineSeparator() {
 	}
 }
 public void recordComment(int token) {
+	// compute position
+	int position = this.currentPosition;
+	switch (token) {
+		case TokenNameCOMMENT_BLOCK:
+			position = -position;
+			break;
+		case TokenNameCOMMENT_LINE:
+			position = -(position-1); // do not store trailing '/r' or '/n' character
+			break;
+	}
 
 	// a new comment is recorded
 	try {
-		this.commentStops[++this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
+		this.commentStops[++this.commentPtr] = position;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = this.commentStops.length;
 		int[] oldStack = this.commentStops;
 		this.commentStops = new int[oldStackLength + 30];
 		System.arraycopy(oldStack, 0, this.commentStops, 0, oldStackLength);
-		this.commentStops[this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
+		this.commentStops[this.commentPtr] = position;
 		//grows the positions buffers too
 		int[] old = this.commentStarts;
 		this.commentStarts = new int[oldStackLength + 30];
