@@ -97,7 +97,8 @@ public class IfStatement extends Statement {
 			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		if (this.elseStatement != null) {
-		    if (thenFlowInfo == FlowInfo.DEAD_END) {
+		    // signal else clause unnecessarily nested, tolerate else if ... code pattern
+		    if (thenFlowInfo == FlowInfo.DEAD_END && !(this.elseStatement instanceof IfStatement)) {
 		        currentScope.problemReporter().unnecessaryElse(this.elseStatement);
 		    }
 			// Save info for code gen

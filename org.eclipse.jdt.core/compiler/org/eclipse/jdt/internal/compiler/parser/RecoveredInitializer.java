@@ -30,6 +30,7 @@ public class RecoveredInitializer extends RecoveredField implements CompilerModi
 	public int localTypeCount;
 
 	public RecoveredBlock initializerBody;	
+
 public RecoveredInitializer(FieldDeclaration fieldDeclaration, RecoveredElement parent, int bracketBalance){
 	this(fieldDeclaration, parent, bracketBalance, null);
 }
@@ -47,20 +48,15 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 	it must be belonging to an enclosing element 
 	*/
 	if (fieldDeclaration.declarationSourceEnd > 0
-		&& nestedBlockDeclaration.sourceStart
-			> fieldDeclaration.declarationSourceEnd){
-		if (this.parent == null){
-			return this; // ignore
-		} else {
-			return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
-		}
+			&& nestedBlockDeclaration.sourceStart > fieldDeclaration.declarationSourceEnd){
+		if (this.parent == null) return this; // ignore
+		return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
 	}
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
 		foundOpeningBrace = true;
 		this.bracketBalance++;
 	}
-
 	initializerBody = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue);
 	if (nestedBlockDeclaration.sourceEnd == 0) return initializerBody;
 	return this;
@@ -73,15 +69,12 @@ public RecoveredElement add(FieldDeclaration newFieldDeclaration, int bracketBal
 	/* local variables inside initializer can only be final and non void */
 	char[][] fieldTypeName;
 	if ((newFieldDeclaration.modifiers & ~AccFinal) != 0 /* local var can only be final */
-		|| (newFieldDeclaration.type == null) // initializer
-		|| ((fieldTypeName = newFieldDeclaration.type.getTypeName()).length == 1 // non void
-			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
-		if (this.parent == null) {
-			return this; // ignore
-		} else {
-			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(newFieldDeclaration.declarationSourceStart - 1));
-			return this.parent.add(newFieldDeclaration, bracketBalanceValue);
-		}
+			|| (newFieldDeclaration.type == null) // initializer
+			|| ((fieldTypeName = newFieldDeclaration.type.getTypeName()).length == 1 // non void
+				&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
+		if (this.parent == null) return this; // ignore
+		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(newFieldDeclaration.declarationSourceStart - 1));
+		return this.parent.add(newFieldDeclaration, bracketBalanceValue);
 	}
 
 	/* default behavior is to delegate recording to parent if any,
@@ -89,13 +82,9 @@ public RecoveredElement add(FieldDeclaration newFieldDeclaration, int bracketBal
 	it must be belonging to an enclosing element 
 	*/
 	if (this.fieldDeclaration.declarationSourceEnd > 0
-		&& newFieldDeclaration.declarationSourceStart
-			> this.fieldDeclaration.declarationSourceEnd){
-		if (this.parent == null) {
-			return this; // ignore
-		} else {
-			return this.parent.add(newFieldDeclaration, bracketBalanceValue);
-		}
+			&& newFieldDeclaration.declarationSourceStart > this.fieldDeclaration.declarationSourceEnd){
+		if (this.parent == null) return this; // ignore
+		return this.parent.add(newFieldDeclaration, bracketBalanceValue);
 	}
 	// still inside initializer, treat as local variable
 	return this; // ignore
@@ -108,12 +97,9 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	/* do not consider a type starting passed the type end (if set)
 		it must be belonging to an enclosing type */
 	if (fieldDeclaration.declarationSourceEnd != 0 
-		&& localDeclaration.declarationSourceStart > fieldDeclaration.declarationSourceEnd){
-		if (parent == null) {
-			return this; // ignore
-		} else {
-			return this.parent.add(localDeclaration, bracketBalanceValue);
-		}
+			&& localDeclaration.declarationSourceStart > fieldDeclaration.declarationSourceEnd){
+		if (parent == null) return this; // ignore
+		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
 	/* method body should have been created */
 	Block block = new Block(0);
@@ -129,12 +115,9 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 	/* do not consider a statement starting passed the initializer end (if set)
 		it must be belonging to an enclosing type */
 	if (fieldDeclaration.declarationSourceEnd != 0 
-		&& statement.sourceStart > fieldDeclaration.declarationSourceEnd){
-		if (parent == null) {
-			return this; // ignore
-		} else {
-			return this.parent.add(statement, bracketBalanceValue);
-		}
+			&& statement.sourceStart > fieldDeclaration.declarationSourceEnd){
+		if (parent == null) return this; // ignore
+		return this.parent.add(statement, bracketBalanceValue);
 	}
 	/* initializer body should have been created */
 	Block block = new Block(0);
@@ -147,12 +130,9 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	/* do not consider a type starting passed the type end (if set)
 		it must be belonging to an enclosing type */
 	if (fieldDeclaration.declarationSourceEnd != 0 
-		&& typeDeclaration.declarationSourceStart > fieldDeclaration.declarationSourceEnd){
-		if (parent == null) {
-			return this; // ignore
-		} else {
-			return this.parent.add(typeDeclaration, bracketBalanceValue);
-		}
+			&& typeDeclaration.declarationSourceStart > fieldDeclaration.declarationSourceEnd){
+		if (parent == null) return this; // ignore
+		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 	if ((typeDeclaration.bits & ASTNode.IsLocalTypeMASK) != 0){
 		/* method body should have been created */
