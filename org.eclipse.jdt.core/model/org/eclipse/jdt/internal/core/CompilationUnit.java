@@ -297,14 +297,13 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 	return (WorkingCopy)perFactoryWorkingCopies.get(this);
 }
 
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
 		throw newNotPresentException();
 	} else {
 		// put the info now, because getting the contents requires it
-		JavaModelManager.getJavaModelManager().putInfo(this, info);
 		CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
 		// generate structure
@@ -312,7 +311,28 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
 		requestor.parser = parser;
-		parser.parseCompilationUnit(this, false/*diet parse*/);
+		parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
+				public char[] getContents() {
+					try {
+						IBuffer buffer = getBufferManager().getBuffer(CompilationUnit.this);
+						if (buffer == null) {
+								buffer = openBuffer(pm); // open buffer independently from the info, since we are building the info
+						}
+						return buffer == null ? null : buffer.getCharacters();
+					} catch (JavaModelException e) {
+						return CharOperation.NO_CHAR;
+					}
+				}
+				public char[] getMainTypeName() {
+					return CompilationUnit.this.getMainTypeName();
+				}
+				public char[][] getPackageName() {
+					return CompilationUnit.this.getPackageName();
+				}
+				public char[] getFileName() {
+					return CompilationUnit.this.getFileName();
+				}
+			}, false/*diet parse*/);
 		return unitInfo.isStructureKnown();
 	}
 }

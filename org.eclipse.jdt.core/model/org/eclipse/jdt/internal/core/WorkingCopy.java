@@ -144,14 +144,13 @@ public boolean exists() {
 	// working copy always exists in the model until it is detroyed
 	return this.useCount != 0;
 }
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
 		throw newNotPresentException();
 	} else {
 		// put the info now, because getting the contents requires it
-		JavaModelManager.getJavaModelManager().putInfo(this, info);
 		WorkingCopyElementInfo unitInfo = (WorkingCopyElementInfo) info;
 
 		// generate structure and compute syntax problems if needed
@@ -162,7 +161,28 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		if (this.computeProblems){
 			unitInfo.problems = new ArrayList();
 		}
-		CompilationUnitDeclaration unit = parser.parseCompilationUnit(this, this.computeProblems /*full parse if compute problems*/);
+		CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
+				public char[] getContents() {
+					try {
+						IBuffer buffer = getBufferManager().getBuffer(WorkingCopy.this);
+						if (buffer == null) {
+								buffer = openBuffer(pm); // open buffer independently from the info, since we are building the info
+						}
+						return buffer == null ? null : buffer.getCharacters();
+					} catch (JavaModelException e) {
+						return CharOperation.NO_CHAR;
+					}
+				}
+				public char[] getMainTypeName() {
+					return WorkingCopy.this.getMainTypeName();
+				}
+				public char[][] getPackageName() {
+					return WorkingCopy.this.getPackageName();
+				}
+				public char[] getFileName() {
+					return WorkingCopy.this.getFileName();
+				}
+			}, this.computeProblems /*full parse if compute problems*/);
 		
 		// update timestamp
 		CompilationUnit original = (CompilationUnit) getOriginalElement();
