@@ -26,10 +26,9 @@ public void build() {
 
 	try {
 		notifier.subTask(Util.bind("build.scrubbingOutput")); //$NON-NLS-1$
-		scrubOutputFolder();
-		notifier.updateProgressDelta(0.05f);
 		removeProblemsFor(javaBuilder.currentProject);
-		notifier.updateProgressDelta(0.05f);
+		scrubOutputFolder();
+		notifier.updateProgressDelta(0.1f);
 		notifier.checkCancel();
 
 		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
@@ -121,11 +120,15 @@ protected void copyExtraResourcesBack() throws CoreException {
 							if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
 							if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
 
-							resource.copy(
-								outputPath.append(
-									resource.getFullPath().removeFirstSegments(segmentCount)),
-								true,
-								null);
+							IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
+							IResource copiedResource = outputFolder.getFile(partialPath);
+							if (copiedResource.exists()) {
+								IMarker marker = resource.createMarker(ProblemMarkerTag);
+								marker.setAttribute(IMarker.MESSAGE, Util.bind("build.duplicateResource"));
+								marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+							} else {
+								resource.copy(copiedResource.getFullPath(), true, null);
+							}
 							return false;
 						case IResource.FOLDER :
 							if (resource.getFullPath().equals(outputPath)) return false;
