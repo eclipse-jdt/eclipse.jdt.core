@@ -605,7 +605,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 				sigIndex += index-startID;
 			}
 			
-			// add L (or Q) at the beigininig and ; at the end
+			// add L (or Q) at the beginning and ; at the end
 			sig[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
 			sig[sigIndex++] = C_NAME_END;
 			
