@@ -4167,9 +4167,12 @@ class ASTConverter {
 		try {
 			int token;
 			int indexInAnnotations = 0;
+			int eofPosition = this.scanner.eofPosition;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				IExtendedModifier modifier = null;
 				switch(token) {
+					case TerminalTokens.TokenNameWHITESPACE:
+						continue;
 					case TerminalTokens.TokenNameabstract:
 						modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 						break;
@@ -4208,7 +4211,7 @@ class ASTConverter {
 						if (annotations != null && indexInAnnotations < annotations.length) {
 							org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 							modifier = convert(annotation);
-							this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.scanner.eofPosition);
+							this.scanner.resetTo(annotation.declarationSourceEnd + 1, eofPosition);
 						}
 				}
 				if (modifier != null) {
@@ -4216,6 +4219,7 @@ class ASTConverter {
 				}
 			}
 		} catch(InvalidInputException e) {
+			e.printStackTrace();
 			// ignore
 		}
 	}
