@@ -50,6 +50,13 @@ package org.eclipse.jdt.core;
 public interface IClasspathAttribute {
 	
 	/**
+	 * Constant for the name of the javadoc location attribute.
+	 * 
+	 * @since 3.1
+	 */
+	String JAVADOC_LOCATION_ATTRIBUTE_NAME = "javadoc_location"; //$NON-NLS-1$
+	
+	/**
 	 * Returns the name of this classpath attribute.
 	 * 
 	 * @return the name of this classpath attribute.
