@@ -60,17 +60,17 @@ public class CompilationUnitSorter {
 		 * This constructor is used to specify customized values for the different categories. They are a convinient way to
 		 * distinguish AST nodes. The lower a value is, the higher the node will appear in the sorted compilation unit.
 		 * 
-		 * There are nine categories:
+		 * There are nine categories with theirs default values:
 		 * <ol>
-		 * <li>static types</li>
-		 * <li>static fields</li>
-		 * <li>static initializers</li>
-		 * <li>static methods</li>
-		 * <li>types</li>
-		 * <li>fields</li>
-		 * <li>initializers</li>
-		 * <li>constructors</li>
-		 * <li>methods</li>
+		 * <li>static types (1)</li>
+		 * <li>static fields (2)</li>
+		 * <li>static initializers (3)</li>
+		 * <li>static methods (4)</li>
+		 * <li>types (5)</li>
+		 * <li>fields (6) </li>
+		 * <li>initializers (7)</li>
+		 * <li>constructors (8)</li>
+		 * <li>methods (9)</li>
 		 * </ol>
 		 * 
 		 * @param staticTypeCategory the given value for the static type category
