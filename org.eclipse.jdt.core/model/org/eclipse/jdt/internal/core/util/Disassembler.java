@@ -357,6 +357,7 @@ public class Disassembler implements IClassFileDisassembler {
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader")); //$NON-NLS-1$
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
 		int length = attributes.length;
 		if (length != 0) {
