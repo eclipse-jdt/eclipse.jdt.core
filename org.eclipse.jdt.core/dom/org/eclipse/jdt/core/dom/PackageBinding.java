@@ -90,7 +90,7 @@ class PackageBinding implements IPackageBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
-		return null;
+		return getName();
 	}
 	
 	private String concat(String[] array, char c) {

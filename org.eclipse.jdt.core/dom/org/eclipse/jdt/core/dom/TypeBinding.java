@@ -370,7 +370,21 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#getKey()
 	 */
 	public String getKey() {
-		return null;
+		if (isLocal()) {
+			return null;
+		}
+		if (this.binding.isClass() || this.binding.isInterface()) {
+			StringBuffer buffer = new StringBuffer();
+			buffer
+				.append(getPackage().getName())
+				.append('.')
+				.append(getName());
+			return buffer.toString();
+		} else if (this.binding.isArrayType()) {
+			return this.getElementType().getKey() + this.getDimensions();
+		}
+		// this is a primitive type
+		return this.getName();
 	}
 
 }
