@@ -59,6 +59,5 @@ public interface ClassFileConstants extends IConstants {
 	
 	// jdk level used to denote future releases: optional behavior is not enabled for now, but may become so. In order to enable these,
 	// search for references to this constant, and change it to one of the official JDT constants above.
-	// e.g. deprecation of jsr bytecodes
 	long JDK_DEFERRED = Long.MAX_VALUE; 
 }
