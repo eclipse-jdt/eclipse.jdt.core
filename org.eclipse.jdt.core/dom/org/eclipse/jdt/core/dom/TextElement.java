@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.dom;
  * AST node for a text element within a doc comment.
  * <pre>
  * TextElement:
- *     Characters
+ *     Sequence of characters not including a close comment delimiter &ast/
  * </pre>
  * 
  * @see Javadoc
@@ -92,12 +92,22 @@ public final class TextElement extends ASTNode implements IDocElement {
 	
 	/**
 	 * Sets the text of this node to the given value.
+	 * <p>
+	 * The text element typically includes leading and trailing
+	 * whitespace that separates it from the immediately preceding
+	 * or following elements. The text element must not include
+	 * a block comment closing delimiter "&ast;/".
+	 * </p>
 	 * 
 	 * @param text the text of this node
 	 * @exception IllegalArgumentException if the text is null
+	 * or contains a block comment closing delimiter
 	 */ 
 	public void setText(String text) {
 		if (text == null) {
+			throw new IllegalArgumentException();
+		}
+		if (text.indexOf("*/") > 0) { //$NON-NLS-1$
 			throw new IllegalArgumentException();
 		}
 		modifying();

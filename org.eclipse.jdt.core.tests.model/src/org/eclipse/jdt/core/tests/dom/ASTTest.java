@@ -2729,6 +2729,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			// pass
 		}
 		assertTrue(ast.modificationCount() == previousCount);
+		// check that property cannot include */
+		previousCount = ast.modificationCount();
+		try {
+			x.setText("this would be the */ end of it");  //$NON-NLS-1$
+			assertTrue(false);
+		} catch (RuntimeException e) {
+			// pass
+		}
+		assertTrue(ast.modificationCount() == previousCount);
 	}		
 
 	public void testMemberRef() {
