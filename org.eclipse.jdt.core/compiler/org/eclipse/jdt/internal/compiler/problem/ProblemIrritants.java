@@ -273,7 +273,8 @@ public interface ProblemIrritants { // max: 500
 	final int CodeSnippetMissingClass = Internal + 420;
 	final int CodeSnippetMissingMethod = Internal + 421;
 	final int NonExternalizedStringLiteral = Internal + 261;
-
+	final int CannotUseSuperInCodeSnippet = Internal + 422;
+	
 	//constant pool
 	final int TooManyConstantsInConstantPool = Internal + 430;
 	

@@ -249,6 +249,14 @@ public void cannotUseSuperInJavaLangObject(AstNode reference) {
 		reference.sourceStart,
 		reference.sourceEnd);
 }
+public void cannotUseSuperInCodeSnippet(int start, int end) {
+	this.handle(
+		CannotUseSuperInCodeSnippet,
+		new String[0],
+		Error | Abort,
+		start,
+		end);
+}
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
 		NonConstantExpression,
