@@ -217,6 +217,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 								String id = originalResource.getFullPath().removeFirstSegments(1).toString();
 								createProblemFor(
 									resource,
+									null,
 									Util.bind("build.duplicateResource", id), //$NON-NLS-1$
 									javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true));
 								return false;

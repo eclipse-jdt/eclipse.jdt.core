@@ -112,7 +112,13 @@ public void acceptResult(CompilationResult result) {
 					if (duplicateTypeNames == null)
 						duplicateTypeNames = new ArrayList();
 					duplicateTypeNames.add(compoundName);
-					createProblemFor(compilationUnit.resource, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
+					IType type = null;
+					try {
+						type = javaBuilder.javaProject.findType(qualifiedTypeName.replace('/', '.'));
+					} catch (JavaModelException e) {
+						// ignore
+					}
+					createProblemFor(compilationUnit.resource, type, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
 					continue;
 				}
 				newState.recordLocatorForType(qualifiedTypeName, typeLocator);
@@ -122,9 +128,9 @@ public void acceptResult(CompilationResult result) {
 			} catch (CoreException e) {
 				Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 				if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
-					createProblemFor(compilationUnit.resource, Util.bind("build.classFileCollision", e.getMessage()), JavaCore.ERROR); //$NON-NLS-1$
+					createProblemFor(compilationUnit.resource, null, Util.bind("build.classFileCollision", e.getMessage()), JavaCore.ERROR); //$NON-NLS-1$
 				else
-					createProblemFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
+					createProblemFor(compilationUnit.resource, null, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
 			}
 		}
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
@@ -218,14 +224,17 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	notifier.checkCancel();
 }
 
-protected void createProblemFor(IResource resource, String message, String problemSeverity) {
+protected void createProblemFor(IResource resource, IMember javaElement, String message, String problemSeverity) {
 	try {
 		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		int severity = problemSeverity.equals(JavaCore.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
 
+		ISourceRange range = javaElement == null ? null : javaElement.getNameRange();
+		int start = range == null ? 0 : range.getOffset();
+		int end = range == null ? 1 : start + range.getLength();
 		marker.setAttributes(
 			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END},
-			new Object[] {message, new Integer(severity), new Integer(0), new Integer(1)});
+			new Object[] {message, new Integer(severity), new Integer(start), new Integer(end)});
 	} catch (CoreException e) {
 		throw internalException(e);
 	}
