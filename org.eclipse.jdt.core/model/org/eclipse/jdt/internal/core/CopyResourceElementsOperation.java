@@ -525,8 +525,13 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				// in case of a copy
 				updateReadOnlyPackageFragmentsForCopy((IContainer) source.getParent().getResource(), root, newFragName);
 			}
-			//register the correct change deltas
-			prepareDeltas(source, newFrag, isMove() && isEmpty);
+			// workaround for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=24505
+			if (isEmpty && isMove() && !(Util.isExcluded(source) || Util.isExcluded(newFrag))) {
+				IJavaProject sourceProject = source.getJavaProject();
+				getDeltaFor(sourceProject).movedFrom(source, newFrag);
+				IJavaProject destProject = newFrag.getJavaProject();
+				getDeltaFor(destProject).movedTo(newFrag, source);
+			}
 		} catch (DOMException dom) {
 			throw new JavaModelException(dom, IJavaModelStatusConstants.DOM_EXCEPTION);
 		} catch (JavaModelException e) {

@@ -128,6 +128,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testRenameOuterPkgFragment"));
 	suite.addTest(new JavaElementDeltaTests("testPackageFragmentAddAndRemove"));
 	suite.addTest(new JavaElementDeltaTests("testPackageFragmentMove"));
+	suite.addTest(new JavaElementDeltaTests("testCopyAndOverwritePackage"));
 	
 	// compilation units
 	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg1"));
@@ -821,6 +822,35 @@ public void testCreateWorkingCopy() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		if (copy != null) copy.discardWorkingCopy();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that the delta is correct if a package is copied on top of an existing
+ * package.
+ * (regression test for bug 61270 Wrong delta when copying a package that overrides another package)
+ */
+public void testCopyAndOverwritePackage() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src1", "src2"}, "bin");
+		createFolder("/P/src1/p");
+		createFile(
+			"P/src1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}");
+		createFolder("/P/src2/p");
+		startDeltas();
+		getPackage("/P/src1/p").copy(getPackageFragmentRoot("/P/src2"), null/*no sibling*/, null/*no rename*/, true/*replace*/, null/*no progress*/);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src2[*]: {CHILDREN}\n" + 
+			"		p[*]: {CHILDREN}\n" + 
+			"			X.java[+]: {}"
+		);
+	} finally {
+		this.stopDeltas();
 		this.deleteProject("P");
 	}
 }
