@@ -980,7 +980,7 @@ public void checkAnnotation() {
 			continue nextComment;
 		}
 		if (scanner.commentStops[lastAnnotationIndex] < 0) {
-			break nextComment;
+			continue nextComment;
 		}
 		checkDeprecated = true;
 		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over

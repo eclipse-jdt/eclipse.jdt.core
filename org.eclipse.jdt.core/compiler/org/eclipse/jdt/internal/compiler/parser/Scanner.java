@@ -1312,10 +1312,6 @@ public int getNextToken() throws InvalidInputException {
 									if (source[currentPosition] == '\\')
 										currentPosition++; //jump over the \\
 								}
-								// empty comment is not a javadoc /**/
-								if (currentCharacter == '/') { 
-									isJavadoc = false;
-								}
 								//loop until end of comment */
 								while ((currentCharacter != '/') || (!star)) {
 									if ((currentCharacter == '\r') || (currentCharacter == '\n')) {

@@ -89,33 +89,34 @@ public void checkAnnotation() {
 	pushOnIntArrayStack(this.getJavaDocPositions());
 	boolean deprecated = false;
 	int lastAnnotationIndex = -1;
+	int commentPtr = scanner.commentPtr;
 
 	//since jdk1.2 look only in the last java doc comment...
-	found : {
-		if ((lastAnnotationIndex = scanner.commentPtr) >= 0) { //look for @deprecated
-			scanner.commentPtr = -1;
-			// reset the comment stack, since not necessary after having checked
-			int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
-			// javadoc only (non javadoc comment have negative end positions.)
-			if (scanner.commentStops[lastAnnotationIndex] < 0) {
-				break found;
-			}
-			int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1;
-			//stop is one over
-			char[] comment = scanner.source;
-			deprecated =
-				checkDeprecation(
-					commentSourceStart,
-					commentSourceEnd,
-					comment);
-			break found;
+	nextComment : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
+		//look for @deprecated into the first javadoc comment preceeding the declaration
+		int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
+		// javadoc only (non javadoc comment have negative end positions.)
+		if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
+			continue nextComment;
 		}
+		if (scanner.commentStops[lastAnnotationIndex] < 0) {
+			continue nextComment;
+		}
+		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
+		char[] comment = scanner.source;
+
+		deprecated =
+			checkDeprecation(
+				commentSourceStart,
+				commentSourceEnd,
+				comment);
+		break nextComment;
 	}
 	if (deprecated) {
 		checkAndSetModifiers(AccDeprecated);
 	}
 	// modify the modifier source start to point at the first comment
-	if (lastAnnotationIndex >= 0) {
+	if (commentPtr >= 0) {
 		declarationSourceStart = scanner.commentStarts[0];
 	}
 }

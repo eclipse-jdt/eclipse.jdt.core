@@ -2379,7 +2379,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			  null,
 			  "", //$NON-NLS-1$
 			  "/* */", //$NON-NLS-1$
-			  "/**/", //$NON-NLS-1$
 			  "/**", //$NON-NLS-1$
 			  "*/", //$NON-NLS-1$
 			};
