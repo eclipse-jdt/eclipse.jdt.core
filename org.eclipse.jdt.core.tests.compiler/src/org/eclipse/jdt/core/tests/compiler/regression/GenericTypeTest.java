@@ -826,7 +826,77 @@ public void test032() {
 		"SUCCESS");
 }
 
+public void test033() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <E, T> {\n" + 
+			"	void foo(E e){}\n" + 
+			"	void foo(T t){}\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(E e){}\n" + 
+		"	     ^^^^^^^^\n" + 
+		"Duplicate method foo in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	void foo(T t){}\n" + 
+		"	     ^^^^^^^^\n" + 
+		"Duplicate method foo in type X\n" + 
+		"----------\n");
+}		
 
+public void test034() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Exception, T extends Exception> {\n" + 
+			"	void foo(E e){}\n" + 
+			"	void foo(T t){}\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(E e){}\n" + 
+		"	     ^^^^^^^^\n" + 
+		"Duplicate method foo in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	void foo(T t){}\n" + 
+		"	     ^^^^^^^^\n" + 
+		"Duplicate method foo in type X\n" + 
+		"----------\n");
+}	
+
+public void test035() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Exception, T extends Thread> {\n" + 
+			"	void foo(E e, Thread t){}\n" + 
+			"	void foo(Exception e, T t){}\n" + 
+			"}\n" ,
+		},
+		"duplicate");
+}	
+
+public void test036() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Exception, T extends Thread> {\n" + 
+			"	void foo(E e){}\n" + 
+			"	void foo(T t){}\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"		 System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"SUCCESS");
+}			
+			
 //public void test028() {
 //	this.runConformTest(
 //		new String[] {
