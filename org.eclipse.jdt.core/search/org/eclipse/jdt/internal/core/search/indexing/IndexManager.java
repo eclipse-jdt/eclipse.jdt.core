@@ -277,9 +277,6 @@ public void indexAll(IProject project) {
 	} catch(JavaModelException e){ // cannot retrieve classpath info
 	}	
 	this.request(new IndexAllProject(project, this));
-	// request to save index when all cus have been indexed
-	// want to release any memory immediately before other index jobs start
-	this.request(new SaveIndex(project.getFullPath(), this));
 }
 
 
@@ -499,7 +496,6 @@ public void indexLibrary(IPath path, IProject referingProject) {
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 	
 	IndexRequest request = null;
-	IPath folderPath = null;
 	if (target instanceof IFile) {
 		request = new AddJarFileToIndex((IFile)target, this, referingProject.getName());
 	} else if (target instanceof java.io.File) {
@@ -509,7 +505,6 @@ public void indexLibrary(IPath path, IProject referingProject) {
 		request = new AddJarFileToIndex(path, this, referingProject.getName());
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
-		folderPath = ((IFolder)target).getFullPath();
 	} else {
 		return;
 	}
@@ -523,10 +518,6 @@ public void indexLibrary(IPath path, IProject referingProject) {
 	}
 
 	this.request(request);
-	// request to save index when all class files have been indexed
-	// want to release any memory immediately before other index jobs start
-	if (folderPath != null)
-		this.request(new SaveIndex(folderPath, this));
 }
 }
 
