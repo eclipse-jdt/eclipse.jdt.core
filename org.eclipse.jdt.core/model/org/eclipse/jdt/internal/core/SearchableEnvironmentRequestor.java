@@ -112,11 +112,7 @@ public void acceptType(IType type) {
 				}
 			}
 		}
-		if (type.isClass()) {
-			this.requestor.acceptClass(packageName, type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
-		} else {
-			this.requestor.acceptInterface(packageName, type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
-		}
+		this.requestor.acceptType(packageName, type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
 	} catch (JavaModelException jme) {
 		// ignore
 	}

@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -274,22 +273,7 @@ public class SearchableEnvironment
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
 						return; // accept only top level types
-					int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
-					switch (kind) {
-						case IConstants.AccAnnotation:
-						case IConstants.AccAnnotation+IConstants.AccInterface:
-							storage.acceptAnnotation(packageName, simpleTypeName, modifiers, access);
-							break;
-						case IConstants.AccEnum:
-							storage.acceptEnum(packageName, simpleTypeName, modifiers, access);
-							break;
-						case IConstants.AccInterface:
-							storage.acceptInterface(packageName, simpleTypeName, modifiers, access);
-							break;
-						default:
-							storage.acceptClass(packageName, simpleTypeName, modifiers, access);
-							break;
-					}
+					storage.acceptType(packageName, simpleTypeName, modifiers, access);
 				}
 			};
 			try {

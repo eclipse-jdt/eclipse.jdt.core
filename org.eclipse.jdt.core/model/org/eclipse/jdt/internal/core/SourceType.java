@@ -767,7 +767,8 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 
 	class TypeResolveRequestor implements ISelectionRequestor {
 		String[][] answers = null;
-		void acceptType(String[] answer){
+		public void acceptType(char[] packageName, char[] tName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+			String[] answer = new String[]  {new String(packageName), new String(tName) };
 			if (this.answers == null) {
 				this.answers = new String[][]{ answer };
 			} else {
@@ -777,19 +778,6 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				this.answers[length] = answer;
 			}
 		}
-		public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			acceptType(new String[]  { new String(packageName), new String(annotationName) });
-		}
-		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			acceptType(new String[]  { new String(packageName), new String(className) });
-		}
-		public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			acceptType(new String[]  { new String(packageName), new String(enumName) });
-		}
-		public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
-		}
-
 		public void acceptError(IProblem error) {
 			// ignore
 		}

@@ -248,14 +248,8 @@ public char[] getImport(int lineNumber) {
  */
 public ISelectionRequestor getSelectionRequestor(final ISelectionRequestor originalRequestor) {
 	return new ISelectionRequestor() {
-		public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			originalRequestor.acceptAnnotation(packageName, annotationName, isDeclaration, uniqueKey, start, end);
-		}
-		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			originalRequestor.acceptClass(packageName, className, isDeclaration, uniqueKey, start, end);
-		}
-		public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			originalRequestor.acceptClass(packageName, enumName, isDeclaration, uniqueKey, start, end);
+		public void acceptType(char[] packageName, char[] typeName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+			originalRequestor.acceptType(packageName, typeName, modifiers, isDeclaration, uniqueKey, start, end);
 		}
 		public void acceptError(IProblem error) {
 			error.setSourceLineNumber(error.getSourceLineNumber() -  CodeSnippetToCuMapper.this.lineNumberOffset);
@@ -265,9 +259,6 @@ public ISelectionRequestor getSelectionRequestor(final ISelectionRequestor origi
 		}
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			originalRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, isDeclaration, uniqueKey, start, end);
-		}
-		public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			originalRequestor.acceptInterface(packageName, interfaceName, isDeclaration, uniqueKey, start, end);
 		}
 		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			originalRequestor.acceptMethod(declaringTypePackageName, declaringTypeName, enclosingDeclaringTypeSignature, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, isConstructor, isDeclaration, uniqueKey, start, end);

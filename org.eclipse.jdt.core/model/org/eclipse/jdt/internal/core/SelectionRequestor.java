@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -95,22 +96,49 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 	}
 }
 /**
- * Resolve the annotation.
+ * Resolve the type.
  */
-public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-	acceptType(packageName, annotationName, NameLookup.ACCEPT_ANNOTATIONS, isDeclaration, uniqueKey, start, end);
-}
-/**
- * Resolve the class.
- */
-public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, isDeclaration, uniqueKey, start, end);
-}
-/**
- * Resolve the enum.
- */
-public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-	acceptType(packageName, enumName, NameLookup.ACCEPT_ENUMS, isDeclaration, uniqueKey, start, end);
+public void acceptType(char[] packageName, char[] typeName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+	int acceptFlags = 0;
+	int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+	switch (kind) {
+		case IConstants.AccAnnotation:
+		case IConstants.AccAnnotation+IConstants.AccInterface:
+			acceptFlags = NameLookup.ACCEPT_ANNOTATIONS;
+			break;
+		case IConstants.AccEnum:
+			acceptFlags = NameLookup.ACCEPT_ENUMS;
+			break;
+		case IConstants.AccInterface:
+			acceptFlags = NameLookup.ACCEPT_INTERFACES;
+			break;
+		default:
+			acceptFlags = NameLookup.ACCEPT_CLASSES;
+			break;
+	}
+	IType type = null;
+	if(isDeclaration) {
+		type = resolveTypeByLocation(packageName, typeName, acceptFlags, start, end);
+	} else {
+		type = resolveType(packageName, typeName, acceptFlags);
+		if(type != null ) {
+			String key = uniqueKey == null ? type.getKey() : new String(uniqueKey);
+			if(type.isBinary()) {
+				type = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
+			} else {
+				type = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
+			}
+		}
+	}
+	
+	if (type != null) {
+		addElement(type);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+			System.out.print(type.toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
+	} 
 }
 /**
  * @see ISelectionRequestor#acceptError
@@ -175,12 +203,6 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 			}
 		}
 	}
-}
-/**
- * Resolve the interface
- */
-public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, isDeclaration, uniqueKey, start, end);
 }
 public void acceptLocalField(FieldBinding fieldBinding) {
 	IJavaElement res;
@@ -469,34 +491,6 @@ protected void acceptMethodDeclaration(IType type, char[] selector, int start, i
 		System.out.println(")"); //$NON-NLS-1$
 	}
 	return;
-}
-/**
- * Resolve the type, adding to the resolved elements.
- */
-protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-	IType type = null;
-	if(isDeclaration) {
-		type = resolveTypeByLocation(packageName, typeName, acceptFlags, start, end);
-	} else {
-		type = resolveType(packageName, typeName, acceptFlags);
-		if(type != null ) {
-			String key = uniqueKey == null ? type.getKey() : new String(uniqueKey);
-			if(type.isBinary()) {
-				type = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
-			} else {
-				type = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
-			}
-		}
-	}
-	
-	if (type != null) {
-		addElement(type);
-		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-			System.out.print(type.toString());
-			System.out.println(")"); //$NON-NLS-1$
-		}
-	} 
 }
 public void acceptTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] typeParameterName, boolean isDeclaration, int start, int end) {
 	IType type;
