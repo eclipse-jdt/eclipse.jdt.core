@@ -301,5 +301,5 @@ public interface IJavaModelStatusConstants {
 	 * Status constant indicating that an element is not on its project's claspath.
 	 * @since 3.1
 	 */
-	public static final int ELEMENT_NOT_ON_CLASSPATH	= 1005;	
+	public static final int ELEMENT_NOT_ON_CLASSPATH	= 1006;	
 }
