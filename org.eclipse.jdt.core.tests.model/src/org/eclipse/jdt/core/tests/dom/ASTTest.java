@@ -750,12 +750,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 	
 	protected void setUp() {
-		if (this.API_LEVEL == AST.LEVEL_2_0) {
-			ast = AST.newAST2();
-		}
-		if (this.API_LEVEL == AST.LEVEL_3_0) {
-			ast = AST.newAST3();
-		}
+		ast = AST.newAST(this.API_LEVEL);
 	}
 	
 	protected void tearDown() {
@@ -767,12 +762,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 */
 	public void testExampleSnippets() {
 		{
-			AST localAst;
-			if (ast.apiLevel() == AST.LEVEL_2_0) {
-				localAst = AST.newAST2();
-			} else {
-				localAst = AST.newAST3();
-			}
+			AST localAst = AST.newAST(ast.apiLevel());
 			CompilationUnit cu = localAst.newCompilationUnit();
 
 			// package com.example;
@@ -1115,12 +1105,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		// check that a child from a different AST is detected
 		try {
-			AST newAST;
-			if (node.getAST().apiLevel() == AST.LEVEL_2_0) {
-				newAST = AST.newAST2();
-			} else {
-				newAST = AST.newAST3();
-			}
+			AST newAST = AST.newAST(node.getAST().apiLevel());
 			prop.set(prop.sample(newAST, false));
 			assertTrue(false);
 		} catch (RuntimeException e) {
@@ -1227,12 +1212,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		// check that a child from a different AST is detected
 		try {
-			AST newAST;
-			if (node.getAST().apiLevel() == AST.LEVEL_2_0) {
-				newAST = AST.newAST2();
-			} else {
-				newAST = AST.newAST3();
-			}
+			AST newAST = AST.newAST(node.getAST().apiLevel());
 			children.add(prop.sample(newAST, false));
 			assertTrue(false);
 		} catch (RuntimeException e) {
@@ -1288,9 +1268,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(a0.apiLevel() == AST.LEVEL_2_0);
 		AST a1 = new AST(new HashMap()); // deprecated, but still 2.0
 		assertTrue(a1.apiLevel() == AST.LEVEL_2_0);
-		AST a2 = AST.newAST2();
+		AST a2 = AST.newAST(AST.LEVEL_2_0);
 		assertTrue(a2.apiLevel() == AST.LEVEL_2_0);
-		AST a3 = AST.newAST3();
+		AST a3 = AST.newAST(AST.LEVEL_3_0);
 		assertTrue(a3.apiLevel() == AST.LEVEL_3_0);
 		
 		
@@ -1629,76 +1609,43 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}		
 
 	public void testStringLiteralUnicode() {
-		AST localAst;
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		AST localAst = AST.newAST(ast.apiLevel());
 		StringLiteral literal = localAst.newStringLiteral();
 		literal.setEscapedValue("\"hello\\u0026\\u0050worl\\u0064\""); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello&Pworld")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setEscapedValue("\"hello\\nworld\""); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\nworld")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("hello\nworld"); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\nworld")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("\n"); //$NON-NLS-1$
 		assertTrue(literal.getEscapedValue().equals("\"\\n\"")); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("\n")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setEscapedValue("\"hello\\\"world\""); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\"world")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("hello\\u0026world"); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\\u0026world")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("hello\\u0026world"); //$NON-NLS-1$
 		assertTrue(literal.getEscapedValue().equals("\"hello\\\\u0026world\"")); //$NON-NLS-1$
 		
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			localAst = AST.newAST2();
-		} else {
-			localAst = AST.newAST3();
-		}
+		localAst = AST.newAST(ast.apiLevel());
 		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("\\u0001"); //$NON-NLS-1$
 		assertTrue(literal.getEscapedValue().equals("\"\\\\u0001\"")); //$NON-NLS-1$
@@ -6069,12 +6016,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(y.subtreeMatch(new CheckPositionsMatcher(), x));
 		
 		// different AST clone
-		AST newAST;
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
-			newAST = AST.newAST2();
-		} else {
-			newAST = AST.newAST3();
-		}
+		AST newAST = AST.newAST(ast.apiLevel());
 		ASTNode z = ASTNode.copySubtree(newAST, x);
 		assertTrue(x.subtreeMatch(new CheckPositionsMatcher(), z));
 		assertTrue(z.subtreeMatch(new CheckPositionsMatcher(), x));

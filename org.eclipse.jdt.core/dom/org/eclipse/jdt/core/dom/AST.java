@@ -105,6 +105,7 @@ public final class AST {
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
+	 * // TBD (jeem) deprecated Clients should use the level 3 API.
 	 */
 	public static final int LEVEL_2_0 = 2;
 	
@@ -124,11 +125,9 @@ public final class AST {
 	
 	/**
 	 * Level of AST API supported by this AST.
-     * Defaults to 2.0 for compatibility reasons.
-     *
 	 * @since 3.0
 	 */
-	int API_LEVEL = LEVEL_2_0;
+	int API_LEVEL;
 	
 	/**
 	 * Internal modification count; initially 0; increases monotonically
@@ -143,11 +142,34 @@ public final class AST {
 	Scanner scanner;
 
 	/**
+	 * Creates a new Java abstract syntax tree
+     * (AST) following the specified set of API rules. 
+     * 
+ 	 * @param level the API level; one of the LEVEL constants
+     * @since 3.0
+	 */
+	private AST(int level) {
+		if ((level != AST.LEVEL_2_0)
+			&& (level != AST.LEVEL_3_0)) {
+			throw new IllegalArgumentException();
+		}
+		this.API_LEVEL = level;
+		// initialize a scanner
+		this.scanner = new Scanner(
+				true /*comment*/, 
+				true /*whitespace*/, 
+				false /*nls*/, 
+				ClassFileConstants.JDK1_3 /*sourceLevel*/, 
+				null/*taskTag*/, 
+				null/*taskPriorities*/);
+	}
+
+	/**
 	 * Creates a new, empty abstract syntax tree using default options.
 	 * 
 	 * @see JavaCore#getDefaultOptions()
 	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST3()} instead of using
+     * use the new 3.0 API and call {@link #newAST(int)} instead of using
      * this constructor.
 	 */
 	public AST() {
@@ -207,57 +229,40 @@ public final class AST {
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
 	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST3()} instead of using
+     * use the new 3.0 API and call {@link #newAST(int)} instead of using
      * this constructor.
 	 */
 	public AST(Map options) {
-		this.scanner = new Scanner(
-			true /*comment*/, 
-			true /*whitespace*/, 
-			false /*nls*/, 
-			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
-			null/*taskTag*/, 
-			null/*taskPriorities*/);
+		this(LEVEL_2_0);
+		// override scanner if 1.4 asked for
+		if (JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE))) {
+			this.scanner = new Scanner(
+				true /*comment*/, 
+				true /*whitespace*/, 
+				false /*nls*/, 
+				ClassFileConstants.JDK1_4 /*sourceLevel*/, 
+				null/*taskTag*/, 
+				null/*taskPriorities*/);
+		}
 	}
 		
 	/**
-	 * Creates a new Java abstract syntax tree (AST) following the
-	 * 3.0 API rules. The 3.0 API is capable
-     * of handling all constructs in the Java language as described
-     * in the Java Language Specification, Third Edition (JLS3).
-     * JLS3 is a superset of all earlier versions of the
-     * Java language, and the 3.0 API can be used to manipulate
-     * programs written in all versions of the Java language
-     * up to and including J2SE 1.5.
-     * 
-     * @return an AST that plays by the 3.0 rules
-     * @since 3.0
-	 */
-	public static AST newAST3() {
-		AST result = new AST();
-		result.API_LEVEL = LEVEL_3_0;
-		return result;
-	}
-
-	/**
-	 * Creates a new Java abstract syntax tree (AST) following the
-	 * 2.0 API rules. The 2.0 API is capable
-     * of handling all constructs in the Java language as described
-     * in the Java Language Specification, Second Edition (JLS2).
-     * JLS2 is a superset of all earlier versions of the
-     * Java language, and the 2.0 API can be used to manipulate
-     * programs written in all versions of the Java language
-     * up to and including J2SE 1.4. 
+	 * Creates a new Java abstract syntax tree
+     * (AST) following the specified set of API rules. 
      * <p>
-     * Clients should not use this method. It is provided only so that
+     * Clients should use this method. It is provided only so that
      * test suites can create AST instances that employ the 2.0 APIs.
      * </p>
      * 
-     * @return an AST that plays by the 2.0 rules
+ 	 * @param level the API level; one of the LEVEL constants
      * @since 3.0
 	 */
-	public static AST newAST2() {
-		return new AST();
+	public static AST newAST(int level) {
+		if ((level != AST.LEVEL_2_0)
+			&& (level != AST.LEVEL_3_0)) {
+			throw new IllegalArgumentException();
+		}
+		return new AST(level);
 	}
 
 	/**
@@ -428,7 +433,7 @@ public final class AST {
 		if (length < 0 || offset < 0 || offset > source.length - length) {
 		    throw new IndexOutOfBoundsException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setKind(kind);
 		c.setSource(source);
 		c.setSourceRange(offset, length);
@@ -498,7 +503,7 @@ public final class AST {
 		ICompilationUnit unit,
 		boolean resolveBindings) {
 
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(unit);
 		c.setResolveBindings(resolveBindings);
 		ASTNode result = c.createAST(null);
@@ -588,7 +593,7 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(unit);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
@@ -662,7 +667,7 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(classFile);
 		c.setResolveBindings(resolveBindings);
 		ASTNode result = c.createAST(null);
@@ -711,7 +716,7 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(classFile);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
@@ -792,7 +797,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		c.setUnitName(unitName);
 		c.setProject(project);
@@ -887,7 +892,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		c.setUnitName(unitName);
 		c.setProject(project);
@@ -935,7 +940,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
@@ -988,7 +993,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		c.setCompilerOptions(options);
 		ASTNode result = c.createAST(null);
@@ -1111,9 +1116,9 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(unit);
-		c.setPartial(position);
+		c.setFocalPosition(position);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
 		ASTNode result = c.createAST(monitor);
@@ -1159,9 +1164,9 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(classFile);
-		c.setPartial(position);
+		c.setFocalPosition(position);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
 		ASTNode result = c.createAST(monitor);

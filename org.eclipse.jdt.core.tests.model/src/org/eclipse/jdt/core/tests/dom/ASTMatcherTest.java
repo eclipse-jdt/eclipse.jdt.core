@@ -103,12 +103,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 *
 	 */
 	protected void setUp() {
-		if (this.API_LEVEL == AST.LEVEL_2_0) {
-			ast = AST.newAST2();
-		}
-		if (this.API_LEVEL == AST.LEVEL_3_0) {
-			ast = AST.newAST3();
-		}
+		ast = AST.newAST(this.API_LEVEL);
 		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
 		N2 = ast.newSimpleName("M"); //$NON-NLS-1$
 		N3 = ast.newSimpleName("O"); //$NON-NLS-1$
