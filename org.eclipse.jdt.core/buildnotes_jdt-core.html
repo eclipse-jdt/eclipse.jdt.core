@@ -136,8 +136,8 @@ SearchPattern now accept two new flags for match rule: R_ERASURE_MATCH and R_EQU
 	/**
 	 * Match rule: The search pattern matches search results as raw types or parameterized types with same erasure.
 	 * Example:
-	 * 	- pattern: List&lt;Exception&gt;
-	 * 	- match: List&lt;Object&gt;
+	 *	- pattern: List&lt;Exception&gt;
+	 *	- match: List&lt;Object&gt;
 	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_ERASURE_MATCH}
 	 * This rule is not activated by default, so raw types or parameterized types with same erasure will not be found
 	 * for pattern List&lt;String&gt;,
@@ -148,8 +148,8 @@ SearchPattern now accept two new flags for match rule: R_ERASURE_MATCH and R_EQU
 	/**
 	 * Match rule: The search pattern matches search results as raw types or parameterized types with equivalent type parameters.
 	 * Example:
-	 *  - pattern: List&lt;Exception&gt;
-	 * 	- match:
+	 *	- pattern: List&lt;Exception&gt;
+	 *	- match:
 	 * 		+ List&lt;? extends Throwable&gt;
 	 * 		+ List&lt;? super RuntimeException&gt;
 	 * 		+ List&lt;?&gt;
