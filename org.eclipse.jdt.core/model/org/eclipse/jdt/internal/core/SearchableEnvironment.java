@@ -56,7 +56,7 @@ public class SearchableEnvironment
 		this.nameLookup = project.newNameLookup(workingCopies);
 
 		// Create search scope with visible entry on the project's classpath
-		this.searchScope = SearchEngine.createJavaSearchScope(this.project.getAllPackageFragmentRoots());
+		this.searchScope = SearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class SearchableEnvironment
 		this.nameLookup = project.newNameLookup(owner);
 
 		// Create search scope with visible entry on the project's classpath
-		this.searchScope = SearchEngine.createJavaSearchScope(this.project.getAllPackageFragmentRoots());
+		this.searchScope = SearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
 	}
 
 	/**
