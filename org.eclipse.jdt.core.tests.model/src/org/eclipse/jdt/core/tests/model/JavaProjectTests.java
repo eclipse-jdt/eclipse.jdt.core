@@ -91,6 +91,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources1"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources2"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources3"));
+	suite.addTest(new JavaProjectTests("testSourceFolderWithJarName"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -755,6 +756,20 @@ public void testRootGetPackageFragments() throws JavaModelException {
 	assertTrue("should be package 3 package fragments in lib.jar, were " + fragments.length , fragments.length == 3);
 }
 /**
+ * Ensure a source folder can have a name ending with ".jar"
+ */
+public void testSourceFolderWithJarName() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src.jar"}, "bin");
+		IFile file = createFile("/P/src.jar/X.java", "class X {}");
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
+		unit.getAllTypes(); // force to open
+	} catch (CoreException e) {
+		assertTrue("unable to open unit in 'src.jar' source folder", false);
+	} finally {
+		this.deleteProject("P");
+	}
+}/**
  * Test that a method
  * has no corresponding resource.
  */
