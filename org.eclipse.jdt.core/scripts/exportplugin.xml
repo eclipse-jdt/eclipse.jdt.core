@@ -4,9 +4,9 @@
 <project name="${plugin}" default="export plug-in [_2.1.0]" basedir="..">
 
 
-<target name="export plug-in [_2.2.0]">
+<target name="export plug-in [_3.0.0]">
 	<antcall target="zz_internal_export">
-		<param name="version" value="2.2.0"/>
+		<param name="version" value="3.0.0"/>
 	</antcall>
 </target>
 
