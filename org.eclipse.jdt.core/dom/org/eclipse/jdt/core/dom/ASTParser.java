@@ -689,10 +689,10 @@ public class ASTParser {
 	}
 
 	/**
-	 * @param monitor
-	 * @param compilationUnitDeclaration
-	 * @param source
-	 * @return
+	 * @param monitor IProgressMonitor
+	 * @param compilationUnitDeclaration CompilationUnitDeclaration
+	 * @param source char[]
+	 * @return ASTNode
 	 */
 	private ASTNode convert(IProgressMonitor monitor, CompilationUnitDeclaration compilationUnitDeclaration, char[] source, boolean needToResolveBindings) {
 		BindingResolver resolver = null;
