@@ -713,13 +713,16 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		if (focusBinaryBinding == null && focus != null && focus.isBinary()) {
 			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
 			focusBinaryBinding = this.lookupEnvironment.getCachedType(CharOperation.splitOn('.', fullyQualifiedName));
-			if (focusBinaryBinding == null) return;
+			if (focusBinaryBinding == null) 
+				return;
 		}
 
 		reportHierarchy(focus, focusUnit, focusBinaryBinding);
 		
 	} catch (ClassCastException e){ // work-around for 1GF5W1S - can happen in case duplicates are fed to the hierarchy with binaries hiding sources
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
+		if (TypeHierarchy.DEBUG)
+			e.printStackTrace();
 	} finally {
 		reset();
 	}

@@ -1036,7 +1036,7 @@ public class JavaProject
 				IType type = lookup.findType(
 					qualifiedName,
 					false,
-					NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+					NameLookup.ACCEPT_ALL);
 
 				if (type != null) {
 					return type.getParent();
@@ -1147,7 +1147,7 @@ public class JavaProject
 			typeQualifiedName, 
 			packageName,
 			false,
-			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+			NameLookup.ACCEPT_ALL);
 	}	
 
 	/**
@@ -1159,7 +1159,7 @@ public class JavaProject
 		IType type = lookup.findType(
 			fullyQualifiedName,
 			false,
-			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+			NameLookup.ACCEPT_ALL);
 		if (type == null) {
 			// try to find enclosing type
 			int lastDot = fullyQualifiedName.lastIndexOf('.');

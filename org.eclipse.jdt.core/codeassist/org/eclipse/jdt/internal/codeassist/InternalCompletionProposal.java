@@ -60,6 +60,7 @@ public class InternalCompletionProposal {
 				type = (BinaryType)cachedType;
 			}
 		} else { 
+			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
 			type = this.nameLookup.findType(new String(tName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
 			if(type instanceof BinaryType){
 				if(((BinaryType)type).getSourceMapper() != null) {
@@ -161,6 +162,7 @@ public class InternalCompletionProposal {
 				type = (BinaryType)cachedType;
 			}
 		} else { 
+			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
 			type = this.nameLookup.findType(new String(tName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
 			if(type instanceof BinaryType){
 				if(((BinaryType)type).getSourceMapper() != null) {

@@ -38,6 +38,8 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -59,6 +61,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  */
 public class NameLookup implements SuffixConstants {
+	// TODO (jerome) suppress the accept flags (qualified name is sufficient to find a type)
 	/**
 	 * Accept flag for specifying classes.
 	 */
@@ -78,6 +81,11 @@ public class NameLookup implements SuffixConstants {
 	 * Accept flag for specifying annotations.
 	 */
 	public static final int ACCEPT_ANNOTATIONS = ASTNode.Bit5;
+	
+	/*
+	 * Accept flag for all kinds of types
+	 */
+	public static final int ACCEPT_ALL = ACCEPT_CLASSES | ACCEPT_INTERFACES | ACCEPT_ENUMS | ACCEPT_ANNOTATIONS;
 
 	public static boolean VERBOSE = false;
 
@@ -187,14 +195,23 @@ public class NameLookup implements SuffixConstants {
 	 *  </ul>
 	 * Otherwise, false is returned. 
 	 */
-	protected boolean acceptType(IType type, int acceptFlags) {
-		if (acceptFlags == 0 || acceptFlags == (ACCEPT_CLASSES | ACCEPT_INTERFACES))
+	protected boolean acceptType(IType type, int acceptFlags, boolean isSourceType) {
+		if (acceptFlags == 0 || acceptFlags == ACCEPT_ALL)
 			return true; // no flags or all flags, always accepted
 		try {
-			if (type.isClass()) {
-				return (acceptFlags & ACCEPT_CLASSES) != 0;
-			} else {
-				return (acceptFlags & ACCEPT_INTERFACES) != 0;
+			int kind = isSourceType
+					? ((SourceTypeElementInfo) ((SourceType) type).getElementInfo()).getKind() 
+					: ((IBinaryType) ((BinaryType) type).getElementInfo()).getKind();
+			switch (kind) {
+				case IGenericType.CLASS :
+					return (acceptFlags & ACCEPT_CLASSES) != 0;
+				case IGenericType.INTERFACE :
+					return (acceptFlags & ACCEPT_INTERFACES) != 0;
+				case IGenericType.ENUM :
+					return (acceptFlags & ACCEPT_ENUMS) != 0;
+				default:
+					//case IGenericType.ANNOTATION_TYPE :
+					return (acceptFlags & ACCEPT_ANNOTATIONS) != 0;
 			}
 		} catch (JavaModelException npe) {
 			return false; // the class is not present, do not accept.
@@ -729,7 +746,7 @@ public class NameLookup implements SuffixConstants {
 					continue; // the classFile is not present
 				}
 				if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
-					if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags))
+					if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
 						requestor.acceptType(type);
 				}
 			}
@@ -755,7 +772,7 @@ public class NameLookup implements SuffixConstants {
 					Object object = typeMap.get(topLevelTypeName);
 					if (object instanceof IType) {
 						IType type = getMemberType((IType) object, name, firstDot);
-						if (acceptType(type, acceptFlags)) {
+						if (acceptType(type, acceptFlags, true/*a source type*/)) {
 							requestor.acceptType(type);
 							return; // don't continue with compilation unit
 						}
@@ -765,7 +782,7 @@ public class NameLookup implements SuffixConstants {
 							if (requestor.isCanceled())
 								return;
 							IType type = getMemberType(topLevelTypes[i], name, firstDot);
-							if (acceptType(type, acceptFlags)) {
+							if (acceptType(type, acceptFlags, true/*a source type*/)) {
 								requestor.acceptType(type);
 								return; // return the first one
 							}
@@ -786,7 +803,7 @@ public class NameLookup implements SuffixConstants {
 							continue;
 						IType type = cu.getType(topLevelTypeName);
 						type = getMemberType(type, name, firstDot);
-						if (acceptType(type, acceptFlags)) { // accept type checks for existence
+						if (acceptType(type, acceptFlags, true/*a source type*/)) { // accept type checks for existence
 							requestor.acceptType(type);
 							break;  // since an exact match was requested, no other matching type can exist
 						}
@@ -875,7 +892,7 @@ public class NameLookup implements SuffixConstants {
 					String subPrefix = prefix.substring(firstDot + 1, prefix.length());
 					seekTypesInType(subPrefix, subPrefix.indexOf('.'), memberType, requestor, acceptFlags);
 				} else {
-					if (acceptType(memberType, acceptFlags)) 
+					if (acceptType(memberType, acceptFlags, true/*a source type*/)) 
 						requestor.acceptMemberType(memberType);
 				}
 		}
@@ -885,7 +902,7 @@ public class NameLookup implements SuffixConstants {
 		if (!topLevelType.getElementName().toLowerCase().startsWith(prefix))
 			return;
 		if (firstDot == -1) {
-			if (acceptType(topLevelType, acceptFlags))
+			if (acceptType(topLevelType, acceptFlags, true/*a source type*/))
 				requestor.acceptType(topLevelType);
 		} else {
 			seekTypesInType(prefix, firstDot, topLevelType, requestor, acceptFlags);

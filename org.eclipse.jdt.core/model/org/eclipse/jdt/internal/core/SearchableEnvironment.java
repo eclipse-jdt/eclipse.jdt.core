@@ -91,7 +91,7 @@ public class SearchableEnvironment
 				typeName,
 				packageName,
 				false,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+				NameLookup.ACCEPT_ALL);
 		if (type != null) {
 			boolean isBinary = type instanceof BinaryType;
 			
@@ -226,7 +226,7 @@ public class SearchableEnvironment
 					findTypes(
 						new String(prefix),
 						storage,
-						NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+						NameLookup.ACCEPT_ALL);
 					return;
 				}
 				excludePath = ((IJavaElement) this.unitToSkip).getPath().toString();
@@ -312,13 +312,13 @@ public class SearchableEnvironment
 				findTypes(
 					new String(prefix),
 					storage,
-					NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+					NameLookup.ACCEPT_ALL);
 			}
 		} catch (JavaModelException e) {
 			findTypes(
 				new String(prefix),
 				storage,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+				NameLookup.ACCEPT_ALL);
 		}
 	}
 

@@ -1024,7 +1024,7 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 			typeName,
 			pkgs[i], 
 			false, 
-			typeBinding.isClass() ? NameLookup.ACCEPT_CLASSES : NameLookup.ACCEPT_INTERFACES);
+			typeBinding.isClass() ? NameLookup.ACCEPT_CLASSES : NameLookup.ACCEPT_INTERFACES); // TODO (frederic) should distinguish ENUMS and ANNOTATIONS
 		if (type != null) return type;
 	}
 

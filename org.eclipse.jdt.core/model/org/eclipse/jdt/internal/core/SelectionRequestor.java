@@ -100,7 +100,7 @@ public void acceptError(IProblem error) {
 public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, boolean isDeclaration, int start, int end) {
 	if(isDeclaration) {
 		IType type= resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+				NameLookup.ACCEPT_ALL,
 				start, end);
 		if(type != null) {
 			try {
@@ -125,8 +125,7 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 			}
 		}
 	} else {
-		IType type= resolveType(declaringTypePackageName, declaringTypeName,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		IType type= resolveType(declaringTypePackageName, declaringTypeName, NameLookup.ACCEPT_ALL);
 		if (type != null) {
 			IField field= type.getField(new String(name));
 			if (field.exists()) {
@@ -221,7 +220,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, CompilationUnitDec
 public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, int start, int end) {
 	if(isDeclaration) {
 		IType type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+				NameLookup.ACCEPT_ALL,
 				start, end);
 		
 		if(type != null) {
@@ -229,7 +228,7 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 		}
 	} else {
 		IType type = resolveType(declaringTypePackageName, declaringTypeName,
-			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+			NameLookup.ACCEPT_ALL);
 		// fix for 1FWFT6Q
 		if (type != null) {
 			if (type.isBinary()) {
@@ -404,11 +403,11 @@ public void acceptTypeParameter(char[] declaringTypePackageName, char[] declarin
 	IType type;
 	if(isDeclaration) {
 		type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+				NameLookup.ACCEPT_ALL,
 				start, end);
 	} else {
 		type = resolveType(declaringTypePackageName, declaringTypeName,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+				NameLookup.ACCEPT_ALL);
 	}
 			
 	if(type != null) {
@@ -432,7 +431,7 @@ public void acceptTypeParameter(char[] declaringTypePackageName, char[] declarin
 }
 public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector,int selectorStart, int selectorEnd, char[] typeParameterName, boolean isDeclaration, int start, int end) {
 	IType type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
-			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+			NameLookup.ACCEPT_ALL,
 			selectorStart, selectorEnd);
 	
 	if(type != null) {
