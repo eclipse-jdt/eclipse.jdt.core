@@ -12,7 +12,6 @@ public abstract/*  */class A implements Serializable, Toto, Titi, Tata {
 	public A(int i) throws IOException, Exception {
 		int i = 0;
 		i = 2;
-		;
-		;
+		;;
 	}
 }
