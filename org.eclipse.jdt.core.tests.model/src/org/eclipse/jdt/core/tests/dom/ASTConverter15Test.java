@@ -94,7 +94,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0133"));
+		suite.addTest(new ASTConverter15Test("test0136"));
 		return suite;
 	}
 	
@@ -4003,5 +4003,64 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("wrong qualified name", "java.util.Vector<java.lang.String>", typeBinding.getQualifiedName());
     	assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
     	assertFalse("From source", typeBinding.isFromSource());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
+    public void test0135() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"class X {\n" +
+    		"	public static X instance= new X();\n" +
+    		"\n" +
+    		"	int s;\n" +
+    		"\n" +
+    		"	int f() {\n" +
+    		"		System.out.println(X.instance.s + 1);\n" +
+    		"		return 1;\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	compilationUnit.accept(new ASTVisitor() {
+    		public boolean visit(QualifiedName qualifiedName) {
+    			ITypeBinding typeBinding = qualifiedName.resolveTypeBinding();
+    			assertNotNull("No binding", typeBinding);
+    			return true;
+    		}
+    	});
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
+    public void test0136() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"class X {\n" +
+    		"	public static X instance= new X();\n" +
+    		"	public X instance2 = new X();\n" +
+    		"	int s;\n" +
+    		"	int f() {\n" +
+    		"		System.out.println(X.instance.instance2.s + 1);\n" +
+    		"		return 1;\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	compilationUnit.accept(new ASTVisitor() {
+    		public boolean visit(QualifiedName qualifiedName) {
+    			ITypeBinding typeBinding = qualifiedName.resolveTypeBinding();
+    			assertNotNull("No binding", typeBinding);
+    			return true;
+    		}
+    	});
     }
 }

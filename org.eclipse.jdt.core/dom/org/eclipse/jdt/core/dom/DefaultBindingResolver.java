@@ -764,10 +764,10 @@ class DefaultBindingResolver extends BindingResolver {
 				/* This is the case for a name which is part of a qualified name that
 				 * cannot be resolved. See PR 13063.
 				 */
-				if (qualifiedNameReference.otherBindings == null || (index - 2) < 0) {
+				if (qualifiedNameReference.otherBindings == null || (index - indexOfFirstFieldBinding - 1) < 0) {
 					return null;
 				} else {
-					return this.getVariableBinding(qualifiedNameReference.otherBindings[index - 2]);				
+					return this.getVariableBinding(qualifiedNameReference.otherBindings[index - indexOfFirstFieldBinding - 1]);				
 				}
 			}
 		} else if (node instanceof QualifiedTypeReference) {
