@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
