@@ -14552,4 +14552,30 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930 - check no warning for using raw member
+	public void test518(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface Callable<T> {\n" + 
+				"	public enum Result {\n" + 
+				"		GOOD, BAD\n" + 
+				"	};\n" + 
+				"	public Result call(T arg);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements Callable<String> {\n" + 
+				"	public Result call(String arg) {\n" + 
+				"		return Result.GOOD;\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +				
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
 }
