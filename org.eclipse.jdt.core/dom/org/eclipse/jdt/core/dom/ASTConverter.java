@@ -1567,6 +1567,7 @@ class ASTConverter {
 	public Expression convert(MessageSend expression) {
 		// will return a MethodInvocation or a SuperMethodInvocation or
 		Expression expr;
+		int sourceStart = expression.sourceStart;
 		if (expression.isSuperAccess()) {
 			// returns a SuperMethodInvocation
 			SuperMethodInvocation superMethodInvocation = this.ast.newSuperMethodInvocation();
@@ -1589,6 +1590,9 @@ class ASTConverter {
 				if (this.resolveBindings) {
 					recordNodes(qualifier, expression.receiver);
 				}
+				if (qualifier != null) {
+					sourceStart = qualifier.getStartPosition();
+				}			
 			}
 			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = expression.arguments;
 			if (arguments != null) {
@@ -1632,9 +1636,12 @@ class ASTConverter {
 				recordNodes(qualifier, expression.receiver);
 			}
 			methodInvocation.setExpression(qualifier);
+			if (qualifier != null) {
+				sourceStart = qualifier.getStartPosition();
+			}
 			expr = methodInvocation;
 		}
-		expr.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);	
+		expr.setSourceRange(sourceStart, expression.sourceEnd - sourceStart + 1);	
 		removeTrailingCommentFromExpressionEndingWithAParen(expr);
 		return expr;
 	}

@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0460"));			
+		suite.addTest(new ASTConverterTest2("test0461"));			
 		return suite;
 	}
 	/**
@@ -1593,6 +1593,43 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("Malformed", !isMalformed(node));
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28824
+	 */
+	public void test0461() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0461", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertTrue("Has error", compilationUnit.getProblems().length == 0); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("Malformed", !isMalformed(node));
+		assertTrue("not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("not an assignment", expression.getNodeType() == ASTNode.ASSIGNMENT); //$NON-NLS-1$
+		Assignment assignment = (Assignment) expression;
+		checkSourceRange(assignment, "z= foo().y.toList()", source);
+		Expression expression2 = assignment.getRightHandSide();
+		checkSourceRange(expression2, "foo().y.toList()", source);
+		assertTrue("not a method invocation", expression2.getNodeType() == ASTNode.METHOD_INVOCATION);
+		MethodInvocation methodInvocation = (MethodInvocation) expression2;
+		Expression expression3 = methodInvocation.getExpression();
+		checkSourceRange(expression3, "foo().y", source);
+		checkSourceRange(methodInvocation.getName(), "toList", source);
+		assertTrue("not a field access", expression3.getNodeType() == ASTNode.FIELD_ACCESS);
+		FieldAccess fieldAccess = (FieldAccess) expression3;
+		checkSourceRange(fieldAccess.getName(), "y", source);
+		Expression expression4 = fieldAccess.getExpression();
+		checkSourceRange(expression4, "foo()", source);
+		assertTrue("not a method invocation", expression4.getNodeType() == ASTNode.METHOD_INVOCATION);
+		MethodInvocation methodInvocation2 = (MethodInvocation) expression4;
+		checkSourceRange(methodInvocation2.getName(), "foo", source);
+		assertNull("no null", methodInvocation2.getExpression());
 	}	
 	
 }
