@@ -325,7 +325,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		if (this.arguments != null)
 			checkInvocationArguments(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
-		checkInexactParameters(binding, argumentTypes, scope);
 
 		// Update the anonymous inner class : superclass, interface  
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);

@@ -171,6 +171,24 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				    if (checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i]))
 					    unsafeWildcardInvocation = true;
 			}
+
+		   if (method.parameters.length == argumentTypes.length) { // 70056
+				int varargIndex = method.parameters.length - 1;
+				ArrayBinding varargType = (ArrayBinding) method.parameters[varargIndex];
+				TypeBinding lastArgType = argumentTypes[varargIndex];
+				if (lastArgType == NullBinding) {
+					if (!(varargType.leafComponentType().isBaseType() && varargType.dimensions() == 1))
+						scope.problemReporter().inexactParameterToVarargsMethod(method, invocationSite);
+				} else if (varargType.dimensions <= lastArgType.dimensions()) {
+					int dimensions = lastArgType.dimensions();
+					if (lastArgType.leafComponentType().isBaseType())
+						dimensions--;
+					if (varargType.dimensions < dimensions)
+						scope.problemReporter().inexactParameterToVarargsMethod(method, invocationSite);
+					else if (varargType.dimensions == dimensions && varargType.leafComponentType != lastArgType.leafComponentType())
+						scope.problemReporter().inexactParameterToVarargsMethod(method, invocationSite);
+				}
+			}
 		} else {
 			for (int i = 0, argLength = arguments.length; i < argLength; i++)
 			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i]))

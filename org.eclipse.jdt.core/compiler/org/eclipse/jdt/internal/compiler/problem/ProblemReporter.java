@@ -1653,21 +1653,21 @@ public void indirectAccessToStaticType(ASTNode location, ReferenceBinding type) 
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void inexactParameterToVarargsMethod(MethodBinding method, ASTNode location) {
+public void inexactParameterToVarargsMethod(MethodBinding method, InvocationSite location) {
 	if (method.isConstructor()) {
 		this.handle(
 			IProblem.InexactParameterToVarargsConstructor,
 			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
 			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
-			location.sourceStart,
-			location.sourceEnd);
+			location.sourceStart(),
+			location.sourceEnd());
 	} else {
 		this.handle(
 			IProblem.InexactParameterToVarargsMethod,
 			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
 			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
-			location.sourceStart,
-			location.sourceEnd);
+			location.sourceStart(),
+			location.sourceEnd());
 	}
 }
 public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {

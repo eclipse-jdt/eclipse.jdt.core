@@ -23,11 +23,13 @@ public class VarargTest extends AbstractComparisonTest {
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
 				"		Y y = new Y();\n" +
+				"		y = new Y(null);\n" +
 				"		y = new Y(1);\n" +
 				"		y = new Y(1, 2, (byte) 3, 4);\n" +
 				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
 				"		\n" +
 				"		Y.count();\n" +
+				"		Y.count(null);\n" +
 				"		Y.count(1);\n" +
 				"		Y.count(1, 2, (byte) 3, 4);\n" +
 				"		Y.count(new int[] {1, 2, 3, 4 });\n" +
@@ -36,51 +38,101 @@ public class VarargTest extends AbstractComparisonTest {
 				"class Y {\n" +
 				"	public Y(int ... values) {\n" +
 				"		int result = 0;\n" +
-				"		for (int i = 0, l = values.length; i < l; i++)\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
 				"			result += values[i];\n" +
 				"		System.out.print(result);\n" +
 				"		System.out.print(' ');\n" +
 				"	}\n" +
 				"	public static void count(int ... values) {\n" +
 				"		int result = 0;\n" +
-				"		for (int i = 0, l = values.length; i < l; i++)\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
 				"			result += values[i];\n" +
 				"		System.out.print(result);\n" +
 				"		System.out.print(' ');\n" +
 				"	}\n" +
 				"}\n",
 			},
-			"0 1 10 10 0 1 10 10");
+			"0 0 1 10 10 0 0 1 10 10");
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
 				"		Y y = new Y();\n" +
+				"		y = new Y(null);\n" +
 				"		y = new Y(1);\n" +
 				"		y = new Y(1, 2, (byte) 3, 4);\n" +
 				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
 				"		\n" +
 				"		Y.count();\n" +
+				"		Y.count(null);\n" +
 				"		Y.count(1);\n" +
 				"		Y.count(1, 2, (byte) 3, 4);\n" +
 				"		Y.count(new int[] {1, 2, 3, 4 });\n" +
 				"	}\n" +
 				"}\n",
 			},
-			"0 1 10 10 0 1 10 10",
+			"0 0 1 10 10 0 0 1 10 10",
 			null,
 			false,
 			null);
 	}
-	
+
 	public void test002() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
+				"		Y y = new Y();\n" +
+				"		y = new Y(null);\n" +
+				"		y = new Y(1);\n" +
+				"		y = new Y(1, 2, (byte) 3, 4);\n" +
+				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y extends Z {\n" +
+				"	public Y(int ... values) { super(values); }\n" +
+				"}\n" +
+				"class Z {\n" +
+				"	public Z(int ... values) {\n" +
+				"		int result = 0;\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
+				"			result += values[i];\n" +
+				"		System.out.print(result);\n" +
+				"		System.out.print(' ');\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"0 0 1 10 10");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y y = new Y();\n" +
+				"		y = new Y(null);\n" +
+				"		y = new Y(1);\n" +
+				"		y = new Y(1, 2, (byte) 3, 4);\n" +
+				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"0 0 1 10 10",
+			null,
+			false,
+			null);
+	}
+
+	public void test003() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
 				"		Y.count();\n" +
+				"		Y.count((int[]) null);\n" +
+				"		Y.count((int[][]) null);\n" +
 				"		Y.count(new int[] {1});\n" +
 				"		Y.count(new int[] {1, 2}, new int[] {3, 4});\n" +
 				"		Y.count(new int[][] {new int[] {1, 2, 3}, new int[] {4}});\n" +
@@ -89,7 +141,7 @@ public class VarargTest extends AbstractComparisonTest {
 				"class Y {\n" +
 				"	public static int count(int[] values) {\n" +
 				"		int result = 0;\n" +
-				"		for (int i = 0, l = values.length; i < l; i++)\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
 				"			result += values[i];\n" +
 				"		System.out.print(' ');\n" +
 				"		System.out.print(result);\n" +
@@ -97,38 +149,43 @@ public class VarargTest extends AbstractComparisonTest {
 				"	}\n" +
 				"	public static void count(int[] ... values) {\n" +
 				"		int result = 0;\n" +
-				"		for (int i = 0, l = values.length; i < l; i++)\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
 				"			result += count(values[i]);\n" +
 				"		System.out.print('=');\n" +
 				"		System.out.print(result);\n" +
 				"	}\n" +
 				"}\n",
 			},
-			"=0 1 3 7=10 6 4=10");
+			"=0 0=0 1 3 7=10 6 4=10");
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
 				"		Y.count();\n" +
+				"		Y.count((int[]) null);\n" +
+				"		Y.count((int[][]) null);\n" +
 				"		Y.count(new int[] {1});\n" +
 				"		Y.count(new int[] {1, 2}, new int[] {3, 4});\n" +
 				"		Y.count(new int[][] {new int[] {1, 2, 3}, new int[] {4}});\n" +
 				"	}\n" +
 				"}\n"
 			},
-			"=0 1 3 7=10 6 4=10",
+			"=0 0=0 1 3 7=10 6 4=10",
 			null,
 			false,
 			null);
 	}
-	
-	public void test003() {
+
+	public void test004() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
+				"		Y.count(0);\n" +
+				"		Y.count(-1, (int[]) null);\n" +
+				"		Y.count(-2, (int[][]) null);\n" +
 				"		Y.count(1);\n" +
 				"		Y.count(2, new int[] {1});\n" +
 				"		Y.count(3, new int[] {1}, new int[] {2, 3}, new int[] {4});\n" +
@@ -140,7 +197,7 @@ public class VarargTest extends AbstractComparisonTest {
 				"		int result = j;\n" +
 				"		System.out.print(' ');\n" +
 				"		System.out.print('[');\n" +
-				"		for (int i = 0, l = values.length; i < l; i++)\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
 				"			result += values[i];\n" +
 				"		System.out.print(result);\n" +
 				"		System.out.print(']');\n" +
@@ -151,7 +208,7 @@ public class VarargTest extends AbstractComparisonTest {
 				"		System.out.print(' ');\n" +
 				"		System.out.print(result);\n" +
 				"		System.out.print(':');\n" +
-				"		for (int i = 0, l = values.length; i < l; i++)\n" +
+				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
 				"			result += count(j, values[i]);\n" +
 				"		System.out.print('=');\n" +
 				"		System.out.print(result);\n" +
@@ -164,6 +221,9 @@ public class VarargTest extends AbstractComparisonTest {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
+				"		Y.count(0);\n" +
+				"		Y.count(-1, (int[]) null);\n" +
+				"		Y.count(-2, (int[][]) null);\n" +
 				"		Y.count(1);\n" +
 				"		Y.count(2, new int[] {1});\n" +
 				"		Y.count(3, new int[] {1}, new int[] {2, 3}, new int[] {4});\n" +
@@ -177,7 +237,7 @@ public class VarargTest extends AbstractComparisonTest {
 			null);
 	}	
 
-	public void test004() {
+	public void test005() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -218,7 +278,7 @@ public class VarargTest extends AbstractComparisonTest {
 			null);
 	}
 
-	public void test005() { // 70056
+	public void test006() { // 70056
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -237,8 +297,8 @@ public class VarargTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// TODO (kent) split in smaller test cases
-	public void test006() { // array dimension test compatibility with Object
+
+	public void test007() { // array dimension test compatibility with Object
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -251,7 +311,8 @@ public class VarargTest extends AbstractComparisonTest {
 				"		Y.byte2(new byte[][][] {});\n" + // error
 				"\n" +
 				"		Y.object(null);\n" + // warning
-// TODO (kent) autoboxing				"		Y.object((byte) 1);\n" +
+				// TODO (kent) autoboxing case, enable once support is added
+				//"		Y.object((byte) 1);\n" +
 				"		Y.object(new byte[] {});\n" +
 				"		Y.object(new byte[][] {});\n" + // warning
 				"		Y.object(new byte[][][] {});\n" + // warning
@@ -385,7 +446,7 @@ public class VarargTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 
-	public void test007() {
+	public void test008() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -413,7 +474,111 @@ public class VarargTest extends AbstractComparisonTest {
 			"	    ^^^^^^^^^^^^^^^^\n" + 
 			"Inexact argument for the vararg constructor Y(char, int[][])\n" + 
 			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y y = new Y(null);\n" +
+				"		y = new Y(true, null);\n" + // null warning
+				"		y = new Y('i', null);\n" + // null warning
+				"	}\n" +
+				"}\n" +
+				"class Y extends Z {\n" +
+				"	public Y(int ... values) { super(values); }\n" +
+				"	public Y(boolean b, Object ... values) { super(b, values); }\n" +
+				"	public Y(char c, int[] ... values) {}\n" +
+				"}\n" +
+				"class Z {\n" +
+				"	public Z(int ... values) {}\n" +
+				"	public Z(boolean b, Object ... values) {}\n" +
+				"	public Z(char c, int[] ... values) {}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	y = new Y(true, null);\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"Inexact argument for the vararg constructor Y(boolean, Object[])\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	y = new Y(\'i\', null);\n" + 
+			"	    ^^^^^^^^^^^^^^^^\n" + 
+			"Inexact argument for the vararg constructor Y(char, int[][])\n" + 
+			"----------\n");
 	}
-	// check overloading varargs method with non varargs one
-	// check inexact argument for explicit constructor call scenario
+
+	public void test009() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(null);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(int values) { System.out.print('1'); }\n" +
+				"	public static void count(int ... values) { System.out.print('2'); }\n" +
+				"}\n",
+			},
+			"2");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test((Object[]) null);\n" + // to avoid null warning
+				"		Y.test(null, null);\n" +
+				"		Y.test(null, null, null);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void test (Object o, Object o2) { System.out.print('1'); }\n" +
+				"	public static void test(Object ... values) { System.out.print('2'); }\n" +
+				"}\n",
+			},
+			"212");
+	}
+
+	// TODO (kent) cannot call computeCompatibleMethod to choose between 2 methods
+	public void _test010() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.count(null);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void count(int[] values) {}\n" +
+				"	public static void count(int[] ... values) {}\n" +
+				"}\n",
+			},			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Y.count(null);\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[]) is ambiguous for the type Y\n" + 
+			"----------\n");
+	}
+
+	// TODO (kent) must warn when overridiing varargs method with non varargs one
+	public void _test011() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public void count(int ... values) {}\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"	public void count(int[] values) {}\n" +
+				"}\n",
+			},			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public void count(int[] values) {}\n" + 
+			"	  ^^^^^\n" + 
+			"The method count(int[]) is overriding a vararg method from X\n" + 
+			"----------\n");
+	}
 }

@@ -353,7 +353,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
-	checkInexactParameters(binding, argumentTypes, scope);
 
 	return this.resolvedType = this.binding.returnType;
 }

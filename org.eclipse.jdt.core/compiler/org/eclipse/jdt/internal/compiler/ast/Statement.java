@@ -40,7 +40,49 @@ public abstract class Statement extends ASTNode {
 		}
 		return false;
 	}
-	
+
+	public void generateArguments(MethodBinding binding, Expression[] arguments, BlockScope currentScope, CodeStream codeStream) {
+		if (binding.isVarargs()) {
+			// 5 possibilities exist for a call to the vararg method foo(int i, int ... value) : foo(1), foo(1, null), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
+			TypeBinding[] params = binding.parameters;
+			int lastIndex = params.length - 1;
+			for (int i = 0; i < lastIndex; i++) {
+				arguments[i].generateCode(currentScope, codeStream, true);
+			}
+
+			ArrayBinding varArgsType = (ArrayBinding) params[lastIndex]; // parameterType has to be an array type
+			int argLength = arguments == null ? 0 : arguments.length;
+			if (lastIndex < argLength) { // vararg argument was provided
+				if (params.length == argLength) {
+					TypeBinding lastType = arguments[lastIndex].resolvedType;
+					if (varArgsType.dimensions() == lastType.dimensions() || lastType == NullBinding) {
+						// called with matching array : foo(1, new int[] {1, 2}
+						arguments[lastIndex].generateCode(currentScope, codeStream, true);
+						return;
+					}
+				}
+				// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
+				// need to gen elements into an array, then gen each remaining element into created array
+				codeStream.generateInlinedValue(argLength - lastIndex);
+				codeStream.newArray(currentScope, varArgsType); // create a mono-dimensional array
+				int elementsTypeID = varArgsType.elementsType().id;
+				for (int i = 0, max = argLength - lastIndex; i < max; i++) {
+					codeStream.dup();
+					codeStream.generateInlinedValue(i);
+					arguments[i + lastIndex].generateCode(currentScope, codeStream, true);
+					codeStream.arrayAtPut(elementsTypeID, false);
+				}
+			} else {
+				// generate code for an empty array of parameterType
+				codeStream.generateInlinedValue(0);
+				codeStream.newArray(currentScope, varArgsType); // create a mono-dimensional array
+			}
+		} else if (arguments != null) {
+			for (int i = 0, max = arguments.length; i < max; i++)
+				arguments[i].generateCode(currentScope, codeStream, true);
+		}
+	}
+
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
 	
 	public boolean isEmptyBlock() {

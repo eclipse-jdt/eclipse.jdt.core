@@ -114,11 +114,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					this);
 			}
 			// regular code gen
-			if (arguments != null) {
-				for (int i = 0, max = arguments.length; i < max; i++) {
-					arguments[i].generateCode(currentScope, codeStream, true);
-				}
-			}
+			generateArguments(binding, arguments, currentScope, codeStream);
 			// handling innerclass instance allocation - outer local arguments
 			if (targetType.isNestedType()) {
 				codeStream.generateSyntheticOuterArgumentValues(
