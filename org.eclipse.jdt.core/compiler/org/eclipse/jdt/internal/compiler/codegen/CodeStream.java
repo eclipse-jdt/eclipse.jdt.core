@@ -3003,8 +3003,12 @@ final public void invokeinterface(MethodBinding methodBinding) {
 	writeUnsignedByte(argCount);
 	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
 	// the number of bytes.
-	position++;
-	classFileOffset++;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = 0;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray((byte)0);
+	}
 	if (((id = methodBinding.returnType.id) == T_double) || (id == T_long))
 		stackDepth += (2 - argCount);
 	else
@@ -4289,8 +4293,12 @@ final public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedI
 		resizeByteArray(OPC_lookupswitch);
 	}
 	for (int i = (3 - (pos % 4)); i > 0; i--) {
-		position++; // Padding
-		classFileOffset++;
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = 0;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray((byte)0);
+		}
 	}
 	defaultLabel.branch();
 	writeSignedWord(length);
@@ -5413,8 +5421,12 @@ final public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] k
 		resizeByteArray(OPC_tableswitch);
 	}
 	for (int i = (3 - (pos % 4)); i > 0; i--) {
-		position++; // Padding
-		classFileOffset++;
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = 0;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray((byte)0);
+		}
 	}
 	defaultLabel.branch();
 	writeSignedWord(low);
