@@ -92,7 +92,7 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	public void endVisit(EnumConstantDeclaration node) {
 		add(node);
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
-		detachedListElement(node.getAnonymousClassDeclaration().bodyDeclarations());
+		detachedListElement(node.bodyDeclarations());
 	}
 
 	/**

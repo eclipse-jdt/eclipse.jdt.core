@@ -1,7 +1,7 @@
 package test0059;
 
 public class X {   
-    public static final String val = "foo";
+    public static final String value = "foo";
     
     public static void main(String[] args) {
     	for (Test t : Test.values()) {
@@ -15,7 +15,7 @@ enum Test {
     private static final String VAL_A_LABEL;
 
     static {
-        VAL_A_LABEL = X.val;
+        VAL_A_LABEL = X.value;
     }
 }
 

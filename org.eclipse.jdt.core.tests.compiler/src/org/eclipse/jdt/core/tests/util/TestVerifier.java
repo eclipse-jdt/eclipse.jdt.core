@@ -104,43 +104,21 @@ public String getExecutionError(){
 }
 /**
  * Returns the code of the VerifyTests class.
- * 
- * IMPORTANT NOTE: DO NOTE EDIT BUT GENERATE INSTEAD (see below)
  *
  * To generate:
- * - export VerifyTests.java to d:/temp
- * - inspect org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("d:/temp/VerifyTests.java", 2, true)
+ *	- export VerifyTests to c:/temp/test
+ *  - inspect org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/test/org/eclipse/jdt/core/tests/util/VerifyTests.java", 2)
  */
 private String getVerifyTestsCode() {
 	return 
-		"/*******************************************************************************\n" + 
-		" * Copyright (c) 2000, 2004 IBM Corporation and others.\n" + 
-		" * All rights reserved. This program and the accompanying materials \n" + 
-		" * are made available under the terms of the Common Public License v1.0\n" + 
-		" * which accompanies this distribution, and is available at\n" + 
-		" * http://www.eclipse.org/legal/cpl-v10.html\n" + 
-		" * \n" + 
-		" * Contributors:\n" + 
-		" *     IBM Corporation - initial API and implementation\n" + 
-		" *******************************************************************************/\n" + 
 		"package org.eclipse.jdt.core.tests.util;\n" + 
-		"\n" + 
 		"import java.lang.reflect.*;\n" + 
 		"import java.io.*;\n" + 
 		"import java.net.*;\n" + 
 		"import java.util.*;\n" + 
-		"\n" + 
-		"/******************************************************\n" + 
-		" * \n" + 
-		" * IMPORTANT NOTE: If modifying this class, copy the source to TestVerifier#getVerifyTestsCode()\n" + 
-		" * (see this method for details)\n" + 
-		" * \n" + 
-		" ******************************************************/\n" + 
-		"\n" + 
 		"public class VerifyTests {\n" + 
 		"	int portNumber;\n" + 
 		"	Socket socket;\n" + 
-		"\n" + 
 		"/**\n" + 
 		" * NOTE: Code copied from junit.util.TestCaseClassLoader.\n" + 
 		" *\n" + 
@@ -158,15 +136,12 @@ private String getVerifyTestsCode() {
 		" * <b>Known limitation:</b> the VerifyClassLoader cannot load classes\n" + 
 		" * from jar files.\n" + 
 		" */\n" + 
-		"\n" + 
-		"\n" + 
 		"public class VerifyClassLoader extends ClassLoader {\n" + 
 		"	/** scanned class path */\n" + 
 		"	private String[] fPathItems;\n" + 
 		"	\n" + 
 		"	/** excluded paths */\n" + 
 		"	private String[] fExcluded= {};\n" + 
-		"\n" + 
 		"	/**\n" + 
 		"	 * Constructs a VerifyClassLoader. It scans the class path\n" + 
 		"	 * and the excluded package paths\n" + 
@@ -190,7 +165,6 @@ private String getVerifyTestsCode() {
 		"		while (st.hasMoreTokens()) {\n" + 
 		"			fPathItems[i++]= st.nextToken();\n" + 
 		"		}\n" + 
-		"\n" + 
 		"	}\n" + 
 		"	public java.net.URL getResource(String name) {\n" + 
 		"		return ClassLoader.getSystemResource(name);\n" + 
@@ -230,11 +204,13 @@ private String getVerifyTestsCode() {
 		"				// keep searching\n" + 
 		"			}\n" + 
 		"		}\n" + 
-		"		File file= locate(name);\n" + 
-		"		if (file == null)\n" + 
-		"			throw new ClassNotFoundException();\n" + 
-		"		byte data[]= loadClassData(file);\n" + 
-		"		c= defineClass(name, data, 0, data.length);\n" + 
+		"		if (c == null) {\n" + 
+		"			File file= locate(name);\n" + 
+		"			if (file == null)\n" + 
+		"				throw new ClassNotFoundException();\n" + 
+		"			byte data[]= loadClassData(file);\n" + 
+		"			c= defineClass(name, data, 0, data.length);\n" + 
+		"		}\n" + 
 		"		if (resolve) \n" + 
 		"			resolveClass(c);\n" + 
 		"		return c;\n" + 
@@ -302,7 +278,6 @@ private String getVerifyTestsCode() {
 		"	this.socket = server.accept();\n" + 
 		"	this.socket.setTcpNoDelay(true);\n" + 
 		"	server.close();\n" + 
-		"\n" + 
 		"	DataInputStream in = new DataInputStream(this.socket.getInputStream());\n" + 
 		"	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());\n" + 
 		"	while (true) {\n" + 
@@ -321,7 +296,6 @@ private String getVerifyTestsCode() {
 		"						System.out.println(VerifyTests.class.getName());\n" + 
 		"						out.writeBoolean(false);\n" + 
 		"					} catch (IOException e1) {\n" + 
-		"						// ignore\n" + 
 		"					}\n" + 
 		"				}\n" + 
 		"			}\n" + 

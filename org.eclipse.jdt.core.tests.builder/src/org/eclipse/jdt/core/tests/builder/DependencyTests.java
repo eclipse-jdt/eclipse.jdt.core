@@ -59,7 +59,7 @@ public class DependencyTests extends Tests {
 			
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(collaboratorPath);
-		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "Class must implement the inherited abstract method Indicted.foo()", collaboratorPath)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testExactMethodDeleting() throws JavaModelException {
@@ -367,58 +367,6 @@ public class DependencyTests extends Tests {
 			"	public int i;\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
-		incrementalBuild(projectPath);
-		expectingNoProblems();
-	}
-
-	// 77272
-	public void testInterfaceDeleting() throws JavaModelException {
-		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
-
-		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-
-		env.addClass(root, "p1", "Vehicle", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public interface Vehicle {}\n" //$NON-NLS-1$
-		);
-
-		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public interface Car extends Vehicle {}\n" //$NON-NLS-1$
-		);
-
-		env.addClass(root, "p1", "CarImpl", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class CarImpl implements Car {}\n" //$NON-NLS-1$
-		);
-
-		IPath testPath = env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Test { public Vehicle createVehicle() { return new CarImpl(); } }\n" //$NON-NLS-1$
-		);
-
-		fullBuild(projectPath);
-		expectingNoProblems();
-
-		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public interface Car {}\n" //$NON-NLS-1$
-		);
-
-		incrementalBuild(projectPath);
-		expectingOnlyProblemsFor(testPath);
-		expectingSpecificProblemFor(testPath, new Problem("Test", "Type mismatch: cannot convert from CarImpl to Vehicle", testPath)); //$NON-NLS-1$ //$NON-NLS-2$
-
-		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public interface Car extends Vehicle {}\n" //$NON-NLS-1$
-		);
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
@@ -859,78 +807,4 @@ public class DependencyTests extends Tests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
-
-	// 79163
-	public void testTypeVisibility2() throws JavaModelException {
-		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
-
-		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-
-		IPath aPath = env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class A {\n" +  //$NON-NLS-1$
-			"	void foo() { p2.FooFactory.createFoo().foo(); }\n" +  //$NON-NLS-1$
-			"	void foos() { p2.FooFactory.createFoos().clone(); }\n" +  //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
-
-		// Foo & Foos are not public to get visibility problems
-		env.addClass(root, "p2", "Foo", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"class Foo { public void foo() {} }\n" //$NON-NLS-1$
-		);
-		env.addClass(root, "p2", "Foos", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"class Foos {}\n" //$NON-NLS-1$
-		);
-
-		env.addClass(root, "p2", "FooFactory", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class FooFactory {\n" +  //$NON-NLS-1$
-			"	public static Foo createFoo() { return null; }\n" +  //$NON-NLS-1$
-			"	public static Foos[] createFoos() { return null; }\n" +  //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-		);
-
-		fullBuild(projectPath);
-		expectingOnlyProblemsFor(new IPath[] {aPath});
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
-
-		env.addClass(root, "p2", "Foo", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Foo { public void foo() {} }\n" //$NON-NLS-1$
-		);
-
-		incrementalBuild(projectPath);
-		expectingOnlyProblemsFor(new IPath[] {aPath});
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
-
-		env.addClass(root, "p2", "Foos", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"public class Foos { }\n" //$NON-NLS-1$
-		);
-
-		incrementalBuild(projectPath);
-		expectingNoProblems();
-
-		env.addClass(root, "p2", "Foo", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"class Foo { public void foo() {} }\n" //$NON-NLS-1$
-		);
-		env.addClass(root, "p2", "Foos", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p2;\n"+ //$NON-NLS-1$
-			"class Foos {}\n" //$NON-NLS-1$
-		);
-
-		incrementalBuild(projectPath);
-		expectingOnlyProblemsFor(new IPath[] {aPath});
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
-}
 }

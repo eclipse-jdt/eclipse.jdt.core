@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.io.*;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -21,19 +20,40 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.Comment;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.MemberRef;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ASTConverterJavadocTest extends ConverterTestSetup {
-
-	// Flag to know whether Converter directory should be copied from org.eclipse.jdt.core.tests.model project
-	static protected boolean COPY_DIR = true;
 
 	// Test counters
 	protected static int[] TEST_COUNTERS = { 0, 0, 0, 0 };
@@ -108,11 +128,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 
 		// Run test cases subset
-		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug79904"));
-		suite.addTest(new ASTConverterJavadocTest("testBug79809"));
-		suite.addTest(new ASTConverterJavadocTest("testBug79809b"));
+		suite.addTest(new ASTConverterJavadocTest("testBug70892_JLS2"));
+		suite.addTest(new ASTConverterJavadocTest("testBug70892_JLS3"));
+		suite.addTest(new ASTConverterJavadocTest("testBug51911"));
 		return suite;
 	}
 
@@ -135,35 +154,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
-	 */
-	protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
-		if (COPY_DIR) {
-			super.copyDirectory(sourceDir, targetDir);
-		} else {
-			targetDir.mkdirs();
-			File sourceFile = new File(sourceDir, ".project");
-			File targetFile = new File(targetDir, ".project");
-			targetFile.createNewFile();
-			copy(sourceFile, targetFile);
-			sourceFile = new File(sourceDir, ".classpath");
-			targetFile = new File(targetDir, ".classpath");
-			targetFile.createNewFile();
-			copy(sourceFile, targetFile);
-		}
-	}
-	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#getName()
 	 */
 	public String getName() {
 		String strUnix = this.unix ? " - Unix" : "";
 		return "Doc "+this.docCommentSupport+strUnix+" - "+super.getName();
 	}
-	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-		File dir = new Path(path).removeLastSegments(1).toFile();
-		dir.mkdirs();
-		return super.getWorkingCopy(path, source);
-	}	
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
@@ -865,69 +861,32 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		while (elements.hasNext()) {
 			ASTNode fragment = (ASTNode) elements.next();
 			if (fragment.getNodeType() == ASTNode.TEXT_ELEMENT) {
-				if (previousFragment == null && TagElement.TAG_PARAM.equals(tagName) && ((TextElement)fragment).getText().equals("<")) { // special case here for @param <E> syntax
-					int start = tagStart;
-					// verify '<'
-					while (source[start] == ' ' || Character.isWhitespace(source[start])) {
-						start++; // purge white characters
+				if (previousFragment == null) {
+					if (tagName != null && (source[tagStart] == '\r' || source[tagStart] == '\n')) {
+						while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
+							tagStart++; // purge non-stored characters
+						}
 					}
-					text = new String(source, start, fragment.getLength());
-					assumeEquals(this.prefix+"Misplaced text element at <"+fragment.getStartPosition()+">: ", text, ((TextElement) fragment).getText());
-					start += fragment.getLength();
-					// verify simple name
-					assumeTrue(this.prefix+"Unexpected fragment end for "+tagElement, elements.hasNext());
-					fragment = (ASTNode) elements.next();
-					while (source[start] == ' ' || Character.isWhitespace(source[start])) {
-						start++; // purge white characters
-					}
-					assumeEquals(this.prefix+"Unexpected node type for tag element "+tagElement, ASTNode.SIMPLE_NAME, fragment.getNodeType());
-					Name name = (Name) fragment;
-					verifyNamePositions(start, name, source);
-					start += fragment.getLength();
-					// verify simple name
-					assumeTrue(this.prefix+"Unexpected fragment end for "+tagElement, elements.hasNext());
-					fragment = (ASTNode) elements.next();
-					while (source[start] == ' ' || Character.isWhitespace(source[start])) {
-						start++; // purge white characters
-					}
-					text = new String(source, start, fragment.getLength());
-					assumeEquals(this.prefix+"Misplaced text element at <"+fragment.getStartPosition()+">: ", text, ((TextElement) fragment).getText());
-					start += fragment.getLength();
-					// reset fragment as simple name to avoid issue with next text element
-					fragment = name;
-					tagStart += (start- tagStart) - name.getLength();
 				} else {
-					if (previousFragment == null) {
-						if (tagName != null && (source[tagStart] == '\r' || source[tagStart] == '\n')) {
-							while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
-								tagStart++; // purge non-stored characters
-							}
+					if (previousFragment.getNodeType() == ASTNode.TEXT_ELEMENT) {
+						assumeTrue(this.prefix+"Wrong length at <"+previousFragment.getStartPosition()+"> for text element "+previousFragment, (source[tagStart] == '\r' && source[tagStart+1] == '\n' || source[tagStart] == '\n'));
+						while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
+							tagStart++; // purge non-stored characters
 						}
 					} else {
-						if (previousFragment.getNodeType() == ASTNode.TEXT_ELEMENT) {
-							assumeTrue(this.prefix+"Wrong length at <"+previousFragment.getStartPosition()+"> for text element "+previousFragment, (source[tagStart] == '\r' && source[tagStart+1] == '\n' || source[tagStart] == '\n'));
-							while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
-								tagStart++; // purge non-stored characters
+						int start = tagStart;
+						boolean newLine = false;
+						while (source[start] == '*' || Character.isWhitespace(source[start])) {
+							start++; // purge non-stored characters
+							if (source[tagStart] == '\r' || source[tagStart] == '\n') {
+								newLine = true;
 							}
-						} else if (TagElement.TAG_PARAM.equals(tagName) && previousFragment.getNodeType() == ASTNode.SIMPLE_NAME && ((TextElement)fragment).getText().equals(">")) {
-							while (source[tagStart] == ' ' || Character.isWhitespace(source[tagStart])) {
-								tagStart++; // purge white characters
-							}
-						} else {
-							int start = tagStart;
-							boolean newLine = false;
-							while (source[start] == '*' || Character.isWhitespace(source[start])) {
-								start++; // purge non-stored characters
-								if (source[tagStart] == '\r' || source[tagStart] == '\n') {
-									newLine = true;
-								}
-							}
-							if (newLine) tagStart = start;
 						}
+						if (newLine) tagStart = start;
 					}
-					text = new String(source, tagStart, fragment.getLength());
-					assumeEquals(this.prefix+"Misplaced text element at <"+fragment.getStartPosition()+">: ", text, ((TextElement) fragment).getText());
 				}
+				text = new String(source, tagStart, fragment.getLength());
+				assumeEquals(this.prefix+"Misplaced text element at <"+fragment.getStartPosition()+">: ", text, ((TextElement) fragment).getText());
 			} else {
 				while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
 					tagStart++; // purge non-stored characters
@@ -2224,94 +2183,5 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug73348() throws JavaModelException {
 		verifyComments("testBug73348");
-	}
-
-	/**
-	 * Test fix for bug 77644: [dom] AST node extended positions may be wrong while moving
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77644">77644</a>
-	 */
-	public void testBug77644() throws JavaModelException {
-		verifyComments("testBug77644");
-	}
-
-	/**
-	 * Regression test for bug 79904: [1.5][dom][javadoc] TagElement range not complete for type parameter tags
-	 */
-	public void testBug79904() throws JavaModelException, CoreException {
-		ICompilationUnit workingCopy = null;
-		int level = this.astLevel;
-		this.astLevel = AST.JLS3;
-		try {
-			workingCopy = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
-				"package javadoc.b79904;\n" +
-				"/**\n" + 
-				" * @param <E>\n" + 
-				" * @see Object\n" + 
-				" */\n" + 
-				"public class Test<E> {\n" + 
-				"	/**\n" + 
-				"	 * @param t\n" + 
-				"	 * @param <T>\n" + 
-				"	 */\n" + 
-				"	<T> void foo(T t) {}\n" + 
-				"}\n");
-			verifyComments(workingCopy);
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-			this.astLevel = level;
-		}
-	}
-	/**
-	 * Regression test for bug 79809: [1.5][dom][javadoc] Need better support for type parameter Javadoc tags
-	 */
-	public void testBug79809() throws JavaModelException, CoreException {
-		ICompilationUnit workingCopy = null;
-		int level = this.astLevel;
-		this.astLevel = AST.JLS3;
-		try {
-			workingCopy = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
-				"package javadoc.b79809;\n" +
-				"/**\n" + 
-				" * @param <E>  Class type parameter\n" + 
-				" * @see Object\n" + 
-				" */\n" + 
-				"public class Test<E> {\n" + 
-				"	/**\n" + 
-				"	 * @param t\n" + 
-				"	 * @param <T> Method type parameter\n" + 
-				"	 */\n" + 
-				"	<T> void foo(T t) {}\n" + 
-				"}\n");
-			verifyComments(workingCopy);
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-			this.astLevel = level;
-		}
-	}
-	public void testBug79809b() throws JavaModelException, CoreException {
-		ICompilationUnit workingCopy = null;
-		int level = this.astLevel;
-		this.astLevel = AST.JLS3;
-		try {
-			workingCopy = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
-				"package javadoc.b79809;\n" + 
-				"\n" + 
-				"/**\n" + 
-				" * New tags for 5.0\n" + 
-				" *  - literal: {@literal a<B>c}\n" + 
-				" *  - code: {@code abc}\n" + 
-				" *  - value: {@value System#out}\n" + 
-				" */\n" + 
-				"public class Test {\n" + 
-				"\n" + 
-				"}\n");
-			verifyComments(workingCopy);
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-			this.astLevel = level;
-		}
 	}
 }

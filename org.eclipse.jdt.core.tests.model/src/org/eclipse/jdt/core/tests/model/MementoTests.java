@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.File;
-
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
@@ -281,17 +279,6 @@ public void testExternalJarBinaryTypeMemento() throws JavaModelException {
 		type);	
 }
 /**
- * Tests that a class file in an external jar at the root of the file system can be persisted and restored using its memento.
- */
-public void testExternalJarClassFileMemento() throws JavaModelException {
-	char separator = File.separatorChar;
-	String device = separator == '/' ? "" : "C:";
-	IClassFile classFile = getClassFile("P", device + separator + "lib.jar", "p", "X.class");
-	assertMemento(
-		"=P/" + device + "\\/lib.jar<p(X.class",
-		classFile);	
-}
-/**
  * Tests that an import declaration can be persisted and restored using its memento.
  */
 public void testImportContainerMemento() {
@@ -468,20 +455,6 @@ public void testPackageFragmentMemento() {
 	assertMemento(
 		"=P/src<",
 		pkg);
-}
-/**
- * Tests that a package fragment in the default root can be persisted and restored using its memento.
- */
-public void testPackageFragmentMemento2() throws CoreException {
-	try {
-		createJavaProject("P1", new String[] {""}, "");
-		IPackageFragment pkg = getPackage("/P1/p");
-		assertMemento(
-			"=P1/<p",
-			pkg);		
-	} finally {
-		deleteProject("P1");
-	}
 }
 /**
  * Tests that a source folder package fragment root can be persisted and restored using its memento.

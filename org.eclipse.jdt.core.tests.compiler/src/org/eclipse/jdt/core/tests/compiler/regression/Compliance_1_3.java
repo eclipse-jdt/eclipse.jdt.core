@@ -964,7 +964,7 @@ public void test025() {
 		"1. ERROR in p1\\X.java (at line 2)\n" + 
 		"	public class X extends AbstractY {	\n" + 
 		"	             ^\n" + 
-		"The type X must implement the inherited abstract method I.init(String, int)\n" + 
+		"Class must implement the inherited abstract method I.init(String, int)\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\X.java (at line 4)\n" + 
 		"	init(\"hello\");	\n" + 
@@ -1003,7 +1003,7 @@ public void test026() {
 		"2. ERROR in p1\\X.java (at line 7)\n" + 
 		"	class AbstractY implements I {	\n" + 
 		"	      ^^^^^^^^^\n" + 
-		"The type AbstractY must implement the inherited abstract method I.init(String, int)\n" + 
+		"Class must implement the inherited abstract method I.init(String, int)\n" + 
 		"----------\n"
 );
 }
@@ -1691,7 +1691,7 @@ public void test046() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X extends Y {\n" + 
 		"	             ^\n" + 
-		"The type X must implement the inherited abstract method Y.foo()\n" + 
+		"Class must implement the inherited abstract method Y.foo()\n" + 
 		"----------\n"
 	);
 }
@@ -3076,178 +3076,7 @@ public void test088() {
 		"----------\n"
 	);
 }
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089
- */
-public void test089() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I {\n" + 
-			"    @interface I1 {}\n" + 
-			"}\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"    public static void main(String argv[])   {\n" + 
-			"    	System.out.print(\"SUCCESS\");\n" + 
-			"    }\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	@interface I1 {}\n" + 
-		"	           ^^\n" + 
-		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
-		"----------\n");
-}
-//78104
-public void test090() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"	\n" + 
-			"	void foo(int[] ints, Object o) {\n" + 
-			"		ints = ints.clone();\n" + 
-			"		ints = (int[])ints.clone();\n" + 
-			"		X x = this.clone();\n" + 
-			"	}\n" + 
-			"}",
-		}, 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	ints = ints.clone();\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to int[]\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	X x = this.clone();\n" + 
-		"	  ^\n" + 
-		"Type mismatch: cannot convert from Object to X\n" + 
-		"----------\n"
-	);
-}
-//78104 - variation
-public void test091() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"	\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		args = args.clone();\n" + 
-			"	}\n" + 
-			"}",
-		}, 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\r\n" + 
-		"	args = args.clone();\r\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to String[]\n" + 
-		"----------\n"
-	);
-}
-// check autoboxing only enabled in 1.5 source mode
-public void test092() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"	void foo(Boolean b) {\n" + 
-			"		if (b) { \n" + 
-			"			int i = 0;\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"}\n",
-		}, 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	if (b) { \n" + 
-		"	    ^\n" + 
-		"Type mismatch: cannot convert from Boolean to boolean\n" + 
-		"----------\n"
-	);
-}
-public void test093() {
-	this.runNegativeTest(
-		new String[] {
-			"p/X_1.java",
-			"package p;\n" + 
-			"/*   dena JTest Suite, Version 2.2, September 1997\n" + 
-			" *   Copyright (c) 1995-1997 Modena Software (I) Pvt. Ltd., All Rights Reserved\n" + 
-			" */\n" + 
-			"/*  Section    :  Inner classes \n" + 
-			" *  FileName   :  ciner026.java\n" + 
-			" *  Purpose    :  Positive test for Inner classes\n" + 
-			" *  \n" + 
-			" *  An anonymous class can have initializers but cannot have a constructor.\n" + 
-			" *  The argument list of the associated new expression is implicitely \n" + 
-			" *  passed to the constructor of the super class. \n" + 
-			" *\n" + 
-			" */\n" + 
-			" \n" + 
-			" class X_1 {\n" + 
-			"  static int xx = 100;\n" + 
-			"  //inner class Y  \n" + 
-			"  static class Y {  \n" + 
-			"   public int j = 0;\n" + 
-			"   Y(int x){ j = x; }\n" + 
-			"   }  \n" + 
-			" public void call_inner()\n" + 
-			" {\n" + 
-			"   int i = test_anonymous().j;\n" + 
-			" }     \n" + 
-			" public static void main(String argv[])\n" + 
-			" {\n" + 
-			"   X_1 ox = new X_1();\n" + 
-			"   ox.call_inner(); \n" + 
-			" }  \n" + 
-			"public void newMethod ( ) {\n" + 
-			"  Float f1 = null;\n" + 
-			"  f1=(f1==0.0)?1.0:f1;\n" + 
-			"}\n" + 
-			"   static Y test_anonymous()\n" + 
-			"   { \n" + 
-			"    //anonymous implementation of class Y\n" + 
-			"    return new Y(xx) //xx should be implicitely passed to Y()\n" + 
-			"    {\n" + 
-			"    };    \n" + 
-			"   \n" + 
-			"   } //end test_anonymous      \n" + 
-			"} ",
-		}, 
-		"----------\n" + 
-		"1. ERROR in p\\X_1.java (at line 33)\n" + 
-		"	f1=(f1==0.0)?1.0:f1;\n" + 
-		"	   ^^^^^^^^^\n" + 
-		"Incompatible operand types Float and double\n" + 
-		"----------\n"
-	);
-}
-/*
- * Test unused import warning in presence of syntax errors
- * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21022
- */
-public void test094(){
 
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.io.*;	\n" +
-			"public class X {	\n" +
-			"	void foo(){\n" +
-			"		()\n" +
-			"		IOException e;\n" +
-			"	} \n" +
-			"}		\n"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	()\n" + 
-		"	^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
-		"----------\n");
-}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }

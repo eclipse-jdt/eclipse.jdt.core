@@ -13,5 +13,5 @@
 @interface Retention {
 }
 
-@Retention() @Author(@Name(first="Joe", last="Hacker", age=32))
+@Retention @Author(@Name(first="Joe", last="Hacker", age=32))
 class X {}

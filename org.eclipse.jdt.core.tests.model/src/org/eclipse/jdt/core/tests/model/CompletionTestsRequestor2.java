@@ -94,9 +94,6 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.POTENTIAL_METHOD_DECLARATION :
 				buffer.append("POTENTIAL_METHOD_DECLARATION"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.METHOD_NAME_REFERENCE :
-				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
-				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
 				break;
@@ -185,7 +182,6 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.METHOD_DECLARATION:
 			case CompletionProposal.VARIABLE_DECLARATION:
 			case CompletionProposal.POTENTIAL_METHOD_DECLARATION:
-			case CompletionProposal.METHOD_NAME_REFERENCE:
 				return new String(proposal.getName());
 			case CompletionProposal.PACKAGE_REF:
 				return new String(proposal.getDeclarationSignature());	

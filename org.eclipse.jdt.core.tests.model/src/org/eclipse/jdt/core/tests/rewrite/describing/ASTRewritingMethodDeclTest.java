@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import junit.framework.Test;
@@ -43,7 +41,10 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public static Test suite() {
-		return allTests();
+		if (true) {
+			return allTests();
+		}
+		return setUpTest(new ASTRewritingMethodDeclTest("testMethodDeclChanges"));
 	}
 
 	public void testMethodDeclChanges() throws Exception {
@@ -1094,60 +1095,6 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 	
-	public void testListCombination2() throws Exception {
-		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
-		buf.append("package test1;\n");
-		buf.append("public abstract class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("\n");	
-		buf.append("    void bar() {\n");
-		buf.append("    }\n");
-		buf.append("\n");	
-		buf.append("    void foo2() {\n");
-		buf.append("       // user comment\n");
-		buf.append("    }\n");
-		buf.append("}\n");	
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
-		
-		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
-		
-		MethodDeclaration[] methods= type.getMethods();
-		Arrays.sort(methods, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((MethodDeclaration) o1).getName().getIdentifier().compareTo(((MethodDeclaration) o2).getName().getIdentifier());
-			}
-		});
-		
-		ListRewrite listRewrite= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		for (int i= 0; i < methods.length; i++) {
-			ASTNode copy= rewrite.createMoveTarget(methods[i]);
-			listRewrite.insertLast(copy, null);
-		}
-
-		String preview= evaluateRewrite(cu, rewrite);
-		
-		buf= new StringBuffer();
-		buf.append("package test1;\n");
-		buf.append("public abstract class E {\n");
-		buf.append("    void bar() {\n");
-		buf.append("    }\n");
-		buf.append("\n");	
-		buf.append("    public void foo() {\n");
-		buf.append("    }\n");
-		buf.append("\n");	
-		buf.append("    void foo2() {\n");
-		buf.append("       // user comment\n");
-		buf.append("    }\n");
-		buf.append("}\n");	
-			
-		assertEqualString(preview, buf.toString());
-
-	}
-	
 	
 	public void testMethodBody() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -2153,8 +2100,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	
+	private static final boolean BUG_76181= true;
 
 	public void testEnumConstantDeclaration2() throws Exception {
+		if (BUG_76181) {
+			return;
+		}
+
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2162,7 +2115,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    E1Add(1),\n");
 		buf.append("    E2Add,\n");
 		buf.append("    E3Add(1),\n");
-		buf.append("    E4Add(1),\n");	
+		buf.append("    E4Add(1) {\n");
+		buf.append("    },\n");	
 		buf.append("    E5Add(1) {\n");
 		buf.append("        public void foo() {\n");
 		buf.append("        }\n");
@@ -2182,6 +2136,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    E4Remove(1) {\n");
 		buf.append("        public void foo() {\n");
 		buf.append("        }\n");
+		buf.append("        public void foo2() {\n");
+		buf.append("        }\n");
 		buf.append("    }\n");	
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
@@ -2192,91 +2148,62 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(0);
-			assertNull(enumConst.getAnonymousClassDeclaration());
-			
-			AnonymousClassDeclaration classDecl= ast.newAnonymousClassDeclaration();
-			ListRewrite bodyRewrite= rewrite.getListRewrite(classDecl, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
+		
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
-			
-			rewrite.set(enumConst, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, classDecl, null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(1);
-			assertNull(enumConst.getAnonymousClassDeclaration());
-			
+		
 			ListRewrite argsRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			argsRewrite.insertFirst(ast.newNumberLiteral("1"), null);
 			
-			AnonymousClassDeclaration classDecl= ast.newAnonymousClassDeclaration();
-			ListRewrite bodyRewrite= rewrite.getListRewrite(classDecl, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
-			
-			rewrite.set(enumConst, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, classDecl, null);
-
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(2);
-			assertNull(enumConst.getAnonymousClassDeclaration());
 		
 			rewrite.remove((ASTNode) enumConst.arguments().get(0), null);
 			
-			AnonymousClassDeclaration classDecl= ast.newAnonymousClassDeclaration();
-			ListRewrite bodyRewrite= rewrite.getListRewrite(classDecl, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
-			
-			rewrite.set(enumConst, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, classDecl, null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(3);
-			assertNull(enumConst.getAnonymousClassDeclaration());
 			
-			AnonymousClassDeclaration classDecl= ast.newAnonymousClassDeclaration();
-			rewrite.set(enumConst, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, classDecl, null);
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(4);
 			
-			AnonymousClassDeclaration classDecl= enumConst.getAnonymousClassDeclaration();
-			assertNotNull(classDecl);
-			
-			ListRewrite bodyRewrite= rewrite.getListRewrite(classDecl, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
+			ListRewrite bodyRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.BODY_DECLARATIONS_PROPERTY);
 			bodyRewrite.insertFirst(createNewMethod(ast, "test", false), null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(5);
-			
-			AnonymousClassDeclaration classDecl= enumConst.getAnonymousClassDeclaration();
-			assertNotNull(classDecl);
 		
-			rewrite.remove(classDecl, null);
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(6);
 		
-			AnonymousClassDeclaration classDecl= enumConst.getAnonymousClassDeclaration();
-			assertNotNull(classDecl);
-			
 			ListRewrite argsRewrite= rewrite.getListRewrite(enumConst, EnumConstantDeclaration.ARGUMENTS_PROPERTY);
 			argsRewrite.insertFirst(ast.newNumberLiteral("1"), null);
 			
-			rewrite.remove(classDecl, null);
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(7);
-			
-			AnonymousClassDeclaration classDecl= enumConst.getAnonymousClassDeclaration();
-			assertNotNull(classDecl);
 		
 			rewrite.remove((ASTNode) enumConst.arguments().get(0), null);
-			rewrite.remove(classDecl, null);
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(0), null);
 		}
 		{
 			EnumConstantDeclaration enumConst= (EnumConstantDeclaration) type.enumConstants().get(8);
 			
-			AnonymousClassDeclaration classDecl= enumConst.getAnonymousClassDeclaration();
-			assertNotNull(classDecl);
-			
-			rewrite.remove((ASTNode) classDecl.bodyDeclarations().get(0), null);
+			rewrite.remove((ASTNode) enumConst.bodyDeclarations().get(1), null);
 		}
 		
 
@@ -2298,11 +2225,12 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("        }\n");
 		buf.append("    },\n");
 		buf.append("    E4Add(1) {\n");
+		buf.append("        private void test(String str) {\n");
+		buf.append("        }\n");
 		buf.append("    },\n");
 		buf.append("    E5Add(1) {\n");
 		buf.append("        private void test(String str) {\n");
 		buf.append("        }\n");
-		buf.append("\n");
 		buf.append("        public void foo() {\n");
 		buf.append("        }\n");
 		buf.append("    },\n");	
@@ -2310,6 +2238,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    E2Remove(1),\n");
 		buf.append("    E3Remove,\n");
 		buf.append("    E4Remove(1) {\n");
+		buf.append("        public void foo() {\n");
+		buf.append("        }\n");
 		buf.append("    }\n");	
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());

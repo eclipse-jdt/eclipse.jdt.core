@@ -38,7 +38,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			return new Suite(ASTConverterTest.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest.class.getName());
-		suite.addTest(new ASTConverterTest("test0172"));
+		suite.addTest(new ASTConverterTest("test0104"));
 		return suite;
 	}
 		
@@ -4577,7 +4577,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 		CompilationUnit unit = (CompilationUnit) result;
-		assertProblemsSize(unit, 0); 
+		assertEquals("No problem", 0, unit.getProblems().length);
 		ASTNode node2 = getASTNode(unit, 1, 0, 1);
 		assertTrue("ExpressionStatement", node2 instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node2;

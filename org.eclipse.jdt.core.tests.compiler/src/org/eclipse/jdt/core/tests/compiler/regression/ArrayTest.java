@@ -138,24 +138,5 @@ public void test005() {
 	}
 	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 }
-/**
- * http://dev.eclipse.org/bugs/show_bug.cgi?id=80597
- */
-public void test006() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		char[][][] array = new char[][][10];\n" +
-			"	}\n" +
-			"}",
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	char[][][] array = new char[][][10];\n" + 
-		"	                                ^^\n" + 
-		"Cannot specify an array dimension after an empty dimension\n" + 
-		"----------\n");
-}
+
 }

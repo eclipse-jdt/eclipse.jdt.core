@@ -1,5 +1,4 @@
 package javadoc.test000;
-import java.io.IOException;
 import java.util.*;
 public class Test {
 int field;
@@ -32,5 +31,5 @@ class X {
  * @see X#x valid field
  * @see Object#unknown Unknown field
  */
-int foo(String str, int var, Vector list, char[] array) throws IOException { return 0; }
+int foo(String str, int var, Vector list, char[] array) throws IllegalAccessException { return 0; }
 }

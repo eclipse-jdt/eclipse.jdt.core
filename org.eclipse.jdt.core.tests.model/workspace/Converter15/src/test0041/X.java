@@ -1,16 +1,14 @@
-package test0041;
+package main;
 
-class PageFlowController {}
+import org.apache.beehive.netui.pageflow.Forward;
+import org.apache.beehive.netui.pageflow.PageFlowController;
 
-class T {
-	T(String s) {}
-}
 /**
  * This is the default controller for a blank web application.
  */
-@test0041.Controller
-@test0041.ViewProperties(
-        val = { 
+@Jpf.Controller
+@Jpf.ViewProperties(
+        value = { 
             "<!-- This data is auto-generated. Hand-editing this section is not recommended. -->", 
             "<view-properties>", 
             "<pageflow-object id='action:begin.do'>", 
@@ -35,16 +33,16 @@ class T {
             "</view-properties>"
         }
     )
-public class X 
+public class Controller 
     extends PageFlowController
 {
-    @test0041.Action(
+    @Jpf.Action(
         forwards={
-           @test0041.Forward(name="success", path="index.jsp")
+           @Jpf.Forward(name="success", path="index.jsp")
         }
     )
-    protected T begin()
+    protected Forward begin()
     {
-        return new T("success");
+        return new Forward("success");
     }
 }

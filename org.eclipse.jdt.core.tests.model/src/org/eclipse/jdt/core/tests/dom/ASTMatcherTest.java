@@ -818,8 +818,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setBody(S1);
 		basicMatch(x1);
 	}
-	/** @deprecated Only to suppress warnings for refs to bodyDeclarations. */
-	// TODO (jeem) - remove deprecation after 3.1 M4
 	public void testEnumConstantDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -833,7 +831,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.arguments().add(E2);
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
-		x1.setAnonymousClassDeclaration(ACD1);
 		basicMatch(x1);
 	}
 	public void testEnumDeclaration() {

@@ -11,13 +11,10 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -41,14 +38,13 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		return new Suite(THIS);
 	}
 	
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-	
 	public static Test suite() {
-		return allTests();
+		if (true) {
+			return allTests();
+		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingInsertBoundTest("testRemove3"));
+		return suite;
 	}
 	
 	private MethodDeclaration newMethodDeclaration(AST ast, String name) {

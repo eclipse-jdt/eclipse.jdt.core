@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -35,15 +36,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
 	
-	// static variables for subsets tests
-	public static String[] testsNames = null; // list of test names to perform
-	public static int[] testsNumbers = null; // list of test numbers to perform
-	public static int[] testsRange = null; // range of test numbers to perform
-	
-	// infos for invalid results
-	protected int tabs = 2;
-	protected boolean displayName = false;
-	
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
 		public int problemCount;
@@ -52,7 +44,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			initialize(null);
 		}
 		public void acceptProblem(IProblem problem) {
-			org.eclipse.jdt.core.tests.util.Util.appendProblem(this.problems, problem, this.unitSource, ++this.problemCount);
+			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+			problems.append(" in " + new String(problem.getOriginatingFileName()));
+			if (this.unitSource != null) {
+				problems.append(((DefaultProblem)problem).errorReportSource(this.unitSource));
+			}
+			problems.append("\n");
+			problems.append(problem.getMessage());
+			problems.append("\n");
 		}
 		public void beginReporting() {
 			this.problems.append("----------\n");
@@ -140,11 +139,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		super(name);
 	}
 
-	public AbstractJavaModelTests(String name, int tabs) {
-		super(name);
-		this.tabs = tabs;
-	}
-
 	public static Test buildTestSuite(Class evaluationTestClass) {
 		return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
 	}
@@ -169,8 +163,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
-			System.out.print(displayString(actual, this.tabs));
+			System.out.print(displayString(actual, 2));
 			System.out.println(",");
 		}
 		assertEquals(
@@ -758,7 +751,7 @@ protected void assertDeltas(String message, String expected) {
 							exclusionPaths[j] = new Path(exclusionPattern);
 						}
 					}
-					if (lib.indexOf(File.separatorChar) == -1 && lib.equals(lib.toUpperCase())) { // all upper case is a var 
+					if (lib.equals(lib.toUpperCase())) { // all upper case is a var 
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
 							new Path(new String(vars[0])), 
@@ -1099,7 +1092,7 @@ protected void assertDeltas(String message, String expected) {
 	 * Returns the java.io path to the external java class library (e.g. jclMin.jar)
 	 */
 	protected String getExternalJCLPathString(String compliance) {
-		return getExternalPath() + "jclMin" + compliance + ".jar";
+		return getExternalPath() + File.separator + "jclMin" + compliance + ".jar";
 	}
 	/**
 	 * Returns the IPath to the root source of the external java class library (e.g. "src")
@@ -1129,19 +1122,15 @@ protected void assertDeltas(String message, String expected) {
 	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected String getExternalJCLSourcePathString(String compliance) {
-		return getExternalPath() + "jclMin" + compliance + "src.zip";
+		return getExternalPath() + File.separator + "jclMin" + compliance + "src.zip";
 	}
 	/*
-	 * Returns the OS path to the external directory that contains external jar files.
-	 * This path ends with a File.separatorChar.
+	 * Returns the IPath to the external directory that contains external jar files.
 	 */
 	protected String getExternalPath() {
 		if (EXTERNAL_JAR_DIR_PATH == null)
 			try {
-				String path = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-				if (path.charAt(path.length()-1) != File.separatorChar)
-					path += File.separatorChar;
-				EXTERNAL_JAR_DIR_PATH = path;
+				EXTERNAL_JAR_DIR_PATH = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1164,17 +1153,14 @@ protected void assertDeltas(String message, String expected) {
 		IProject project = getProject(name);
 		return JavaCore.create(project);
 	}
-	protected ILocalVariable getLocalVariable(ISourceReference cu, String selectAt, String selection) throws JavaModelException {
+	protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
+		ISourceReference cu = getCompilationUnit(cuPath);
 		IJavaElement[] elements = codeSelect(cu, selectAt, selection);
 		if (elements.length == 0) return null;
 		if (elements[0] instanceof ILocalVariable) {
 			return (ILocalVariable)elements[0];
 		}
 		return null;
-	}
-	protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
-		ISourceReference cu = getCompilationUnit(cuPath);
-		return getLocalVariable(cu, selectAt, selection);
 	}
 	/**
 	 * Returns the specified package fragment in the given project and root, or
@@ -1219,7 +1205,9 @@ protected void assertDeltas(String message, String expected) {
 				// resource in the workspace
 				root = project.getPackageFragmentRoot(resource);
 			}
-			return root;
+			if (root.exists()) {
+				return root;
+			}
 		} else {
 			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 			if (roots == null || roots.length == 0) {
@@ -1300,21 +1288,11 @@ protected void assertDeltas(String message, String expected) {
     			toPrint.toCharArray(), 
     			getExternalJCLPathString().toCharArray(), 
     			"getExternalJCLPathString()".toCharArray());
-		toDisplay = 
-    		CharOperation.replace(
-    			toDisplay, 
-    			getExternalJCLPathString("1.5").toCharArray(), 
-    			"getExternalJCLPathString(\"1.5\")".toCharArray());
-		toDisplay = 
+    	toDisplay = 
     		CharOperation.replace(
     			toDisplay, 
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(), 
     			"getExternalJCLSourcePathString()".toCharArray());
-		toDisplay = 
-    		CharOperation.replace(
-    			toDisplay, 
-    			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(), 
-    			"getExternalJCLSourcePathString(\"1.5\")".toCharArray());
     	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent);
     	toDisplay = 
     		CharOperation.replace(
@@ -1323,19 +1301,9 @@ protected void assertDeltas(String message, String expected) {
     			("\"+ getExternalJCLPathString() + \"").toCharArray());
     	toDisplay = 
     		CharOperation.replace(
-    			displayString.toCharArray(), 
-    			"getExternalJCLPathString(\\\"1.5\\\")".toCharArray(), 
-    			("\"+ getExternalJCLPathString(\"1.5\") + \"").toCharArray());
-    	toDisplay = 
-    		CharOperation.replace(
     			toDisplay, 
     			"getExternalJCLSourcePathString()".toCharArray(), 
     			("\"+ getExternalJCLSourcePathString() + \"").toCharArray());
-    	toDisplay = 
-    		CharOperation.replace(
-    			toDisplay, 
-    			"getExternalJCLSourcePathString(\\\"1.5\\\")".toCharArray(), 
-    			("\"+ getExternalJCLSourcePathString(\"1.5\") + \"").toCharArray());
     	return new String(toDisplay);
     }
 	public byte[] read(java.io.File file) throws java.io.IOException {
@@ -1377,11 +1345,8 @@ protected void assertDeltas(String message, String expected) {
 		return null;
 	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
-	}
-	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		new SearchEngine().search(
-			SearchPattern.createPattern(element, limitTo, matchRule),
+			SearchPattern.createPattern(element, limitTo), 
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
 			requestor,
@@ -1389,16 +1354,14 @@ protected void assertDeltas(String message, String expected) {
 		);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
-	}
-	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
-			matchRule |= SearchPattern.R_PATTERN_MATCH;
+		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
+			? SearchPattern.R_PATTERN_MATCH
+			: SearchPattern.R_EXACT_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
 			patternString, 
 			searchFor,
 			limitTo, 
-			matchRule);
+			matchMode | SearchPattern.R_CASE_SENSITIVE);
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -1426,8 +1389,8 @@ protected void assertDeltas(String message, String expected) {
 		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
 		java.io.File jclDir = new java.io.File(externalPath);
 		java.io.File jclMin =
-			new java.io.File(externalPath + jclName + ".jar");
-		java.io.File jclMinsrc = new java.io.File(externalPath + jclName + "src.zip");
+			new java.io.File(externalPath + separator + jclName + ".jar");
+		java.io.File jclMinsrc = new java.io.File(externalPath + separator + jclName + "src.zip");
 		if (!jclDir.exists()) {
 			if (!jclDir.mkdir()) {
 				//mkdir failed

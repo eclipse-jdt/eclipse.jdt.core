@@ -112,7 +112,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		 * @since 3.0
 		 */
 		public void endVisit(AnnotationTypeMemberDeclaration node) {
-			IMethodBinding binding = node.resolveBinding();
+			IVariableBinding binding = node.resolveBinding();
 			collectBindings(node, binding);
 		}
 

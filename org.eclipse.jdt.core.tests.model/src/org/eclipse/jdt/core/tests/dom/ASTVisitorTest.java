@@ -1360,8 +1360,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(sEMsEM)]")); //$NON-NLS-1$
 	}
-	/** @deprecated Only to suppress warnings for refs to bodyDeclarations. */
-	// TODO (jeem) - remove deprecation after 3.1 M4
 	public void testEnumConstantDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			return;
@@ -1375,12 +1373,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.arguments().add(E2);
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
-		x1.setAnonymousClassDeclaration(ACD1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(ECD"+JD1S+MOD1S+MOD2S+N1S+E1S+E2S+FD1S+FD2S+ACD1S+"ECD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(ECD"+JD1S+MOD1S+MOD2S+N1S+E1S+E2S+FD1S+FD2S+"ECD)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testEnumDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {

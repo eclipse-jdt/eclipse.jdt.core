@@ -206,7 +206,7 @@ public void test0005() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^\n" + 
+		"	         ^^^^^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n";
 	String expected14ProblemLog =
@@ -216,7 +216,7 @@ public void test0005() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^\n" + 
+		"	         ^^^^^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n";
 	
@@ -631,7 +631,7 @@ public void test0016() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^\n" + 
+		"	         ^^^^^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
@@ -646,7 +646,7 @@ public void test0016() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
-		"	         ^\n" + 
+		"	         ^^^^^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
@@ -2109,48 +2109,6 @@ public void test0048() {
 		"	void foo(X ... arg[]){\n" + 
 		"	               ^^^\n" + 
 		"Extended dimensions are illegal for a variable argument\n" + 
-		"----------\n";
-	
-	runComplianceParserTest(
-		testFiles,
-		expected13ProblemLog,
-		expected14ProblemLog,
-		expected15ProblemLog
-	);
-}
-public void test0049() {
-	String[] testFiles = new String[] {
-		"X.java",
-		"@interface MyAnn {\n" + 
-		"	String value1() default \"\";\n" + 
-		"	String value2();\n" + 
-		"}\n" + 
-		"class ZZZ {}		\n" + 			
-		"public @MyAnn(\"\",\"\") class Test {		\n" + 													
-		"}\n"
-	};
-	
-	String expected13ProblemLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	@interface MyAnn {\n" + 
-		"	           ^^^^^\n" + 
-		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
-		"	              ^^\n" + 
-		"Syntax error, insert \")\" to complete Modifier\n" + 
-		"----------\n";
-	String expected14ProblemLog =
-		expected13ProblemLog;
-	
-	String expected15ProblemLog = 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
-		"	                ^\n" + 
-		"Syntax error on token \",\", / expected\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(

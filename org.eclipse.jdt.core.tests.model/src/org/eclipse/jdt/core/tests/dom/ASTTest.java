@@ -2668,6 +2668,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
+	/**
+	 * @deprecated (Uses getEnumConstants() which is deprecated)
+	 */
 	public void testEnumDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2742,16 +2745,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 					}
 					public ASTNode wrap() {
 						EnumConstantDeclaration s1 = x.getAST().newEnumConstantDeclaration();
-						AnonymousClassDeclaration anonymousClassDeclaration = x.getAST().newAnonymousClassDeclaration();
-						s1.setAnonymousClassDeclaration(anonymousClassDeclaration);
-						anonymousClassDeclaration.bodyDeclarations().add(x);
+						s1.bodyDeclarations().add(x);
 						return s1;
 					}
 					public void unwrap() {
-						AnonymousClassDeclaration anonymousClassDeclaration = (AnonymousClassDeclaration) x.getParent();
-						if (anonymousClassDeclaration != null) {
-							anonymousClassDeclaration.bodyDeclarations().remove(x);
-						}
+						EnumConstantDeclaration s1 = (EnumConstantDeclaration) x.getParent();
+						s1.bodyDeclarations().remove(x);
 					}
 				});
 				
@@ -2796,6 +2795,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.bodyDeclarations().add(t1);
 		x.bodyDeclarations().add(t2);
 
+		// getEnumConstants() is deprecated - this test will be removed after 3.1M3
+		EnumConstantDeclaration[] cs = x.getEnumConstants();
+		assertTrue(cs.length == 2);
+		assertEquals(c1, cs[0]);
+		assertEquals(c2, cs[1]);
+		
 		// check that TypeDeclarations in body are classified correctly
 		assertTrue(t1.isLocalTypeDeclaration() == false);
 		assertTrue(t1.isMemberTypeDeclaration() == true);
@@ -2803,8 +2808,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
-	/** @deprecated Only to suppress warnings for refs to bodyDeclarations. */
-	// TODO (jeem) - remove deprecation after 3.1 M4
 	public void testEnumConstantDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2827,7 +2830,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.arguments().size()== 0);
 		assertTrue(x.bodyDeclarations().size()== 0);
-		assertTrue(x.getAnonymousClassDeclaration() == null);
 		assertTrue(x.modifiers().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.ENUM_CONSTANT_DECLARATION);
 		assertTrue(x.structuralPropertiesForType() == EnumConstantDeclaration.propertyDescriptors(ast.apiLevel()));
@@ -2873,7 +2875,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		// TODO (jeem) - after 3.1 M4 remove mention of bodyDeclarations
 		genericPropertyListTest(x, x.bodyDeclarations(),
 		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -2903,45 +2904,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(t1.isLocalTypeDeclaration() == false);
 		assertTrue(t1.isMemberTypeDeclaration() == true);
 		assertTrue(t1.isPackageMemberTypeDeclaration() == false);
-	
-		genericPropertyTest(x, new Property("AnonymousClassDeclaration", false, AnonymousClassDeclaration.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				AnonymousClassDeclaration result = targetAst.newAnonymousClassDeclaration();
-				if (parented) {
-					targetAst.newClassInstanceCreation().setAnonymousClassDeclaration(result);
-				}
-				return result;
-			}
-			public ASTNode wrap() {
-				// return AnonymousClassDeclaration that embeds x
-				AnonymousClassDeclaration s0 = x.getAST().newAnonymousClassDeclaration();
-				EnumDeclaration s1 = x.getAST().newEnumDeclaration();
-				s0.bodyDeclarations().add(s1);
-				s1.bodyDeclarations().add(x);
-				return s0;
-			}
-			public void unwrap() {
-				EnumDeclaration s1 = (EnumDeclaration) x.getParent();
-				s1.bodyDeclarations().remove(x);
-			}
-			public ASTNode get() {
-				return x.getAnonymousClassDeclaration();
-			}
-			public void set(ASTNode value) {
-				x.setAnonymousClassDeclaration((AnonymousClassDeclaration) value);
-			}
-		});
-
-		// check that TypeDeclarations in body are classified correctly
-		x.setAnonymousClassDeclaration(null);
-		AnonymousClassDeclaration w0 = ast.newAnonymousClassDeclaration();
-		x.setAnonymousClassDeclaration(w0);
-		TypeDeclaration w1 = ast.newTypeDeclaration();
-		w0.bodyDeclarations().add(w1);
-
-		assertTrue(w1.isLocalTypeDeclaration() == false);
-		assertTrue(w1.isMemberTypeDeclaration() == true);
-		assertTrue(w1.isPackageMemberTypeDeclaration() == false);
 	
 	}	
 	

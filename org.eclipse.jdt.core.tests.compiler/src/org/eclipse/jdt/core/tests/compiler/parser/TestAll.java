@@ -46,20 +46,16 @@ public class TestAll extends TestCase {
 		testClasses.add(CompletionParserTest2.class);
 		testClasses.add(CompletionParserTestKeyword.class);
 		testClasses.add(GenericsCompletionParserTest.class);
-		testClasses.add(AnnotationCompletionParserTest.class);
 
 		/* selection tests */
 		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
 		testClasses.add(SelectionTest.class);
 		testClasses.add(SelectionTest2.class);
-		testClasses.add(GenericsSelectionTest.class);
-		testClasses.add(AnnotationSelectionTest.class);
-		
+
 		/* recovery tests */
 		testClasses.add(DietRecoveryTest.class);
 		testClasses.add(GenericDietRecoveryTest.class);
 		testClasses.add(EnumDietRecoveryTest.class);
-		testClasses.add(AnnotationDietRecoveryTest.class);
 		
 		/* source element parser tests */
 		testClasses.add(SourceElementParserTest.class);

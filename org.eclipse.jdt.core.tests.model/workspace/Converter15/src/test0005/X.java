@@ -1,4 +1,4 @@
-package test0005;
+package test0003;
 
 @interface Name {
 	String first() default "Joe";

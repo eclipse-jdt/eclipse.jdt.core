@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -21,7 +19,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.util.IClassFileReader;
 
 import junit.framework.Test;
 
@@ -726,35 +723,6 @@ public void testDeletePackageFragment4() throws CoreException {
 	} finally {
 		stopDeltas();
 		deleteProject("P1");
-	}
-}
-/*
- * Ensures that deleting a project after using its jar using ToolFactory#createDefaultClassFileReader
- * works.
- * (regression test for bug 78128 Error deleting project with jar file referenced by other project)
- */
-public void testDeleteProjectAfterUsingJar() throws CoreException, IOException {
-	try {
-		IJavaProject javaProject = createJavaProject("P78128");
-		addLibrary(
-			javaProject, 
-			"lib.jar", 
-			"libsrc.zip", 
-			new String[] {
-				"p/X.java",
-				"package p;\n" +
-				"public class X {\n" +
-				"}",
-			}, 
-			JavaCore.VERSION_1_4
-		);
-		IClassFile classFile = getClassFile("P78128", "lib.jar", "p", "X.class");
-		ToolFactory.createDefaultClassFileReader(classFile, IClassFileReader.ALL);
-		javaProject.getProject().delete(false, null);
-	} finally {
-		if (getProject("P78128").exists()) 
-			System.gc();
-		deleteProject("P78128");
 	}
 }
 /**

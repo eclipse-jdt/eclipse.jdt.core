@@ -746,7 +746,7 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 public void testPackageFragmentRootRawEntry() throws CoreException, IOException {
 	File libDir = null;
 	try {
-		String libPath = getExternalPath() + "lib";
+		String libPath = getExternalPath() + File.separator + "lib";
 		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null);
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
 		libDir = new File(libPath);
@@ -790,7 +790,7 @@ public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException,
 	File libDir = null;
 	try {
 		String externalPath = getExternalPath();
-		String libPath = externalPath + "lib";
+		String libPath = externalPath + File.separator + "lib";
 		JavaCore.setClasspathVariable("MyVar", new Path(externalPath), null);
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
 		libDir = new File(libPath);

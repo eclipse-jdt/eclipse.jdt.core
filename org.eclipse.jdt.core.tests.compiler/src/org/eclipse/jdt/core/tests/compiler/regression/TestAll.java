@@ -57,9 +57,8 @@ public static Test suite() {
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-		ArrayList tests_1_3 = (ArrayList)standardTests.clone();
+	    ArrayList tests_1_3 = (ArrayList)standardTests.clone();
 		tests_1_3.add(Compliance_1_3.class);
-		tests_1_3.add(JavadocTest_1_3.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -68,7 +67,7 @@ public static Test suite() {
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, tests_1_3));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-		ArrayList tests_1_4 = (ArrayList)standardTests.clone();
+	    ArrayList tests_1_4 = (ArrayList)standardTests.clone();
 		tests_1_4.add(AssertionTest.class);
 		tests_1_4.add(Compliance_1_4.class);
 		tests_1_4.add(JavadocTest_1_4.class);
@@ -80,20 +79,17 @@ public static Test suite() {
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, tests_1_4));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-		ArrayList tests_1_5 = (ArrayList)standardTests.clone();
-		tests_1_5.add(AutoBoxingTest.class);
+	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
 		tests_1_5.add(AssertionTest.class);
-		tests_1_5.add(Compliance_1_5.class);
+		tests_1_5.add(Compliance_1_5.class);	    
 		tests_1_5.add(JavadocTest_1_5.class);
-		tests_1_5.add(GenericTypeTest.class);
-		tests_1_5.add(ForeachStatementTest.class);
-		tests_1_5.add(GenericTypeSignatureTest.class);
-		tests_1_5.add(InternalHexFloatTest.class);
-		tests_1_5.add(StaticImportTest.class);
-		tests_1_5.add(VarargsTest.class);
-		tests_1_5.add(EnumTest.class);
-		tests_1_5.add(MethodVerifyTest.class);
-		tests_1_5.add(AnnotationTest.class);
+	    tests_1_5.add(GenericTypeTest.class);
+	    tests_1_5.add(ForeachStatementTest.class);
+	    tests_1_5.add(GenericTypeSignatureTest.class);
+	    tests_1_5.add(InternalHexFloatTest.class);
+	    tests_1_5.add(StaticImportTest.class);
+	    tests_1_5.add(VarargsTest.class);
+	    tests_1_5.add(EnumTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -101,6 +97,8 @@ public static Test suite() {
 		TestCase.TESTS_RANGE = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
+//	// Add Javadoc test suites
+//	all.addTest(JavadocTest.suite());
 	return all;
 }
 }

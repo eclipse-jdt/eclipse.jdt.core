@@ -4,5 +4,5 @@ package test0053;
  * test
  */
 public @interface X {
-    int val() default 1;
+    String value() default 1;
 }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -40,7 +40,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected IPath getConverterJCLPath(String compliance) {
-		return new Path(getExternalPath() + "converterJclMin" + compliance + ".jar"); //$NON-NLS-1$
+		return new Path(getExternalPath() + File.separator + "converterJclMin" + compliance + ".jar"); //$NON-NLS-1$
 	}
 
 	protected IPath getConverterJCLSourcePath() {
@@ -48,7 +48,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected IPath getConverterJCLSourcePath(String compliance) {
-		return new Path(getExternalPath() + "converterJclMin" + compliance + "src.zip"); //$NON-NLS-1$
+		return new Path(getExternalPath() + File.separator + "converterJclMin" + compliance + "src.zip"); //$NON-NLS-1$
 	}
 
 	protected IPath getConverterJCLRootSourcePath() {
@@ -230,39 +230,5 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	
 	protected boolean isOriginal(ASTNode node) {
 		return (node.getFlags() & ASTNode.ORIGINAL) != 0;
-	}
-	
-	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize) {
-		assertProblemsSize(compilationUnit, expectedSize, "");
-	}
-	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize, String expectedOutput) {
-		final IProblem[] problems = compilationUnit.getProblems();
-		final int length = problems.length;
-		if (length != expectedSize) {
-			checkProblemMessages(expectedOutput, problems, length);
-			assertEquals("Wrong size", expectedSize, length);
-		}
-		checkProblemMessages(expectedOutput, problems, length);
-	}
-
-	private void checkProblemMessages(String expectedOutput, final IProblem[] problems, final int length) {
-		if (length != 0) {
-			if (expectedOutput != null) {
-				StringBuffer buffer = new StringBuffer();
-				for (int i = 0; i < length; i++) {
-					buffer.append(problems[i].getMessage());
-					if (i < length - 1) {
-						buffer.append('\n');
-					}
-				}
-				String actualOutput = String.valueOf(buffer);
-				expectedOutput = Util.convertToIndependantLineDelimiter(expectedOutput);
-				actualOutput = Util.convertToIndependantLineDelimiter(actualOutput);
-				if (!expectedOutput.equals(actualOutput)) {
-					System.out.println(Util.displayString(actualOutput));
-					assertEquals("different output", expectedOutput, actualOutput);
-				}
-			}
-		}
 	}
 }

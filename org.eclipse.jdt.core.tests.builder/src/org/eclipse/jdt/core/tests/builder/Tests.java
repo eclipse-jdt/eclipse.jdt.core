@@ -17,7 +17,6 @@ import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -410,9 +409,6 @@ public class Tests extends TestCase {
 		suite.addTest(OutputFolderTests.suite());
 		suite.addTest(PackageTests.suite());
 		suite.addTest(StaticFinalTests.suite());
-		
-		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0)
-			suite.addTest(Java50Tests.suite());
 
 		return suite;
 	}

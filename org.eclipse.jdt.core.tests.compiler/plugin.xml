@@ -2,8 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin
    id="org.eclipse.jdt.core.tests.compiler"
-   name="%pluginName"
-   provider-name = "%providerName"
+   name="Java Compiler Tests"
    version="3.1.0">
 
    <runtime>

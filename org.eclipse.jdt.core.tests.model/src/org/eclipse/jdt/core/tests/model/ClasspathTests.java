@@ -73,7 +73,7 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] {"testInvalidExternalClassFolder"};
+//	TESTS_NAMES = new String[] {"testInvalidInternalJar2"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -708,7 +708,7 @@ public void testClasspathValidation01() throws CoreException {
 		
 		assertStatus(
 			"should have detected duplicate entries on the classpath", 
-			"Build path contains duplicate entry: \'src\' for project P",
+			"Build path contains duplicate entry: 'src' for project P",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -731,7 +731,7 @@ public void testClasspathValidation02() throws CoreException {
 		
 		assertStatus(
 			"should have detected nested source folders on the classpath", 
-			"Cannot nest \'P/src\' inside \'P\'. To enable the nesting exclude \'src/\' from \'P\'",
+			"Cannot nest 'P/src' inside 'P'. To enable the nesting exclude 'src/' from 'P'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -754,7 +754,7 @@ public void testClasspathValidation03() throws CoreException {
 		
 		assertStatus(
 			"should have detected library folder nested inside source folder on the classpath", 
-			"Cannot nest \'P/src/lib\' inside \'P/src\'. To enable the nesting exclude \'lib/\' from \'P/src\'",
+			"Cannot nest 'P/src/lib' inside 'P/src'. To enable the nesting exclude 'lib/' from 'P/src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -827,7 +827,7 @@ public void testClasspathValidation05() throws CoreException {
 		status = JavaConventions.validateClasspathEntry(p[0], newClasspath[1], true);
 		assertStatus(
 			"should have detected external source folder through a container on the classpath", 
-			"Invalid classpath container: \'container/default\' in project P0",
+			"Invalid classpath container: 'container/default' in project P0",
 			status);
 
 	} finally {
@@ -853,7 +853,7 @@ public void testClasspathValidation06() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(p[0], newClasspath, p[0].getOutputLocation());
 		assertStatus(
 			"should have detected nested source folder", 
-			"Cannot nest \'P0/src\' inside \'P0\'. To enable the nesting exclude \'src/\' from \'P0\'",
+			"Cannot nest 'P0/src' inside 'P0'. To enable the nesting exclude 'src/' from 'P0'",
 			status);
 	} finally {
 		this.deleteProject("P0");
@@ -921,7 +921,7 @@ public void testClasspathValidation09() throws CoreException {
 		
 		assertStatus(
 			"should not allow nested source folder in putput folder", 
-			"Cannot nest \'P/bin/src\' inside output folder \'P/bin\'",
+			"Cannot nest 'P/bin/src' inside output folder 'P/bin'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -939,7 +939,7 @@ public void testClasspathValidation10() throws CoreException {
 		
 		assertStatus(
 			"should not allow nested output folder in source folder", 
-			"Cannot nest output folder \'P/src/bin\' inside \'P/src\'",
+			"Cannot nest output folder 'P/src/bin' inside 'P/src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -987,7 +987,7 @@ public void testClasspathValidation12() throws CoreException {
 		
 		assertStatus(
 			"should not allow nested source folder in output folder", 
-			"Cannot nest \'P/bin2/src\' inside output folder \'P/bin2\'",
+			"Cannot nest 'P/bin2/src' inside output folder 'P/bin2'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1013,7 +1013,7 @@ public void testClasspathValidation13() throws CoreException {
 		
 		assertStatus(
 			"should not allow nested output folder in source folder", 
-			"Cannot nest output folder \'P/src/bin2\' inside \'P/src\'",
+			"Cannot nest output folder 'P/src/bin2' inside 'P/src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1060,7 +1060,7 @@ public void testClasspathValidation15() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"End exclusion filter \'src\' with / to fully exclude \'P/src\'",
+			"End exclusion filter 'src' with / to fully exclude 'P/src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1103,7 +1103,7 @@ public void testClasspathValidation17() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest \'P/bin/src2\' inside output folder \'P/bin\'",
+			"Cannot nest 'P/bin/src2' inside output folder 'P/bin'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1125,7 +1125,7 @@ public void testClasspathValidation18() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Path \'/S/bin\' must denote location inside project P",
+			"Path '/S/bin' must denote location inside project P",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1147,7 +1147,7 @@ public void testClasspathValidation19() throws CoreException {
 		
 		assertStatus(
 			"should have detected library folder nested inside source folder on the classpath", 
-			"Cannot nest \'P/lib/src\' inside library \'P/lib\'",
+			"Cannot nest 'P/lib/src' inside library 'P/lib'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1172,7 +1172,7 @@ public void testClasspathValidation20() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Multiple output locations are disabled in project P, cannot associate entry: \'src\' with a specific output",
+			"Multiple output locations are disabled in project P, cannot associate entry: 'src' with a specific output",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1197,7 +1197,7 @@ public void testClasspathValidation21() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Inclusion or exclusion patterns are disabled in project P, cannot selectively include or exclude from entry: \'src\'",
+			"Inclusion or exclusion patterns are disabled in project P, cannot selectively include or exclude from entry: 'src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1220,7 +1220,7 @@ public void testClasspathValidation22() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P cannot output to distinct source folder \'src2\'",
+			"Source folder 'src' in project P cannot output to distinct source folder 'src2'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1270,7 +1270,7 @@ public void testClasspathValidation24() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest \'P/src\' inside output folder \'P\'",
+			"Cannot nest 'P/src' inside output folder 'P'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1293,7 +1293,7 @@ public void testClasspathValidation25() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P cannot output to library \'lib2\'",
+			"Source folder 'src' in project P cannot output to library 'lib2'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1317,7 +1317,7 @@ public void testClasspathValidation26() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest \'P/src\' inside library \'P/\'",
+			"Cannot nest 'P/src' inside library 'P/'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1338,7 +1338,7 @@ public void testClasspathValidation27() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj2, JavaCore.newProjectEntry(new Path("/P1")), false);
 		assertStatus(
-			"Incompatible .class files version in required binaries. Project \'P2\' is targeting a 1.1 runtime, but is compiled against \'P1\' which requires a 1.4 runtime",
+			"Incompatible .class files version in required binaries. Project 'P2' is targeting a 1.1 runtime, but is compiled against 'P1' which requires a 1.4 runtime",
 			status);
 	} finally {
 		this.deleteProjects(new String[]{"P1", "P2"});
@@ -1360,7 +1360,7 @@ public void testClasspathValidation28() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P should be allowed to output to excluded source subfolder \'src/output\'",
+			"Source folder 'src' in project P should be allowed to output to excluded source subfolder 'src/output'",
 			"OK",
 			status);
 	} finally {
@@ -1383,7 +1383,7 @@ public void testClasspathValidation29() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest output folder \'P/src/output\' inside \'P/src\'",
+			"Cannot nest output folder 'P/src/output' inside 'P/src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1406,7 +1406,7 @@ public void testClasspathValidation30() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest \'P/src1/bin/src2\' inside output folder \'P/src1/bin\'",
+			"Cannot nest 'P/src1/bin/src2' inside output folder 'P/src1/bin'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1429,7 +1429,7 @@ public void testClasspathValidation31() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest output folder \'P/src1/src2/bin\' inside \'P/src1/src2\'",
+			"Cannot nest output folder 'P/src1/src2/bin' inside 'P/src1/src2'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1452,7 +1452,7 @@ public void testClasspathValidation32() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src1\' in project P cannot output to distinct source folder \'src1/src2\'",
+			"Source folder 'src1' in project P cannot output to distinct source folder 'src1/src2'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1474,7 +1474,7 @@ public void testClasspathValidation33() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Cannot nest \'P/dir/src\' inside output folder \'P/dir\'",
+			"Cannot nest 'P/dir/src' inside output folder 'P/dir'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1568,7 +1568,7 @@ public void testClasspathValidation37() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Inclusion or exclusion patterns are disabled in project P, cannot selectively include or exclude from entry: \'src\'",
+			"Inclusion or exclusion patterns are disabled in project P, cannot selectively include or exclude from entry: 'src'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1589,7 +1589,7 @@ public void testClasspathValidation38() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P should not be allowed to output to included source subfolder \'src/output\'",
+			"Source folder 'src' in project P should not be allowed to output to included source subfolder 'src/output'",
 			"Cannot nest output folder \'P/src/output\' inside \'P/src\'",
 			status);
 	} finally {
@@ -1878,7 +1878,7 @@ public void testEmptyClasspath() throws CoreException {
 }
 /*
  * Ensures that a source folder that contains character that must be encoded can be written.
- * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=70193)
+ * (regression test for bug 70193 DBCS – The GB18030 character cannot be correctly generated into “.classpath” file when new a source folder named with GB18030 character.)
  */
 public void testEncoding() throws CoreException {
 	try {
@@ -2053,7 +2053,7 @@ public void testInvalidClasspath2() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in \'.classpath\' of project P file: Unknown kind: \'src1\'",
+			"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
 			javaProject);
 			
 		// Verify that error marker is not removed after build
@@ -2063,7 +2063,7 @@ public void testInvalidClasspath2() throws CoreException {
 		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in \'.classpath\' of project P file: Unknown kind: \'src1\'",
+			"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
@@ -2074,14 +2074,10 @@ public void testInvalidClasspath2() throws CoreException {
  */
 public void testInvalidExternalClassFolder() throws CoreException {
 	try {
-		String externalPath = getExternalPath();
-		// remove trailing slash
-		if (Path.fromOSString(externalPath).segmentCount() > 0)
-			externalPath = externalPath.substring(0, externalPath.length()-1);
-		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
+		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {getExternalPath()}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Required library cannot denote external folder: \'" + externalPath + "\' for project P",
+			"Required library cannot denote external folder: \'" + getExternalPath() + "\' for project P",
 			proj);
 	} finally {
 		deleteProject("P");
@@ -2092,7 +2088,7 @@ public void testInvalidExternalClassFolder() throws CoreException {
  */
 public void testInvalidExternalJar() throws CoreException {
 	try {
-		String jarPath = getExternalPath() + "nonExisting.jar";
+		String jarPath = getExternalPath() + File.separator + "nonExisting.jar";
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {jarPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
@@ -2171,7 +2167,7 @@ public void testMissingClasspath() throws CoreException {
 		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
-			"Unable to read \'.classpath\' file of project P",
+			"Unable to read '.classpath' file of project P",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
@@ -2190,7 +2186,7 @@ public void testMissingPrereq1() throws CoreException {
 		javaProject.setRawClasspath(classpath, null);
 		this.assertMarkers(
 			"Unexpected markers",
-			"Project A is missing required Java project: \'B\'",
+			"Project A is missing required Java project: 'B'",
 			javaProject);
 	} finally {
 		this.deleteProject("A");
@@ -2210,7 +2206,7 @@ public void testMissingPrereq2() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers",
-			"Project A is missing required Java project: \'B\'",
+			"Project A is missing required Java project: 'B'",
 			javaProject);
 	} finally {
 		this.deleteProject("A");
@@ -2268,7 +2264,7 @@ public void testMissingPrereq4() throws CoreException {
 		this.deleteProject("B");
 		this.assertMarkers(
 			"Unexpected markers for project A after deleting of project B",
-			"Project A is missing required Java project: \'B\'",
+			"Project A is missing required Java project: 'B'",
 			projectA);
 			
 		// add project B back
@@ -2768,7 +2764,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Build path contains duplicate entry: \'src\' for project P",
+			"Build path contains duplicate entry: 'src' for project P",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -2942,7 +2938,7 @@ public void testNestedSourceFolders() throws CoreException {
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
 		this.assertMarkers(
 			"Unexpected markers",
-			"Cannot nest \'P/src/src2\' inside \'P/src\'. To enable the nesting exclude \'src2/\' from \'P/src\'",
+			"Cannot nest 'P/src/src2' inside 'P/src'. To enable the nesting exclude 'src2/' from 'P/src'",
 			JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
@@ -2997,8 +2993,8 @@ public void testOutputFolder1() throws CoreException {
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
 		this.assertMarkers(
 			"Unexpected markers",
-			"Project P is missing required source folder: \'src1\'\n" + 
-			"Project P is missing required source folder: \'src2\'",
+			"Project P is missing required source folder: 'src1'\n" + 
+			"Project P is missing required source folder: 'src2'",
 			JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
@@ -3046,7 +3042,7 @@ public void testBug55992a() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
 	
-		IPath path = getExternalJCLPath();
+		IPath path = new Path(getExternalPath()+"/jclMin.jar");
 		IPath sourceAttachmentPath = new Path("jclMin.zip");
 		JavaCore.setClasspathVariables(
 			new String[] {"TEST_LIB", "TEST_SRC"},
@@ -3065,7 +3061,7 @@ public void testBug55992a() throws CoreException {
 			false);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, cp, false);
 		assertEquals(
-			"Assertion failed; Source attachment path \'jclMin.zip\' for IClasspathEntry must be absolute",
+			"Assertion failed; Source attachment path 'jclMin.zip' for IClasspathEntry must be absolute",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");

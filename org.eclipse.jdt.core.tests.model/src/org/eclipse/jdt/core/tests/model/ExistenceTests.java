@@ -155,23 +155,6 @@ public void testCompilationUnitInLibrary2() throws CoreException {
 	}
 }
 /*
- * Ensure that a method with invalid parameters returns false to exists().
- * (regression test for bug 80338 getReturnType() throws a NullArgumentException)
- */
-public void testMethodWithInvalidParameter() throws CoreException {
-	try {
-		createJavaProject("P");
-		createFile(
-			"P/X.java", 
-			"public class X {}"
-		);
-		IMethod method = getCompilationUnit("P/X.java").getType("X").getMethod("foo", new String[] {"~12345@"});
-		assertTrue("Methodr should not exist", !method.exists()); 
-	} finally {
-		deleteProject("P");
-	}
-}
-/*
  * Ensure that a non-existing class file cannot be opened.
  */
 public void testNonExistingClassFile1() throws CoreException {

@@ -8,7 +8,6 @@
     <classpathentry kind="lib" path="test0049.jar" sourcepath="/Completion/test0049src.zip"/>
     <classpathentry kind="lib" path="pack.jar"/>
     <classpathentry kind="lib" path="same.jar"/>
-    <classpathentry kind="lib" path="constructors.jar" sourcepath="/Completion/constructorssrc.zip"/>
     <classpathentry kind="lib" path="class-folder"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

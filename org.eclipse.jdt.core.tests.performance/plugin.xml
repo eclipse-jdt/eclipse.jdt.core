@@ -2,8 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin
    id="org.eclipse.jdt.core.tests.performance"
-   name="%pluginName"
-   provider-name = "%providerName"
+   name="JDT Core Performance Tests"
    version="3.1.0">
 
    <runtime>

@@ -65,6 +65,10 @@ public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd
  */
 public void acceptUnknownReference(char[] name, int sourcePosition) {}
 /**
+ * enterClass method comment.
+ */
+public void enterClass(TypeInfo typeInfo) {}
+/**
  * enterCompilationUnit method comment.
  */
 public void enterCompilationUnit() {}
@@ -73,17 +77,25 @@ public void enterCompilationUnit() {}
  */
 public void enterConstructor(MethodInfo methodInfo) {}
 /**
+ * enterEnum method comment.
+ */
+public void enterEnum(TypeInfo typeInfos) {}
+/**
  * enterField method comment.
  */
 public void enterField(FieldInfo fieldInfo) {}
+/**
+ * enterInterface method comment.
+ */
+public void enterInterface(TypeInfo typeInfo) {}
 /**
  * enterMethod method comment.
  */
 public void enterMethod(MethodInfo methodInfo) {}
 /**
- * enterType method comment.
+ * exitClass method comment.
  */
-public void enterType(TypeInfo typeInfo) {}
+public void exitClass(int declarationEnd) {}
 /**
  * exitCompilationUnit method comment.
  */
@@ -93,13 +105,21 @@ public void exitCompilationUnit(int declarationEnd) {}
  */
 public void exitConstructor(int declarationEnd) {}
 /**
+ * exitEnum method comment.
+ */
+public void exitEnum(int declarationEnd) {}
+/**
  * exitField method comment.
  */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {}
 /**
+ * exitInterface method comment.
+ */
+public void exitInterface(int declarationEnd) {}
+/**
  * exitMethod method comment.
  */
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {}
+public void exitMethod(int declarationEnd) {}
 
 /**
  * enterInitializer method comment.
@@ -112,9 +132,5 @@ public void enterInitializer(int sourceStart, int sourceEnd) {
  */
 public void exitInitializer(int sourceEnd) {
 }
-/**
- * exitType method comment.
- */
-public void exitType(int declarationEnd) {}
 
 }

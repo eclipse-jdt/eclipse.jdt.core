@@ -66,9 +66,11 @@ public void setUpSuite() throws Exception {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-//	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "Bug78275" };
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	TESTS_NAMES = new String[] { "Bug73884" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 13 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
@@ -624,28 +626,5 @@ private ICompilationUnit workingCopy(String source) throws JavaModelException {
 	workingCopy.getBuffer().setContents(source);
 	workingCopy.makeConsistent(null);
 	return workingCopy;
-}
-
-/*
- * Verify fix for bug 78275: [recovery] NPE in GoToNextPreviousMemberAction with syntax error
- * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=78275)
- */
-public void testBug78275() throws CoreException {
-	try {
-		String cuSource = 
-			"public class X {\n" + 
-			"	void a() {\n" + 
-			"	     }\n" + 
-			"	}\n" + 
-			"	void m() {}\n" + 
-			"}\n";
-		createFile("/P/src/X.java", cuSource);
-		IType type = getCompilationUnit("/P/src/X.java").getType("X");
-		IInitializer[] initializers = type.getInitializers();
-		assertEquals("Invalid number of initializers", 1, initializers.length);
-		assertTrue("Invalid length for initializer", initializers[0].getSourceRange().getLength() > 0);
-	} finally {
-		deleteFile("/P/src/X.java");
-	}
 }
 }

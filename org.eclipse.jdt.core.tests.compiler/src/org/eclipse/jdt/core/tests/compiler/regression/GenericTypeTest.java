@@ -1420,7 +1420,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"SUCCESS");
 	}
 
-	// JSR14-v10[2.1,2.2]: Valid multiple parameter types
+	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types
 	public void test058() {
 		this.runConformTest(
 			new String[] {
@@ -1436,7 +1436,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			}
 		);
 	}
-	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more declared than referenced
+	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: more declared than referenced
 	public void test059() {
 		this.runNegativeTest(
 			new String[] {
@@ -1458,7 +1458,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"----------\n"
 		);
 	}
-	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more referenced than declared
+	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: more referenced than declared
 	public void test060() {
 		this.runNegativeTest(
 			new String[] {
@@ -1480,7 +1480,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"----------\n"
 		);
 	}
-	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: primitive types
+	// JSR14-v10[§2.1,§2.2]: Invalid multiple parameter types: primitive types
 	public void test061() {
 		this.runNegativeTest(
 			new String[] {
@@ -1532,7 +1532,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"----------\n"
 		);
 	}
-	// JSR14-v10[2.1,2.2]: Valid multiple parameter types: primitive type arrays
+	// JSR14-v10[§2.1,§2.2]: Valid multiple parameter types: primitive type arrays
 	public void test062() {
 		this.runConformTest(
 			new String[] {
@@ -1657,7 +1657,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			customOptions);
 	}
 
-	// JSR14-v10[2.1,2.2]: Invalid PT declaration (mix with reference)
+	// JSR14-v10[§2.1,§2.2]: Invalid PT declaration (mix with reference)
 	public void test066() {
 		this.runNegativeTest(
 			new String[] {
@@ -1681,7 +1681,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[2.1,2.2]: Invalid PT declaration (mix with reference)
+	// JSR14-v10[§2.1,§2.2]: Invalid PT declaration (mix with reference)
 	public void test067() {
 		this.runNegativeTest(
 			new String[] {
@@ -1705,7 +1705,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-V10[2.4]: Not terminated consecutive declaration
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
 	// TODO (david) diagnosis message on error 3 sounds strange, doesn't it?
 	public void test068() {
 		this.runNegativeTest(
@@ -1740,7 +1740,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-V10[2.4]: Not terminated consecutive declaration
+	// JSR14-V10[§2.4]: Not terminated consecutive declaration
 	public void test069() {
 		this.runNegativeTest(
 			new String[] {
@@ -1764,7 +1764,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (right-shift symbol)
+	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
 	public void test070() {
 		this.runNegativeTest(
@@ -1785,7 +1785,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[2.1,2.2]: Unexpected consecutive PT declaration (with spaces)
+	// JSR14-v10[§2.1,§2.2]: Unexpected consecutive PT declaration (with spaces)
 	public void test071() {
 		this.runNegativeTest(
 			new String[] {
@@ -1805,7 +1805,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (unary right-shift symbol)
+	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (unary right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
 	public void test072() {
 		this.runNegativeTest(
@@ -1826,7 +1826,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[2.4]: Unexpected consecutive PT declaration (right-shift symbol)
+	// JSR14-v10[§2.4]: Unexpected consecutive PT declaration (right-shift symbol)
 	// TODO (david) surround expected token with (double-)quotes
 	public void test073() {
 		this.runNegativeTest(
@@ -1851,7 +1851,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// JSR14-v10[2.1,2.2]: Unexpected consecutive PT declaration (with spaces)
+	// JSR14-v10[§2.1,§2.2]: Unexpected consecutive PT declaration (with spaces)
 	public void test074() {
 		this.runNegativeTest(
 			new String[] {
@@ -2061,7 +2061,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}	
 
-	// JSR14-v10[2.4]: Valid consecutive Type Parameters Brackets
+	// JSR14-v10[§2.4]: Valid consecutive Type Parameters Brackets
 	public void test079() {
 		this.runConformTest(
 			new String[] {
@@ -2556,7 +2556,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<T> extends X {}\n" + 
 			"	                          ^\n" + 
-			"Cycle detected: the type X<T> cannot extend/implement itself or one of its own member types\n" + 
+			"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}
 	public void test097() {
@@ -2569,7 +2569,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<T> extends X<String> {}\n" + 
 			"	                          ^\n" + 
-			"Cycle detected: the type X<T> cannot extend/implement itself or one of its own member types\n" + 
+			"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}	
 	public void test098() {
@@ -2675,10 +2675,11 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
-			"	                        ^\n" + 
-			"Cannot instantiate the type X<? extends AX>\n" + 
-			"----------\n");	
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Bound mismatch: The constructor X(? extends AX) of type X<? extends AX> is not applicable for the arguments (AX<String>). The wildcard parameter ? extends AX has no lower bound, and may actually be more restrictive than argument AX<String>\n" + 
+			"----------\n");		
 	}		
+
 
 	// wilcard may not pass parameter bound check
 	public void test101() {
@@ -4257,7 +4258,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
 			"	                                      ^^^\n" + 
-			"The method bar() is undefined for the type Object\n" + 
+			"The method bar() is undefined for the type V\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	return a.get();\n" + 
@@ -4291,7 +4292,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
 			"	                                      ^^^\n" + 
-			"The method bar() is undefined for the type Object\n" + 
+			"The method bar() is undefined for the type V\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	return a.get();\n" + 
@@ -4423,8 +4424,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	AX<String, Thread> a = bar();\n" + 
-			"	                   ^\n" + // TODO (philippe) should instead flag impossible to compute proper substitutes
-			"Type mismatch: cannot convert from AX<AX<Object,Object>,Thread> to AX<String,Thread>\n" + 
+			"	                   ^\n" + 
+			"Type mismatch: cannot convert from AX<AX<T,T>,Thread> to AX<String,Thread>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
@@ -4791,7 +4792,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=61507 - variation computing most specific type with 'null'
+	// 61507 - variation computing most specific type with 'null'
 	public void test181() {
 		this.runConformTest(
 			new String[] {
@@ -4931,7 +4932,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			true,
 			customOptions);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62292 - parameterized message send
+	// 62292 - parameterized message send
 	public void test184() {
 		this.runConformTest(
 			new String[] {
@@ -5349,7 +5350,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822 - supertypes partially resolved during bound check
+	// 62822 - supertypes partially resolved during bound check
 	public void test203() {
 		this.runConformTest(
 			new String[] {
@@ -5381,7 +5382,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62806
+	// 62806
 	public void test204() {
 		this.runConformTest(
 			new String[] {
@@ -5411,7 +5412,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63555 - reference to static type parameter allowed inside type itself
+	// 63555 - reference to static type parameter allowed inside type itself
 	public void test205() {
 		this.runConformTest(
 			new String[] {
@@ -5424,7 +5425,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63555 - variation on static method type parameter
+	// 63555 - variation on static method type parameter
 	public void test206() {
 		this.runConformTest(
 			new String[] {
@@ -5436,7 +5437,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63590 - disallow parameterized type in catch/throws clause
+	// 63590 - disallow parameterized type in catch/throws clause
 	public void test207() {
 		this.runNegativeTest(
 			new String[] {
@@ -5468,7 +5469,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Cannot use the parameterized type Alpha<String> either in catch block or throws clause\n" + 
 			"----------\n");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63590 - disallow parameterized type in catch/throws clause
+	// 63590 - disallow parameterized type in catch/throws clause
 	public void test208() {
 		this.runNegativeTest(
 			new String[] {
@@ -5509,7 +5510,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Cannot use the parameterized type X<X<String>> either in catch block or throws clause\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=63556 - should resolve all occurrences of A to type variable
+	// 63556 - should resolve all occurrences of A to type variable
 	public void test209() {
 		this.runConformTest(
 			new String[] {
@@ -5520,7 +5521,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68006 - Invalid modifier after parse
+	// 68006 - Invalid modifier after parse
 	public void test210() {
 		this.runNegativeTest(
 			new String[] {
@@ -5599,7 +5600,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68133 - verify error
+	// 68133 - verify error
 	public void test214() {
 		this.runConformTest(
 			new String[] {
@@ -5622,7 +5623,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68133 variation
+	// 68133 variation
 	public void test215() { 
 		this.runConformTest(
 			new String[] {
@@ -5695,7 +5696,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			assertTrue(false);
 		}
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68998 parameterized field constants
+	// 68998 parameterized field constants
 	public void test216() { 
 		this.runConformTest(
 			new String[] {
@@ -5717,7 +5718,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69135 - unnecessary cast operation
+	// 69135 - unnecessary cast operation
 	public void test217() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
@@ -5741,7 +5742,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			true,
 			customOptions);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=64154 visibility issue due to invalid use of parameterized binding
+	// 64154 visibility issue due to invalid use of parameterized binding
 	public void test218() {
 		this.runConformTest(
 			new String[] {
@@ -5765,7 +5766,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=64154 variation
+	// 64154 variation
 	public void test219() {
 		this.runConformTest(
 			new String[] {
@@ -5789,7 +5790,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141 unsafe wildcard operation tolerates wildcard with lower bounds
+	// 69141 unsafe wildcard operation tolerates wildcard with lower bounds
 	public void test220() {
 		this.runNegativeTest(
 			new String[] {
@@ -5811,7 +5812,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from ? super Integer to Integer\n" + 
 			"----------\n");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141 variation
+	// 69141 variation
 	public void test221() {
 		this.runNegativeTest(
 			new String[] {
@@ -5832,7 +5833,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Bound mismatch: The method add(? extends Integer) of type ArrayList<? extends Integer> is not applicable for the arguments (Integer). The wildcard parameter ? extends Integer has no lower bound, and may actually be more restrictive than argument Integer\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141: variation
+	// 69141: variation
 	public void test222() {
 		this.runNegativeTest(
 			new String[] {
@@ -5856,7 +5857,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}	
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69251- instantiating wildcards
+	// 69251- instantiating wildcards
 	public void test223() {
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
@@ -5898,7 +5899,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			true,
 			customOptions);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=68998 variation
+	// 68998 variation
 	public void test224() { 
 		this.runNegativeTest(
 			new String[] {
@@ -5925,7 +5926,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"The blank final field o may not have been initialized\n" + 
 			"----------\n");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69353 - prevent using type parameter in catch block
+	// 69353 - prevent using type parameter in catch block
 	public void test225() {
 		this.runNegativeTest(
 			new String[] {
@@ -5963,7 +5964,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"The serializable class EX does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69170 - invalid generic array creation
+	// 69170 - invalid generic array creation
 	public void test226() {
 		this.runNegativeTest(
 			new String[] {
@@ -5992,7 +5993,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Cannot create a generic array of X<T>\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69359 - unsafe cast diagnosis
+	// 69359 - unsafe cast diagnosis
 	public void test227() {
 		this.runNegativeTest(
 			new String[] {
@@ -6087,7 +6088,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69375 - equivalence of wildcards
+	// 69375 - equivalence of wildcards
 	public void test230() {
 		this.runNegativeTest(
 			new String[] {
@@ -6110,7 +6111,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from List<? extends Number> to List<? extends Integer>\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69170 - variation
+	// 69170 - variation
 	public void test231() {
 		this.runNegativeTest(
 			new String[] {
@@ -6133,7 +6134,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Cannot create a generic array of X<? extends Thread>\n" + 
 			"----------\n");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - generic cast should be less strict
+	// 69542 - generic cast should be less strict
 	public void test232() {
 		this.runConformTest(
 			new String[] {
@@ -6163,7 +6164,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"BAD");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test233() {
 		this.runConformTest(
 			new String[] {
@@ -6193,7 +6194,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test234() {
 		this.runConformTest(
 			new String[] {
@@ -6223,7 +6224,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"BAD");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test235() {
 		this.runConformTest(
 			new String[] {
@@ -6253,7 +6254,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test236() {
 		this.runConformTest(
 			new String[] {
@@ -6283,7 +6284,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"BAD");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test237() {
 		this.runConformTest(
 			new String[] {
@@ -6313,7 +6314,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test238() {
 		this.runConformTest(
 			new String[] {
@@ -6345,7 +6346,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"BAD");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69542 - variation
+	// 69542 - variation
 	public void test239() {
 		this.runConformTest(
 			new String[] {
@@ -6377,7 +6378,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69713 NPE due to length pseudo field
+	// 69713 NPE due to length pseudo field
 	public void test240() {
 		this.runNegativeTest(
 			new String[] {
@@ -6400,7 +6401,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from int to boolean\n" + 
 			"----------\n");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69776 - missing checkcast on cast operation
+	// 69776 - missing checkcast on cast operation
 	public void test241() {
 		this.runConformTest(
 			new String[] {
@@ -6554,7 +6555,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"The method foo(Object) of raw type X is no longer generic; it cannot be parameterized with arguments <String>\n" + 
 		"----------\n");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 parameterized type compatibility
+	// 69320 parameterized type compatibility
 	public void test246() {
 		this.runNegativeTest(
 			new String[] {
@@ -6574,7 +6575,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"Type mismatch: cannot convert from X.MX<Class> to X.MX<Class<? extends Object>>\n" + 
 		"----------\n");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 variation
+	// 69320 variation
 	public void test247() {
 		this.runNegativeTest(
 			new String[] {
@@ -6621,7 +6622,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from MX<MX<Class>> to MX<MX<? extends Class>>\n" + 
 			"----------\n");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70247 check type variable is bound during super type resolution
+	// 70247 check type variable is bound during super type resolution
 	public void test248() {
 		this.runNegativeTest(
 			new String[] {
@@ -6635,7 +6636,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"The type X cannot extend or implement Vector<? super X<int[]>>. A supertype may not specify any wildcard\n" + 
 			"----------\n");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70247 variation
+	// 70247 variation
 	public void test249() {
 		this.runNegativeTest(
 			new String[] {
@@ -6650,7 +6651,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"The type X cannot extend or implement List<? super X<int[]>>. A supertype may not specify any wildcard\n" + 
 			"----------\n");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70295 Class<? extends Object> is compatible with Class<?>
+	// 70295 Class<? extends Object> is compatible with Class<?>
 	public void test250() {
 		this.runConformTest(
 			new String[] {
@@ -6663,7 +6664,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69800 '? extends Object' is not compatible with A
+	// 69800 '? extends Object' is not compatible with A
 	public void test251() {
 		this.runNegativeTest(
 			new String[] {
@@ -6684,7 +6685,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from ? extends Object to X.A\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69799 NPE in foreach checkcast
+	// 69799 NPE in foreach checkcast
 	public void test252() {
 		this.runNegativeTest(
 			new String[] {
@@ -6707,7 +6708,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"channels cannot be resolved\n" + 
 			"----------\n");
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70243 unsafe cast when wildcards
+	// 70243 unsafe cast when wildcards
 	public void test253() {
 		this.runNegativeTest(
 			new String[] {
@@ -6749,7 +6750,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Unnecessary cast from List<Integer> to List<? extends Number>\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70053 missing checkcast in string concatenation
+	// 70053 missing checkcast in string concatenation
 	public void test254() {
 		this.runConformTest(
 			new String[] {
@@ -6771,7 +6772,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS!");		
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69351 generic type cannot extend Throwable
+	// 69351 generic type cannot extend Throwable
 	public void test255() {
 		this.runNegativeTest(
 			new String[] {
@@ -6791,7 +6792,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
 			"----------\n");		
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70616 - reference to binary Enum
+	// 70616 - reference to binary Enum
 	public void test256() {
 		this.runNegativeTest(
 			new String[] {
@@ -6812,7 +6813,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Bound mismatch: The type X is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type Enum<E>\n" + 
 			"----------\n");		
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70618 - reference to variable allowed in parameterized super type
+	// 70618 - reference to variable allowed in parameterized super type
 	public void test257() {
 		this.runNegativeTest(
 			new String[] {
@@ -6847,7 +6848,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70767 - NPE compiling code with explicit constructor invocation
+	// 70767 - NPE compiling code with explicit constructor invocation
 	public void test259() {
 		this.runConformTest(
 			new String[] {
@@ -7031,7 +7032,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type safety: The expression of raw type ArrayList is converted to ArrayList<X>. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70975 - test compilation against binary generic method
+	// 70975 - test compilation against binary generic method
 	public void test269() {
 		this.runConformTest(
 			new String[] {
@@ -7068,7 +7069,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			false, // do not flush output
 			null);		
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70969 - lub(List<String>, List<Object>) --> List<? extends Object>
+	// 70969 - lub(List<String>, List<Object>) --> List<? extends Object>
 	public void test270() {
 		this.runNegativeTest(
 			new String[] {
@@ -7096,7 +7097,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Cannot cast from XZ to XY\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71080 - parameter bound <T extends Enum<T>> should be allowed
+	// 71080 - parameter bound <T extends Enum<T>> should be allowed
 	public void test271() {
 		this.runConformTest(
 			new String[] {
@@ -7106,7 +7107,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71080 - variation
+	// 71080 - variation
 	public void test272() {
 		this.runConformTest(
 			new String[] {
@@ -7119,7 +7120,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71080 - variation
+	// 71080 - variation
 	public void test273() {
 		this.runConformTest(
 			new String[] {
@@ -7132,7 +7133,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241
+	// 71241
 	public void test274() {
 		this.runNegativeTest(
 			new String[] {
@@ -7163,7 +7164,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
+	// 71241 - variation
 	public void test275() {
 		this.runNegativeTest(
 			new String[] {
@@ -7194,7 +7195,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
+	// 71241 - variation
 	public void test276() {
 		this.runNegativeTest(
 			new String[] {
@@ -7216,7 +7217,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method useList(List<String>) of type Y has the same erasure as useList(List) of type X but does not override it\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
+	// 71241 - variation
 	public void test277() {
 		this.runNegativeTest(
 			new String[] {
@@ -7238,7 +7239,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type safety: The expression of raw type List is converted to List<String>. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
+	// 71241 - variation
 	public void test278() {
 		this.runConformTest(
 			new String[] {
@@ -7255,7 +7256,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69901
+	// 69901
 	public void test279() {
 		this.runNegativeTest(
 			new String[] {
@@ -7275,7 +7276,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type safety: The return type Class of the method getSomething() of type X needs unchecked conversion to conform to the return type Class<? extends Y> of inherited method\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822
+	// 62822
 	public void test280() {
 		this.runConformTest(
 			new String[] {
@@ -7345,7 +7346,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Y.Missing cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72083
+	// 72083
 	public void test284() {
 		this.runConformTest(
 			new String[] {
@@ -7376,7 +7377,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73530
+	// 73530
 	public void test285() {
 		this.runConformTest(
 			new String[] {
@@ -7396,7 +7397,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"42");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
+	// 72644
 	// TODO (philippe) we need a way to test these 2 methods & find them 'equivalent'... right isEquivalentTo return false
 	public void test286() {
 		this.runConformTest(
@@ -7549,7 +7550,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73837
+	// 73837
 	public void test293() {
 		this.runConformTest(
 			new String[] {
@@ -7580,7 +7581,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			false, // do not flush output
 			null);		
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73837 variation
+	// 73837 variation
 	public void test294() {
 		this.runConformTest(
 			new String[] {
@@ -7710,8 +7711,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"foo, bar");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
-	public void test298() {
+	// 72644
+	public void _test298() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -7741,7 +7742,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	public class X<V> implements Map<String, V> {\n" + 
 			"	             ^\n" + 
-			"The type X<V> must implement the inherited abstract method Map<String,V>.putAll(Map<? extends String,? extends V>)\n" + 
+			"Class must implement the inherited abstract method Map<String,V>.putAll(Map<? extends String,? extends V>)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	public void putAll(Map<String, ? extends V> t) { }\n" + 
@@ -7770,7 +7771,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method putAll(Map<? extends String,? extends V>) of type X<S,V> has the same erasure as putAll(Map<? extends K,? extends V>) of type Map<S,V> but does not override it\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74244
+	// 74244
 	public void test299() {
 		this.runConformTest(
 			new String[] {
@@ -7783,8 +7784,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");	
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74119
-	public void test300() {
+	// 74119
+	public void _test300() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -7810,7 +7811,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74320: check no complaint for unused private method
+	// 74320: check no complaint for unused private method
 	public void test301() {
 		this.runNegativeTest(
 			new String[] {
@@ -7833,7 +7834,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");	
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74514
+	// 74514
 	public void test302() {
 		this.runNegativeTest(
 			new String[] {
@@ -7862,7 +7863,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from String to boolean\n" + 
 			"----------\n");	
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74544
+	// 74544
 	public void test303() {
 		this.runConformTest(
 			new String[] {
@@ -7885,7 +7886,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74592
+	// 74592
 	public void test304() {
 		this.runConformTest(
 			new String[] {
@@ -7895,7 +7896,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74420
+	// 74420
 	public void test305() {
 		this.runConformTest(
 			new String[] {
@@ -7907,7 +7908,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74096
+	// 74096
 	public void test306() {
 		this.runConformTest(
 			new String[] {
@@ -7921,7 +7922,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72583
+	// 72583
 	public void test307() {
 		this.runConformTest(
 			new String[] {
@@ -7937,7 +7938,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");	
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73696
+	// 73696
 	public void test308() {
 		this.runConformTest(
 			new String[] {
@@ -7972,7 +7973,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 					"}\n"
 			});	
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75156 - should report name clash
+	// 75156 - should report name clash
 	public void test310() {
 		this.runNegativeTest(
 			new String[] {
@@ -7993,7 +7994,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75156 variation - should report name clash and ambiguity
+	// 75156 variation - should report name clash and ambiguity
 	public void test311() {
 		this.runNegativeTest(
 			new String[] {
@@ -8043,7 +8044,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
 			"----------\n");	
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73963 
+	// 73963 
 	public void test313() {
 		this.runConformTest(
 			new String[] {
@@ -8228,7 +8229,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n"	);
 	}	
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75548
+	// 75548
 	public void test318() {
 		this.runConformTest(
 			new String[] {
@@ -8251,7 +8252,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76729
+	// 76729
 	public void test319() {
 		this.runConformTest(
 			new String[] {
@@ -8275,7 +8276,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");	
 	}				
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74032
+	// 74032
 	public void test320() {
 		this.runConformTest(
 			new String[] {
@@ -8298,7 +8299,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");	
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74032 - variation with wildcard
+	// 74032 - variation with wildcard
 	public void test321() {
 		this.runConformTest(
 			new String[] {
@@ -8328,7 +8329,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");	
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75134
+	// 75134
 	public void test322() {
 		this.runConformTest(
 			new String[] {
@@ -8352,7 +8353,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");	
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76359 - also check warnings for raw conversion
+	// 76359 - also check warnings for raw conversion
 	public void test323() {
 		this.runNegativeTest(
 			new String[] {
@@ -8385,7 +8386,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");	
 	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72998
+	// 72998
 	public void test324() {
 		this.runConformTest(
 			new String[] {
@@ -8451,7 +8452,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"No enclosing instance of type X<T> is accessible. Must qualify the allocation with an enclosing instance of type X<T> (e.g. x.new A() where x is an instance of X<T>).\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75400
+	// 75400
 	public void test326() {
 		this.runConformTest(
 			new String[] {
@@ -8765,7 +8766,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	new E();\n" + 
 			"	    ^\n" + 
-			"Cannot instantiate the type E\n" + 
+			"Cannot instantiate the type E, since it is not a concrete class\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	new E() {\n" + 
@@ -8802,7 +8803,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	new E();\n" + 
 			"	    ^\n" + 
-			"Cannot instantiate the type E\n" + 
+			"Cannot instantiate the type E, since it is not a concrete class\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	new E() {\n" + 
@@ -8814,7 +8815,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Cannot refer to the type parameter E as a supertype\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74669
+	//74669
 	public void test336() {
 		this.runNegativeTest(
 			new String[] {
@@ -8846,7 +8847,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77078
+	//77078
 	public void test337() {
 		this.runConformTest(
 			new String[] {
@@ -8867,7 +8868,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77052
+	//77052
 	public void test338() {
 		this.runConformTest(
 			new String[] {
@@ -8889,7 +8890,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77052 - variation
+	//77052 - variation
 	public void test339() {
 		this.runConformTest(
 			new String[] {
@@ -8907,7 +8908,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76313
+	//76313
 	public void test340() {
 		this.runConformTest(
 			new String[] {
@@ -8926,7 +8927,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"Hallo");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77118
+	//77118
 	public void test341() {
 		this.runConformTest(
 			new String[] {
@@ -8945,7 +8946,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77142 - check no raw unsafe warning is issued when accessing generic method from raw type
+	//77142 - check no raw unsafe warning is issued when accessing generic method from raw type
 	public void test342() {
 		this.runNegativeTest(
 			new String[] {
@@ -8995,7 +8996,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74588
+	//74588
 	public void test343() {
 		this.runConformTest(
 			new String[] {
@@ -9053,11 +9054,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	X<R> xr = new X<R>(){  \n" + 
 			"	              ^^^^^^\n" + 
-			"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
+			"Class must implement the inherited abstract method X<R>.bar(T)\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
-	public void test345() {
+	//74594
+	// TODO (kent) reenable once addressed
+	public void _test345() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9085,8 +9087,9 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
-	public void test346() {
+	//74594
+	// TODO (kent) reenable once addressed
+	public void _test346() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9118,8 +9121,9 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"4");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74594
-	public void test347() {
+	//74594
+	// TODO (kent) reenable once addressed
+	public void _test347() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9158,7 +9162,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"4");
 	}	
 	// checking scenario where generic type and method share the same type parameter name
-	public void test348() {
+	// TODO (kent) we shouldn't be issuing a warning for method override unchecked conversion
+	public void _test348() {
 		this.runNegativeTest(
 			new String[] {	
 				"X.java",
@@ -9226,7 +9231,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Bound mismatch: Cannot assign expression of type ? to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75328
+	// 75328
 	public void test351() {
 		this.runConformTest(
 			new String[] {
@@ -9242,7 +9247,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 			"");
 	}	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77051
+	// 77051
 	public void test352() {
 		this.runConformTest(
 			new String[] {
@@ -9345,7 +9350,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76720
+	// 76720
 	public void test358() {
 		this.runConformTest(
 			new String[] {
@@ -9374,7 +9379,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			false,
 			null);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76790
+	// 76790
 	public void test359() {
 		this.runConformTest(
 			new String[] {
@@ -9390,7 +9395,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			}
 		);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76786
+	// 76786
 	public void test360() {
 		this.runConformTest(
 			new String[] {
@@ -9422,7 +9427,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			}
 		);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75525
+	// 75525
 	public void test361() {
 		this.runConformTest(
 			new String[] {
@@ -9443,7 +9448,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			}
 		);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72643
+	// 72643
 	public void test362() {
 		Map customOptions= getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
@@ -9471,7 +9476,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		customOptions,
 		null/*no custom requestor*/);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76434
+	// 76434
 	public void test363() {
 		this.runConformTest(
 			new String[] {
@@ -9873,7 +9878,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			null);
 	}	
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76601
+	// 76601
 	public void test377() {
 		this.runConformTest(
 			new String[] {
@@ -9896,7 +9901,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"SUCCESS");
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76219
+	// 76219
 	public void test378() {
 		this.runConformTest(
 			new String[] {
@@ -9912,44 +9917,44 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		);
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71612
+	// 71612
 	public void test379() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
 				"import java.util.AbstractSet;\n" + 
-				"import java.util.Iterator;\n" + 
-				"public class Test extends AbstractSet<Runnable>{\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        Test t=new Test();\n" + 
-				"        t.add(null);\n" + 
-				"    }\n" + 
-				"    public boolean add(Runnable run) {\n" + 
-				"        System.out.println(\"success\");\n" + 
-				"        return true;\n" + 
-				"    }\n" + 
-				"    public Iterator<Runnable> iterator() {return null;}\n" + 
-				"    public int size() {return 0;}\n" + 
-				"}"
+					"import java.util.Iterator;\n" + 
+					"public class Test extends AbstractSet<Runnable>{\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"        Test t=new Test();\n" + 
+					"        t.add(null);\n" + 
+					"    }\n" + 
+					"    public boolean add(Runnable run) {\n" + 
+					"        System.out.println(\"success\");\n" + 
+					"        return true;\n" + 
+					"    }\n" + 
+					"    public Iterator<Runnable> iterator() {return null;}\n" + 
+					"    public int size() {return 0;}\n" + 
+					"}"
 				}
 		);
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77327
+	// 77327
 	public void test380() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
 				"import java.util.List;\n" + 
-				"public class Test {\n" + 
-				"	List<? super Number> wsn= null; // Contravariance\n" + 
-				"	List<? super Integer> wsi= wsn; // should work!\n" + 
-				"}\n"
+					"public class Test {\n" + 
+					"	List<? super Number> wsn= null; // Contravariance\n" + 
+					"	List<? super Integer> wsi= wsn; // should work!\n" + 
+					"}\n"
 				}
 		);
 	}
 
-	public void test381() {
+	public void _test381() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9983,7 +9988,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Name clash : The method foo(Class<String>) of type X has the same erasure as foo(Class<? extends String>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
-	public void test382() {
+	public void _test382() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9995,12 +10000,12 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Name clash : The method foo(Class<String>) of type Y has the same erasure as foo(Class<? extends String>) of type I but does not override it\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 1)\n" + 
-			"	public class X extends Y implements I {}\n" + 
-			"	             ^\n" + 
-			"The type X must implement the inherited abstract method I.foo(Class<? extends String>)\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	class Y { void foo(Class<String> s) {} }\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<String>) of type Y has the same erasure as foo(Class<? extends String>) of type I but does not override it\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -10010,79 +10015,46 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"class Y { void foo(Class<? extends String> s) {} }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public abstract class X extends Y implements I {}\n" + 
-			"	                      ^\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	class Y { void foo(Class<? extends String> s) {} }\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(Class<? extends String>) of type Y has the same erasure as foo(Class<String>) of type I but does not override it\n" + 
 			"----------\n");
 	}
-	public void test383() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
-				"interface I { <T, S> void foo(Class<T> s); }\n" + 
-				"class Y { public <T> void foo(Class<T> s) {} }\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
-			"	             ^\n" + 
-			"The type X must implement the inherited abstract method I.foo(Class<T>)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 1)\n" + 
-			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
-			"	                                                        ^^^^^^^^^^^^^^^\n" + 
-			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
-			"----------\n");
-			/*
-			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
-			public class X extends Y implements I { public <T> void foo(Class<T> s) {} }
-			       ^
-       		*/
+	public void _test383() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X extends Y implements I {}\n" + 
 				"interface I { <T, S> void foo(Class<T> s); }\n" + 
-				"class Y { public <T> void foo(Class<T> s) {} }\n"
+				"class Y { <T> void foo(Class<T> s) {} }\n"
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Y implements I {}\n" + 
 			"	             ^\n" + 
-			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"Class must implement the inherited abstract method I.foo(Class<T>)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 1)\n" + 
-			"	public class X extends Y implements I {}\n" + 
-			"	             ^\n" + 
-			"The type X must implement the inherited abstract method I.foo(Class<T>)\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	class Y { <T> void foo(Class<T> s) {} }\n" + 
+			"	                   ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n");
-			/*
-			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
-			public class X extends Y implements I {}
-			       ^
-			*/
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public abstract class X extends Y implements I {}\n" + // NOTE: X is abstract
+				"public abstract class X extends Y implements I {}\n" + 
 				"interface I { <T> void foo(Class<T> s); }\n" + 
-				"class Y { public <T, S> void foo(Class<T> s) {} }\n"
+				"class Y { <T, S> void foo(Class<T> s) {} }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public abstract class X extends Y implements I {}\n" + 
-			"	                      ^\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	class Y { <T, S> void foo(Class<T> s) {} }\n" + 
+			"	                      ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(Class<T>) of type Y has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
 			"----------\n");
-			/*
-			X.java:1: name clash: <T,S>foo(java.lang.Class<T>) in Y and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
-			public abstract class X extends Y implements I {}
-			                ^
-			 */
 	}
-	public void test384() {
+	public void _test384() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10123,8 +10095,19 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77496
-	public void test385() { 
+/*
+X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
+class A implements IDoubles {
+^
+X.java:4: getList() in A cannot implement getList() in IDoubles; attempting to use incompatible return type
+found   : java.util.List<java.lang.String>
+required: java.util.List<java.lang.Double>
+	public List<String> getList() { return null; }
+                            ^
+X.java:9: C is not abstract and does not override abstract method getList() in IDoubles
+class C extends B implements IDoubles {
+ */	
+	public void _test385() { // 77496
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -10141,31 +10124,14 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	public List<String> getList() { return null; }\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
+			"	public List<String> getList() { return null; }\r\n" + 
 			"	                    ^^^^^^^^^\n" + 
 			"The return type is incompatible with IDoubles.getList()\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
-			"	class C extends B implements IDoubles {\n" + 
-			"	      ^\n" + 
-			"The return type is incompatible with IDoubles.getList(), B.getList()\n" + 
 			"----------\n");
-			/*
-			X.java:3: A is not abstract and does not override abstract method getList() in IDoubles
-			class A implements IDoubles {
-			^
-			X.java:4: getList() in A cannot implement getList() in IDoubles; attempting to use incompatible return type
-			found   : java.util.List<java.lang.String>
-			required: java.util.List<java.lang.Double>
-				public List<String> getList() { return null; }
-			                            ^
-			X.java:9: C is not abstract and does not override abstract method getList() in IDoubles
-			class C extends B implements IDoubles {
-			 */	
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77325
+	// 77325
 	public void test386() {
 		this.runNegativeTest(
 			new String[] {
@@ -10197,1482 +10163,5 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"Unnecessary cast from Object to T\n" + 
 				"----------\n"
 		);
-	}
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - generic varargs method
-	public void test387() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"\n" + 
-				"public class X<T>\n" + 
-				"{\n" + 
-				"\n" + 
-				"	public boolean test1()\n" + 
-				"	{\n" + 
-				"			test2(\"test\", null, 0);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> List<F> test2(final List<F> list, final String... strings)\n" + 
-				"	{\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	test2(\"test\", null, 0);\n" + 
-			"	^^^^^\n" + 
-			"The method test2(List<F>, String...) in the type X<T> is not applicable for the arguments (String, null, int)\n" + 
-			"----------\n");
-	}
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test388() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"\n" + 
-				"public class X<T>\n" + 
-				"{\n" + 
-				"\n" + 
-				"	public boolean test1()\n" + 
-				"	{\n" + 
-				"			test2(null, null, \"test\");\n" + 
-				"			return false;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> List<F> test2(final List<F> list, final String... strings)\n" + 
-				"	{\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			""
-		);
-	}
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test389() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"	public boolean test1()	{\n" + 
-				"		String s = foo(\"hello\");\n" + 
-				"		return s != null;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> F foo(F f, F... others) {\n" + 
-				"		return f;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			""
-		);
-	}	
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test390() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"	public boolean test1()	{\n" + 
-				"		String s = foo(null, \"hello\");\n" + 
-				"		return s != null;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> F foo(F f, F... others) {\n" + 
-				"		return f;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			""
-		);
-	}		
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test391() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"	public boolean test1()	{\n" + 
-				"		String[] s = foo(null, new String[]{ \"hello\" });\n" + 
-				"		return s != null;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> F foo(F f, F... others) {\n" + 
-				"		return f;\n" + 
-				"	}\n" + 
-				"}\n"	
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	String[] s = foo(null, new String[]{ \"hello\" });\n" + 
-			"	         ^\n" + 
-			"Type mismatch: cannot convert from String to String[]\n" + 
-			"----------\n"
-		);
-	}		
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77422 - variation
-	public void test392() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"	public boolean test1()	{\n" + 
-				"		foo(null, \"hello\");\n" + // no inference on expected type
-				"		return true;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> F foo(F f, F... others) {\n" + 
-				"		return f;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			""
-		);
-	}		
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78049 - chech invalid array initializer
-	public void test393() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"	public boolean test1()	{\n" + 
-				"		foo(null, \"hello\");\n" + // no inference on expected type
-				"		return true;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <F> F foo(F f, F... others) {\n" + 
-				"		return f;\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			""
-		);
-	}			
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78027
-	public void test394() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X \n" + 
-				"{\n" + 
-				"}\n" + 
-				"\n" + 
-				"interface ITest<C extends X>\n" + 
-				"{ \n" + 
-				"}\n" + 
-				"\n" + 
-				"abstract class Test<C extends X> implements ITest<C>\n" + 
-				"{\n" + 
-				"  protected Manager<C> m_manager;\n" + 
-				"  \n" + 
-				"  public ITest<C> get()\n" + 
-				"  {\n" + 
-				"    return m_manager.getById(getClass(), new Integer(1));\n" + 
-				"  }\n" + 
-				"    \n" + 
-				"  public static class Manager<C extends X>\n" + 
-				"  {\n" + 
-				"    public <T extends ITest<C>> T getById(Class<T> cls, Integer id)\n" + 
-				"    {\n" + 
-				"      return null;\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"}\n"
-			},
-			""
-		);
-	}			
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74119 - variation
-	public void test395() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X<T extends Exception> {\n" + 
-				"	T element;\n" + 
-				"	\n" + 
-				"	void foo(X<? super NullPointerException> xnpe) {\n" + 
-				"		xnpe.element = new java.io.IOException();\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	xnpe.element = new java.io.IOException();\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from IOException to ? super NullPointerException\n" + 
-			"----------\n"
-		);
-	}			
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78139 - downcast generic method inference
-	public void test396() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.Collection;\n" + 
-				"import java.util.List;\n" + 
-				"import java.util.ArrayList;\n" + 
-				"\n" + 
-				"public class X\n" + 
-				"{\n" + 
-				"    public static <T> List<T> emptyList() {\n" + 
-				"        return new ArrayList<T>();\n" + 
-				"    }\n" + 
-				"    public static <T> Collection<T> emptyCollection() {\n" + 
-				"        return new ArrayList<T>();\n" + 
-				"    }\n" + 
-				"    public static <T> Iterable<T> emptyIterable() {\n" + 
-				"        return new ArrayList<T>();\n" + 
-				"    }\n" + 
-				"    \n" + 
-				"    public static void main(String[] args) {\n" + 
-				"    	 // generic inference using expected lhs type: T --> String\n" + 
-				"        final List<String> lL = emptyList(); // 1\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected cast type: T --> String\n" + 
-				"        final Collection<String> cL = (Collection<String>)emptyList(); // 2\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected cast type: T --> String\n" + 
-				"        final Iterable<String> iL = (Iterable<String>)emptyList(); // 3\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected lhs type: T --> String\n" + 
-				"        final Collection<String> cC = emptyCollection(); // 4\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected cast type: T --> String\n" + 
-				"        final Iterable<String> iC = (Iterable<String>)emptyCollection(); // 5\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected lhs type: T --> String\n" + 
-				"        final Iterable<String> iI = emptyIterable(); // 6\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected lhs type: T --> String\n" + 
-				"        final Collection<String> cL2 = emptyList(); // 7\n" + 
-				"        \n" + 
-				"    	 // generic inference using expected lhs type: T --> String\n" + 
-				"        final Iterable<String> iC2 = emptyCollection(); // 8\n" + 
-				"    }\n" + 
-				"}"
-			},
-			""
-		);
-	}		
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76132
-	public void test397() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"interface K1<A> { \n" + 
-				"        public <B extends A> void kk(K1<B> x); \n" + 
-				"} \n" + 
-				" \n" + 
-				"class K2<C> implements K1<C> { \n" + 
-				"        public <D extends C> void kk(K1<D> y) { \n" + 
-				"                System.out.println(\"K2::kk(\" + y.toString() + \")\"); \n" + 
-				"        } \n" + 
-				"} \n" + 
-				" \n" + 
-				"// --------------------------------------------------- \n" + 
-				" \n" + 
-				"interface L1<E> { \n" + 
-				"        public void ll(L1<? extends E> a); \n" + 
-				"} \n" + 
-				" \n" + 
-				"class L2<KK> implements L1<KK> { \n" + 
-				"        public void ll(L1<? extends KK> b) { \n" + 
-				"                ll2(b); \n" + 
-				"        } \n" + 
-				" \n" + 
-				"        private <LL extends KK> void ll2(L1<LL> c) { \n" + 
-				"                System.out.println(\"L2::ll2(\" + c.toString() + \")\"); \n" + 
-				"        } \n" + 
-				"} \n" + 
-				" \n" + 
-				"// --------------------------------------------------- \n" + 
-				" \n" + 
-				"interface M1<H> { \n" + 
-				"        public void mm(M1<? extends H> p); \n" + 
-				"} \n" + 
-				" \n" + 
-				"class M2<I> implements M1<I> { \n" + 
-				"        public <J extends I> void mm(M1<J> q) { \n" + 
-				"                System.out.println(\"M2::mm(\" + q.toString() + \")\"); \n" + 
-				"        } \n" + 
-				"} \n" + 
-				" \n" + 
-				"// =================================================== \n" + 
-				" \n" + 
-				"class XX            { public String toString() { return \"XX\"; } } \n" + 
-				"class YY extends XX { public String toString() { return \"YY\"; } } \n" + 
-				"class ZZ extends YY { public String toString() { return \"ZZ\"; } } \n" + 
-				" \n" + 
-				"// --------------------------------------------------- \n" + 
-				" \n" + 
-				"public class X { \n" + 
-				"        public static void main(String arg[]) { \n" + 
-				"                goK(new K2<YY>()); \n" + 
-				"                goL(new L2<YY>()); \n" + 
-				"                goM(new M2<YY>()); \n" + 
-				"        } \n" + 
-				" \n" + 
-				" \n" + 
-				"        public static void goK(K1<YY> k) { \n" + 
-				"                // k.kk(new K2<XX>()); // Would fail \n" + 
-				"                k.kk(new K2<YY>()); \n" + 
-				"                k.kk(new K2<ZZ>()); \n" + 
-				"        } \n" + 
-				" \n" + 
-				" \n" + 
-				"        public static void goL(L1<YY> l) { \n" + 
-				"                // l.ll(new L2<XX>()); // Would fail \n" + 
-				"                l.ll(new L2<YY>()); \n" + 
-				"                l.ll(new L2<ZZ>()); \n" + 
-				"        } \n" + 
-				" \n" + 
-				" \n" + 
-				"        public static void goM(M1<YY> m) { \n" + 
-				"                // m.mm(new M2<XX>()); // Would fail \n" + 
-				"                m.mm(new M2<YY>()); \n" + 
-				"                m.mm(new M2<ZZ>()); \n" + 
-				"        } \n" + 
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 33)\n" + 
-			"	class M2<I> implements M1<I> { \n" + 
-			"	      ^^\n" + 
-			"The type M2<I> must implement the inherited abstract method M1<I>.mm(M1<? extends I>)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 34)\n" + 
-			"	public <J extends I> void mm(M1<J> q) { \n" + 
-			"	                          ^^^^^^^^^^^\n" + 
-			"Name clash : The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<I> but does not override it\n" + 
-			"----------\n"
-		);
-	}			
-	// cannot allocate parameterized type with wildcards
-	public void test398() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T> {\n" + 
-				"    X(){\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"		new X<?>();\n" + 
-				"		new X<? extends String>();\n" + 
-				"		new X<?>(){};\n" + 
-				"		new X<? extends String>(){};\n" + 
-				"	}\n" + 
-				"}\n"	,
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	new X<?>();\n" + 
-			"	    ^\n" + 
-			"Cannot instantiate the type X<?>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	new X<? extends String>();\n" + 
-			"	    ^\n" + 
-			"Cannot instantiate the type X<? extends String>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
-			"	new X<?>(){};\n" + 
-			"	    ^\n" + 
-			"The type new X(){} cannot extend or implement X<?>. A supertype may not specify any wildcard\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 8)\n" + 
-			"	new X<? extends String>(){};\n" + 
-			"	    ^\n" + 
-			"The type new X(){} cannot extend or implement X<? extends String>. A supertype may not specify any wildcard\n" + 
-			"----------\n");
-	}
-	
-	public void test399() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T> {\n" + 
-				"    T t;\n" + 
-				"    X(T t){\n" + 
-				"        this.t = t;\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"		X<? extends AX> x = new X<AX<Math>>(new AX<String>());\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"class AX<P> {\n" + 
-				"    P foo() { return null; }\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	X<? extends AX> x = new X<AX<Math>>(new AX<String>());\n" + 
-			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X<AX<Math>>(AX<String>) is undefined\n" + 
-			"----------\n");	
-	}
-	
-	public void test400() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T> {\n" + 
-				"    T t;\n" + 
-				"    X(X<? extends T> xt){\n" + 
-				"        this.t = xt.t;\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"		X<? extends AX> x = new X<AX<Math>>(new X<AX<String>>(null));\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"class AX<P> {\n" + 
-				"    P foo() { return null; }\n" + 
-				"}",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	X<? extends AX> x = new X<AX<Math>>(new X<AX<String>>(null));\n" + 
-			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X<AX<Math>>(X<AX<String>>) is undefined\n" + 
-			"----------\n");	
-	}		
-
-	// legal to allocate/inherit from a type with wildcards, as long as non direct arguments
-	public void test401() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<T> {\n" + 
-				"	void foo() {\n" + 
-				"		new X<X<?>>();\n" + 
-				"		new X<X<? extends String>>();\n" + 
-				"		new X<X<?>>(){};\n" + 
-				"		new X<X<? extends String>>(){};\n" + 
-				"	}\n" + 
-				"}",
-			},
-			"");	
-	}	
-	
-	// legal to inherit from a type with wildcards, as long as non direct arguments
-	public void test402() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X extends Y<Y<?>> {\n" + 
-				"}\n" + 
-				"class Y<T> {}",
-			},
-			"");	
-	}
-	// check cast between generic types
-	public void test403() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T> {\n" + 
-				"	\n" + 
-				"	void foo(X<X<? extends String>> xs) {\n" + 
-				"		X<X<String>> x = (X<X<String>>) xs;\n" + 
-				"		Zork z;\n" +
-				"	}\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	X<X<String>> x = (X<X<String>>) xs;\n" + 
-			"	                 ^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot cast from X<X<? extends String>> to X<X<String>>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");	
-	}
-	
-	// check cast between generic types
-	public void test404() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T> {\n" + 
-				"	\n" + 
-				"	void foo(X<? extends String> xs) {\n" + 
-				"		X<String> x = (X<String>) xs;\n" + 
-				"		Zork z;\n" +
-				"	}\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	X<String> x = (X<String>) xs;\n" + 
-			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends String> to X<String> will not check conformance of type arguments at runtime\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");	
-	}		
-
-	// check cast between generic types
-	public void test405() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <E> {\n" + 
-				"	\n" + 
-				"	<T> void foo(X<X<T>> xs) {\n" + 
-				"		X<X<String>> x = (X<X<String>>) xs;\n" + 
-				"	}\n" + 
-				"	<T> void bar(X<T> xs) {\n" + 
-				"		X<String> x = (X<String>) xs;\n" + 
-				"	}	\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	X<X<String>> x = (X<X<String>>) xs;\n" + 
-			"	                 ^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot cast from X<X<T>> to X<X<String>>\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
-			"	X<String> x = (X<String>) xs;\n" + 
-			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<T> to X<String> will not check conformance of type arguments at runtime\n" + 
-			"----------\n");	
-	}		
-	
-	public void test406() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public abstract class X<K1,V1> implements M<K1,V1> {\n" + 
-				"	abstract M<K1,V1> other();\n" + 
-				"	public S<E<K1,V1>> entrySet() {\n" + 
-				"		return other().entrySet();\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"interface M<K2,V2> {\n" + 
-				"	 interface E<K3,V3> { }\n" + 
-				"	 S<E<K2, V2>> entrySet();\n" + 
-				"}\n" + 
-				"interface S<T> {}",
-			},
-			"");	
-	}		
-	
-	public void test407() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public abstract class X<K1,V1> implements M<K1,V1> {\n" + 
-				"	abstract M<K1,V1> other();\n" + 
-				"	public S<M.E<K1,V1>> entrySet() {\n" + // qualified M.E...
-				"		return other().entrySet();\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"interface M<K2,V2> {\n" + 
-				"	 interface E<K3,V3> { }\n" + 
-				"	 S<E<K2, V2>> entrySet();\n" + 
-				"}\n" + 
-				"interface S<T> {}",
-			},
-			"");	
-	}			
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78008
-	public void test408() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"public class X {\n" + 
-				"    public Integer[] getTypes() {\n" + 
-				"        List<Integer> list = new ArrayList<Integer>();\n" + 
-				"        return list == null \n" + 
-				"            ? new Integer[0] \n" + 
-				"            : list.toArray(new Integer[list.size()]);\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        Class clazz = null;\n" + 
-				"        try {\n" + 
-				"            clazz = Class.forName(\"X\");\n" + 
-				"    	     System.out.println(\"SUCCESS\");\n" + 
-				"        } catch (Throwable e) {\n" + 
-				"            e.printStackTrace();\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"}",
-			},
-			"SUCCESS");	
-	}	
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78008
-	public void test409() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"public class X {\n" + 
-				"    public Number getTypes() {\n" + 
-				"        List<Integer> list = new ArrayList<Integer>();\n" + 
-				"        return list == null \n" + 
-				"            ? Float.valueOf(0)\n" + 
-				"            : list.get(0);\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        Class clazz = null;\n" + 
-				"        try {\n" + 
-				"            clazz = Class.forName(\"X\");\n" + 
-				"    	     System.out.println(\"SUCCESS\");\n" + 
-				"        } catch (Throwable e) {\n" + 
-				"            e.printStackTrace();\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"}",
-			},
-			"SUCCESS");	
-	}			
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74178
-	public void test410() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.List;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"\n" + 
-				"public void write(List<? super Exception> list) {\n" + 
-				"	\n" + 
-				"  list.add(new RuntimeException());             // JDT works, Javac works\n" + 
-				"  list.add(new IllegalMonitorStateException()); // JDT works, Javac works\n" + 
-				"  Exception exc = new Exception();\n" + 
-				"  list.add(exc);                                // both works\n" + 
-				"  list.add(new Object());                       // JDT works, Javac fails\n" + 
-				"  list.add(new Throwable());                    // JDT works, Javac fails\n" + 
-				"  list.add(new Exception());                    // both works\n" + 
-				"}\n" + 
-				"}",
-			},
-			"");	
-	}			
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78015 
-	public void test411() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"interface I<T> {\n" + 
-				"    void m1(T t);\n" + 
-				"    void m2(T t);\n" + 
-				"}\n" + 
-				"\n" + 
-				"class A {};\n" + 
-				"\n" + 
-				"class B implements I<A> {\n" + 
-				"    public void m1(A a) {\n" + 
-				"    	System.out.println(\"SUCCESS\");\n" + 
-				"    }\n" + 
-				"    public void m2(A a) {}\n" + 
-				"}\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        m(new B());\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public static void m(I<A> x) {\n" + 
-				"        x.m1(null);\n" + 
-				"    }\n" + 
-				"}",
-			},
-			"SUCCESS");	
-	}		
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 
-	public void _test412() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"    public static <T> T first(T... args) {\n" + 
-				"        return args[0];\n" + 
-				"    }\n" + 
-				"    \n" + 
-				"    public static void main(String[] args) {\n" + 
-				"    	if (false) { \n" + 
-				"    		String s = first(); \n" + 
-				"    		int i; \n" + 
-				"    		i++; \n" + 
-				"    	}\n" + 
-				"        System.out.println(first(\"SUCCESS\", \"List\"));\n" + 
-				"    }\n" + 
-				"}",
-			},
-			"should warn about unchecked array conversion for T[]");	
-	}
-	
-	public void test413() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<T> {\n" + 
-				"	static class TLM {\n" + 
-				"	}\n" + 
-				"    TLM getMap(TL t) {\n" + 
-				"        return t.tls;\n" + 
-				"    }\n" + 
-				"    static TLM createInheritedMap(TLM parentMap) {\n" + 
-				"        return new TLM();\n" + 
-				"    }  \n" + 
-				"}\n" + 
-				"\n" + 
-				"class TL {\n" + 
-				"   X.TLM tls = null;\n" + 
-				"}",
-			},
-			"");	
-	}
-	
-	public void test414() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	void foo(L l, C<? super X> c) {\n" + 
-				"		bar(l, c);\n" + 
-				"	}\n" + 
-				"	<T> void bar(L<T> l, C<? super T> c) { \n" + 
-				"	}	\n" + 
-				"}\n" + 
-				"class C<E> {}\n" + 
-				"class L<E> {}",
-			},
-			"");	
-	}
-	
-	public void test415() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"    public S<M.E<Object,Object>> foo(HM hm) {\n" + 
-				"		return C.bar(hm).foo();\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"class C {\n" + 
-				"    public static <K,V> M<K,V> bar(M<? extends K,? extends V> m) {\n" + 
-				"		return null;\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"class S<E> {\n" + 
-				"}\n" + 
-				"abstract class HM<U,V> implements M<U,V>{\n" + 
-				"}\n" + 
-				"interface M<A,B> {\n" + 
-				"	static class E<S,T> {}\n" + 
-				"	S<E<A,B>> foo();	\n" + 
-				"}",
-			},
-			"");	
-	}	
-	
-	public void test416() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"    public S<M.E<Object,String>> foo(HM hm) {\n" + 
-				"    	M<Object, String> m = C.bar(hm);\n" + 
-				"    	if (false) return m.foo();\n" + 
-				"		return C.bar(hm).foo();\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"class C {\n" + 
-				"    public static <K,V> M<K,V> bar(M<? extends K,? extends V> m) {\n" + 
-				"		return null;\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"class S<E> {\n" + 
-				"}\n" + 
-				"abstract class HM<U,V> implements M<U,V>{\n" + 
-				"}\n" + 
-				"interface M<A,B> {\n" + 
-				"	static class E<S,T> {}\n" + 
-				"	S<E<A,B>> foo();	\n" + 
-				"}",
-			},
-			"");	
-	}
-	
-	public void test417() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<E> {\n" + 
-				"	\n" + 
-				"	<T> X<T> foo(X<T> xt) {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	X<E> identity() {\n" + 
-				"		return this;\n" + 
-				"	}\n" + 
-				"	void bar(X x) {\n" + 
-				"		X<String> xs = foo(x).identity();\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-			"");	
-	}			
-	
-	public void test418() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<E> {\n" + 
-				"	\n" + 
-				"	<T> X<T> foo(X<T> xt, X<T> xt2) {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	X<E> identity() {\n" + 
-				"		return this;\n" + 
-				"	}\n" + 
-				"	void bar(X x, X<String> xs) {\n" + 
-				"		X<String> xs2 = foo(x, xs).identity();\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-			"");	
-	}			
-	
-	public void test419() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<E> {\n" + 
-				"	\n" + 
-				"	<T,U> X<T> foo(X<T> xt, X<U> xt2) {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	X<E> identity() {\n" + 
-				"		return this;\n" + 
-				"	}\n" + 
-				"	void bar(X x, X<String> xs) {\n" + 
-				"		X<String> xs2 = foo(x, xs).identity();\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-			"");	
-	}		
-	
-	public void test420() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<E> {\n" + 
-				"	\n" + 
-				"	<T,U> X<U> foo(X<T> xt, X<U> xt2) {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	X<E> identity() {\n" + 
-				"		return this;\n" + 
-				"	}\n" + 
-				"	void bar(X x, X<String> xs) {\n" + 
-				"		X<String> xs2 = foo(x, xs).identity();\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-			"");	
-	}		
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78863
-	public void test421() {
-		this.runConformTest(
-			new String[] {
-				"Test.java",
-				"import java.util.HashMap;\n" +
-				"import java.util.List;\n" +
-				"import java.util.Map;\n" +
-				"\n" +
-				"public class Test\n" +
-				"{\n" +
-				"  protected Map<Class<? extends Object>, List<Object>> m_test\n" +
-				"    = new HashMap<Class<? extends Object>, List<Object>>();\n" +
-				"}\n",
-				"Test2.java",
-				"import java.util.List;\n" +
-				"import java.util.Map;\n" +
-				"\n" +
-				"public class Test2 extends Test\n" +
-				"{\n" +
-				"  public Map<Class<? extends Object>, List<Object>> test()\n" +
-				"  {\n" +
-				"    return m_test;\n" +
-				"  }\n" +
-				"}\n",
-			},
-			"");	
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78704
-	public void test422() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X<T> {\n" +
-				"	String foo() {\n" +
-				"		return new X();\n" +
-				"	}\n" +
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	return new X();\n" + 
-			"	       ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from X to String\n" + 
-			"----------\n");
-	}
-	
-	public void test423() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"\n" + 
-				"    static <T extends X> T bar() {\n" + 
-				"        return null;\n" + 
-				"    }\n" + 
-				"    static <U extends X&Runnable> U foo() {\n" + 
-				"        return null;\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public static void main(String argv[]) {\n" + 
-				"    	bar();\n" + 
-				"        foo();\n" + 
-				"    }\n" + 
-				"\n" + 
-				"}",
-			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	foo();\n" + 
-		"	^^^\n" + 
-		"Bound mismatch: The generic method foo() of type X is not applicable for the arguments () since the type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" + 
-		"----------\n");
-	}	
-	
-	public void test424() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	\n" + 
-				"	<T extends A> T foo(T t) {\n" + 
-				"		return t;\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new X().bar();\n" + 
-				"	}\n" + 
-				"	void bar() {\n" + 
-				"		B b = foo(new B());\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"class A {}\n" + 
-				"class B extends A {}\n" + 
-				"\n",
-			},
-		"");
-	}		
-	
-	// check tiebreak eliminates related generic methods which are less specific
-	public void test425() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.io.IOException;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"    static <E extends A> void m(E e) { System.out.println(\"A:\"+e.getClass()); }\n" + 
-				"    static <F extends B> void m(F f) throws Exception { System.out.println(\"B:\"+f.getClass()); }\n" + 
-				"    static <G extends C> void m(G g) throws IOException { System.out.println(\"C:\"+g.getClass()); }\n" + 
-				"\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        m(new A());\n" + 
-				"        m(new B());\n" + 
-				"        m(new C());\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"\n" + 
-				"class A {}\n" + 
-				"class B extends A {}\n" + 
-				"class C extends A {}\n" + 
-				"\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	m(new B());\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Unhandled exception type Exception\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	m(new C());\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Unhandled exception type IOException\n" + 
-			"----------\n");
-	}			
-	
-	// check inferred return types are truly based on arguments, and not on parameter erasures
-	public void test426() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"    static <E extends A> E m(E e) { System.out.print(\"[A:\"+e.getClass()+\"]\"); return e; }\n" + 
-				"\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        A a = m(new A());\n" + 
-				"        B b = m(new B());\n" + 
-				"        C c = m(new C());\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"\n" + 
-				"class A {}\n" + 
-				"class B extends A {}\n" + 
-				"class C extends A {}\n",
-			},
-			"[A:class A][A:class B][A:class C]");
-	}			
-	
-	// check inferred return types are truly based on arguments, and not on parameter erasures
-	public void test427() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"    static <E extends A> E m(E e, E... e2) { System.out.print(\"[A:\"+e.getClass()+\"]\"); return e; }\n" + 
-				"    static <F extends B> F m(F f, F... f2) { System.out.print(\"[B:\"+f.getClass()+\"]\"); return f; }\n" + 
-				"    static <G extends C> G m(G g, G... g2) { System.out.print(\"[C:\"+g.getClass()+\"]\"); return g; }\n" + 
-				"\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        A a = m(new A(), new A());\n" + 
-				"        B b = m(new B(), new B());\n" + 
-				"        C c = m(new C(), new C());\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"\n" + 
-				"class A {}\n" + 
-				"class B extends A {}\n" + 
-				"class C extends A {}\n",
-			},
-			"[A:class A][B:class B][C:class C]");
-	}			
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79390
-	public void test428() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"   Zork z;\n" + 
-				"	public static void foo() {\n" + 
-				"		class A<T extends Number> {\n" + 
-				"			T t = null;\n" + 
-				"			T get() {\n" + 
-				"				return t;\n" + 
-				"			}\n" + 
-				"		}\n" + 
-				"		A<Long> a = new A<Long>() {\n" + 
-				"			Long get() {\n" + // TODO (kent) should not issue warning for unchecked conversion
-				"				return new Long(5);\n" + 
-				"			}\n" + 
-				"		};\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 11)\n" + 
-			"	Long get() {\n" + 
-			"	^^^^\n" + 
-			"Type safety: The return type Long of the method get() of type new A<Long>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
-			"----------\n");
-	}		
-
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
-	public void test429() { 
-		this.runConformTest(
-			new String[] {
-				"X1.java",
-				"class X1 <T extends Y & Comparable<Y>> {}\n" +
-				"abstract class Y implements Comparable<Y> {}",
-			},
-			""
-		);
-		this.runConformTest(
-			new String[] {
-				"X2.java",
-				"class X2 <T extends Y & Comparable<Y>> {}\n" +
-				"abstract class Y extends Z {}\n" +
-				"abstract class Z implements Comparable<Y> {}",
-			},
-			""
-		);
-		this.runConformTest(
-			new String[] {
-				"X3.java",
-				"class X3 <T extends Y & Comparable<Z>> {}\n" +
-				"abstract class Y extends Z {}\n" +
-				"abstract class Z implements Comparable<Z> {}",
-			},
-			""
-		);
-		this.runConformTest(
-			new String[] {
-				"X4.java",
-				"class X4 <T extends Comparable<Z> & Comparable<Z>> {}\n" +
-				"abstract class Y extends Z {}\n" +
-				"abstract class Z implements Comparable<Z> {}",
-			},
-			"" // no complaints about duplicates
-		);
-		this.runNegativeTest(
-			new String[] {
-				"X5.java",
-				"class X5 <T extends Y & Comparable<X5>> {}\n" +
-				"abstract class Y implements Comparable<Y> {}",
-			},
-			"----------\n" + 
-			"1. ERROR in X5.java (at line 1)\n" + 
-			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
-			"	                        ^^^^^^^^^^\n" + 
-			"Bound conflict: Comparable<X5> is inherited with conflicting arguments\n" + 
-			"----------\n"
-			// Comparable cannot be inherited with different arguments: <X5> and <Y>
-		);
-		this.runNegativeTest(
-			new String[] {
-				"X6.java",
-				"class X6 <T extends Y & Comparable<X6>> {}\n" +
-				"abstract class Y extends Z {}\n" +
-				"abstract class Z implements Comparable<Z> {}",
-			},
-			"----------\n" + 
-			"1. ERROR in X6.java (at line 1)\r\n" + 
-			"	class X6 <T extends Y & Comparable<X6>> {}\r\n" + 
-			"	                        ^^^^^^^^^^\n" + 
-			"Bound conflict: Comparable<X6> is inherited with conflicting arguments\n" + 
-			"----------\n"
-			// Comparable cannot be inherited with different arguments: <X6> and <Y>
-		);
-		this.runNegativeTest(
-			new String[] {
-				"X7.java",
-				"class X7 <T extends Comparable<Z> & Comparable<X7>> {}\n" +
-				"abstract class Y extends Z {}\n" +
-				"abstract class Z implements Comparable<Z> {}",
-			},
-			"----------\n" + 
-			"1. ERROR in X7.java (at line 1)\r\n" + 
-			"	class X7 <T extends Comparable<Z> & Comparable<X7>> {}\r\n" + 
-			"	                                    ^^^^^^^^^^\n" + 
-			"Bound conflict: Comparable<X7> is inherited with conflicting arguments\n" + 
-			"----------\n"
-			// Comparable cannot be inherited with different arguments: <Z> and <X7>
-		);
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79797
-	public void test430() {
-		this.runConformTest(
-			new String[] {
-				"p/MMM.java",
-				"package p;\n" +
-				"public interface MMM< F extends MMM<F,G>, G extends NNN> { } \n",
-				"p/NNN.java",
-				"package p;\n" +
-				"public interface NNN { } \n",
-			},
-			"");
-
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import p.MMM;\n" + 
-				"import p.NNN;\n" + 
-				"\n" + 
-				"interface RRR< A extends MMM<A, B>, B extends NNN> {}\n" + 
-				"\n" + 
-				"class J1 implements MMM<J1, J2> { }\n" + 
-				"class J2 implements NNN { }\n" + 
-				"\n" + 
-				"class J3 implements RRR<J1,J2> {} \n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    J3 thing = null;\n" + 
-				"  }\n" + 
-				"}\n",
-			},
-			"",
-			null,
-			false, // do not flush output
-			null);		
-	}			
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79891
-	public void test431() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X<Type> {\n" + 
-				"  private class Element {\n" + 
-				"  }\n" + 
-				"  public X() {\n" + 
-				"    Element[] eArray = new Element[10];\n" + 
-				"  }\n" + 
-				"}\n",
-			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	Element[] eArray = new Element[10];\n" + 
-		"	                   ^^^^^^^^^^^^^^^\n" + 
-		"Cannot create a generic array of X<Type>.Element\n" + 
-		"----------\n");
-	}		
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79891
-	public void test432() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<Type> {\n" + 
-				"  private static class Element {\n" + 
-				"  }\n" + 
-				"  public X() {\n" + 
-				"    Element[] eArray = new Element[10];\n" + 
-				"  }\n" + 
-				"}\n",
-			},
-		"");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80144
-	public void test433() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"\n" + 
-				"interface Alpha<\n" + 
-				"	A1 extends Alpha<A1, B1>, \n" + 
-				"	B1 extends Beta<A1, B1>> {\n" + 
-				"}\n" + 
-				"interface Beta<\n" + 
-				"	A2 extends Alpha<A2, B2>, \n" + 
-				"	B2 extends Beta<A2, B2>> {\n" + 
-				"}\n" + 
-				"interface Phi<\n" + 
-				"	A3 extends Alpha<A3, B3>, \n" + 
-				"	B3 extends Beta<A3, B3>> {\n" + 
-				"	\n" + 
-				"	public void latinize(A3 s);\n" + 
-				"}\n" + 
-				"\n" + 
-				"public class X<\n" + 
-				"	A extends Alpha<A, B>, \n" + 
-				"	B extends Beta<A, B>, \n" + 
-				"	P extends Phi<A, B>> extends ArrayList<P> implements Phi<A, B> {\n" + 
-				"	\n" + 
-				"	public final void latinize(A a) {\n" + 
-				"		frenchify(this, a); // (X<A,B,P>, A)\n" + 
-				"	}\n" + 
-				"	// -----------------------------------------------------------------\n" + 
-				"	public static final <AA extends Alpha<AA, BB>, BB extends Beta<AA, BB>> \n" + 
-				"	void frenchify(Collection< ? extends Phi<AA, BB>> phis, AA aa) {\n" + 
-				"		for (final Phi<AA, BB> phi : phis)\n" + 
-				"			phi.latinize(aa);\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-		"");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80083
-	public void test434() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"\n" + 
-				"public class X\n" + 
-				"{\n" + 
-				"\n" + 
-				"  public static void main(String[] args)\n" + 
-				"  {\n" + 
-				"    ArrayList<String> l = new ArrayList<String>();\n" + 
-				"    l.add(\"x\");\n" + 
-				"    String s = \"\";\n" + 
-				"    s += l.get(0); // X\n" + 
-				"    System.out.println(\"SUCCESS\");\n" + 
-				"  }\n" + 
-				"\n" + 
-				"}\n",
-			},
-		"SUCCESS");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80083
-	public void test435() {
-		this.runConformTest(
-			new String[] {
-				"Test.java",//===============================
-				"import java.lang.reflect.InvocationTargetException;\n" + 
-				"import java.lang.reflect.Method;\n" + 
-				"\n" + 
-				"import orders.DiscreteOrder;\n" + 
-				"import orders.impl.IntegerOrder;\n" + 
-				"import orders.impl.IntegerOrder2;\n" + 
-				"\n" + 
-				"public class Test {\n" + 
-				"\n" + 
-				"    public static void main(String[] args) throws SecurityException,\n" + 
-				"            NoSuchMethodException, IllegalArgumentException,\n" + 
-				"            IllegalAccessException {\n" + 
-				"        Test test = new Test();\n" + 
-				"\n" + 
-				"        for (String method : new String[] { \"test1\", \"test2\", \"test3\", \"test4\" }) {\n" + 
-				"            Method m = test.getClass().getMethod(method);\n" + 
-				"            try {\n" + 
-				"                m.invoke(test);\n" + 
-				"                System.out.print(\"*** \" + m + \": success\");\n" + 
-				"            } catch (InvocationTargetException e) {\n" + 
-				"                System.out.print(\"*** \" + m + \": failed, stacktrace follows\");\n" + 
-				"                e.getCause().printStackTrace(System.out);\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public void test1() { // works\n" + 
-				"        new IntegerOrder().next(new Integer(0)); // works\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public void test2() { // doesn\'t work\n" + 
-				"        final DiscreteOrder<Integer> order = new IntegerOrder();\n" + 
-				"        order.next(new Integer(0));\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public void test3() { // works\n" + 
-				"        new IntegerOrder2().next(new Integer(0)); // works\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public void test4() { // doesn\'t work\n" + 
-				"        final DiscreteOrder<Integer> order = new IntegerOrder2();\n" + 
-				"        order.next(new Integer(0));\n" + 
-				"    }\n" + 
-				"}\n",
-				"orders/DiscreteOrder.java",//===============================
-				"package orders;\n" + 
-				"public interface DiscreteOrder<E extends Comparable<E>> {\n" + 
-				"    /**\n" + 
-				"     * @return The element immediately before <code>element</code> in the\n" + 
-				"     *         discrete ordered space.\n" + 
-				"     */\n" + 
-				"    public E previous(E element);\n" + 
-				"    /**\n" + 
-				"     * @return The element immediately after <code>element</code> in the\n" + 
-				"     *         discrete ordered space.\n" + 
-				"     */\n" + 
-				"    public E next(E element);\n" + 
-				"}\n",				
-				"orders/impl/IntegerOrder.java",//===============================
-				"package orders.impl;\n" + 
-				"import orders.DiscreteOrder;\n" + 
-				"\n" + 
-				"public class IntegerOrder implements DiscreteOrder<Integer> {\n" + 
-				"\n" + 
-				"    public IntegerOrder() {\n" + 
-				"        super();\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public Integer previous(Integer arg0) {\n" + 
-				"        return new Integer(arg0.intValue() - 1);\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public Integer next(Integer arg0) {\n" + 
-				"        return new Integer(arg0.intValue() + 1);\n" + 
-				"    }\n" + 
-				"}\n",				
-				"orders/impl/IntegerOrder2.java",//===============================
-				"package orders.impl;\n" + 
-				"\n" + 
-				"\n" + 
-				"public class IntegerOrder2 extends IntegerOrder {\n" + 
-				"\n" + 
-				"    public IntegerOrder2() {\n" + 
-				"        super();\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public Comparable previous(Comparable arg0) {\n" + 
-				"        return previous((Integer) arg0);\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public Comparable next(Comparable arg0) {\n" + 
-				"        return next((Integer) arg0);\n" + 
-				"    }\n" + 
-				"\n" + 
-				"}\n",
-			},
-		"*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
-	public void test436() {
-		this.runConformTest(
-			new String[] {
-				"A.java",
-				"public class A {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		Number n= new Integer(1);\n" + 
-				"		X x = new X<Number>();\n" + 
-				"		x.m(n);\n" + 
-				"		x.m(new Integer(2));\n" + 
-				"		Y y= new Y();\n" + 
-				"		y.m(n);\n" + 
-				"		y.m(new Integer(2));\n" + 
-				"	}\n" + 
-				"}\n",
-				"X.java",
-				"class X<T> {\n" + 
-				"	public void m(Number num) { System.out.print(\"X.m(Number) = \" + num + ','); }\n" + 
-				"	public void m(T t) { System.out.print(\"X.m(T) = \" + t + ','); }\n" + 
-				"}\n",
-				"Y.java",
-				"class Y extends X<Number> {\n" + 
-				"	public void m(Number num) { System.out.print(\"Y.m(Number) = \" + num + ','); }\n" + 
-				"}\n",
-			},
-		"X.m(Number) = 1,X.m(Number) = 2,Y.m(Number) = 1,Y.m(Number) = 2,");
 	}
 }

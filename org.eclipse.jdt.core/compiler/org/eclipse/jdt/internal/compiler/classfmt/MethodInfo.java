@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
@@ -76,19 +75,11 @@ private int decodeAnnotation(int offset) {
 	int readOffset = offset;
 	int utf8Offset = this.constantPoolOffsets[u2At(offset)] - structOffset;
 	char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-	typeName = Signature.toCharArray(typeName);
-	CharOperation.replace(typeName, '/', '.');
-	char[][] qualifiedTypeName = CharOperation.splitOn('.', typeName);
 	int numberOfPairs = u2At(offset + 2);
 	readOffset += 4;
-	if (qualifiedTypeName.length == 3) {
-		char[] lastPart = qualifiedTypeName[2];
-		if (lastPart[0] == 'D') {
-			if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_DEPRECATED)) {
-				this.tagBits |= TagBits.AnnotationDeprecated;
-				return readOffset;		
-			}
-		}
+	if (typeName.length == 22 && CharOperation.equals(typeName, ConstantPool.JAVA_LANG_DEPRECATED)) {
+		this.tagBits |= TagBits.AnnotationDeprecated;
+		return readOffset;		
 	}
 	for (int i = 0; i < numberOfPairs; i++) {
 		readOffset += 2;

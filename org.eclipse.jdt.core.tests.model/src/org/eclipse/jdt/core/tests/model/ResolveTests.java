@@ -885,7 +885,7 @@ public void testNegativeResolveUnicode() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "lang.\\u0053tring", "lang.\\u0053tring");
 	assertElementsEqual(
 		"Unexpected elements",
-		"String [in String.class [in java.lang [in "+ getExternalJCLPathString() + " [in Resolve]]]]",
+		"",
 		elements
 	);
 }
@@ -909,7 +909,7 @@ public void testPartiallyQualifiedType() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "lang.Object", "lang.Object");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in Resolve]]]]",
+		"",
 		elements
 	);
 }
@@ -1410,76 +1410,6 @@ public void testLocalVariable() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in toto() [in <anonymous #2> [in foo2() [in ResolveLocalVariable [in ResolveLocalVariable.java [in <default> [in src [in Resolve]]]]]]]]",
-		elements
-	);
-}
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78931
- */
-public void testQualifiedName1() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName1.java");
-	
-	IJavaElement[] elements = codeSelect(cu, "pp.qq.XX.YY.ZZ", "pp.qq.XX.YY.ZZ");
-	
-	assertElementsEqual(
-		"Unexpected elements",
-		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
-		elements
-	);
-}
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78931
- */
-public void testQualifiedName2() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName2.java");
-	
-	IJavaElement[] elements = codeSelect(cu, "qq.XX.YY.ZZ", "qq.XX.YY.ZZ");
-	
-	assertElementsEqual(
-		"Unexpected elements",
-		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
-		elements
-	);
-}
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78931
- */
-public void testQualifiedName3() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName3.java");
-	
-	IJavaElement[] elements = codeSelect(cu, "XX.YY.ZZ", "XX.YY.ZZ");
-	
-	assertElementsEqual(
-		"Unexpected elements",
-		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
-		elements
-	);
-}
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78931
- */
-public void testQualifiedName4() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName4.java");
-	
-	IJavaElement[] elements = codeSelect(cu, "YY.ZZ", "YY.ZZ");
-	
-	assertElementsEqual(
-		"Unexpected elements",
-		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
-		elements
-	);
-}
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78931
- */
-public void testQualifiedName5() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveQualifiedName5.java");
-	
-	IJavaElement[] elements = codeSelect(cu, "YY.ZZ", "YY.ZZ");
-	
-	assertElementsEqual(
-		"Unexpected elements",
-		"ZZ [in YY [in XX [in ResolveQualifiedName5 [in ResolveQualifiedName5.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }

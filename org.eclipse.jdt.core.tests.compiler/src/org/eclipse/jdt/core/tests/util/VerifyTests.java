@@ -15,13 +15,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-/******************************************************
- * 
- * IMPORTANT NOTE: If modifying this class, copy the source to TestVerifier#getVerifyTestsCode()
- * (see this method for details)
- * 
- ******************************************************/
-
 public class VerifyTests {
 	int portNumber;
 	Socket socket;
@@ -115,11 +108,13 @@ public class VerifyClassLoader extends ClassLoader {
 				// keep searching
 			}
 		}
-		File file= locate(name);
-		if (file == null)
-			throw new ClassNotFoundException();
-		byte data[]= loadClassData(file);
-		c= defineClass(name, data, 0, data.length);
+		if (c == null) {
+			File file= locate(name);
+			if (file == null)
+				throw new ClassNotFoundException();
+			byte data[]= loadClassData(file);
+			c= defineClass(name, data, 0, data.length);
+		}
 		if (resolve) 
 			resolveClass(c);
 		return c;

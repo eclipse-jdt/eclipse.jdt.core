@@ -888,25 +888,23 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	 */\n"
 					+ "	public void p_foo(int x) {\n"
 					+ "	}\n"
-					+ "}\n"
-				},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* @param *\n" + 
-				"	         ^\n" + 
-				"Javadoc: Invalid param tag name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	* @param ?\n" + 
-				"	         ^\n" + 
-				"Javadoc: Invalid param tag name\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	public void p_foo(int x) {\n" + 
-				"	                      ^\n" + 
-				"Javadoc: Missing tag for parameter x\n" + 
-				"----------\n"
-		);
+					+ "}\n" },
+			"----------\n"
+				+ "1. ERROR in X.java (at line 4)\n"
+				+ "	* @param *\n"
+				+ "	         ^\n"
+				+ "Javadoc: Missing parameter name\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 5)\n"
+				+ "	* @param ?\n"
+				+ "	         ^\n"
+				+ "Javadoc: Missing parameter name\n"
+				+ "----------\n"
+				+ "3. ERROR in X.java (at line 7)\n"
+				+ "	public void p_foo(int x) {\n"
+				+ "	                      ^\n"
+				+ "Javadoc: Missing tag for parameter x\n"
+				+ "----------\n");
 	}
 
 	public void test035() {
@@ -974,20 +972,18 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	 */\n"
 					+ "	public void p_foo(int x) {\n"
 					+ "	}\n"
-					+ "}\n"
-			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* @param java.lang.Hashtable\n" + 
-				"	         ^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid param tag name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	public void p_foo(int x) {\n" + 
-				"	                      ^\n" + 
-				"Javadoc: Missing tag for parameter x\n" + 
-				"----------\n"
-		);
+					+ "}\n" },
+			"----------\n"
+				+ "1. ERROR in X.java (at line 4)\n"
+				+ "	* @param java.lang.Hashtable\n"
+				+ "	         ^^^^\n"
+				+ "Javadoc: Parameter java is not declared\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 6)\n"
+				+ "	public void p_foo(int x) {\n"
+				+ "	                      ^\n"
+				+ "Javadoc: Missing tag for parameter x\n"
+				+ "----------\n");
 	}
 
 	public void test038() {

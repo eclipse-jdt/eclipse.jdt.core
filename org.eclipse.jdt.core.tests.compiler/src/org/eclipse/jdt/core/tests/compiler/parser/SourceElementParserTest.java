@@ -166,7 +166,10 @@ public static String displayModifiers(int modifiers) {
 		buffer.append("synchronized ");
 	return buffer.toString();
 }
-public void enterType(TypeInfo typeInfo) {
+public void enterClass(TypeInfo typeInfo) {
+	enterType(typeInfo);
+}
+protected void enterType(TypeInfo typeInfo) {
 	if (currentType == null) {
 		// top level type
 		currentType = 
@@ -225,6 +228,9 @@ public void enterField(FieldInfo fieldInfo) {
 				source)); 
 
 }
+public void enterEnum(TypeInfo typeInfo) {
+	enterType(typeInfo);
+}
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	currentType.addField(
 		currentInitializer = new SourceInitializer(
@@ -233,6 +239,9 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 public void exitInitializer(int declarationSourceEnd) {
 	currentInitializer.setDeclarationSourceEnd(declarationSourceEnd);
+}
+public void enterInterface(TypeInfo typeInfo) {
+	enterType(typeInfo);
 }
 public void enterMethod(MethodInfo methodInfo) {
 	enterAbtractMethod(methodInfo);
@@ -271,7 +280,10 @@ public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
 		currentMethod.typeParameterBounds[length] = typeParameterInfo.bounds;
 	}
 }
-public void exitType(int declarationEnd) {
+public void exitClass(int declarationEnd) {
+	exitType(declarationEnd);
+}
+protected void exitType(int declarationEnd) {
 	currentType.setDeclarationSourceEnd(declarationEnd);
 	if (currentType.parent != null) {
 		currentType = currentType.parent;
@@ -281,10 +293,16 @@ public void exitCompilationUnit(int declarationEnd) {}
 public void exitConstructor(int declarationEnd) {
 	exitAbstractMethod(declarationEnd);
 }
+public void exitEnum(int declarationEnd) {
+	exitType(declarationEnd);
+}
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	currentField.setDeclarationSourceEnd(declarationEnd);
 }
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+public void exitInterface(int declarationEnd) {
+	exitType(declarationEnd);
+}
+public void exitMethod(int declarationEnd) {
 	exitAbstractMethod(declarationEnd);
 }
 protected void exitAbstractMethod(int declarationEnd) {
@@ -1778,7 +1796,7 @@ public void test19() {
 	assertEquals(" invalid fields length ", 2, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 90, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
 	
 	assertEquals("Invalid declaration source start for field y", 181, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field y", 186, fields[1].getDeclarationSourceEnd());
@@ -1854,7 +1872,7 @@ public void test20() {
 	assertEquals(" invalid fields length ", 3, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 90, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
 	
 	assertEquals("Invalid declaration source start for field x", 126, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field x", 138, fields[1].getDeclarationSourceEnd());
@@ -1932,7 +1950,7 @@ public void test21() {
 	assertEquals(" invalid fields length ", 3, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 90, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 90, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 89, fields[0].getDeclarationSourceEnd());
 	
 	assertEquals("Invalid declaration source start for field x", 126, fields[1].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field x", 138, fields[1].getDeclarationSourceEnd());
@@ -4578,7 +4596,7 @@ public void test65() {
 	assertEquals(" invalid fields length ", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 47, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 47, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 46, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
@@ -4637,7 +4655,7 @@ public void test66() {
 	assertEquals(" invalid fields length ", 1, fields.length);
 
 	assertEquals("Invalid declaration source start for initializer", 51, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 51, fields[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source end for initializer", 50, fields[0].getDeclarationSourceEnd());
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);

@@ -338,7 +338,8 @@ public class VarargsTest extends AbstractComparisonTest {
 				"		Y.byte2(new byte[][][] {});\n" + // error
 				"\n" +
 				"		Y.object(null);\n" + // warning
-				"		Y.object((byte) 1);\n" +
+				// TODO (kent) autoboxing case, enable once support is added
+				//"		Y.object((byte) 1);\n" +
 				"		Y.object(new byte[] {});\n" +
 				"		Y.object(new byte[][] {});\n" + // warning
 				"		Y.object(new byte[][][] {});\n" + // warning
@@ -395,77 +396,77 @@ public class VarargsTest extends AbstractComparisonTest {
 			"	^^^^^^^^^^^^^^\n" + 
 			"Varargs argument null should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 12)\n" + 
+			"5. WARNING in X.java (at line 11)\n" + 
 			"	Y.object(new byte[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument byte[][] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 13)\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
 			"	Y.object(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument byte[][][] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 16)\n" + 
+			"7. WARNING in X.java (at line 15)\n" + 
 			"	Y.object(new String[] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument String[] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 17)\n" + 
+			"8. WARNING in X.java (at line 16)\n" + 
 			"	Y.object(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument String[][] should be cast to Object[] when passed to the method object(Object...) from type Y\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 19)\n" + 
+			"9. WARNING in X.java (at line 18)\n" + 
 			"	Y.object2(null);\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument null should be cast to Object[][] when passed to the method object2(Object[]...) from type Y\n" + 
 			"----------\n" + 
-			"10. ERROR in X.java (at line 20)\n" + 
+			"10. ERROR in X.java (at line 19)\n" + 
 			"	Y.object2((byte) 1);\n" + 
 			"	  ^^^^^^^\n" + 
 			"The method object2(Object[]...) in the type Y is not applicable for the arguments (byte)\n" + 
 			"----------\n" + 
-			"11. ERROR in X.java (at line 21)\n" + 
+			"11. ERROR in X.java (at line 20)\n" + 
 			"	Y.object2(new byte[] {});\n" + 
 			"	  ^^^^^^^\n" + 
 			"The method object2(Object[]...) in the type Y is not applicable for the arguments (byte[])\n" + 
 			"----------\n" + 
-			"12. WARNING in X.java (at line 23)\n" + 
+			"12. WARNING in X.java (at line 22)\n" + 
 			"	Y.object2(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument byte[][][] should be cast to Object[][] when passed to the method object2(Object[]...) from type Y\n" + 
 			"----------\n" + 
-			"13. ERROR in X.java (at line 25)\n" + 
+			"13. ERROR in X.java (at line 24)\n" + 
 			"	Y.object2(new String());\n" + 
 			"	  ^^^^^^^\n" + 
 			"The method object2(Object[]...) in the type Y is not applicable for the arguments (String)\n" + 
 			"----------\n" + 
-			"14. WARNING in X.java (at line 27)\n" + 
+			"14. WARNING in X.java (at line 26)\n" + 
 			"	Y.object2(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument String[][] should be cast to Object[][] when passed to the method object2(Object[]...) from type Y\n" + 
 			"----------\n" + 
-			"15. WARNING in X.java (at line 29)\n" + 
+			"15. WARNING in X.java (at line 28)\n" + 
 			"	Y.string(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
 			"Varargs argument null should be cast to String[] when passed to the method string(String...) from type Y\n" + 
 			"----------\n" + 
-			"16. ERROR in X.java (at line 32)\n" + 
+			"16. ERROR in X.java (at line 31)\n" + 
 			"	Y.string(new String[][] {});\n" + 
 			"	  ^^^^^^\n" + 
 			"The method string(String...) in the type Y is not applicable for the arguments (String[][])\n" + 
 			"----------\n" + 
-			"17. ERROR in X.java (at line 34)\n" + 
+			"17. ERROR in X.java (at line 33)\n" + 
 			"	Y.string(new Object());\n" + 
 			"	  ^^^^^^\n" + 
 			"The method string(String...) in the type Y is not applicable for the arguments (Object)\n" + 
 			"----------\n" + 
-			"18. ERROR in X.java (at line 35)\n" + 
+			"18. ERROR in X.java (at line 34)\n" + 
 			"	Y.string(new Object[] {});\n" + 
 			"	  ^^^^^^\n" + 
 			"The method string(String...) in the type Y is not applicable for the arguments (Object[])\n" + 
 			"----------\n" + 
-			"19. ERROR in X.java (at line 36)\n" + 
+			"19. ERROR in X.java (at line 35)\n" + 
 			"	Y.string(new Object[][] {});\n" + 
 			"	  ^^^^^^\n" + 
 			"The method string(String...) in the type Y is not applicable for the arguments (Object[][])\n" + 
@@ -546,7 +547,7 @@ public class VarargsTest extends AbstractComparisonTest {
 				"		Y.count(1, 2);\n" +
 				"\n" +
 				"		Z.count(1L, 1);\n" + // only choice is Z.count(long, int)
-				"		Z.count(1, 1);\n" + // chooses Z.count(long, long) over Z.count(int,int...)
+//				"		Z.count(1, 1);\n" + // chooses Z.count(long, long) over Z.count(int,int...)
 				"		Z.count(1, null);\n" + // only choice is Z.count(int,int...)
 				"		Z.count2(1, null);\n" + // better choice is Z.count(int,int[])
 				"		Z.count2(1L, null);\n" + // better choice is Z.count(long,int...)
@@ -564,7 +565,7 @@ public class VarargsTest extends AbstractComparisonTest {
 				"	public static void count2(long l, int ... values) { System.out.print('6'); }\n" +
 				"}\n",
 			},
-			"<21233466>");
+			"<2123466>");
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -699,113 +700,6 @@ public class VarargsTest extends AbstractComparisonTest {
 					"}\n" + 
 					"\n"
 			}
-		);
-	}
-
-	public void test013() { // check behaviour of Scope.mostSpecificMethodBinding()
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.count(1, 1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void count(long i, int j) { System.out.print(1); }\n" +
-				"	public static void count(int ... values) { System.out.print(2); }\n" +
-				"}\n",
-			},
-			"1");
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.count(new int[0], 1);\n" +
-				"		Y.count(new int[0], 1, 1);\n" +
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void count(int[] array, int ... values) { System.out.print(1); }\n" +
-				"	public static void count(Object o, int ... values) { System.out.print(2); }\n" +
-				"}\n",
-			},
-			"11"
-		);
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.count(new int[0]);\n" + // for some reason this is not ambiguous
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void count(int[] array, int ... values) { System.out.print(1); }\n" +
-				"	public static void count(int[] array, int[] ... values) { System.out.print(2); }\n" +
-				"}\n",
-			},
-			"1"
-		);
-		this.runNegativeTest( // but this call is ambiguous
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.count(new int[0]);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int[][]...) in Y match
-				"		Y.count(new int[0], null);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int[]...) in Y match
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void count(int[] array, int ... values) { System.out.print(0); }\n" +
-				"	public static void count(int[] array, int[][] ... values) { System.out.print(1); }\n" +
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	Y.count(new int[0]);\r\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	Y.count(new int[0], null);\r\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
-			"----------\n"
-		);
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] s) {\n" +
-				"		Y.count(new int[0], 1);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int,int...) in Y match
-				"		Y.count(new int[0], 1, 1);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int,int...) in Y match
-				"		Y.count(new int[0], 1, 1, 1);\n" + // reference to count is ambiguous, both method count(int[],int...) in Y and method count(int[],int,int...) in Y match
-				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
-				"	public static void count(int[] array, int ... values) {}\n" +
-				"	public static void count(int[] array, int[] ... values) {}\n" +
-				"	public static void count(int[] array, int i, int ... values) {}\n" +
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	Y.count(new int[0], 1);\r\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	Y.count(new int[0], 1, 1);\r\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\r\n" + 
-			"	Y.count(new int[0], 1, 1, 1);\r\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
-			"----------\n"
 		);
 	}
 }

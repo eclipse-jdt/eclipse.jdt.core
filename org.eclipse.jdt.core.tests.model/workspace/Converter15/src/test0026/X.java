@@ -1,10 +1,9 @@
 package test0026;
 
-public enum X {
+public abstract enum X {
     PLUS {
         double eval(double x, double y) { return x + y; }
-    } // comment
-    ,
+    },
 
     MINUS {
         double eval(double x, double y) { return x - y; }

@@ -66,7 +66,7 @@ public void testExternalJar0() throws CoreException, IOException {
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
@@ -97,7 +97,7 @@ public void testExternalJarChanged1() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
@@ -129,7 +129,7 @@ public void testExternalJarChanged2() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
@@ -161,7 +161,7 @@ public void testExternalJarChanged3() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
@@ -194,7 +194,7 @@ public void testExternalJarAdded1() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "pAdded1.jar";
+		String pPath = getExternalPath() + File.separator + "pAdded1.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -225,7 +225,7 @@ public void testExternalJarAdded2() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "pAdded2.jar";
+		String pPath = getExternalPath() + File.separator + "pAdded2.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -256,7 +256,7 @@ public void testExternalJarAdded3() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "pAdded3.jar";
+		String pPath = getExternalPath() + File.separator + "pAdded3.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -288,7 +288,7 @@ public void testExternalJarRemoved1() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
@@ -320,7 +320,7 @@ public void testExternalJarRemoved2() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
@@ -352,7 +352,7 @@ public void testExternalJarRemoved3() throws CoreException, IOException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 		
-		String pPath = getExternalPath() + "p.jar";
+		String pPath = getExternalPath() + File.separator + "p.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
