@@ -541,6 +541,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				mode = Default;
 				continue;
 			}
+			if (currentArg.equals("-1.5")) { //$NON-NLS-1$
+				if (didSpecifyCompliance) {
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+				}
+				didSpecifyCompliance = true;
+				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+				mode = Default;
+				continue;
+			}			
 			if (currentArg.equals("-d")) { //$NON-NLS-1$
 				if (this.destinationPath != null)
 					throw new InvalidInputException(
@@ -910,10 +920,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) <= ClassFileConstants.JDK1_3) {
-						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4) {
+						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 					}
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+				} else if (currentArg.equals("1.5")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_5) {
+						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+					}
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
@@ -942,6 +958,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+				} else if (currentArg.equals("1.5")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}
@@ -1201,31 +1219,42 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.destinationPath = null;
 		}
 
-		// target must be 1.4 if source is 1.4
-		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
+		// target must be 1.5 if source is 1.5
+		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_5
+				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_5
+				&& didSpecifyTarget){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+		} else 		
+		    // target must be 1.4 if source is 1.4
+		    if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
 				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 		}
-
-		// target cannot be 1.4 if compliance is 1.3
-		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
-				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK1_4
+		// target cannot be greater than compliance level
+		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform))
 				&& didSpecifyTarget){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 		}
 		
 		// check and set compliance/source/target compatibilities
 		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 			if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+		} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)){
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 		}
-		// compliance must be 1.4 if source is 1.4
-		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
+		// compliance must be 1.5 if source is 1.5
+		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)
+				&& !this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_5)){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+		} else 
+			// compliance must be 1.4 if source is 1.4
+			if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
 				&& !this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 		}
-
 		// set default target according to compliance & sourcelevel.
 		if (!didSpecifyTarget) {
 			if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_3)) {
@@ -1235,6 +1264,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				}
+			} else if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_5)) {
+				if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_3)) {
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)) {
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)) {
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 				}
 			}
 		}
