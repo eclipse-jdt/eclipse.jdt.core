@@ -245,7 +245,7 @@ public abstract class AbstractMethodDeclaration
 			}
 			// local variable attributes
 			codeStream.exitUserScope(scope);
-			codeStream.recordPositionsFrom(0, this.bodyEnd);
+			codeStream.recordPositionsFrom(0, this.declarationSourceEnd);
 			classFile.completeCodeAttribute(codeAttributeOffset);
 			attributeNumber++;
 		}
