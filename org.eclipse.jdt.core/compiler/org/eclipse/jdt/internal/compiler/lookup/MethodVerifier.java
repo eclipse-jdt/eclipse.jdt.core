@@ -99,9 +99,12 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			continue nextMethod;
 		}
 
-		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
-			if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
+		if (inheritedMethod.isAbstract()) {
+			if (inheritedMethod.declaringClass.isInterface()) {
 				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
+			} else {
+				currentMethod.modifiers |= CompilerModifiers.AccImplementing | CompilerModifiers.AccOverriding;
+			}
 		} else {
 			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 		}

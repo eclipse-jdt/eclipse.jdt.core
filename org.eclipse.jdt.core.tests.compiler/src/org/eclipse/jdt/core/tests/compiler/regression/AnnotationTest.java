@@ -1154,7 +1154,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"----------\n");
 	}			
 	
-	// 79349
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79349
 	public void test049() {
 		this.runNegativeTest(
 			new String[] {
@@ -2015,7 +2015,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	// 79844
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79844
 	public void test066() {
 		this.runConformTest(
 			new String[] {
@@ -2032,7 +2032,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 		"");
 	}
-	// 79844 - variation
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79844 - variation
 	public void test067() {
 		this.runNegativeTest(
 			new String[] {
@@ -2072,7 +2072,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"");
 	}	
 
-	// 79844 - variation
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79844 - variation
 	public void test069() {
 		this.runConformTest(
 			new String[] {
@@ -2089,7 +2089,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"");
 	}	
 
-	// 79847
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79847
 	public void test070() {
 		this.runNegativeTest(
 			new String[] {
@@ -2423,7 +2423,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"The annotation @Tgt is disallowed for this location\n" + 
 			"----------\n");
 	}
-	// 77463
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77463
 	public void test076() {
 		this.runNegativeTest(
 			new String[] {
@@ -3050,4 +3050,21 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80544
+	public void test100() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"abstract class Foo {\n" + 
+				"	abstract protected boolean accept(Object o);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends Foo {\n" + 
+				"	@Override \n" + 
+				"	protected boolean accept(Object o) { return false; }\n" + 
+				"}\n",
+			},
+			"");
+	}	
 }
