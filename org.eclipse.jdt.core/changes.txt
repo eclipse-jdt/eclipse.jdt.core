@@ -124,7 +124,7 @@ STREAM: 2.0
   5541      No refresh when adding a compilation unit inside a dot named source folder 
   5532      Incremental compile missed a return type change
   5515      AbortCompilation during polymorphic search  
-  5275      eBay Defect 186249 - OTI PR# 1GLEYT1
+  5275      Cross-project recompilation Defect 186249 - OTI PR# 1GLEYT1
   5267      Dependent Projects not compiled when project is saved  
   5425      Exception on CodeAssist
   3194      DCR - JM - Buffer contents is duplicated (1G03HCP)  
@@ -134,7 +134,7 @@ STREAM: 2.0
   3435      keeping the project references and required project in synch (1GL0L34) 
   5203      Project indexing does not restrain to source files on the classpath  
   3293      search does not work in inner class (1GEUQHJ)
-  3249		Error message is confusing: using token instead of identifier (1GCTDYM) 
+  3249	    Error message is confusing: using token instead of identifier (1GCTDYM) 
   5214      TVT: Apostrophe shows up multiple times in Java error messages in some translations (italian) 
   5263      TVT: Compiler error messages are hard for translators to understand
   3251      Types not included in code assist list for import (1GD06W9)
@@ -149,7 +149,7 @@ STREAM: 2.0
   5498      Java Compile - code does not compile correctly in JDT, but does with javac
   5493      Adding project references doesn't update the classpath  
   5426      CodeAssist returns empty completion
-  1690		Local variables not always displayed when in scope (1GJ8PX4)
+  1690	    Local variables not always displayed when in scope (1GJ8PX4)
   4368      Wrong match in Java Search  
   3238      CodeAssist - no completion if cursor at string beginning (1GI3BYO)
   3271      Unable to delete attached internal source jar (1GDX215)
