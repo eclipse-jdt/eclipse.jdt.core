@@ -128,11 +128,7 @@ protected void executeOperation() throws JavaModelException {
 				break;
 			case 0 :
 				// element is inserted
-				if (fInsertionPosition == buffer.getLength() - 1 && buffer.getChar(fInsertionPosition) == '{') {
-					buffer.append(fCreatedElement.getCharacters(), true);
-				} else {
-					buffer.replace(fInsertionPosition, 0, fCreatedElement.getCharacters(), true);
-				}
+				buffer.replace(fInsertionPosition, 0, fCreatedElement.getCharacters(), true);
 				break;
 			default :
 				// element is replacing the previous one
@@ -244,7 +240,8 @@ protected void insertDOMNode(IDOMNode parent, IDOMNode child) {
 	parent.addChild(child);
 	fCreatedElement = (DOMNode)child;
 	DOMNode lastChild = (DOMNode)fCreatedElement.getPreviousNode();
-	fInsertionPosition = lastChild == null ? ((DOMNode)parent).getInsertionPosition() : lastChild.getEndPosition() + 1;
+	fInsertionPosition = ((DOMNode)parent).getInsertionPosition();
+//	fInsertionPosition = lastChild == null ? ((DOMNode)parent).getInsertionPosition() : lastChild.getInsertionPosition();
 	fReplacementLength = parent.getParent() == null ? -1 : 0;
 }
 /**

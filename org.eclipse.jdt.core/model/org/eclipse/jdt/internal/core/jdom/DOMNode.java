@@ -136,6 +136,12 @@ public abstract class DOMNode implements IDOMNode {
 	protected int fStateMask= 0;
 
 	/**
+	 * This position is the position of the end of the last line separator before the closing brace starting
+	 * position of the receiver.
+	 */
+	protected int fInsertionPosition;
+
+	/**
 	 * A bit mask indicating this field has an initializer
 	 * expression
 	 */
@@ -566,7 +572,7 @@ public IDOMNode getFirstChild() {
  * Returns the position at which the first child of this node should be inserted.
  */
 public int getInsertionPosition() {
-	return getEndPosition();
+	return fInsertionPosition;
 }
 /**
  * Returns <code>true</code> if the given mask of this node's state flag
@@ -797,10 +803,14 @@ void normalizeEndPosition(ILineStartFinder finder, DOMNode next) {
 			setSourceRangeEnd(fDocument.length - 1);
 		} else {
 			// parent is a type
-			setSourceRangeEnd(((DOMType)parent).getCloseBodyPosition() - 1);
+			int temp = ((DOMType)parent).getCloseBodyPosition() - 1;
+			setSourceRangeEnd(temp);
+			fInsertionPosition = Math.max(finder.getLineStart(temp + 1), getEndPosition());
 		}
 	} else {
 		// this node's end position is just before the start of the next node
+		int temp = next.getStartPosition() - 1;
+		fInsertionPosition = Math.max(finder.getLineStart(temp + 1), getEndPosition());
 		next.normalizeStartPosition(getEndPosition(), finder);
 		setSourceRangeEnd(next.getStartPosition() - 1);
 	}

@@ -104,17 +104,18 @@ import org.eclipse.jdt.internal.core.util.CharArrayOps;
 	protected int[]  fCloseBodyRange;
 
 	/**
-	 * This position is the position of the end of the last line separator before the closing brace starting
-	 * position of the receiver.
-	 */
-	protected int fInsertionPosition;
-	
-	/**
 	 * A list of interfaces this type extends or implements.
 	 * <code>null</code> when this type does not extend
 	 * or implement any interfaces.
 	 */
 	protected String[] fSuperInterfaces= new String[0];
+	
+	/**
+	 * This position is the position of the end of the last line separator before the closing brace starting
+	 * position of the receiver.
+	 */
+//	protected int fInsertionPosition;
+
 /**
  * Constructs an empty type node.
  */
@@ -458,65 +459,121 @@ protected DOMNode newDOMNode() {
  */
 void normalize(ILineStartFinder finder) {
 	// perform final changes to the open and close body ranges
-	int openBodyEnd, closeBodyStart;
+	int openBodyEnd, openBodyStart, closeBodyStart, closeBodyEnd;
 	DOMNode first = (DOMNode) getFirstChild();
-	closeBodyStart = fCloseBodyRange[1];
-	if (isDetailed()) {
-		if (first == null) {
-			openBodyEnd = fCloseBodyRange[0] - 1;
+	DOMNode lastNode = null;
+	// look for the open body
+	Scanner scanner = new Scanner();
+	scanner.setSourceBuffer(fDocument);
+	scanner.resetTo(fNameRange[1] + 1, fDocument.length);
+	
+	try {
+		int currentToken = scanner.getNextToken();
+		while(currentToken != TerminalSymbols.TokenNameLBRACE &&
+				currentToken != TerminalSymbols.TokenNameEOF) {
+			currentToken = scanner.getNextToken();
+		}
+		if(currentToken == TerminalSymbols.TokenNameLBRACE) {		
+			openBodyEnd = scanner.currentPosition - 1;
+			openBodyStart = scanner.startPosition;
 		} else {
-			openBodyEnd = first.getStartPosition();
-			int lineStart = finder.getLineStart(openBodyEnd);
-			openBodyEnd--;
-			if (lineStart > fOpenBodyRange[0])
-				openBodyEnd = lineStart - 1;
+			openBodyEnd = fDocument.length;
+			openBodyStart = fDocument.length;
+		}
+	} catch(InvalidInputException e) {
+		openBodyEnd = fDocument.length;
+		openBodyStart = fDocument.length;
+	}
+	if (first != null) {
+		int lineStart = finder.getLineStart(first.getStartPosition());
+		if (lineStart > openBodyEnd) {
+			openBodyEnd = lineStart - 1;
+		} else {
+			openBodyEnd = first.getStartPosition() - 1;
+		}		
+		lastNode = (DOMNode) first.getNextNode();
+		if (lastNode == null) {
+			lastNode = first;
+		} else {
+			while (lastNode.getNextNode() != null) {
+				lastNode = (DOMNode) lastNode.getNextNode();
+			}
+		}
+		scanner.setSourceBuffer(fDocument);
+		scanner.resetTo(lastNode.getEndPosition() + 1, fDocument.length);
+		try {
+			int currentToken = scanner.getNextToken();
+			while(currentToken != TerminalSymbols.TokenNameRBRACE &&
+					currentToken != TerminalSymbols.TokenNameEOF) {
+				currentToken = scanner.getNextToken();
+			}
+			if(currentToken == TerminalSymbols.TokenNameRBRACE) {		
+				closeBodyStart = scanner.startPosition;
+				closeBodyEnd = scanner.currentPosition - 1;
+			} else {
+				closeBodyStart = fDocument.length;
+				closeBodyEnd = fDocument.length;
+			}
+		} catch(InvalidInputException e) {
+			closeBodyStart = fDocument.length;
+			closeBodyEnd = fDocument.length;
 		}
 	} else {
-		if (first != null) {
-			// look for the open body
-			openBodyEnd= CharArrayOps.indexOf('{', fDocument, fNameRange[1] + 1);
-			if (openBodyEnd < 0 || openBodyEnd >= first.getStartPosition()) {
-				openBodyEnd= first.getStartPosition() - 1;
+		scanner.resetTo(openBodyEnd, fDocument.length);
+		try {
+			int currentToken = scanner.getNextToken();
+			while(currentToken != TerminalSymbols.TokenNameRBRACE &&
+					currentToken != TerminalSymbols.TokenNameEOF) {
+				currentToken = scanner.getNextToken();
+			}
+			if(currentToken == TerminalSymbols.TokenNameRBRACE) {		
+				closeBodyStart = scanner.startPosition;
+				closeBodyEnd = scanner.currentPosition - 1;
 			} else {
-				int lineStart = finder.getLineStart(first.getStartPosition());
-				if (lineStart > openBodyEnd) {
-					openBodyEnd = lineStart - 1;
-				} else {
-					openBodyEnd = first.getStartPosition() - 1;
-				}
+				closeBodyStart = fDocument.length;
+				closeBodyEnd = fDocument.length;
 			}
-			if (fDocument[closeBodyStart] != '}') {
-				// look for the body end
-				Scanner scanner = new Scanner();
-				scanner.setSourceBuffer(CharArrayOps.subarray(fDocument, fLastChild.getEndPosition() + 1, closeBodyStart - fLastChild.getEndPosition() + 1));
-				
-				try {
-					int currentToken = scanner.getNextToken();
-					while(currentToken != TerminalSymbols.TokenNameRBRACE &&
-							currentToken != TerminalSymbols.TokenNameEOF) {
-						currentToken = scanner.getNextToken();
-					}
-					if(currentToken == TerminalSymbols.TokenNameRBRACE) {		
-						closeBodyStart = fLastChild.getEndPosition() + scanner.currentPosition;
-					}
-				}
-				catch(InvalidInputException e) {
-					// leave closeBodyStart as is
-				}
-					
-			}
-		} else {
-			openBodyEnd = fCloseBodyRange[0] - 1;
+		} catch(InvalidInputException e) {
+			closeBodyStart = fDocument.length;
+			closeBodyEnd = fDocument.length;
 		}
+		openBodyEnd = closeBodyEnd - 1;
 	}
 	setOpenBodyRangeEnd(openBodyEnd);
+	setOpenBodyRangeStart(openBodyStart);
 	setCloseBodyRangeStart(closeBodyStart);
+	setCloseBodyRangeEnd(closeBodyEnd);
 	fInsertionPosition = finder.getLineStart(closeBodyStart);
+	if (lastNode != null && fInsertionPosition < lastNode.getEndPosition()) {
+		fInsertionPosition = getCloseBodyPosition();
+	}
 	if (fInsertionPosition < openBodyEnd) {
 		fInsertionPosition = getCloseBodyPosition();
 	}
 	super.normalize(finder);
 }
+
+/**
+ * Normalizes this <code>DOMNode</code>'s end position.
+ */
+void normalizeEndPosition(ILineStartFinder finder, DOMNode next) {
+	if (next == null) {
+		// this node's end position includes all of the characters up
+		// to the end of the enclosing node
+		DOMNode parent = (DOMNode) getParent();
+		if (parent == null || parent instanceof DOMCompilationUnit) {
+			setSourceRangeEnd(fDocument.length - 1);
+		} else {
+			// parent is a type
+			setSourceRangeEnd(((DOMType)parent).getCloseBodyPosition() - 1);
+		}
+	} else {
+		// this node's end position is just before the start of the next node
+		next.normalizeStartPosition(getEndPosition(), finder);
+		setSourceRangeEnd(next.getStartPosition() - 1);
+	}
+}
+
 /**
  * Offsets all the source indexes in this node by the given amount.
  */
@@ -583,6 +640,12 @@ public void setName(String name) throws IllegalArgumentException {
  */
 void setOpenBodyRangeEnd(int end) {
 	fOpenBodyRange[1] = end;
+}
+/**
+ * Sets the start of the open body range 
+ */
+void setOpenBodyRangeStart(int start) {
+	fOpenBodyRange[0] = start;
 }
 /**
  * @see IDOMType#setSuperclass(char[])

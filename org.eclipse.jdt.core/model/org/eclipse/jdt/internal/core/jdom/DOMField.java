@@ -465,11 +465,16 @@ void normalizeEndPosition(ILineStartFinder finder, DOMNode next) {
 			setSourceRangeEnd(fDocument.length - 1);
 		} else {
 			// parent is a type
-			setSourceRangeEnd(((DOMType)parent).getCloseBodyPosition() - 1);
+			int temp = ((DOMType)parent).getCloseBodyPosition() - 1;
+			setSourceRangeEnd(temp);
+			fInsertionPosition = Math.max(finder.getLineStart(temp + 1), getEndPosition());
 		}
 	} else {
 		// this node's end position is just before the start of the next node
 		// unless the next node is a field that is declared along with this one
+		int temp = next.getStartPosition() - 1;
+		fInsertionPosition = Math.max(finder.getLineStart(temp + 1), getEndPosition());
+		
 		next.normalizeStartPosition(getEndPosition(), finder);
 		if (next instanceof DOMField) {
 			DOMField field = (DOMField) next;
