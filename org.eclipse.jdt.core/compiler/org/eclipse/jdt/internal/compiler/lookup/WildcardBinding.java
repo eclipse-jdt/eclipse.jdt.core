@@ -83,25 +83,177 @@ public class WildcardBinding extends ReferenceBinding {
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
 	 */
-	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+	public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
 
-		if (this.bound == null)
-			return;
-		if (otherType.isWildcard()) {
-			WildcardBinding otherWildcard = (WildcardBinding) otherType;
-			if (otherWildcard.bound != null) {
-				this.bound.collectSubstitutes(otherWildcard.bound, substitutes);
-	        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
-					this.bound.collectSubstitutes(otherWildcard.otherBounds[i], substitutes);
-	        	}
-			}
-		} else {
-            this.bound.collectSubstitutes(otherType, substitutes);
-            // check other bounds (lub scenario)
-        	for (int i = 0, length = this.otherBounds == null ? 0 : this.otherBounds.length; i < length; i++) {
-        		this.otherBounds[i].collectSubstitutes(otherType, substitutes);
-        	}
-		}	    
+		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
+		if (otherType == NullBinding) return;
+	
+		switch (constraint) {
+			case CONSTRAINT_EXTENDS : // A << F
+				switch (this.kind) {
+					case Wildcard.UNBOUND: // F={?}
+//						if (otherType.isWildcard()) {
+//							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+//							switch(otherWildcard.kind) {
+//								case Wildcard.UNBOUND: // A={?} << F={?}  --> 0
+//									break;
+//								case Wildcard.EXTENDS: // A={? extends V} << F={?} ---> 0
+//									break;
+//								case Wildcard.SUPER: // A={? super V} << F={?} ---> 0
+//									break;
+//							}
+//						} else { // A=V << F={?} ---> 0
+//						}
+						break;
+					case Wildcard.EXTENDS: // F={? extends U}
+						if (otherType.isWildcard()) {
+							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+							switch(otherWildcard.kind) {
+								case Wildcard.UNBOUND: // A={?} << F={? extends U}  --> 0
+									break;
+								case Wildcard.EXTENDS: // A={? extends V} << F={? extends U} ---> V << U
+									this.bound.collectSubstitutes(scope, otherWildcard.bound, substitutes, CONSTRAINT_EXTENDS);
+						        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
+										this.bound.collectSubstitutes(scope, otherWildcard.otherBounds[i], substitutes, CONSTRAINT_EXTENDS);
+						        	}									
+									break;
+								case Wildcard.SUPER: // A={? super V} << F={? extends U} ---> 0
+									break;
+							}
+						} else { // A=V << F={? extends U} ---> V << U
+							this.bound.collectSubstitutes(scope, otherType, substitutes, CONSTRAINT_EXTENDS);
+						}
+						break;
+					case Wildcard.SUPER: // F={? super U}
+						if (otherType.isWildcard()) {
+							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+							switch(otherWildcard.kind) {
+								case Wildcard.UNBOUND: // A={?} << F={? super U}  --> 0
+									break;
+								case Wildcard.EXTENDS: // A={? extends V} << F={? super U} ---> 0
+									break;
+								case Wildcard.SUPER: // A={? super V} << F={? super U} ---> 0
+									this.bound.collectSubstitutes(scope, otherWildcard.bound, substitutes, CONSTRAINT_SUPER);
+						        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
+										this.bound.collectSubstitutes(scope, otherWildcard.otherBounds[i], substitutes, CONSTRAINT_SUPER);
+						        	}									
+									break;
+							}
+						} else { // A=V << F={? super U} ---> V >> U
+							this.bound.collectSubstitutes(scope, otherType, substitutes, CONSTRAINT_SUPER);							
+						}						
+						break;
+				}
+				break;
+			case CONSTRAINT_EQUAL : // A == F
+				switch (this.kind) {
+					case Wildcard.UNBOUND: // F={?}
+//						if (otherType.isWildcard()) {
+//							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+//							switch(otherWildcard.kind) {
+//								case Wildcard.UNBOUND: // A={?} == F={?}  --> 0
+//									break;
+//								case Wildcard.EXTENDS: // A={? extends V} == F={?} ---> 0
+//									break;
+//								case Wildcard.SUPER: // A={? super V} == F={?} ---> 0
+//									break;
+//							}
+//						} else { // A=V == F={?} ---> 0
+//						}
+						break;
+					case Wildcard.EXTENDS: // F={? extends U}
+						if (otherType.isWildcard()) {
+							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+							switch(otherWildcard.kind) {
+								case Wildcard.UNBOUND: // A={?} == F={? extends U}  --> 0
+									break;
+								case Wildcard.EXTENDS: // A={? extends V} == F={? extends U} ---> V == U
+									this.bound.collectSubstitutes(scope, otherWildcard.bound, substitutes, CONSTRAINT_EQUAL);
+						        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
+										this.bound.collectSubstitutes(scope, otherWildcard.otherBounds[i], substitutes, CONSTRAINT_EQUAL);
+						        	}											
+									break;
+								case Wildcard.SUPER: // A={? super V} == F={? extends U} ---> 0
+									break;
+							}
+						} else { // A=V == F={? extends U} ---> 0
+						}
+						break;
+					case Wildcard.SUPER: // F={? super U}
+						if (otherType.isWildcard()) {
+							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+							switch(otherWildcard.kind) {
+								case Wildcard.UNBOUND: // A={?} == F={? super U}  --> 0
+									break;
+								case Wildcard.EXTENDS: // A={? extends V} == F={? super U} ---> 0
+									break;
+								case Wildcard.SUPER: // A={? super V} == F={? super U} ---> 0
+									this.bound.collectSubstitutes(scope, otherWildcard.bound, substitutes, CONSTRAINT_EQUAL);
+						        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
+										this.bound.collectSubstitutes(scope, otherWildcard.otherBounds[i], substitutes, CONSTRAINT_EQUAL);
+						        	}	
+						        	break;
+							}
+						} else { // A=V == F={? super U} ---> 0
+						}						
+						break;
+				}
+				break;
+			case CONSTRAINT_SUPER : // A >> F
+				switch (this.kind) {
+					case Wildcard.UNBOUND: // F={?}
+//						if (otherType.isWildcard()) {
+//							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+//							switch(otherWildcard.kind) {
+//								case Wildcard.UNBOUND: // A={?} >> F={?}  --> 0
+//									break;
+//								case Wildcard.EXTENDS: // A={? extends V} >> F={?} ---> 0
+//									break;
+//								case Wildcard.SUPER: // A={? super V} >> F={?} ---> 0
+//									break;
+//							}
+//						} else { // A=V >> F={?} ---> 0
+//						}
+						break;
+					case Wildcard.EXTENDS: // F={? extends U}
+						if (otherType.isWildcard()) {
+							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+							switch(otherWildcard.kind) {
+								case Wildcard.UNBOUND: // A={?} >> F={? extends U}  --> 0
+									break;
+								case Wildcard.EXTENDS: // A={? extends V} >> F={? extends U} ---> V >> U
+									this.bound.collectSubstitutes(scope, otherWildcard.bound, substitutes, CONSTRAINT_SUPER);
+						        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
+										this.bound.collectSubstitutes(scope, otherWildcard.otherBounds[i], substitutes, CONSTRAINT_SUPER);
+						        	}										
+									break;
+								case Wildcard.SUPER: // A={? super V} >> F={? extends U} ---> 0
+									break;
+							}
+						} else { // A=V == F={? extends U} ---> 0
+						}
+						break;
+					case Wildcard.SUPER: // F={? super U}
+						if (otherType.isWildcard()) {
+							WildcardBinding otherWildcard = (WildcardBinding) otherType;
+							switch(otherWildcard.kind) {
+								case Wildcard.UNBOUND: // A={?} >> F={? super U}  --> 0
+									break;
+								case Wildcard.EXTENDS: // A={? extends V} >> F={? super U} ---> 0
+									break;
+								case Wildcard.SUPER: // A={? super V} >> F={? super U} ---> V >> U
+									this.bound.collectSubstitutes(scope, otherWildcard.bound, substitutes, CONSTRAINT_SUPER);
+						        	for (int i = 0, length = otherWildcard.otherBounds == null ? 0 : otherWildcard.otherBounds.length; i < length; i++) {
+										this.bound.collectSubstitutes(scope, otherWildcard.otherBounds[i], substitutes, CONSTRAINT_SUPER);
+						        	}	
+						        	break;
+							}
+						} else { // A=V >> F={? super U} ---> 0
+						}						
+						break;
+				}
+				break;
+		}
 	}
 	
 	public char[] computeUniqueKey() {

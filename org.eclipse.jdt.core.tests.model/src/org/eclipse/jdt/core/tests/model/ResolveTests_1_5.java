@@ -1262,7 +1262,7 @@ public void test0058() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo() key=Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V%<Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V:TT2;> [in Test [in [Working copy] Test.java [in test0058 [in src2 [in Resolve]]]]]",
+		"foo() key=Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0058 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1316,7 +1316,7 @@ public void test0060() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo() key=Ltest0060/Test;.foo<T2:Ljava/lang/Object;>()V%<Ltest0060/Test;.foo<T2:Ljava/lang/Object;>()V:TT2;> [in Test [in [Working copy] Test.java [in test0060 [in src2 [in Resolve]]]]]",
+		"foo() key=Ltest0060/Test;.foo<T2:Ljava/lang/Object;>()V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0060 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1437,7 +1437,7 @@ public void test0065() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) key=Ltest0065/Test;.<U:Ljava/lang/Object;>(TU;)V%<Ltest0065/Test;.<U:Ljava/lang/Object;>(TU;)V:TU;> [in Test [in [Working copy] Test.java [in test0065 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0065/Test;.<U:Ljava/lang/Object;>(TU;)V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0065 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1485,7 +1485,7 @@ public void test0067() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) key=Ltest0067/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V%<Ltest0067/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V:TU;> [in Test [in [Working copy] Test.java [in test0067 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0067/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0067 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1561,7 +1561,7 @@ public void test0070() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) [in Test [in [Working copy] Test.java [in test0070 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0070/Test;.<U:Ljava/lang/Object;>(TU;)V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0070 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1585,7 +1585,7 @@ public void test0071() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) [in Test [in [Working copy] Test.java [in test0071 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0071/Test;.<U:Ljava/lang/Object;>(TU;)V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0071 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1609,7 +1609,7 @@ public void test0072() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) key=Ltest0072/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V [in Test [in [Working copy] Test.java [in test0072 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0072/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0072 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1633,7 +1633,7 @@ public void test0073() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) key=Ltest0073/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V [in Test [in [Working copy] Test.java [in test0073 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0073/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0073 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }

@@ -115,6 +115,8 @@ public class Assignment extends Expression {
 			if (fieldRef.receiver.isThis() && !(fieldRef.receiver instanceof QualifiedThisReference)) {
 				return fieldRef.binding;
 			}			
+		} else if (someExpression instanceof PostfixExpression) { // recurse for postfix: i++ --> i
+			return getDirectBinding(((PostfixExpression) someExpression).lhs);
 		}
 		return null;
 	}

@@ -49,7 +49,7 @@ public interface TagBits {
 
 	// set for parameterized type NOT of the form X<?,?>
 	long IsBoundParameterizedType = ASTNode.Bit24; 
-
+	
 	// used by BinaryTypeBinding
 	long HasUnresolvedTypeVariables = ASTNode.Bit25;
 	long HasUnresolvedSuperclass = ASTNode.Bit26;

@@ -2471,6 +2471,7 @@ public abstract class Scope
 	public TypeBinding[] greaterLowerBound(TypeBinding[] types) {
 		if (types == null) return null;
 		int length = types.length;
+		if (length == 0) return null;
 		TypeBinding[] result = types;
 		int removed = 0;
 		for (int i = 0; i < length; i++) {
@@ -2489,6 +2490,7 @@ public abstract class Scope
 			}
 		}
 		if (removed == 0) return result;
+		if (length == removed) return null;
 		TypeBinding[] trimmedResult = new TypeBinding[length - removed];
 		for (int i = 0, index = 0; i < length; i++) {
 			TypeBinding iType = result[i];

@@ -464,49 +464,59 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
  */
-public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
-	if (otherType instanceof ReferenceBinding) {
-		TypeVariableBinding[] variables = this.typeVariables;
-		if (variables == NoTypeVariables) return;
-		// generic type is acting as parameterized type with its own parameters as arguments
-		
-		// allow List<T> to match with LinkedList<String>
-		ReferenceBinding equivalent = this;
-        ReferenceBinding otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo(this);
-        if (otherEquivalent == null) {
-        	// allow LinkedList<String> to match List<T> (downcast scenario)
-	    	equivalent = this.findSuperTypeErasingTo((ReferenceBinding)otherType.erasure());
-        	if (equivalent == null) return;
-        	otherEquivalent = (ReferenceBinding)otherType;
-        }
-        TypeBinding[] elements;
-        switch (equivalent.kind()) {
-        	case Binding.GENERIC_TYPE :
-        		elements = equivalent.typeVariables();
-        		break;
-        	case Binding.PARAMETERIZED_TYPE :
-        		elements = ((ParameterizedTypeBinding)equivalent).arguments;
-        		break;
-        	default :
-        		return;
-        }
-        TypeBinding[] otherElements;
-        switch (otherEquivalent.kind()) {
-        	case Binding.GENERIC_TYPE :
-        		otherElements = otherEquivalent.typeVariables();
-        		break;
-        	case Binding.PARAMETERIZED_TYPE :
-        		otherElements = ((ParameterizedTypeBinding)otherEquivalent).arguments;
-        		break;
-        	case Binding.RAW_TYPE :
-        		substitutes.clear(); // clear all variables to indicate raw generic method in the end
-        		return;
-        	default :
-        		return;
-        }
-        for (int i = 0, length = elements.length; i < length; i++) {
-            elements[i].collectSubstitutes(otherElements[i], substitutes);
-        }
+public void collectSubstitutes(Scope currentScope, TypeBinding otherType, Map substitutes, int constraint) {
+	
+	if (otherType == NullBinding) return;
+	if (!(otherType instanceof ReferenceBinding)) return;
+	TypeVariableBinding[] variables = this.typeVariables;
+	if (variables == NoTypeVariables) return;
+	// generic type is acting as parameterized type with its own parameters as arguments
+	
+	ReferenceBinding equivalent, otherEquivalent;
+	switch (constraint) {
+		case CONSTRAINT_EQUAL :
+		case CONSTRAINT_EXTENDS :
+			equivalent = this;
+	        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo(this);
+	        if (otherEquivalent == null) return;
+	        break;
+		case CONSTRAINT_SUPER :
+        default:
+	        equivalent = this.findSuperTypeErasingTo((ReferenceBinding)(otherType.erasure()));
+	        if (equivalent == null) return;
+	        otherEquivalent = (ReferenceBinding) otherType;
+	        break;
+	}
+    TypeBinding[] elements;
+    switch (equivalent.kind()) {
+    	case Binding.GENERIC_TYPE :
+    		elements = equivalent.typeVariables();
+    		break;
+    	case Binding.PARAMETERIZED_TYPE :
+    		elements = ((ParameterizedTypeBinding)equivalent).arguments;
+    		break;
+    	case Binding.RAW_TYPE :
+    		substitutes.clear(); // clear all variables to indicate raw generic method in the end
+    	default :
+    		return;
+    }
+    TypeBinding[] otherElements;
+    switch (otherEquivalent.kind()) {
+    	case Binding.GENERIC_TYPE :
+    		otherElements = otherEquivalent.typeVariables();
+    		break;
+    	case Binding.PARAMETERIZED_TYPE :
+    		otherElements = ((ParameterizedTypeBinding)otherEquivalent).arguments;
+    		break;
+    	case Binding.RAW_TYPE :
+    		substitutes.clear(); // clear all variables to indicate raw generic method in the end
+    		return;
+    	default :
+    		return;
+    }
+    for (int i = 0, length = elements.length; i < length; i++) {
+    	TypeBinding otherElement = otherElements[i];
+        elements[i].collectSubstitutes(scope, otherElements[i], substitutes, otherElement.isWildcard() ? constraint : CONSTRAINT_EQUAL);
     }
 }
 	

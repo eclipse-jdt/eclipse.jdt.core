@@ -44,16 +44,26 @@ public int kind() {
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
  */
-public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
-    if (otherType.isArrayType()) {
-        int otherDim = otherType.dimensions();
-        if (otherDim == this.dimensions) {
-		    this.leafComponentType.collectSubstitutes(otherType.leafComponentType(), substitutes);
-        } else if (otherDim > this.dimensions) {
-            ArrayBinding otherReducedType = this.environment.createArrayType(otherType.leafComponentType(), otherDim - this.dimensions);
-            this.leafComponentType.collectSubstitutes(otherReducedType, substitutes);
-        }
-    } 
+public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
+	
+	if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
+	if (otherType == NullBinding) return;
+	
+	switch(otherType.kind()) {
+		case Binding.ARRAY_TYPE :
+	        int otherDim = otherType.dimensions();
+	        if (otherDim == this.dimensions) {
+			    this.leafComponentType.collectSubstitutes(scope, otherType.leafComponentType(), substitutes, constraint);
+	        } else if (otherDim > this.dimensions) {
+	            ArrayBinding otherReducedType = this.environment.createArrayType(otherType.leafComponentType(), otherDim - this.dimensions);
+	            this.leafComponentType.collectSubstitutes(scope, otherReducedType, substitutes, constraint);
+	        }
+			break;
+		case Binding.TYPE_PARAMETER :
+			//TypeVariableBinding variable = (TypeVariableBinding) otherType;
+			// TODO (philippe) should consider array bounds, and recurse
+			break;
+	}
 }
 
 /*

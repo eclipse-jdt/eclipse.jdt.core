@@ -91,34 +91,55 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
 	 */
-	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+	public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
+		
 		// cannot infer anything from a null type
 		if (otherType == NullBinding) return;
+	
+		if (otherType.isBaseType()) {
+			TypeBinding boxedType = scope.environment().computeBoxingType(otherType);
+			if (boxedType == otherType) return;
+			otherType = boxedType;
+		}
 		
-	    TypeBinding[] variableSubstitutes = (TypeBinding[])substitutes.get(this);
+		// reverse constraint, to reflect variable on rhs:   A << T --> T >: A
+		int variableConstraint;
+		switch(constraint) {
+			case CONSTRAINT_EQUAL :
+				variableConstraint = CONSTRAINT_EQUAL;
+				break;
+			case CONSTRAINT_EXTENDS :
+				variableConstraint = CONSTRAINT_SUPER;
+				break;
+			default:
+			//case CONSTRAINT_SUPER :
+				variableConstraint = CONSTRAINT_EXTENDS;
+				break;
+		}
+	    TypeBinding[][] variableSubstitutes = (TypeBinding[][])substitutes.get(this);
 	    if (variableSubstitutes != null) {
 		    insertLoop: {
-		        int length = variableSubstitutes.length;
-		        for (int i = 0; i < length; i++) {
-		        	TypeBinding substitute = variableSubstitutes[i];
-		            if (substitute == otherType) return; // already there
-		            if (substitute == null) {
-		                variableSubstitutes[i] = otherType;
-		                break insertLoop;
-		            }
-		        }
-		        // no free spot found, need to grow
-		        System.arraycopy(variableSubstitutes, 0, variableSubstitutes = new TypeBinding[2*length], 0, length);
-		        variableSubstitutes[length] = otherType;
-		        substitutes.put(this, variableSubstitutes);
+		    	TypeBinding[] constraintSubstitutes = variableSubstitutes[variableConstraint];
+		    	int length;
+		    	if (constraintSubstitutes == null) {
+		    		length = 0;
+		    		constraintSubstitutes = new TypeBinding[1];
+		    	} else {
+		    		length = constraintSubstitutes.length;
+			        for (int i = 0; i < length; i++) {
+			        	TypeBinding substitute = constraintSubstitutes[i];
+			            if (substitute == otherType) return; // already there
+			            if (substitute == null) {
+			                constraintSubstitutes[i] = otherType;
+			                break insertLoop;
+			            }
+			        }
+			        // no free spot found, need to grow
+			        System.arraycopy(constraintSubstitutes, 0, constraintSubstitutes = new TypeBinding[2*length], 0, length);
+		    	}
+		        constraintSubstitutes[length] = otherType;
+		        variableSubstitutes[variableConstraint] = constraintSubstitutes;
 		    }
-            // recurse in variable bounds (82187)
-            if (this.superclass != null && this.firstBound == this.superclass) {
-                this.superclass.collectSubstitutes(otherType, substitutes);
-            }
-            for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-                this.superInterfaces[i].collectSubstitutes(otherType, substitutes);
-            }
 	    }
 	}
 	

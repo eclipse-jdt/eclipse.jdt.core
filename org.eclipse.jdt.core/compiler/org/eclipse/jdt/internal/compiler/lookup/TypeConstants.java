@@ -117,6 +117,11 @@ public interface TypeConstants {
 	int EqualOrMoreSpecific = -1;
 	int NotRelated = 0;
 	int MoreGeneric = 1;
+	
+    // Constraints for generic type argument inference
+    int CONSTRAINT_EQUAL = 0;		// Actual = Formal
+    int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
+    int CONSTRAINT_SUPER = 2;		// Actual >> Formal
 
 	// Shared binding collections
 	TypeBinding[] NoTypes = new TypeBinding[0];

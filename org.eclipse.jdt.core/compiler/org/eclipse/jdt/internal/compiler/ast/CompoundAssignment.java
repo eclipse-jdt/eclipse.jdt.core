@@ -160,10 +160,10 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			}
 		}
 		this.lhs.implicitConversion = (unboxedLhs ? UNBOXING : 0) | (result >>> 12);
-		scope.problemReporter().autoboxing(this.lhs, originalLhsType, lhsType);
+		if (unboxedLhs) scope.problemReporter().autoboxing(this.lhs, originalLhsType, lhsType);
 		this.expression.computeConversion(scope, TypeBinding.wellKnownType(scope, (result >>> 8) & 0x0000F), originalExpressionType);
 		this.assignmentImplicitConversion =  (unboxedLhs ? BOXING : 0) | (lhsID << 4) | (result & 0x0000F);
-		scope.problemReporter().autoboxing(this, lhsType, originalLhsType);
+		if (unboxedLhs) scope.problemReporter().autoboxing(this, lhsType, originalLhsType);
 		return this.resolvedType = originalLhsType;
 	}
 	
