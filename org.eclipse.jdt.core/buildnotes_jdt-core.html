@@ -50,9 +50,9 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> Introduced access restrictions so as to control project imports and exports; so as
-to better control proper usage of APIs across components. Usually, only a subset of the types exposed
-on a classpath are part of the API (some internal types are required for the compiler to properly 
+<li> Introduced access restrictions so as to control project imports and exports and thus better
+honour API contracts across components. Usually, only a subset of the types exposed
+on a classpath are part of an API (some internal types are required for the compiler to properly 
 perform). A typical restriction for Eclipse developpers is to not use internal classes from prerequisite 
 plug-ins). By specifying export rules on a project, one can describe which portion of a project
 contribution can be referenced from dependents. Import rules can be specified on a project so as to further
