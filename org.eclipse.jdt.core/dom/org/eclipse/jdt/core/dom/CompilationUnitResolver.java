@@ -118,6 +118,12 @@ class CompilationUnitResolver extends Compiler {
 			.getSearchableNameEnvironment();
 	}
 
+	protected static INameEnvironment getNameEnvironment(IJavaProject javaProject)
+		throws JavaModelException {
+		return (SearchableEnvironment) ((JavaProject) javaProject)
+			.getSearchableNameEnvironment();
+	}
+	
 	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
 	 */
@@ -224,4 +230,37 @@ class CompilationUnitResolver extends Compiler {
 		};
 	}
 
-	}
+	public static CompilationUnitDeclaration resolve(
+		char[] source,
+		String unitName,
+		IJavaProject javaProject,
+		IAbstractSyntaxTreeVisitor visitor)
+		throws JavaModelException {
+	
+		CompilationUnitResolver compilationUnitVisitor =
+			new CompilationUnitResolver(
+				getNameEnvironment(javaProject),
+				getHandlingPolicy(),
+				JavaCore.getOptions(),
+				getRequestor(),
+				getProblemFactory(visitor));
+	
+		CompilationUnitDeclaration unit = null;
+		try {
+			String encoding =
+				(String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+			if ("".equals(encoding)) { //$NON-NLS-1$
+				encoding = null;
+			}
+	
+			unit =
+				compilationUnitVisitor.resolve(
+					new BasicCompilationUnit(source, unitName, encoding));
+			return unit;
+		} finally {
+			if (unit != null) {
+				unit.cleanUp();
+			}
+		}
+	}	
+}

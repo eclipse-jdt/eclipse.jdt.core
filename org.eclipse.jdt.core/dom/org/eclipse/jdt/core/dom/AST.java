@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.Locale;
 import java.util.Map;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
@@ -225,22 +226,7 @@ public final class AST {
 				compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
 					new AbstractSyntaxTreeVisitorAdapter());
-				if (compilationUnitDeclaration != null && source != null) {
-					ASTConverter converter = new ASTConverter(true);
-					AST ast = new AST();
-					ast.setBindingResolver(new DefaultBindingResolver(compilationUnitDeclaration.scope));
-					converter.setAST(ast);
-					
-					CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
-					// line end table should be extracted from scanner
-					cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
-				
-					// line end table should be extracted from scanner
-					//cu.setLineEndTable(parser.scanner.lineEnds);
-					return cu;
-				} else {
-					return null;
-				}
+				return convert(compilationUnitDeclaration, source);
 			} catch(JavaModelException e) {
 			}
 		} else {
@@ -248,7 +234,78 @@ public final class AST {
 		}
 		return null;
 	}
+
+	/**
+	 * Parses the given string as a Java compilation unit and creates and 
+	 * returns a corresponding abstract syntax tree.
+	 * <p>
+	 * The returned compilation unit node is the root node of a new AST.
+	 * Each node in the subtree carries source range(s) information relating back
+	 * to positions in the given source string (the given source string itself
+	 * is not remembered with the AST). If a syntax error is detected while
+	 * parsing, the relevant node(s) of the tree will be flagged as 
+	 * <code>MALFORMED</code>.
+	 * </p>
+	 * <p>
+	 * If <code>javaProject</code> is not <code>null</code>, the various names
+	 * and types appearing in the compilation unit can be resolved to "bindings"
+	 * by calling the <code>resolveBinding</code> methods. These bindings 
+	 * draw connections between the different parts of a program, and 
+	 * generally afford a more powerful vantage point for clients who wish to
+	 * analyze a program's structure more deeply. These bindings come at a 
+	 * considerable cost in both time and space, however, and should not be
+	 * requested frivilously. The additional space is not reclaimed until the 
+	 * AST, all its nodes, and all its bindings become garbage. So it is very
+	 * important to not retain any of these objects longer than absolutely
+	 * necessary. Note that bindings can only be resolved while the AST remains
+	 * in its original unmodified state. Once the AST is modified, all 
+	 * <code>resolveBinding</code> methods return <code>null</code>.
+	 * If <code>javaProject</code> is <code>null</code>, the analysis 
+	 * does not go beyond parsing and building the tree, and all 
+	 * <code>resolveBinding</code> methods return <code>null</code> from the 
+	 * outset.
+	 * </p>
+	 * 
+	 * @param source char[] which contains the source to be parsed
+	 * @param unitName java.lang.String The name of the compilation unit to be parsed
+	 * @param javaProject org.eclipse.jdt.core.IJavaProject The IJavaProject used to retrieve the
+	 * name environment. If this is null, then the bindings are not resolved.
+	 * @return the compilation unit node
+	 * @see ASTNode#getFlags
+	 * @see ASTNode#MALFORMED
+	 * @see ASTNode#getStartPositions
+	 * @see ASTNode#getLengths
+	 */
+	public static CompilationUnit parseCompilationUnit(
+		char[] source,
+		String unitName,
+		IJavaProject javaProject) {
 	
+		CompilationUnitDeclaration compilationUnitDeclaration = null;
+
+		if (javaProject != null) {
+			// If resolveBindings is true, we need to record the mod count
+			// once newAST has been constructed. If the mod count goes above
+			// this level, someone is modifying the AST and all bets are off
+			// regarding resolved bindings. All existing binding info should be
+			// discarded, and the various public resolveBinding methods should
+			// thereafter return null.
+			try {
+				compilationUnitDeclaration =
+					CompilationUnitResolver.resolve(
+						source,
+						unitName,
+						javaProject,
+						new AbstractSyntaxTreeVisitorAdapter());
+				return convert(compilationUnitDeclaration, source);
+			} catch (JavaModelException e) {
+			}
+		} else {
+			return parseCompilationUnit(source);
+		}
+		return null;
+	}
+	  	
 	/**
 	 * Parses the given string as a Java compilation unit and creates and 
 	 * returns a corresponding abstract syntax tree.
@@ -282,7 +339,32 @@ public final class AST {
 		cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
 		return cu;
 	}
-	
+
+	/**
+	 * This method is used to convert the compilation unit declaration when the bindings are resolved.
+	 * @param compilationUnitDeclaration org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration
+	 * @param source char[]
+	 * @return org.eclipse.jdt.core.dom.CompilationUnit
+	 */	
+	static CompilationUnit convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source) {
+		if (compilationUnitDeclaration != null && source != null) {
+			ASTConverter converter = new ASTConverter(true);
+			AST ast = new AST();
+			ast.setBindingResolver(new DefaultBindingResolver(compilationUnitDeclaration.scope));
+			converter.setAST(ast);
+		
+			CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
+			// line end table should be extracted from scanner
+			cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		
+			// line end table should be extracted from scanner
+			//cu.setLineEndTable(parser.scanner.lineEnds);
+			return cu;
+		} else {
+			return null;
+		}
+	}
+
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
 	 * does not resolve names at all.
