@@ -845,6 +845,14 @@ public class Util {
 	}
 	
 	/**
+	 * Returns the substring of the given file name, ending at the start of a Java like extension.
+	 */
+	public static String getNameWithoutJavaLikeExtension(String fileName) {
+		int index = indexOfJavaLikeExtension(fileName);
+		return fileName.substring(0, index);
+	}
+	
+	/**
 	 * Returns the line separator used by the given buffer.
 	 * Uses the given text if none found.
 	 *

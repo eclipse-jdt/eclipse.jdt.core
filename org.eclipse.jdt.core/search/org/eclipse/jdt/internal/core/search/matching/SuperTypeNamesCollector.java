@@ -113,7 +113,7 @@ protected void addToResult(char[][] compoundName) {
 protected CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUnit, boolean isTopLevelOrMember) throws JavaModelException {
 	final IFile file = (IFile) compilationUnit.getResource();
 	final String fileName = file.getFullPath().lastSegment();
-	final char[] mainTypeName = fileName.substring(0, fileName.length() - 5).toCharArray(); //TODO (jerome) should not hardcode extension length
+	final char[] mainTypeName = Util.getNameWithoutJavaLikeExtension(fileName).toCharArray();
 
 	// source unit
 	IBuffer buffer = compilationUnit.getBuffer();

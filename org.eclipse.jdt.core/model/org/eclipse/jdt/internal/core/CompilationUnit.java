@@ -685,10 +685,7 @@ public IImportDeclaration[] getImports() throws JavaModelException {
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
  */
 public char[] getMainTypeName(){
-	String elementName = getElementName();
-	//remove the .java
-	elementName = elementName.substring(0, elementName.length() - 5); //TODO (jerome) should not hardcode extension length
-	return elementName.toCharArray();
+	return Util.getNameWithoutJavaLikeExtension(getElementName()).toCharArray();
 }
 /**
  * @see IWorkingCopy#getOriginal(IJavaElement)

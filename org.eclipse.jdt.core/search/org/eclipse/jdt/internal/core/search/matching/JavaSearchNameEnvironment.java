@@ -59,7 +59,7 @@ public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.
 			IPackageDeclaration[] pkgs = workingCopy.getPackageDeclarations();
 			String pkg = pkgs.length > 0 ? pkgs[0].getElementName() : ""; //$NON-NLS-1$
 			String cuName = workingCopy.getElementName();
-			String mainTypeName = cuName.substring(0, Util.indexOfJavaLikeExtension(cuName));
+			String mainTypeName = Util.getNameWithoutJavaLikeExtension(cuName);
 			String qualifiedMainTypeName = pkg.length() == 0 ? mainTypeName : pkg.replace('.', '/') + '/' + mainTypeName;
 			this.workingCopies.put(qualifiedMainTypeName, workingCopy);
 		}

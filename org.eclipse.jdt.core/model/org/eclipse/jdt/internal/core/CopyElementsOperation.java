@@ -135,7 +135,7 @@ protected boolean isRenamingMainType(IJavaElement element, IJavaElement dest) th
 	if ((isRename() || getNewNameFor(element) != null)
 		&& dest.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		String typeName = dest.getElementName();
-		typeName = typeName.substring(0, typeName.length() - 5); //TODO (jerome) should not hardcode extension length
+		typeName = org.eclipse.jdt.internal.core.util.Util.getNameWithoutJavaLikeExtension(typeName);
 		return element.getElementName().equals(typeName) && element.getParent().equals(dest);
 	}
 	return false;

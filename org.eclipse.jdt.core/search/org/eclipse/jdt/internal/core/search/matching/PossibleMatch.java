@@ -98,7 +98,7 @@ private char[] getQualifiedName() {
 		// get file name
 		String fileName = this.resource.getFullPath().lastSegment();
 		// get main type name
-		char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); //TODO (jerome) should not hardcode extension length
+		char[] mainTypeName = Util.getNameWithoutJavaLikeExtension(fileName).toCharArray();
 		CompilationUnit cu = (CompilationUnit) this.openable;
 		return cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
 	} else if (this.openable instanceof ClassFile) {
