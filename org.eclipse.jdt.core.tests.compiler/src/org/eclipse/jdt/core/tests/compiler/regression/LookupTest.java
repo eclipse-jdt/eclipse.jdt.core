@@ -1636,34 +1636,53 @@ public void test047() {
 			"}\n"	},
 		"String: Hello world");
 }
-	// 73740 - missing serialVersionUID diagnosis shouldn't trigger load of Serializable
-	public void test048() {
-		this.runConformTest(
-			new String[] {
-				"X.java", //---------------------------
-				"public class X {\n" + 
-				"   public static void main(String[] args) {\n"+
-				"		System.out.println(\"SUCCESS\");\n"+
-				"   }\n"+
-				"}\n",
-			},
-			"SUCCESS",
-			Util.concatWithClassLibs(OUTPUT_DIR, true/*output in front*/),
-			false, // do not flush output
-			null,  // vm args
-			null, // options
-			new ICompilerRequestor() {
-				public void acceptResult(CompilationResult result) {
-					assertNotNull("missing reference information",result.simpleNameReferences);
-					char[] serializable = TypeConstants.JAVA_IO_SERIALIZABLE[2];
-					for (int i = 0, length = result.simpleNameReferences.length; i < length; i++) {
-						char[] name = result.simpleNameReferences[i];
-						if (CharOperation.equals(name, serializable))
-							assertTrue("should not contain reference to Serializable", false);
-					}
+// 73740 - missing serialVersionUID diagnosis shouldn't trigger load of Serializable
+public void test048() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //---------------------------
+			"public class X {\n" + 
+			"   public static void main(String[] args) {\n"+
+			"		System.out.println(\"SUCCESS\");\n"+
+			"   }\n"+
+			"}\n",
+		},
+		"SUCCESS",
+		Util.concatWithClassLibs(OUTPUT_DIR, true/*output in front*/),
+		false, // do not flush output
+		null,  // vm args
+		null, // options
+		new ICompilerRequestor() {
+			public void acceptResult(CompilationResult result) {
+				assertNotNull("missing reference information",result.simpleNameReferences);
+				char[] serializable = TypeConstants.JAVA_IO_SERIALIZABLE[2];
+				for (int i = 0, length = result.simpleNameReferences.length; i < length; i++) {
+					char[] name = result.simpleNameReferences[i];
+					if (CharOperation.equals(name, serializable))
+						assertTrue("should not contain reference to Serializable", false);
 				}
-			});		
-	}
+			}
+		});		
+}
+// 76682 - ClassCastException in qualified name computeConversion
+public void test049() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //---------------------------
+			"public class X\n" + 
+			"{\n" + 
+			"    private String foo() {\n" + 
+			"        return \"Started \" + java.text.DateFormat.format(new java.util.Date());\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	return \"Started \" + java.text.DateFormat.format(new java.util.Date());\r\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot make a static reference to the non-static method format(Date) from the type DateFormat\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }

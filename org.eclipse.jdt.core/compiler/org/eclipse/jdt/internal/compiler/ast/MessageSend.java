@@ -327,13 +327,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (receiver instanceof NameReference 
 				&& (((NameReference) receiver).bits & Binding.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
+		} else {
+			// compute generic cast if necessary
+			TypeBinding expectedReceiverType = this.actualReceiverType.erasure().isCompatibleWith(this.binding.declaringClass.erasure())
+				? this.actualReceiverType
+				: this.binding.declaringClass;
+			receiver.computeConversion(scope, expectedReceiverType, actualReceiverType);
+			if (expectedReceiverType != this.actualReceiverType) this.actualReceiverType = expectedReceiverType;
 		}
-		// compute generic cast if necessary
-		TypeBinding expectedReceiverType = this.actualReceiverType.erasure().isCompatibleWith(this.binding.declaringClass.erasure())
-			? this.actualReceiverType
-			: this.binding.declaringClass;
-		receiver.computeConversion(scope, expectedReceiverType, actualReceiverType);
-		if (expectedReceiverType != this.actualReceiverType) this.actualReceiverType = expectedReceiverType;
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
 		if (!(receiver.isImplicitThis()

@@ -268,7 +268,7 @@ public class QualifiedNameReference extends NameReference {
 		FieldBinding field = null;
 		int length = this.otherBindings == null ? 0 : this.otherBindings.length;
 		if (length == 0) {
-			if (this.binding != null && this.binding.isValidBinding()) {
+			if ((this.bits & Binding.FIELD) != 0 && this.binding != null && this.binding.isValidBinding()) {
 				field = (FieldBinding) this.binding;
 			}
 		} else {
