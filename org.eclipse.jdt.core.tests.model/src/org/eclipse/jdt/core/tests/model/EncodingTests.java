@@ -22,11 +22,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.Util;
 
-/**
- * @author oliviert
- */
 public class EncodingTests extends ModifyingResourceTests {
-
 
 	public EncodingTests(String name) {
 		super(name);
@@ -164,11 +160,8 @@ public class EncodingTests extends ModifyingResourceTests {
 			}
 		} finally {
 			deleteProject("P");
-			
 			Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
-			
 			preferences.setValue(ResourcesPlugin.PREF_ENCODING, savedEncoding);
-			
 			ResourcesPlugin.getPlugin().savePluginPreferences();
 		}
 	}	
