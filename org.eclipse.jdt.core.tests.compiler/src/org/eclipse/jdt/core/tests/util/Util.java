@@ -238,7 +238,7 @@ public static String getJREDirectory() {
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getOutputDirectory()]
 */
 public static String getOutputDirectory() {
-	String container = System.getProperty("user.home");
+	String container = System.getProperty("java.io.tmpdir");
 	if (container == null){
 		return null;
 	} else {
