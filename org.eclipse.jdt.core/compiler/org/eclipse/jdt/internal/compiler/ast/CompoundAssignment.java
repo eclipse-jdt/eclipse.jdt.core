@@ -137,6 +137,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 				}
 			}
 		}
+		// TODO (philippe) should retrofit in using #computeConversion
 		lhs.implicitConversion = result >>> 12;
 		expression.implicitConversion = (result >>> 4) & 0x000FF;
 		assignmentImplicitConversion = (lhsId << 4) + (result & 0x0000F);

@@ -207,7 +207,8 @@ public abstract class Expression extends Statement {
 
 		if (runtimeTimeType == null || compileTimeType == null)
 			return;
-
+		if (this.implicitConversion != 0) return; // already set independantly
+		
 		switch (runtimeTimeType.id) {
 			case T_byte :
 			case T_short :
