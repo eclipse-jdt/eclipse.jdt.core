@@ -2472,9 +2472,9 @@ public abstract class Scope
 		return trimmedResult;
 	}
 
-	public boolean isBoxingCompatibleWith(TypeBinding expressionType, TypeBinding methodType) {
-		return expressionType.isBaseType() != methodType.isBaseType()
-			&& computeBoxingType(expressionType).isCompatibleWith(methodType);
+	public boolean isBoxingCompatibleWith(TypeBinding type, TypeBinding otherType) {
+		return type.isBaseType() != otherType.isBaseType()
+			&& computeBoxingType(type).isCompatibleWith(otherType);
 	}
 
 	/* Answer true if the scope is nested inside a given field declaration.
