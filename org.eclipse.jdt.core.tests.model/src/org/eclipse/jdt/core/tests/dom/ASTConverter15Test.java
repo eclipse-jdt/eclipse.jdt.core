@@ -95,7 +95,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0140"));
+		suite.addTest(new ASTConverter15Test("test0141"));
+		suite.addTest(new ASTConverter15Test("test0142"));
 		return suite;
 	}
 	
@@ -4215,4 +4216,74 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		int modifierValue = typeBinding.getModifiers();
 		assertEquals("Type is not public", Modifier.PUBLIC, modifierValue);
 	}
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83100
+	public void test0141() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+    		"public class X<T> {\n" +
+    		"	int x;\n" +
+ 			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(new X<String>().x);\n" + 
+			"	}\n" + 
+    		"}";
+    	ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		node = getASTNode(compilationUnit, 0, 1, 0);
+    	assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+    	assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		List arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 1, arguments.size());
+		Expression expression2 = (Expression) arguments.get(0);
+    	assertEquals("Not a field access", ASTNode.FIELD_ACCESS, expression2.getNodeType());
+		FieldAccess fieldAccess = (FieldAccess) expression2;
+		IVariableBinding variableBinding2 = fieldAccess.resolveFieldBinding();
+		assertFalse("Bindings are not equals", variableBinding.isEqualTo(variableBinding2));
+		IVariableBinding variableBinding3 = variableBinding2.getVariableDeclaration();
+		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding3));
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83100
+	public void test0142() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+    		"public class X<T> {\n" +
+ 			"	public static void main(String[] args) {\n" + 
+   			"		int x = 0;\n" +
+ 			"		System.out.println(x);\n" + 
+			"	}\n" + 
+    		"}";
+    	ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		assertEquals("Wrong name", "x", fragment.getName().getIdentifier());
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		IVariableBinding variableBinding2 = variableBinding.getVariableDeclaration();
+		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding2));
+    }
 }

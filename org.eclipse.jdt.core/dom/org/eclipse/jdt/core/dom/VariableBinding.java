@@ -114,8 +114,11 @@ class VariableBinding implements IVariableBinding {
 	 * @since 3.1
 	 */
 	public IVariableBinding getVariableDeclaration() {
-		// TODO - missing implementation
-		throw new RuntimeException("not implemented yet"); //$NON-NLS-1$
+		if (this.isField()) {
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
+			return this.resolver.getVariableBinding(fieldBinding.original());
+		}
+		return this;
 	}
 	
 	/*
