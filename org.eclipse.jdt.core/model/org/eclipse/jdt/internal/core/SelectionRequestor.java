@@ -71,6 +71,11 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 	IMethod method= type.getMethod(new String(selector), parameterTypes);
 	if (method.exists()) {
 		fElements = growAndAddToArray(fElements, method);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+			System.out.print(method.toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
 	}
 }
 /**
@@ -93,6 +98,11 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 		IField field= type.getField(new String(name));
 		if (field.exists()) {
 			fElements= growAndAddToArray(fElements, field);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept field("); //$NON-NLS-1$
+				System.out.print(field.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		}
 	}
 }
@@ -124,7 +134,12 @@ public void acceptPackage(char[] packageName) {
 	IPackageFragment[] pkgs = fNameLookup.findPackageFragments(new String(packageName), false);
 	if (pkgs != null) {
 		for (int i = 0, length = pkgs.length; i < length; i++) {
-			fElements = growAndAddToArray(fElements, pkgs[i]);	
+			fElements = growAndAddToArray(fElements, pkgs[i]);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept package("); //$NON-NLS-1$
+				System.out.print(pkgs[i].toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		}
 	}
 }
@@ -152,12 +167,22 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 	if (matches.length == 0) {
 		// no match was actually found, but a method was originally given -> default constructor
 		fElements = growAndAddToArray(fElements, type);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+			System.out.print(type.toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
 		return;
 	}
 
 	// if there is only one match, we've got it
 	if (matches.length == 1) {
 		fElements = growAndAddToArray(fElements, matches[0]);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+			System.out.print(matches[0].toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
 		return;
 	}
 
@@ -175,6 +200,11 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 		}
 		if (match) {
 			fElements = growAndAddToArray(fElements, method);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+				System.out.print(method.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		}
 	}
 	
@@ -186,6 +216,11 @@ protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, 
 	IType type= resolveType(packageName, typeName, acceptFlags);
 	if (type != null) {
 		fElements= growAndAddToArray(fElements, type);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+			System.out.print(type.toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
 	} 
 	
 }
@@ -200,12 +235,6 @@ public IJavaElement[] getElements() {
  * Returns the new array.
  */
 protected IJavaElement[] growAndAddToArray(IJavaElement[] array, IJavaElement addition) {
-	
-	if(SelectionEngine.DEBUG){
-		System.out.print("SELECTION - accept new element("); //$NON-NLS-1$
-		System.out.print(addition.toString());
-		System.out.println(")"); //$NON-NLS-1$
-	}
 	IJavaElement[] old = array;
 	array = new IJavaElement[old.length + 1];
 	System.arraycopy(old, 0, array, 0, old.length);
