@@ -693,4 +693,118 @@ public class DependencyTests extends Tests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
+
+	// TODO (kent) 72468
+	public void _testTypeDeleting() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+	
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A {}\n" //$NON-NLS-1$
+		);
+
+		IPath bPath = env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class B extends p1.A{}\n" //$NON-NLS-1$
+		);
+
+		IPath cPath = env.addClass(root, "p3", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"public class C extends p2.B{}\n" //$NON-NLS-1$
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"class Deleted {}\n" //$NON-NLS-1$
+			);
+
+		incrementalBuild(projectPath);
+		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
+		expectingSpecificProblemFor(bPath, new Problem("B", "p1.A cannot be resolved to a type", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class B {}\n" //$NON-NLS-1$
+			);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
+	// TODO (kent) 72468
+	public void _testTypeVisibility() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+	
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A {}\n" //$NON-NLS-1$
+		);
+
+		IPath bPath = env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class B extends p1.A{}\n" //$NON-NLS-1$
+		);
+
+		IPath cPath = env.addClass(root, "p3", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"public class C extends p2.B{}\n" //$NON-NLS-1$
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"class A {}\n" //$NON-NLS-1$
+			);
+
+		incrementalBuild(projectPath);
+		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class B {}\n" //$NON-NLS-1$
+			);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class B extends p1.A{}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A {}\n" //$NON-NLS-1$
+			);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
 }
