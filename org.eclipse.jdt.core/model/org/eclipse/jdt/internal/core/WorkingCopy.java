@@ -58,7 +58,8 @@ public class WorkingCopy extends CompilationUnit {
 	 * never true if this compilation unit is not a working
 	 * copy.
 	 */
-	protected int useCount = 0;
+	protected int useCount = 1;
+	
 /**
  */
 protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory) {
@@ -73,7 +74,6 @@ protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory buffe
 			this.getBufferManager().getDefaultBufferFactory() :
 			bufferFactory;
 	this.problemRequestor = problemRequestor;
-	this.useCount = 1;
 }
 /**
  * @see IWorkingCopy
@@ -132,6 +132,12 @@ public void destroy() {
 		// do nothing
 	}
 }
+
+public boolean exists() {
+	if (this.useCount == 0) return false; // no longer exists once destroyed
+	return super.exists();
+}
+
 
 /**
  * Answers custom buffer factory
@@ -331,6 +337,8 @@ public void open(IProgressMonitor pm) throws JavaModelException {
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 
+	if (this.useCount == 0) throw newNotPresentException(); // was destroyed
+	
 	// create buffer - working copies may use custom buffer factory
 	IBuffer buffer = getBufferFactory().createBuffer(this);
 	if (buffer == null) return null;
@@ -363,6 +371,8 @@ public IMarker[] reconcile() throws JavaModelException {
  */ 
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
 
+	if (this.useCount == 0) throw newNotPresentException(); //was destroyed
+	
 	if (monitor != null){
 		if (monitor.isCanceled()) return;
 		monitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
@@ -412,13 +422,13 @@ public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) t
  * @see IWorkingCopy
  */
 public void restore() throws JavaModelException {
-	if (this.useCount > 0) {
-		CompilationUnit original = (CompilationUnit) getOriginalElement();
-		getBuffer().setContents(original.getContents());
 
-		updateTimeStamp(original);
-		makeConsistent(null);
-	}
+	if (this.useCount == 0) throw newNotPresentException(); //was destroyed
+
+	CompilationUnit original = (CompilationUnit) getOriginalElement();
+	getBuffer().setContents(original.getContents());
+	updateTimeStamp(original);
+	makeConsistent(null);
 }
 /*
  * @see JavaElement#rootedAt(IJavaProject)
