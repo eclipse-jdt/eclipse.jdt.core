@@ -84,6 +84,7 @@ public static String bind(String id, String[] bindings) {
 								output.append(argMessage);
 								done = true;
 							} catch (MissingResourceException e) {
+								// ignore
 							}
 						}
 						if (!done) output.append(message.substring(end + 1, start + 1));

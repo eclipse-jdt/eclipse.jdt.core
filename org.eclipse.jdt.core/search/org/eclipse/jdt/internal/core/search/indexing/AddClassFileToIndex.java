@@ -35,6 +35,7 @@ class AddClassFileToIndex extends AddFileToIndex {
 				if (location != null)
 					this.contents = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(location.toFile());
 			} catch (IOException e) {
+				// ignore
 			}
 		}
 		return this.contents != null;

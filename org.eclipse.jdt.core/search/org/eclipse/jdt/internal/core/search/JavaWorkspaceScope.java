@@ -77,6 +77,7 @@ public void initialize() {
 		for (int i = 0, length = projects.length; i < length; i++)
 			this.add(projects[i], false, new HashSet(2));
 	} catch (JavaModelException ignored) {
+		// ignore
 	}
 	this.needsInitialize = false;
 }

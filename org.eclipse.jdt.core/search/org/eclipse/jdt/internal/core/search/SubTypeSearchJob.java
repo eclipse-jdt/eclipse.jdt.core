@@ -50,6 +50,7 @@ public void closeAll(){
 		try {
 			input.close();
 		} catch(IOException e){
+			// ignore
 		}
 	} 
 }

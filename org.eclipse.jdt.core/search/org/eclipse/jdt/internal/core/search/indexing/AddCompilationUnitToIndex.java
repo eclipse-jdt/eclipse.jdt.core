@@ -35,6 +35,7 @@ class AddCompilationUnitToIndex extends AddFileToIndex {
 				if (location != null)
 					this.contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile(), null);
 			} catch (IOException e) {
+				// ignore
 			}
 		}
 		return this.contents != null;

@@ -42,6 +42,7 @@ public abstract void processDelta(IJavaElementDelta delta);
  * @deprecated
  */
 public void setIncludesBinaries(boolean includesBinaries) {
+	// implements interface method
 }
 
 /**
@@ -49,6 +50,7 @@ public void setIncludesBinaries(boolean includesBinaries) {
  * @deprecated
  */
 public void setIncludesClasspaths(boolean includesClasspaths) {
+	// implements interface method
 }
 
 }
