@@ -1607,6 +1607,7 @@ class ASTConverter {
 	
 	public SwitchCase convert(DefaultCase statement) {
 		SwitchCase switchCase = this.ast.newSwitchCase();
+		switchCase.setExpression(null);
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		return switchCase;
 	}
