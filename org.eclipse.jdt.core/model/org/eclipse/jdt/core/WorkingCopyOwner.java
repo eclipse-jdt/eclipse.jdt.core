@@ -17,11 +17,13 @@ import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
  * The owner of an <code>ICompilationUnit</code> handle in working copy mode. 
  * An owner is used to identify a working copy and to create its buffer.
  * <p>
- * Clients should subclass this class to instanciate a working copy owner that is specific to their need and that
+ * Clients should subclass this class to instantiate a working copy owner that is specific to their need and that
  * they can pass in to various APIs (e.g. <code>IType.resolveType(String, WorkingCopyOwner)</code>.
  * Clients can also override the default implementation of <code>createBuffer(ICompilationUnit)</code>.
+ * </p><p>
+ * Note: even though this class has no abstract method, which means that it provides functional default behvior,
+ * it is still an abstract class, as clients are intended to own their owner implementation.
  * </p>
- * 
  * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, org.eclipse.core.runtime.IProgressMonitor)
  * @see ICompilationUnit#discardWorkingCopy()
  * @see ICompilationUnit#getWorkingCopy(org.eclipse.core.runtime.IProgressMonitor)
@@ -50,6 +52,11 @@ public abstract class WorkingCopyOwner {
 	 * The new buffer will be initialized with the contents of the underlying file
 	 * if and only if it was not already initialized by the compilation owner (a buffer is 
 	 * uninitialized if its content is <code>null</code>).
+	 * <p>
+	 * Note: This buffer will be associated to the working copy for its entire life-cycle. Another
+	 * working copy on same unit but owned by a different owner would not share the same buffer
+	 * unless its owner decided to implement such a sharing behaviour.
+	 * </p>
 	 * 
 	 * @param workingCopy the working copy of the buffer
 	 * @return IBuffer the created buffer for the given working copy
