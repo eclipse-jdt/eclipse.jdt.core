@@ -1108,7 +1108,7 @@ public void test022() {
 		"    44  astore 4\n" + 
 		"    46  goto 67\n" + 
 		"    49  aload 4\n" + 
-		"    51  invokeinterface [nargs : 1] #38 <Interface method java/util/Iterator.()Ljava/lang/Object;>\n" + 
+		"    51  invokeinterface [nargs : 1] #38 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
 		"    56  checkcast #20 java/lang/Integer\n" + 
 		"    59  astore_3\n" + 
 		"    60  iload_2\n" + 
@@ -1117,7 +1117,7 @@ public void test022() {
 		"    65  iadd\n" + 
 		"    66  istore_2\n" + 
 		"    67  aload 4\n" + 
-		"    69  invokeinterface [nargs : 1] #46 <Interface method java/util/Iterator.()Z>\n" + 
+		"    69  invokeinterface [nargs : 1] #46 <Interface method java/util/Iterator.hasNext()Z>\n" + 
 		"    74  ifne 49\n" + 
 		"    77  getstatic #52 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    80  iload_2\n" + 
@@ -1192,7 +1192,114 @@ public void test023() {
 			"Type mismatch: cannot convert from element type String to Thread\n" + 
 			"----------\n");
 }
-
+public void test024() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String[] tab = new String[] {\"SUCCESS\"};\n" + 
+			"		List list = new ArrayList();\n" + 
+			"		for (String arg : tab) {		\n" + 
+			"			list.add(arg);\n" + 
+			"		}\n" + 
+			"		for (Object arg: list) {\n" + 
+			"			System.out.print(arg);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+		
+	String expectedOutput =
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 4, Locals: 7\n" + 
+		"  public static void main(String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  anewarray #17 java/lang/String\n" + 
+		"     4  dup\n" + 
+		"     5  iconst_0\n" + 
+		"     6  ldc #19 <String \"SUCCESS\">\n" + 
+		"     8  aastore\n" + 
+		"     9  astore_1\n" + 
+		"    10  new #21 java/util/ArrayList\n" + 
+		"    13  dup\n" + 
+		"    14  invokespecial #22 <Method java/util/ArrayList.<init>()V>\n" + 
+		"    17  astore_2\n" + 
+		"    18  aload_1\n" + 
+		"    19  astore 6\n" + 
+		"    21  iconst_0\n" + 
+		"    22  istore 4\n" + 
+		"    24  aload 6\n" + 
+		"    26  arraylength\n" + 
+		"    27  istore 5\n" + 
+		"    29  goto 49\n" + 
+		"    32  aload 6\n" + 
+		"    34  iload 4\n" + 
+		"    36  aaload\n" + 
+		"    37  astore_3\n" + 
+		"    38  aload_2\n" + 
+		"    39  aload_3\n" + 
+		"    40  invokeinterface [nargs : 2] #28 <Interface method java/util/List.add(Ljava/lang/Object;)Z>\n" + 
+		"    45  pop\n" + 
+		"    46  iinc 4 1\n" + 
+		"    49  iload 4\n" + 
+		"    51  iload 5\n" + 
+		"    53  if_icmplt 32\n" + 
+		"    56  aload_2\n" + 
+		"    57  dup\n" + 
+		"    58  astore 5\n" + 
+		"    60  invokeinterface [nargs : 1] #33 <Interface method java/util/List.iterator()Ljava/util/Iterator;>\n" + 
+		"    65  astore 4\n" + 
+		"    67  goto 85\n" + 
+		"    70  aload 4\n" + 
+		"    72  invokeinterface [nargs : 1] #39 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
+		"    77  astore_3\n" + 
+		"    78  getstatic #45 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    81  aload_3\n" + 
+		"    82  invokevirtual #51 <Method java/io/PrintStream.print(Ljava/lang/Object;)V>\n" + 
+		"    85  aload 4\n" + 
+		"    87  invokeinterface [nargs : 1] #55 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    92  ifne 70\n" + 
+		"    95  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 6]\n" + 
+		"        [pc: 10, line: 7]\n" + 
+		"        [pc: 18, line: 8]\n" + 
+		"        [pc: 38, line: 9]\n" + 
+		"        [pc: 46, line: 8]\n" + 
+		"        [pc: 56, line: 11]\n" + 
+		"        [pc: 78, line: 12]\n" + 
+		"        [pc: 85, line: 11]\n" + 
+		"        [pc: 95, line: 14]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 96] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 10, pc: 96] local: tab index: 1 type: [Ljava/lang/String;\n" + 
+		"        [pc: 18, pc: 96] local: list index: 2 type: Ljava/util/List;\n" + 
+		"        [pc: 38, pc: 56] local: arg index: 3 type: Ljava/lang/String;\n" + 
+		"        [pc: 78, pc: 95] local: arg index: 3 type: Ljava/lang/Object;\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }

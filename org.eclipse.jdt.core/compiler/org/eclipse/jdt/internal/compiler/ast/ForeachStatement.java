@@ -176,6 +176,7 @@ public class ForeachStatement extends Statement {
 				codeStream.dup();
 				codeStream.store(this.collectionVariable, false);
 				// declaringClass.iterator();
+				final TypeBinding collectionTypeBinding = collection.resolvedType;
 				MethodBinding iteratorMethodBinding =
 					new MethodBinding(
 							AccPublic,
@@ -183,8 +184,12 @@ public class ForeachStatement extends Statement {
 							scope.getJavaUtilIterator(),
 							TypeConstants.NoParameters,
 							TypeConstants.NoExceptions,
-							(ReferenceBinding) collection.resolvedType);
-				codeStream.invokevirtual(iteratorMethodBinding);
+							(ReferenceBinding) collectionTypeBinding);
+				if (collectionTypeBinding.isInterface()) {
+					codeStream.invokeinterface(iteratorMethodBinding);
+				} else {
+					codeStream.invokevirtual(iteratorMethodBinding);
+				}
 				codeStream.store(this.indexVariable, false);
 				break;
 		}
