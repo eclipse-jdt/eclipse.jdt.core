@@ -341,10 +341,9 @@ protected boolean isSourceElement() {
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return;
 	
-	// close
+	// create a new info and make it the current info
+	// (this will remove the info and its children just before storing the new infos)
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.removeInfoAndChildren(this);
-	
 	boolean hadTemporaryCache = manager.hasTemporaryCache();
 	try {
 		HashMap newElements = manager.getTemporaryCache();
