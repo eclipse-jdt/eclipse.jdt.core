@@ -2365,6 +2365,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a raw method", methodBinding.isRawMethod());
 		assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
 		assertFalse("Is a generic method", methodBinding.isGenericMethod());
+		assertFalse("Doesn't override itself", methodBinding.overrides(methodBinding));
 	}
 	
 	/*
