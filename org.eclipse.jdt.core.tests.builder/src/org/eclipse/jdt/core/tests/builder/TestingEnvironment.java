@@ -1,17 +1,12 @@
 package org.eclipse.jdt.core.tests.builder;
 
-import org.eclipse.core.boot.BootLoader;
-
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import java.io.*;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.*;
 
 public class TestingEnvironment {

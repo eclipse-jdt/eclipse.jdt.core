@@ -4,7 +4,6 @@ import java.util.Vector;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IDebugRequestor;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.Util;
 
 public class EfficiencyCompilerRequestor implements IDebugRequestor {

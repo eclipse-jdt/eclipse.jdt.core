@@ -1,13 +1,5 @@
 package org.eclipse.jdt.core.tests.runtime;
 
-/*
- * Licensed Materials - Property of IBM,
- * WebSphere Studio Workbench
- * (c) Copyright IBM Corp 2000
- */
-import java.io.InputStream;
-import java.io.OutputStream;
-
 /**
  * Wrapper around the external processes that are running a J9 VM
  * and a J9 Proxy.

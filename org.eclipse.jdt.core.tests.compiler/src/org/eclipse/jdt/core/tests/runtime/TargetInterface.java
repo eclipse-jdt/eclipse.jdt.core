@@ -1,12 +1,6 @@
 package org.eclipse.jdt.core.tests.runtime;
 
-/*
- * Licensed Materials - Property of IBM,
- * WebSphere Studio Workbench
- * (c) Copyright IBM Corp 2000
- */
 import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.eval.*;
 import org.eclipse.jdt.core.tests.runtime.*;
 import java.io.*;
 import java.net.*;

@@ -1,14 +1,8 @@
 package org.eclipse.jdt.core.tests.runtime;
 
-/*
- * Licensed Materials - Property of IBM,
- * WebSphere Studio Workbench
- * (c) Copyright IBM Corp 2000
- */
 import java.io.*;
 
 import java.util.Vector;
-import java.util.Enumeration;
 
 /**
  * A J9 VM launcher launches an external J9 VM (and J9 Proxy if needed) with

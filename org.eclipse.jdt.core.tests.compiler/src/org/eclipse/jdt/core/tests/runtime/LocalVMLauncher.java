@@ -1,13 +1,7 @@
 package org.eclipse.jdt.core.tests.runtime;
 
-/*
- * Licensed Materials - Property of IBM,
- * WebSphere Studio Workbench
- * (c) Copyright IBM Corp 2000
- */
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
 
 /**
  * The root of the VM launchers that launch VMs on the same machine.

@@ -1,12 +1,5 @@
 package org.eclipse.jdt.core.tests.runtime;
 
-/*
- * Licensed Materials - Property of IBM,
- * WebSphere Studio Workbench
- * (c) Copyright IBM Corp 2000
- */
-import java.util.Vector;
-
 /**
  * An abstract reader that continuously reads.
  */
