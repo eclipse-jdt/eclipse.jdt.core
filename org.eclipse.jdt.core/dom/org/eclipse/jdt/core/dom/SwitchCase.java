@@ -87,7 +87,7 @@ public class SwitchCase extends Statement {
 	public Expression getExpression() {
 		if (!expressionInitialized) {
 			// lazy initialize - use setter to ensure parent link set too
-			setExpression(null);
+			setExpression(new SimpleName(getAST()));
 		}
 		return optionalExpression;
 	}
