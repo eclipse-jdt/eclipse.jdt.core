@@ -473,8 +473,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE, this.insert_space_between_brackets_in_array_reference ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE, this.insert_space_between_brackets_in_array_type_reference ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS, this.insert_space_between_empty_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-// TODO add again once 49298 is fixed
-//		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS, this.insert_space_between_empty_messagesend_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS, this.insert_space_between_empty_messagesend_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER, this.insert_space_between_empty_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_CATCH_EXPRESSION, this.insert_space_in_catch_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_FOR_PARENS, this.insert_space_in_for_parens ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -977,11 +976,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBetweenEmptyArgumentsOption != null) {
 			this.insert_space_between_empty_arguments = JavaCore.INSERT.equals(insertSpaceBetweenEmptyArgumentsOption);
 		}
-/*	TODO add again once 49298 is fixed
  		final Object insertSpaceBetweenEmptyMessageSendArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS);
 		if (insertSpaceBetweenEmptyMessageSendArgumentsOption != null) {
 			this.insert_space_between_empty_messagesend_arguments = JavaCore.INSERT.equals(insertSpaceBetweenEmptyMessageSendArgumentsOption);
-		}*/
+		}
 		final Object insertSpaceBetweenEmptyArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER);
 		if (insertSpaceBetweenEmptyArrayInitializerOption != null) {
 			this.insert_space_between_empty_array_initializer = JavaCore.INSERT.equals(insertSpaceBetweenEmptyArrayInitializerOption);
@@ -1226,7 +1224,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_between_brackets_in_array_reference = DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE;
 		this.insert_space_between_brackets_in_array_type_reference = DEFAULT_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE;
 		this.insert_space_between_empty_arguments = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS;
-// TODO add again once 49298 is fixed		this.insert_space_between_empty_messagesend_arguments = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS;
+		this.insert_space_between_empty_messagesend_arguments = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS;
 		this.insert_space_between_empty_array_initializer = DEFAULT_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER;
 		this.insert_space_in_catch_expression = DEFAULT_INSERT_SPACE_IN_CATCH_EXPRESSION;
 		this.insert_space_in_for_parens = DEFAULT_INSERT_SPACE_IN_FOR_PARENS;
@@ -1376,7 +1374,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_between_brackets_in_array_reference = false;
 		this.insert_space_between_brackets_in_array_type_reference = false;
 		this.insert_space_between_empty_arguments = false;
-// TODO add again once 49298 is fixed		this.insert_space_between_empty_messagesend_arguments = false;
+		this.insert_space_between_empty_messagesend_arguments = false;
 		this.insert_space_between_empty_array_initializer = false;
 		this.insert_space_in_catch_expression = false;
 		this.insert_space_in_for_parens = false;
