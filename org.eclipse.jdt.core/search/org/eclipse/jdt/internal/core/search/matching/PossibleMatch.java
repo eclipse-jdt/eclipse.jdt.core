@@ -74,7 +74,7 @@ public char[] getContents() {
 	return null;
 }
 /**
- * The exact openable file name. In particular, will be originating .class file for binary openable with attached
+ * The exact openable file name. In particular, will be the originating .class file for binary openable with attached
  * source.
  * @see PackageReferenceLocator#isDeclaringPackageFragment(IPackageFragment, ReferenceBinding)
  */
