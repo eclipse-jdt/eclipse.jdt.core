@@ -239,7 +239,7 @@ protected void checkCanceled() {
  * Compute this type hierarchy.
  */
 protected void compute() throws JavaModelException, CoreException {
-	if (JavaModelManager.ENABLE_INDEXING && fType != null) {
+	if (fType != null) {
 		HierarchyBuilder builder = 
 			new IndexBasedHierarchyBuilder(
 				this, 

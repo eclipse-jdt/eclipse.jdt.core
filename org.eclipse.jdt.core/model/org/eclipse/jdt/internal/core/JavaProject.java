@@ -1903,7 +1903,7 @@ public class JavaProject
 			IPackageFragmentRoot[] immediateRoots = getPackageFragmentRoots();						
 			for(int i = 0, length = immediateRoots.length; i < length; i++){
 				PackageFragmentRoot root = (PackageFragmentRoot)immediateRoots[i];
-				if (root.getKind() == IPackageFragmentRoot.K_BINARY && indexManager != null) {
+				if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 					if (root.isArchive()) {
 						indexManager.indexJarFile(root.getPath(), getUnderlyingResource().getName());
 					} else {

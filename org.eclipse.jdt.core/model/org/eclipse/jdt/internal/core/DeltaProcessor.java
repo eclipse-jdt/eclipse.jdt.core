@@ -45,8 +45,7 @@ public class DeltaProcessor {
 	 */
 	protected JavaElementDelta fCurrentDelta;
 
-	protected IndexManager indexManager =
-		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
+	protected IndexManager indexManager = new IndexManager();
 		
 	/* A table from IPath (from a classpath entry) to IJavaProject */
 	Map roots;

@@ -377,18 +377,18 @@ private String[] getPathsOfDeclaringType() {
 				}
 			}		
 		};		
-		if (indexManager != null) {
-			indexManager.performConcurrentJob(
-				new PatternSearchJob(
-					searchPattern, 
-					scope, 
-					detailLevel, 
-					searchRequestor, 
-					indexManager),
-				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-				progressMonitor);
-			return pathCollector.getPaths();
-		}
+
+		indexManager.performConcurrentJob(
+			new PatternSearchJob(
+				searchPattern, 
+				scope, 
+				detailLevel, 
+				searchRequestor, 
+				indexManager),
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			progressMonitor);
+		return pathCollector.getPaths();
+
 	}
 	return null;
 }

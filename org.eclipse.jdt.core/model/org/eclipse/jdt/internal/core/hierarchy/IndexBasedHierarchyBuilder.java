@@ -448,7 +448,6 @@ public static void searchAllPossibleSubTypes(
 	final HashtableOfObject foundSuperNames = new HashtableOfObject(5);
 
 	IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager()).getIndexManager();
-	if (indexManager == null) return;
 
 	/* use a special collector to collect paths and queue new subtype names */
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){

@@ -321,25 +321,25 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		MatchLocator matchLocator = new MatchLocator((SearchPattern)searchPattern, detailLevel, resultCollector, scope);
-		if (indexManager != null) {
-			indexManager.performConcurrentJob(
-				new PatternSearchJob(
-					(SearchPattern)searchPattern, 
-					scope, 
-					detailLevel, 
-					pathCollector, 
-					indexManager),
-				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-				progressMonitor);
 
-			if (progressMonitor != null) {
-				progressMonitor.worked(5);
-			}
-				
-			/* eliminating false matches and locating them */
-			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-			matchLocator.locateMatches(pathCollector.getPaths(), workspace);
+		indexManager.performConcurrentJob(
+			new PatternSearchJob(
+				(SearchPattern)searchPattern, 
+				scope, 
+				detailLevel, 
+				pathCollector, 
+				indexManager),
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			progressMonitor);
+
+		if (progressMonitor != null) {
+			progressMonitor.worked(5);
 		}
+			
+		/* eliminating false matches and locating them */
+		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+		matchLocator.locateMatches(pathCollector.getPaths(), workspace);
+		
 
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		
@@ -409,7 +409,6 @@ public void searchAllTypeNames(
 	IProgressMonitor progressMonitor)  throws JavaModelException {
 
 	IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager()).getIndexManager();
-	if (indexManager == null) return;
 		
 	char classOrInterface;
 	switch(searchFor){

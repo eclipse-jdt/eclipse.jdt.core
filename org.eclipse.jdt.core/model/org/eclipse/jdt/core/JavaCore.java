@@ -1015,11 +1015,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	private void startIndexing() {
 
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		IndexManager indexManager = manager.getIndexManager();
-		if (indexManager != null)
-			indexManager.reset();
+		JavaModelManager.getJavaModelManager().getIndexManager().reset();
 	}
 
 	/**
@@ -1055,11 +1051,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IndexManager indexManager = manager.getIndexManager();
-			if (indexManager != null) {
-				// need to initialize workbench now since a query may be done before indexing starts
-				indexManager.workspace = workspace;
-			}
+
+			// need to initialize workspace now since a query may be done before indexing starts
+			manager.getIndexManager().workspace = workspace;
+
 			workspace.addResourceChangeListener(
 				manager,
 				IResourceChangeEvent.PRE_AUTO_BUILD

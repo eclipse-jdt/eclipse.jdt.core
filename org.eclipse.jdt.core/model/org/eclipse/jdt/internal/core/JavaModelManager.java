@@ -128,8 +128,7 @@ try {
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
 	 */
 	protected DeltaProcessor fDeltaProcessor= new DeltaProcessor();
-
-	public static boolean ENABLE_INDEXING= true;
+
 	/**
 	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
 	 */
@@ -227,8 +226,7 @@ public void closeAffectedElements(IResourceDelta delta) {
 	 */
 	public void deleting(IProject project) {
 		
-		IndexManager indexManager= getIndexManager();
-		if (indexManager != null) indexManager.deleting(project);
+		getIndexManager().deleting(project);
 		
 		if (!fProjectsBeingDeleted.contains(project)) {
 			fProjectsBeingDeleted.add(project);
