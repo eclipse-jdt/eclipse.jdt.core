@@ -4,8 +4,7 @@ class Foo {
 
 	void foo() {
 		Bar obj = new Bar() {
-			public void bar()
-			{
+			public void bar() {
 				// Here is the problem.
 				return;
 			}

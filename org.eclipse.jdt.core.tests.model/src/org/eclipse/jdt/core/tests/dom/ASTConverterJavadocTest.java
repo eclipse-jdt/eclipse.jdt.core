@@ -73,7 +73,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testBug50898"));			
+		suite.addTest(new ASTConverterJavadocTest("testBug51363"));
 		return suite;
 	}
 
@@ -331,13 +331,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			switch (comment) {
 				case 1: // line comment
+					buffer.append(source[i]);
 					if (source[i] == '\r' || source[i] == '\n') {
+						if (source[i] == '\r' && source[i+1] == '\n') {
+							buffer.append(source[++i]);
+						}
 						comment = 0;
 						this.comments.add(buffer.toString());
 						this.allTags.add(tags);
 						buffer = new StringBuffer();
-					} else {
-						buffer.append(source[i]);
 					}
 					break;
 				case 3: // javadoc comment
@@ -717,19 +719,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Verify comments positions and bindings
 		for (int i=0; i<unitComments.length; i++) {
 			Comment comment = unitComments[i];
-			String stringComment = (String) this.comments.get(i);
 			List tags = (List) allTags.get(i);
-			// Verify content
-			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
-			comment.accept(printer);
-			String text = new String(source, comment.getStartPosition(), comment.getLength());
-			assertEquals(fileName+": Flattened javadoc does NOT match source!", text, printer.getResult());
 			// Verify javdoc tags positions and bindings
 			if (comment.isDocComment()) {
 				Javadoc docComment = (Javadoc)comment;
 				assertEquals(fileName+": Invalid tags number! ", tags.size(), allTags(docComment));
 				verifyPositions(docComment, source);
 				verifyBindings(docComment);
+			} else {
+				String stringComment = (String) this.comments.get(i);
+//				ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
+//				comment.accept(printer);
+				String text = new String(source, comment.getStartPosition(), comment.getLength());
+				assertEquals(fileName+": Flattened comment does NOT match source!", stringComment, text);
 			}
 			if (debug) System.out.println(comment+"\nsuccessfully verified in "+fileName);
 		}
@@ -906,5 +908,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug51241() throws JavaModelException {
 		verifyComments("Bug51241");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51363
+	 */
+	public void testBug51363() throws JavaModelException {
+		verifyComments("Bug51363");
 	}
 }
