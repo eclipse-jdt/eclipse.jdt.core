@@ -17,22 +17,12 @@ class MethodVerifier15 extends MethodVerifier {
 MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
-boolean areParametersEqual(MethodBinding one, MethodBinding two) {
-	TypeBinding[] oneArgs = one.parameters;
-	TypeBinding[] twoArgs = two.parameters;
-	if (oneArgs == twoArgs) return true;
-
-	int length = oneArgs.length;
-	if (length != twoArgs.length) return false;
-
-	for (int i = 0; i < length; i++)
-		if (!areTypesEqual(oneArgs[i].erasure(), twoArgs[i].erasure())) return false;
-	return true;
-}
-boolean areReturnTypesEqual(MethodBinding one, MethodBinding two) {
-	return areTypesEqual(one.returnType.erasure(), two.returnType.erasure());
+boolean areTypesEqual(TypeBinding one, TypeBinding two) {
+	return one == two || super.areTypesEqual(one.erasure(), two.erasure());
 }
 void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
+	// methods includes the inherited methods that the currentMethod must comply with
+	// likely only 1 but could be more if mutiple declared supertypes define the method (1 superclass & 1 to many declared interfaces)
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
 		if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
@@ -47,29 +37,23 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 		}
 
-		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType()
-			&& isTypeSubstituable(currentMethod.returnType, inheritedMethod.returnType);
-		if (!addBridgeMethod && !areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
+		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType();
+		if (!super.areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
 			// can be [] of Class#RAW vs. Class<T>
 			if (!isReturnTypeSubstituable(currentMethod, inheritedMethod)) {
 				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 				continue nextMethod;
 			} else if (inheritedMethod.typeVariables.length != currentMethod.typeVariables.length) {
-				// TODO (kent) work to do on this case
-				if (currentMethod.typeVariables.length == 0 && inheritedMethod.declaringClass.isRawType()) {
-					// bug 69626
-					// no error since the inheritedMethod's type variables are ignored in raw types... why does a raw type binding not remove the type variables?
-				} else {
-					this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-//					this.problemReporter(currentMethod).nameClash(currentMethod, inheritedMethod);
-					continue nextMethod;
-				}
+				this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
+//				this.problemReporter(currentMethod).nameClash(currentMethod, inheritedMethod);
+				continue nextMethod;
 			}
+			addBridgeMethod = true;
 		}
 
 		if (addBridgeMethod || inheritedMethod.hasSubstitutedParameters()) {
 		    MethodBinding original = inheritedMethod.original();
-		    if (!isReturnTypeSubstituable(original, currentMethod) || !areParametersEqual(original, currentMethod))
+		    if (!areReturnTypesEqual(original, currentMethod) || !areParametersEqual(original, currentMethod))
 				this.type.addSyntheticBridgeMethod(original, currentMethod);
 		}
 
@@ -93,6 +77,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		}
 	}
 }
+boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
+	return areParametersEqual(method, inheritedMethod) && isReturnTypeSubstituable(method, inheritedMethod);
+}
 boolean isReturnTypeSubstituable(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
 
@@ -114,7 +101,8 @@ boolean isTypeSubstituable(TypeBinding one, TypeBinding two) {
 	ReferenceBinding superType = (ReferenceBinding) two;
 	if (CharOperation.equals(subType.compoundName, superType.compoundName)) return true;
 
-	// TODO what about unresolved types?
+	superType = BinaryTypeBinding.resolveType(superType, this.environment, true);
+	subType = BinaryTypeBinding.resolveType(subType, this.environment, true);
 	if (superType.isInterface())
 		return subType.implementsInterface(superType, true);
 	return subType.isClass() && isSameClassOrSubclassOf(subType, superType);
