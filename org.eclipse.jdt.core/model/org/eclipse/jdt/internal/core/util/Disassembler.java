@@ -742,8 +742,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		buffer.append(Util.bind("disassembler.genericattributeheader")); //$NON-NLS-1$
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Util.bind("disassembler.genericattributeheader")); //$NON-NLS-1$
+		writeNewLine(buffer, lineSeparator, tabNumber + 2);
 		buffer
 			.append(Util.bind("disassembler.genericattributename")) //$NON-NLS-1$
 			.append(classFileAttribute.getAttributeName())
