@@ -125,6 +125,7 @@ PRs Fixed in 1.0NL stream (since 0.9)
 
 PRs Closed in this Release
 ==================================================================================
+1G4GDL3: ITPJUI:WINNT - Outliner, Type Hierarchy - strange members
 1GJY8MH: ITPJCORE:WINNT - No warning marker for use of deprecated members in same class
 1GJWIRA: ITPJCORE:WINNT - ClassCastException occured while compiling in the recovery
 1GIUQ92: ITPJCORE:WINNT - Empty lines added on reorg operations
