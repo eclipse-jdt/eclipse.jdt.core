@@ -303,7 +303,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testTypeReferenceBug73336b" };
+//	testsNames = new String[] { "testTypeReferenceBug73336c" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -315,8 +315,11 @@ IJavaSearchScope getJavaSearchScope() {
 IJavaSearchScope getJavaSearchScope15() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch15")});
 }
-IJavaSearchScope getJavaSearchBugsScope() {
-	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
+IJavaSearchScope getJavaSearchPackageScope(String packageName, boolean search15) throws JavaModelException {
+	String projectName = "JavaSearch";
+	if (search15) projectName += "15";
+	IJavaElement[] searchPackages = new IJavaElement[] { getPackageFragment(projectName, "src", packageName) };
+	return SearchEngine.createJavaSearchScope(searchPackages);
 }
 protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 	new SearchEngine().search(
@@ -2763,7 +2766,7 @@ public void testTypeReference06() throws CoreException {
 	search(
 		type, 
 		REFERENCES, 
-		getJavaSearchScope15(), 
+		getJavaSearchPackageScope("p1", true), 
 		resultCollector);
 	assertSearchResults(
 		"src/p1/Y.java Object p1.Y.foo() [X]",
@@ -3385,30 +3388,55 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
  * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=73336)
  */
 public void testTypeReferenceBug73336() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/bug73336/A73336.java").getType("A73336");
+	IType type = getCompilationUnit("JavaSearch15/src/bug73336/A.java").getType("A");
 	
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(type,
+		REFERENCES,
+		getJavaSearchPackageScope("bug73336", true), 
+		resultCollector);
 	assertSearchResults(
-		"src/bug73336/AA73336.java bug73336.AA73336 [A73336]\n" + 
-		"src/bug73336/B73336.java bug73336.B73336 [A73336]\n" + 
-		"src/bug73336/B73336.java bug73336.B73336 [A73336]\n" + 
-		"src/bug73336/C73336.java bug73336.C73336 [A73336]\n" + 
-		"src/bug73336/C73336.java void bug73336.C73336.foo() [A73336]\n" + 
-		"src/bug73336/C73336.java void bug73336.C73336.foo() [A73336]",
+		"src/bug73336/AA.java bug73336.AA [A]\n" + 
+		"src/bug73336/B.java bug73336.B [A]\n" + 
+		"src/bug73336/B.java bug73336.B [A]\n" + 
+		"src/bug73336/C.java bug73336.C [A]\n" + 
+		"src/bug73336/C.java void bug73336.C.foo() [A]\n" + 
+		"src/bug73336/C.java void bug73336.C.foo() [A]",
 		resultCollector);
 }
 public void testTypeReferenceBug73336b() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/bug73336b/A73336b.java").getType("A73336b");
+	IType type = getCompilationUnit("JavaSearch15/src/bug73336b/A.java").getType("A");
 	
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(type,
+		REFERENCES,
+		getJavaSearchPackageScope("bug73336b", true), 
+		resultCollector);
 	assertSearchResults(
-		"src/bug73336b/B73336b.java bug73336b.B73336b [A73336b]\n" + 
-		"src/bug73336b/B73336b.java bug73336b.B73336b [A73336b]\n" + 
-		"src/bug73336b/B73336b.java bug73336b.B73336b [A73336b]\n" + 
-		"src/bug73336b/B73336b.java bug73336b.B73336b() [A73336b]\n" + 
-		"src/bug73336b/B73336b.java bug73336b.B73336b() [A73336b]",
+		"src/bug73336b/B.java bug73336b.B [A]\n" + 
+		"src/bug73336b/B.java bug73336b.B [A]\n" + 
+		"src/bug73336b/C.java bug73336b.C [A]\n" + 
+		"src/bug73336b/C.java bug73336b.C [A]\n" + 
+		"src/bug73336b/C.java bug73336b.C [A]\n" + 
+		"src/bug73336b/C.java bug73336b.C() [A]\n" + 
+		"src/bug73336b/C.java bug73336b.C() [A]",
+		resultCollector);
+}
+// Verify that no NPE was raised on following case
+public void testTypeReferenceBug73336c() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/bug73336c/A.java").getType("A");
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(type,
+		REFERENCES,
+		getJavaSearchPackageScope("bug73336c", true), 
+		resultCollector);
+	assertSearchResults(
+			"src/bug73336c/B.java bug73336c.B [A]\n" + 
+			"src/bug73336c/B.java bug73336c.B [A]\n" + 
+			"src/bug73336c/C.java bug73336c.C [A]\n" + 
+			"src/bug73336c/C.java bug73336c.C [A]\n" + 
+			"src/bug73336c/C.java bug73336c.C [A]",
 		resultCollector);
 }
 /**

@@ -1,4 +1,4 @@
 package bug73336;
-public interface I73336<T>  {
+public interface I<T>  {
 	public void foo();
 }
