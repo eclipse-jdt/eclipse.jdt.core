@@ -871,6 +871,10 @@ public interface IProblem {
 	int UnsafeWildcardMethodInvocation = TypeRelated + 542;
 	/** @since 3.1 */
 	int UnsafeWildcardFieldAssignment = TypeRelated + 543;
+	/** @since 3.1 */
+	int GenericMethodTypeArgumentMismatch = TypeRelated + 544;
+	/** @since 3.1 */
+	int GenericConstructorTypeArgumentMismatch = TypeRelated + 545;
 	
 	/**
 	 * Foreach

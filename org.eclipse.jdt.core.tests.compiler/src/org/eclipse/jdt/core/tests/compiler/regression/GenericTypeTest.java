@@ -539,12 +539,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	new X<Foo>();\n" + 
-		"	      ^^^\n" + 
-		"Type mismatch: Cannot convert from Foo to the bounded parameter <T extends Object & Comparable<? super T>> of the type X<T>\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	new X<Foo>();\n" + 
+			"	      ^^^\n" + 
+			"Bound mismatch: The type Foo is not a valid substitute for the bounded parameter <T extends Object & Comparable<? super T>> of the type X<T>\n" + 
+			"----------\n");
 	}
 	
 	public void test011() {
@@ -3014,12 +3014,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
 			"	  ^^^^^^^^^^^^\n" + 
-			"Type mismatch: Cannot convert from ? extends AX to the bounded parameter <T extends String> of the type X<T>\n" + 
+			"Bound mismatch: The type ? extends AX is not a valid substitute for the bounded parameter <T extends String> of the type X<T>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
 			"	                          ^^\n" + 
-			"Type mismatch: Cannot convert from AX<String> to the bounded parameter <T extends String> of the type X<T>\n" + 
+			"Bound mismatch: The type AX<String> is not a valid substitute for the bounded parameter <T extends String> of the type X<T>\n" + 
 			"----------\n");		
 	}		
 	// unbound wildcard implicitly bound by matching parameter bounds
@@ -3309,10 +3309,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\r\n" + 
-			"	void foo(X<Thread>.MX.MMX<X> mx) {\r\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	void foo(X<Thread>.MX.MMX<X> mx) {\n" + 
 			"	           ^^^^^^\n" + 
-			"Type mismatch: Cannot convert from Thread to the bounded parameter <T extends X.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"Bound mismatch: The type Thread is not a valid substitute for the bounded parameter <T extends X.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
 			"----------\n");		
 	}			
 	public void test113() {
@@ -3824,7 +3824,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"2. ERROR in Z.java (at line 6)\n" + 
 			"	static void foo(Z<? super String> zs) {\n" + 
 			"	                  ^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: Cannot convert from ? super String to the bounded parameter <T extends ZA> of the type Z<T>\n" + 
+			"Bound mismatch: The type ? super String is not a valid substitute for the bounded parameter <T extends ZA> of the type Z<T>\n" + 
 			"----------\n");
 	}
 	public void test136() {
@@ -3854,7 +3854,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"2. ERROR in Z.java (at line 5)\n" + 
 			"	static void foo(Z<? super ZA> zs) {\n" + 
 			"	                  ^^^^^^^^^^\n" + 
-			"Type mismatch: Cannot convert from ? super ZA to the bounded parameter <T extends ZB> of the type Z<T>\n" + 
+			"Bound mismatch: The type ? super ZA is not a valid substitute for the bounded parameter <T extends ZB> of the type Z<T>\n" + 
 			"----------\n" + 
 			"3. ERROR in Z.java (at line 6)\n" + 
 			"	zs.foo();\n" + 
@@ -3946,7 +3946,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	void bar(X<? extends BX> x) {\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"Type mismatch: Cannot convert from ? extends BX to the bounded parameter <T extends AX> of the type X<T>\n" + 
+			"Bound mismatch: The type ? extends BX is not a valid substitute for the bounded parameter <T extends AX> of the type X<T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	x.get().afoo();\n" + 
@@ -4048,17 +4048,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	void bar(X<? extends X> x) {\n" + 
 			"	           ^^^^^^^^^^^\n" + 
-			"Type mismatch: Cannot convert from ? extends X to the bounded parameter <T extends AX> of the type X<T>\n" + 
+			"Bound mismatch: The type ? extends X is not a valid substitute for the bounded parameter <T extends AX> of the type X<T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	x = identity(x);\n" + 
 			"	    ^^^^^^^^\n" + 
-			"The method identity(X<P>) in the type X<T> is not applicable for the arguments (X<? extends X>)\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 10)\n" + 
-			"	x = identity(x);\n" + 
-			"	    ^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from X<P> to X<? extends X>\n" + 
+			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<? extends X>) since the type ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
 			"----------\n");
 	}			
 	public void test143() {
@@ -4215,4 +4210,48 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The return type is incompatible with Collection<Object>.toArray(T[])\n" + 
 			"----------\n");
 	}			
+	public void test150() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    \n" + 
+				"    <T extends X> void foo(T[] ta, List<T> lt) {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X().foo(args, new ArrayList<String>());\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().foo(args, new ArrayList<String>());\n" + 
+			"	        ^^^\n" + 
+			"Bound mismatch: The generic method foo(T[], List<T>) of type X is not applicable for the arguments (String[], List<String>) since the type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
+			"----------\n");
+	}			
+	public void test151() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X <E>{\n" + 
+				"    \n" + 
+				"    <T extends X> X(T[] ta, List<T> lt) {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X<Object>(args, new ArrayList<String>());\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X<Object>(args, new ArrayList<String>());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Bound mismatch: The generic constructor X(T[], List<T>) of type X<E> is not applicable for the arguments (String[], List<String>) since the type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
+			"----------\n");
+	}				
 }

@@ -123,8 +123,8 @@ public abstract class Scope
 		for (int i = 0, length = typeVariables.length; i < length; i++) {
 		    TypeVariableBinding typeVariable = typeVariables[i];
 		    if (!typeVariable.boundCheck(methodSubstitute, mostSpecificSubstitutes[i]))
-				// TODO (philippe) must return problem binding if bound check failure : problemReporter().typeMismatchError(mostSpecificSubstitute, typeVariables[i], method, args[j]);
-			    return null; // incompatible
+		        // incompatible due to bound check
+		        return new ProblemMethodBinding(methodSubstitute, method.selector, new TypeBinding[]{mostSpecificSubstitutes[i], typeVariables[i] }, ParameterBoundMismatch);
 		}
 
 		// recheck argument compatibility

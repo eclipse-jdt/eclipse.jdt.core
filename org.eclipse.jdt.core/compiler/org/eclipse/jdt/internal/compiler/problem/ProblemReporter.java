@@ -1665,6 +1665,33 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				id = IProblem.AmbiguousConstructor;
 			}
 			break;
+		case ParameterBoundMismatch :
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			ParameterizedGenericMethodBinding substitutedConstructor = (ParameterizedGenericMethodBinding) problemConstructor.closestMatch;
+			shownConstructor = substitutedConstructor.original();
+			TypeBinding typeArgument = targetConstructor.parameters[0];
+			TypeVariableBinding typeParameter = (TypeVariableBinding) targetConstructor.parameters[1];
+			this.handle(
+				IProblem.GenericConstructorTypeArgumentMismatch,
+				new String[] { 
+				        new String(shownConstructor.declaringClass.sourceName()),
+				        parametersAsString(shownConstructor.parameters, false), 
+				        new String(shownConstructor.declaringClass.readableName()), 
+				        parametersAsString(substitutedConstructor.parameters, false), 
+				        new String(typeArgument.readableName()), 
+				        new String(typeParameter.sourceName), 
+				        parameterBoundAsString(typeParameter, false) },
+				new String[] { 
+				        new String(shownConstructor.declaringClass.sourceName()),
+				        parametersAsString(shownConstructor.parameters, true), 
+				        new String(shownConstructor.declaringClass.shortReadableName()), 
+				        parametersAsString(substitutedConstructor.parameters, true), 
+				        new String(typeArgument.shortReadableName()), 
+				        new String(typeParameter.sourceName), 
+				        parameterBoundAsString(typeParameter, true) },
+				statement.sourceStart,
+				statement.sourceEnd);		    
+			return;		    
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -1966,7 +1993,33 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				messageSend.receiver.sourceStart,
 				messageSend.receiver.sourceEnd);
 			return;
-		
+		case ParameterBoundMismatch :
+			problemMethod = (ProblemMethodBinding) method;
+			ParameterizedGenericMethodBinding substitutedMethod = (ParameterizedGenericMethodBinding) problemMethod.closestMatch;
+			shownMethod = substitutedMethod.original();
+			TypeBinding typeArgument = method.parameters[0];
+			TypeVariableBinding typeParameter = (TypeVariableBinding) method.parameters[1];
+			this.handle(
+				IProblem.GenericMethodTypeArgumentMismatch,
+				new String[] { 
+				        new String(shownMethod.selector),
+				        parametersAsString(shownMethod.parameters, false), 
+				        new String(shownMethod.declaringClass.readableName()), 
+				        parametersAsString(substitutedMethod.parameters, false), 
+				        new String(typeArgument.readableName()), 
+				        new String(typeParameter.sourceName), 
+				        parameterBoundAsString(typeParameter, false) },
+				new String[] { 
+				        new String(shownMethod.selector),
+				        parametersAsString(shownMethod.parameters, true), 
+				        new String(shownMethod.declaringClass.shortReadableName()), 
+				        parametersAsString(substitutedMethod.parameters, true), 
+				        new String(typeArgument.shortReadableName()), 
+				        new String(typeParameter.sourceName), 
+				        parameterBoundAsString(typeParameter, true) },
+				(int) (messageSend.nameSourcePosition >>> 32),
+				(int) messageSend.nameSourcePosition);		    
+			return;		    
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
