@@ -261,13 +261,12 @@ public class JavaModelManager implements ISaveParticipant {
 	 * to recognize the compilation unit.
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project) {
-		if (file == null) {
-			return null;
-		}
+
+		if (file == null) return null;
+
 		if (project == null) {
 			project = JavaCore.create(file.getProject());
 		}
-		
 		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
 		if (pkg == null) {
 			// not on classpath - make the root its folder, and a default package
