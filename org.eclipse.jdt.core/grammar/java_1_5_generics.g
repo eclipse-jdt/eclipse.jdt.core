@@ -1032,7 +1032,7 @@ PrimaryNoNewArray ::=  PushLPAREN Expression_NotName PushRPAREN
 /.$putCase consumePrimaryNoNewArray(); $break ./
 
 PrimaryNoNewArray ::=  PushLPAREN Name PushRPAREN 
-/.$putCase consumePrimaryNoNewArray(); $break ./
+/.$putCase consumePrimaryNoNewArrayWithName(); $break ./
 
 PrimaryNoNewArray ::= ClassInstanceCreationExpression
 PrimaryNoNewArray ::= FieldAccess
