@@ -44,7 +44,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope) {
+	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType) {
 	    
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 	    
@@ -58,10 +58,21 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		} 
 	    this.didResolve = true;
 		ReferenceBinding currentType = null;
-		this.resolvedType = scope.getType(token);
-		if (!(this.resolvedType.isValidBinding())) {
-			reportInvalidType(scope);
-			return null;
+		if (enclosingType == null) {
+			this.resolvedType = scope.getType(token);
+			if (!(this.resolvedType.isValidBinding())) {
+				reportInvalidType(scope);
+				return null;
+			}
+		} else { // resolving member type (relatively to enclosingType)
+			this.resolvedType = scope.getMemberType(token, (ReferenceBinding)enclosingType.erasure());		    
+			if (!this.resolvedType.isValidBinding()) {
+				scope.problemReporter().invalidEnclosingType(this, this.resolvedType, enclosingType);
+				return null;
+			}
+			if (isTypeUseDeprecated(this.resolvedType, scope)) {
+				scope.problemReporter().deprecatedType(this.resolvedType, this);
+			}
 		}
 		currentType = (ReferenceBinding) this.resolvedType;
 		if (isClassScope)
@@ -100,7 +111,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		    }
 		}
 		if (argHasError) return null;
-		currentType = scope.createParameterizedType(currentType, argTypes, null);
+		currentType = scope.createParameterizedType(currentType, argTypes, enclosingType);
 		this.resolvedType = currentType;
 		if (isTypeUseDeprecated(this.resolvedType, scope)) {
 			reportDeprecatedType(scope);
@@ -135,10 +146,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
-	    return internalResolveType(scope);
+	    return internalResolveType(scope, null);
 	}	
 
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope);
+	    return internalResolveType(scope, null);
+	}	
+	
+	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
+	    return internalResolveType(scope, enclosingType);
 	}	
 }
