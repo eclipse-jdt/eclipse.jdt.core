@@ -981,4 +981,9 @@ public interface IProblem {
 	 * Corrupted binaries
 	 */
 	int CorruptedSignature = Internal + 700;
+	
+	/**
+	 * Var args
+	 */
+	int IllegalExtendedDimensionsForVarArgs = Syntax + Internal + 800;
 }

@@ -3205,7 +3205,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	this.identifierLengthPtr--;
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
-	TypeReference type = getTypeReference(this.intStack[this.intPtr--] + this.intStack[this.intPtr--]);
+	int extendedDimensions = this.intStack[this.intPtr--];
+	int firstDimensions = this.intStack[this.intPtr--];
+	final int typeDimensions = firstDimensions + extendedDimensions;
+	TypeReference type = getTypeReference(typeDimensions);
+	if (isVarArgs) {
+		type = type.copyDims(typeDimensions + 1);
+	}
 	int modifierPositions = this.intStack[this.intPtr--];
 	this.intPtr--;
 	Argument arg = 
@@ -3232,6 +3238,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		indicating that some arguments are available on the stack */
 	this.listLength++; 	
 	
+	if (isVarArgs && extendedDimensions > 0) {
+		this.problemReporter().illegalExtendedDimensions(arg);
+	}
 	if(isVarArgs &&
 			options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {

@@ -1232,6 +1232,14 @@ public void illegalExtendedDimensions(AnnotationTypeMemberDeclaration annotation
 		annotationTypeMemberDeclaration.sourceStart,
 		annotationTypeMemberDeclaration.sourceEnd);
 }
+public void illegalExtendedDimensions(Argument argument) {
+	this.handle(
+		IProblem.IllegalExtendedDimensionsForVarArgs,
+		NoArgument, 
+		NoArgument, 
+		argument.type.sourceStart,
+		argument.sourceEnd);
+}
 public void illegalGenericArray(TypeBinding leadtComponentType, ASTNode location) {
 	this.handle(
 		IProblem.IllegalGenericArray,
