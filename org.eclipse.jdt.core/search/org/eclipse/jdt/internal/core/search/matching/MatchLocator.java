@@ -160,6 +160,9 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		public char[] getMainTypeName() {
 			return mainTypeName;
 		}
+		public char[][] getPackageName() {
+			return null;
+		}
 	};
 	
 	// diet parse
@@ -954,6 +957,9 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 			}
 			public char[] getMainTypeName() {
 				return null; // don't need to check if main type name == compilation unit name
+			}
+			public char[][] getPackageName() {
+				return null;
 			}
 		};
 		

@@ -16,12 +16,16 @@ public interface ICompilationUnit extends IDependent {
  * Once during the initial lite parsing step, then again for the
  * more detailed parsing step.
  */
-
 char[] getContents();
 /**
  * Answer the name of the top level public type.
  * For example, {Hashtable}.
  */
-
 char[] getMainTypeName();
+/**
+ * Answer the name of the package according to the directory structure
+ * or null if package consistency checks should be ignored.
+ * For example, {java, lang}.
+ */
+char[][] getPackageName();
 }

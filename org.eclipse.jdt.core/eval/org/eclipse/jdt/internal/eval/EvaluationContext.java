@@ -100,6 +100,9 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 		public char[] getMainTypeName() {
 			return className;
 		}
+		public char[][] getPackageName() {
+			return null;
+		}
 	};
 	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options);
 	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition);
@@ -509,6 +512,9 @@ public void select(
 		}
 		public char[] getMainTypeName() {
 			return className;
+		}
+		public char[][] getPackageName() {
+			return null;
 		}
 	};
 	SelectionEngine engine = new SelectionEngine(environment, mapper.getSelectionRequestor(requestor), options);

@@ -140,8 +140,11 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 		for (int i = 0; i < toDo; i++) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
-				System.out.println("About to compile " + filename);//$NON-NLS-1$
-			toCompile[i] = new SourceFile(filename);
+				System.out.println("About to compile " + filename); //$NON-NLS-1$
+			String typeName = initialTypeNames[i];
+			int lastIndex = typeName.lastIndexOf('/');
+			lastIndex = (lastIndex > 0 ? lastIndex : typeName.length()) - 1;
+			toCompile[i] = new SourceFile(filename, CharOperation.splitOn('/', typeName.toCharArray(), 0, lastIndex));
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
@@ -159,8 +162,11 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 				if (compilingFirstGroup || workQueue.isWaiting(filename)) {
 					if (JavaBuilder.DEBUG)
 						System.out.println("About to compile " + filename);//$NON-NLS-1$
-					toCompile[index] = new SourceFile(filename);
-					initialNamesInLoop[index++] = initialTypeNames[i];
+					String typeName = initialTypeNames[i];
+					initialNamesInLoop[index++] = typeName;
+					int lastIndex = typeName.lastIndexOf('/');
+					lastIndex = (lastIndex > 0 ? lastIndex : typeName.length()) - 1;
+					toCompile[index] = new SourceFile(filename, CharOperation.splitOn('/', typeName.toCharArray(), 0, lastIndex));
 				}
 				i++;
 			}

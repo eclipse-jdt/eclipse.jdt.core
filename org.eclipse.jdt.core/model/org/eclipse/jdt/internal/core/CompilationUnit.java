@@ -371,6 +371,12 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
 	return array;
 }
 /**
+ * @see org.eclipse.jdt.internal.compiler.env.api.ICompilationUnit
+ */
+public char[][] getPackageName() {
+	return null;
+}
+/**
  * Returns the reference information for this compilation unit
  */
 public ReferenceInfo getReferenceInfo() throws JavaModelException {

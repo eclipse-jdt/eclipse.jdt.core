@@ -121,6 +121,9 @@ ClassFile[] getClasses() {
 		public char[] getMainTypeName() {
 			return Evaluator.this.getClassName();
 		}
+		public char[][] getPackageName() {
+			return null;
+		}
 	}});
 	if (compilerRequestor.hasErrors) {
 		return null;

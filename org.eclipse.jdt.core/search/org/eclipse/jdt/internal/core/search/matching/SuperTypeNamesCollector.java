@@ -156,6 +156,9 @@ private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUni
 			public char[] getMainTypeName() {
 				return mainTypeName;
 			}
+			public char[][] getPackageName() {
+				return null;
+			}
 		};
 	
 	// diet parse

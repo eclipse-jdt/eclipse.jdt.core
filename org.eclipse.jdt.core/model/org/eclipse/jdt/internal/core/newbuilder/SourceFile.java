@@ -14,8 +14,9 @@ public class SourceFile implements ICompilationUnit {
 
 public char[] fileName;
 public char[] mainTypeName;
+public char[][] packageName;
 
-public SourceFile(String fileName) {
+public SourceFile(String fileName, char[][] packageName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
@@ -25,6 +26,7 @@ public SourceFile(String fileName) {
 		end = fileName.length();
 
 	this.mainTypeName = fileName.substring(start, end).toCharArray();
+	this.packageName = packageName;
 }
 
 public char[] getContents() {
@@ -68,6 +70,10 @@ public char[] getFileName() {
 
 public char[] getMainTypeName() {
 	return mainTypeName;
+}
+
+public char[][] getPackageName() {
+	return packageName;
 }
 
 public String toString() {

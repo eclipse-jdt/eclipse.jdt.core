@@ -94,6 +94,11 @@ void buildTypeBindings() {
 			problemReporter().packageCollidesWithType(referenceContext);
 			return;
 		}
+		char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
+		if (expectedPackageName != null && !CharOperation.equals(fPackage.compoundName, expectedPackageName)) {
+			problemReporter().packageIsNotExpectedPackage(referenceContext);
+			fPackage = environment.createPackage(expectedPackageName);
+		}
 	}
 
 	// Skip typeDeclarations which know of previously reported errors

@@ -47,7 +47,7 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 			String[] additionalSourceFilenames = nameEnvironment.additionalSourceFilenames;
 			for (int i = 0, l = additionalSourceFilenames.length; i < l; i++)
 				if (fullSourceName.equals(additionalSourceFilenames[i]))
-					return new NameEnvironmentAnswer(new SourceFile(fullSourceName));
+					return new NameEnvironmentAnswer(new SourceFile(fullSourceName, packageName));
 		}
 	}
 

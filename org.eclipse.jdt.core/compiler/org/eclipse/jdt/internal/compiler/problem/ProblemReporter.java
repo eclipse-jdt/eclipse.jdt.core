@@ -1730,6 +1730,13 @@ public void packageCollidesWithType(CompilationUnitDeclaration compUnitDecl) {
 		compUnitDecl.currentPackage.sourceStart,
 		compUnitDecl.currentPackage.sourceEnd);
 }
+public void packageIsNotExpectedPackage(CompilationUnitDeclaration compUnitDecl) {
+	this.handle(
+		PackageIsNotExpectedPackage,
+		new String[0],
+		compUnitDecl.currentPackage.sourceStart,
+		compUnitDecl.currentPackage.sourceEnd);
+}
 private String parametersAsString(MethodBinding method) {
 	TypeBinding[] params = method.parameters;
 	StringBuffer buffer = new StringBuffer();
