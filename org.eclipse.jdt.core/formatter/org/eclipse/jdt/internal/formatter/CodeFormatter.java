@@ -326,9 +326,10 @@ public class CodeFormatter implements TerminalSymbols {
 				if (token == Scanner.TokenNamethrows) {
 					inThrowsClause = true;
 				}
-				if (token == Scanner.TokenNameclass || token == Scanner.TokenNameinterface) {
+				if ((token == Scanner.TokenNameclass || token == Scanner.TokenNameinterface) && previousToken != Scanner.TokenNameDOT) {
 					inClassOrInterfaceHeader = true;
 				}
+
 				/* ## APPEND newlines and indentations to the output string
 				*/
 				// Do not add a new line between ELSE and IF, if the option elseIfOnSameLine is true.
