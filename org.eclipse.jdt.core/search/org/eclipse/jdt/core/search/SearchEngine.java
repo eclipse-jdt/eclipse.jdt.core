@@ -220,8 +220,13 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
  */
 public static ISearchPattern createSearchPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
-
-	return SearchPattern.createPattern(stringPattern, searchFor, limitTo, IJavaSearchConstants.PATTERN_MATCH, isCaseSensitive);
+	int matchMode;
+	if (stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1) {
+		matchMode = IJavaSearchConstants.PATTERN_MATCH;
+	} else {
+		matchMode = IJavaSearchConstants.EXACT_MATCH;
+	}
+	return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive);
 }
 /**
  * Returns a search pattern based on a given Java element. 

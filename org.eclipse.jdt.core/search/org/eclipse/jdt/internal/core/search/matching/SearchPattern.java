@@ -1213,6 +1213,7 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
  * Returns whether the given name matches the given pattern.
  */
 protected boolean matchesName(char[] pattern, char[] name) {
+	if (pattern == null) return true; // null is as if it was "*"
 	if (name != null){
 		switch (this.matchMode) {
 			case EXACT_MATCH :
