@@ -9576,7 +9576,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
-	 *
+	 */
 	public void test0385() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0385", "A.java");
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -9585,7 +9585,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("errors found", 1, compilationUnit.getMessages().length);
-	}*/
+	}
 	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);

@@ -559,7 +559,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Internal API used to resolve a compilation unit minimally for code assist engine
 	 */
-	public CompilationUnitDeclaration resolve(ICompilationUnit sourceUnit) {
+	public CompilationUnitDeclaration resolve(ICompilationUnit sourceUnit, boolean verifyMethods) {
 		CompilationUnitDeclaration unit = null;
 		try {
 			// build and record parsed units
@@ -571,6 +571,11 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
+				if (unit.scope != null && verifyMethods) {
+					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
+ 					// verify inherited methods
+					unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
+				}
 				// type checking
 				unit.resolve();
 			}
@@ -595,5 +600,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// environment.
 			// this.reset();
 		}
+	}
+
+	/**
+	 * Internal API used to resolve a compilation unit minimally for code assist engine
+	 */
+	public CompilationUnitDeclaration resolve(ICompilationUnit sourceUnit) {
+		return resolve(sourceUnit, false);
 	}
 }
