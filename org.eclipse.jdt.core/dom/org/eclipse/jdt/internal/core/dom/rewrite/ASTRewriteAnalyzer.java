@@ -1137,7 +1137,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			doTextInsert(endPos, " ", getEditGroup(children[children.length - 1])); //$NON-NLS-1$
 		} else if (isAllRemove) {
 			try {
-				int nextPos= getScanner().getNextStartOffset(endPos, true); // to the next token
+				int nextPos= getScanner().getNextStartOffset(endPos, false); // to the next token
 				doTextRemove(endPos, nextPos - endPos, getEditGroup(children[children.length - 1]));
 				return nextPos;
 			} catch (CoreException e) {

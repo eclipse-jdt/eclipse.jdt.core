@@ -572,7 +572,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public float E() {}\n");
 		buf.append("    float E(int i) {}\n");
 		buf.append("    /** javadoc comment */\n");
-		buf.append("    /* comment */ float E(int i, int j) {}\n");
+		buf.append("    float /* comment */ E(int i, int j) {}\n");
 		buf.append("    public gee1() {}\n");
 		buf.append("    gee2() {}\n");
 		buf.append("    /** javadoc comment */\n");
