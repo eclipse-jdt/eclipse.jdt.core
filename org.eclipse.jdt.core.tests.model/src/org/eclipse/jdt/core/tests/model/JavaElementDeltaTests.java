@@ -139,7 +139,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testRenameMethodAndSave"));
 	suite.addTest(new JavaElementDeltaTests("testSaveWorkingCopy"));
 	suite.addTest(new JavaElementDeltaTests("testWorkingCopyCommit"));
-	suite.addTest(new JavaElementDeltaTests("testAddCommentAndCommit"));
+//	suite.addTest(new JavaElementDeltaTests("testAddCommentAndCommit"));
 	
 	// managed working copies
 	suite.addTest(new JavaElementDeltaTests("testCreateWorkingCopy"));
@@ -158,7 +158,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testNonJavaResourceRemoveAndAdd"));
 	
 	// listeners
-	suite.addTest(new JavaElementDeltaTests("testListenerAutoBuild"));
+//	suite.addTest(new JavaElementDeltaTests("testListenerAutoBuild"));
 	suite.addTest(new JavaElementDeltaTests("testListenerReconcile"));
 	suite.addTest(new JavaElementDeltaTests("testListenerPostChange"));
 	
@@ -198,7 +198,7 @@ public JavaElementDeltaTests(String name) {
  * delta with the kind set for PRE_AUTO_BUILD listeners.
  * (regression test for bug 32937 Kind not set for empty fine-grained delta)
  */
-public void testAddCommentAndCommit() throws CoreException {
+public void _testAddCommentAndCommit() throws CoreException { // TODO (jerome) revisit since no more deltas for PRE_AUTO_BUILD
 	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
 	ICompilationUnit copy = null;
 	try {
@@ -958,7 +958,7 @@ public void testDestroyWorkingCopy() throws CoreException {
  * Ensures that a delta listener that asks for PRE_AUTO_BUILD events gets those events 
  * and no others.
  */
-public void testListenerAutoBuild() throws CoreException {
+public void _testListenerAutoBuild() throws CoreException {  // TODO (jerome) revisit since no more deltas for PRE_AUTO_BUILD
 	DeltaListener listener = new DeltaListener(ElementChangedEvent.PRE_AUTO_BUILD);
 	ICompilationUnit wc = null;
 	try {

@@ -35,14 +35,14 @@ public class TestPessimisticProvider extends RepositoryProvider implements IFile
 		soleInstance = this;
 	}
 	
-	public void configureProject() throws CoreException {
+	public void configureProject() {
 	}
 
 	public String getID() {
 		return NATURE_ID;
 	}
 
-	public void deconfigure() throws CoreException {
+	public void deconfigure() {
 	}
 	
 	/*
@@ -57,7 +57,7 @@ public class TestPessimisticProvider extends RepositoryProvider implements IFile
 			try {
 				ResourcesPlugin.getWorkspace().run(
 					new IWorkspaceRunnable() {
-						public void run(IProgressMonitor monitor)	throws CoreException {
+						public void run(IProgressMonitor monitor)	{
 							for (int i = 0, length = files.length; i < length; i++) {
 								files[i].setReadOnly(false);
 							}

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.internal.resources.TestingSupport;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -54,6 +55,11 @@ public ClasspathTests(String name) {
 	super(name);
 }
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
+	try { // wait for autobuild notification to occur
+		Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+	} catch (OperationCanceledException e) {
+	} catch (InterruptedException e) {
+	}
 	StringBuffer expected = new StringBuffer("{");
 	int expectedCount = 0;
 	StringBuffer computed = new StringBuffer("{");			
@@ -77,6 +83,11 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 	assertEquals("Invalid cycle detection after setting classpath for: "+project.getElementName(), expected.toString(), computed.toString());
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
+	try { // wait for autobuild notification to occur
+		Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+	} catch (OperationCanceledException e) {
+	} catch (InterruptedException e) {
+	}
 	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	this.sortMarkers(markers);
 	StringBuffer buffer = new StringBuffer();
@@ -104,7 +115,7 @@ protected File createFile(File parent, String name, String content) throws IOExc
 	file.setLastModified(System.currentTimeMillis() + 2000);
 	return file;
 }
-protected File createFolder(File parent, String name) throws IOException {
+protected File createFolder(File parent, String name) {
 	File file = new File(parent, name);
 	file.mkdirs();
 	return file;
@@ -137,8 +148,6 @@ public static Test suite() {
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
 		suite.addTest(new ClasspathTests("testInvalidClasspath1"));
-		suite.addTest(new ClasspathTests("testInvalidClasspath2"));
-		suite.addTest(new ClasspathTests("testMissingClasspath"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -232,7 +241,7 @@ public void testClasspathCorruption() throws CoreException {
 		perProjectInfo.outputLocation = null;
 
 		// shouldn't fail 
-		p1.getExpandedClasspath(true, true);
+		p1.getExpandedClasspath(true, true, null, null);
 
 		// if could reach that far, then all is fine
 		
@@ -262,7 +271,7 @@ public void testClasspathFileRead() throws CoreException {
 		final IJavaProject jproj = JavaCore.create(proj);
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.run(new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor)	throws CoreException {
+				public void run(IProgressMonitor monitor)	{
 
 					IClasspathEntry[] entries = jproj.readRawClasspath(); // force to read classpath
 					IClasspathEntry entry = entries[0];
@@ -1631,7 +1640,7 @@ public void testInvalidClasspath1() throws CoreException {
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
-			"    <classpathentry kind=\"src\" path=\"src\"/\n" + // missing >
+			"    <classpathentry kind=\"src\" path=\"src\"/\n" + // missing closing >
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
@@ -1659,7 +1668,7 @@ public void testInvalidClasspath2() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-		"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
+			"Illegal entry in '.classpath' of project P file: Unknown kind: 'src1'",
 			javaProject);
 			
 		// Verify that error marker is not removed after build
@@ -2284,7 +2293,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Invalid build path in '.classpath' file of project P: Build path contains duplicate entry: 'src' for project P",
+			"Build path contains duplicate entry: 'src' for project P",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -2420,6 +2429,7 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 
 /*
  * test for bug 32690
+ * simulate checkout of project with invalid classpath
  */
 public void testNestedSourceFolders() throws CoreException {
 	try {
@@ -2466,9 +2476,9 @@ public void testNestedSourceFolders() throws CoreException {
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
 		this.assertMarkers(
-		"Unexpected markers",
-		"Cannot nest \'P/src/src2\' inside \'P/src\'. To enable the nesting exclude \'src2/\' from \'P/src\'.",
-		JavaCore.create(project));
+			"Unexpected markers",
+			"Cannot nest 'P/src/src2' inside 'P/src'. To enable the nesting exclude 'src2/' from 'P/src'.",
+			JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
 	}
@@ -2521,10 +2531,10 @@ public void testOutputFolder1() throws CoreException {
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
 		this.assertMarkers(
-		"Unexpected markers",
-		"Project P is missing required source folder: 'src1'.\n" + 
-		"Project P is missing required source folder: 'src2'.",
-		JavaCore.create(project));
+			"Unexpected markers",
+			"Project P is missing required source folder: 'src1'.\n" + 
+			"Project P is missing required source folder: 'src2'.",
+			JavaCore.create(project));
 	} finally {
 		this.deleteProject("P");
 	}

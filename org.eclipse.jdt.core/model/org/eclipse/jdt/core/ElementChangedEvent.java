@@ -61,6 +61,7 @@ public class ElementChangedEvent extends EventObject {
 	 * @see org.eclipse.core.resources.IResourceChangeEvent
 	 * @see #getDelta()
 	 * @since 2.0
+	 * @deprecated - no longer used, such deltas are now notified during POST_CHANGE
 	 */
 	public static final int PRE_AUTO_BUILD = 2;
 
