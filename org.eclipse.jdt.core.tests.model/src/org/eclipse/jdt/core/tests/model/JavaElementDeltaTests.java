@@ -113,6 +113,9 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testRenameProject"));
 	// TO DO: suite.addTest(new JavaElementDeltaTests("testChangeNonJavaProject"));
 	
+	// package fragment roots
+	suite.addTest(new JavaElementDeltaTests("testDeleteInnerJar"));
+	
 	// packages
 	suite.addTest(new JavaElementDeltaTests("testAddPackageSourceIsBin"));
 	suite.addTest(new JavaElementDeltaTests("testRenameOuterPkgFragment"));
@@ -535,6 +538,29 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		if (copy != null) copy.destroy();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that deleting a jar that is in a folder and that is on the classpath reports
+ * a removed  pkg fragment root delta.
+ * (regression test for bug 27068 Elements in the Package Explorer are displayed but don't more exist [package explorer])
+ * 
+ */
+public void testDeleteInnerJar() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, new String[] {"/P/lib/x.jar"}, "bin");
+		this.createFolder("/P/lib");
+		IFile file = this.createFile("/P/lib/x.jar", "");
+		this.startDeltas();
+		file.delete(false, null);
+		assertDeltas(
+			"Unexpected deltas",
+			"P[*]: {CHILDREN}\n" + 
+			"	lib/x.jar[-]: {}"
+		);
+	} finally {
+		this.stopDeltas();
 		this.deleteProject("P");
 	}
 }
