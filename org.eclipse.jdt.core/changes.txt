@@ -9,6 +9,7 @@ What's new in this drop (since 0.9)
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
  * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
 
+
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
 1GHO6QR: ITPJCORE:WINNT - Code Assist - no method completion when return type is secondary one
