@@ -807,6 +807,9 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 									if (scanner.lineEnds[scanner.linePtr] < scanner.startPosition) {
 										// only record line positions we have not recorded yet
 										scanner.pushLineSeparator();
+										if (this.scanner.taskTags != null) {
+											this.scanner.checkTaskTag(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+										}
 									}
 								}
 								break;
@@ -859,6 +862,9 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 										}
 									}
 								}
+								if (this.scanner.taskTags != null) {
+									this.scanner.checkTaskTag(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+								}								
 								break;
 							}
 							break;
@@ -4830,17 +4836,7 @@ public int flushAnnotationsDefinedPriorTo(int position) {
 			}
 		}
 	}
-	// position can be located in the middle of a line break
-	// this is a bug on Windows platform only.
-	// http://dev.eclipse.org/bugs/show_bug.cgi?id=10557
-	char[] source = scanner.source;
-	
-	if ((position < source.length)
-		&& (source[position] == '\r')
-	    && ((position + 1) < source.length)
-	    && (source[position + 1] == '\n')) {
-		position++;
-	}
+
 	if (index < 0) return position; // no obsolete comment
 
 	if (validCount > 0){ // move valid comment infos, overriding obsolete comment infos

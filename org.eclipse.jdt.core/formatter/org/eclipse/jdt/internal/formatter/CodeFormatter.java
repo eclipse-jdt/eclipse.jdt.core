@@ -348,6 +348,22 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 				// exit the loop.
 				try {
 					token = scanner.getNextToken();
+					
+					// Patch for line comment
+					// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=23096
+					if (token == ITerminalSymbols.TokenNameCOMMENT_LINE) {
+						int length = scanner.currentPosition;
+						loop: for (int index = length - 1; index >= 0; index--) {
+							switch(scanner.source[index]) {
+								case '\r' :
+								case '\n' :
+									scanner.currentPosition--;
+									break;
+								default:
+									break loop;
+							}
+						}
+					}
 				} catch (InvalidInputException e) {
 					if (!handleInvalidToken(e)) {
 						throw e;

@@ -763,13 +763,14 @@ public int getNextToken() throws InvalidInputException {
 		diet = false;
 		return currentPosition > source.length ? TokenNameEOF : TokenNameRBRACE;
 	}
+	int whiteStart = 0;
 	try {
 		while (true) { //loop for jumping over comments
 			withoutUnicodePtr = 0;
 			//start with a new token (even comment written with unicode )
 
 			// ---------Consume white space and handles startPosition---------
-			int whiteStart = currentPosition;
+			whiteStart = currentPosition;
 			boolean isWhiteSpace, hasWhiteSpaces = false;
 			int offset = 0;
 			do {
@@ -1080,7 +1081,6 @@ public int getNextToken() throws InvalidInputException {
 					{
 						int test;
 						if ((test = getNextChar('/', '*')) == 0) { //line comment 
-							int endPositionForLineComment = 0;
 							try { //get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
@@ -1141,11 +1141,36 @@ public int getNextToken() throws InvalidInputException {
 											currentPosition++;
 									} //jump over the \\
 								}
-								if (isUnicode) {
-									endPositionForLineComment = currentPosition - 6;
-								} else {
-									endPositionForLineComment = currentPosition - 1;
-								}
+								/*
+								 * We need to completely consume the line break								 */
+								if (currentCharacter == '\r'
+								   && source.length > currentPosition) {
+								   	if (source[currentPosition] == '\n') {
+										currentPosition++;
+										currentCharacter = '\n';
+								   	} else if (((currentCharacter = source[currentPosition]) == '\\')
+										&& (source[currentPosition + 1] == 'u')) {
+										isUnicode = true;											
+										//-------------unicode traitement ------------
+										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+										if ((c1 = Character.getNumericValue(source[currentPosition+2])) > 15
+											|| c1 < 0
+											|| (c2 = Character.getNumericValue(source[currentPosition+3])) > 15
+											|| c2 < 0
+											|| (c3 = Character.getNumericValue(source[currentPosition+4])) > 15
+											|| c3 < 0
+											|| (c4 = Character.getNumericValue(source[currentPosition+5])) > 15
+											|| c4 < 0) {
+											throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+										} else {
+											currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+										}
+										if (currentCharacter == '\n') {
+											currentPosition+=6;
+											currentCharacter = '\n';
+										}
+									}
+							   	}
 								recordComment(false);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
@@ -1161,16 +1186,12 @@ public int getNextToken() throws InvalidInputException {
 									}
 								}
 								if (tokenizeComments) {
-									if (!isUnicode) {
-										currentPosition = endPositionForLineComment; // reset one character behind
-									}
 									return TokenNameCOMMENT_LINE;
 								}
-							} catch (IndexOutOfBoundsException e) { //an eof will them be generated
-									if (tokenizeComments) {
-										currentPosition--; // reset one character behind
-										return TokenNameCOMMENT_LINE;
-									}
+							} catch (IndexOutOfBoundsException e) {
+								/* 
+								 * a line comment needs to be followed by a line break to be valid								 */
+								throw new InvalidInputException(UNTERMINATED_COMMENT);
 							}
 							break;
 						}
@@ -1269,6 +1290,12 @@ public int getNextToken() throws InvalidInputException {
 		}
 	} //-----------------end switch while try--------------------
 	catch (IndexOutOfBoundsException e) {
+		if (tokenizeWhiteSpace && (whiteStart != currentPosition - 1)) {
+			// reposition scanner in case we are interested by spaces as tokens
+			currentPosition--;
+			startPosition = whiteStart;
+			return TokenNameWHITESPACE;
+		}
 	}
 	return TokenNameEOF;
 }
