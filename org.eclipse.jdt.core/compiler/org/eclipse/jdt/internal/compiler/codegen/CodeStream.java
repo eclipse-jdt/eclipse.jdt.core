@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, BaseTypes, TypeConstants, TypeIds {
 
-	// codegen trace - TODO (olivier) need to be completed for macros and optimizations
 	public static final boolean DEBUG = false;
 	
 	// It will be responsible for the following items.
@@ -2134,40 +2133,49 @@ public void getTYPE(int baseTypeID) {
 		resizeByteArray(OPC_getstatic);
 	}
 	switch (baseTypeID) {
-		// getstatic: java.lang.Byte.TYPE			
 		case T_byte :
+			// getstatic: java.lang.Byte.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Byte.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangByteTYPE());
 			break;
-			// getstatic: java.lang.Short.TYPE			
 		case T_short :
+			// getstatic: java.lang.Short.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Short.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangShortTYPE());
 			break;
-			// getstatic: java.lang.Character.TYPE			
 		case T_char :
+			// getstatic: java.lang.Character.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Character.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangCharacterTYPE());
 			break;
-			// getstatic: java.lang.Integer.TYPE			
 		case T_int :
+			// getstatic: java.lang.Integer.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Integer.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangIntegerTYPE());
 			break;
-			// getstatic: java.lang.Long.TYPE			
 		case T_long :
+			// getstatic: java.lang.Long.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Long.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangLongTYPE());
 			break;
-			// getstatic: java.lang.Float.TYPE			
 		case T_float :
+			// getstatic: java.lang.Float.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Float.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangFloatTYPE());
 			break;
-			// getstatic: java.lang.Double.TYPE			
 		case T_double :
+			// getstatic: java.lang.Double.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Double.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangDoubleTYPE());
 			break;
-			// getstatic: java.lang.Boolean.TYPE			
 		case T_boolean :
+			// getstatic: java.lang.Boolean.TYPE			
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Boolean.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangBooleanTYPE());
 			break;
-			// getstatic: java.lang.Void.TYPE
 		case T_void :
+			// getstatic: java.lang.Void.TYPE
+			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Void.TYPE"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangVoidTYPE());
 			break;
 	}
@@ -3001,6 +3009,7 @@ final public void instance_of(TypeBinding typeBinding) {
 }
 public void invokeClassForName() {
 	// invokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;
+	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3013,6 +3022,7 @@ public void invokeClassForName() {
 
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.desiredAssertionStatus()Z;"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3026,6 +3036,7 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 
 public void invokeJavaLangClassGetComponentType() {
 	// invokevirtual: java.lang.Class.getComponentType()java.lang.Class;
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.getComponentType()java.lang.Class;"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3038,6 +3049,7 @@ public void invokeJavaLangClassGetComponentType() {
 
 final public void invokeinterface(MethodBinding methodBinding) {
 	// initialized to 1 to take into account this  immediately
+	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: " + methodBinding); //$NON-NLS-1$
 	countLabels = 0;
 	int argCount = 1;
 	int id;
@@ -3074,6 +3086,7 @@ final public void invokeinterface(MethodBinding methodBinding) {
 }
 public void invokeJavaLangErrorConstructor() {
 	// invokespecial: java.lang.Error<init>(Ljava.lang.String;)V
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.Error<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3086,6 +3099,7 @@ public void invokeJavaLangErrorConstructor() {
 }
 public void invokeNoClassDefFoundErrorStringConstructor() {
 	// invokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3098,6 +3112,7 @@ public void invokeNoClassDefFoundErrorStringConstructor() {
 }
 public void invokeObjectGetClass() {
 	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Object.getClass()Ljava.lang.Class;"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3194,6 +3209,7 @@ final public void invokestatic(MethodBinding methodBinding) {
  * @param typeID <CODE>int</CODE>
  */
 public void invokeStringBufferAppendForType(int typeID) {
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
 	countLabels = 0;
 	int usedTypeID;
 	if (typeID == T_null)
@@ -3216,6 +3232,7 @@ public void invokeStringBufferAppendForType(int typeID) {
 
 public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 	// invokespecial: java.lang.AssertionError.<init>(typeBindingID)V
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.AssertionError.<init>(typeBindingID)V"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3229,6 +3246,7 @@ public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 
 public void invokeJavaLangAssertionErrorDefaultConstructor() {
 	// invokespecial: java.lang.AssertionError.<init>()V
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.AssertionError.<init>()V"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3242,6 +3260,7 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 
 public void invokeStringBufferDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3254,6 +3273,7 @@ public void invokeStringBufferDefaultConstructor() {
 }
 public void invokeStringBufferStringConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>(Ljava.lang.String;)V
+	if (DEBUG) System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3267,6 +3287,7 @@ public void invokeStringBufferStringConstructor() {
 
 public void invokeStringBufferToString() {
 	// invokevirtual: StringBuffer.toString()Ljava.lang.String;
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3278,6 +3299,7 @@ public void invokeStringBufferToString() {
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.String.intern()"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3289,6 +3311,7 @@ public void invokeStringIntern() {
 }
 public void invokeStringValueOf(int typeID) {
 	// invokestatic: java.lang.String.valueOf(argumentType)
+	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.String.valueOf(...)"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3300,6 +3323,7 @@ public void invokeStringValueOf(int typeID) {
 }
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -4657,6 +4681,7 @@ public void newArray(Scope scope, ArrayBinding arrayBinding) {
 }
 public void newJavaLangError() {
 	// new: java.lang.Error
+	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Error"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -4672,6 +4697,7 @@ public void newJavaLangError() {
 
 public void newJavaLangAssertionError() {
 	// new: java.lang.AssertionError
+	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.AssertionError"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -4685,7 +4711,9 @@ public void newJavaLangAssertionError() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionError());
 }
 
-public void newNoClassDefFoundError() { // new: java.lang.NoClassDefFoundError
+public void newNoClassDefFoundError() {
+	// new: java.lang.NoClassDefFoundError
+	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.NoClassDefFoundError"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -4698,7 +4726,9 @@ public void newNoClassDefFoundError() { // new: java.lang.NoClassDefFoundError
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundError());
 }
-public void newStringBuffer() { // new: java.lang.StringBuffer
+public void newStringBuffer() {
+	// new: java.lang.StringBuffer
+	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -4724,30 +4754,39 @@ public void newWrapperFor(int typeID) {
 	}
 	switch (typeID) {
 		case T_int : // new: java.lang.Integer
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Integer"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangInteger());
 			break;
 		case T_boolean : // new: java.lang.Boolean
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Boolean"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangBoolean());
 			break;
 		case T_byte : // new: java.lang.Byte
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Byte"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangByte());
 			break;
 		case T_char : // new: java.lang.Character
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Character"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangCharacter());
 			break;
 		case T_float : // new: java.lang.Float
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Float"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangFloat());
 			break;
 		case T_double : // new: java.lang.Double
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Double"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangDouble());
 			break;
 		case T_short : // new: java.lang.Short
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Short"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangShort());
 			break;
 		case T_long : // new: java.lang.Long
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Long"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangLong());
 			break;
 		case T_void : // new: java.lang.Void
+			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Void"); //$NON-NLS-1$
 			writeUnsignedShort(constantPool.literalIndexForJavaLangVoid());
 	}
 }
