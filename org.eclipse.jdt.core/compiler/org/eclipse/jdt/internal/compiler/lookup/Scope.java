@@ -432,16 +432,13 @@ public abstract class Scope
 
 		int foundSize = found.size;
 		if (foundSize == 0) {
-			if (matchingMethod == null) {
-				MethodBinding interfaceMethod =
-					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
-				if (interfaceMethod != null) return interfaceMethod;
-			}
-			return matchingMethod; // may be null - have not checked arg types or visibility
+			if (matchingMethod != null)
+				return matchingMethod; // have not checked arg types or visibility
+			return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 		}
+
 		MethodBinding[] candidates = new MethodBinding[foundSize];
 		int candidatesCount = 0;
-
 		// argument type compatibility check
 		for (int i = 0; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
