@@ -167,6 +167,10 @@ public void testContains4() throws CoreException {
 		// bin folder
 		folder = this.getFolder("/P/bin");
 		assertTrue("/P/bin should not be in model", !getJavaModel().contains(folder));
+		
+		file = this.createFile("/P/bin/X.class", "");
+		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
+		
 	} finally {
 		this.deleteProject("P");
 	}
