@@ -7388,6 +7388,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 71080 - parameter bound <T extends Enum<T>> should be allowed
+	// TODO (kent) reenable once fixed
 	public void _test271() {
 		this.runConformTest(
 			new String[] {
@@ -7398,6 +7399,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"");
 	}	
 	// 71080 - variation
+	// TODO (kent) reenable once fixed	
 	public void _test272() {
 		this.runConformTest(
 			new String[] {
@@ -7411,6 +7413,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"");
 	}		
 	// 71080 - variation
+	// TODO (kent) reenable once fixed
 	public void _test273() {
 		this.runConformTest(
 			new String[] {
