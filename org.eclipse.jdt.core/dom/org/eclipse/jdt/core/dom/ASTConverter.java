@@ -26,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcetanation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -877,6 +879,9 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.LongLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.LongLiteral) expression);
 		}
+		if (expression instanceof StringLiteralConcetanation) {
+			return convert((StringLiteralConcetanation) expression);
+		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) expression);
 		}	
@@ -1307,7 +1312,24 @@ class ASTConverter {
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;		
 	}
-	
+
+	public InfixExpression convert(StringLiteralConcetanation expression) {
+		expression.computeConstant();
+		InfixExpression infixExpression = this.ast.newInfixExpression();
+		infixExpression.setOperator(InfixExpression.Operator.PLUS);
+		org.eclipse.jdt.internal.compiler.ast.StringLiteral[] stringLiterals = expression.literals;
+		infixExpression.setLeftOperand(convert(stringLiterals[0]));
+		infixExpression.setRightOperand(convert(stringLiterals[1]));
+		for (int i = 2; i < expression.counter; i++) {
+			infixExpression.extendedOperands().add(convert(stringLiterals[i]));
+		}
+		if (this.resolveBindings) {
+			this.recordNodes(infixExpression, expression);
+		}
+		infixExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return infixExpression;
+	}
+
 	public org.eclipse.jdt.core.dom.NullLiteral convert(org.eclipse.jdt.internal.compiler.ast.NullLiteral expression) {
 		org.eclipse.jdt.core.dom.NullLiteral literal = this.ast.newNullLiteral();
 		if (this.resolveBindings) {
@@ -1507,15 +1529,19 @@ class ASTConverter {
 				infixExpression.setOperator(InfixExpression.Operator.LESS);
 		}
 		
-		if (expression.left instanceof org.eclipse.jdt.internal.compiler.ast.BinaryExpression && ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)) {
+		if (expression.left instanceof org.eclipse.jdt.internal.compiler.ast.BinaryExpression
+				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)) {
 			// create an extended string literal equivalent => use the extended operands list
 			infixExpression.extendedOperands().add(convert(expression.right));
 			org.eclipse.jdt.internal.compiler.ast.Expression leftOperand = expression.left;
 			org.eclipse.jdt.internal.compiler.ast.Expression rightOperand = null;
 			do {
 				rightOperand = ((org.eclipse.jdt.internal.compiler.ast.BinaryExpression) leftOperand).right;
-				if ((((leftOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorMASK) >> org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorSHIFT) != expressionOperatorID && ((leftOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0))
-				 || ((rightOperand instanceof org.eclipse.jdt.internal.compiler.ast.BinaryExpression && ((rightOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorMASK) >> org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorSHIFT) != expressionOperatorID) && ((rightOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0))) {
+				if ((((leftOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorMASK) >> org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorSHIFT) != expressionOperatorID
+							&& ((leftOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0))
+					 || ((rightOperand instanceof org.eclipse.jdt.internal.compiler.ast.BinaryExpression
+				 			&& ((rightOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorMASK) >> org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorSHIFT) != expressionOperatorID)
+							&& ((rightOperand.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0))) {
 				 	List extendedOperands = infixExpression.extendedOperands();
 				 	InfixExpression temp = this.ast.newInfixExpression();
 					if (this.resolveBindings) {
@@ -1563,7 +1589,20 @@ class ASTConverter {
 			int startPosition = leftExpression.getStartPosition();
 			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
 			return infixExpression;
-		}		
+		} else if (expression.left instanceof StringLiteralConcetanation
+				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)) {
+			StringLiteralConcetanation literal = (StringLiteralConcetanation) expression.left;
+			final org.eclipse.jdt.internal.compiler.ast.StringLiteral[] stringLiterals = literal.literals;
+			infixExpression.setLeftOperand(convert(stringLiterals[0]));
+			infixExpression.setRightOperand(convert(stringLiterals[1]));
+			for (int i = 2; i < literal.counter; i++) {
+				infixExpression.extendedOperands().add(convert(stringLiterals[i]));
+			}
+			infixExpression.extendedOperands().add(convert(expression.right));
+			int startPosition = literal.sourceStart;
+			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+			return infixExpression;
+		}
 		Expression leftExpression = convert(expression.left);
 		infixExpression.setLeftOperand(leftExpression);
 		infixExpression.setRightOperand(convert(expression.right));
@@ -1620,7 +1659,7 @@ class ASTConverter {
 		return conditionalExpression;
 	}
 
-	public Expression convert(org.eclipse.jdt.internal.compiler.ast.MessageSend expression) {
+	public Expression convert(MessageSend expression) {
 		// will return a MethodInvocation or a SuperMethodInvocation or
 		Expression expr;
 		int sourceStart = expression.sourceStart;
@@ -1687,7 +1726,12 @@ class ASTConverter {
 					methodInvocation.arguments().add(expri);
 				}
 			}
-			Expression qualifier = convert(expression.receiver);
+			Expression qualifier = null;
+			if (expression.receiver instanceof MessageSend) {
+				qualifier = convert((MessageSend) expression.receiver);
+			} else {
+				qualifier = convert(expression.receiver);
+			}
 			if (qualifier instanceof Name && this.resolveBindings) {
 				recordNodes(qualifier, expression.receiver);
 			}

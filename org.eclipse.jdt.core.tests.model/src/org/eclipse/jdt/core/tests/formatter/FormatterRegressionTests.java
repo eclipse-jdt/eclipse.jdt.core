@@ -55,7 +55,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test495"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test497"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -112,14 +112,17 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	private String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
-		//long time = System.currentTimeMillis();
+//		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
+//		System.out.println((System.currentTimeMillis() - time) + " ms");
 		if (edit == null) return null;
+//		System.out.println(edit.getChildrenSize() + " edits");
 		String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
 		if (length == source.length()) {
-			//time = System.currentTimeMillis();
+//			time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
+//			System.out.println((System.currentTimeMillis() - time) + " ms");
 			if (edit == null) return null;
 //			assertEquals("Should not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
@@ -6431,5 +6434,17 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test496", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61599
+	 */
+	public void test497() {
+		String resourcePath = getResource("test497", "formatter.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "gnu");
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test497", "ClockCmd.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

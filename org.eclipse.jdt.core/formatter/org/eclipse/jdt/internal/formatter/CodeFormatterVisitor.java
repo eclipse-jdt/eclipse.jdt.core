@@ -64,6 +64,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcetanation;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
@@ -3429,7 +3430,53 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		return false;
 	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.NullLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(StringLiteralConcetanation stringLiteral, BlockScope scope) {
+		final int numberOfParens = (stringLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
+		}
+
+		this.scribe.printComment();
+		ASTNode[] fragments = stringLiteral.literals;
+		int fragmentsSize = stringLiteral.counter;
+		Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.alignment_for_binary_expression, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		this.scribe.enterAlignment(binaryExpressionAlignment);
+		boolean ok = false;
+		do {
+			try {
+				for (int i = 0; i < fragmentsSize - 1; i++) {
+					ASTNode fragment = fragments[i];
+					fragment.traverse(this, scope);
+					this.scribe.printTrailingComment();
+					if (this.scribe.lastNumberOfNewLines == 1) {
+						// a new line has been inserted by printTrailingComment()
+						this.scribe.indentationLevel = binaryExpressionAlignment.breakIndentationLevel;
+					}
+					this.scribe.alignFragment(binaryExpressionAlignment, i);
+					this.scribe.printNextToken(TerminalTokens.TokenNamePLUS, this.preferences.insert_space_before_binary_operator);
+					if (this.preferences.insert_space_after_binary_operator) {
+						this.scribe.space();
+					}
+				}
+				fragments[fragmentsSize - 1].traverse(this, scope);
+				this.scribe.printTrailingComment();
+				ok = true;
+			} catch(AlignmentException e){
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);		
+		this.scribe.exitAlignment(binaryExpressionAlignment, true);
 	
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(stringLiteral, numberOfParens);
+		}
+		return false;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.NullLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */

@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcetanation;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
@@ -325,6 +326,13 @@ class BinaryExpressionFragmentBuilder
 		return false;
 	}
 
+	public boolean visit(StringLiteralConcetanation stringLiteral, BlockScope scope) {
+		for (int i = 0, max = stringLiteral.counter; i < max; i++) {
+			this.addRealFragment(stringLiteral.literals[i]);
+		}
+		return false;
+	}
+	
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
 		this.addRealFragment(nullLiteral);
 		return false;

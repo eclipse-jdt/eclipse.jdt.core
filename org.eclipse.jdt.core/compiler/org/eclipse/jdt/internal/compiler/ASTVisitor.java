@@ -207,6 +207,9 @@ public abstract class ASTVisitor {
 	public void endVisit(MethodDeclaration methodDeclaration, ClassScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(StringLiteralConcetanation literal, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(NullLiteral nullLiteral, BlockScope scope) {
 		// do nothing by default
 	}
@@ -498,6 +501,11 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+			StringLiteralConcetanation literal,
+			BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {

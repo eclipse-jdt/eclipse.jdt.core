@@ -49,6 +49,12 @@ public class StringLiteral extends Literal {
 	}
 
 	/**
+	 *  Add the lit source to mine, just as if it was mine
+	 */
+	public StringLiteralConcetanation extendsWith(StringLiteral lit) {
+		return new StringLiteralConcetanation(this, lit);
+	}
+	/**
 	 * Code generation for string literal
 	 */ 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
