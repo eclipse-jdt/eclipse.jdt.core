@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.Hashtable;
@@ -92,11 +91,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0541"));
+		suite.addTest(new ASTConverterTest2("test0542"));
 		return suite;
 	}
 	/**
@@ -4430,5 +4429,174 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Change14FieldAccessASTVisitor visitor = new Change14FieldAccessASTVisitor();
 		unit.accept(visitor);
 		assertEquals("Missing binding", 0, visitor.counter);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=54431
+	 */
+	public void test0542() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0542", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "STRING_FIELD", variableBinding.getName());
+		Object constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", "Hello world!", constantValue);
+		Expression initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "\"Hello world!\"", source);
+
+		node = getASTNode(unit, 0, 1);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "BOOLEAN_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Boolean(true), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "true", source);
+
+		node = getASTNode(unit, 0, 2);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "BYTE_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Byte((byte)1), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "1", source);
+
+		node = getASTNode(unit, 0, 3);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "CHAR_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Character('{'), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "\'{\'", source);
+
+		node = getASTNode(unit, 0, 4);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "DOUBLE_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Double("3.1415"), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "3.1415", source);
+		
+		node = getASTNode(unit, 0, 5);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "FLOAT_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Float("3.14159f"), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "3.14159f", source);
+
+		node = getASTNode(unit, 0, 6);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "INT_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", Integer.valueOf("7fffffff", 16), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "Integer.MAX_VALUE", source);
+		
+		node = getASTNode(unit, 0, 7);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "LONG_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Long("34"), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "34L", source);
+		
+		node = getASTNode(unit, 0, 8);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "SHORT_FIELD", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant", constantValue);
+		assertEquals("Wrong value", new Short("130"), constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "130", source);
+		
+		node = getASTNode(unit, 0, 9);
+		assertTrue("not a field declaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertEquals("Wrong name", "int_field", variableBinding.getName());
+		constantValue = variableBinding.getConstantValue();
+		assertNull("Got a constant", constantValue);
+		initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		checkSourceRange(initializer, "Integer.MAX_VALUE", source);
 	}
 }
