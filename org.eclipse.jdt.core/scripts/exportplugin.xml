@@ -1,53 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from org.eclipse.jdt.core -->
-<project name="org.eclipse.jdt.core" default="export" basedir="..">
-	<target name="init">
-		<tstamp/>
-		<property name="destdir" value="../../plugin-export" />
-		<property name="dest"  value="${destdir}/org.eclipse.jdt.core" />
-	</target>
+<project name="org.eclipse.jdt.core" default="export plug-in_1.9.0 (post 20020430)" basedir="..">
 
-	<target name="export" depends="init">
+<target name="zz_init">
+	<tstamp/>
+	<property name="export-dir" value="../../plugin-export" />
+</target>
 
-		<echo message="TARGET: ${destdir}" />
-		<mkdir dir="${destdir}" />
-		<delete dir="${dest}" />
-		<mkdir dir="${dest}" />
+<target name="export plug-in_1.9.0   (post 20020430)" depends="zz_init">
+	<antcall target="zz_internal_export">
+	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_1.9.0"/>
+	</antcall>
+</target>
 
-		<echo message="UPDATE jdtcore.jar" />
-		<jar 
-			jarfile="${dest}/jdtcore.jar"
-			basedir="bin" />
+<target name="old export plug-in        (pre 20020430)" depends="zz_init">
+	<antcall target="zz_internal_export">
+	<param name="dest" value="${export-dir}/org.eclipse.jdt.core"/>
+	</antcall>
+</target>
+
+<target name="zz_internal_export">
+
+	<tstamp/>
+
+	<echo message="TARGET: ${export-dir}" />
+	<mkdir dir="${export-dir}" />
+	<delete dir="${dest}" />
+	<mkdir dir="${dest}" />
+
+	<echo message="UPDATE jdtcore.jar" />
+	<jar 
+		jarfile="${dest}/jdtcore.jar"
+		basedir="bin" />
 		
-		<echo message="UPDATE plugin.xml" />
-		<copy file="plugin.xml" todir="${dest}" />
+	<echo message="UPDATE plugin.xml" />
+	<copy file="plugin.xml" todir="${dest}" />
+	<echo message="UPDATE plugin.properties" />
+	<copy file="plugin.properties" todir="${dest}" />
 
-		<echo message="UPDATE plugin.properties" />
-		<copy file="plugin.properties" todir="${dest}" />
-
-		<echo message="UPDATE notice.html" />
-		<copy file="notice.html" todir="${dest}" />
+	<echo message="UPDATE notice.html" />
+	<copy file="notice.html" todir="${dest}" />
 		
-		<echo message="UPDATE .options" />
-		<copy file=".options" todir="${dest}" />
+	<echo message="UPDATE .options" />
+	<copy file=".options" todir="${dest}" />
 
-		<echo message="UPDATE about.html" />
-		<copy file="about.html" todir="${dest}" />
+	<echo message="UPDATE about.html" />
+	<copy file="about.html" todir="${dest}" />
 
-		<echo message="UPDATE jdtCompilerAdapter.jar" />
-		<copy file="jdtCompilerAdapter.jar" todir="${dest}" />
+	<echo message="UPDATE jdtCompilerAdapter.jar" />
+	<copy file="jdtCompilerAdapter.jar" todir="${dest}" />
+	<echo message="UPDATE jdtcoresrc.zip" />
+	<zip zipfile="${dest}/jdtcoresrc.zip">
+	    <zipfileset dir="batch" />
+	    <zipfileset dir="codeassist" />
+	    <zipfileset dir="compiler" />
+	    <zipfileset dir="search" />
+	    <zipfileset dir="eval" />
+	    <zipfileset dir="model" />
+	    <zipfileset dir="formatter" />
+	    <zipfileset dir="dom" />
+	</zip>		
+</target>
 
-		<echo message="UPDATE jdtcoresrc.zip" />
-		<zip zipfile="${dest}/jdtcoresrc.zip">
-		    <zipfileset dir="batch" />
-		    <zipfileset dir="codeassist" />
-		    <zipfileset dir="compiler" />
-		    <zipfileset dir="search" />
-		    <zipfileset dir="eval" />
-		    <zipfileset dir="model" />
-		    <zipfileset dir="formatter" />
-		    <zipfileset dir="dom" />
-  		</zip>		
-	</target>
 </project>
