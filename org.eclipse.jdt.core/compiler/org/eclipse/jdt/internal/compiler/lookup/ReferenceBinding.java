@@ -326,14 +326,12 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 		current = current.enclosingType();
 	return current;
 }
-
 public int fieldCount() {
 	return fields().length;
 }
 public FieldBinding[] fields() {
 	return NoFields;
 }
-
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
@@ -380,7 +378,6 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 			return typeVariables[i];
 	return null;
 }
-
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
@@ -495,7 +492,6 @@ public final boolean isMemberType() {
 public final boolean isNestedType() {
 	return (tagBits & IsNestedType) != 0;
 }
-
 /* Answer true if the receiver has private visibility
 */
 
@@ -545,16 +541,15 @@ public boolean isSuperclassOf(ReferenceBinding type) {
 
 	return false;
 }
-
 /**
  * Returns true if the type was declared as a type variable
  */
 public boolean isTypeVariable() {
     return false;
 }
-
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
+
 public final boolean isViewedAsDeprecated() {
 	return (modifiers & AccDeprecated) != 0 ||
 		(modifiers & AccDeprecatedImplicitly) != 0;
@@ -621,11 +616,9 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
-
 public TypeVariableBinding[] typeVariables() {
 	return NoTypeVariables;
 }
-
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
 }

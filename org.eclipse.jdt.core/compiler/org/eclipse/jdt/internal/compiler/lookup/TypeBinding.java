@@ -53,21 +53,17 @@ String debugName() {
 public int dimensions(){
 	return 0;
 }
-
 public char[] genericTypeSignature() {
     return signature();
 }
-
 public abstract PackageBinding getPackage();
 /* Answer true if the receiver is an array
 */
-
 public final boolean isArrayType() {
 	return (tagBits & IsArrayType) != 0;
 }
 /* Answer true if the receiver is a base type
 */
-
 public final boolean isBaseType() {
 	return (tagBits & IsBaseType) != 0;
 }
@@ -76,15 +72,12 @@ public boolean isClass() {
 }
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-	
 public abstract boolean isCompatibleWith(TypeBinding right);
-/* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
-*/
-
 public final boolean isGeneric() {
 	return (tagBits & IsGenericType) != 0;
 }
-
+/* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
+*/
 public final boolean isHierarchyInconsistent() {
 	return (tagBits & HierarchyHasProblems) != 0;
 }
@@ -105,11 +98,9 @@ public final boolean isNumericType() {
 			return false;
 	}
 }
-
 public final boolean isParameterizedType() {
     return (tagBits  & IsParameterizedType) != 0;
 }
-
 public TypeBinding leafComponentType(){
 	return this;
 }

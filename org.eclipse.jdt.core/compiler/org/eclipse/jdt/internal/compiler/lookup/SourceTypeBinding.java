@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class SourceTypeBinding extends ReferenceBinding {
-    
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;
 	public FieldBinding[] fields;
@@ -46,7 +45,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	Hashtable[] synthetics;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
-    
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
 	this.fileName = scope.referenceCompilationUnit().getFileName();
@@ -412,7 +410,6 @@ public char[] genericSignature() {
 	    }
 		return sig.toString().toCharArray();
 }
-
 public MethodBinding[] getDefaultAbstractMethods() {
 	int count = 0;
 	for (int i = methods.length; --i >= 0;)
@@ -790,9 +787,10 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		if (fieldDecls[f].binding != field)
 			continue;
 
-		field.type = fieldDecls[f].getTypeBinding(field.isStatic() 
-						        ? scope.referenceContext.staticInitializerScope 
-						         : scope.referenceContext.initializerScope);
+		field.type = fieldDecls[f].getTypeBinding(
+			field.isStatic() 
+				? scope.referenceContext.staticInitializerScope 
+				: scope.referenceContext.initializerScope);
 		field.modifiers ^= AccUnresolved;
 		if (!field.type.isValidBinding()) {
 			scope.problemReporter().fieldTypeProblem(this, fieldDecls[f], field.type);
@@ -1057,7 +1055,6 @@ public String toString() {
 public TypeVariableBinding[] typeVariables() {
 	return this.typeVariables;
 }
-
 void verifyMethods(MethodVerifier verifier) {
 	verifier.verify(this);
 
