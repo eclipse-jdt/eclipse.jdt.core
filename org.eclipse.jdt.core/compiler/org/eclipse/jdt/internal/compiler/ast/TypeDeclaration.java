@@ -208,7 +208,7 @@ public class TypeDeclaration
 								staticFieldInfo);
 						// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 						// branch, since the previous initializer already got the blame.
-						if (staticFieldInfo == FlowInfo.DEAD_END) { // TODO: could move behavior onto flowInfo
+						if (staticFieldInfo == FlowInfo.DEAD_END) {
 							staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
 							staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 						}

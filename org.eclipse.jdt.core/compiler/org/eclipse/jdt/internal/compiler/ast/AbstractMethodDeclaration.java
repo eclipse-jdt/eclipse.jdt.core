@@ -111,7 +111,7 @@ public abstract class AbstractMethodDeclaration
 			if ((returnType == VoidBinding) || isAbstract()) {
 				this.needFreeReturn = flowInfo.isReachable();
 			} else {
-				if (flowInfo != FlowInfo.DEAD_END) {  // TODO: should rather simply be isReachable?
+				if (flowInfo != FlowInfo.DEAD_END) { 
 					// special test for empty methods that should return something
 					if ((statements == null) && (returnType != VoidBinding)) {
 						scope.problemReporter().shouldReturn(returnType, this);
