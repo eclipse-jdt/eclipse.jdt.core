@@ -869,6 +869,32 @@ public void testClasspathValidation13() throws CoreException {
 	}
 }
 /**
+ * Should allow a nested output folder in a source folder that coincidate with the project.
+ */ 
+public void testClasspathValidation14() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = 
+			JavaCore.newSourceEntry(
+				new Path("/P"), 
+				new IPath[] {}, 
+				new Path("/P/bin"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should allow nested output folder in source folder which is project", 
+			"OK",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
  * Setting the classpath with two entries specifying the same path
  * should fail.
  */
