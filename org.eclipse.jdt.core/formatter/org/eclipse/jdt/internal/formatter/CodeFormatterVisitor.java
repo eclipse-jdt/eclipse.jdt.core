@@ -107,9 +107,6 @@ import org.eclipse.text.edits.TextEdit;
  * This class is responsible for formatting a valid java source code.
  * @since 2.1
  */
-// TODO add line splitting for all remaining expression and statements
-// TODO find a way to handle complex boolean expression
-// TODO Add the ICodeFormatter extension point once the UI has fixed their code
 /*
    <extension
          id="org.eclipse.jdt.core.newformatter.codeformatter"
