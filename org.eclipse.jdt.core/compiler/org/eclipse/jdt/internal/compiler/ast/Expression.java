@@ -253,7 +253,7 @@ public abstract class Expression extends Statement {
 			return false;
 		} else if (use15specifics 
 							&& expressionType.isBaseType() 
-							&& env.computeBoxingType(castType) == expressionType) { // boxing - only exact match is allowed
+							&& env.computeBoxingType(expressionType).isCompatibleWith(castType)) { // boxing - only widening match is allowed
 			tagAsUnnecessaryCast(scope, castType);  
 			return true;
 		}

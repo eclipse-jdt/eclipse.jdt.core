@@ -462,8 +462,10 @@ public class EqualExpression extends BinaryExpression {
 	
 		// Object references 
 		// spec 15.20.3
-		if (this.checkCastTypesCompatibility(scope, leftType, rightType, null) 
-				|| this.checkCastTypesCompatibility(scope, rightType, leftType, null)) {
+		if ((!leftType.isBaseType() || leftType == NullBinding) // cannot compare: Object == (int)0
+				&& (!rightType.isBaseType() || rightType == NullBinding)
+				&& (this.checkCastTypesCompatibility(scope, leftType, rightType, null) 
+						|| this.checkCastTypesCompatibility(scope, rightType, leftType, null))) {
 
 			// (special case for String)
 			if ((rightType.id == T_JavaLangString) && (leftType.id == T_JavaLangString)) {

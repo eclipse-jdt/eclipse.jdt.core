@@ -2485,7 +2485,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
 	}
     // autoboxing and type argument inference
-    public void _test087() {
+    public void test087() {
         this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -2499,63 +2499,125 @@ public class AutoBoxingTest extends AbstractComparableTest {
                 "    Zork z;\n" +
                 "}\n"
             },
-            "----------\n" + 
-            "1. WARNING in X.java (at line 5)\n" + 
-            "   int i = new X().foo(12);\n" + 
-            "           ^^^^^^^^^^^^^^^\n" + 
-            "The expression of type Integer is unboxed into int\n" + 
-            "----------\n" + 
-            "2. WARNING in X.java (at line 5)\n" + 
-            "   int i = new X().foo(12);\n" + 
-            "                       ^^\n" + 
-            "The expression of type int is boxed into Integer\n" + 
-            "----------\n" + 
-            "3. ERROR in X.java (at line 8)\n" + 
-            "   Zork z;\n" + 
-            "   ^^^^\n" + 
-            "Zork cannot be resolved to a type\n" + 
-            "----------\n"
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	int i = new X().foo(12);\n" + 
+			"	        ^^^^^^^^^^^^^^^\n" + 
+			"The expression of type Integer is unboxed into int\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	int i = new X().foo(12);\n" + 
+			"	                    ^^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
         );
     }       
-/*
- * http://bugs.eclipse.org/bugs/show_bug.cgi?id=84480 - variation with autoboxing diagnosis on
- */
-public void test088() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"	int f;\n" + 
-			"	void foo(int i) {\n" + 
-			"		i = i++;\n" + 
-			"		i = ++i;\n" + 
-			"		f = f++;\n" + 
-			"		f = ++f;\n" + 
-			"		Zork z;\n" +
-			"	}\n" + 
-			"}\n",
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	i = i++;\n" + 
-		"	^^^^^^^\n" + 
-		"The assignment to variable i has no effect\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	f = f++;\n" + 
-		"	^^^^^^^\n" + 
-		"The assignment to variable f has no effect\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
-}
-    
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=84480 - variation with autoboxing diagnosis on
+	 */
+	public void test088() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	int f;\n" + 
+				"	void foo(int i) {\n" + 
+				"		i = i++;\n" + 
+				"		i = ++i;\n" + 
+				"		f = f++;\n" + 
+				"		f = ++f;\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	i = i++;\n" + 
+			"	^^^^^^^\n" + 
+			"The assignment to variable i has no effect\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	f = f++;\n" + 
+			"	^^^^^^^\n" + 
+			"The assignment to variable f has no effect\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84345
+    public void test089() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"  public Object foo() {\n" + 
+				"  	byte b = 0;\n" + 
+				"	Number n = (Number) b;\n" + 
+				"\n" + 
+				"    java.io.Serializable o = null;\n" + 
+				"    if (o == 0) return o;\n" + 
+				"    return this;\n" + 
+				"  }\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Number n = (Number) b;\n" + 
+			"	           ^^^^^^^^^^\n" + 
+			"Unnecessary cast from byte to Number\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	Number n = (Number) b;\n" + 
+			"	                    ^\n" + 
+			"The expression of type byte is boxed into Byte\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	if (o == 0) return o;\n" + 
+			"	    ^^^^^^\n" + 
+			"Incompatible operand types Serializable and int\n" + 
+			"----------\n"
+        );
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84345 - variation
+    public void test090() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"  public Object foo() {\n" + 
+				"  \n" + 
+				"  	Boolean b = null;\n" + 
+				"     if (b == true) return b;\n" + 
+				"     Object o = null;\n" + 
+				"    if (o == true) return o;\n" + 
+				"    return this;\n" + 
+				"  }\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	if (b == true) return b;\n" + 
+			"	    ^\n" + 
+			"The expression of type Boolean is unboxed into boolean\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	if (o == true) return o;\n" + 
+			"	    ^^^^^^^^^\n" + 
+			"Incompatible operand types Object and boolean\n" + 
+			"----------\n"
+        );
+    }       
 }
