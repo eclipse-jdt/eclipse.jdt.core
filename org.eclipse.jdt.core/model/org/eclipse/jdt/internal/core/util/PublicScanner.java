@@ -806,10 +806,6 @@ public boolean getNextCharAsJavaIdentifierPart() {
 	}
 }
 public int getNextToken() throws InvalidInputException {
-	// if resetTo is used with currentPosition > than eofPosition.
-	if (currentPosition > eofPosition) {
-		return TokenNameEOF;
-	}
 	this.wasAcr = false;
 	if (diet) {
 		jumpOverMethodBody();

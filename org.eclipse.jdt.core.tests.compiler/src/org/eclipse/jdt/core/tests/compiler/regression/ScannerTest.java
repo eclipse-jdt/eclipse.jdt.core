@@ -132,4 +132,22 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+
+	/*
+	 * Check that bogus resetTo issues EOFs
+	 */
+	public void test007() {
+		IScanner scanner= ToolFactory.createScanner(false, false, false, false);
+		char[] source = "int i = 0;".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source); 
+		scanner.resetTo(source.length+50, source.length-1);
+		int token = -1;
+		try {
+			token = scanner.getNextToken();
+		} catch(InvalidInputException e) {
+			assertTrue(false);
+		}
+		assertEquals("Expecting EOF", ITerminalSymbols.TokenNameEOF, token);
+	}
+
 }
