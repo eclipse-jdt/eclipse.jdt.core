@@ -113,10 +113,10 @@ public class IteratorForStatement extends Statement {
 
 		//end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
-				loopingContext.initsOnBreak, 
+				loopingContext.initsOnBreak,
 				false, 
-				flowInfo.initsWhenFalse(), 
-				false, 
+				flowInfo.initsWhenFalse(),
+				false,
 				true);
 		return mergedInfo;
 	}
