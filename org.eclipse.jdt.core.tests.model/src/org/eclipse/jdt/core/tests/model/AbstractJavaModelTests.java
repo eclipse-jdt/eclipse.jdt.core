@@ -1178,11 +1178,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		try {
 			engine.searchAllTypeNames(
-				ResourcesPlugin.getWorkspace(),
 				null,
 				"!@$#!@".toCharArray(),
-				SearchPattern.R_PATTERN_MATCH,
-				true, // case sensitive
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.CLASS,
 				scope, 
 				new ITypeNameRequestor() {

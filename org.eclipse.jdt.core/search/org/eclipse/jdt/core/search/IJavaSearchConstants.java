@@ -147,12 +147,14 @@ public interface IJavaSearchConstants {
 	/**
 	 * The search pattern matches the search result only
 	 * if cases are the same.
-	 * @deprecated Use {@link SearchPattern#R_CASE_SENSITIVE} instead.
+	 * @deprecated Use the methods that take the matchMode
+	 *   with {@link SearchPattern#R_CASE_SENSITIVE} as a matchRule instead.
 	 */
 	boolean CASE_SENSITIVE = true;
 	/**
 	 * The search pattern ignores cases in the search result.
-	 * @deprecated Use {@link SearchPattern#R_CASE_SENSITIVE} instead.
+	 * @deprecated Use the methods that take the matchMode
+	 *   without {@link SearchPattern#R_CASE_SENSITIVE} as a matchRule instead.
 	 */
 	boolean CASE_INSENSITIVE = false;
 	

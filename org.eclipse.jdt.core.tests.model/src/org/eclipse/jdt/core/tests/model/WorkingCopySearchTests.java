@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -141,11 +140,9 @@ public void testAllTypeNames1() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
 	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
-		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
-		SearchPattern.R_PATTERN_MATCH,
-		false, // case insensitive
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
 		scope, 
 		requestor,
@@ -174,11 +171,9 @@ public void testAllTypeNames2() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
 	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
-		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
-		SearchPattern.R_PATTERN_MATCH,
-		false, // case insensitive
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
 		scope, 
 		requestor,
@@ -212,11 +207,9 @@ public void testAllTypeNames3() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
 		SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
 		new SearchEngine().searchAllTypeNames(
-			ResourcesPlugin.getWorkspace(),
 			"wc3".toCharArray(),
 			"X".toCharArray(),
-			SearchPattern.R_PREFIX_MATCH,
-			false, // case insensitive
+			SearchPattern.R_PREFIX_MATCH, // case insensitive
 			TYPE,
 			scope, 
 			requestor,
@@ -251,11 +244,9 @@ public void testAllTypeNames4() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {wc.getParent()});
 		SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
 		new SearchEngine().searchAllTypeNames(
-			ResourcesPlugin.getWorkspace(),
 			"wc3".toCharArray(),
 			"X".toCharArray(),
-			SearchPattern.R_PREFIX_MATCH,
-			false, // case insensitive
+			SearchPattern.R_PREFIX_MATCH, // case insensitive
 			TYPE,
 			scope, 
 			requestor,

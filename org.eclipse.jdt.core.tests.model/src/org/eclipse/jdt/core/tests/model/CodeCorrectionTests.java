@@ -60,11 +60,9 @@ public void setUpSuite() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
 	try {
 		engine.searchAllTypeNames(
-			project.getProject().getWorkspace(),
 			null,
 			"!@$#!@".toCharArray(),
-			SearchPattern.R_PATTERN_MATCH,
-			true, // case sensitive
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 			IJavaSearchConstants.CLASS,
 			scope, 
 			new ITypeNameRequestor() {
