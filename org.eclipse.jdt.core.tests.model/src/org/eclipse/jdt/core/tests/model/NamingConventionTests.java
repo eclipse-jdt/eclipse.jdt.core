@@ -510,6 +510,26 @@ public void testRemovePrefixAndSuffixForFieldName003() {
 		"oneName", //$NON-NLS-1$
 		new String(name));
 }
+public void testRemovePrefixAndSuffixForLocalName001() {
+	Hashtable options = JavaCore.getOptions();
+	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pr, pre"); //$NON-NLS-1$
+	Object fieldSuffixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"uf, suf"); //$NON-NLS-1$
+	JavaCore.setOptions(options);
+	
+	char[] name = NamingConventions.removePrefixAndSuffixForLocalVariableName(
+		project,
+		"preOneNamesuf".toCharArray() //$NON-NLS-1$
+		);
+	
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,fieldPrefixPreviousValue);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,fieldSuffixPreviousValue);
+	JavaCore.setOptions(options);
+	assertEquals(
+		"oneName", //$NON-NLS-1$
+		new String(name));
+}
 public void testSuggestGetterName001() {
 	char[] suggestion = NamingConventions.suggestGetterName(
 		project,

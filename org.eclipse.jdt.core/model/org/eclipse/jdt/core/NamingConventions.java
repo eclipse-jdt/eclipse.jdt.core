@@ -424,8 +424,8 @@ public final class NamingConventions {
 		AssistOptions assistOptions = new AssistOptions(javaProject.getOptions(true));
 		return	removePrefixAndSuffix(
 			localName,
-			assistOptions.argumentPrefixes,
-			assistOptions.argumentSuffixes);
+			assistOptions.localPrefixes,
+			assistOptions.localSuffixes);
 	}
 	
 	/**
