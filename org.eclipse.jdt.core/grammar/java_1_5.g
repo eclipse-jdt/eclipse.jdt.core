@@ -169,8 +169,8 @@ Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
 -- error recovery
 Goal ::= '>>>' Header
+/.$putCase consumeHeaderInRecovery(); $break ./
 Goal ::= '*' BlockStatements
-Goal ::= '*' MethodPushModifiersHeader
 Goal ::= '*' CatchHeader
 -- JDOM
 Goal ::= '&&' FieldDeclaration
@@ -203,7 +203,7 @@ BooleanLiteral -> false
 --a Type results in both a push of its dimension(s) and its name(s).
 
 Type ::= PrimitiveType
- /.$putCase consumePrimitiveType(); $break ./
+/.$putCase consumePrimitiveType(); $break ./
 Type -> ReferenceType
 /:$readableName Type:/
 
@@ -239,7 +239,7 @@ ClassOrInterfaceType -> ClassOrInterface TypeArguments
 
 ClassOrInterface -> Name
 ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
-/:$readableName ClassOrInterface:/
+/:$readableName Type:/
 
 --
 -- These rules have been rewritten to avoid some conflicts introduced
@@ -534,20 +534,6 @@ MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDim
 /.$putCase consumeMethodHeader(); $break ./
 /:$readableName MethodHeader:/
 
-MethodPushModifiersHeader ::= MethodPushModifiersHeaderName MethodHeaderParameters MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
-/.$putCase consumeMethodHeader(); $break ./
-/:$readableName MethodHeader:/
-
-MethodPushModifiersHeaderName ::= Modifiers TypeParameters Type PushModifiers 'Identifier' '(' 
-/.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers 'Identifier' '(' 
-/.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-MethodPushModifiersHeaderName ::= TypeParameters Type PushModifiers 'Identifier' '(' 
-/.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '(' 
-/.$putCase consumeMethodPushModifiersHeaderName(); $break ./
-/:$readableName MethodHeaderName:/
-
 MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
@@ -633,24 +619,44 @@ ConstructorDeclaration ::= ConstructorHeader ';'
 ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
 
+ExplicitConstructorInvocation ::= TypeArguments 'this' '(' ArgumentListopt ')' ';'
+/.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
+
 ExplicitConstructorInvocation ::= 'super' '(' ArgumentListopt ')' ';'
+/.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
+
+ExplicitConstructorInvocation ::= TypeArguments 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
 
+ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
+/.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.Super); $break ./
+
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'super' '(' ArgumentListopt ')' ';'
+/.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
+
+ExplicitConstructorInvocation ::= Name '.' TypeArguments 'super' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.Super); $break ./
 
 --1.1 feature
 ExplicitConstructorInvocation ::= Primary '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
 
+ExplicitConstructorInvocation ::= Primary '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+/.$putCase consumeExplicitConstructorInvocation(1, ExplicitConstructorCall.This); $break ./
+
 --1.1 feature
 ExplicitConstructorInvocation ::= Name '.' 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
+
+ExplicitConstructorInvocation ::= Name '.' TypeArguments 'this' '(' ArgumentListopt ')' ';'
+/.$putCase consumeExplicitConstructorInvocation(2, ExplicitConstructorCall.This); $break ./
+/:$readableName ExplicitConstructorInvocation:/
+
 /:$readableName ExplicitConstructorInvocation:/
 
 --18.9 Productions from 9: Interface Declarations
@@ -1046,7 +1052,7 @@ ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' Clas
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' LESS TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 
 ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
@@ -1057,7 +1063,7 @@ ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' Si
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' LESS TypeArgumentList1 SimpleName '(' ArgumentListopt ')' ClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
