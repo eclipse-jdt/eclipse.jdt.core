@@ -390,6 +390,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodReference3"));
 	suite.addTest(new JavaSearchTests("testMethodReference4"));
 	suite.addTest(new JavaSearchTests("testMethodReference5"));
+	suite.addTest(new JavaSearchTests("testMethodReference6"));
 	
 	// constructor reference
 	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
@@ -1998,6 +1999,23 @@ public void testMethodReference5() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/e9/A.java void e9.A.foo() [bar()]",
+		resultCollector);
+}
+/*
+ * Method reference in second anonymous and second local type of a method test.
+ */
+public void testMethodReference6() throws CoreException {
+	IMethod method= getCompilationUnit("JavaSearch/src/f3/X.java").getType("X").getMethod("bar", new String[] {});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		method, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/f3/X.java void void f3.X.foo():<anonymous>#2.foobar() [bar()]\n" + 
+		"src/f3/X.java void void f3.X.foo():Y#2.foobar() [bar()]",
 		resultCollector);
 }
 /**
