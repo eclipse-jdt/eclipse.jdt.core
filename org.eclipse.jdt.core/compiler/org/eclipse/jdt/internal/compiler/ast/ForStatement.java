@@ -72,12 +72,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		loopingContext = new LoopingFlowContext(flowContext, this, breakLabel, continueLabel, scope);
 		FlowInfo initsWhenTrue = flowInfo.initsWhenTrue();
 		condIfTrueInitStateIndex = currentScope.methodScope().recordInitializationStates(initsWhenTrue);
-		actionInfo = action.analyseCode(
-			scope, 
-			loopingContext, 
-			((condition != null) && (condition.constant != NotAConstant) && (condition.constant.booleanValue() == false)) ? // unreachable when condition inlined to false
+
+		actionInfo = ((condition != null) && (condition.constant != NotAConstant) && (condition.constant.booleanValue() == false)) ? // unreachable when condition inlined to false
 				FlowInfo.DeadEnd : 
-				initsWhenTrue.copy());
+				initsWhenTrue.copy();
+		if (!actionInfo.complainIfUnreachable(action, scope)){
+			actionInfo = action.analyseCode(scope, loopingContext, actionInfo);
+		}
 
 		// code generation can be optimized when no need to continue in the loop
 		if (((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable())
