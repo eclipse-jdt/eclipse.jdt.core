@@ -115,6 +115,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 
 		// For each given test files
 		for (int i=0, length=testFiles.length; i<length; i++) {
+			dirFilePath = (IPath) this.dirPath.clone();
 			String contents = testFiles[i+1];
 			String fileName = testFiles[i++];
 			IPath filePath = dirFilePath.append(fileName);
