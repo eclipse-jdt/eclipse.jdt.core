@@ -211,7 +211,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0365"));
+//		suite.addTest(new ASTConverterTest("test0082"));
 		return suite;
 	}
 		
@@ -1958,6 +1958,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
 		ForStatement forStatement = this.ast.newForStatement();
+		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (;;);", source); //$NON-NLS-1$
 	}
@@ -2021,6 +2022,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
 		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
 		forStatement.setExpression(infixExpression);
+		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (int i = 0; i < 10; i++);", source); //$NON-NLS-1$
 	}
@@ -2048,6 +2050,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		postfixExpression.setOperand(this.ast.newSimpleName("i"));//$NON-NLS-1$
 		postfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
 		forStatement.updaters().add(postfixExpression);
+		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (int i = 0;; i++);", source); //$NON-NLS-1$
 	}
@@ -2071,6 +2074,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
 		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
 		forStatement.setExpression(infixExpression);
+		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (; i < 10; i++);", source); //$NON-NLS-1$
 	}
@@ -2089,6 +2093,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		postfixExpression.setOperand(this.ast.newSimpleName("i"));//$NON-NLS-1$
 		postfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
 		forStatement.updaters().add(postfixExpression);
+		forStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (;;i++);", source); //$NON-NLS-1$
 	}
@@ -2378,8 +2383,9 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
 		WhileStatement whileStatement = this.ast.newWhileStatement();
 		whileStatement.setExpression(this.ast.newBooleanLiteral(true));
+		whileStatement.setBody(this.ast.newEmptyStatement());
 		assertTrue("Both AST trees should be identical", whileStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
-		checkSourceRange(node, "while(true)", source);//$NON-NLS-1$
+		checkSourceRange(node, "while(true);", source);//$NON-NLS-1$
 	}
 
 	/**
@@ -9161,7 +9167,154 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		IBinding binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding);
 	}
-		
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
+	 */
+	public void test0366() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0366", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		ForStatement forStatement = (ForStatement) node;
+		checkSourceRange(forStatement, "for (int i = 0; i < 5; ++i);", source);
+		Statement statement = forStatement.getBody();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, ";", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
+	 */
+	public void test0367() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0367", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a while statement", node.getNodeType() == ASTNode.WHILE_STATEMENT);
+		WhileStatement whileStatement = (WhileStatement) node;
+		checkSourceRange(whileStatement, "while(i == 2);", source);
+		Statement statement = whileStatement.getBody();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, ";", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
+	 */
+	public void test0368() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0368", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT);
+		LabeledStatement labeledStatement = (LabeledStatement) node;
+		checkSourceRange(labeledStatement, "test:;", source);
+		Statement statement = labeledStatement.getBody();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, ";", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
+	 */
+	public void test0369() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0369", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT);
+		LabeledStatement labeledStatement = (LabeledStatement) node;
+		checkSourceRange(labeledStatement, "test:\\u003B", source);
+		Statement statement = labeledStatement.getBody();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, "\\u003B", source);
+	}
+			
+	/**
+	 * DoStatement ==> DoStatement
+	 */
+	public void test0370() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0370", "Test.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
+		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
+		DoStatement doStatement = this.ast.newDoStatement();
+		doStatement.setBody(this.ast.newEmptyStatement());
+		doStatement.setExpression(this.ast.newBooleanLiteral(true));
+		assertTrue("Both AST trees should be identical", doStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
+		String expectedSource = "do ; while(true);";//$NON-NLS-1$
+		checkSourceRange(node, expectedSource, source);
+		DoStatement doStatement2 = (DoStatement) node;
+		Statement statement = doStatement2.getBody();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, ";", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
+	 */
+	public void test0371() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0371", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		IfStatement ifStatement = (IfStatement) node;
+		checkSourceRange(ifStatement, "if (i == 6);", source);
+		Statement statement = ifStatement.getThenStatement();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, ";", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23048
+	 */
+	public void test0372() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0372", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.IF_STATEMENT);
+		IfStatement ifStatement = (IfStatement) node;
+		checkSourceRange(ifStatement, "if (i == 6) {} else ;", source);
+		Statement statement = ifStatement.getElseStatement();
+		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
+		checkSourceRange(statement, ";", source);
+	}
+						
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
