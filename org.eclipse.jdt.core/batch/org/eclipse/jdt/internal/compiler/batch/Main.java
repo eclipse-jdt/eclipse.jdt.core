@@ -692,9 +692,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					disableWarnings();
 					continue;
 				}
-				if (length < 6)
+				if (length <= 6) {
 					throw new InvalidInputException(
 						Main.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
+				}
 				int warnTokenStart;
 				boolean isEnabling;
 				switch (warningOption.charAt(6)) {
