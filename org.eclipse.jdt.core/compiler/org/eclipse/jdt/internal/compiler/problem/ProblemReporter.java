@@ -335,14 +335,6 @@ public void cannotThrowType(SourceTypeBinding type, AbstractMethodDeclaration me
 		exceptionType.sourceStart,
 		exceptionType.sourceEnd);
 }
-public void cannotUseSuperInJavaLangObject(ASTNode reference) {
-	this.handle(
-		IProblem.ObjectHasNoSuperclass,
-		NoArgument,
-		NoArgument,
-		reference.sourceStart,
-		reference.sourceEnd);
-}
 public void cannotUseSuperInCodeSnippet(int start, int end) {
 	this.handle(
 		IProblem.CannotUseSuperInCodeSnippet,
@@ -351,6 +343,14 @@ public void cannotUseSuperInCodeSnippet(int start, int end) {
 		Error | Abort,
 		start,
 		end);
+}
+public void cannotUseSuperInJavaLangObject(ASTNode reference) {
+	this.handle(
+		IProblem.ObjectHasNoSuperclass,
+		NoArgument,
+		NoArgument,
+		reference.sourceStart,
+		reference.sourceEnd);
 }
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
@@ -755,14 +755,6 @@ public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldD
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void duplicateTypeParameterInType(TypeParameter typeParameter) {
-	this.handle(
-		IProblem.DuplicateTypeVariable,
-		new String[] { new String(typeParameter.name)},
-		new String[] { new String(typeParameter.name)},
-		typeParameter.sourceStart,
-		typeParameter.sourceEnd);
-}
 
 public void duplicateImport(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
@@ -903,6 +895,14 @@ public void duplicateSuperinterface(SourceTypeBinding type, TypeDeclaration type
 			new String(type.sourceName())},
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
+}
+public void duplicateTypeParameterInType(TypeParameter typeParameter) {
+	this.handle(
+		IProblem.DuplicateTypeVariable,
+		new String[] { new String(typeParameter.name)},
+		new String[] { new String(typeParameter.name)},
+		typeParameter.sourceStart,
+		typeParameter.sourceEnd);
 }
 public void duplicateTypes(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(compUnitDecl.getFileName()), new String(typeDecl.name)};
@@ -1088,6 +1088,27 @@ private void handle(
 			this.referenceContext == null ? null : this.referenceContext.compilationResult()); 
 	this.referenceContext = null;
 }
+// use this private API when the compilation unit result cannot be found through the
+// reference context. 
+
+private void handle(
+	int problemId, 
+	String[] problemArguments,
+	String[] messageArguments,
+	int problemStartPosition, 
+	int problemEndPosition,
+	CompilationResult unitResult){
+
+	this.handle(
+			problemId,
+			problemArguments,
+			messageArguments,
+			problemStartPosition,
+			problemEndPosition,
+			this.referenceContext, 
+			unitResult); 
+	this.referenceContext = null;
+}
 // use this private API when the compilation unit result can be found through the
 // reference context. Otherwise, use the other API taking a problem and a compilation result
 // as arguments
@@ -1108,27 +1129,6 @@ private void handle(
 			problemEndPosition,
 			this.referenceContext, 
 			this.referenceContext == null ? null : this.referenceContext.compilationResult()); 
-	this.referenceContext = null;
-}
-// use this private API when the compilation unit result cannot be found through the
-// reference context. 
-
-private void handle(
-	int problemId, 
-	String[] problemArguments,
-	String[] messageArguments,
-	int problemStartPosition, 
-	int problemEndPosition,
-	CompilationResult unitResult){
-
-	this.handle(
-			problemId,
-			problemArguments,
-			messageArguments,
-			problemStartPosition,
-			problemEndPosition,
-			this.referenceContext, 
-			unitResult); 
 	this.referenceContext = null;
 }
 public void hiddenCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
@@ -1213,6 +1213,22 @@ public void illegalClassLiteralForTypeVariable(TypeVariableBinding variable, AST
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void illegalExtendedDimensions(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	this.handle(
+		IProblem.IllegalExtendedDimensions,
+		NoArgument, 
+		NoArgument, 
+		annotationTypeMemberDeclaration.sourceStart,
+		annotationTypeMemberDeclaration.sourceEnd);
+}
+public void illegalGenericArray(TypeBinding leadtComponentType, ASTNode location) {
+	this.handle(
+		IProblem.IllegalGenericArray,
+		new String[]{ new String(leadtComponentType.readableName())},
+		new String[]{ new String(leadtComponentType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode location) {
 	if (checkedType.isTypeVariable()) {
 		this.handle(
@@ -1238,14 +1254,6 @@ public void illegalModifierCombinationFinalAbstractForClass(SourceTypeBinding ty
 		arguments,
 		type.sourceStart(),
 		type.sourceEnd());
-}
-public void illegalExtendedDimensions(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
-	this.handle(
-		IProblem.IllegalExtendedDimensions,
-		NoArgument, 
-		NoArgument, 
-		annotationTypeMemberDeclaration.sourceStart,
-		annotationTypeMemberDeclaration.sourceEnd);
 }
 public void illegalModifierCombinationFinalVolatileForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
@@ -1840,16 +1848,6 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-
-public void invalidExplicitConstructorCall(ASTNode location) {
-	
-	this.handle(
-		IProblem.InvalidExplicitConstructorCall,
-		NoArgument,
-		NoArgument,
-		location.sourceStart,
-		location.sourceEnd);
-}
 public void invalidContinue(ASTNode location) {
 	this.handle(
 		IProblem.InvalidContinue,
@@ -1888,19 +1886,13 @@ public void invalidEnclosingType(Expression expression, TypeBinding type, Refere
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void invalidParameterizedExceptionType(TypeBinding exceptionType, ASTNode location) {
+
+public void invalidExplicitConstructorCall(ASTNode location) {
+	
 	this.handle(
-		IProblem.InvalidParameterizedExceptionType,
-		new String[] {new String(exceptionType.readableName())},
-		new String[] {new String(exceptionType.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void invalidTypeVariableAsException(TypeBinding exceptionType, ASTNode location) {
-	this.handle(
-		IProblem.InvalidTypeVariableExceptionType,
-		new String[] {new String(exceptionType.readableName())},
-		new String[] {new String(exceptionType.shortReadableName())},
+		IProblem.InvalidExplicitConstructorCall,
+		NoArgument,
+		NoArgument,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -2081,14 +2073,6 @@ public void invalidFileNameForPackageAnnotations(Annotation annotation) {
 			NoArgument,
 			annotation.sourceStart,
 			annotation.sourceEnd);	
-}
-public void illegalGenericArray(TypeBinding leadtComponentType, ASTNode location) {
-	this.handle(
-		IProblem.IllegalGenericArray,
-		new String[]{ new String(leadtComponentType.readableName())},
-		new String[]{ new String(leadtComponentType.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
 }
 public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 	int id = IProblem.UndefinedMethod; //default...
@@ -2328,6 +2312,14 @@ public void invalidOperator(UnaryExpression expression, TypeBinding type) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void invalidParameterizedExceptionType(TypeBinding exceptionType, ASTNode location) {
+	this.handle(
+		IProblem.InvalidParameterizedExceptionType,
+		new String[] {new String(exceptionType.readableName())},
+		new String[] {new String(exceptionType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void invalidParenthesizedExpression(ASTNode reference) {
 	this.handle(
 		IProblem.InvalidParenthesizedExpression,
@@ -2415,6 +2407,14 @@ public void invalidTypeToSynchronize(Expression expression, TypeBinding type) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void invalidTypeVariableAsException(TypeBinding exceptionType, ASTNode location) {
+	this.handle(
+		IProblem.InvalidTypeVariableExceptionType,
+		new String[] {new String(exceptionType.readableName())},
+		new String[] {new String(exceptionType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void invalidUnaryExpression(Expression expression) {
 	this.handle(
 		IProblem.InvalidUnaryExpression,
@@ -2422,6 +2422,54 @@ public void invalidUnaryExpression(Expression expression) {
 		NoArgument,
 		expression.sourceStart,
 		expression.sourceEnd);
+}
+public void invalidUsageOfEnumsDeclarations(EnumDeclaration enumDeclaration) {
+	this.handle(
+		IProblem.InvalidUsageOfEnumDeclarations,
+		NoArgument, 
+		NoArgument, 
+		enumDeclaration.modifiersSourceStart,
+		enumDeclaration.sourceEnd);
+}
+public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Expression collection) {
+	this.handle(
+		IProblem.InvalidUsageOfForeachStatements,
+		NoArgument, 
+		NoArgument, 
+		elementVariable.declarationSourceStart,
+		collection.sourceEnd);
+}
+public void invalidUsageOfStaticImports(ImportReference staticImport) {
+	this.handle(
+		IProblem.InvalidUsageOfStaticImports,
+		NoArgument, 
+		NoArgument, 
+		staticImport.declarationSourceStart,
+		staticImport.declarationSourceEnd);
+}
+public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
+	this.handle(
+		IProblem.InvalidUsageOfTypeArguments,
+		NoArgument, 
+		NoArgument, 
+		firstTypeReference.sourceStart,
+		lastTypeReference.sourceEnd);
+}
+public void invalidUsageOfTypeParameters(TypeParameter firstTypeParameter, TypeParameter lastTypeParameter) {
+	this.handle(
+		IProblem.InvalidUsageOfTypeParameters,
+		NoArgument, 
+		NoArgument, 
+		firstTypeParameter.declarationSourceStart,
+		lastTypeParameter.declarationSourceEnd);
+}
+public void invalidUsageOfVarargs(Argument argument) {
+	this.handle(
+		IProblem.InvalidUsageOfVarargs,
+		NoArgument, 
+		NoArgument, 
+		argument.type.sourceStart,
+		argument.sourceEnd);
 }
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl) {
 	this.referenceContext = compUnitDecl;
@@ -2434,8 +2482,88 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		0,
 		0);
 }
-public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocDuplicateReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+
+private boolean isIdentifier(int token) {
+	return token == TerminalTokens.TokenNameIdentifier;
+}
+
+private boolean isKeyword(int token) {
+	switch(token) {
+		case TerminalTokens.TokenNameabstract:
+		case TerminalTokens.TokenNameassert:
+		case TerminalTokens.TokenNamebyte:
+		case TerminalTokens.TokenNamebreak:
+		case TerminalTokens.TokenNameboolean:
+		case TerminalTokens.TokenNamecase:
+		case TerminalTokens.TokenNamechar:
+		case TerminalTokens.TokenNamecatch:
+		case TerminalTokens.TokenNameclass:
+		case TerminalTokens.TokenNamecontinue:
+		case TerminalTokens.TokenNamedo:
+		case TerminalTokens.TokenNamedouble:
+		case TerminalTokens.TokenNamedefault:
+		case TerminalTokens.TokenNameelse:
+		case TerminalTokens.TokenNameextends:
+		case TerminalTokens.TokenNamefor:
+		case TerminalTokens.TokenNamefinal:
+		case TerminalTokens.TokenNamefloat:
+		case TerminalTokens.TokenNamefalse:
+		case TerminalTokens.TokenNamefinally:
+		case TerminalTokens.TokenNameif:
+		case TerminalTokens.TokenNameint:
+		case TerminalTokens.TokenNameimport:
+		case TerminalTokens.TokenNameinterface:
+		case TerminalTokens.TokenNameimplements:
+		case TerminalTokens.TokenNameinstanceof:
+		case TerminalTokens.TokenNamelong:
+		case TerminalTokens.TokenNamenew:
+		case TerminalTokens.TokenNamenull:
+		case TerminalTokens.TokenNamenative:
+		case TerminalTokens.TokenNamepublic:
+		case TerminalTokens.TokenNamepackage:
+		case TerminalTokens.TokenNameprivate:
+		case TerminalTokens.TokenNameprotected:
+		case TerminalTokens.TokenNamereturn:
+		case TerminalTokens.TokenNameshort:
+		case TerminalTokens.TokenNamesuper:
+		case TerminalTokens.TokenNamestatic:
+		case TerminalTokens.TokenNameswitch:
+		case TerminalTokens.TokenNamestrictfp:
+		case TerminalTokens.TokenNamesynchronized:
+		case TerminalTokens.TokenNametry:
+		case TerminalTokens.TokenNamethis:
+		case TerminalTokens.TokenNametrue:
+		case TerminalTokens.TokenNamethrow:
+		case TerminalTokens.TokenNamethrows:
+		case TerminalTokens.TokenNametransient:
+		case TerminalTokens.TokenNamevoid:
+		case TerminalTokens.TokenNamevolatile:
+		case TerminalTokens.TokenNamewhile:
+			return true;
+		default: 
+			return false;
+	}
+}
+
+private boolean isLiteral(int token) {
+	switch(token) {
+		case TerminalTokens.TokenNameIntegerLiteral:
+		case TerminalTokens.TokenNameLongLiteral:
+		case TerminalTokens.TokenNameFloatingPointLiteral:
+		case TerminalTokens.TokenNameDoubleLiteral:
+		case TerminalTokens.TokenNameStringLiteral:
+		case TerminalTokens.TokenNameCharacterLiteral:
+			return true;
+		default: 
+			return false;
+	}
+}
+public void javadocAmbiguousMethodReference(int sourceStart, int sourceEnd, Binding fieldBinding, int modifiers) {
+	int id = IProblem.JavadocAmbiguousMethodReference;
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		String[] arguments = new String[] {new String(fieldBinding.readableName())};
+		handle(id, arguments, arguments, sourceStart, sourceEnd);
+	}
 }
 public void javadocDeprecatedField(FieldBinding field, ASTNode location, int modifiers) {
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
@@ -2482,6 +2610,9 @@ public void javadocDuplicatedParamTag(JavadocSingleNameReference param, int modi
 		String[] arguments = new String[] {String.valueOf(param.token)};
 		this.handle(IProblem.JavadocDuplicateParamName, arguments, arguments, param.sourceStart, param.sourceEnd);
 	}
+}
+public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocDuplicateReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocDuplicatedThrowsClassName(TypeReference typeReference, int modifiers) {
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
@@ -2567,13 +2698,6 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsString(targetConstructor.parameters, true)},
 		statement.sourceStart,
 		statement.sourceEnd);
-}
-public void javadocAmbiguousMethodReference(int sourceStart, int sourceEnd, Binding fieldBinding, int modifiers) {
-	int id = IProblem.JavadocAmbiguousMethodReference;
-	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		String[] arguments = new String[] {new String(fieldBinding.readableName())};
-		handle(id, arguments, arguments, sourceStart, sourceEnd);
-	}
 }
 /*
  * Similar implementation than invalidField(FieldReference...)
@@ -2690,9 +2814,6 @@ public void javadocInvalidParamName(JavadocSingleNameReference param, int modifi
 public void javadocInvalidReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
-public void javadocInvalidValueReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.JavadocInvalidValueReference, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
 public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
@@ -2743,6 +2864,9 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 			location.sourceEnd);
 	}
 }
+public void javadocInvalidValueReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidValueReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
 public void javadocMalformedSeeReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocMalformedSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
@@ -2774,6 +2898,9 @@ public void javadocMissingParamTag(Argument param, int modifiers) {
 		this.handle(IProblem.JavadocMissingParamTag, arguments, arguments, param.sourceStart, param.sourceEnd);
 	}
 }
+public void javadocMissingReference(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
 public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifiers){
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
@@ -2781,9 +2908,6 @@ public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifier
 	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
 		this.handle(IProblem.JavadocMissingReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
-}
-public void javadocMissingReference(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -2914,6 +3038,24 @@ public void methodWithConstructorName(MethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBinding type) {
+	if (location == null) { // binary case
+	    this.handle(
+			IProblem.MissingArgumentsForParameterizedMemberType,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			AbortCompilation | Error,
+			0,
+			1);
+	    return;
+	}
+    this.handle(
+		IProblem.MissingArgumentsForParameterizedMemberType,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void missingReturnType(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MissingReturnType,
@@ -3041,6 +3183,16 @@ public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode 
 		location.sourceStart,
 		location.sourceEnd);
 }
+
+public void noMoreAvailableSpaceForConstant(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.TooManyBytesForStringConstant,
+		new String[]{ new String(typeDeclaration.binding.readableName())},
+		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
+		Abort | Error,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
+}
 public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[]{ new String(local.name) };
 	this.handle(
@@ -3048,6 +3200,24 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, ASTNode loc
 		arguments,
 		arguments,
 		Abort | Error,
+		location.sourceStart,
+		location.sourceEnd);
+}
+
+public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.TooManyConstantsInConstantPool,
+		new String[]{ new String(typeDeclaration.binding.readableName())},
+		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
+		Abort | Error,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
+}
+public void nonExternalizedStringLiteral(ASTNode location) {
+	this.handle(
+		IProblem.NonExternalizedStringLiteral,
+		NoArgument,
+		NoArgument,
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -3069,14 +3239,6 @@ public void nonGenericTypeCannotBeParameterized(ASTNode location, TypeBinding ty
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method) {
-	this.handle(
-		IProblem.NonStaticAccessToStaticMethod,
-		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
-		location.sourceStart,
-		location.sourceEnd);
-}
 public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 	this.handle(
 		IProblem.NonStaticAccessToStaticField,
@@ -3084,6 +3246,14 @@ public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		location.sourceStart,
 		fieldLocation(field, location));
+}
+public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method) {
+	this.handle(
+		IProblem.NonStaticAccessToStaticMethod,
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, boolean isConstructorCall) {
 
@@ -3343,6 +3513,213 @@ public void parseError(
 		startPosition,
 		endPosition);
 }
+public void parseErrorDeleteToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName){
+	this.syntaxError(
+		IProblem.ParsingErrorDeleteToken,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName,
+		null); 
+}
+public void parseErrorDeleteTokens(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorDeleteTokens,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorInsertAfterToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingErrorInsertTokenAfter,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+
+public void parseErrorInsertBeforeToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingErrorInsertTokenBefore,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorInsertToComplete(
+	int start,
+	int end,
+	String inserted,
+	String completed){
+	String[] arguments = new String[] {inserted, completed};
+	this.handle(
+		IProblem.ParsingErrorInsertToComplete,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorInsertToCompletePhrase(
+	int start,
+	int end,
+	String inserted){
+	String[] arguments = new String[] {inserted};
+	this.handle(
+		IProblem.ParsingErrorInsertToCompletePhrase,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorInsertToCompleteScope(
+	int start,
+	int end,
+	String inserted){
+	String[] arguments = new String[] {inserted};
+	this.handle(
+		IProblem.ParsingErrorInsertToCompleteScope,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorInvalidToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingErrorInvalidToken,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorMergeTokens(
+	int start,
+	int end,
+	String expectedToken){
+	String[] arguments = new String[] {expectedToken};
+	this.handle(
+		IProblem.ParsingErrorMergeTokens,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorMisplacedConstruct(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorMisplacedConstruct,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorNoSuggestion(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName){
+	this.syntaxError(
+		IProblem.ParsingErrorNoSuggestion,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName,
+		null); 
+}
+public void parseErrorNoSuggestionForTokens(
+	int start,
+	int end){
+	this.handle(
+		IProblem.ParsingErrorNoSuggestionForTokens,
+		NoArgument,
+		NoArgument,
+		start,
+		end);
+}
+public void parseErrorReplaceToken(
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken){
+	this.syntaxError(
+		IProblem.ParsingError,
+		start, 
+		end, 
+		currentKind,
+		errorTokenSource, 
+		errorTokenName, 
+		expectedToken); 
+}
+public void parseErrorReplaceTokens(
+	int start,
+	int end,
+	String expectedToken){
+	String[] arguments = new String[] {expectedToken};
+	this.handle(
+		IProblem.ParsingErrorReplaceTokens,
+		arguments,
+		arguments,
+		start,
+		end);
+}
+public void parseErrorUnexpectedEnd(
+	int start,
+	int end){
+		
+	String[] arguments;
+	if(this.referenceContext instanceof ConstructorDeclaration) {
+		arguments = new String[] {Util.bind("parser.endOfConstructor")}; //$NON-NLS-1$
+	} else if(this.referenceContext instanceof MethodDeclaration) {
+		arguments = new String[] {Util.bind("parser.endOfMethod")}; //$NON-NLS-1$
+	} else if(this.referenceContext instanceof TypeDeclaration) {
+		arguments = new String[] {Util.bind("parser.endOfInitializer")}; //$NON-NLS-1$
+	} else {
+		arguments = new String[] {Util.bind("parser.endOfFile")}; //$NON-NLS-1$
+	}
+	this.handle(
+		IProblem.ParsingErrorUnexpectedEOF,
+		arguments,
+		arguments,
+		start,
+		end);
+}
 public void possibleAccidentalBooleanAssignment(Assignment assignment) {
 	this.handle(
 		IProblem.PossibleAccidentalBooleanAssignment,
@@ -3361,6 +3738,24 @@ public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
+}
+public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBinding type, TypeBinding[] argumentTypes) {
+	if (location == null) { // binary case
+	    this.handle(
+			IProblem.RawMemberTypeCannotBeParameterized,
+			new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false), new String(type.enclosingType().readableName())},
+			new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true), new String(type.enclosingType().shortReadableName())},
+			AbortCompilation | Error,
+			0,
+			1);
+	    return;
+	}
+    this.handle(
+		IProblem.RawMemberTypeCannotBeParameterized,
+		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false), new String(type.enclosingType().readableName())},
+		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true), new String(type.enclosingType().shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCall) {
 
@@ -3544,6 +3939,24 @@ public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding type) {
+	if (location == null) { // binary case
+	    this.handle(
+			IProblem.StaticMemberOfParameterizedType,
+			new String[] {new String(type.readableName()), new String(type.enclosingType().readableName()), },
+			new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
+			AbortCompilation | Error,
+			0,
+			1);
+	    return;
+	}
+    this.handle(
+		IProblem.StaticMemberOfParameterizedType,
+		new String[] {new String(type.readableName()), new String(type.enclosingType().readableName()), },
+		new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void stringConstantIsExceedingUtf8Limit(ASTNode location) {
 	this.handle(
 		IProblem.StringConstantIsExceedingUtf8Limit,
@@ -3568,14 +3981,6 @@ public void superfluousSemicolon(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);	
 }
-public void superinterfacesCollide(ReferenceBinding type, TypeDeclaration typeDecl, ReferenceBinding superType, ReferenceBinding inheritedSuperType) {
-	this.handle(
-		IProblem.SuperInterfacesCollide,
-		new String[] {new String(superType.readableName()), new String(inheritedSuperType.readableName()), new String(type.sourceName())},
-		new String[] {new String(superType.shortReadableName()), new String(inheritedSuperType.shortReadableName()), new String(type.sourceName())},
-		typeDecl.sourceStart,
-		typeDecl.sourceEnd);
-}
 public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeReference superInterfaceRef, ReferenceBinding superType) {
 	this.handle(
 		IProblem.SuperInterfaceMustBeAnInterface,
@@ -3583,6 +3988,14 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeReferenc
 		new String[] {new String(superType.shortReadableName()), new String(type.sourceName())},
 		superInterfaceRef.sourceStart,
 		superInterfaceRef.sourceEnd);
+}
+public void superinterfacesCollide(ReferenceBinding type, TypeDeclaration typeDecl, ReferenceBinding superType, ReferenceBinding inheritedSuperType) {
+	this.handle(
+		IProblem.SuperInterfacesCollide,
+		new String[] {new String(superType.readableName()), new String(inheritedSuperType.readableName()), new String(type.sourceName())},
+		new String[] {new String(superType.shortReadableName()), new String(inheritedSuperType.shortReadableName()), new String(type.sourceName())},
+		typeDecl.sourceStart,
+		typeDecl.sourceEnd);
 }
 public void superTypeCannotUseWildcard(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
@@ -3595,6 +4008,38 @@ public void superTypeCannotUseWildcard(SourceTypeBinding type, TypeReference sup
 		new String[] {superTypeShortName, name},
 		superclass.sourceStart,
 		superclass.sourceEnd);
+}
+
+private void syntaxError(
+	int id,
+	int startPosition, 
+	int endPosition, 
+	int currentKind,
+	char[] currentTokenSource, 
+	String errorTokenName, 
+	String expectedToken) {
+
+	String eTokenName;
+	if (isKeyword(currentKind) ||
+		isLiteral(currentKind) ||
+		isIdentifier(currentKind)) { //$NON-NLS-1$
+			eTokenName = new String(currentTokenSource);
+	} else {
+		eTokenName = errorTokenName;
+	}
+
+	String[] arguments;
+	if(expectedToken != null) {
+		arguments = new String[] {eTokenName, expectedToken};
+	} else {
+		arguments = new String[] {eTokenName};
+	}
+	this.handle(
+		id,
+		arguments,
+		arguments,
+		startPosition,
+		endPosition);
 }
 
 public void task(String tag, String message, String priority, int start, int end){
@@ -3658,6 +4103,14 @@ public void typeCollidesWithPackage(CompilationUnitDeclaration compUnitDecl, Typ
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
 }
+public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, ASTNode location) {
+	this.handle(
+		IProblem.TypeMismatch,
+		new String[] {new String(actualType.readableName()), new String(expectedType.readableName())},
+		new String[] {new String(actualType.shortReadableName()), new String(expectedType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding typeParameter, ReferenceBinding genericType, ASTNode location) {
     if (location == null) { // binary case
 		this.handle(
@@ -3673,14 +4126,6 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
 		IProblem.TypeArgumentMismatch,
 		new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },
 		new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, true) },
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, ASTNode location) {
-	this.handle(
-		IProblem.TypeMismatch,
-		new String[] {new String(actualType.readableName()), new String(expectedType.readableName())},
-		new String[] {new String(actualType.shortReadableName()), new String(expectedType.shortReadableName())},
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -3795,6 +4240,22 @@ public void unnecessaryCastForArgument(CastExpression castExpression, TypeBindin
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }
+public void unnecessaryElse(ASTNode location) {
+	this.handle(
+		IProblem.UnnecessaryElse,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
+	this.handle(
+		IProblem.IllegalEnclosingInstanceSpecification,
+		new String[]{ new String(targetType.readableName())},
+		new String[]{ new String(targetType.shortReadableName())},
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, TypeBinding checkType) {
 	TypeBinding expressionType = instanceofExpression.expression.resolvedType;
 	this.handle(
@@ -3816,22 +4277,6 @@ public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) 
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		reference.sourceStart,
 		end);
-}
-public void unnecessaryElse(ASTNode location) {
-	this.handle(
-		IProblem.UnnecessaryElse,
-		NoArgument,
-		NoArgument,
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
-	this.handle(
-		IProblem.IllegalEnclosingInstanceSpecification,
-		new String[]{ new String(targetType.readableName())},
-		new String[]{ new String(targetType.shortReadableName())},
-		expression.sourceStart,
-		expression.sourceEnd);
 }
 public void unreachableCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(
@@ -4169,414 +4614,15 @@ public void visibilityConflict(MethodBinding currentMethod, MethodBinding inheri
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
-public void nonExternalizedStringLiteral(ASTNode location) {
+public void wildcardAssignment(TypeBinding variableType, TypeBinding expressionType, ASTNode location) {
 	this.handle(
-		IProblem.NonExternalizedStringLiteral,
-		NoArgument,
-		NoArgument,
+		IProblem.WildcardFieldAssignment,
+		new String[] { 
+		        new String(expressionType.readableName()), new String(variableType.readableName()) },
+		new String[] { 
+		        new String(expressionType.shortReadableName()), new String(variableType.shortReadableName()) },
 		location.sourceStart,
-		location.sourceEnd);
-}
-
-public void noMoreAvailableSpaceForConstant(TypeDeclaration typeDeclaration) {
-	this.handle(
-		IProblem.TooManyBytesForStringConstant,
-		new String[]{ new String(typeDeclaration.binding.readableName())},
-		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
-		Abort | Error,
-		typeDeclaration.sourceStart,
-		typeDeclaration.sourceEnd);
-}
-
-public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {
-	this.handle(
-		IProblem.TooManyConstantsInConstantPool,
-		new String[]{ new String(typeDeclaration.binding.readableName())},
-		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
-		Abort | Error,
-		typeDeclaration.sourceStart,
-		typeDeclaration.sourceEnd);
-}
-
-private boolean isKeyword(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameabstract:
-		case TerminalTokens.TokenNameassert:
-		case TerminalTokens.TokenNamebyte:
-		case TerminalTokens.TokenNamebreak:
-		case TerminalTokens.TokenNameboolean:
-		case TerminalTokens.TokenNamecase:
-		case TerminalTokens.TokenNamechar:
-		case TerminalTokens.TokenNamecatch:
-		case TerminalTokens.TokenNameclass:
-		case TerminalTokens.TokenNamecontinue:
-		case TerminalTokens.TokenNamedo:
-		case TerminalTokens.TokenNamedouble:
-		case TerminalTokens.TokenNamedefault:
-		case TerminalTokens.TokenNameelse:
-		case TerminalTokens.TokenNameextends:
-		case TerminalTokens.TokenNamefor:
-		case TerminalTokens.TokenNamefinal:
-		case TerminalTokens.TokenNamefloat:
-		case TerminalTokens.TokenNamefalse:
-		case TerminalTokens.TokenNamefinally:
-		case TerminalTokens.TokenNameif:
-		case TerminalTokens.TokenNameint:
-		case TerminalTokens.TokenNameimport:
-		case TerminalTokens.TokenNameinterface:
-		case TerminalTokens.TokenNameimplements:
-		case TerminalTokens.TokenNameinstanceof:
-		case TerminalTokens.TokenNamelong:
-		case TerminalTokens.TokenNamenew:
-		case TerminalTokens.TokenNamenull:
-		case TerminalTokens.TokenNamenative:
-		case TerminalTokens.TokenNamepublic:
-		case TerminalTokens.TokenNamepackage:
-		case TerminalTokens.TokenNameprivate:
-		case TerminalTokens.TokenNameprotected:
-		case TerminalTokens.TokenNamereturn:
-		case TerminalTokens.TokenNameshort:
-		case TerminalTokens.TokenNamesuper:
-		case TerminalTokens.TokenNamestatic:
-		case TerminalTokens.TokenNameswitch:
-		case TerminalTokens.TokenNamestrictfp:
-		case TerminalTokens.TokenNamesynchronized:
-		case TerminalTokens.TokenNametry:
-		case TerminalTokens.TokenNamethis:
-		case TerminalTokens.TokenNametrue:
-		case TerminalTokens.TokenNamethrow:
-		case TerminalTokens.TokenNamethrows:
-		case TerminalTokens.TokenNametransient:
-		case TerminalTokens.TokenNamevoid:
-		case TerminalTokens.TokenNamevolatile:
-		case TerminalTokens.TokenNamewhile:
-			return true;
-		default: 
-			return false;
-	}
-}
-
-private boolean isLiteral(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameIntegerLiteral:
-		case TerminalTokens.TokenNameLongLiteral:
-		case TerminalTokens.TokenNameFloatingPointLiteral:
-		case TerminalTokens.TokenNameDoubleLiteral:
-		case TerminalTokens.TokenNameStringLiteral:
-		case TerminalTokens.TokenNameCharacterLiteral:
-			return true;
-		default: 
-			return false;
-	}
-}
-
-private boolean isIdentifier(int token) {
-	return token == TerminalTokens.TokenNameIdentifier;
-}
-
-private void syntaxError(
-	int id,
-	int startPosition, 
-	int endPosition, 
-	int currentKind,
-	char[] currentTokenSource, 
-	String errorTokenName, 
-	String expectedToken) {
-
-	String eTokenName;
-	if (isKeyword(currentKind) ||
-		isLiteral(currentKind) ||
-		isIdentifier(currentKind)) { //$NON-NLS-1$
-			eTokenName = new String(currentTokenSource);
-	} else {
-		eTokenName = errorTokenName;
-	}
-
-	String[] arguments;
-	if(expectedToken != null) {
-		arguments = new String[] {eTokenName, expectedToken};
-	} else {
-		arguments = new String[] {eTokenName};
-	}
-	this.handle(
-		id,
-		arguments,
-		arguments,
-		startPosition,
-		endPosition);
-}
-
-public void parseErrorInsertBeforeToken(
-	int start,
-	int end,
-	int currentKind,
-	char[] errorTokenSource,
-	String errorTokenName,
-	String expectedToken){
-	this.syntaxError(
-		IProblem.ParsingErrorInsertTokenBefore,
-		start, 
-		end, 
-		currentKind,
-		errorTokenSource, 
-		errorTokenName, 
-		expectedToken); 
-}
-public void parseErrorInsertAfterToken(
-	int start,
-	int end,
-	int currentKind,
-	char[] errorTokenSource,
-	String errorTokenName,
-	String expectedToken){
-	this.syntaxError(
-		IProblem.ParsingErrorInsertTokenAfter,
-		start, 
-		end, 
-		currentKind,
-		errorTokenSource, 
-		errorTokenName, 
-		expectedToken); 
-}
-public void parseErrorDeleteToken(
-	int start,
-	int end,
-	int currentKind,
-	char[] errorTokenSource,
-	String errorTokenName){
-	this.syntaxError(
-		IProblem.ParsingErrorDeleteToken,
-		start, 
-		end, 
-		currentKind,
-		errorTokenSource, 
-		errorTokenName,
-		null); 
-}
-public void parseErrorReplaceToken(
-	int start,
-	int end,
-	int currentKind,
-	char[] errorTokenSource,
-	String errorTokenName,
-	String expectedToken){
-	this.syntaxError(
-		IProblem.ParsingError,
-		start, 
-		end, 
-		currentKind,
-		errorTokenSource, 
-		errorTokenName, 
-		expectedToken); 
-}
-public void parseErrorInvalidToken(
-	int start,
-	int end,
-	int currentKind,
-	char[] errorTokenSource,
-	String errorTokenName,
-	String expectedToken){
-	this.syntaxError(
-		IProblem.ParsingErrorInvalidToken,
-		start, 
-		end, 
-		currentKind,
-		errorTokenSource, 
-		errorTokenName, 
-		expectedToken); 
-}
-public void parseErrorUnexpectedEnd(
-	int start,
-	int end){
-		
-	String[] arguments;
-	if(this.referenceContext instanceof ConstructorDeclaration) {
-		arguments = new String[] {Util.bind("parser.endOfConstructor")}; //$NON-NLS-1$
-	} else if(this.referenceContext instanceof MethodDeclaration) {
-		arguments = new String[] {Util.bind("parser.endOfMethod")}; //$NON-NLS-1$
-	} else if(this.referenceContext instanceof TypeDeclaration) {
-		arguments = new String[] {Util.bind("parser.endOfInitializer")}; //$NON-NLS-1$
-	} else {
-		arguments = new String[] {Util.bind("parser.endOfFile")}; //$NON-NLS-1$
-	}
-	this.handle(
-		IProblem.ParsingErrorUnexpectedEOF,
-		arguments,
-		arguments,
-		start,
-		end);
-}
-public void parseErrorMergeTokens(
-	int start,
-	int end,
-	String expectedToken){
-	String[] arguments = new String[] {expectedToken};
-	this.handle(
-		IProblem.ParsingErrorMergeTokens,
-		arguments,
-		arguments,
-		start,
-		end);
-}
-public void parseErrorMisplacedConstruct(
-	int start,
-	int end){
-	this.handle(
-		IProblem.ParsingErrorMisplacedConstruct,
-		NoArgument,
-		NoArgument,
-		start,
-		end);
-}
-public void parseErrorNoSuggestion(
-	int start,
-	int end,
-	int currentKind,
-	char[] errorTokenSource,
-	String errorTokenName){
-	this.syntaxError(
-		IProblem.ParsingErrorNoSuggestion,
-		start, 
-		end, 
-		currentKind,
-		errorTokenSource, 
-		errorTokenName,
-		null); 
-}
-public void parseErrorDeleteTokens(
-	int start,
-	int end){
-	this.handle(
-		IProblem.ParsingErrorDeleteTokens,
-		NoArgument,
-		NoArgument,
-		start,
-		end);
-}
-public void parseErrorNoSuggestionForTokens(
-	int start,
-	int end){
-	this.handle(
-		IProblem.ParsingErrorNoSuggestionForTokens,
-		NoArgument,
-		NoArgument,
-		start,
-		end);
-}
-public void parseErrorReplaceTokens(
-	int start,
-	int end,
-	String expectedToken){
-	String[] arguments = new String[] {expectedToken};
-	this.handle(
-		IProblem.ParsingErrorReplaceTokens,
-		arguments,
-		arguments,
-		start,
-		end);
-}
-public void parseErrorInsertToComplete(
-	int start,
-	int end,
-	String inserted,
-	String completed){
-	String[] arguments = new String[] {inserted, completed};
-	this.handle(
-		IProblem.ParsingErrorInsertToComplete,
-		arguments,
-		arguments,
-		start,
-		end);
-}
-public void parseErrorInsertToCompleteScope(
-	int start,
-	int end,
-	String inserted){
-	String[] arguments = new String[] {inserted};
-	this.handle(
-		IProblem.ParsingErrorInsertToCompleteScope,
-		arguments,
-		arguments,
-		start,
-		end);
-}
-public void parseErrorInsertToCompletePhrase(
-	int start,
-	int end,
-	String inserted){
-	String[] arguments = new String[] {inserted};
-	this.handle(
-		IProblem.ParsingErrorInsertToCompletePhrase,
-		arguments,
-		arguments,
-		start,
-		end);
-}
-public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBinding exceptionType, int under, TypeBinding hidingExceptionType) {
-	//the two catch block under and upper are in an incorrect order.
-	//under should be define BEFORE upper in the source
-
-	TypeReference typeRef = statement.catchArguments[under].type;
-	this.handle(
-		IProblem.InvalidCatchBlockSequence,
-		new String[] {
-			new String(exceptionType.readableName()),
-			new String(hidingExceptionType.readableName()),
-		 }, 
-		new String[] {
-			new String(exceptionType.shortReadableName()),
-			new String(hidingExceptionType.shortReadableName()),
-		 }, 
-		typeRef.sourceStart,
-		typeRef.sourceEnd);
-}
-public void invalidUsageOfTypeParameters(TypeParameter firstTypeParameter, TypeParameter lastTypeParameter) {
-	this.handle(
-		IProblem.InvalidUsageOfTypeParameters,
-		NoArgument, 
-		NoArgument, 
-		firstTypeParameter.declarationSourceStart,
-		lastTypeParameter.declarationSourceEnd);
-}
-public void invalidUsageOfStaticImports(ImportReference staticImport) {
-	this.handle(
-		IProblem.InvalidUsageOfStaticImports,
-		NoArgument, 
-		NoArgument, 
-		staticImport.declarationSourceStart,
-		staticImport.declarationSourceEnd);
-}
-public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Expression collection) {
-	this.handle(
-		IProblem.InvalidUsageOfForeachStatements,
-		NoArgument, 
-		NoArgument, 
-		elementVariable.declarationSourceStart,
-		collection.sourceEnd);
-}
-public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
-	this.handle(
-		IProblem.InvalidUsageOfTypeArguments,
-		NoArgument, 
-		NoArgument, 
-		firstTypeReference.sourceStart,
-		lastTypeReference.sourceEnd);
-}
-public void invalidUsageOfEnumsDeclarations(EnumDeclaration enumDeclaration) {
-	this.handle(
-		IProblem.InvalidUsageOfEnumDeclarations,
-		NoArgument, 
-		NoArgument, 
-		enumDeclaration.modifiersSourceStart,
-		enumDeclaration.sourceEnd);
-}
-public void invalidUsageOfVarargs(Argument argument) {
-	this.handle(
-		IProblem.InvalidUsageOfVarargs,
-		NoArgument, 
-		NoArgument, 
-		argument.type.sourceStart,
-		argument.sourceEnd);
+		location.sourceEnd);    
 }
 public void wildcardInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] arguments) {
 	TypeBinding offendingArgument = null;
@@ -4634,14 +4680,22 @@ public void wildcardInvocation(ASTNode location, TypeBinding receiverType, Metho
 			location.sourceEnd);    
     }
 }
-public void wildcardAssignment(TypeBinding variableType, TypeBinding expressionType, ASTNode location) {
+public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBinding exceptionType, int under, TypeBinding hidingExceptionType) {
+	//the two catch block under and upper are in an incorrect order.
+	//under should be define BEFORE upper in the source
+
+	TypeReference typeRef = statement.catchArguments[under].type;
 	this.handle(
-		IProblem.WildcardFieldAssignment,
-		new String[] { 
-		        new String(expressionType.readableName()), new String(variableType.readableName()) },
-		new String[] { 
-		        new String(expressionType.shortReadableName()), new String(variableType.shortReadableName()) },
-		location.sourceStart,
-		location.sourceEnd);    
+		IProblem.InvalidCatchBlockSequence,
+		new String[] {
+			new String(exceptionType.readableName()),
+			new String(hidingExceptionType.readableName()),
+		 }, 
+		new String[] {
+			new String(exceptionType.shortReadableName()),
+			new String(hidingExceptionType.shortReadableName()),
+		 }, 
+		typeRef.sourceStart,
+		typeRef.sourceEnd);
 }
 }

@@ -49,6 +49,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return true;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return false;
+		if (argumentType == null || substitution == null || this.superclass == null || substitution.substitute(this.superclass) == null)			    {
+			int iii = 0;
+		}		
 		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(substitution.substitute(this.superclass))) {
 		    return false;
 		}

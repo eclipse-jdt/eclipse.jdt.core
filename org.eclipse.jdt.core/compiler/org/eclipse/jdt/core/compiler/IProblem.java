@@ -931,7 +931,13 @@ public interface IProblem {
 	int ReturnTypeUncheckedConversion = MethodRelated + 559;
 	/** @since 3.1 */
 	int MethodNameClash = MethodRelated + 560;
-
+	/** @since 3.1 */
+	int RawMemberTypeCannotBeParameterized = TypeRelated + 561;
+	/** @since 3.1 */
+	int MissingArgumentsForParameterizedMemberType = TypeRelated + 562;	
+	/** @since 3.1 */
+	int StaticMemberOfParameterizedType = TypeRelated + 563;	
+	
 	/**
 	 * Foreach
 	 */

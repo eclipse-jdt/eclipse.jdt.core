@@ -817,7 +817,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			"public static void main(String[] args) {\n" + 
 			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
 			"}\n" + 
-			"void foo(X.MX<Thread> mx) {\n" + 
+			"void foo(X.MX mx) {\n" + 
 			"   System.out.println(\"SUCCESS\");\n" + 
 			"}\n" + 
 			"}",
@@ -833,8 +833,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
 			char[] signature = methods[2].getGenericSignature();
-			assertNotNull("No signature", signature);
-			assertEquals("Wrong signature", "(LX$MX<Ljava/lang/Thread;>;)V", new String(signature));
+			assertNull("Unexpected generic signature", signature);
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -852,7 +851,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			"  public static void main(String[] args) {\n" + 
 			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
 			"  }\n" + 
-			"  void foo(X<String>.MX mx) {\n" + 
+			"  void foo(X<String>.MX<?> mx) {\n" + 
 			"	System.out.println(\"SUCCESS\");\n" + 
 			"  }\n" + 
 			"}",
@@ -869,7 +868,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
 			char[] signature = methods[2].getGenericSignature();
 			assertNotNull("No signature", signature);
-			assertEquals("Wrong signature", "(LX<Ljava/lang/String;>.MX;)V", new String(signature));
+			assertEquals("Wrong signature", "(LX<Ljava/lang/String;>.MX<*>;)V", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {

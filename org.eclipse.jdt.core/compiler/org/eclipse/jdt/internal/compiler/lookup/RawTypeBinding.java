@@ -47,6 +47,18 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    return nameBuffer.toString();		
 	}	
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
+	 */
+	public ReferenceBinding enclosingType() {
+	    if (this.enclosingType == null) { 
+	    	ReferenceBinding enclosing = this.type.enclosingType();
+	    	if (enclosing != null) {
+	    		this.enclosingType = this.environment.createRawType(enclosing, null); 
+	    	}
+	    }
+	    return this.enclosingType;
+	}	
+	/**
 	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
 	 */
@@ -101,7 +113,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	    char[] readableName;
 		if (isMemberType()) {
-			readableName = CharOperation.concat(this.type.enclosingType().readableName(), sourceName, '.');
+			readableName = CharOperation.concat(enclosingType().readableName(), sourceName, '.');
 		} else {
 			readableName = CharOperation.concatWith(this.type.compoundName, '.');
 		}
@@ -160,7 +172,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	public char[] shortReadableName() /*Object*/ {
 	    char[] shortReadableName;
 		if (isMemberType()) {
-			shortReadableName = CharOperation.concat(this.type.enclosingType().shortReadableName(), sourceName, '.');
+			shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
 		} else {
 			shortReadableName = this.type.sourceName;
 		}

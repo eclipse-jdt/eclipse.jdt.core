@@ -614,18 +614,31 @@ public class ClassScope extends Scope {
 			} while ((currentType = currentType.superclass()) != null);
 		}
 	}
+	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
+	private void  checkParameterizedTypeBounds() {
+		TypeReference superclass = referenceContext.superclass;
+		if (superclass != null) {
+			superclass.checkBounds(this);
+		}
+		TypeReference[] superinterfaces = referenceContext.superInterfaces;
+		if (superinterfaces != null) {
+			for (int i = 0, length = superinterfaces.length; i < length; i++) {
+				superinterfaces[i].checkBounds(this);
+			}
+		}
+		TypeParameter[] typeParameters = referenceContext.typeParameters;
+		if (typeParameters != null) {
+			for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+				TypeParameter typeParameter = typeParameters[i];
+				TypeReference typeRef = typeParameter.type;
+				if (typeRef != null) {
+					typeRef.checkBounds(this);
 
-	private void checkTypeVariableBounds(TypeParameter[] typeParameters) {
-		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
-			TypeParameter typeParameter = typeParameters[i];
-			TypeReference typeRef = typeParameter.type;
-			if (typeRef != null) {
-				typeRef.checkBounds(this);
-
-				TypeReference[] boundRefs = typeParameter.bounds;
-				if (boundRefs != null)
-					for (int j = 0, k = boundRefs.length; j < k; j++)
-						boundRefs[j].checkBounds(this);
+					TypeReference[] boundRefs = typeParameter.bounds;
+					if (boundRefs != null)
+						for (int j = 0, k = boundRefs.length; j < k; j++)
+							boundRefs[j].checkBounds(this);
+				}
 			}
 		}
 	}
@@ -770,8 +783,8 @@ public class ClassScope extends Scope {
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
-		if (referenceContext.typeParameters != null)
-			checkTypeVariableBounds(referenceContext.typeParameters); // only done after hierarchy is connected
+		// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
+		checkParameterizedTypeBounds();
 		connectMemberTypes();
 		try {
 			checkForInheritedMemberTypes(sourceType);

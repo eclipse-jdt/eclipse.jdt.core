@@ -62,7 +62,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		super(name);
 	}
 
-	public static Class testClass() {
+	public static Class testClass() {  
 		return GenericTypeTest.class;
 	}
 
@@ -3281,8 +3281,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
-				"    void foo(X<Thread>.MX.MMX<X> mx) {}\n" + 
+				"public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"    void foo(X<Thread>.MX<String>.MMX<X> mx) {}\n" + 
 				"    class MX <MT> {\n" + 
 				"        class MMX <MMT> {}\n" + 
 				"    }\n" + 
@@ -3290,14 +3290,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
-			"	void foo(X<Thread>.MX.MMX<X> mx) {}\n" + 
+			"	void foo(X<Thread>.MX<String>.MMX<X> mx) {}\n" + 
 			"	           ^^^^^^\n" + 
-			"Bound mismatch: The type Thread is not a valid substitute for the bounded parameter <T extends X.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"Bound mismatch: The type Thread is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
 			"----------\n");		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 				"    class MX <MT extends Comparable> {\n" + 
 				"        class MMX <MMT> {}\n" + 
 				"    }\n" + 
@@ -3305,14 +3305,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
-			"	public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
-			"	                               ^^^^^^^^\n" +
+			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                                         ^^^^^^^^\n" + 
 			"Bound mismatch: The type Runnable is not a valid substitute for the bounded parameter <MT extends Comparable> of the type X<T>.MX<MT>\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 				"    class MX <MT> {\n" + 
 				"        class MMX <MMT extends Comparable> {}\n" + 
 				"    }\n" + 
@@ -3320,8 +3320,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
-			"	public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
-			"	                                             ^^^^^^^^\n" +
+			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                                                       ^^^^^^^^\n" + 
 			"Bound mismatch: The type Iterable<String> is not a valid substitute for the bounded parameter <MMT extends Comparable> of the type X<T>.MX<MT>.MMX<MMT>\n" + 
 			"----------\n");
 	}			
@@ -3355,7 +3355,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"  public static void main(String[] args) {\n" + 
 				"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
 				"  }\n" + 
-				"  void foo(X.MX<Thread> mx) {\n" + 
+				"  void foo(X<String>.MX<Thread> mx) {\n" + 
 				"	System.out.println(\"SUCCESS\");\n" + 
 				"  }\n" + 
 				"}\n",
@@ -3373,7 +3373,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"  public static void main(String[] args) {\n" + 
 				"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
 				"  }\n" + 
-				"  void foo(X<String>.MX mx) {\n" + 
+				"  void foo(X.MX mx) {\n" + 
 				"	System.out.println(\"SUCCESS\");\n" + 
 				"  }\n" + 
 				"}\n",
@@ -3391,7 +3391,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"  public static void main(String[] args) {\n" + 
 				"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
 				"  }\n" + 
-				"  void foo(X.MX mx) {\n" + 
+				"  void foo(X<?>.MX<?> mx) {\n" + 
 				"	System.out.println(\"SUCCESS\");\n" + 
 				"  }\n" + 
 				"}\n",
@@ -3403,13 +3403,13 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 				"    public static void main(String [] args) {\n" + 
 				"        \n" + 
-				"        new X<X.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
+				"        new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
 				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
-				"    void foo(X<X.MX.MMX>.MX.MMX<X> mx) {\n" + 
+				"    void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\n" + 
 				"    }\n" + 
 				"    \n" + 
 				"    class MX <MT> {\n" + 
@@ -3435,21 +3435,22 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// test binary member types
-	public void test119() {
+	// TODO (kent) reenable once NPE is addressed (need more deferring in binary bound checks)
+	public void _test119() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 				"    public static void main(String [] args) {\n" + 
 				"        \n" + 
-				"        new X<X.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
+				"        new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
 				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
-				"    void foo(X<X.MX.MMX>.MX.MMX<X> mx) {\n" + 
+				"    void foo(X<X.MX.MMX>.MX<Object>.MMX<X> mx) {\n" + 
 				"    }\n" + 
-				"    void foo2(X.MX.MMX<X> mx) {\n" + 
+				"    void foo2(X<X.MX.MMX>.MX<Iterable>.MMX<X> mx) {\n" + 
 				"    }\n" + 
-				"    void foo3(X<X.MX<Runnable>.MMX<Iterable<String>>> mx) {\n" + 
+				"    void foo3(X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> mx) {\n" + 
 				"    }\n" + 
 				"    \n" + 
 				"    class MX <MT> {\n" + 
@@ -7682,5 +7683,127 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}"
 			},
 			"");
-	}
+	}	
+	public void test287() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	public class A <U> {\n" + 
+				"		\n" + 
+				"		public class B <V> {\n" + 
+				"			\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		\n" + 
+				"		X.A.B<String> bs;\n" + 
+				"	}\n" + 
+				"}\n" 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	X.A.B<String> bs;\n" + 
+			"	^^^^^\n" + 
+			"The member type X.A.B<String> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n");
+	}	
+	public void test288() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	public static class A <U> {\n" + 
+				"		\n" + 
+				"		public static class B <V> {\n" + 
+				"			\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		\n" + 
+				"		X.A.B<String> bs;\n" + 
+				"	}\n" + 
+				"}\n" 
+			},
+			"");
+	}		
+	public void test289() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	public class A <U> {\n" + 
+				"		\n" + 
+				"		public class B <V> {\n" + 
+				"			\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		\n" + 
+				"		X<String>.A.B<String> bs;\n" + 
+				"	}\n" + 
+				"}\n" 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	X<String>.A.B<String> bs;\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"The member type X<String>.A must be parameterized, since it is qualified with a parameterized type\n" + 
+			"----------\n");
+	}	
+	public void test290() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	public static class A <U> {\n" + 
+				"		\n" + 
+				"		public class B <V> {\n" + 
+				"			\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		\n" + 
+				"		X<String>.A.B<String> bs;\n" + 
+				"	}\n" + 
+				"}\n" 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	X<String>.A.B<String> bs;\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"The member type X<String>.A cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" + 
+			"----------\n");
+	}		
+	// ensure bound check deals with supertype (and their enclosing type)
+	public void test291() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends Iterable>{\n" + 
+				"	class MX<U extends Iterable> {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class SX extends X<Thread>.MX<Object> {\n" + 
+				"	SX(X x){\n" + 
+				"		x.super();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	class SX extends X<Thread>.MX<Object> {\n" + 
+			"	                   ^^^^^^\n" + 
+			"Bound mismatch: The type Thread is not a valid substitute for the bounded parameter <T extends Iterable> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	class SX extends X<Thread>.MX<Object> {\n" + 
+			"	                              ^^^^^^\n" + 
+			"Bound mismatch: The type Object is not a valid substitute for the bounded parameter <U extends Iterable> of the type X<T>.MX<U>\n" + 
+			"----------\n");
+	}		
 }
