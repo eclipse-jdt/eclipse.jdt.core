@@ -25,14 +25,15 @@ import java.util.List;
  * TypeDeclarationStatement:
  *    TypeDeclaration
  * </pre>
- * For JLS3, the kinds of type declarations
- * grew to include enum and annotation type declarations:
+ * For JLS3, the kinds of type declarations grew to include enum declarations:
  * <pre>
  * TypeDeclarationStatement:
  *    TypeDeclaration
  *    EnumDeclaration
- *    AnnotationTypeDeclaration
  * </pre>
+ * Although allowed at the AST, not all arrangements of AST nodes are meaningful;
+ * in particular, only class and enum declarations are meaningful in the context of 
+ * a block.
  * 
  * @since 2.0
  */
@@ -193,7 +194,7 @@ public class TypeDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the abstract type declaration of this local type declaration
-	 * statement (JLS2 API only).
+	 * statement (added in JLS3 API).
 	 * 
 	 * @return the type declaration node
 	 * @since 3.0
@@ -214,7 +215,7 @@ public class TypeDeclarationStatement extends Statement {
 		
 	/**
 	 * Sets the abstract type declaration of this local type declaration
-	 * statement (JLS2 API only).
+	 * statement (added in JLS3 API).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
@@ -239,7 +240,7 @@ public class TypeDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the type declaration of this local type declaration
-	 * statement (added in JLS3 API).
+	 * statement (JLS2 API only).
 	 * 
 	 * @return the type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -253,7 +254,7 @@ public class TypeDeclarationStatement extends Statement {
 		
 	/**
 	 * Sets the type declaration of this local type declaration
-	 * statement (added in JLS3 API).
+	 * statement (JLS2 API only).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
