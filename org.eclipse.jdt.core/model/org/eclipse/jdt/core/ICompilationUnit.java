@@ -355,6 +355,9 @@ IType[] getTypes() throws JavaModelException;
  * When the working copy instance is created, an ADDED IJavaElementDelta is 
  * reported on this working copy.
  * </p><p>
+ * Once done with the working copy, users of this method must discard it using 
+ * <code>discardWorkingCopy()</code>.
+ * </p><p>
  * Since 2.1, a working copy can be created on a not-yet existing compilation
  * unit. In particular, such a working copy can then be committed in order to create
  * the corresponding compilation unit.

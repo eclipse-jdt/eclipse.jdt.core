@@ -544,7 +544,7 @@ public int getNextToken() throws InvalidInputException {
 											currentPosition++;
 									} //jump over the \\
 								}
-								recordComment(false);
+								recordComment(TokenNameCOMMENT_LINE);
 								if (startPosition <= cursorLocation && cursorLocation < currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
@@ -556,7 +556,7 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
-								recordComment(false);
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
 								if (tokenizeComments) {
 									this.currentPosition--; // reset one character behind
@@ -650,14 +650,18 @@ public int getNextToken() throws InvalidInputException {
 											currentPosition++;
 									} //jump over the \\
 								}
-								recordComment(isJavadoc);
+								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
+								recordComment(token);
 								if (startPosition <= cursorLocation && cursorLocation < currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
 								if (tokenizeComments) {
+									/*
 									if (isJavadoc)
 										return TokenNameCOMMENT_JAVADOC;
 									return TokenNameCOMMENT_BLOCK;
+									*/
+									return token;
 								}
 							} catch (IndexOutOfBoundsException e) {
 								throw new InvalidInputException(UNTERMINATED_COMMENT);

@@ -30,6 +30,7 @@ import org.eclipse.text.edits.TextEdit;
 public class Scribe {
 
 	private static final int INITIAL_SIZE = 100;
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	
 	private boolean checkLineWrapping;
 	public int column;
@@ -83,23 +84,19 @@ public class Scribe {
 	}
 	
 	private final void addDeleteEdit(int start, int end) {
-		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
-			if (this.edits.length == this.editsIndex) {
-				// resize
-				resize();
-			}
-			addOptimizedReplaceEdit(start, end - start + 1, ""); //$NON-NLS-1$
+		if (this.edits.length == this.editsIndex) {
+			// resize
+			resize();
 		}
+		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING); //$NON-NLS-1$
 	}
-	
+
 	private final void addInsertEdit(int insertPosition, String insertedString) {
-		if (this.textRegionStart <= insertPosition && insertPosition <= this.textRegionEnd) {
-			if (this.edits.length == this.editsIndex) {
-				// resize
-				resize();
-			}
-			addOptimizedReplaceEdit(insertPosition, 0, insertedString);
+		if (this.edits.length == this.editsIndex) {
+			// resize
+			resize();
 		}
+		addOptimizedReplaceEdit(insertPosition, 0, insertedString);
 	}
 
 	private final void addOptimizedReplaceEdit(int offset, int length, String replacement) {
@@ -164,13 +161,11 @@ public class Scribe {
 	}
 	
 	private final void addReplaceEdit(int start, int end, String replacement) {
-		if (this.textRegionStart <= start && end <= this.textRegionEnd) {
-			if (this.edits.length == this.editsIndex) {
-				// resize
-				resize();
-			}
-			addOptimizedReplaceEdit(start,  end - start + 1, replacement);
+		if (this.edits.length == this.editsIndex) {
+			// resize
+			resize();
 		}
+		addOptimizedReplaceEdit(start,  end - start + 1, replacement);
 	}
 
 	public void alignFragment(Alignment alignment, int fragmentIndex){
@@ -302,6 +297,41 @@ public class Scribe {
 		}
 	}	
 
+	public String getEmptyLines(int linesNumber) {
+		StringBuffer buffer = new StringBuffer();
+		if (lastNumberOfNewLines == 0) {
+			linesNumber++; // add an extra line breaks
+			for (int i = 0; i < linesNumber; i++) {
+				buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += linesNumber;
+			line += linesNumber;
+			column = 1;
+			needSpace = false;
+		} else if (lastNumberOfNewLines == 1) {
+			for (int i = 0; i < linesNumber; i++) {
+				buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += linesNumber;
+			line += linesNumber;
+			column = 1;
+			needSpace = false;
+		} else {
+			if ((lastNumberOfNewLines - 1) >= linesNumber) {
+				// there is no need to add new lines
+				return EMPTY_STRING;
+			}
+			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
+			for (int i = 0; i < realNewLineNumber; i++) {
+				buffer.append(this.lineSeparator);
+			}
+			lastNumberOfNewLines += realNewLineNumber;
+			line += realNewLineNumber;
+			column = 1;
+			needSpace = false;
+		}
+		return String.valueOf(buffer);
+	}
 	/** 
 	 * Answer indentation level based on column estimated position
 	 * (if column is not indented, then use indentationLevel)
@@ -340,6 +370,32 @@ public class Scribe {
 		}
 	}	
 
+	private String getPreserveEmptyLines(int count) {
+		if (count > 0) {
+			if (this.formatter.preferences.preserve_user_linebreaks) {
+				return this.getEmptyLines(count);
+			} else if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
+				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
+				return this.getEmptyLines(linesToPreserve);
+			} else {
+				return getNewLine();
+			}
+		}
+		return EMPTY_STRING;
+	}
+	
+	public String getNewLine() {
+		if (lastNumberOfNewLines >= 1) {
+			column = 1; // ensure that the scribe is at the beginning of a new line
+			return EMPTY_STRING;
+		}
+		line++;
+		lastNumberOfNewLines = 1;
+		column = 1;
+		needSpace = false;
+		return this.lineSeparator;
+	}
+	
 	public TextEdit getRootEdit() {
 		MultiTextEdit edit = null;
 		int length = this.textRegionEnd - this.textRegionStart + 1;
@@ -414,16 +470,38 @@ public class Scribe {
 		final int editLength= edit.length;
 		final int editReplacementLength= edit.replacement.length();
 		final int editOffset= edit.offset;
-		if (editLength != 0 && editReplacementLength != 0 && editLength == editReplacementLength) {
-			for (int i = editOffset, max = editOffset + editLength; i < max; i++) {
-				if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
+		if (editLength != 0) {
+			if (this.textRegionStart <= editOffset && (editOffset + editLength - 1) <= this.textRegionEnd) {
+				if (editReplacementLength != 0 && editLength == editReplacementLength) {
+					for (int i = editOffset, max = editOffset + editLength; i < max; i++) {
+						if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
+							return true;
+						}
+					}
+					return false;
+				} else {
+					return true;
+				}
+			} else if (editOffset + editLength == this.textRegionStart) {
+				int i = editOffset;
+				for (int max = editOffset + editLength; i < max; i++) {
+					if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
+						break;
+					}
+				}
+				if (i == editOffset + editLength - 1) {
+					return false;
+				} else {
+					edit.offset = textRegionStart;
+					edit.length = 0;
+					edit.replacement = edit.replacement.substring(i - editOffset);
 					return true;
 				}
 			}
-			return false;
-		} else {
+		} else if (this.textRegionStart <= editOffset && editOffset <= this.textRegionEnd) {
 			return true;
 		}
+		return false;
 	}
 
 	private void preserveEmptyLines(int count, int insertPosition) {
@@ -438,7 +516,7 @@ public class Scribe {
 			}
 		}
 	}
-		
+
 	private void print(char[] s, boolean considerSpaceIfAny) {
 		if (checkLineWrapping && s.length + column > this.pageWidth) {
 			handleLineTooLong();
@@ -563,8 +641,7 @@ public class Scribe {
 								this.printNewLine(this.scanner.getCurrentTokenEndPosition() + 1);
 							}
 						} else if (count != 0 && this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
-							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-							preserveEmptyLines(count - 1, this.scanner.getCurrentTokenEndPosition() + 1);
+							addReplaceEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), this.getPreserveEmptyLines(count - 1));
 						} else {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						}

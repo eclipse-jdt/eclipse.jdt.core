@@ -22,8 +22,9 @@ package org.eclipse.jdt.core.dom;
  * is returned, the given node's child nodes will be visited next; however,
  * if <code>false</code> is returned, the given node's child nodes will 
  * not be visited. The default implementation provided by this class does
- * nothing and returns <code>true</code>. Subclasses may reimplement
- * this method as needed.</li>
+ * nothing and returns <code>true</code> (with the exception of 
+ * {@link #visit(Javadoc) ASTVisitor.visit(Javadoc)}).
+ * Subclasses may reimplement this method as needed.</li>
  * <li><code>public void endVisit(<it>T</it> node)</code> - Visits
  * the given node to perform some arbitrary operation. When used in the
  * conventional way, this method is called after all of the given node's
@@ -96,6 +97,38 @@ package org.eclipse.jdt.core.dom;
  * @see ASTNode#accept
  */
 public abstract class ASTVisitor {
+
+	/**
+	 * Indicates whether doc tags should be visited by default.
+	 * @since 3.0
+	 */
+	private boolean visitDocTags;
+	
+	/**
+	 * Creates a new AST visitor instance.
+	 * <p>
+	 * For backwards compatibility, the visitor does not visit tag
+	 * elements below doc comments by default. Use 
+	 * {@link #ASTVisitor(boolean) ASTVisitor(true)}
+	 * for an visitor that includes doc comments by default.
+	 * </p>
+	 */
+	public ASTVisitor() {
+		this(false);
+	}
+	
+	/**
+	 * Creates a new AST visitor instance. 
+	 * 
+	 * @param visitDocTags <code>true</code> if doc comment tags are
+	 * to be visited by default, and <code>false</code> otherwise
+	 * @see Javadoc#tags()
+	 * @see #visit(Javadoc)
+	 * @since 3.0
+	 */
+	public ASTVisitor(boolean visitDocTags) {
+		this.visitDocTags = visitDocTags;
+	}
 	
 	/**
 	 * Visits the given AST node prior to the type-specific visit.
@@ -145,6 +178,13 @@ public abstract class ASTVisitor {
 		return true;
 	}
 	public boolean visit(Block node) {
+		return true;
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(BlockComment node) {
 		return true;
 	}
 	public boolean visit(BooleanLiteral node) {
@@ -236,12 +276,60 @@ public abstract class ASTVisitor {
 	public boolean visit(Initializer node) {
 		return true;
 	}
+
+	/**
+	 * Visits the given AST node.
+	 * <p>
+	 * Unlike other node types, the boolean returned by the default
+	 * implementation is controlled by a constructor-supplied
+	 * parameter  {@link #ASTVisitor(boolean) ASTVisitor(boolean)} 
+	 * which is <code>false</code> by default.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param node the node to visit
+	 * @return <code>true</code> to visit the children of the given
+	 *   node, and <code>false</code> to skip the children
+	 * @see #ASTVisitor()
+	 * @see #ASTVisitor(boolean)
+	 */
 	public boolean visit(Javadoc node) {
-		return true;
+		// visit tag elements inside doc comments only if requested
+		return this.visitDocTags;
 	}
+	
 	public boolean visit(LabeledStatement node) {
 		return true;
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(LineComment node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(MemberRef node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(MethodRef node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(MethodRefParameter node) {
+		return true;
+	}
+	
 	public boolean visit(MethodDeclaration node) {
 		return true;
 	}
@@ -329,6 +417,21 @@ public abstract class ASTVisitor {
 	public boolean visit(SynchronizedStatement node) {
 		return true;
 	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(TagElement node) {
+		return true;
+	}
+
+	/**
+	 * @since 3.0
+	 */
+	public boolean visit(TextElement node) {
+		return true;
+	}
+
 	public boolean visit(ThisExpression node) {
 		return true;
 	}
@@ -413,6 +516,14 @@ public abstract class ASTVisitor {
 	public void endVisit(Block node) {
 		// default implementation: do nothing
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(BlockComment node) {
+		// default implementation: do nothing
+	}
+	
 	public void endVisit(BooleanLiteral node) {
 		// default implementation: do nothing
 	}
@@ -507,6 +618,35 @@ public abstract class ASTVisitor {
 	public void endVisit(LabeledStatement node) {
 		// default implementation: do nothing
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(LineComment node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(MemberRef node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRef node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRefParameter node) {
+		// default implementation: do nothing
+	}
+	
 	public void endVisit(MethodDeclaration node) {
 		// default implementation: do nothing
 	}
@@ -593,6 +733,21 @@ public abstract class ASTVisitor {
 	public void endVisit(SynchronizedStatement node) {
 		// default implementation: do nothing
 	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(TagElement node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * @since 3.0
+	 */
+	public void endVisit(TextElement node) {
+		// default implementation: do nothing
+	}
+	
 	public void endVisit(ThisExpression node) {
 		// default implementation: do nothing
 	}

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import junit.framework.Test;
 
@@ -60,13 +63,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	private long time;
 	
 	public static Test suite() {
 		if (true) {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test450"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test405"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -95,6 +99,30 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return resource.getLocation().toOSString();
 	}	
 	
+	private String getZipEntryContents(String fileName, String zipEntryName) {
+		ZipFile zipFile = null;
+		BufferedInputStream inputStream  = null;
+		try {
+			zipFile = new ZipFile(fileName);
+			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
+			inputStream = new BufferedInputStream(zipFile.getInputStream(zipEntry));
+			return new String(org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(inputStream, -1, null));
+		} catch (IOException e) {
+		} finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+				if (zipFile != null) {
+					zipFile.close();
+				}
+			} catch (IOException e1) {
+				// Do nothing
+			}
+		}
+		return null;
+	}
+	
 	public String getSourceWorkspacePath() {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
@@ -112,7 +140,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 //			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
-				assertEquals("Different reformatting", result2, result);
+				assertEquals("Different reformatting", result, result2);
 			}
 		}
 		if (DefaultCodeFormatter.DEBUG){
@@ -133,6 +161,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			getWorkspace().setDescription(description);
 		}
 		setUpJavaProject("Formatter"); //$NON-NLS-1$
+		if (DEBUG) {
+			this.time = System.currentTimeMillis();
+		}
 	}	
 
 	/**
@@ -140,7 +171,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		this.deleteProject("Formatter"); //$NON-NLS-1$
-		
+		if (DEBUG) {
+			System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));//$NON-NLS-1$
+		}
 		super.tearDown();
 	}	
 
@@ -242,6 +275,27 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, checkNull, offset, length, null);
 	}
+	
+	private void runTest(String input, String output, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
+		String result;
+		if (length == -1) {
+			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, input.length(), lineSeparator);
+		} else {
+			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, length, lineSeparator);
+		}
+		assertLineEquals(result, input, output, checkNull);
+	}
+
+	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
+		String result;
+		if (length == -1) {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
+		} else {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
+		}
+		assertLineEquals(result, source, expectedResult, checkNull);
+	}
+	
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -262,16 +316,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 
-	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
-		String result;
-		if (length == -1) {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
-		} else {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
-		}
-		assertLineEquals(result, source, expectedResult, checkNull);
-	}
-	
 	public void _test() {
 		try {
 			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(new File("D:/workspaces/eclipse/plugins/TestingOlivier/src/FormatterRegressionTests.java"), null);
@@ -5323,13 +5367,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void _test447() {
-		String resourcePath = getResource("test447", "settings.xml");
-		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
+	public void test447() {
+		String resourcePath = getResource("test447", "test447.zip");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "settings.xml", "Toms");
 		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test447", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 25, 32, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+		String input = getZipEntryContents(resourcePath, getIn("Format.java"));
+		assertNotNull("No input", input);
+		String output = getZipEntryContents(resourcePath, getOut("Format.java"));
+		assertNotNull("No output", output);
+		int start = input.indexOf("private");
+		int end = input.indexOf(";");
+		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
@@ -5368,5 +5418,45 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test450", "A.java", CodeFormatter.K_UNKNOWN, 0, false, 0, 0);//$NON-NLS-1$ //$NON-NLS-2$
-	}	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
+	 */
+	public void test451() {
+		String resourcePath = getResource("test451", "test451.zip");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "settings.xml", "Toms");
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String input = getZipEntryContents(resourcePath, getIn("Format.java"));
+		assertNotNull("No input", input);
+		String output = getZipEntryContents(resourcePath, getOut("Format.java"));
+		assertNotNull("No output", output);
+		int start = input.indexOf("private");
+		int end = input.indexOf(";");
+		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
+	 */
+	public void test452() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE, "2");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE, "2");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test452", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50719
+	 */
+	public void test453() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test453", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

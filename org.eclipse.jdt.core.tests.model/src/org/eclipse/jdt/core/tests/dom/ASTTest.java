@@ -28,6 +28,11 @@ import org.eclipse.jdt.core.dom.*;
 public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 	
 	class CheckPositionsMatcher extends ASTMatcher {
+		
+		public CheckPositionsMatcher() {
+			// include doc tags
+			super(true);
+		}
 	
 		private void checkPositions(Object source, Object destination) {
 			assertTrue(source instanceof ASTNode);
@@ -102,6 +107,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(Block, Object)
 		 */
 		public boolean match(Block node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(BlockComment, Object)
+         * @since 3.0
+		 */
+		public boolean match(BlockComment node, Object other) {
 			checkPositions(node, other);
 			return super.match(node, other);
 		}
@@ -309,6 +323,24 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 	
 		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(LineComment, Object)
+         * @since 3.0
+		 */
+		public boolean match(LineComment node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MemberRef, Object)
+         * @since 3.0
+		 */
+		public boolean match(MemberRef node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MethodDeclaration, Object)
 		 */
 		public boolean match(MethodDeclaration node, Object other) {
@@ -320,6 +352,24 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MethodInvocation, Object)
 		 */
 		public boolean match(MethodInvocation node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MethodRef, Object)
+         * @since 3.0
+		 */
+		public boolean match(MethodRef node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(MethodRefParameter, Object)
+         * @since 3.0
+		 */
+		public boolean match(MethodRefParameter node, Object other) {
 			checkPositions(node, other);
 			return super.match(node, other);
 		}
@@ -495,6 +545,24 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 	
 		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TagElement, Object)
+         * @since 3.0
+		 */
+		public boolean match(TagElement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TextElement, Object)
+         * @since 3.0
+		 */
+		public boolean match(TextElement node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ThisExpression, Object)
 		 */
 		public boolean match(ThisExpression node, Object other) {
@@ -650,11 +718,38 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			cu.imports().add(im2);
 			assertTrue(im2.getRoot() == cu);
 			
-			// public class MyClass {}
+			// /** Spec. \n @deprecated Use {@link #foo() bar} instead. */public class MyClass {}
 			TypeDeclaration td = localAst.newTypeDeclaration();
 			td.setModifiers(Modifier.PUBLIC);
 			td.setInterface(false); 
 			td.setName(localAst.newSimpleName("MyClass")); //$NON-NLS-1$
+			{ 
+				Javadoc jd = localAst.newJavadoc();
+				TagElement tg0 = localAst.newTagElement();
+				jd.tags().add(tg0);
+				TextElement tx1 = localAst.newTextElement();
+				tx1.setText("Spec."); //$NON-NLS-1$
+				tg0.fragments().add(tx1);
+				TagElement tg1 = localAst.newTagElement();
+				tg1.setTagName("@deprecated");
+				jd.tags().add(tg1);
+				TextElement tx2 = localAst.newTextElement();
+				tx2.setText("Use "); //$NON-NLS-1$
+				tg1.fragments().add(tx2);
+				TagElement tg2 = localAst.newTagElement();
+				tg2.setTagName("@link");
+				tg1.fragments().add(tg2);
+				MethodRef mr1 = localAst.newMethodRef();
+				mr1.setName(localAst.newSimpleName("foo"));
+				tg2.fragments().add(mr1);
+				TextElement tx3 = localAst.newTextElement();
+				tx3.setText("bar"); //$NON-NLS-1$
+				tg2.fragments().add(tx3);
+				TextElement tx4 = localAst.newTextElement();
+				tx2.setText(" instead."); //$NON-NLS-1$
+				tg1.fragments().add(tx4);
+			}
+			
 			cu.types().add(td);
 			assertTrue(td.getRoot() == cu);
 			
@@ -702,7 +797,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(e.getRoot() == cu);
 			assertTrue(h.getRoot() == cu);
 			
-			// new String[len]
+			// new String[len];
 			ArrayCreation ac1 = localAst.newArrayCreation();
 			ac1.setType(
 				localAst.newArrayType(
@@ -711,7 +806,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			b.statements().add(localAst.newExpressionStatement(ac1));
 			assertTrue(ac1.getRoot() == cu);
 
-			// new double[7][24][]
+			// new double[7][24][];
 			ArrayCreation ac2 = localAst.newArrayCreation();
 			ac2.setType(
 				localAst.newArrayType(
@@ -721,7 +816,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			b.statements().add(localAst.newExpressionStatement(ac2));
 			assertTrue(ac2.getRoot() == cu);
 
-			// new int[] {1, 2}
+			// new int[] {1, 2};
 			ArrayCreation ac3 = localAst.newArrayCreation();
 			ac3.setType(
 				localAst.newArrayType(
@@ -734,14 +829,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(ac3.getRoot() == cu);
 			assertTrue(ai.getRoot() == cu);
 			
-			// new String(10)
+			// new String(10);
 			ClassInstanceCreation cr1 = localAst.newClassInstanceCreation();
 			cr1.setName(localAst.newSimpleName("String")); //$NON-NLS-1$
 			cr1.arguments().add(localAst.newNumberLiteral("10"));		 //$NON-NLS-1$
 			b.statements().add(localAst.newExpressionStatement(cr1));
 			assertTrue(cr1.getRoot() == cu);
 
-			// new Listener() {public void handleEvent() {} }
+			// new Listener() {public void handleEvent() {} };
 			ClassInstanceCreation cr2 = localAst.newClassInstanceCreation();
 			AnonymousClassDeclaration ad1 = localAst.newAnonymousClassDeclaration();
 			cr2.setAnonymousClassDeclaration(ad1);
@@ -783,12 +878,27 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * Returns a sample node of a type suitable for storing
 		 * in this property.
 		 * 
-		 * @param ast the target AST
+		 * @param targetAST the target AST
 		 * @param parented <code>true</code> if the sample should be
 		 *    parented, and <code>false</code> if unparented
 		 * @return a sample node
 		 */
-		public abstract ASTNode sample(AST newValue, boolean parented);
+		public abstract ASTNode sample(AST targetAST, boolean parented);
+
+		/**
+		 * Returns examples of node of types unsuitable for storing
+		 * in this property.
+		 * <p>
+		 * This implementation returns an empty list. Subclasses
+		 * should reimplement to specify counter-examples.
+		 * </p>
+		 * 
+		 * @param targetAST the target AST
+		 * @return a list of counter-example nodes
+		 */
+		public ASTNode[] counterExamples(AST targetAST) {
+			return new ASTNode[] {};
+		}
 
 		/**
 		 * Returns a sample node of a type suitable for storing
@@ -809,7 +919,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * should reimplement to specify an embedding.
 		 * </p>
 		 * 
-		 * @param ast the target AST
 		 * @return a sample node that embeds the given node,
 		 *    and <code>null</code> if such an embedding is impossible
 		 */
@@ -824,7 +933,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * should reimplement if they reimplement <code>wrap</code>.
 		 * </p>
 		 * 
-		 * @param ast the target AST
 		 * @return a sample node that embeds the given node,
 		 *    and <code>null</code> if such an embedding is impossible
 		 */
@@ -935,6 +1043,18 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				assertTrue(node.getParent() == null);
 			}
 		}
+		
+		// check that a child of the wrong type is detected
+		ASTNode b1[] = prop.counterExamples(node.getAST());
+		for (int i = 0; i < b1.length; i++) {
+			try {
+				prop.set(b1[i]); // bogus: wrong type
+				assertTrue(false);
+			} catch (RuntimeException e) {
+				// pass
+			}
+		}
+
 	}
 
 	/**
@@ -1027,6 +1147,17 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			if (s1 != null) {
 				prop.unwrap();
 				assertTrue(node.getParent() == null);
+			}
+		}
+		
+		// check that a child of the wrong type is detected
+		ASTNode b1[] = prop.counterExamples(node.getAST());
+		for (int i = 0; i < b1.length; i++) {
+			try {
+				children.add(b1[i]); // bogus: wrong type
+				assertTrue(false);
+			} catch (RuntimeException e) {
+				// pass
 			}
 		}
 		
@@ -2816,10 +2947,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 	}	
-	
+
+	/**
+	 * @deprecated (not really - its just that Javadoc.get/setComment
+	 * are deprecated, and this suppresses the extra warnings)
+	 */
 	public void testJavadoc() {
 		long previousCount = ast.modificationCount();
-		Javadoc x = ast.newJavadoc();
+		final Javadoc x = ast.newJavadoc();
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
@@ -2827,6 +2962,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getComment().startsWith("/**")); //$NON-NLS-1$
 		assertTrue(x.getComment().endsWith("*/")); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.JAVADOC);
+		assertTrue(!x.isBlockComment());
+		assertTrue(!x.isLineComment());
+		assertTrue(x.isDocComment());
+		assertTrue(x.tags().isEmpty());
+		assertTrue(x.getAlternateRoot() == null);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
@@ -2861,8 +3001,374 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				// pass
 			}
 		}
+		
+		tAlternateRoot(x);
+
+		genericPropertyListTest(x, x.tags(),
+		  new Property("Tags", true, TagElement.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				TagElement result = targetAst.newTagElement();
+				if (parented) {
+					Javadoc parent = targetAst.newJavadoc();
+					parent.tags().add(result);
+				}
+				return result;
+			}
+			public ASTNode[] counterExamples(AST targetAst) {
+				return new ASTNode[] {
+					targetAst.newEmptyStatement(),
+					targetAst.newCompilationUnit(),
+					targetAst.newTypeDeclaration(),
+					targetAst.newJavadoc(),
+					targetAst.newTextElement(),
+					targetAst.newMethodRef()
+				};
+			}
+		});
 	}		
 
+	public void testBlockComment() {
+		long previousCount = ast.modificationCount();
+		final BlockComment x = ast.newBlockComment();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.BLOCK_COMMENT);
+		assertTrue(x.isBlockComment());
+		assertTrue(!x.isLineComment());
+		assertTrue(!x.isDocComment());
+		assertTrue(x.getAlternateRoot() == null);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
+		tAlternateRoot(x);
+	}		
+
+	public void testLineComment() {
+		long previousCount = ast.modificationCount();
+		final LineComment x = ast.newLineComment();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.LINE_COMMENT);
+		assertTrue(!x.isBlockComment());
+		assertTrue(x.isLineComment());
+		assertTrue(!x.isDocComment());
+		assertTrue(x.getAlternateRoot() == null);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
+		tAlternateRoot(x);
+	}		
+
+	public void testTagElement() {
+		long previousCount = ast.modificationCount();
+		final TagElement x = ast.newTagElement();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.TAG_ELEMENT);
+		assertTrue(x.getTagName() == null);
+		assertTrue(x.fragments().isEmpty());
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+		
+		// tagName property
+		previousCount = ast.modificationCount();
+		String s1 = new String("hello"); //$NON-NLS-1$
+		x.setTagName(s1);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getTagName() == s1);
+		previousCount = ast.modificationCount();
+		String s2 = new String("bye"); //$NON-NLS-1$
+		x.setTagName(s2);
+		assertTrue(x.getTagName() == s2);
+		assertTrue(ast.modificationCount() > previousCount);
+		x.setTagName(null);
+		assertTrue(x.getTagName() == null);
+		assertTrue(ast.modificationCount() > previousCount);
+		
+		// check that fragments() can handle TagElement
+		genericPropertyListTest(x, x.fragments(),
+		  new Property("Fragments", true, TagElement.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				TagElement result = targetAst.newTagElement();
+				if (parented) {
+					Javadoc parent = targetAst.newJavadoc();
+					parent.tags().add(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				// return TagElement that embeds x
+				TagElement tagElement = ast.newTagElement();
+				tagElement.fragments().add(x);
+				return tagElement;
+			}
+			public void unwrap() {
+				TagElement tagElement = (TagElement) x.getParent();
+				tagElement.fragments().remove(x);
+			}
+			public ASTNode[] counterExamples(AST targetAst) {
+				return new ASTNode[] {
+					targetAst.newEmptyStatement(),
+					targetAst.newCompilationUnit(),
+					targetAst.newTypeDeclaration(),
+					targetAst.newJavadoc(),
+				};
+			}
+		});
+		// check that fragments() can handle Name
+		genericPropertyListTest(x, x.fragments(),
+		  new Property("Fragments", true, Name.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+		});
+		// check that fragments() can handle TextElement
+		genericPropertyListTest(x, x.fragments(),
+		  new Property("Fragments", true, TextElement.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				TextElement result = targetAst.newTextElement();
+				if (parented) {
+					TagElement parent = targetAst.newTagElement();
+					parent.fragments().add(result);
+				}
+				return result;
+			}
+		});
+		// check that fragments() can handle MethodRef
+		genericPropertyListTest(x, x.fragments(),
+		  new Property("Fragments", true, MethodRef.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				MethodRef result = targetAst.newMethodRef();
+				if (parented) {
+					TagElement parent = targetAst.newTagElement();
+					parent.fragments().add(result);
+				}
+				return result;
+			}
+		});
+		// check that fragments() can handle MemberRef
+		genericPropertyListTest(x, x.fragments(),
+		  new Property("Fragments", true, MemberRef.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				MemberRef result = targetAst.newMemberRef();
+				if (parented) {
+					TagElement parent = targetAst.newTagElement();
+					parent.fragments().add(result);
+				}
+				return result;
+			}
+		});
+	}		
+
+	public void testTextElement() {
+		long previousCount = ast.modificationCount();
+		final TextElement x = ast.newTextElement();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.TEXT_ELEMENT);
+		assertTrue(x.getText().length() == 0);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+		
+		// text property
+		previousCount = ast.modificationCount();
+		String s1 = new String("hello");
+		x.setText(s1);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getText() == s1);
+		previousCount = ast.modificationCount();
+		String s2 = new String("");
+		x.setText(s2);
+		assertTrue(x.getText() == s2);
+		assertTrue(ast.modificationCount() > previousCount);
+		// check that property cannot be set to null
+		previousCount = ast.modificationCount();
+		try {
+			x.setText(null);
+			assertTrue(false);
+		} catch (RuntimeException e) {
+			// pass
+		}
+		assertTrue(ast.modificationCount() == previousCount);
+		// check that property cannot include */
+		previousCount = ast.modificationCount();
+		try {
+			x.setText("this would be the */ end of it");  //$NON-NLS-1$
+			assertTrue(false);
+		} catch (RuntimeException e) {
+			// pass
+		}
+		assertTrue(ast.modificationCount() == previousCount);
+	}		
+
+	public void testMemberRef() {
+		long previousCount = ast.modificationCount();
+		final MemberRef x = ast.newMemberRef();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.MEMBER_REF);
+		assertTrue(x.getQualifier() == null);
+		assertTrue(x.getName().getParent() == x);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+		
+		genericPropertyTest(x, new Property("Qualifier", false, Name.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				QualifiedName result = targetAst.newQualifiedName(
+					targetAst.newSimpleName("a"), //$NON-NLS-1$
+					targetAst.newSimpleName("b")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getQualifier();
+			}
+			public void set(ASTNode value) {
+				x.setQualifier((Name) value);
+			}
+		});
+
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
+	}		
+	
+	public void testMethodRef() {
+		long previousCount = ast.modificationCount();
+		final MethodRef x = ast.newMethodRef();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.METHOD_REF);
+		assertTrue(x.getQualifier() == null);
+		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.parameters().isEmpty());
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+		
+		genericPropertyTest(x, new Property("Qualifier", false, Name.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				QualifiedName result = targetAst.newQualifiedName(
+					targetAst.newSimpleName("a"), //$NON-NLS-1$
+					targetAst.newSimpleName("b")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getQualifier();
+			}
+			public void set(ASTNode value) {
+				x.setQualifier((Name) value);
+			}
+		});
+
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
+
+		genericPropertyListTest(x, x.parameters(),
+		  new Property("Parameters", true, MethodRefParameter.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				MethodRefParameter result = targetAst.newMethodRefParameter();
+				if (parented) {
+					MethodRef parent = targetAst.newMethodRef();
+					parent.parameters().add(result);
+				}
+				return result;
+			}
+		});
+	}		
+	
+	public void testMethodRefParameter() {
+		long previousCount = ast.modificationCount();
+		final MethodRefParameter x = ast.newMethodRefParameter();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getNodeType() == ASTNode.METHOD_REF_PARAMETER);
+		assertTrue(x.getType().getParent() == x);
+		assertTrue(x.getName() == null);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+		
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleType result = targetAst.newSimpleType(
+					targetAst.newSimpleName("foo")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newArrayType(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getType();
+			}
+			public void set(ASTNode value) {
+				x.setType((Type) value);
+			}
+		});
+
+		genericPropertyTest(x, new Property("Name", false, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
+	}		
+	
 	public void testBlock() {
 		long previousCount = ast.modificationCount();
 		final Block x = ast.newBlock();
@@ -4069,6 +4575,24 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 
 	/**
+	 * Exercise the alternateRoot property of a Comment.
+	 * 
+	 * @param x the comment to test
+     * @since 3.0
+	 */
+	void tAlternateRoot(final Comment x) {
+		CompilationUnit cu = ast.newCompilationUnit();
+		long previousCount = ast.modificationCount();
+		x.setAlternateRoot(cu);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getAlternateRoot() == cu);
+		previousCount = ast.modificationCount();
+		x.setAlternateRoot(null);
+		assertTrue(x.getAlternateRoot() == null);
+		assertTrue(ast.modificationCount() > previousCount);
+	}
+
+	/**
 	 * Exercise the client properties of a node.
 	 * 
 	 * @param x the node to test
@@ -4600,10 +5124,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 	
-
 	/**
 	 * Returns a subtree of sample of AST nodes. The sample includes
-	 * one of each kind, but otherwise does not make sense.
+	 * one of each kind (except for BlockComment and LineComment,
+     * which cannot be connected directly to a CompilationUnit),
+     * but otherwise does not make sense.
 	 */
 	ASTNode oneOfEach(AST target) {
 		CompilationUnit cu = target.newCompilationUnit();
@@ -4614,9 +5139,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		cu.imports().add(im);
 		
 		TypeDeclaration td = target.newTypeDeclaration();
+		cu.types().add(td);
 		Javadoc javadoc = target.newJavadoc();
 		td.setJavadoc(javadoc);
-		cu.types().add(td);
+		TagElement tg = target.newTagElement();
+		javadoc.tags().add(tg);
+		tg.fragments().add(target.newTextElement());
+		tg.fragments().add(target.newMemberRef());
+		MethodRef mr = target.newMethodRef();
+		tg.fragments().add(mr);
+		mr.parameters().add(target.newMethodRefParameter());
 				
 		VariableDeclarationFragment variableDeclarationFragment = target.newVariableDeclarationFragment();
 		FieldDeclaration fd = 
@@ -4637,7 +5169,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
 		SimpleName sn2 =target.newSimpleName("two"); //$NON-NLS-1$
 		QualifiedName qn = target.newQualifiedName(sn1, sn2);
-
+		
 		PrimitiveType pt = target.newPrimitiveType(PrimitiveType.INT);
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);
@@ -4780,6 +5312,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final List stack = new ArrayList();
 		// pretend that every construct begins with "(" and ends with ")"
 		class PositionAssigner extends ASTVisitor {
+			PositionAssigner() {
+				// visit Javadoc.tags();
+				super(true);
+			}
 			public void preVisit(ASTNode node) {
 				int start = buffer.length();
 				buffer.append("(");
@@ -4816,7 +5352,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testNullResolve() {
 		ASTNode x = oneOfEach(ast);
 		
-		ASTVisitor v = new ASTVisitor() {
+		ASTVisitor v = new ASTVisitor(true) {
 			// NAMES
 
 			public boolean visit(SimpleName node) {
@@ -6460,7 +6996,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testSubtreeBytes() {
 		
 		ASTNode x = oneOfEach(ast);
-//		System.out.println("oneOfEach().subtreeBytes(): " + x.subtreeBytes());
+		System.out.println("oneOfEach().subtreeBytes(): " + x.subtreeBytes());
 		assertTrue(x.subtreeBytes() > 0);
 	}
 	
@@ -6529,12 +7065,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ASTNode.VARIABLE_DECLARATION_STATEMENT == 60);
 		assertTrue(ASTNode.WHILE_STATEMENT == 61);
 		assertTrue(ASTNode.INSTANCEOF_EXPRESSION == 62);
-		assertTrue(ASTNode.ENHANCED_FOR_STATEMENT == 63);
-		assertTrue(ASTNode.ENUM_CONSTANT_DECLARATION == 64);
-		assertTrue(ASTNode.TYPE_PARAMETER == 65);
-		assertTrue(ASTNode.PARAMETERIZED_TYPE == 66);
-		assertTrue(ASTNode.QUALIFIED_TYPE == 67);
-		assertTrue(ASTNode.WILDCARD_TYPE == 68);
+		assertTrue(ASTNode.LINE_COMMENT == 63);
+		assertTrue(ASTNode.BLOCK_COMMENT == 64);
+		assertTrue(ASTNode.TAG_ELEMENT == 65);
+		assertTrue(ASTNode.TEXT_ELEMENT == 66);
+		assertTrue(ASTNode.MEMBER_REF == 67);
+		assertTrue(ASTNode.METHOD_REF == 68);
+		assertTrue(ASTNode.METHOD_REF_PARAMETER == 69);
+		assertTrue(ASTNode.ENHANCED_FOR_STATEMENT == 90);
+		assertTrue(ASTNode.ENUM_CONSTANT_DECLARATION == 91);
+		assertTrue(ASTNode.TYPE_PARAMETER == 92);
+		assertTrue(ASTNode.PARAMETERIZED_TYPE == 93);
+		assertTrue(ASTNode.QUALIFIED_TYPE == 94);
+		assertTrue(ASTNode.WILDCARD_TYPE == 95);
 		
 		// ensure that all constants are distinct, positive, and small
 		// (this may seem paranoid, but this test did uncover a stupid bug!)
@@ -6547,6 +7090,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
               ASTNode.ASSERT_STATEMENT,
               ASTNode.ASSIGNMENT,
               ASTNode.BLOCK,
+        	  ASTNode.BLOCK_COMMENT,
               ASTNode.BOOLEAN_LITERAL,
               ASTNode.BREAK_STATEMENT,
               ASTNode.CAST_EXPRESSION,
@@ -6572,8 +7116,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
               ASTNode.INITIALIZER,
               ASTNode.JAVADOC,
               ASTNode.LABELED_STATEMENT,
+        	  ASTNode.LINE_COMMENT,
+        	  ASTNode.MEMBER_REF,
               ASTNode.METHOD_DECLARATION,
               ASTNode.METHOD_INVOCATION,
+        	  ASTNode.METHOD_REF,
+        	  ASTNode.METHOD_REF_PARAMETER,
               ASTNode.NULL_LITERAL,
               ASTNode.NUMBER_LITERAL,
               ASTNode.PACKAGE_DECLARATION,
@@ -6595,6 +7143,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
               ASTNode.SWITCH_CASE,
               ASTNode.SWITCH_STATEMENT,
               ASTNode.SYNCHRONIZED_STATEMENT,
+        	  ASTNode.TAG_ELEMENT,
+        	  ASTNode.TEXT_ELEMENT,
               ASTNode.THIS_EXPRESSION,
               ASTNode.THROW_STATEMENT,
               ASTNode.TRY_STATEMENT,

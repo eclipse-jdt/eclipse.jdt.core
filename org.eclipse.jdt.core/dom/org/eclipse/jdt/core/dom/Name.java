@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
  * 
  * @since 2.0
  */
-public abstract class Name extends Expression {
+public abstract class Name extends Expression implements IDocElement {
 	
 	/**
 	 * Approximate base size of an expression node instance in bytes, 

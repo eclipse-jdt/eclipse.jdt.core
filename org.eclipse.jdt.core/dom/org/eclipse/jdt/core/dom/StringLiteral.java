@@ -260,10 +260,7 @@ public class StringLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4;
-		if (escapedValue != null) {
-			size += HEADERS + 2 * 4 + HEADERS + 2 * escapedValue.length();
-		}
+		int size = BASE_NODE_SIZE + 1 * 4 + stringSize(escapedValue);
 		return size;
 	}
 	

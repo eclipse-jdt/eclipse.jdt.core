@@ -359,4 +359,38 @@ public class Javadoc extends ASTNode {
 			}
 		}
 	}
+	
+	/*
+	 * Search node with a given staring position in javadoc objects arrays.
+	 */
+	public ASTNode getNodeStartingAt(int start) {
+		// parameters array
+		if (this.parameters != null) {
+			for (int i=0; i<this.parameters.length; i++) {
+				JavadocSingleNameReference param = this.parameters[i];
+				if (param.sourceStart==start) {
+					return param;
+				}
+			}
+		}
+		// thrown exception array
+		if (this.thrownExceptions != null) {
+			for (int i=0; i<this.thrownExceptions.length; i++) {
+				TypeReference typeRef = this.thrownExceptions[i];
+				if (typeRef.sourceStart==start) {
+					return typeRef;
+				}
+			}
+		}
+		// references array
+		if (this.references != null) {
+			for (int i=0; i<this.references.length; i++) {
+				org.eclipse.jdt.internal.compiler.ast.Expression expression = this.references[i];
+				if (expression.sourceStart==start) {
+					return expression;
+				}
+			}
+		}
+		return null;
+	}
 }

@@ -903,13 +903,17 @@ public class TestingEnvironment {
 	 */
 	public void waitForAutoBuild() {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		try {
-			Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-		} catch (OperationCanceledException e) {
-			handle(e);
-		} catch (InterruptedException e) {
-			handle(e);
-		}
+		boolean wasInterrupted = false;
+		do {
+			try {
+				Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				wasInterrupted = false;
+			} catch (OperationCanceledException e) {
+				handle(e);
+			} catch (InterruptedException e) {
+				wasInterrupted = true;
+			}
+		} while (wasInterrupted);
 		fWasBuilt = true;
 	}	
 }

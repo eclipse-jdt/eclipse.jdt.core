@@ -11,11 +11,17 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
+
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class BuildpathTests extends Tests {
@@ -27,11 +33,59 @@ public class BuildpathTests extends Tests {
 	public static Test suite() {
 		if (false) {
 			TestSuite suite = new TestSuite(BuildpathTests.class.getName());
-			suite.addTest(new BuildpathTests("testClasspathFileChange")); //$NON-NLS-1$
+			suite.addTest(new BuildpathTests("testExternalJarChange")); //$NON-NLS-1$
 			return suite;
 		}
 		return new TestSuite(BuildpathTests.class);
 	}
+	public void testClasspathFileChange() throws JavaModelException {
+		// create project with src folder, and alternate unused src2 folder
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Test1 extends Zork1 {}" //$NON-NLS-1$
+		);
+		// not yet on the classpath
+		IPath src2Path = env.addFolder(projectPath, "src2"); //$NON-NLS-1$
+		IPath src2p1Path = env.addFolder(src2Path, "p1"); //$NON-NLS-1$
+		env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Zork1 {}" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved or is not a valid superclass", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		//----------------------------
+		//           Step 2
+		//----------------------------	
+		StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
+		buffer.append("<classpath>\n"); //$NON-NLS-1$
+		buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
+		buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change //$NON-NLS-1$
+		String[] classlibs = Util.getJavaClassLibs();
+		for (int i = 0; i < classlibs.length; i++) {
+			buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n"); //$NON-NLS-1$
+		buffer.append("</classpath>"); //$NON-NLS-1$
+		boolean wasAutoBuilding = env.isAutoBuilding();
+		try {
+			// turn autobuild on
+			env.setAutoBuilding(true);
+			// write new .classpath, will trigger autobuild
+			env.addFile(projectPath, ".classpath", buffer.toString()); //$NON-NLS-1$
+			// ensures the builder did see the classpath change
+			env.waitForAutoBuild();
+			expectingNoProblems();
+		} finally {
+			env.setAutoBuilding(wasAutoBuilding);
+		}
+	}	
 
 	public void testClosedProject() throws JavaModelException {
 		IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
@@ -97,60 +151,61 @@ public class BuildpathTests extends Tests {
 		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
 		JavaCore.setOptions(options);
 	}
-
-	public void testMissingProject() throws JavaModelException {
-		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
-		env.addExternalJars(project1Path, Util.getJavaClassLibs());
-
-		IPath project2Path = env.addProject("MP2"); //$NON-NLS-1$
-		env.addExternalJars(project2Path, Util.getJavaClassLibs());
-		env.addRequiredProject(project2Path, project1Path);
-
+	
+	/*
+	 * Ensures that changing an external jar and refreshing the projects triggers a rebuild
+	 * (regression test for bug 50207 Compile errors fixed by 'refresh' do not reset problem list or package explorer error states)
+	 */
+	public void testExternalJarChange() throws JavaModelException, IOException {
+		// setup
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		IPath classTest = env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n"+ //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"  void foo() {\n" + //$NON-NLS-1$
+			"    new q.Y().bar();\n" + //$NON-NLS-1$
+			"  }\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
+		);
+		String externalJar = Util.getOutputDirectory() + File.separator + "test.jar"; //$NON-NLS-1$
+		Util.createJar(
+			new String[] {
+				"q/Y.java", //$NON-NLS-1$
+				"package q;\n" + //$NON-NLS-1$
+				"public class Y {\n" + //$NON-NLS-1$
+				"}" //$NON-NLS-1$
+			},
+			new HashMap(),
+			externalJar
+		);
+		env.addExternalJar(projectPath, externalJar);
+		
+		// build -> expecting problems
 		fullBuild();
-		expectingNoProblems();
-
-		//----------------------------
-		//           Step 2
-		//----------------------------
-		env.removeProject(project1Path);
-
-		incrementalBuild();
-		expectingOnlyProblemsFor(project2Path);
-		expectingOnlySpecificProblemsFor(project2Path,
-			new Problem[] {
-				new Problem("", "The project cannot be built until build path errors are resolved.", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
-			}
+		expectingProblemsFor(classTest);
+		
+		// fix jar
+		Util.createJar(
+			new String[] {
+				"q/Y.java", //$NON-NLS-1$
+				"package q;\n" + //$NON-NLS-1$
+				"public class Y {\n" + //$NON-NLS-1$
+				"  public void bar() {\n" + //$NON-NLS-1$
+				"  }\n" + //$NON-NLS-1$
+				"}" //$NON-NLS-1$
+			},
+			new HashMap(),
+			externalJar
 		);
-
-		project1Path = env.addProject("MP1"); //$NON-NLS-1$
-		env.addExternalJars(project1Path, Util.getJavaClassLibs());
-
+		
+		// refresh project and rebuild -> expecting no problems
+		IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project"));
+		project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);
 		incrementalBuild();
 		expectingNoProblems();
-
-		//----------------------------
-		//           Step 3
-		//----------------------------
-		Hashtable options = JavaCore.getOptions();
-		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
-		JavaCore.setOptions(options);
-		env.removeProject(project1Path);
-
-		incrementalBuild();
-		expectingOnlyProblemsFor(project2Path);
-		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
-		);
-
-		project1Path = env.addProject("MP1"); //$NON-NLS-1$
-		env.addExternalJars(project1Path, Util.getJavaClassLibs());
-
-		incrementalBuild();
-		expectingNoProblems();
-
-		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-		JavaCore.setOptions(options);
+		
 	}
 
 	public void testMissingLibrary1() throws JavaModelException {
@@ -232,52 +287,59 @@ public class BuildpathTests extends Tests {
 			bin.append("p2").append("Test3.class") //$NON-NLS-1$ //$NON-NLS-2$
 		});
 	}
-	public void testClasspathFileChange() throws JavaModelException {
-		// create project with src folder, and alternate unused src2 folder
-		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
-		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
-		env.addExternalJars(projectPath, Util.getJavaClassLibs());
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Test1 extends Zork1 {}" //$NON-NLS-1$
-		);
-		// not yet on the classpath
-		IPath src2Path = env.addFolder(projectPath, "src2"); //$NON-NLS-1$
-		IPath src2p1Path = env.addFolder(src2Path, "p1"); //$NON-NLS-1$
-		env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"public class Zork1 {}" //$NON-NLS-1$
-		);
+
+	public void testMissingProject() throws JavaModelException {
+		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		IPath project2Path = env.addProject("MP2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path);
 
 		fullBuild();
-		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved or is not a valid superclass", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingNoProblems();
 
 		//----------------------------
 		//           Step 2
-		//----------------------------	
-		StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
-		buffer.append("<classpath>\n"); //$NON-NLS-1$
-		buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
-		buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change //$NON-NLS-1$
-		String[] classlibs = Util.getJavaClassLibs();
-		for (int i = 0; i < classlibs.length; i++) {
-			buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n"); //$NON-NLS-1$
-		buffer.append("</classpath>"); //$NON-NLS-1$
-		boolean wasAutoBuilding = env.isAutoBuilding();
-		try {
-			// turn autobuild on
-			env.setAutoBuilding(true);
-			// write new .classpath, will trigger autobuild
-			env.addFile(projectPath, ".classpath", buffer.toString()); //$NON-NLS-1$
-			// ensures the builder did see the classpath change
-			env.waitForAutoBuild();
-			expectingNoProblems();
-		} finally {
-			env.setAutoBuilding(wasAutoBuilding);
-		}
-	}	
+		//----------------------------
+		env.removeProject(project1Path);
+
+		incrementalBuild();
+		expectingOnlyProblemsFor(project2Path);
+		expectingOnlySpecificProblemsFor(project2Path,
+			new Problem[] {
+				new Problem("", "The project cannot be built until build path errors are resolved.", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		);
+
+		project1Path = env.addProject("MP1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		//----------------------------
+		//           Step 3
+		//----------------------------
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
+		JavaCore.setOptions(options);
+		env.removeProject(project1Path);
+
+		incrementalBuild();
+		expectingOnlyProblemsFor(project2Path);
+		expectingOnlySpecificProblemFor(project2Path,
+			new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
+		);
+
+		project1Path = env.addProject("MP1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		incrementalBuild();
+		expectingNoProblems();
+
+		options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
+		JavaCore.setOptions(options);
+	}
 }

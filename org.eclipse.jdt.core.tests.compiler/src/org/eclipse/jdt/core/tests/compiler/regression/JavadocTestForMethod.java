@@ -21,9 +21,28 @@ public class JavadocTestForMethod extends JavadocTest {
 	public static Test suite() {
 		if (false) {
 			TestSuite ts;
+			int[] numbers = { 80, 81, 85 };
 			//some of the tests depend on the order of this suite.
 			ts = new TestSuite();
-			for (int i=85; i<=87; i++) {
+			for (int i = 0; i < numbers.length; i++) {
+				String meth = "test";
+				int num = numbers[i];
+				if (num < 10) {
+					meth += "0";
+				}
+				if (num < 100) {
+					meth += "0";
+				}
+				meth += num;
+				ts.addTest(new JavadocTestForMethod(meth));
+			}
+			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
+		}
+		if (false) {
+			TestSuite ts;
+			//some of the tests depend on the order of this suite.
+			ts = new TestSuite();
+			for (int i=130; i<=138; i++) {
 				String meth = "test";
 				if (i<10) {
 					meth += "0";

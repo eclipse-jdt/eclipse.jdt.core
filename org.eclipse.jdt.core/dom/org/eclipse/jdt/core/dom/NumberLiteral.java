@@ -137,10 +137,7 @@ public class NumberLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4;
-		if (tokenValue != null) {
-			size += HEADERS + 2 * 4 + HEADERS + 2 * tokenValue.length();
-		}
+		int size = BASE_NODE_SIZE + 1 * 4 + stringSize(tokenValue);
 		return size;
 	}
 	

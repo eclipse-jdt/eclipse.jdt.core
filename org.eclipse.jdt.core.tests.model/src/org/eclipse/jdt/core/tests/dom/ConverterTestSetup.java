@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -113,15 +114,19 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}	
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return AST.parseCompilationUnit(unit, resolveBindings);
+		return AST.parseCompilationUnit(unit, resolveBindings, null, null);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return AST.parsePartialCompilationUnit(unit, position, resolveBindings);
+		return AST.parsePartialCompilationUnit(unit, position, resolveBindings, null, null);
 	}
 
+	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
+		return AST.parsePartialCompilationUnit(classFile, position, resolveBindings, null, null);
+	}
+	
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return AST.parseCompilationUnit(source, unitName, project);
+		return AST.parseCompilationUnit(source, unitName, project, null, null);
 	}
 	
 

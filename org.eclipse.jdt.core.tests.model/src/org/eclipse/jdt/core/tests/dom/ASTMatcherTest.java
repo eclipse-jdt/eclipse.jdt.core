@@ -37,15 +37,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	AST ast;
 	SimpleName N1;
-	String N1S;
 	SimpleName N2;
-	String N2S;
 	SimpleName N3;
-	String N3S;
 	Expression E1;
-	String E1S;
 	Expression E2;
-	String E2S;
 	Type T1;
 	String T1S;
 	Type T2;
@@ -53,43 +48,35 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	ParameterizedType PT1;
 	String PT1S;
 	Statement S1;
-	String S1S;
 	Statement S2;
 	Block B1;
-	String B1S;
-	String S2S;
 	SingleVariableDeclaration V1;
-	String V1S;
 	SingleVariableDeclaration V2;
-	String V2S;
 	VariableDeclarationFragment W1;
-	String W1S;
 	VariableDeclarationFragment W2;
-	String W2S;
 	FieldDeclaration FD1;
-	String FD1S;
 	FieldDeclaration FD2;
-	String FD2S;
 	PackageDeclaration PD1;
-	String PD1S;
 	ImportDeclaration ID1;
-	String ID1S;
 	ImportDeclaration ID2;
-	String ID2S;
 	TypeDeclaration TD1;
-	String TD1S;
 	TypeDeclaration TD2;
-	String TD2S;
 	AnonymousClassDeclaration ACD1;
-	String ACD1S;
 	Javadoc JD1;
-	String JD1S;
 	Javadoc JD2;
 	String JD2S;
 	TypeParameter TP1;
 	String TP1S;
 	TypeParameter TP2;
 	String TP2S;
+	TagElement TAG1;
+	TagElement TAG2;
+	TextElement TEXT1;
+	MemberRef MBREF1;
+	MethodRef MTHREF1;
+	MethodRefParameter MPARM1;
+	LineComment LC1;
+	BlockComment BC1;
 	
 	final StringBuffer b = new StringBuffer();
 	
@@ -97,18 +84,18 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		super(name);
 	}
 	
+	/**
+	 * @deprecated (not really - just suppressing the warnings
+	 * that come from testing Javadoc.getComment())
+	 *
+	 */
 	protected void setUp() {
 		ast = new AST();
 		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
-		N1S = "(nSNNnS)"; //$NON-NLS-1$
 		N2 = ast.newSimpleName("M"); //$NON-NLS-1$
-		N2S = "(nSMMnS)"; //$NON-NLS-1$
 		N3 = ast.newSimpleName("O"); //$NON-NLS-1$
-		N3S = "(nSOOnS)"; //$NON-NLS-1$
 		E1 = ast.newSimpleName("X"); //$NON-NLS-1$
-		E1S = "(nSXXnS)"; //$NON-NLS-1$
 		E2 = ast.newSimpleName("Y"); //$NON-NLS-1$
-		E2S = "(nSYYnS)"; //$NON-NLS-1$
 		T1 = ast.newSimpleType(ast.newSimpleName("Z")); //$NON-NLS-1$
 		T1S = "(tS(nSZZnS)tS)"; //$NON-NLS-1$
 		T2 = ast.newSimpleType(ast.newSimpleName("Y")); //$NON-NLS-1$
@@ -116,64 +103,47 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
 		PT1S = "(tM(nSZZnS)tM)"; //$NON-NLS-1$
 		S1 = ast.newContinueStatement();
-		S1S = "(sCNsCN)"; //$NON-NLS-1$
 		S2 = ast.newBreakStatement();
-		S2S = "(sBRsBR)"; //$NON-NLS-1$
 		B1 = ast.newBlock();
-		B1S = "(sBsB)"; //$NON-NLS-1$
 		V1 = ast.newSingleVariableDeclaration();
 		V1.setType(ast.newPrimitiveType(PrimitiveType.INT));
 		V1.setName(ast.newSimpleName("a")); //$NON-NLS-1$
-		V1S = "(VD(tPintinttP)(nSaanS)VD)"; //$NON-NLS-1$
 		V2 = ast.newSingleVariableDeclaration();
 		V2.setType(ast.newPrimitiveType(PrimitiveType.BYTE));
 		V2.setName(ast.newSimpleName("b")); //$NON-NLS-1$
-		V2S = "(VD(tPbytebytetP)(nSbbnS)VD)"; //$NON-NLS-1$
 		W1 = ast.newVariableDeclarationFragment();
 		W1.setName(ast.newSimpleName("a")); //$NON-NLS-1$
-		W1S = "(VS(nSaanS)VS)"; //$NON-NLS-1$
 		W2 = ast.newVariableDeclarationFragment();
 		W2.setName(ast.newSimpleName("b")); //$NON-NLS-1$
-		W2S = "(VS(nSbbnS)VS)"; //$NON-NLS-1$
 		{
 			VariableDeclarationFragment temp = ast.newVariableDeclarationFragment();
 			temp.setName(ast.newSimpleName("f")); //$NON-NLS-1$
 			FD1 = ast.newFieldDeclaration(temp);
 			FD1.setType(ast.newPrimitiveType(PrimitiveType.INT));
-			FD1S = "(FD(tPintinttP)(VS(nSffnS)VS)FD)"; //$NON-NLS-1$
 		}
 		{
 			VariableDeclarationFragment temp = ast.newVariableDeclarationFragment();
 			temp.setName(ast.newSimpleName("g")); //$NON-NLS-1$
 			FD2 = ast.newFieldDeclaration(temp);
 			FD2.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
-			FD2S = "(FD(tPcharchartP)(VS(nSggnS)VS)FD)"; //$NON-NLS-1$
 		}
 		PD1 = ast.newPackageDeclaration();
 		PD1.setName(ast.newSimpleName("p")); //$NON-NLS-1$
-		PD1S = "(PD(nSppnS)PD)"; //$NON-NLS-1$
 		ID1 = ast.newImportDeclaration();
 		ID1.setName(ast.newSimpleName("i")); //$NON-NLS-1$
-		ID1S = "(ID(nSiinS)ID)"; //$NON-NLS-1$
 		ID2 = ast.newImportDeclaration();
 		ID2.setName(ast.newSimpleName("j")); //$NON-NLS-1$
-		ID2S = "(ID(nSjjnS)ID)"; //$NON-NLS-1$
 		TD1 = ast.newTypeDeclaration();
 		TD1.setName(ast.newSimpleName("c")); //$NON-NLS-1$
-		TD1S = "(TD(nSccnS)TD)"; //$NON-NLS-1$
 		TD2 = ast.newTypeDeclaration();
 		TD2.setName(ast.newSimpleName("d")); //$NON-NLS-1$
-		TD2S = "(TD(nSddnS)TD)"; //$NON-NLS-1$
 		
 		ACD1 = ast.newAnonymousClassDeclaration();
-		ACD1S = "(ACDACD)"; //$NON-NLS-1$
 		
 		JD1 = ast.newJavadoc();
 		JD1.setComment("/**X*/"); //$NON-NLS-1$
-		JD1S = "(JD/**X*//**X*/JD)"; //$NON-NLS-1$
 		JD2 = ast.newJavadoc();
 		JD2.setComment("/**Y*/"); //$NON-NLS-1$
-		JD2S = "(JD/**Y*//**Y*/JD)"; //$NON-NLS-1$
 
 		TP1 = ast.newTypeParameter();
 		TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
@@ -182,6 +152,28 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		TP2 = ast.newTypeParameter();
 		TP2.setName(ast.newSimpleName("y")); //$NON-NLS-1$
 		TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
+		LC1 = ast.newLineComment();
+
+		BC1 = ast.newBlockComment();
+		
+		TAG1 = ast.newTagElement();
+		TAG1.setTagName("@foo"); //$NON-NLS-1$
+
+		TAG2 = ast.newTagElement();
+		TAG2.setTagName("@bar"); //$NON-NLS-1$
+
+		TEXT1 = ast.newTextElement();
+		TEXT1.setText("foo"); //$NON-NLS-1$
+
+		MBREF1 = ast.newMemberRef();
+		MBREF1.setName(ast.newSimpleName("p")); //$NON-NLS-1$
+
+		MTHREF1 = ast.newMethodRef();
+		MTHREF1.setName(ast.newSimpleName("p")); //$NON-NLS-1$
+
+		MPARM1 = ast.newMethodRefParameter();
+		MPARM1.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
+
 	}
 	
 	protected void tearDown() {
@@ -204,6 +196,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public int matchCalls = 0;
 
 		TestMatcher() {
+			this(false);
+		}
+
+		TestMatcher(boolean visitDocTags) {
+			super(visitDocTags);
 		}
 
 		boolean standardBody(ASTNode receiver, Object other, boolean matchResult) {
@@ -240,6 +237,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(Block node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(BlockComment node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(BooleanLiteral node, Object other) {
@@ -314,10 +314,22 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(LabeledStatement node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(LineComment node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(MemberRef node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(MethodDeclaration node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(MethodInvocation node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(MethodRef node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(MethodRefParameter node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(NullLiteral node, Object other) {
@@ -383,6 +395,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(SynchronizedStatement node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(TagElement node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(TextElement node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(ThisExpression node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
@@ -425,6 +443,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * AST node visitor that counts the nodes visited.
 	 */
 	static class NodeCounter extends ASTVisitor {
+		public NodeCounter(boolean visitDocTags) {
+			super(visitDocTags);
+		}
+		
 		public int count = 0;
 
 		/* (no javadoc for this method)
@@ -440,10 +462,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * Returns the number of AST nodes in the given subtree.
 	 * 
 	 * @param node the root of the subtree
+	 * @param visitDocTags true if doc tags should be visited
 	 * @return the number of nodes (always positive)
 	 */
-	static int nodeCount(ASTNode node) {
-		NodeCounter c = new NodeCounter();
+	static int nodeCount(ASTNode node, boolean visitDocTags) {
+		NodeCounter c = new NodeCounter(visitDocTags);
 		node.accept(c);
 		return c.count;
 	}		
@@ -453,36 +476,69 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * for a node of a given type. 
 	 */
 	void basicMatch(ASTNode node) {
-		int count = nodeCount(node);
+		TestMatcher[] m = {
+			new TestMatcher(),
+			new TestMatcher(true),
+			new TestMatcher(false)};
+		for (int i = 0; i < m.length; i++) {
+			// check that matcher was called with right arguments
+			// and that matches succeed
+			TestMatcher m1 = m[i];
+			Object o1 = new Object();
+			m1.result = true;
+			boolean result = node.subtreeMatch(m1, o1);
+			assertTrue(m1.matchCalls == 1);
+			assertTrue(m1.receiverNode == node);
+			assertTrue(m1.otherNode == o1);
+			assertTrue(result == true);
+		}
 		
-		// check that matcher was called with right arguments
-		// and that matches succeed
-		TestMatcher m1 = new TestMatcher();
-		Object o1 = new Object();
-		m1.result = true;
-		boolean result = node.subtreeMatch(m1, o1);
-		assertTrue(m1.matchCalls == 1);
-		assertTrue(m1.receiverNode == node);
-		assertTrue(m1.otherNode == o1);
-		assertTrue(result == true);
+		m = new TestMatcher[] {
+							new TestMatcher(),
+							new TestMatcher(true),
+							new TestMatcher(false)};
+		for (int i = 0; i < m.length; i++) {
+			// check that matcher was called with right arguments
+			// and that non-matches fail
+			TestMatcher m1 = m[i];
+			Object o1 = new Object();
+			m1.result = false;
+			boolean result = node.subtreeMatch(m1, o1);
+			assertTrue(m1.matchCalls == 1);
+			assertTrue(m1.receiverNode == node);
+			assertTrue(m1.otherNode == o1);
+			assertTrue(result == false);
+		}
 		
-		// check that matcher was called with right arguments
-		// and that non-matches fail
-		m1 = new TestMatcher();
-		o1 = new Object();
-		m1.result = false;
-		result = node.subtreeMatch(m1, o1);
-		assertTrue(m1.matchCalls == 1);
-		assertTrue(m1.receiverNode == node);
-		assertTrue(m1.otherNode == o1);
-		assertTrue(result == false);
+		// check that ASTMatcher() default implementations delegate
+		{
+			int count = nodeCount(node, false); // ignore doc tags
+			TestMatcher m1 = new TestMatcher();
+			m1.superMatch = true;
+			boolean result = node.subtreeMatch(m1, node);
+			assertTrue(m1.matchCalls == count);
+			assertTrue(result == true);
+		}
 		
-		// check that ASTMatcher default implementations delegate
-		m1 = new TestMatcher();
-		m1.superMatch = true;
-		result = node.subtreeMatch(m1, node);
-		assertTrue(m1.matchCalls == count);
-		assertTrue(result == true);
+		// check that ASTMatcher(false) default implementations delegate
+		{
+			int count = nodeCount(node, false); // ignore doc tags
+			TestMatcher m1 = new TestMatcher(false);
+			m1.superMatch = true;
+			boolean result = node.subtreeMatch(m1, node);
+			assertTrue(m1.matchCalls == count);
+			assertTrue(result == true);
+		}
+		
+		// check that ASTMatcher(true) default implementations delegate
+		{
+			int count = nodeCount(node, true); // include doc tags
+			TestMatcher m1 = new TestMatcher(true);
+			m1.superMatch = true;
+			boolean result = node.subtreeMatch(m1, node);
+			assertTrue(m1.matchCalls == count);
+			assertTrue(result == true);
+		}
 		
 	}
 
@@ -579,6 +635,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.statements().add(S2);
 		basicMatch(x1);
 	}
+	
+	public void testBlockComment() {
+		BlockComment x1 = ast.newBlockComment();
+		basicMatch(x1);
+	}
+
 	public void testBooleanLiteral() {
 		BooleanLiteral x1 = ast.newBooleanLiteral(true);
 		basicMatch(x1);
@@ -721,9 +783,16 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setBody(B1);
 		basicMatch(x1);
 	}
+	/**
+	 * @deprecated (not really - just suppressing the warnings
+	 * that come from testing Javadoc.getComment())
+	 *
+	 */
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
 		x1.setComment("/**?*/"); //$NON-NLS-1$
+		x1.tags().add(TAG1);
+		x1.tags().add(TAG2);
 		basicMatch(x1);
 	}
 
@@ -733,6 +802,19 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setBody(S1);
 		basicMatch(x1);
 	}
+
+	public void testLineComment() {
+		LineComment x1 = ast.newLineComment();
+		basicMatch(x1);
+	}
+
+	public void testMemberRef() {
+		MemberRef x1 = ast.newMemberRef();
+		x1.setQualifier(N1);
+		x1.setName(N2);
+		basicMatch(x1);
+	}
+
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
@@ -755,6 +837,21 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.arguments().add(E2);
 		basicMatch(x1);
 	}
+	
+	public void testMethodRef() {
+		MethodRef x1 = ast.newMethodRef();
+		basicMatch(x1);
+		x1.setQualifier(N1);
+		x1.setName(N2);
+		x1.parameters().add(MPARM1);
+	}
+	public void testMethodRefParameter() {
+		MethodRefParameter x1 = ast.newMethodRefParameter();
+		x1.setType(T1);
+		x1.setName(N1);
+		basicMatch(x1);
+	}
+	
 	public void testNullLiteral() {
 		NullLiteral x1 = ast.newNullLiteral();
 		basicMatch(x1);
@@ -839,6 +936,22 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setBody(B1);
 		basicMatch(x1);
 	}
+	
+	public void testTagElement() {
+		TagElement x1 = ast.newTagElement();
+		x1.setTagName("@foo"); //$NON-NLS-1$
+		x1.fragments().add(TAG1);
+		x1.fragments().add(TEXT1);
+		x1.fragments().add(N1);
+		x1.fragments().add(MTHREF1);
+		basicMatch(x1);
+	}
+	public void testTextElement() {
+		TextElement x1 = ast.newTextElement();
+		x1.setText("foo"); //$NON-NLS-1$
+		basicMatch(x1);
+	}
+
 	public void testThisExpression() {
 		ThisExpression x1 = ast.newThisExpression();
 		x1.setQualifier(N1);

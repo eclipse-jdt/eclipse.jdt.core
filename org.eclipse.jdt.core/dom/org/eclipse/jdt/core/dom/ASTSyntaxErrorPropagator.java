@@ -21,6 +21,8 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 	private IProblem[] problems;
 	
 	ASTSyntaxErrorPropagator(IProblem[] problems) {
+		// visit Javadoc.tags() as well
+		super(true);
 		this.problems = problems;
 	}
 

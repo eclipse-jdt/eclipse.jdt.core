@@ -33,20 +33,97 @@
   </tr>
 </table>
 
-<a name="v_399"></a>
+<a name="v_400"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M7 Build - ?th January 2004
-<br>Project org.eclipse.jdt.core v_399
-(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_399">cvs</a>).
+Eclipse SDK 3.0M7 Build - 28th January 2004
+<br>Project org.eclipse.jdt.core v_400
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_400">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49691">49691</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50694">50694</a>
+Javadoc: Cannot find DOM AST bindings for types in @see tags
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50692">50692</a>
+Javadoc: Cannot find DOM AST bindings for inline link tags references
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50719">50719</a>
+wrong formatting for java coding conventions
+
+<a name="v_399"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M7 Build - 27th January 2004
+<br>Project org.eclipse.jdt.core v_399
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_399">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Improve DOM/AST support for doc comments.
+<br>Following changes have been made to the DOM/AST API:
+<ul>
+<li>added Javadoc.tags() to represent structure of the doc comments</li>
+<li>deprecated Javadoc.get/setComment</li>
+<li>added 5 new node types that occur only within doc comments: TagElement, TextElement, MemberRef, MethodRef, MethodRefParameter</li>
+<li>tag elements like MemberRef, MethodRef, and Name can carry binding information (must be requested like elsewhere)</li>
+<li>added ASTVisitor(boolean) for controlling whether Javadoc.tags() are visited by default</li>
+<li>added ASTMatcher(boolean) for controlling whether Javadoc.tags() are compared vs. only Javadoc.getComment()</li>
+<li>AST.parse*(...) now returns structured doc comments (for compatibility, Javadoc.getComment() is also set as before)</li>
+</ul>
+See bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50683">50683</a>.
+</li>
+<li>
+Improve DOM/AST support for locating all comments.
+<br>Following changes have been made to the DOM/AST API:
+<ul>
+<li>added CompilationUnit.getCommentTable() to record locations of all comments found in the source</li>
+<li>added 2 new node types, LineComment and BlockComment, to represent end-of-line and traditional comments respectively</li>
+<li>these new nodes are placeholders for comments</li>
+<li>these new node types only occur in the comment table (since they can occur anywhere (lexically), there is no way to properly parent them in the regular AST nodes that reflects their position)</li>
+<li>AST.parse*(...) now returns sets the comment table on the compilation unit to include all comments (including attached and free-floating doc comments)</li>
+</ul>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50697">50697</a>.
+</li>
+<li> Added option to control whether diagnosis for unused thrown exceptions should be enabled when overriding another
+method. By default, it is disabled.
+<pre>
+* COMPILER / Reporting Unused Declared Thrown Exception in Overridind Method
+*    When disabled, the compiler will not include overriding methods in its diagnosis for unused declared
+*    thrown exceptions.
+*    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "disabled"
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50644">50644</a>
+Deprecation check doesn't check that the @deprecated is at the beginning of the line
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27134">27134</a>
+Add a ASTNode for non-Javadoc comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50683">50683</a>
+Improve DOM/AST support for doc comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50697">50697</a>
+Improve DOM/AST support for locating all comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50667">50667</a>
+Deadlock on Refactor -> Extract method
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47430">47430</a>
+the immutable bit is copied from the original resource to the ouput directory
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50601">50601</a>
+Blank lines before package declaration is one fewer than specified
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48292">48292</a>
+[DCR] Need AST.parsePartialClassFile(....)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50320">50320</a>
+Java model operations should use IResourceRuleFactory 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50207">50207</a>
+Compile errors fixed by 'refresh' do not reset problem list or package explorer error states 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49691">49691</a>
 JavaProject looses property listeners on preferences
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50265">50265</a>
 Emulate old formatter with the new formatter

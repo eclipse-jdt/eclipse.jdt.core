@@ -30,6 +30,8 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	private HashSet set;
 	
 	BindingsCollectorVisitor() {
+		// visit Javadoc.tags() as well
+		super(true);
 		this.hashMap = new HashMap();
 		this.set = new HashSet();
 	}
@@ -102,6 +104,13 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(Block)
 	 */
 	public void endVisit(Block node) {
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(BlockComment)
+	 * @since 3.0
+	 */
+	public void endVisit(BlockComment node) {
 	}
 
 	/**
@@ -263,6 +272,22 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
+	 * @see ASTVisitor#endVisit(LineComment)
+	 * @since 3.0
+	 */
+	public void endVisit(LineComment node) {
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(MemberRef)
+	 * @since 3.0
+	 */
+	public void endVisit(MemberRef node) {
+		IBinding binding = node.resolveBinding();
+		collectBindings(node, binding);
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(MethodDeclaration)
 	 */
 	public void endVisit(MethodDeclaration node) {
@@ -276,6 +301,22 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	public void endVisit(MethodInvocation node) {
 		ITypeBinding typeBinding = node.resolveTypeBinding();
 		collectBindings(node, typeBinding);
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(MethodRef )
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRef node) {
+		IBinding binding = node.resolveBinding();
+		collectBindings(node, binding);
+	}
+
+	/**
+	 * @see ASTVisitor#endVisit(MethodRefParameter)
+	 * @since 3.0
+	 */
+	public void endVisit(MethodRefParameter node) {
 	}
 
 	/**

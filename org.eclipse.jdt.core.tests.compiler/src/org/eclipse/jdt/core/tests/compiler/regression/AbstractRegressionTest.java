@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
-import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -81,23 +80,13 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String computedReferences = references.toString();
 		return computedReferences;
 	}
-	protected CompilationUnit[] compilationUnits(String[] testFiles) {
-		int length = testFiles.length / 2;
-		CompilationUnit[] result = new CompilationUnit[length];
-		int index = 0;
-		for (int i = 0; i < length; i++) {
-			result[i] = new CompilationUnit(testFiles[index + 1].toCharArray(), testFiles[index], null);
-			index += 2;
-		}
-		return result;
-	}
 	protected INameEnvironment[] getClassLibs() {
 		String encoding = (String)getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
 			encoding = null;
 
 		INameEnvironment[] classLibs = new INameEnvironment[1];
-		classLibs[0] = new FileSystem(classpaths, new String[]{}, // ignore initial file names
+		classLibs[0] = new FileSystem(this.classpaths, new String[]{}, // ignore initial file names
 				encoding // default encoding
 		);
 		return classLibs;
@@ -207,7 +196,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options,
 				requestor, 
 				problemFactory);
-		batchCompiler.compile(compilationUnits(testFiles)); // compile all files together
+		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 		if (!requestor.hasErrors) {
 			String sourceFile = testFiles[0];
 
@@ -283,7 +272,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getCompilerOptions(), 
 				requestor, 
 				problemFactory);
-		batchCompiler.compile(compilationUnits(testFiles)); // compile all files together
+		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 		if (!requestor.hasErrors) {
 			String sourceFile = testFiles[0];
 
@@ -364,7 +353,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getErrorHandlingPolicy(), 
 				options,
 				requestor, problemFactory);
-		batchCompiler.compile(compilationUnits(testFiles)); // compile all files together
+		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 		String computedProblemLog = requestor.problemLog.toString();
 		if (!expectedProblemLog.equals(computedProblemLog)) {
 			System.out.println(getClass().getName() + '#' + getName());

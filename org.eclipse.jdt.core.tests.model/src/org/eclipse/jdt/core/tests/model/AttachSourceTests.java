@@ -39,7 +39,7 @@ public static Test suite() {
 	return new Suite(AttachSourceTests.class);
 }
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
-	return AST.parseCompilationUnit(classFile, resolveBindings);
+	return AST.parseCompilationUnit(classFile, resolveBindings, null, null);
 }
 protected void setUp() throws Exception {
 	super.setUp();

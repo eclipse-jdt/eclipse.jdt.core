@@ -14,8 +14,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -132,8 +134,13 @@ protected ICompilationUnit getCompilationUnit() {
 	return ((IPackageFragment)getParentElement()).getCompilationUnit(fName);
 }
 protected ISchedulingRule getSchedulingRule() {
-	// returns the folder corresponding to the package of the cu to create
-	return getParentElement().getSchedulingRule();
+	IResource resource  = getCompilationUnit().getResource();
+	IWorkspace workspace = resource.getWorkspace();
+	if (resource.exists()) {
+		return workspace.getRuleFactory().modifyRule(resource);
+	} else {
+		return workspace.getRuleFactory().createRule(resource);
+	}
 }
 /**
  * Possible failures: <ul>

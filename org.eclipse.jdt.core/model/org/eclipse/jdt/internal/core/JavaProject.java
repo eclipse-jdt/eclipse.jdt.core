@@ -2358,16 +2358,12 @@ public class JavaProject
 	}
 	
 	/*
-	 * Resets this project's name lookup
-	 * TODO (jerome) rename (and callers) to resetCaches
+	 * Resets this project's caches
 	 */
-	public void resetNameLookup() {
-		if (isOpen()){
-			try {
-				((JavaProjectElementInfo)getElementInfo()).resetCaches();
-			} catch (JavaModelException e) {
-				// project was closed and deleted by another thread: ignore
-			}
+	public void resetCaches() {
+		JavaProjectElementInfo info = (JavaProjectElementInfo) JavaModelManager.getJavaModelManager().peekAtInfo(this);
+		if (info != null){
+			info.resetCaches();
 		}
 	}
 
@@ -2512,7 +2508,7 @@ public class JavaProject
 				preferences.setValue(key, value);
 			}
 		}
-
+			
 		// reset to default all options not in new map
 		// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=26255
 		// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49691

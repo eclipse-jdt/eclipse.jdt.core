@@ -642,9 +642,10 @@ public class JavaModelManager implements ISaveParticipant {
 	 * and register it.
 	 * Close the working copy, its buffer and remove it from the shared working copy table.
 	 * Ignore if no per-working copy info existed.
+	 * NOTE: it must be synchronized as it may interact with the element info cache (if useCount is decremented to 0), see bug 50667.
 	 * Returns the new use count (or -1 if it didn't exist).
 	 */
-	public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
+	public synchronized int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
 		synchronized(perWorkingCopyInfos) {
 			WorkingCopyOwner owner = workingCopy.owner;
 			Map pathToPerWorkingCopyInfos = (Map)this.perWorkingCopyInfos.get(owner);

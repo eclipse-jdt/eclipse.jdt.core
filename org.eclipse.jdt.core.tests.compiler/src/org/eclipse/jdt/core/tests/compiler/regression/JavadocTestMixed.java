@@ -1993,4 +1993,34 @@ public class JavadocTestMixed extends JavadocTest {
 				"----------\n"
 		);
 	}
+
+	/**
+	 * Test fix for bug 50644.
+	 * When this bug happened, compiler complained on duplicated throws tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50644">50644</a>
+	 */
+	public void testBug50644() {
+		reportInvalidJavadoc = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" + 
+					"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Should not be @deprecated\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"p2/Y.java",
+				"package p2;\n" + 
+					"import p1.X;\n" + 
+					"public class Y {\n" + 
+					"	public void foo() {\n" + 
+					"		X x = new X();\n" + 
+					"		x.foo();\n" + 
+					"	}\n" + 
+					"}\n"
+		 });
+	}
 }

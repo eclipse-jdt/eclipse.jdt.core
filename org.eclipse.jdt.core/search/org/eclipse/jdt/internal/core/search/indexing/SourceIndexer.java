@@ -58,7 +58,7 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 			true); // index local declarations
 	
 		// Always check javadoc while indexing
-		parser.javadocParser.checkJavadoc = true;
+		parser.javadocParser.checkDocComment = true;
 		
 		// Launch the parser
 		char[] source = null;

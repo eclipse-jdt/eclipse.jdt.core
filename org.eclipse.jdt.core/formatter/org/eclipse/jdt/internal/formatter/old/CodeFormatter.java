@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.formatter.old;
 
 import java.util.Map;
 
-import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -27,7 +26,7 @@ import org.eclipse.text.edits.TextEdit;
  * It will return the formatted string.</ul>
  * @deprecated 
 */
-public class CodeFormatter implements TerminalTokens, ICodeFormatter {
+public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICodeFormatter {
 
 	private Map options;
 	
