@@ -3082,7 +3082,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
 			"	void foo(X<Thread>.MX<String>.MMX<X> mx) {}\n" + 
 			"	           ^^^^^^\n" + 
 			"Bound mismatch: The type Thread is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
@@ -3099,6 +3104,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 			"	                                         ^^^^^^^^\n" + 
 			"Bound mismatch: The type Runnable is not a valid substitute for the bounded parameter <MT extends Comparable> of the type X<T>.MX<MT>\n" + 
 			"----------\n");
@@ -3113,6 +3123,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 			"	                                                       ^^^^^^^^\n" + 
 			"Bound mismatch: The type Iterable<String> is not a valid substitute for the bounded parameter <MMT extends Comparable> of the type X<T>.MX<MT>.MMX<MMT>\n" + 
@@ -3193,7 +3208,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}			
 	// test member types
 	public void test117() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
@@ -3211,7 +3226,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n",
 			},
-			"SUCCESS");		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\r\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\r\n" + 
+			"	        ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\r\n" + 
+			"	void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\r\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Bound mismatch: The type X.MX.MMX is not a valid substitute for the bounded parameter <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>> of the type X<T>\n" + 
+			"----------\n");		
 	}				
 	// test generic method with recursive parameter bound <T extends Comparable<? super T>>
 	public void test118() {
@@ -15048,4 +15078,185 @@ public void test500(){
 			null
 		);		
 	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838
+	public void test533() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.EnumSet;\n" + 
+				"\n" + 
+				"enum Foo {\n" + 
+				"	blargh, baz, boz;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = Foo.class;\n" + 
+				"		EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
+			"	        ^^^^\n" + 
+			"Bound mismatch: The type Enum is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type EnumSet<E>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<Enum>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
+			"	                                   ^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
+	public void test534() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.EnumSet;\n" + 
+				"\n" + 
+				"enum Foo {\n" + 
+				"	blargh, baz, boz;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = Foo.class;\n" + 
+				"		EnumSet<Foo> eSet = EnumSet.allOf(c);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			""
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
+	public void test535() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.EnumSet;\n" + 
+				"\n" + 
+				"enum Foo {\n" + 
+				"	blargh, baz, boz;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = Foo.class;\n" + 
+				"		EnumSet<? extends Enum> eSet = EnumSet.allOf(c);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			""
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
+	public void test536() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.EnumSet;\n" + 
+				"\n" + 
+				"enum Foo {\n" + 
+				"	blargh, baz, boz;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = Foo.class;\n" + 
+				"		EnumSet<?> eSet = EnumSet.allOf(c);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			""
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
+	public void test537() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.EnumSet;\n" + 
+				"\n" + 
+				"enum Foo {\n" + 
+				"	blargh, baz, boz;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = Foo.class;\n" + 
+				"		EnumSet<?> eSet = EnumSet.allOf(c);\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<?> eSet = EnumSet.allOf(c);\n" + 
+			"	                  ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<?> eSet = EnumSet.allOf(c);\n" + 
+			"	                                ^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
+	public void test538() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.EnumSet;\n" + 
+				"\n" + 
+				"enum Foo {\n" + 
+				"	blargh, baz, boz;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Class c = Foo.class;\n" + 
+				"		EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
+			"	        ^^^^\n" + 
+			"Bound mismatch: The type Enum<?> is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type EnumSet<E>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
+			"	                        ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<Enum<?>>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
+			"	                        ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
+			"	                                      ^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n" + 
+			"----------\n");
+	}	
 }

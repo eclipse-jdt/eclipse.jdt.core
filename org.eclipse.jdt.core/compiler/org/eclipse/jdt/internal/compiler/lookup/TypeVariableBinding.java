@@ -68,13 +68,35 @@ public class TypeVariableBinding extends ReferenceBinding {
 	        }
 	    }
 		boolean hasSubstitution = substitution != null;
-		if (this.superclass.id != T_JavaLangObject && !argumentType.isCompatibleWith(hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass)) {
-		    return false;
+		if (this.superclass.id != T_JavaLangObject) {
+			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass;
+			if (argumentType instanceof ReferenceBinding) {
+				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
+				TypeBinding match = referenceArgument.findSuperTypeErasingTo((ReferenceBinding)substitutedSuperType.erasure());
+				if (match != null){
+					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
+					if (match.isRawType() && !substitutedSuperType.isRawType())
+						return false;
+				}
+			}
+			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
+			    return false;
+			}
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	        if (!argumentType.isCompatibleWith(hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i])) {
-				return false;
-	        }
+			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
+			if (argumentType instanceof ReferenceBinding) {
+				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
+				TypeBinding match = referenceArgument.findSuperTypeErasingTo((ReferenceBinding)substitutedSuperType.erasure());
+				if (match != null){
+					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
+					if (match.isRawType() && !substitutedSuperType.isRawType())
+						return false;
+				}
+			}
+			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
+			    return false;
+			}
 	    }
 	    return true;
 	}
