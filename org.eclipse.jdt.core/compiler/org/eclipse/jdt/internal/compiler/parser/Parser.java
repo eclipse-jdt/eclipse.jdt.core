@@ -2800,8 +2800,6 @@ protected void consumeEnumConstantHeaderName() {
    final int sourceEnd = (int) pos;
    FieldDeclaration enumConstant = new FieldDeclaration(constantName, (int) (pos >>> 32), sourceEnd);
    this.identifierLengthPtr--;
-//   enumConstant.declarationSourceEnd = flushCommentsDefinedPriorTo(sourceEnd);
-   enumConstant.declarationEnd = sourceEnd;
    enumConstant.modifiersSourceStart = this.intStack[this.intPtr--];
    enumConstant.modifiers = this.intStack[this.intPtr--];
    enumConstant.declarationSourceStart = enumConstant.modifiersSourceStart;
@@ -2819,10 +2817,6 @@ protected void consumeEnumConstantHeaderName() {
 }
 protected void consumeEnumConstantHeader() {
    FieldDeclaration enumConstant = (FieldDeclaration) this.astStack[this.astPtr];
-   if (rParenPos > enumConstant.declarationSourceEnd) {
-//      enumConstant.declarationSourceEnd = flushCommentsDefinedPriorTo(rParenPos);
-      enumConstant.declarationEnd = rParenPos;
-   }
    boolean foundOpeningBrace = this.currentToken == TokenNameLBRACE;
    if (foundOpeningBrace){
       // qualified allocation expression
@@ -2893,8 +2887,16 @@ protected void consumeEnumConstantHeader() {
    }
 }
 protected void consumeEnumConstantNoClassBody() {
-	// nothing to do
-	((FieldDeclaration) this.astStack[this.astPtr]).declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	// set declarationEnd and declarationSourceEnd
+	final FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr];
+	int declarationEnd = fieldDeclaration.sourceEnd;
+	if (declarationEnd > rParenPos) {
+		fieldDeclaration.declarationEnd = declarationEnd;
+		fieldDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(declarationEnd);
+	} else {
+		fieldDeclaration.declarationEnd = rParenPos;
+		fieldDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(rParenPos);
+	}
 }
 protected void consumeEnumConstants() {
 	concatNodeLists();

@@ -79,7 +79,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0053"));
+		suite.addTest(new ASTConverter15Test("test0056"));
 		return suite;
 	}
 		
@@ -1526,6 +1526,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not an annotation type declaration", ASTNode.ANNOTATION_TYPE_DECLARATION, node.getNodeType());
 		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
 		assertNotNull("No javadoc", annotationTypeDeclaration.getJavadoc());
+	}
+	
+	/**
+	 *
+	 */
+	public void test0056() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0056", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 	}
 }
 
