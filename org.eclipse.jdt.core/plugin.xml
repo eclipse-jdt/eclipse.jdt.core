@@ -140,7 +140,16 @@
 		library="jdtCompilerAdapter.jar">
 	</extraClasspathEntry>
 </extension> 
-   
+
+<!-- Tasks -->
+<extension point="org.eclipse.ant.core.antTasks">
+  <antTask
+  	name="eclipse.checkDebugAttributes"
+	class="org.eclipse.jdt.core.CheckDebugAttributes"
+	library="jdtCompilerAdapter.jar">
+  </antTask>
+</extension>
+      
 <!-- =================================================================================== -->
 <!-- Extension: Java file types                                                        -->
 <!-- =================================================================================== -->
