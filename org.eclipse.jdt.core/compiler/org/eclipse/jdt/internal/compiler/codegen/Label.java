@@ -57,7 +57,7 @@ public void appendForwardReferencesFrom(Label otherLabel) {
 	forwardReferenceCount = neededSpace;
 }
 /*
-* Put down  a refernece to the array at the location in the codestream.
+* Put down  a reference to the array at the location in the codestream.
 */
 void branch() {
 	if (position == POS_NOT_SET) {
@@ -100,6 +100,7 @@ public boolean hasForwardReferences() {
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
 public void inlineForwardReferencesFromLabelsTargeting(int gotoLocation) {
+	
 /*
  Code required to optimized unreachable gotos.
 	public boolean isBranchTarget(int location) {
@@ -135,6 +136,8 @@ public boolean isStandardLabel(){
 * Place the label. If we have forward references resolve them.
 */
 public void place() { // Currently lacking wide support.
+	if (CodeStream.DEBUG) System.out.println("\t\t\t\t<place at: "+codeStream.position+" - "+ this); //$NON-NLS-1$ //$NON-NLS-2$
+
 	if (position == POS_NOT_SET) {
 		position = codeStream.position;
 		codeStream.addLabel(this);
@@ -237,8 +240,11 @@ public void place() { // Currently lacking wide support.
  * Print out the receiver
  */
 public String toString() {
-	StringBuffer buffer = new StringBuffer("(position="); //$NON-NLS-1$
-	buffer.append(position);
+	String basic = getClass().getName();
+	basic = basic.substring(basic.lastIndexOf('.')+1);
+	StringBuffer buffer = new StringBuffer(basic); 
+	buffer.append('@').append(Integer.toHexString(hashCode()));
+	buffer.append("(position=").append(position); //$NON-NLS-1$
 	buffer.append(", forwards = ["); //$NON-NLS-1$
 	for (int i = 0; i < forwardReferenceCount - 1; i++)
 		buffer.append(forwardReferences[i] + ", "); //$NON-NLS-1$

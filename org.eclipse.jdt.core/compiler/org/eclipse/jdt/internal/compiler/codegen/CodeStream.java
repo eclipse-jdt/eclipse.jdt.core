@@ -65,6 +65,9 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public boolean wideMode = false;
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
 	
+	// codegen trace - TODO (olivier) need to be completed for macros and optimizations
+	public static final boolean DEBUG = false;
+	
 public CodeStream(ClassFile classFile) {
 	generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
 	generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
@@ -73,6 +76,7 @@ public CodeStream(ClassFile classFile) {
 	}
 }
 final public void aaload() {
+	if (DEBUG) System.out.println(position + "\t\taaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -83,6 +87,7 @@ final public void aaload() {
 	}
 }
 final public void aastore() {
+	if (DEBUG) System.out.println(position + "\t\taastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -93,6 +98,7 @@ final public void aastore() {
 	}
 }
 final public void aconst_null() {
+	if (DEBUG) System.out.println(position + "\t\taconst_null"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -153,6 +159,7 @@ public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 	visibleLocals[visibleLocalsCount++] = localBinding;
 }
 final public void aload(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\taload:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -191,6 +198,7 @@ final public void aload(int iArg) {
 	}
 }
 final public void aload_0() {
+	if (DEBUG) System.out.println(position + "\t\taload_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -206,6 +214,7 @@ final public void aload_0() {
 	}
 }
 final public void aload_1() {
+	if (DEBUG) System.out.println(position + "\t\taload_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -221,6 +230,7 @@ final public void aload_1() {
 	}
 }
 final public void aload_2() {
+	if (DEBUG) System.out.println(position + "\t\taload_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -236,6 +246,7 @@ final public void aload_2() {
 	}
 }
 final public void aload_3() {
+	if (DEBUG) System.out.println(position + "\t\taload_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -251,6 +262,7 @@ final public void aload_3() {
 	}
 }
 public final void anewarray(TypeBinding typeBinding) {
+	if (DEBUG) System.out.println(position + "\t\tanewarray: " + typeBinding); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -261,6 +273,7 @@ public final void anewarray(TypeBinding typeBinding) {
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 final public void areturn() {
+	if (DEBUG) System.out.println(position + "\t\tareturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	// the stackDepth should be equal to 0 
@@ -344,6 +357,7 @@ public void arrayAtPut(int elementTypeID, boolean valueRequired) {
 	}
 }
 final public void arraylength() {
+	if (DEBUG) System.out.println(position + "\t\tarraylength"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -353,6 +367,7 @@ final public void arraylength() {
 	}
 }
 final public void astore(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tastore:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= iArg) {
@@ -388,6 +403,7 @@ final public void astore(int iArg) {
 	}
 }
 final public void astore_0() {
+	if (DEBUG) System.out.println(position + "\t\tastore_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals == 0) {
@@ -401,6 +417,7 @@ final public void astore_0() {
 	}
 }
 final public void astore_1() {
+	if (DEBUG) System.out.println(position + "\t\tastore_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 1) {
@@ -414,6 +431,7 @@ final public void astore_1() {
 	}
 }
 final public void astore_2() {
+	if (DEBUG) System.out.println(position + "\t\tastore_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 2) {
@@ -427,6 +445,7 @@ final public void astore_2() {
 	}
 }
 final public void astore_3() {
+	if (DEBUG) System.out.println(position + "\t\tastore_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 3) {
@@ -440,6 +459,7 @@ final public void astore_3() {
 	}
 }
 final public void athrow() {
+	if (DEBUG) System.out.println(position + "\t\tathrow"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -450,6 +470,7 @@ final public void athrow() {
 	}
 }
 final public void baload() {
+	if (DEBUG) System.out.println(position + "\t\tbaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -460,6 +481,7 @@ final public void baload() {
 	}
 }
 final public void bastore() {
+	if (DEBUG) System.out.println(position + "\t\tbastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -470,6 +492,7 @@ final public void bastore() {
 	}
 }
 final public void bipush(byte b) {
+	if (DEBUG) System.out.println(position + "\t\tbipush "+b); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -483,6 +506,7 @@ final public void bipush(byte b) {
 	writeSignedByte(b);
 }
 final public void caload() {
+	if (DEBUG) System.out.println(position + "\t\tcaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -493,6 +517,7 @@ final public void caload() {
 	}
 }
 final public void castore() {
+	if (DEBUG) System.out.println(position + "\t\tcastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -503,6 +528,7 @@ final public void castore() {
 	}
 }
 public final void checkcast(TypeBinding typeBinding) {
+	if (DEBUG) System.out.println(position + "\t\tcheckcast:"+typeBinding); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -513,6 +539,7 @@ public final void checkcast(TypeBinding typeBinding) {
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 final public void d2f() {
+	if (DEBUG) System.out.println(position + "\t\td2f"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -523,6 +550,7 @@ final public void d2f() {
 	}
 }
 final public void d2i() {
+	if (DEBUG) System.out.println(position + "\t\td2i"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -533,6 +561,7 @@ final public void d2i() {
 	}
 }
 final public void d2l() {
+	if (DEBUG) System.out.println(position + "\t\td2l"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -542,6 +571,7 @@ final public void d2l() {
 	}
 }
 final public void dadd() {
+	if (DEBUG) System.out.println(position + "\t\tdadd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -552,6 +582,7 @@ final public void dadd() {
 	}
 }
 final public void daload() {
+	if (DEBUG) System.out.println(position + "\t\tdaload"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -561,6 +592,7 @@ final public void daload() {
 	}
 }
 final public void dastore() {
+	if (DEBUG) System.out.println(position + "\t\tdastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 4;
 	try {
@@ -571,6 +603,7 @@ final public void dastore() {
 	}
 }
 final public void dcmpg() {
+	if (DEBUG) System.out.println(position + "\t\tdcmpg"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -581,6 +614,7 @@ final public void dcmpg() {
 	}
 }
 final public void dcmpl() {
+	if (DEBUG) System.out.println(position + "\t\tdcmpl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -591,6 +625,7 @@ final public void dcmpl() {
 	}
 }
 final public void dconst_0() {
+	if (DEBUG) System.out.println(position + "\t\tdconst_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -603,6 +638,7 @@ final public void dconst_0() {
 	}
 }
 final public void dconst_1() {
+	if (DEBUG) System.out.println(position + "\t\tdconst_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -615,6 +651,7 @@ final public void dconst_1() {
 	}
 }
 final public void ddiv() {
+	if (DEBUG) System.out.println(position + "\t\tddiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -628,6 +665,7 @@ public void decrStackSize(int offset) {
 	stackDepth -= offset;
 }
 final public void dload(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tdload:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -666,6 +704,7 @@ final public void dload(int iArg) {
 	}
 }
 final public void dload_0() {
+	if (DEBUG) System.out.println(position + "\t\tdload_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -681,6 +720,7 @@ final public void dload_0() {
 	}
 }
 final public void dload_1() {
+	if (DEBUG) System.out.println(position + "\t\tdload_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -696,6 +736,7 @@ final public void dload_1() {
 	}
 }
 final public void dload_2() {
+	if (DEBUG) System.out.println(position + "\t\tdload_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -711,6 +752,7 @@ final public void dload_2() {
 	}
 }
 final public void dload_3() {
+	if (DEBUG) System.out.println(position + "\t\tdload_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -726,6 +768,7 @@ final public void dload_3() {
 	}
 }
 final public void dmul() {
+	if (DEBUG) System.out.println(position + "\t\tdmul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -736,6 +779,7 @@ final public void dmul() {
 	}
 }
 final public void dneg() {
+	if (DEBUG) System.out.println(position + "\t\tdneg"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -745,6 +789,7 @@ final public void dneg() {
 	}
 }
 final public void drem() {
+	if (DEBUG) System.out.println(position + "\t\tdrem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -755,6 +800,7 @@ final public void drem() {
 	}
 }
 final public void dreturn() {
+	if (DEBUG) System.out.println(position + "\t\tdreturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	// the stackDepth should be equal to 0 
@@ -766,6 +812,7 @@ final public void dreturn() {
 	}
 }
 final public void dstore(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tdstore:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals <= iArg + 1) {
@@ -801,6 +848,7 @@ final public void dstore(int iArg) {
 	}
 }
 final public void dstore_0() {
+	if (DEBUG) System.out.println(position + "\t\tdstore_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 2) {
@@ -814,6 +862,7 @@ final public void dstore_0() {
 	}
 }
 final public void dstore_1() {
+	if (DEBUG) System.out.println(position + "\t\tdstore_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 3) {
@@ -827,6 +876,7 @@ final public void dstore_1() {
 	}
 }
 final public void dstore_2() {
+	if (DEBUG) System.out.println(position + "\t\tdstore_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 4) {
@@ -840,6 +890,7 @@ final public void dstore_2() {
 	}
 }
 final public void dstore_3() {
+	if (DEBUG) System.out.println(position + "\t\tdstore_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 5) {
@@ -853,6 +904,7 @@ final public void dstore_3() {
 	}
 }
 final public void dsub() {
+	if (DEBUG) System.out.println(position + "\t\tdsub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -863,6 +915,7 @@ final public void dsub() {
 	}
 }
 final public void dup() {
+	if (DEBUG) System.out.println(position + "\t\tdup"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -875,6 +928,7 @@ final public void dup() {
 	}
 }
 final public void dup_x1() {
+	if (DEBUG) System.out.println(position + "\t\tdup_x1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -887,6 +941,7 @@ final public void dup_x1() {
 	}
 }
 final public void dup_x2() {
+	if (DEBUG) System.out.println(position + "\t\tdup_x2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -899,6 +954,7 @@ final public void dup_x2() {
 	}
 }
 final public void dup2() {
+	if (DEBUG) System.out.println(position + "\t\tdup2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -911,6 +967,7 @@ final public void dup2() {
 	}
 }
 final public void dup2_x1() {
+	if (DEBUG) System.out.println(position + "\t\tdup2_x1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -923,6 +980,7 @@ final public void dup2_x1() {
 	}
 }
 final public void dup2_x2() {
+	if (DEBUG) System.out.println(position + "\t\tdup2_x2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -951,6 +1009,7 @@ public void exitUserScope(BlockScope blockScope) {
 	}
 }
 final public void f2d() {
+	if (DEBUG) System.out.println(position + "\t\tf2d"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -963,6 +1022,7 @@ final public void f2d() {
 	}
 }
 final public void f2i() {
+	if (DEBUG) System.out.println(position + "\t\tf2i"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -972,6 +1032,7 @@ final public void f2i() {
 	}
 }
 final public void f2l() {
+	if (DEBUG) System.out.println(position + "\t\tf2l"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -984,6 +1045,7 @@ final public void f2l() {
 	}
 }
 final public void fadd() {
+	if (DEBUG) System.out.println(position + "\t\tfadd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -994,6 +1056,7 @@ final public void fadd() {
 	}
 }
 final public void faload() {
+	if (DEBUG) System.out.println(position + "\t\tfaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -1004,6 +1067,7 @@ final public void faload() {
 	}
 }
 final public void fastore() {
+	if (DEBUG) System.out.println(position + "\t\tfaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -1014,6 +1078,7 @@ final public void fastore() {
 	}
 }
 final public void fcmpg() {
+	if (DEBUG) System.out.println(position + "\t\tfcmpg"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -1024,6 +1089,7 @@ final public void fcmpg() {
 	}
 }
 final public void fcmpl() {
+	if (DEBUG) System.out.println(position + "\t\tfcmpl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -1034,6 +1100,7 @@ final public void fcmpl() {
 	}
 }
 final public void fconst_0() {
+	if (DEBUG) System.out.println(position + "\t\tfconst_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -1046,6 +1113,7 @@ final public void fconst_0() {
 	}
 }
 final public void fconst_1() {
+	if (DEBUG) System.out.println(position + "\t\tfconst_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -1058,6 +1126,7 @@ final public void fconst_1() {
 	}
 }
 final public void fconst_2() {
+	if (DEBUG) System.out.println(position + "\t\tfconst_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -1070,6 +1139,7 @@ final public void fconst_2() {
 	}
 }
 final public void fdiv() {
+	if (DEBUG) System.out.println(position + "\t\tfdiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -1080,6 +1150,7 @@ final public void fdiv() {
 	}
 }
 final public void fload(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tfload:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= iArg) {
@@ -1117,6 +1188,7 @@ final public void fload(int iArg) {
 	}
 }
 final public void fload_0() {
+	if (DEBUG) System.out.println(position + "\t\tfload_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals == 0) {
@@ -1132,6 +1204,7 @@ final public void fload_0() {
 	}
 }
 final public void fload_1() {
+	if (DEBUG) System.out.println(position + "\t\tfload_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 1) {
@@ -1147,6 +1220,7 @@ final public void fload_1() {
 	}
 }
 final public void fload_2() {
+	if (DEBUG) System.out.println(position + "\t\tfload_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 2) {
@@ -1162,6 +1236,7 @@ final public void fload_2() {
 	}
 }
 final public void fload_3() {
+	if (DEBUG) System.out.println(position + "\t\tfload_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 3) {
@@ -1177,6 +1252,7 @@ final public void fload_3() {
 	}
 }
 final public void fmul() {
+	if (DEBUG) System.out.println(position + "\t\tfmul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -1187,6 +1263,7 @@ final public void fmul() {
 	}
 }
 final public void fneg() {
+	if (DEBUG) System.out.println(position + "\t\tfneg"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -1196,6 +1273,7 @@ final public void fneg() {
 	}
 }
 final public void frem() {
+	if (DEBUG) System.out.println(position + "\t\tfrem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -1206,6 +1284,7 @@ final public void frem() {
 	}
 }
 final public void freturn() {
+	if (DEBUG) System.out.println(position + "\t\tfreturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	// the stackDepth should be equal to 0 
@@ -1217,6 +1296,7 @@ final public void freturn() {
 	}
 }
 final public void fstore(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tfstore:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= iArg) {
@@ -1252,6 +1332,7 @@ final public void fstore(int iArg) {
 	}
 }
 final public void fstore_0() {
+	if (DEBUG) System.out.println(position + "\t\tfstore_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals == 0) {
@@ -1265,6 +1346,7 @@ final public void fstore_0() {
 	}
 }
 final public void fstore_1() {
+	if (DEBUG) System.out.println(position + "\t\tfstore_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 1) {
@@ -1278,6 +1360,7 @@ final public void fstore_1() {
 	}
 }
 final public void fstore_2() {
+	if (DEBUG) System.out.println(position + "\t\tfstore_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 2) {
@@ -1291,6 +1374,7 @@ final public void fstore_2() {
 	}
 }
 final public void fstore_3() {
+	if (DEBUG) System.out.println(position + "\t\tfstore_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 3) {
@@ -1304,6 +1388,7 @@ final public void fstore_3() {
 	}
 }
 final public void fsub() {
+	if (DEBUG) System.out.println(position + "\t\tfsub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -2003,6 +2088,7 @@ final public byte[] getContents() {
 	return contents;
 }
 final public void getfield(FieldBinding fieldBinding) {
+	if (DEBUG) System.out.println(position + "\t\tgetfield:"+fieldBinding); //$NON-NLS-1$
 	countLabels = 0;
 	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long)) {
 		if (++stackDepth > stackMax)
@@ -2017,6 +2103,7 @@ final public void getfield(FieldBinding fieldBinding) {
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
 }
 final public void getstatic(FieldBinding fieldBinding) {
+	if (DEBUG) System.out.println(position + "\t\tgetstatic:"+fieldBinding); //$NON-NLS-1$
 	countLabels = 0;
 	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long))
 		stackDepth += 2;
@@ -2031,18 +2118,6 @@ final public void getstatic(FieldBinding fieldBinding) {
 		resizeByteArray(OPC_getstatic);
 	}
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
-}
-public void getSystemOut() {
-	countLabels = 0;
-	if (++stackDepth > stackMax)
-		stackMax = stackDepth;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_getstatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_getstatic);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangSystemOut());
 }
 public void getTYPE(int baseTypeID) {
 	countLabels = 0;
@@ -2096,13 +2171,14 @@ public void getTYPE(int baseTypeID) {
 /**
  * We didn't call it goto, because there is a conflit with the goto keyword
  */
-final public void goto_(Label lbl) {
+final public void goto_(Label label) {
 	if (this.wideMode) {
-		this.goto_w(lbl);
+		this.goto_w(label);
 		return;
 	}
+	if (DEBUG) System.out.println(position + "\t\tgoto:"+label); //$NON-NLS-1$
 	try {
-		lbl.inlineForwardReferencesFromLabelsTargeting(position);
+		label.inlineForwardReferencesFromLabelsTargeting(position);
 		/*
 		 Possible optimization for code such as:
 		 public Object foo() {
@@ -2135,50 +2211,11 @@ final public void goto_(Label lbl) {
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_goto);
 	}
-	lbl.branch();
+	label.branch();
 }
 
-/**
- * We didn't call it goto, because there is a conflit with the goto keyword
- */
-final public void internal_goto_(Label lbl) {
-	try {
-		lbl.inlineForwardReferencesFromLabelsTargeting(position);
-		/*
-		 Possible optimization for code such as:
-		 public Object foo() {
-			boolean b = true;
-			if (b) {
-				if (b)
-					return null;
-			} else {
-				if (b) {
-					return null;
-				}
-			}
-			return null;
-		}
-		The goto around the else block for the first if will
-		be unreachable, because the thenClause of the second if
-		returns.
-		See inlineForwardReferencesFromLabelsTargeting defined
-		on the Label class for the remaining part of this
-		optimization.
-		 if (!lbl.isBranchTarget(position)) {
-			switch(bCodeStream[classFileOffset-1]) {
-				case OPC_return :
-				case OPC_areturn:
-					return;
-			}
-		}*/
-		position++;
-		bCodeStream[classFileOffset++] = OPC_goto;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_goto);
-	}
-	lbl.branch();
-}
 final public void goto_w(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tgotow:"+lbl); //$NON-NLS-1$
 	try {
 		position++;
 		bCodeStream[classFileOffset++] = OPC_goto_w;
@@ -2188,6 +2225,7 @@ final public void goto_w(Label lbl) {
 	lbl.branchWide();
 }
 final public void i2b() {
+	if (DEBUG) System.out.println(position + "\t\ti2b"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -2197,6 +2235,7 @@ final public void i2b() {
 	}
 }
 final public void i2c() {
+	if (DEBUG) System.out.println(position + "\t\ti2c"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -2206,6 +2245,7 @@ final public void i2c() {
 	}
 }
 final public void i2d() {
+	if (DEBUG) System.out.println(position + "\t\ti2d"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2218,6 +2258,7 @@ final public void i2d() {
 	}
 }
 final public void i2f() {
+	if (DEBUG) System.out.println(position + "\t\ti2f"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -2227,6 +2268,7 @@ final public void i2f() {
 	}
 }
 final public void i2l() {
+	if (DEBUG) System.out.println(position + "\t\ti2l"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2239,6 +2281,7 @@ final public void i2l() {
 	}
 }
 final public void i2s() {
+	if (DEBUG) System.out.println(position + "\t\ti2s"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -2248,6 +2291,7 @@ final public void i2s() {
 	}
 }
 final public void iadd() {
+	if (DEBUG) System.out.println(position + "\t\tiadd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -2258,6 +2302,7 @@ final public void iadd() {
 	}
 }
 final public void iaload() {
+	if (DEBUG) System.out.println(position + "\t\tiaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -2268,6 +2313,7 @@ final public void iaload() {
 	}
 }
 final public void iand() {
+	if (DEBUG) System.out.println(position + "\t\tiand"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -2278,6 +2324,7 @@ final public void iand() {
 	}
 }
 final public void iastore() {
+	if (DEBUG) System.out.println(position + "\t\tiastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -2288,6 +2335,7 @@ final public void iastore() {
 	}
 }
 final public void iconst_0() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2300,6 +2348,7 @@ final public void iconst_0() {
 	}
 }
 final public void iconst_1() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2312,6 +2361,7 @@ final public void iconst_1() {
 	}
 }
 final public void iconst_2() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2324,6 +2374,7 @@ final public void iconst_2() {
 	}
 }
 final public void iconst_3() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2336,6 +2387,7 @@ final public void iconst_3() {
 	}
 }
 final public void iconst_4() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_4"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2348,6 +2400,7 @@ final public void iconst_4() {
 	}
 }
 final public void iconst_5() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_5"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2360,6 +2413,7 @@ final public void iconst_5() {
 	}
 }
 final public void iconst_m1() {
+	if (DEBUG) System.out.println(position + "\t\ticonst_m1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -2372,6 +2426,7 @@ final public void iconst_m1() {
 	}
 }
 final public void idiv() {
+	if (DEBUG) System.out.println(position + "\t\tidiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -2382,6 +2437,7 @@ final public void idiv() {
 	}
 }
 final public void if_acmpeq(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_acmpeq:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth-=2;
 	if (this.wideMode) {
@@ -2397,6 +2453,7 @@ final public void if_acmpeq(Label lbl) {
 	}
 }
 final public void if_acmpne(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_acmpne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth-=2;
 	if (this.wideMode) {
@@ -2412,6 +2469,7 @@ final public void if_acmpne(Label lbl) {
 	}
 }
 final public void if_icmpeq(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_cmpeq:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -2427,6 +2485,7 @@ final public void if_icmpeq(Label lbl) {
 	}
 }
 final public void if_icmpge(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_iacmpge:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -2442,6 +2501,7 @@ final public void if_icmpge(Label lbl) {
 	}
 }
 final public void if_icmpgt(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_iacmpgt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -2457,6 +2517,7 @@ final public void if_icmpgt(Label lbl) {
 	}
 }
 final public void if_icmple(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_iacmple:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -2472,6 +2533,7 @@ final public void if_icmple(Label lbl) {
 	}
 }
 final public void if_icmplt(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_iacmplt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -2487,6 +2549,7 @@ final public void if_icmplt(Label lbl) {
 	}
 }
 final public void if_icmpne(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tif_iacmpne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
@@ -2502,6 +2565,7 @@ final public void if_icmpne(Label lbl) {
 	}
 }
 final public void ifeq(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifeq:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2517,6 +2581,7 @@ final public void ifeq(Label lbl) {
 	}
 }
 final public void ifge(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifge:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2532,6 +2597,7 @@ final public void ifge(Label lbl) {
 	}
 }
 final public void ifgt(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifgt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2547,6 +2613,7 @@ final public void ifgt(Label lbl) {
 	}
 }
 final public void ifle(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifle:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2562,6 +2629,7 @@ final public void ifle(Label lbl) {
 	}
 }
 final public void iflt(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tiflt:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2577,6 +2645,7 @@ final public void iflt(Label lbl) {
 	}
 }
 final public void ifne(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifne:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2592,6 +2661,7 @@ final public void ifne(Label lbl) {
 	}
 }
 final public void ifnonnull(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifnonnull:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2607,6 +2677,7 @@ final public void ifnonnull(Label lbl) {
 	}
 }
 final public void ifnull(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tifnull:"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
@@ -2622,6 +2693,7 @@ final public void ifnull(Label lbl) {
 	}
 }
 final public void iinc(int index, int value) {
+	if (DEBUG) System.out.println(position + "\t\tiinc:"+index+","+value); //$NON-NLS-1$ //$NON-NLS-2$
 	countLabels = 0;
 	if ((index > 255) || (value < -128 || value > 127)) { // have to widen
 		try {
@@ -2650,6 +2722,7 @@ final public void iinc(int index, int value) {
 	}
 }
 final public void iload(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tiload:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= iArg) {
@@ -2687,6 +2760,7 @@ final public void iload(int iArg) {
 	}
 }
 final public void iload_0() {
+	if (DEBUG) System.out.println(position + "\t\tiload_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 0) {
@@ -2702,6 +2776,7 @@ final public void iload_0() {
 	}
 }
 final public void iload_1() {
+	if (DEBUG) System.out.println(position + "\t\tiload_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 1) {
@@ -2717,6 +2792,7 @@ final public void iload_1() {
 	}
 }
 final public void iload_2() {
+	if (DEBUG) System.out.println(position + "\t\tiload_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 2) {
@@ -2732,6 +2808,7 @@ final public void iload_2() {
 	}
 }
 final public void iload_3() {
+	if (DEBUG) System.out.println(position + "\t\tiload_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (maxLocals <= 3) {
@@ -2747,6 +2824,7 @@ final public void iload_3() {
 	}
 }
 final public void imul() {
+	if (DEBUG) System.out.println(position + "\t\timul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -2778,6 +2856,7 @@ public int indexOfSameLineEntrySincePC(int pc, int line) {
 	return -1;
 }
 final public void ineg() {
+	if (DEBUG) System.out.println(position + "\t\tineg"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -2906,6 +2985,7 @@ public static int insertionIndex(int[] pcToSourceMap, int length, int pc) {
  * instanceof keyword
  */
 final public void instance_of(TypeBinding typeBinding) {
+	if (DEBUG) System.out.println(position + "\t\tinstance_of:"+typeBinding); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3025,6 +3105,7 @@ public void invokeObjectGetClass() {
 }
 
 final public void invokespecial(MethodBinding methodBinding) {
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial:"+methodBinding); //$NON-NLS-1$
 	// initialized to 1 to take into account this  immediately
 	countLabels = 0;
 	int argCount = 1;
@@ -3076,6 +3157,7 @@ final public void invokespecial(MethodBinding methodBinding) {
 		stackMax = stackDepth;
 }
 final public void invokestatic(MethodBinding methodBinding) {
+	if (DEBUG) System.out.println(position + "\t\tinvokestatic:"+methodBinding); //$NON-NLS-1$
 	// initialized to 0 to take into account that there is no this for
 	// a static method
 	countLabels = 0;
@@ -3212,18 +3294,6 @@ public void invokeStringValueOf(int typeID) {
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringValueOf(typeID));
 }
-public void invokeSystemExit() {
-	// invokestatic: java.lang.System.exit(I)
-	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokestatic;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokestatic);
-	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangSystemExitInt());
-	stackDepth--; // int argument
-}
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
 	countLabels = 0;
@@ -3236,6 +3306,7 @@ public void invokeThrowableGetMessage() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangThrowableGetMessage());
 }
 final public void invokevirtual(MethodBinding methodBinding) {
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual:"+methodBinding); //$NON-NLS-1$
 	// initialized to 1 to take into account this  immediately
 	countLabels = 0;
 	int argCount = 1;
@@ -3263,6 +3334,7 @@ final public void invokevirtual(MethodBinding methodBinding) {
 		stackMax = stackDepth;
 }
 final public void ior() {
+	if (DEBUG) System.out.println(position + "\t\tior"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3273,6 +3345,7 @@ final public void ior() {
 	}
 }
 final public void irem() {
+	if (DEBUG) System.out.println(position + "\t\tirem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3283,6 +3356,7 @@ final public void irem() {
 	}
 }
 final public void ireturn() {
+	if (DEBUG) System.out.println(position + "\t\tireturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	// the stackDepth should be equal to 0 
@@ -3316,6 +3390,7 @@ public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariab
 	return ((extraInits[vectorIndex]) & (1L << (localPosition % UnconditionalFlowInfo.BitCacheSize))) != 0;
 }
 final public void ishl() {
+	if (DEBUG) System.out.println(position + "\t\tishl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3326,6 +3401,7 @@ final public void ishl() {
 	}
 }
 final public void ishr() {
+	if (DEBUG) System.out.println(position + "\t\tishr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3336,6 +3412,7 @@ final public void ishr() {
 	}
 }
 final public void istore(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tistore:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= iArg) {
@@ -3371,6 +3448,7 @@ final public void istore(int iArg) {
 	}
 }
 final public void istore_0() {
+	if (DEBUG) System.out.println(position + "\t\tistore_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals == 0) {
@@ -3384,6 +3462,7 @@ final public void istore_0() {
 	}
 }
 final public void istore_1() {
+	if (DEBUG) System.out.println(position + "\t\tistore_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 1) {
@@ -3397,6 +3476,7 @@ final public void istore_1() {
 	}
 }
 final public void istore_2() {
+	if (DEBUG) System.out.println(position + "\t\tistore_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 2) {
@@ -3410,6 +3490,7 @@ final public void istore_2() {
 	}
 }
 final public void istore_3() {
+	if (DEBUG) System.out.println(position + "\t\tistore_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	if (maxLocals <= 3) {
@@ -3423,6 +3504,7 @@ final public void istore_3() {
 	}
 }
 final public void isub() {
+	if (DEBUG) System.out.println(position + "\t\tisub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3433,6 +3515,7 @@ final public void isub() {
 	}
 }
 final public void iushr() {
+	if (DEBUG) System.out.println(position + "\t\tiushr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3443,6 +3526,7 @@ final public void iushr() {
 	}
 }
 final public void ixor() {
+	if (DEBUG) System.out.println(position + "\t\tixor"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3457,6 +3541,7 @@ final public void jsr(Label lbl) {
 		this.jsr_w(lbl);
 		return;
 	}
+	if (DEBUG) System.out.println(position + "\t\tjsr"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3467,6 +3552,7 @@ final public void jsr(Label lbl) {
 	lbl.branch();
 }
 final public void jsr_w(Label lbl) {
+	if (DEBUG) System.out.println(position + "\t\tjsr_w"+lbl); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3477,6 +3563,7 @@ final public void jsr_w(Label lbl) {
 	lbl.branchWide();
 }
 final public void l2d() {
+	if (DEBUG) System.out.println(position + "\t\tl2d"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3486,6 +3573,7 @@ final public void l2d() {
 	}
 }
 final public void l2f() {
+	if (DEBUG) System.out.println(position + "\t\tl2f"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3496,6 +3584,7 @@ final public void l2f() {
 	}
 }
 final public void l2i() {
+	if (DEBUG) System.out.println(position + "\t\tl2i"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -3506,6 +3595,7 @@ final public void l2i() {
 	}
 }
 final public void ladd() {
+	if (DEBUG) System.out.println(position + "\t\tladd"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -3516,6 +3606,7 @@ final public void ladd() {
 	}
 }
 final public void laload() {
+	if (DEBUG) System.out.println(position + "\t\tlaload"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -3525,6 +3616,7 @@ final public void laload() {
 	}
 }
 final public void land() {
+	if (DEBUG) System.out.println(position + "\t\tland"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -3535,6 +3627,7 @@ final public void land() {
 	}
 }
 final public void lastore() {
+	if (DEBUG) System.out.println(position + "\t\tlastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 4;
 	try {
@@ -3545,6 +3638,7 @@ final public void lastore() {
 	}
 }
 final public void lcmp() {
+	if (DEBUG) System.out.println(position + "\t\tlcmp"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -3555,6 +3649,7 @@ final public void lcmp() {
 	}
 }
 final public void lconst_0() {
+	if (DEBUG) System.out.println(position + "\t\tlconst_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -3567,6 +3662,7 @@ final public void lconst_0() {
 	}
 }
 final public void lconst_1() {
+	if (DEBUG) System.out.println(position + "\t\tlconst_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (stackDepth > stackMax)
@@ -3579,6 +3675,7 @@ final public void lconst_1() {
 	}
 }
 final public void ldc(float constant) {
+	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int index = constantPool.literalIndex(constant);
 	stackDepth++;
@@ -3605,6 +3702,7 @@ final public void ldc(float constant) {
 	}
 }
 final public void ldc(int constant) {
+	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int index = constantPool.literalIndex(constant);
 	stackDepth++;
@@ -3631,6 +3729,7 @@ final public void ldc(int constant) {
 	}
 }
 final public void ldc(String constant) {
+	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int currentConstantPoolIndex = constantPool.currentIndex;
 	int currentConstantPoolOffset = constantPool.currentOffset;
@@ -3797,6 +3896,7 @@ final public void ldc(String constant) {
 	}
 }
 final public void ldc2_w(double constant) {
+	if (DEBUG) System.out.println(position + "\t\tldc2_w:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int index = constantPool.literalIndex(constant);
 	stackDepth += 2;
@@ -3812,6 +3912,7 @@ final public void ldc2_w(double constant) {
 	writeUnsignedShort(index);
 }
 final public void ldc2_w(long constant) {
+	if (DEBUG) System.out.println(position + "\t\tldc2_w:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int index = constantPool.literalIndex(constant);
 	stackDepth += 2;
@@ -3827,6 +3928,7 @@ final public void ldc2_w(long constant) {
 	writeUnsignedShort(index);
 }
 final public void ldiv() {
+	if (DEBUG) System.out.println(position + "\t\tldiv"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -3837,6 +3939,7 @@ final public void ldiv() {
 	}
 }
 final public void lload(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tlload:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (maxLocals <= iArg + 1) {
@@ -3874,6 +3977,7 @@ final public void lload(int iArg) {
 	}
 }
 final public void lload_0() {
+	if (DEBUG) System.out.println(position + "\t\tlload_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (maxLocals < 2) {
@@ -3889,6 +3993,7 @@ final public void lload_0() {
 	}
 }
 final public void lload_1() {
+	if (DEBUG) System.out.println(position + "\t\tlload_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (maxLocals < 3) {
@@ -3904,6 +4009,7 @@ final public void lload_1() {
 	}
 }
 final public void lload_2() {
+	if (DEBUG) System.out.println(position + "\t\tlload_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (maxLocals < 4) {
@@ -3919,6 +4025,7 @@ final public void lload_2() {
 	}
 }
 final public void lload_3() {
+	if (DEBUG) System.out.println(position + "\t\tlload_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth += 2;
 	if (maxLocals < 5) {
@@ -3934,6 +4041,7 @@ final public void lload_3() {
 	}
 }
 final public void lmul() {
+	if (DEBUG) System.out.println(position + "\t\tlmul"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -3944,6 +4052,7 @@ final public void lmul() {
 	}
 }
 final public void lneg() {
+	if (DEBUG) System.out.println(position + "\t\tlneg"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -4237,6 +4346,7 @@ public final void loadObject(int resolvedPosition) {
 	}
 }
 final public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedIndexes, CaseLabel[] casesLabel) {
+	if (DEBUG) System.out.println(position + "\t\tlookupswitch"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	int length = keys.length;
@@ -4267,6 +4377,7 @@ final public void lookupswitch(CaseLabel defaultLabel, int[] keys, int[] sortedI
 	}
 }
 final public void lor() {
+	if (DEBUG) System.out.println(position + "\t\tlor"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -4277,6 +4388,7 @@ final public void lor() {
 	}
 }
 final public void lrem() {
+	if (DEBUG) System.out.println(position + "\t\tlrem"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -4287,6 +4399,7 @@ final public void lrem() {
 	}
 }
 final public void lreturn() {
+	if (DEBUG) System.out.println(position + "\t\tlreturn"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	// the stackDepth should be equal to 0 
@@ -4298,6 +4411,7 @@ final public void lreturn() {
 	}
 }
 final public void lshl() {
+	if (DEBUG) System.out.println(position + "\t\tlshl"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4308,6 +4422,7 @@ final public void lshl() {
 	}
 }
 final public void lshr() {
+	if (DEBUG) System.out.println(position + "\t\tlshr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4318,6 +4433,7 @@ final public void lshr() {
 	}
 }
 final public void lstore(int iArg) {
+	if (DEBUG) System.out.println(position + "\t\tlstore:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals <= iArg + 1) {
@@ -4353,6 +4469,7 @@ final public void lstore(int iArg) {
 	}
 }
 final public void lstore_0() {
+	if (DEBUG) System.out.println(position + "\t\tlstore_0"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 2) {
@@ -4366,6 +4483,7 @@ final public void lstore_0() {
 	}
 }
 final public void lstore_1() {
+	if (DEBUG) System.out.println(position + "\t\tlstore_1"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 3) {
@@ -4379,6 +4497,7 @@ final public void lstore_1() {
 	}
 }
 final public void lstore_2() {
+	if (DEBUG) System.out.println(position + "\t\tlstore_2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 4) {
@@ -4392,6 +4511,7 @@ final public void lstore_2() {
 	}
 }
 final public void lstore_3() {
+	if (DEBUG) System.out.println(position + "\t\tlstore_3"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	if (maxLocals < 5) {
@@ -4405,6 +4525,7 @@ final public void lstore_3() {
 	}
 }
 final public void lsub() {
+	if (DEBUG) System.out.println(position + "\t\tlsub"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -4415,6 +4536,7 @@ final public void lsub() {
 	}
 }
 final public void lushr() {
+	if (DEBUG) System.out.println(position + "\t\tlushr"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4425,6 +4547,7 @@ final public void lushr() {
 	}
 }
 final public void lxor() {
+	if (DEBUG) System.out.println(position + "\t\tlxor"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -4435,6 +4558,7 @@ final public void lxor() {
 	}
 }
 final public void monitorenter() {
+	if (DEBUG) System.out.println(position + "\t\tmonitorenter"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4445,6 +4569,7 @@ final public void monitorenter() {
 	}
 }
 final public void monitorexit() {
+	if (DEBUG) System.out.println(position + "\t\tmonitorexit"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4455,6 +4580,7 @@ final public void monitorexit() {
 	}
 }
 final public void multianewarray(TypeBinding typeBinding, int dimensions) {
+	if (DEBUG) System.out.println(position + "\t\tmultinewarray:"+typeBinding+","+dimensions); //$NON-NLS-1$ //$NON-NLS-2$
 	countLabels = 0;
 	stackDepth += (1 - dimensions);
 	try {
@@ -4470,6 +4596,7 @@ final public void multianewarray(TypeBinding typeBinding, int dimensions) {
  * We didn't call it new, because there is a conflit with the new keyword
  */
 final public void new_(TypeBinding typeBinding) {
+	if (DEBUG) System.out.println(position + "\t\tnew:"+typeBinding); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -4483,6 +4610,7 @@ final public void new_(TypeBinding typeBinding) {
 	writeUnsignedShort(constantPool.literalIndex(typeBinding));
 }
 final public void newarray(int array_Type) {
+	if (DEBUG) System.out.println(position + "\t\tnewarray:"+array_Type); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -4620,6 +4748,7 @@ public void newWrapperFor(int typeID) {
 	}
 }
 final public void nop() {
+	if (DEBUG) System.out.println(position + "\t\tnop"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -4629,6 +4758,7 @@ final public void nop() {
 	}
 }
 final public void pop() {
+	if (DEBUG) System.out.println(position + "\t\tpop"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4639,6 +4769,7 @@ final public void pop() {
 	}
 }
 final public void pop2() {
+	if (DEBUG) System.out.println(position + "\t\tpop2"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 2;
 	try {
@@ -4649,6 +4780,7 @@ final public void pop2() {
 	}
 }
 final public void putfield(FieldBinding fieldBinding) {
+	if (DEBUG) System.out.println(position + "\t\tputfield:"+fieldBinding); //$NON-NLS-1$
 	countLabels = 0;
 	int id;
 	if (((id = fieldBinding.type.id) == T_double) || (id == T_long))
@@ -4666,6 +4798,7 @@ final public void putfield(FieldBinding fieldBinding) {
 	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
 }
 final public void putstatic(FieldBinding fieldBinding) {
+	if (DEBUG) System.out.println(position + "\t\tputstatic:"+fieldBinding); //$NON-NLS-1$
 	countLabels = 0;
 	int id;
 	if (((id = fieldBinding.type.id) == T_double) || (id == T_long))
@@ -4865,6 +4998,7 @@ protected final void resizeByteArray(byte b) {
 	bCodeStream[classFileOffset - 1] = b;
 }
 final public void ret(int index) {
+	if (DEBUG) System.out.println(position + "\t\tret:"+index); //$NON-NLS-1$
 	countLabels = 0;
 	if (index > 255) { // Widen
 		try {
@@ -4896,6 +5030,7 @@ final public void ret(int index) {
 	}
 }
 final public void return_() {
+	if (DEBUG) System.out.println(position + "\t\treturn"); //$NON-NLS-1$
 	countLabels = 0;
 	// the stackDepth should be equal to 0 
 	try {
@@ -4906,6 +5041,7 @@ final public void return_() {
 	}
 }
 final public void saload() {
+	if (DEBUG) System.out.println(position + "\t\tsaload"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	try {
@@ -4916,6 +5052,7 @@ final public void saload() {
 	}
 }
 final public void sastore() {
+	if (DEBUG) System.out.println(position + "\t\tsastore"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth -= 3;
 	try {
@@ -5047,6 +5184,7 @@ public void sendOperator(int operatorConstant, int type_ID) {
 	}
 }
 final public void sipush(int s) {
+	if (DEBUG) System.out.println(position + "\t\tsipush:"+s); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -5349,6 +5487,7 @@ public final void storeObject(int localPosition) {
 	}
 }
 final public void swap() {
+	if (DEBUG) System.out.println(position + "\t\tswap"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;
@@ -5367,6 +5506,7 @@ private static final void swap(int a[], int i, int j, int result[]) {
 	result[i] = T;
 }
 final public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, int[] sortedIndexes, CaseLabel[] casesLabel) {
+	if (DEBUG) System.out.println(position + "\t\ttableswitch"); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth--;
 	int length = casesLabel.length;
@@ -5452,6 +5592,7 @@ public void updateLocalVariablesAttribute(int pos) {
 	}
 }
 final public void wide() {
+	if (DEBUG) System.out.println(position + "\t\twide"); //$NON-NLS-1$
 	countLabels = 0;
 	try {
 		position++;

@@ -198,9 +198,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// check javadoc annotations
 	public boolean checkAnnotation = false; 
 	
-	// generate jsr bytecode (1.5 vms do not allow it on files >= 49.0)
-	public boolean generate_jsr = true; // TODO (philippe) should disappear and check against target level
-	
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
@@ -487,7 +484,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report unused parameter when overriding concrete method : ").append(reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(reportSpecialParameterHidingField ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n\t- generate jsr bytecode: ").append(generate_jsr ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 
