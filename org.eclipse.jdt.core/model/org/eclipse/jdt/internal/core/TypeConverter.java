@@ -137,12 +137,14 @@ public class TypeConverter {
 		/* set superclass and superinterfaces */
 		if (type.getSuperclassName() != null) {
 			typeDeclaration.superclass = createTypeReference(type.getSuperclassName().toCharArray(), type);
+			typeDeclaration.superclass.bits |= ASTNode.IsSuperType;
 		}
 		String[] interfaceNames = type.getSuperInterfaceNames();
 		int interfaceCount = interfaceNames == null ? 0 : interfaceNames.length;
 		typeDeclaration.superInterfaces = new TypeReference[interfaceCount];
 		for (int i = 0; i < interfaceCount; i++) {
 			typeDeclaration.superInterfaces[i] = createTypeReference(interfaceNames[i].toCharArray(), type);
+			typeDeclaration.superInterfaces[i].bits |= ASTNode.IsSuperType;
 		}
 		
 		/* convert member types */

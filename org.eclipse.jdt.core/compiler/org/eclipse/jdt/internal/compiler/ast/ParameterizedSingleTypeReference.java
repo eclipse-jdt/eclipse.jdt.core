@@ -103,6 +103,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 		}
 		currentType = (ReferenceBinding) this.resolvedType;
+		// TODO (kent) - if ((this.bits & ASTNode.IsSuperType) != 0)
 		if (isClassScope)
 			if (((ClassScope) scope).detectCycle(currentType, this))
 				return null;

@@ -1829,6 +1829,7 @@ protected void consumeClassHeaderExtends() {
 	// There is a class declaration on the top of stack
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	typeDecl.superclass = superClass;
+	superClass.bits |= ASTNode.IsSuperType;
 	typeDecl.bodyStart = typeDecl.superclass.sourceEnd + 1;
 	// recovery
 	if (this.currentElement != null){
@@ -1848,6 +1849,9 @@ protected void consumeClassHeaderImplements() {
 		typeDecl.superInterfaces = new TypeReference[length], 
 		0, 
 		length); 
+	for (int i = 0, max = typeDecl.superInterfaces.length; i < max; i++) {
+		typeDecl.superInterfaces[i].bits |= ASTNode.IsSuperType;
+	}
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
 	this.listLength = 0; // reset after having read super-interfaces
 	// recovery
@@ -3332,6 +3336,9 @@ protected void consumeInterfaceHeaderExtends() {
 		typeDecl.superInterfaces = new TypeReference[length], 
 		0, 
 		length); 
+	for (int i = 0, max = typeDecl.superInterfaces.length; i < max; i++) {
+		typeDecl.superInterfaces[i].bits |= ASTNode.IsSuperType;
+	}
 	typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;		
 	this.listLength = 0; // reset after having read super-interfaces		
 	// recovery

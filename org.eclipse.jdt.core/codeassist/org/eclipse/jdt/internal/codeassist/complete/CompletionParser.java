@@ -1312,6 +1312,7 @@ protected void consumeClassHeaderName1() {
 						identifierStack[ptr],
 						identifierPositionStack[ptr],
 						keywords);
+					type.superclass.bits |= ASTNode.IsSuperType;
 					this.assistNode = type.superclass;
 					this.lastCheckPoint = type.superclass.sourceEnd + 1;
 				}
@@ -1344,6 +1345,7 @@ protected void consumeClassHeaderExtends() {
 						identifierStack[ptr],
 						identifierPositionStack[ptr],
 						Keywords.IMPLEMENTS);
+					type.superclass.bits |= ASTNode.IsSuperType;
 					this.assistNode = type.superclass;
 					this.lastCheckPoint = type.superclass.sourceEnd + 1;
 				}
@@ -1647,6 +1649,7 @@ protected void consumeInterfaceHeaderName1() {
 						identifierPositionStack[ptr],
 						Keywords.EXTENDS);
 					type.superInterfaces = new TypeReference[]{completionOnKeyword};
+					type.superInterfaces[0].bits |= ASTNode.IsSuperType;
 					this.assistNode = completionOnKeyword;
 					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 				}
