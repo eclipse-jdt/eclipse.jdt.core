@@ -100,7 +100,7 @@ public class Javadoc extends Comment {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChildren(visitor, tags);
+			acceptChildren(visitor, this.tags);
 		}
 		visitor.endVisit(this);
 	}
@@ -115,7 +115,7 @@ public class Javadoc extends Comment {
 	 * See {@link #tags() tags}.
 	 */
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class Javadoc extends Comment {
 	 * first tag element has a <code>null</code> tag name and
 	 * generally contains 1 or more {@link TextElement TextElement}s,
 	 * and possibly interspersed with tag elements for nested tags
-	 * like "{@link...}".
+	 * like "{@link String String}".
 	 * Subsequent tag elements represent successive top-level doc
 	 * tag (e.g., "@param", "@return", "@see").
 	 * </p>
@@ -188,7 +188,7 @@ public class Javadoc extends Comment {
 	 * @since 3.0
 	 */ 
 	public List tags() {
-		return tags;
+		return this.tags;
 	}
 	
 	/* (omit javadoc for this method)
@@ -196,9 +196,9 @@ public class Javadoc extends Comment {
 	 */
 	int memSize() {
 		int size = super.memSize() + 2 * 4;
-		if (comment != MINIMAL_DOC_COMMENT) {
+		if (this.comment != MINIMAL_DOC_COMMENT) {
 			// anything other than the default string takes space
-			size += stringSize(comment);
+			size += stringSize(this.comment);
 		}
 		return size;
 	}
@@ -207,6 +207,6 @@ public class Javadoc extends Comment {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + tags.listSize();
+		return memSize() + this.tags.listSize();
 	}
 }

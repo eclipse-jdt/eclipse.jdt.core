@@ -80,7 +80,7 @@ public final class AST {
 	/**
 	 * Kind used to parse an expression.
 	 * 
-	 * @see #parse
+	 * @see #parse(int, char[], int, int, Map)
 	 * @since 3.0
 	 */
 	public static final int K_EXPRESSION = 0x01;
@@ -88,7 +88,7 @@ public final class AST {
 	/**
 	 * Kind used to parse a set of statements.
 	 * 
-	 * @see #parse
+	 * @see #parse(int, char[], int, int, Map)
 	 * @since 3.0
 	 */
 	public static final int K_STATEMENTS = 0x02;
@@ -96,7 +96,7 @@ public final class AST {
 	/**
 	 * Kind used to parse a set of class body declarations.
 	 * 
-	 * @see #parse
+	 * @see #parse(int, char[], int, int, Map)
 	 * @since 3.0
 	 */
 	public static final int K_CLASS_BODY_DECLARATIONS = 0x04;
@@ -177,7 +177,7 @@ public final class AST {
 	 *    this AST
 	 */
 	public long modificationCount() {
-		return modCount;
+		return this.modCount;
 	}
 
 	/**
@@ -207,7 +207,7 @@ public final class AST {
 	 */
 	void modifying() {
 		// increase the modification count
-		modCount++;	
+		this.modCount++;	
 	}
 
 	/**
@@ -236,7 +236,7 @@ public final class AST {
 	 * numbers start at 1 and only cover the subrange scanned
 	 * (<code>source[offset]</code> through <code>source[offset+length-1]</code>).</li>
 	 * <li>{@linkplain CompilationUnit#getMessages() Compiler messages}
-	 * and {@linkplain CompilationUnit#getProblems) detailed problem reports}.
+	 * and {@linkplain CompilationUnit#getProblems() detailed problem reports}.
 	 * Character positions are relative to the start of 
 	 * <code>source</code>; line positions are for the subrange scanned.</li>
 	 * <li>{@linkplain CompilationUnit#getCommentTable() Comment table}
