@@ -10,19 +10,13 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
+import java.io.*;
+import java.util.*;
 
 public class State {
 

@@ -10,11 +10,12 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.*;
-
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
+import java.io.*;
 
 public class SourceFile implements ICompilationUnit {
 
