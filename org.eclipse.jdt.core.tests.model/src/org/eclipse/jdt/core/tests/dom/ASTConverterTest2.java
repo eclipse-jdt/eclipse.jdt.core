@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0554"));
+		suite.addTest(new ASTConverterTest2("test0555"));
 		return suite;
 	}
 	/**
@@ -4871,5 +4871,34 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IVariableBinding variableBinding = fields[0];
 		Object constantValue = variableBinding.getConstantValue();
 		assertNull("Got a constant value", constantValue);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61946
+	 */
+	public void test0555() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0555", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+		QualifiedName qualifiedName = (QualifiedName) expression;
+		Name name = qualifiedName.getQualifier();
+		checkSourceRange(name, "A", source);
+		ITypeBinding typeBinding = name.resolveTypeBinding();
+		assertEquals("wrong type", "test0555.A", typeBinding.getQualifiedName());
+		IVariableBinding[] fields = typeBinding.getDeclaredFields();
+		assertEquals("Wrong size", 1, fields.length);
+		IVariableBinding variableBinding = fields[0];
+		Object constantValue = variableBinding.getConstantValue();
+		assertNotNull("No constant value", constantValue);
 	}
 }
