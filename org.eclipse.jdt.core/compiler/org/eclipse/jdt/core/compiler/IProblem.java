@@ -513,6 +513,10 @@ public interface IProblem {
 	int UnterminatedComment = Syntax + Internal + 260;
 	/** @since 3.1 */
 	int InvalidDigit = Syntax + Internal + 262;	
+	/** @since 3.1 */
+	int InvalidLowSurrogate = Syntax + Internal + 263;
+	int InvalidHighSurrogate = Syntax + Internal + 264;
+	
 
 	// type related problems
 	int InterfaceCannotHaveInitializers = TypeRelated + 300;

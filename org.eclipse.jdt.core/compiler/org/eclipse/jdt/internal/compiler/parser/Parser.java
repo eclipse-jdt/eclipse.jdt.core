@@ -8151,6 +8151,7 @@ public void initializeScanner(){
 		false /*whitespace*/, 
 		this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
 		this.options.sourceLevel /*sourceLevel*/, 
+		this.options.complianceLevel /*complianceLevel*/, 
 		this.options.taskTags/*taskTags*/,
 		this.options.taskPriorites/*taskPriorities*/,
 		this.options.isTaskCaseSensitive/*taskCaseSensitive*/);

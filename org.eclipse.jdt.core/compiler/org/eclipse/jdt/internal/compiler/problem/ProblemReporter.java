@@ -4600,6 +4600,7 @@ public void scannerError(Parser parser, String errorTokenName) {
 
 	int flag = IProblem.ParsingErrorNoSuggestion;
 	int startPos = scanner.startPosition;
+	int endPos = scanner.currentPosition - 1;
 
 	//special treatment for recognized errors....
 	if (errorTokenName.equals(Scanner.END_OF_SOURCE))
@@ -4623,6 +4624,18 @@ public void scannerError(Parser parser, String errorTokenName) {
 			checkPos --;
 		}
 		startPos = checkPos;
+	} else if (errorTokenName.equals(Scanner.INVALID_LOW_SURROGATE)) {
+		flag = IProblem.InvalidLowSurrogate;
+	} else if (errorTokenName.equals(Scanner.INVALID_HIGH_SURROGATE)) {
+		flag = IProblem.InvalidHighSurrogate;
+		// better locate the error message
+		char[] source = scanner.source;
+		int checkPos = scanner.startPosition + 1;
+		while (checkPos <= endPos){
+			if (source[checkPos] == '\\') break;
+			checkPos ++;
+		}
+		endPos = checkPos - 1;
 	} else if (errorTokenName.equals(Scanner.INVALID_FLOAT))
 		flag = IProblem.InvalidFloat;
 	else if (errorTokenName.equals(Scanner.UNTERMINATED_STRING))
@@ -4643,7 +4656,7 @@ public void scannerError(Parser parser, String errorTokenName) {
 		arguments,
 		// this is the current -invalid- token position
 		startPos, 
-		scanner.currentPosition - 1,
+		endPos,
 		parser.compilationUnit.compilationResult);
 }
 public void shouldReturn(TypeBinding returnType, ASTNode location) {
