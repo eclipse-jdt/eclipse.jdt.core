@@ -613,4 +613,40 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"20,000000 1020,000000 63,750000"
 		);
 	}
+	// foreach and autoboxing
+	public void test013() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" + 
+				"		for (final Integer e : tab) {\n" + 
+				"			System.out.print(e);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"123456789"
+		);
+	}
+	// foreach and autoboxing
+	public void test014() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer[] tab = new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" + 
+				"		for (final int e : tab) {\n" + 
+				"			System.out.print(e);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"123456789"
+		);
+	}
 }
