@@ -9285,6 +9285,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}"
 			},
 			"");	
+	}		
+	public void test354() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -9296,6 +9298,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"}"
 			},
 			"");
+	}		
+	public void test355() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9312,6 +9316,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"	         ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(Class<S>) of type X has the same erasure as foo(Class<S>) of type Y but does not override it\n" + 
 			"----------\n");
+	}		
+	public void test356() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9328,6 +9334,8 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"	         ^^^^^^^^^^^^^^^\n" + 
 			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
+	}		
+	public void test357() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -9345,4 +9353,34 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Name clash : The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type Y but does not override it\n" + 
 			"----------\n");
 	}
+	// 76720
+//	public void test358() {
+//		this.runConformTest(
+//			new String[] {
+//				"MyClass.java",
+//				"public class MyClass {}\n",
+//				"A.java",
+//				"public interface A<M extends MyClass> {}\n",
+//				"B.java",
+//				"public interface B<M extends MyClass> extends A<M> {}\n",
+//				"C.java",
+//				"public class C implements B<MyClass>\n",
+//			},
+//			"");
+//	}	
+//		this.runConformTest(
+//			new String[] {
+//				"MyClass.java",
+//				"public class MyClass {}\n",
+//				"A.java",
+//				"public interface A<M extends MyClass> {}\n",
+//				"B.java",
+//				"public interface B<M extends MyClass> extends A<M> {}\n",
+//				"C.java",
+//				"public class C implements B<MyClass>\n",
+//			},
+//			"",
+//			);
+//	}	
+	
 }
