@@ -263,6 +263,7 @@ public class Scribe {
 			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
 		}
 		this.indentationLevel = current.location.outputIndentationLevel;
+		this.memberAlignment = current.enclosing;
 	}
 	
 	public Alignment getAlignment(String name){
