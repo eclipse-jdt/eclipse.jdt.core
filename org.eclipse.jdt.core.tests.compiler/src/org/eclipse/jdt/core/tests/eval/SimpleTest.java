@@ -242,7 +242,7 @@ protected void startEvaluationContext() throws TargetException {
 	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
 	launcher.setVMPath(JRE_PATH);
 	launcher.setClassPath(RUNTIME_CLASSPATH);
-	int evalPort = Util.nextAvailablePortNumber();
+	int evalPort = Util.getFreePort();
 	launcher.setEvalPort(evalPort);
 	launcher.setEvalTargetPath(TARGET_PATH);
 	this.launchedVM = launcher.launch();

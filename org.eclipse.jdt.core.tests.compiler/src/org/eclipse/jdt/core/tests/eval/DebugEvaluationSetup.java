@@ -55,8 +55,8 @@ protected void initTest(Object test, VirtualMachine jdiVM) {
 }
 protected void setUp() {
 	// Launch VM in evaluation mode
-	int debugPort = Util.nextAvailablePortNumber();
-	int evalPort = Util.nextAvailablePortNumber();
+	int debugPort = Util.getFreePort();
+	int evalPort = Util.getFreePort();
 	LocalVMLauncher launcher;
 	try {
 		launcher = LocalVMLauncher.getLauncher();

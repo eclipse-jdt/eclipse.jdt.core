@@ -251,7 +251,7 @@ public void setDebugPort(int debugPort) {
 	super.setDebugPort(debugPort);
 	
 	// specify default internal debug port as well
-	this.setInternalDebugPort(Util.nextAvailablePortNumber());
+	this.setInternalDebugPort(Util.getFreePort());
 }
 
 /**

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.util;
 
 import java.io.*;
+import java.net.ServerSocket;
 public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
 
@@ -397,11 +398,20 @@ public static boolean isExpert(String[] args) {
 /**
  * Returns the next available port number on the local host.
  */
-public static int nextAvailablePortNumber() {
-	for (int i = MAX_PORT_NUMBER; i > 1000; i--) {
-		int localPort = new SocketHelper().getAvailablePort(i);
-		if (localPort != -1) {
-			return localPort;
+public static int getFreePort() {
+	ServerSocket socket = null;
+	try {
+		socket = new ServerSocket(0);
+		return socket.getLocalPort();
+	} catch (IOException e) {
+		// ignore
+	} finally {
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 	return -1;

@@ -67,7 +67,7 @@ public void run(TestResult result) {
 }
 protected void setUp() {
 	// Launch VM in evaluation mode
-	int evalPort = Util.nextAvailablePortNumber();
+	int evalPort = Util.getFreePort();
 	try {
 		LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
 		launcher.setVMPath(this.jrePath);

@@ -417,7 +417,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 		launcher.setVMArguments(new String[] {"-verify"});
 	}
 	launcher.setProgramClass(VerifyTests.class.getName());
-	int portNumber = Util.nextAvailablePortNumber();
+	int portNumber = Util.getFreePort();
 	launcher.setProgramArguments(new String[] {Integer.toString(portNumber)});
 	try {
 		this.vm = launcher.launch();
