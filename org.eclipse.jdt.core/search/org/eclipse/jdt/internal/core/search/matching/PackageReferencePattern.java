@@ -25,9 +25,15 @@ protected char[] decodedSegment;
 public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSensitive) {
 	super(PKG_REF_PATTERN, matchMode, isCaseSensitive);
 
-	this.pkgName = isCaseSensitive ? pkgName : CharOperation.toLowerCase(pkgName);
-	this.segments = CharOperation.splitOn('.', this.pkgName);
-	this.mustResolve = this.pkgName != null;
+	if (pkgName == null || pkgName.length == 0) {
+		this.pkgName = null;
+		this.segments = new char[][] {new char[0]};
+		this.mustResolve = false;
+	} else {
+		this.pkgName = isCaseSensitive ? pkgName : CharOperation.toLowerCase(pkgName);
+		this.segments = CharOperation.splitOn('.', this.pkgName);
+		this.mustResolve = true;
+	}
 }
 protected void acceptPath(IIndexSearchRequestor requestor, String path) {
 	requestor.acceptPackageReference(path, this.pkgName);
