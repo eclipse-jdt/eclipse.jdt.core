@@ -559,7 +559,11 @@ public int computeSeverity(int problemId){
 		 * Missing Javadoc errors
 		 */
 		case IProblem.JavadocMissing:
-			return this.options.getSeverity(CompilerOptions.MissingJavadocComments);
+			if (this.options.docCommentSupport) {
+				return this.options.getSeverity(CompilerOptions.MissingJavadocComments);
+			} else {
+				return ProblemSeverities.Ignore;
+			}
 
 		// by default problems are errors.
 		default:
