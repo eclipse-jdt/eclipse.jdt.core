@@ -71,6 +71,7 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 /**
  * Creates the handles and infos for the inner types of the given binary type.
  * Adds new handles to the given vector.
+ * TODO: shouldn't the infos be added to newElements?
  */
 private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
 	// Add inner types

@@ -333,7 +333,7 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 			shrink();
 			
 		/* Check whether there's an entry in the cache */
-		int newSpace = spaceFor (key, value);
+		int newSpace = spaceFor(value);
 		LRUCacheEntry entry = (LRUCacheEntry) fEntryTable.get (key);
 		
 		if (entry != null) {

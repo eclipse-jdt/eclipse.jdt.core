@@ -239,8 +239,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 			methodDecl.statements[last] = new CodeSnippetReturnStatement(
 											lastExpression, 
 											lastExpression.sourceStart, 
-											lastExpression.sourceEnd,
-											evaluationContext);
+											lastExpression.sourceEnd);
 		}
 	}
 	
@@ -422,8 +421,7 @@ protected void consumeStatementReturn() {
 			new CodeSnippetReturnStatement(
 				expression, 
 				expression.sourceStart, 
-				expression.sourceEnd,
-				evaluationContext));
+				expression.sourceEnd));
 	} else {
 		super.consumeStatementReturn();
 	}

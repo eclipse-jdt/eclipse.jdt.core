@@ -197,6 +197,7 @@ public void delete(
  * @exception JavaModelException  The resource associated with this package fragment root does not exist
  */
 protected boolean computeChildren(OpenableElementInfo info, Map newElements) throws JavaModelException {
+	// TODO: shouldn't the children infos be added to newElements
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
@@ -254,26 +255,7 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 		throw new JavaModelException(e);
 	}
 }
-/*
- * Computes and returns the source attachment root path for the given source attachment path.
- * Returns <code>null</code> if none could be found.
- * 
- * @param sourceAttachmentPath the given absolute path to the source archive or folder
- * @return the computed source attachment root path or <code>null</cde> if none could be found
- * @throws JavaModelException
- */
-public IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) throws JavaModelException {
-	IPath sourcePath = this.getSourceAttachmentPath();
-	if (sourcePath == null) return null;
-	SourceMapper mapper = 
-		new SourceMapper(
-		sourcePath, 
-		null, // detect root path
-		this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true) // only project options if associated with resource
-	);
-	if (mapper.rootPath == null) return null;
-	return new Path(mapper.rootPath);
-}
+
 /*
  * @see org.eclipse.jdt.core.IPackageFragmentRoot#copy
  */

@@ -377,7 +377,7 @@ public class LRUCache implements Cloneable {
 		LRUCacheEntry entry;
 		
 		/* Check whether there's an entry in the cache */
-		newSpace = spaceFor (key, value);
+		newSpace = spaceFor(value);
 		entry = (LRUCacheEntry) fEntryTable.get (key);
 		
 		if (entry != null) {
@@ -433,9 +433,9 @@ public class LRUCache implements Cloneable {
 		fSpaceLimit = limit;
 	}
 	/**
-	 * Returns the space taken by the given key and value.
+	 * Returns the space taken by the given value.
 	 */
-	protected int spaceFor (Object key, Object value) {
+	protected int spaceFor (Object value) {
 		
 		if (value instanceof ILRUCacheable) {
 			return ((ILRUCacheable) value).getCacheFootprint();

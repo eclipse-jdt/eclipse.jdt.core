@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  */
 public class CodeSnippetReturnStatement extends ReturnStatement implements InvocationSite, EvaluationConstants {
 	MethodBinding setResultMethod;
-public CodeSnippetReturnStatement(Expression expr, int s, int e, EvaluationContext evaluationContext) {
+public CodeSnippetReturnStatement(Expression expr, int s, int e) {
 	super(expr, s, e);
 }
 

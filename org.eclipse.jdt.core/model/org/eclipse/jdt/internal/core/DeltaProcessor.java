@@ -457,7 +457,7 @@ public class DeltaProcessor {
 	 * </ul>
 	 * Delta argument could be null if processing an external JAR change
 	 */
-	private void contentChanged(Openable element, IResourceDelta delta) {
+	private void contentChanged(Openable element) {
 
 		close(element);
 		int flags = IJavaElementDelta.F_CONTENT;
@@ -756,7 +756,7 @@ public class DeltaProcessor {
 							}
 							// reset the corresponding project built state, since the builder would miss this change
 							this.manager.setLastBuiltState(project.getProject(), null /*no state*/);
-							contentChanged(root, null);
+							contentChanged(root);
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
@@ -1633,7 +1633,7 @@ public class DeltaProcessor {
 	 * call to JavaProject#setRawClasspath or as a result of some user update (through repository)
 	 * If no delta is passed, then will trigger a reload of the file)
 	 */
-	void reconcileClasspathFileUpdate(IResourceDelta delta, JavaProject project) {
+	private void reconcileClasspathFileUpdate(IResourceDelta delta, JavaProject project) {
 		
 		boolean reloadClasspath = true;
 		if (delta != null) {
@@ -2105,7 +2105,7 @@ public class DeltaProcessor {
 					element = this.createElement(delta.getResource(), elementType, rootInfo);
 					if (element == null) return false;
 					this.updateIndex(element, delta);
-					this.contentChanged(element, delta);
+					this.contentChanged(element);
 				} else if (elementType == IJavaElement.JAVA_PROJECT) {
 					if ((flags & IResourceDelta.OPEN) != 0) {
 						// project has been opened or closed

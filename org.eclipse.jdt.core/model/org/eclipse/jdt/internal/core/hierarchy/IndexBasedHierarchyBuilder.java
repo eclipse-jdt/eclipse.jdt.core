@@ -378,12 +378,10 @@ private String[] determinePossibleSubTypes(IProgressMonitor monitor) throws Java
 		}
 	}
 	PathCollector collector = new PathCollector();
-	IProject project = this.hierarchy.javaProject().getProject();
 	
 	try {
 		if (monitor != null) monitor.beginTask("", MAXTICKS); //$NON-NLS-1$
 		searchAllPossibleSubTypes(
-			project.getWorkspace(),
 			this.getType(),
 			this.scope,
 			this.binariesFromIndexMatches,
@@ -447,7 +445,6 @@ protected IType getHandle(IGenericType genericType) {
  */
 
 public static void searchAllPossibleSubTypes(
-	IWorkspace workbench,
 	IType type,
 	IJavaSearchScope scope,
 	final Map binariesFromIndexMatches,

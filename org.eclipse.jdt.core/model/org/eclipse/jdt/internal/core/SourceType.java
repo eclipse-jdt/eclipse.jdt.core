@@ -407,6 +407,7 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monit
  * @since 3.0
  */
 public ITypeHierarchy loadTypeHierachy(InputStream input, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+	// TODO: monitor should be passed to TypeHierarchy.load(...)
 	return TypeHierarchy.load(this, input, owner);
 }
 /**
