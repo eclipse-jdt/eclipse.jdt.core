@@ -2097,13 +2097,15 @@ protected void consumeFormalParameter() {
 	char[] name = identifierStack[identifierPtr];
 	long namePositions = identifierPositionStack[identifierPtr--];
 	TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
-	intPtr -= 2;
+	int modifierPositions = intStack[intPtr--];
+	intPtr--;
 	Argument arg = 
 		new Argument(
 			name, 
 			namePositions, 
 			type, 
 			intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+	arg.declarationSourceStart = modifierPositions;
 	pushOnAstStack(arg);
 
 	/* if incomplete method header, listLength counter will not have been reset,
@@ -3668,14 +3670,14 @@ protected void consumeStatementIfNoElse() {
 				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	} else {
 		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
 				thenStatement, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	}
 }
 protected void consumeStatementIfWithElse() {
@@ -3708,7 +3710,7 @@ protected void consumeStatementIfWithElse() {
 				thenStatement, 
 				elseStatement, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	}
 }
 protected void consumeStatementLabel() {
@@ -3774,7 +3776,7 @@ protected void consumeStatementSwitch() {
 	pushOnAstStack(s);
 	intPtr--; // because of OpenBlock
 	s.sourceStart = intStack[intPtr--];
-	s.sourceEnd = endPosition;
+	s.sourceEnd = endStatementPosition;
 }
 protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
@@ -3835,7 +3837,7 @@ protected void consumeStatementTry(boolean withFinally) {
 	tryStmt.tryBlock = (Block) astStack[astPtr--];
 
 	//positions
-	tryStmt.sourceEnd = endPosition;
+	tryStmt.sourceEnd = endStatementPosition;
 	tryStmt.sourceStart = intStack[intPtr--];
 	pushOnAstStack(tryStmt);
 }
@@ -4154,13 +4156,15 @@ protected void consumeToken(int type) {
 			break;
 			//let extra semantic action decide when to push
 		case TokenNameRBRACKET :
-		case TokenNamePLUS_PLUS :
-		case TokenNameMINUS_MINUS :
 		case TokenNamePLUS :
 		case TokenNameMINUS :
 		case TokenNameNOT :
 		case TokenNameTWIDDLE :
 			endPosition = scanner.startPosition;
+			break;
+		case TokenNamePLUS_PLUS :
+		case TokenNameMINUS_MINUS :
+			endPosition = scanner.currentPosition - 1;
 			break;
 		case TokenNameRBRACE:
 		case TokenNameSEMICOLON :
@@ -4330,7 +4334,7 @@ protected void consumeUnaryExpression(int op, boolean post) {
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					scanner.startPosition - 1); 
+					endPosition); 
 		} else {
 			expressionStack[expressionPtr] = 
 				new PrefixExpression(
