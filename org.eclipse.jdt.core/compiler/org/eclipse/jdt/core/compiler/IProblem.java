@@ -861,52 +861,48 @@ public interface IProblem {
 	int UnsafeRawConversion = TypeRelated + 532;
     /** @since 3.1 */
 	int InvalidTypeVariableExceptionType = TypeRelated + 533;
-
+	/** @since 3.1 */
+	int InvalidParameterizedExceptionType = TypeRelated + 534;
 	/** @since 3.1 */
 	int IllegalArrayOfParameterizedType = TypeRelated + 535;
 	/** @since 3.1 */
 	int UnsafeRawFieldAssignment = TypeRelated + 536;
 	/** @since 3.1 */
-// TODO (philippe) remove with commented references and message	
-//	int InvalidClassInstantiationWithWildcards = Internal + 537;
+	int FinalBoundForTypeVariable = TypeRelated + 537;
 	/** @since 3.1 */
-	int FinalBoundForTypeVariable = TypeRelated + 538;
+	int UndefinedTypeVariable = Internal + 538;
 	/** @since 3.1 */
-	int UndefinedTypeVariable = Internal + 539;
+	int SuperInterfacesCollide = TypeRelated + 539;
 	/** @since 3.1 */
-	int SuperInterfacesCollide = TypeRelated + 540;
+	int WildcardConstructorInvocation = TypeRelated + 540;
 	/** @since 3.1 */
-	int WildcardConstructorInvocation = TypeRelated + 541;
+	int WildcardMethodInvocation = TypeRelated + 541;
 	/** @since 3.1 */
-	int WildcardMethodInvocation = TypeRelated + 542;
+	int WildcardFieldAssignment = TypeRelated + 542;
 	/** @since 3.1 */
-	int WildcardFieldAssignment = TypeRelated + 543;
+	int GenericMethodTypeArgumentMismatch = TypeRelated + 543;
 	/** @since 3.1 */
-	int GenericMethodTypeArgumentMismatch = TypeRelated + 544;
+	int GenericConstructorTypeArgumentMismatch = TypeRelated + 544;
 	/** @since 3.1 */
-	int GenericConstructorTypeArgumentMismatch = TypeRelated + 545;
+	int UnsafeGenericCast = TypeRelated + 545;
 	/** @since 3.1 */
-	int UnsafeGenericCast = TypeRelated + 546;
+	int UnsafeRawReturnValue = TypeRelated + 546;
 	/** @since 3.1 */
-	int UnsafeRawReturnValue = TypeRelated + 547;
+	int IllegalInstanceofParameterizedType = Internal + 547;
 	/** @since 3.1 */
-	int IllegalInstanceofParameterizedType = Internal + 548;
+	int IllegalInstanceofTypeParameter = Internal + 548;
 	/** @since 3.1 */
-	int IllegalInstanceofTypeParameter = Internal + 549;
+	int NonGenericMethod = TypeRelated + 549;
 	/** @since 3.1 */
-	int NonGenericMethod = TypeRelated + 550;
+	int IncorrectArityForParameterizedMethod = TypeRelated + 550;
 	/** @since 3.1 */
-	int IncorrectArityForParameterizedMethod = TypeRelated + 551;
+	int ParameterizedMethodArgumentTypeMismatch = TypeRelated + 551;
 	/** @since 3.1 */
-	int ParameterizedMethodArgumentTypeMismatch = TypeRelated + 552;
+	int NonGenericConstructor = TypeRelated + 552;
 	/** @since 3.1 */
-	int NonGenericConstructor = TypeRelated + 553;
+	int IncorrectArityForParameterizedConstructor = TypeRelated + 553;
 	/** @since 3.1 */
-	int IncorrectArityForParameterizedConstructor = TypeRelated + 554;
-	/** @since 3.1 */
-	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 555;
-	/** @since 3.1 */
-	int InvalidParameterizedExceptionType = TypeRelated + 556;
+	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 554;
 	
 	/**
 	 * Foreach

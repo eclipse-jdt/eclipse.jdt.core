@@ -151,10 +151,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotInstantiate(this.type, this.resolvedType);
 		return this.resolvedType;
 	}
-//	if ((this.resolvedType.tagBits & TagBits.HasWildcard) != 0) {
-//	    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)this.resolvedType);
-//	    return this.resolvedType;
-//	}	
 	ReferenceBinding allocatedType = (ReferenceBinding) this.resolvedType;
 	if (!(this.binding = scope.getConstructor(allocatedType, argumentTypes, this)).isValidBinding()) {
 		if (this.binding instanceof ProblemMethodBinding

@@ -302,14 +302,6 @@ public void cannotInstantiate(TypeReference typeRef, TypeBinding type) {
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-//public void cannotInstantiateWithWildcards(TypeReference typeRef, ParameterizedTypeBinding type) {
-//	this.handle(
-//		IProblem.InvalidClassInstantiationWithWildcards,
-//		new String[] {new String(type.erasure().readableName()), parametersAsString(type.arguments, false) },
-//		new String[] {new String(type.erasure().shortReadableName()), parametersAsString(type.arguments, true)},
-//		typeRef.sourceStart,
-//		typeRef.sourceEnd);
-//}
 public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments =new String[]{ new String(local.readableName())};
 	this.handle(
