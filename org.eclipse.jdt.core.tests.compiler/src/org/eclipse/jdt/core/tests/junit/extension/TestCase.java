@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.junit.extension;
 
+import org.eclipse.test.performance.PerformanceTestCase;
+
 import junit.framework.ComparisonFailure;
 
-public class TestCase extends junit.framework.TestCase {
+public class TestCase extends PerformanceTestCase {
 	public TestCase(String name) {
-		super(name);
+		setName(name);
 	}
 public static void assertEquals(String expected, String actual) {
     assertEquals(null, expected, actual);
@@ -69,5 +71,13 @@ protected static String showLineSeparators(String string) {
 		}
 	}
 	return buffer.toString();
+}
+public void startMeasuring() {
+	// make it public to avoid compiler warning about synthetic access
+	super.startMeasuring();
+}
+public void stopMeasuring() {
+	// make it public to avoid compiler warning about synthetic access
+	super.stopMeasuring();
 }
 }

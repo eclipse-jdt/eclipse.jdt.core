@@ -71,9 +71,25 @@
     </ant>
   </target>
 
+  <!-- This target defines the performance tests that need to be run. -->
+  <target name="performance-suite">
+    <!-- Java Model tests -->
+    <property name="jdt-model-performance-folder" value="${eclipse-home}/jdt-model-performance-folder"/>
+    <delete dir="${jdt-model-performance-folder}" quiet="true"/>
+    <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
+      <property name="data-dir" value="${jdt-model-performance-folder}"/>
+      <property name="plugin-name" value="${plugin-name}"/>
+      <property name="classname" value="<org.eclipse.jdt.core.tests.model.AllPerformanceTests>"/>
+    </ant>
+  </target>
 
-  <!-- This target runs the performance test suites. -->
-  <target name="performance">
+  <!-- This target runs the performance test suite. Any actions that need to happen -->
+  <!-- after all the tests have been run should go here. -->
+  <target name="performance" depends="init,performance-suite,cleanup">
+    <ant target="collect" antfile="${library-file}" dir="${eclipse-home}">
+      <property name="includes" value="org*.xml"/>
+      <property name="output-file" value="${plugin-name}.xml"/>
+    </ant>
   </target>
 
 </project>

@@ -2699,13 +2699,17 @@ public void testCycleDetection3() throws CoreException {
 		this.deleteProjects(projectNames);
 	}
 }
-public void testDenseCycleDetection() throws CoreException {
-
+public void testPerfDenseCycleDetection1() throws CoreException {
 	// each project prereqs all other projects
 	denseCycleDetection(5);
+}
+public void testPerfDenseCycleDetection2() throws CoreException {
+	// each project prereqs all other projects
 	denseCycleDetection(10);
+}
+public void testPerfDenseCycleDetection3() throws CoreException {
+	// each project prereqs all other projects
 	denseCycleDetection(20);
-	//denseCycleDetection(100);
 }
 /*
  * Create projects and set classpaths in one batch
@@ -2761,16 +2765,11 @@ public void testDuplicateEntries() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-
 private void denseCycleDetection(final int numberOfParticipants) throws CoreException {
 	
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
 	final String[] projectNames  = new String[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
-
-	final long[] start = new long[1];
-	final long[] time = new long[1];
-	
 
 	try {
 		JavaCore.run(new IWorkspaceRunnable() {
@@ -2795,16 +2794,17 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
-					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
+					startMeasuring(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
-					time[0] += System.currentTimeMillis() - innerStart;
+					stopMeasuring();
 				}
-				start[0] = System.currentTimeMillis(); // time spent in delta refresh
+				startMeasuring(); // time spent in delta refresh
 			}
 		}, 
 		null);
-		time[0] += System.currentTimeMillis()-start[0];
-		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms");
+		stopMeasuring();
+		commitMeasurements();
+		assertPerformance();
 		
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
