@@ -11,7 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -79,7 +81,7 @@ class CompilationUnitResolver extends Compiler {
 	
 	/*
 	 * The binding keys that were requested.
-	 * Map from file name (char[]) to BindingKey.
+	 * Map from file name (char[]) to BindingKey (or ArrayList if multiple keys in the same file).
 	 */
 	HashtableOfObject requestedKeys;
 	
@@ -190,7 +192,19 @@ class CompilationUnitResolver extends Compiler {
 			BindingKey bindingKey = new BindingKey(bindingKeys[i], this);
 			CompilationUnitDeclaration parsedUnit = bindingKey.getCompilationUnitDeclaration();
 			if (parsedUnit != null) {
-				this.requestedKeys.put(parsedUnit.compilationResult.getFileName(), bindingKey);
+				char[] fileName = parsedUnit.compilationResult.getFileName();
+				Object existing = this.requestedKeys.get(fileName);
+				if (existing == null)
+					this.requestedKeys.put(fileName, bindingKey);
+				else if (existing instanceof ArrayList)
+					((ArrayList) existing).add(bindingKey);
+				else {
+					ArrayList list = new ArrayList();
+					list.add(existing);
+					list.add(bindingKey);
+					this.requestedKeys.put(fileName, list);
+				} 
+					
 			} else {
 				switch (bindingKey.scanner.token) {
 					case BindingKeyScanner.PACKAGE:
@@ -691,16 +705,13 @@ class CompilationUnitResolver extends Compiler {
 						astRequestor.acceptAST(source, compilationUnit);
 					} 
 					
-					BindingKey bindingKey = (BindingKey) this.requestedKeys.removeKey(unit.compilationResult.getFileName());
-					if (bindingKey != null) {
-						Binding compilerBinding = bindingKey.getCompilerBinding(unit);
-						if (compilerBinding != null) {
-							DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
-							IBinding binding = resolver.getBinding(compilerBinding);
-							
-							// pass it to requestor
-							if (binding != null)
-								astRequestor.acceptBinding(bindingKey.getKey(), binding);
+					Object key = this.requestedKeys.removeKey(unit.compilationResult.getFileName());
+					if (key instanceof BindingKey) {
+						reportBinding(key, astRequestor, owner, unit);
+					} else if (key instanceof ArrayList) {
+						Iterator iterator = ((ArrayList) key).iterator();
+						while (iterator.hasNext()) {
+							reportBinding(iterator.next(), astRequestor, owner, unit);
 						}
 					}
 				} finally {
@@ -736,6 +747,17 @@ class CompilationUnitResolver extends Compiler {
 		} finally {
 			// disconnect ourselves from ast requestor
             astRequestor.compilationUnitResolver = null;
+		}
+	}
+
+	private void reportBinding(Object key, ASTRequestor astRequestor, WorkingCopyOwner owner, CompilationUnitDeclaration unit) {
+		BindingKey bindingKey = (BindingKey) key;
+		Binding compilerBinding = bindingKey.getCompilerBinding(unit);
+		if (compilerBinding != null) {
+			DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
+			IBinding binding = resolver.getBinding(compilerBinding);
+			if (binding != null)
+				astRequestor.acceptBinding(bindingKey.getKey(), binding);
 		}
 	}
 	

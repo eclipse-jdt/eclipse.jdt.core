@@ -914,5 +914,38 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X<-Ljava/lang/Error;*Ljava/lang/String;+Ljava/lang/Object;>;.foo()V");
 	}
+	
+	/*
+	 * Ensures that requesting 2 bindings and an AST for the same compilation unit reports the 2 bindings.
+	 */
+	public void test042() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/P/X.java",
+				"public class X {\n" +
+				"  int field;\n" +
+				"}"
+			);
+			BindingRequestor requestor = new BindingRequestor();
+			resolveASTs(
+				new ICompilationUnit[] {workingCopy}, 
+				new String[] {
+					"LX;",
+					"LX;.field"
+				},
+				requestor,
+				getJavaProject("P"),
+				workingCopy.getOwner()
+			);
+			assertBindingsEqual(
+				"LX;\n" + 
+				"LX;.field",
+				requestor.getBindings());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 
 }

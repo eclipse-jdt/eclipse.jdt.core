@@ -36,26 +36,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		return new Suite(ASTModelBridgeTests.class);
 	}
 	
-	protected void assertBindingsEqual(String expected, IBinding[] actualBindings) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0, length = actualBindings.length; i < length; i++) {
-			if (i > 0) buffer.append('\n');
-			if (actualBindings[i] == null)
-				buffer.append("<null>");
-			else
-				buffer.append(actualBindings[i].getKey());
-		}
-		String actual = buffer.toString();
-		if (!expected.equals(actual)) {
-			System.out.print(displayString(actual, 4));
-			System.out.println(',');
-		}
-		assertEquals(
-			"Unexpected bindings",
-			expected,
-			actual);
-	}
-
 	/*
 	 * Removes the marker comments "*start*" and "*end*" from the given contents,
 	 * builds an AST from the resulting source, and returns the AST node that was delimited

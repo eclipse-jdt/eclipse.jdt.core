@@ -61,6 +61,19 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 	}
 	
+	public class BindingRequestor extends ASTRequestor {
+		HashMap bindings = new HashMap();
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			this.bindings.put(bindingKey, binding);
+		}
+		public IBinding[] getBindings() {
+			int length = this.bindings.size();
+			IBinding[] result = new IBinding[length];
+			this.bindings.values().toArray(result);
+			return result;
+		}
+	}
+		
 	protected void assertASTNodeEquals(String expected, ASTNode node) {
 		String actual = node.toString();
 		if (!expected.equals(actual)) {
@@ -111,6 +124,26 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 		assertEquals(
 			"Unexpected binding keys",
+			expected,
+			actual);
+	}
+
+	protected void assertBindingsEqual(String expected, IBinding[] actualBindings) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = actualBindings.length; i < length; i++) {
+			if (i > 0) buffer.append('\n');
+			if (actualBindings[i] == null)
+				buffer.append("<null>");
+			else
+				buffer.append(actualBindings[i].getKey());
+		}
+		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			System.out.print(displayString(actual, 4));
+			System.out.println(',');
+		}
+		assertEquals(
+			"Unexpected bindings",
 			expected,
 			actual);
 	}
@@ -230,20 +263,9 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 	
 	protected IBinding[] resolveBindings(String[] bindingKeys, IJavaProject project, WorkingCopyOwner owner) {
-		class BindingRequestor extends ASTRequestor {
-			HashMap bindings = new HashMap();
-			public void acceptBinding(String bindingKey, IBinding binding) {
-				this.bindings.put(bindingKey, binding);
-			}
-		}
 		BindingRequestor requestor = new BindingRequestor();
 		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, project, owner);
-		int length = requestor.bindings.size();
-		IBinding[] result = new IBinding[length];
-		for (int i = 0; i < length; i++) {
-			result[i] = (IBinding) requestor.bindings.get(bindingKeys[i]);
-		}
-		return result;
+		return requestor.getBindings();
 	}
 	
 }
