@@ -23,7 +23,7 @@ public class SelectionOnLocalName extends LocalDeclaration{
 	public void resolve(BlockScope scope) {
 
 		super.resolve(scope);
-		throw new SelectionNodeFound(this, binding);
+		throw new SelectionNodeFound(binding);
 	}
 	
 	public StringBuffer printStatement(int tab, StringBuffer output) {

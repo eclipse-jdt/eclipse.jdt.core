@@ -68,13 +68,13 @@ public TypeBinding resolveType(BlockScope scope) {
 					|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInConstructorInvocation
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext) {
-				throw new SelectionNodeFound(this, binding);
+				throw new SelectionNodeFound(binding);
 			}
 			scope.problemReporter().invalidField(this, (FieldBinding) binding);
 		} else if (binding instanceof ProblemReferenceBinding) {
 			// tolerate some error cases
 			if (binding.problemId() == ProblemReasons.NotVisible){
-				throw new SelectionNodeFound(this, binding);
+				throw new SelectionNodeFound(binding);
 			}
 			scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		} else {
@@ -82,6 +82,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		throw new SelectionNodeFound();
 	}
-	throw new SelectionNodeFound(this, binding);
+	throw new SelectionNodeFound(binding);
 }
 }

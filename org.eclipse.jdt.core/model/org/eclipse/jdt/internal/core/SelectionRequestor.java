@@ -29,9 +29,12 @@ import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -88,8 +91,8 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 /**
  * Resolve the class.
  */
-public void acceptClass(char[] packageName, char[] className, boolean needQualification, boolean isDeclaration, int start, int end) {
-	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, needQualification, isDeclaration, start, end);
+public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, isDeclaration, genericTypeSignature, start, end);
 }
 /**
  * @see ISelectionRequestor#acceptError
@@ -145,8 +148,8 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 /**
  * Resolve the interface
  */
-public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification, boolean isDeclaration, int start, int end) {
-	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, needQualification, isDeclaration, start, end);
+public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, isDeclaration, genericTypeSignature, start, end);
 }
 public void acceptLocalField(FieldBinding fieldBinding) {
 	SourceTypeBinding typeBinding = (SourceTypeBinding)fieldBinding.declaringClass;
@@ -175,8 +178,17 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 		}
 	}
 }
-public void acceptLocalType(SourceTypeBinding typeBinding) {
-	IJavaElement res = findLocalElement(typeBinding.sourceStart());
+public void acceptLocalType(TypeBinding typeBinding) {
+	IJavaElement res =  null;
+	if(typeBinding instanceof ParameterizedTypeBinding) {
+		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeBinding).type;
+		res = findLocalElement(localTypeBinding.sourceStart());
+		if(typeBinding.isParameterizedType()) {
+			res = new ParameterizedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(typeBinding.computeUniqueKey()));
+		}
+	} else if(typeBinding instanceof SourceTypeBinding) {
+		res = findLocalElement(((SourceTypeBinding)typeBinding).sourceStart());
+	}
 	if(res != null && res.getElementType() == IJavaElement.TYPE) {
 		addElement(res);
 		if(SelectionEngine.DEBUG){
@@ -377,12 +389,19 @@ protected void acceptMethodDeclaration(IType type, char[] selector, int start, i
 /**
  * Resolve the type, adding to the resolved elements.
  */
-protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean needQualification, boolean isDeclaration, int start, int end) {
+protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
 	IType type = null;
 	if(isDeclaration) {
 		type = resolveTypeByLocation(packageName, typeName, acceptFlags, start, end);
 	} else {
 		type = resolveType(packageName, typeName, acceptFlags);
+		if(type != null && genericTypeSignature != null) {
+			if(type.isBinary()) {
+				type = new ParameterizedBinaryType((JavaElement)type.getParent(), type.getElementName(), new String(genericTypeSignature));
+			} else {
+				type = new ParameterizedSourceType((JavaElement)type.getParent(), type.getElementName(), new String(genericTypeSignature));
+			}
+		}
 	}
 	
 	if (type != null) {

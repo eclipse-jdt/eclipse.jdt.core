@@ -43,7 +43,7 @@ protected TypeBinding getTypeBinding(Scope scope) {
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		throw new SelectionNodeFound();
 	}
-	throw new SelectionNodeFound(this, binding);
+	throw new SelectionNodeFound(binding);
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 
@@ -58,6 +58,6 @@ public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclo
 					this.resolvedType.problemId() == ProblemReasons.NotVisible))
 		throw new SelectionNodeFound();
 	else
-		throw new SelectionNodeFound(this, this.resolvedType);
+		throw new SelectionNodeFound(this.resolvedType);
 }
 }

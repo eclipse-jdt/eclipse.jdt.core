@@ -65,7 +65,11 @@ What's new in this drop</h2>
 *     - default:           "warning"
 </pre>
 </li>
--->
+--> Les references parametrer slectionne sont  avec
+<li>Support for generic types selection has been added inside CodeSelect.
+When the result is a parameterized type reference the returned JavaElement is a 
+<code>ParameterizedSourceMethod</code> or <code>ParameterizedBinaryMethod</code>.
+</li>
 <li>The internal Java model cache now adapts to the number of elements in the workspace. For example if a project
       has 1000 package fragment roots, the space limit of the cache of roots will increase to 1000. This size is reset to
       its default when the project is closed.

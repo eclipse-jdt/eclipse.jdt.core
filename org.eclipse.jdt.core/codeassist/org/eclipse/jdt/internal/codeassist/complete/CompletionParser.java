@@ -2518,35 +2518,45 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 			return new CompletionOnQualifiedTypeReference(previousIdentifiers, assistName, positions); 
 	}
 }
-public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] assistName, long[] positions) {
-	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
-		case K_NEXT_TYPEREF_IS_EXCEPTION :
-			return new CompletionOnParameterizedQualifiedTypeReference(
-				previousIdentifiers,
-				typeArguments,
-				assistName,
-				positions,
-				CompletionOnParameterizedQualifiedTypeReference.EXCEPTION);
-		case K_NEXT_TYPEREF_IS_CLASS :
-			return new CompletionOnParameterizedQualifiedTypeReference(
-				previousIdentifiers,
-				typeArguments,
-				assistName,
-				positions,
-				CompletionOnParameterizedQualifiedTypeReference.CLASS);
-		case K_NEXT_TYPEREF_IS_INTERFACE :
-			return new CompletionOnParameterizedQualifiedTypeReference(
-				previousIdentifiers,
-				typeArguments,
-				assistName,
-				positions,
-				CompletionOnParameterizedQualifiedTypeReference.INTERFACE);
-		default :
-			return new CompletionOnParameterizedQualifiedTypeReference(
-				previousIdentifiers,
-				typeArguments,
-				assistName,
-				positions); 
+public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] assistName, TypeReference[] assistTypeArguments, long[] positions) {
+	boolean isParameterized = false;
+	for (int i = 0; i < typeArguments.length; i++) {
+		if(typeArguments[i] != null) {
+			isParameterized = true;
+		}
+	}
+	if(!isParameterized) {
+		return this.createQualifiedAssistTypeReference(previousIdentifiers, assistName, positions);
+	} else {
+		switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+			case K_NEXT_TYPEREF_IS_EXCEPTION :
+				return new CompletionOnParameterizedQualifiedTypeReference(
+					previousIdentifiers,
+					typeArguments,
+					assistName,
+					positions,
+					CompletionOnParameterizedQualifiedTypeReference.EXCEPTION);
+			case K_NEXT_TYPEREF_IS_CLASS :
+				return new CompletionOnParameterizedQualifiedTypeReference(
+					previousIdentifiers,
+					typeArguments,
+					assistName,
+					positions,
+					CompletionOnParameterizedQualifiedTypeReference.CLASS);
+			case K_NEXT_TYPEREF_IS_INTERFACE :
+				return new CompletionOnParameterizedQualifiedTypeReference(
+					previousIdentifiers,
+					typeArguments,
+					assistName,
+					positions,
+					CompletionOnParameterizedQualifiedTypeReference.INTERFACE);
+			default :
+				return new CompletionOnParameterizedQualifiedTypeReference(
+					previousIdentifiers,
+					typeArguments,
+					assistName,
+					positions); 
+		}
 	}
 }
 public NameReference createSingleAssistNameReference(char[] assistName, long position) {
@@ -2643,6 +2653,10 @@ public TypeReference createSingleAssistTypeReference(char[] assistName, long pos
 			return new CompletionOnSingleTypeReference(assistName, position); 
 	}
 }
+public TypeReference createParameterizedSingleAssistTypeReference(TypeReference[] typeArguments, char[] assistName, long position) {
+	return this.createSingleAssistTypeReference(assistName, position);
+}
+
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 
 	this.cursorLocation = cursorLoc;

@@ -712,9 +712,10 @@ public abstract ImportReference createAssistImportReference(char[][] tokens, lon
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
 public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
 public abstract TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
-public abstract TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] asistIdentifier, long[] positions);
+public abstract TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] asistIdentifier, TypeReference[] assistTypeArguments, long[] positions);
 public abstract NameReference createSingleAssistNameReference(char[] assistName, long position);
 public abstract TypeReference createSingleAssistTypeReference(char[] assistName, long position);
+public abstract TypeReference createParameterizedSingleAssistTypeReference(TypeReference[] typeArguments, char[] assistName, long position);
 /*
  * Flush parser/scanner state regarding to code assist
  */
@@ -787,8 +788,28 @@ protected TypeReference getTypeReference(int dim) {
 protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
 	/* no need to take action if not inside completed identifiers */
 	if (/*(indexOfAssistIdentifier()) < 0 ||*/ (identifierLength == 1 && numberOfIdentifiers == 1)) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr--];
-		this.genericsPtr -= length;
+//		int length = this.genericsLengthStack[this.genericsLengthPtr--];
+//		this.genericsPtr -= length;
+//		long[] positions = new long[identifierLength];
+//		System.arraycopy(
+//			identifierPositionStack, 
+//			identifierPtr, 
+//			positions, 
+//			0, 
+//			identifierLength); 
+//		
+//		this.identifierPtr--;
+//		TypeReference reference = this.createSingleAssistTypeReference(
+//										assistIdentifier(), 
+//										positions[0]);
+//		this.assistNode = reference;
+//		this.lastCheckPoint = reference.sourceEnd + 1;
+//		return reference;
+		
+		int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
+		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
+		this.genericsPtr -= currentTypeArgumentsLength;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
 		long[] positions = new long[identifierLength];
 		System.arraycopy(
 			identifierPositionStack, 
@@ -798,9 +819,12 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 			identifierLength); 
 		
 		this.identifierPtr--;
-		TypeReference reference = this.createSingleAssistTypeReference(
-										assistIdentifier(), 
-										positions[0]);
+				
+		TypeReference reference = this.createParameterizedSingleAssistTypeReference(
+				typeArguments,
+				assistIdentifier(),
+				positions[0]);
+		
 		this.assistNode = reference;
 		this.lastCheckPoint = reference.sourceEnd + 1;
 		return reference;
@@ -844,8 +868,13 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 	}
 	TypeReference reference;
 	if(realLength == 0) {
-		reference = this.createSingleAssistTypeReference(assistIdentifier(), positions[0]);
+		if(typeArguments[0] != null && typeArguments[0].length > 0) {
+			reference = this.createParameterizedSingleAssistTypeReference(typeArguments[0], assistIdentifier(), positions[0]);
+		} else {
+			reference = this.createSingleAssistTypeReference(assistIdentifier(), positions[0]);
+		}
 	} else {
+		TypeReference[] assistTypeArguments = typeArguments[realLength];
 		System.arraycopy(tokens, 0, tokens = new char[realLength][], 0, realLength);
 		System.arraycopy(typeArguments, 0, typeArguments = new TypeReference[realLength][], 0, realLength);
 		
@@ -855,8 +884,8 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 				isParameterized = true;
 			}
 		}
-		if(isParameterized) {
-			reference = this.createParameterizedQualifiedAssistTypeReference(tokens, typeArguments, assistIdentifier(), positions);
+		if(isParameterized || (assistTypeArguments != null && assistTypeArguments.length > 0)) {
+			reference = this.createParameterizedQualifiedAssistTypeReference(tokens, typeArguments, assistIdentifier(), assistTypeArguments, positions);
 		} else {
 			reference = this.createQualifiedAssistTypeReference(tokens, assistIdentifier(), positions);
 		}

@@ -117,9 +117,9 @@ public class SelectionOnMessageSend extends MessageSend {
 			throw new SelectionNodeFound();
 		} else {
 			if(binding.isDefaultAbstract()) {
-				throw new SelectionNodeFound(this, findNonDefaultAbstractMethod(binding)); // 23594
+				throw new SelectionNodeFound(findNonDefaultAbstractMethod(binding)); // 23594
 			} else {
-				throw new SelectionNodeFound(this, binding);
+				throw new SelectionNodeFound(binding);
 			}
 		}
 	}

@@ -66,7 +66,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 					binding.problemId() == ProblemReasons.NotVisible))
 			throw new SelectionNodeFound();
 		if (anonymousType == null)
-			throw new SelectionNodeFound(this, binding);
+			throw new SelectionNodeFound(binding);
 	
 		// if selecting a type for an anonymous type creation, we have to
 		// find its target super constructor (if extending a class) or its target 
@@ -74,10 +74,10 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 		if (anonymousType.binding.superInterfaces == NoSuperInterfaces) {
 			// find the constructor binding inside the super constructor call
 			ConstructorDeclaration constructor = (ConstructorDeclaration) anonymousType.declarationOf(binding.original());
-			throw new SelectionNodeFound(constructor.constructorCall, constructor.constructorCall.binding);
+			throw new SelectionNodeFound(constructor.constructorCall.binding);
 		} else {
 			// open on the only superinterface
-			throw new SelectionNodeFound(anonymousType, anonymousType.binding.superInterfaces[0]);
+			throw new SelectionNodeFound(anonymousType.binding.superInterfaces[0]);
 		}
 	}
 }

@@ -15,10 +15,12 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
-	public SelectionOnParameterizedQualifiedTypeReference(char[][] previousIdentifiers, char[] selectionIdentifier, TypeReference[][] typeArguments, long[] positions) {
+	public SelectionOnParameterizedQualifiedTypeReference(char[][] previousIdentifiers, char[] selectionIdentifier, TypeReference[][] typeArguments, TypeReference[] assistTypeArguments, long[] positions) {
 		super(
 			CharOperation.arrayConcat(previousIdentifiers, selectionIdentifier),
 			typeArguments,
@@ -26,22 +28,34 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 			positions);
 		int length =  this.typeArguments.length;
 		System.arraycopy(this.typeArguments, 0, this.typeArguments = new TypeReference[length + 1][], 0, length);
+		this.typeArguments[length] = assistTypeArguments;
 	}
 	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		super.resolveType(scope, checkBounds);
-		throw new SelectionNodeFound(this, this.resolvedType);
+		if(this.resolvedType != null && this.resolvedType.isRawType()) {
+			ParameterizedTypeBinding parameterizedTypeBinding = scope.createParameterizedType(((RawTypeBinding)this.resolvedType).type, new TypeBinding[0], this.resolvedType.enclosingType());
+			throw new SelectionNodeFound(parameterizedTypeBinding);
+		}
+		throw new SelectionNodeFound(this.resolvedType);
 	}
 	
 	public TypeBinding resolveType(ClassScope scope) {
 		super.resolveType(scope);
-		throw new SelectionNodeFound(this, this.resolvedType);
+		if(this.resolvedType != null && this.resolvedType.isRawType()) {
+			ParameterizedTypeBinding parameterizedTypeBinding = scope.createParameterizedType(((RawTypeBinding)this.resolvedType).type, new TypeBinding[0], this.resolvedType.enclosingType());
+			throw new SelectionNodeFound(parameterizedTypeBinding);
+		}
+		throw new SelectionNodeFound(this.resolvedType);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<SelectOnType:");//$NON-NLS-1$
-		int length = tokens.length - 1;
-		for (int i = 0; i < length - 1; i++) {
+		int length = tokens.length;
+		for (int i = 0; i < length; i++) {
+			if(i != 0) {
+				output.append('.');
+			}
 			output.append(tokens[i]);
 			TypeReference[] typeArgument = typeArguments[i];
 			if (typeArgument != null) {
@@ -54,21 +68,9 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 				typeArgument[max].print(0, output);
 				output.append('>');
 			}
-			output.append('.');
+			
 		}
-		output.append(tokens[length - 1]);
-		TypeReference[] typeArgument = typeArguments[length - 1];
-		if (typeArgument != null) {
-			output.append('<');//$NON-NLS-1$
-			int max = typeArgument.length - 1;
-			for (int j = 0; j < max; j++) {
-				typeArgument[j].print(0, output);
-				output.append(", ");//$NON-NLS-1$
-			}
-			typeArgument[max].print(0, output);
-			output.append('>');
-		}
-		output.append('.').append(tokens[length]).append('>'); 
+		output.append('>'); 
 		return output;
 	}
 }

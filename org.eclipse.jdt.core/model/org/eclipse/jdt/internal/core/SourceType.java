@@ -766,11 +766,11 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				this.answers[length] = answer;
 			}
 		}
-		public void acceptClass(char[] packageName, char[] className, boolean needQualification, boolean isDeclaration, int start, int end) {
+		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(className) });
 		}
 		
-		public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification, boolean isDeclaration, int start, int end) {
+		public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
 		}
 

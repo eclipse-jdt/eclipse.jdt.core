@@ -2342,46 +2342,42 @@ public abstract class Scope
 		}
 		// binding is now a ReferenceBinding
 		ReferenceBinding qualifiedType = null;
-		
-		ReferenceBinding typeBinding = (ReferenceBinding) binding;
-		ReferenceBinding currentType = typeBinding;
-		if (currentType.isGenericType()) {
-			qualifiedType = this.environment().createRawType(currentType, qualifiedType);
+	   
+		ReferenceBinding originalTypeBinding = (ReferenceBinding) binding;
+		// ReferenceBinding currentType = originalTypeBinding;
+		if (originalTypeBinding.isGenericType()) {
+			qualifiedType = this.environment().createRawType(originalTypeBinding, qualifiedType);
 		} else {
 			qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-				? this.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
-				: currentType;
+				? this.createParameterizedType(originalTypeBinding, null, qualifiedType)
+				: originalTypeBinding;
 		}
 		
-		typeBinding = qualifiedType;
-		
 		if (checkVisibility) // handles the fall through case
-			if (!typeBinding.canBeSeenBy(this))
+			if (!originalTypeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					typeBinding,
+					originalTypeBinding,
 					NotVisible);
 
 		while (currentIndex < nameLength) {
-			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
-			
-			currentType = typeBinding;
-			if (currentType.isGenericType()) {
-				qualifiedType = this.environment().createRawType(currentType, qualifiedType);
+			originalTypeBinding = getMemberType(compoundName[currentIndex++], originalTypeBinding);
+	         
+			if (originalTypeBinding.isGenericType()) {
+				qualifiedType = this.environment().createRawType(originalTypeBinding, qualifiedType);
 			} else {
 				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-					? this.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
-					: currentType;
+										? this.createParameterizedType(originalTypeBinding, null, qualifiedType)
+										: originalTypeBinding;
 			}
-			
-			typeBinding = qualifiedType;
+	         
 			// checks visibility
-			if (!typeBinding.isValidBinding())
+			if (!qualifiedType.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					typeBinding.problemId());
+					qualifiedType.problemId());
 		}
-		return typeBinding;
+		return qualifiedType;
 	}
 	
 	// 5.1.10

@@ -24,12 +24,12 @@ public interface ISelectionRequestor {
 	 * @param className char[]
 	 * 		Name of the class.
 	 * 
-	 * @param needQualification boolean
-	 * 		Flag indicating if the type name 
-	 *    	must be qualified by its package name (depending on imports).
-	 * 
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected method is a declaration
+	 *  
+	 * @param genericTypeSignature
+	 *  	generic type signature of the selected type if it is a
+	 *  	parameterized type
 	 * 
 	 * @param start
 	 *  	Start of the selection
@@ -45,8 +45,8 @@ public interface ISelectionRequestor {
 	void acceptClass(
 		char[] packageName,
 		char[] className,
-		boolean needQualification,
 		boolean isDeclaration,
+		char[] genericTypeSignature,
 		int start,
 		int end);
 
@@ -105,12 +105,12 @@ public interface ISelectionRequestor {
 	 * @param interfaceName char[]
 	 * 		Name of the interface.
 	 * 
-	 * @param needQualification boolean
-	 * 		Flag indicating if the type name 
-	 *    	must be qualified by its package name (depending on imports).
-	 * 
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected method is a declaration
+	 *  
+	 * @param genericTypeSignature
+	 *  	generic type signature of the selected type if it is a
+	 *  	parameterized type
 	 * 
 	 * @param start
 	 *  	Start of the selection
@@ -126,8 +126,8 @@ public interface ISelectionRequestor {
 	void acceptInterface(
 		char[] packageName,
 		char[] interfaceName,
-		boolean needQualification,
 		boolean isDeclaration,
+		char[] genericTypeSignature,
 		int start,
 		int end);
 

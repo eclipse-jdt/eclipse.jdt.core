@@ -51,7 +51,8 @@ public class TestAll extends TestCase {
 		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
 		testClasses.add(SelectionTest.class);
 		testClasses.add(SelectionTest2.class);
-
+		testClasses.add(GenericsSelectionTest.class);
+		
 		/* recovery tests */
 		testClasses.add(DietRecoveryTest.class);
 		testClasses.add(GenericDietRecoveryTest.class);

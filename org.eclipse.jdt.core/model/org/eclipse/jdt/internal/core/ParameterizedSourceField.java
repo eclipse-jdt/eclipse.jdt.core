@@ -25,5 +25,13 @@ public class ParameterizedSourceField extends SourceField {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
-
+	
+	/**
+	 * @private Debugging purposes
+	 */
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+		super.toStringInfo(tab, buffer, info);
+		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(uniqueKey);
+	}
 }

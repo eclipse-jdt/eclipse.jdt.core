@@ -68,6 +68,6 @@ public class SelectionOnExplicitConstructorCall extends ExplicitConstructorCall 
 					binding.problemId() == ProblemReasons.NotVisible))
 			throw new SelectionNodeFound();
 		else
-			throw new SelectionNodeFound(this, binding);
+			throw new SelectionNodeFound(binding);
 	}
 }

@@ -59,6 +59,6 @@ public class SelectionOnFieldReference extends FieldReference {
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext))
 			throw new SelectionNodeFound();
 		else
-			throw new SelectionNodeFound(this, binding);
+			throw new SelectionNodeFound(binding);
 	}
 }

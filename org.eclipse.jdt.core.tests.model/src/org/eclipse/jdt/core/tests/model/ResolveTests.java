@@ -885,7 +885,7 @@ public void testNegativeResolveUnicode() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "lang.\\u0053tring", "lang.\\u0053tring");
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"String [in String.class [in java.lang [in "+ getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }
@@ -909,7 +909,7 @@ public void testPartiallyQualifiedType() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "lang.Object", "lang.Object");
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in Resolve]]]]",
 		elements
 	);
 }
@@ -1437,7 +1437,7 @@ public void testQualifiedName2() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -1465,7 +1465,7 @@ public void testQualifiedName4() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"ZZ [in YY [in XX [in XX.java [in pp.qq [in src [in Resolve]]]]]]",
 		elements
 	);
 }
