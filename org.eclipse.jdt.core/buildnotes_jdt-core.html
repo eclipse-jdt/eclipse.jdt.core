@@ -63,8 +63,30 @@ Eclipse SDK 3.0M7 Build - 27th January 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added API for improved DOM AST comment support. See bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50683">50683</a>
-and <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50697">50697</a>.</li>
+<li>Improve DOM/AST support for doc comments.
+<br>Following changes have been made to the DOM/AST API:
+<ul>
+<li>added Javadoc.tags() to represent structure of the doc comments</li>
+<li>deprecated Javadoc.get/setComment</li>
+<li>added 5 new node types that occur only within doc comments: TagElement, TextElement, MemberRef, MethodRef, MethodRefParameter</li>
+<li>tag elements like MemberRef, MethodRef, and Name can carry binding information (must be requested like elsewhere)</li>
+<li>added ASTVisitor(boolean) for controlling whether Javadoc.tags() are visited by default</li>
+<li>added ASTMatcher(boolean) for controlling whether Javadoc.tags() are compared vs. only Javadoc.getComment()</li>
+<li>AST.parse*(...) now returns structured doc comments (for compatibility, Javadoc.getComment() is also set as before)</li>
+</ul>
+See bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50683">50683</a>.
+</li>
+<li>
+Improve DOM/AST support for locating all comments.
+<br>Following changes have been made to the DOM/AST API:
+<ul>
+<li>added CompilationUnit.getCommentTable() to record locations of all comments found in the source</li>
+<li>added 2 new node types, LineComment and BlockComment, to represent end-of-line and traditional comments respectively</li>
+<li>these new nodes are placeholders for comments</li>
+<li>these new node types only occur in the comment table (since they can occur anywhere (lexically), there is no way to properly parent them in the regular AST nodes that reflects their position)</li>
+<li>AST.parse*(...) now returns sets the comment table on the compilation unit to include all comments (including attached and free-floating doc comments)</li>
+</ul>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50697">50697</a>.
 </li>
 <li> Added option to control whether diagnosis for unused thrown exceptions should be enabled when overriding another
 method. By default, it is disabled.
