@@ -4,7 +4,6 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.apache.tools.ant.taskdefs.optional.depend.ClassFile;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
