@@ -156,4 +156,23 @@ public void test006() {
 		"Cannot specify an array dimension after an empty dimension\n" + 
 		"----------\n");
 }
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85125
+ */
+public void test007() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public String getTexts(int i) [] {\n" +
+			"		String[] texts = new String[1];\n" +
+			"		return texts; \n" +
+			"	}\n" +
+			"    public static void main(String[] args) {\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"SUCCESS");
+}
 }

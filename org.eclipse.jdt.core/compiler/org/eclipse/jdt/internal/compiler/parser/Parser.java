@@ -2703,19 +2703,7 @@ protected void consumeEnterVariable() {
 		declaration.type = type;
 	} else {
 		int dimension = typeDim + extendedDimension;
-		//on the this.identifierLengthStack there is the information about the type....
-		int baseType;
-		if ((baseType = this.identifierLengthStack[this.identifierLengthPtr + 1]) < 0) {
-			//it was a baseType
-			int typeSourceStart = type.sourceStart;
-			int typeSourceEnd = type.sourceEnd;
-			type = TypeReference.baseTypeReference(-baseType, dimension);
-			type.sourceStart = typeSourceStart;
-			type.sourceEnd = typeSourceEnd;
-			declaration.type = type;
-		} else {
-			declaration.type = this.copyDims(type, dimension);
-		}
+		declaration.type = this.copyDims(type, dimension);
 	}
 	this.variablesCounter[this.nestedType]++;
 	pushOnAstStack(declaration);
@@ -3792,18 +3780,7 @@ protected void consumeMethodHeaderExtendedDims() {
 		TypeReference returnType = md.returnType;
 		md.sourceEnd = this.endPosition;
 		int dims = returnType.dimensions() + extendedDims;
-		int baseType;
-		if ((baseType = this.identifierLengthStack[this.identifierLengthPtr + 1]) < 0) {
-			//it was a baseType
-			int sourceStart = returnType.sourceStart;
-			int sourceEnd =  returnType.sourceEnd;
-			returnType = TypeReference.baseTypeReference(-baseType, dims);
-			returnType.sourceStart = sourceStart;
-			returnType.sourceEnd = sourceEnd;
-			md.returnType = returnType;
-		} else {
-			md.returnType = this.copyDims(md.returnType, dims);
-		}
+		md.returnType = this.copyDims(returnType, dims);
 		if (this.currentToken == TokenNameLBRACE){ 
 			md.bodyStart = this.endPosition + 1;
 		}
