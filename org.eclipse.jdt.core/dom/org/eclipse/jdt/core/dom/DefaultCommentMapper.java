@@ -318,7 +318,7 @@ class DefaultCommentMapper {
 				int lastTokenEnd = previousEnd;
 				this.scanner.resetTo(previousEnd, commentStart);
 				try {
-					while (this.scanner.currentPosition != commentStart) {
+					while (this.scanner.currentPosition < commentStart) {
 						if (this.scanner.getNextToken() != TerminalTokens.TokenNameWHITESPACE) {
 							lastTokenEnd =  this.scanner.getCurrentTokenEndPosition();
 						}
