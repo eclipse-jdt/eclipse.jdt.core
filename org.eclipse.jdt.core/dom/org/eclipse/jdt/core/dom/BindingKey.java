@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -164,7 +165,7 @@ class BindingKey {
 					if (this.scanner.isAtTypeParameterStart())	 					
 	 					// generic type binding
 	 					typeBinding = getGenericTypeBinding((SourceTypeBinding) binding);
-	 				else if (this.scanner.isAtTypeStart())
+	 				else if (this.scanner.isAtTypeStart() || this.scanner.isAtWildCardStart())
  						// parameterized type binding
 	 					typeBinding = getParameterizedTypeBinding((ReferenceBinding) binding, null/*no enclosing type*/); 
  				} else if (binding.typeVariables().length > 0)
@@ -322,15 +323,21 @@ class BindingKey {
 	 	int length = typeVariableBindings.length;
 	 	TypeBinding[] arguments = new TypeBinding[length];
 	 	for (int i = 0; i < length; i++) {
-			reset();
-			Binding argument = getCompilerBinding();
+	 		TypeBinding argument;
+	 		if (this.scanner.isAtWildCardStart()) {
+	 			argument = getWildCardBinding(genericType, i);
+	 		} else {
+				reset();
+				argument = (TypeBinding) getCompilerBinding();
+	 		}
 			if (argument == null) 
 				return this.environment.createRawType(genericType, enclosingType);
-			arguments[i] = (TypeBinding) argument;
+			arguments[i] =argument;
+	 		
 		}
 	 	ParameterizedTypeBinding parameterizedTypeBinding = this.environment.createParameterizedType(genericType, arguments, enclosingType);
 	 	// skip ";>"
-	 	this.scanner.index += 2;
+	 	this.scanner.skipParametersEnd();
 	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == BindingKeyScanner.TYPE) {
 	 		char[] typeName = this.scanner.getTokenSource();
 	 		ReferenceBinding memberType = genericType.getMemberType(typeName);
@@ -371,6 +378,31 @@ class BindingKey {
 			}
 	 	}
 		return null;
+	 }
+	 
+	 TypeBinding getWildCardBinding(ReferenceBinding genericType, int rank) {
+	 	if (this.scanner.nextToken() != BindingKeyScanner.TYPE) return null;
+	 	char[] source = this.scanner.getTokenSource();
+	 	if (source.length == 0) return null; //malformed key
+	 	int kind = -1;
+	 	TypeBinding bound = null;
+	 	switch (source[0]) {
+		 	case '*':
+		 		kind = Wildcard.UNBOUND;
+		 		break;
+		 	case '+':
+		 		reset();
+		 		kind = Wildcard.EXTENDS;
+		 		bound = (TypeBinding) getCompilerBinding();
+		 		break;
+		 	case '-':
+		 		reset();
+		 		kind = Wildcard.SUPER;
+		 		bound = (TypeBinding) getCompilerBinding();
+		 		break;
+	 	}
+	 	if (kind == -1) return null; // malformed key
+ 		return this.environment.createWildcard(genericType, rank, bound, kind);
 	 }
 	 
 	 /*

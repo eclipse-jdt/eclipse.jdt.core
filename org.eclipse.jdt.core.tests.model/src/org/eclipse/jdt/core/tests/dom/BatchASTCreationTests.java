@@ -24,9 +24,6 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
-/*
- * Test the creation/resolution of several ASTs at once.
- */
 public class BatchASTCreationTests extends AbstractASTTests {
 	
 	public class TestASTRequestor extends ASTRequestor {
@@ -47,7 +44,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test037"));
+			suite.addTest(new BatchASTCreationTests("test036"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -840,6 +837,82 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}",
 			},
 			"Lp1/X;.foo<U:Ljava/lang/Object;>(TT;TU;)V");
+	}
+
+	/*
+	 * Ensures that a parameterized method binding (where the parameter is an unbound wildcard) can be created using its key.
+	 */
+	public void test038() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void bar(X<?> x) {\n" +
+				"    x.foo();\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<*>;.foo()V");
+	}
+
+	/*
+	 * Ensures that a parameterized method binding (where the parameter is an extends wildcard) can be created using its key.
+	 */
+	public void test039() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void bar(X<? extends Object> x) {\n" +
+				"    x.foo();\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<+Ljava/lang/Object;>;.foo()V");
+	}
+
+	/*
+	 * Ensures that a parameterized method binding (where the parameter is a super wildcard) can be created using its key.
+	 */
+	public void test040() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void bar(X<? super Error> x) {\n" +
+				"    x.foo();\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<-Ljava/lang/Error;>;.foo()V");
+	}
+
+	/*
+	 * Ensures that a parameterized method binding (where the parameters contain wildcards) can be created using its key.
+	 */
+	public void test041() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T, U, V, W> {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void bar(X<? super Error, ?, String, ? extends Object> x) {\n" +
+				"    x.foo();\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X<-Ljava/lang/Error;*Ljava/lang/String;+Ljava/lang/Object;>;.foo()V");
 	}
 
 }

@@ -28,7 +28,7 @@ class BindingKeyScanner {
 	static final int LOCAL_VAR = 6;
 	static final int END = 7;
 	
-	int index = -1, start;
+	int index = 0, start;
 	char[] source;
 	int token = START;
 
@@ -81,9 +81,13 @@ class BindingKeyScanner {
 		return this.index+1 < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
 	}
 	
+	boolean isAtWildCardStart() {
+		return this.index+1 < this.source.length && "*+-".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
+	}
+	
 	int nextToken() {
-		this.start = this.token == ARRAY ? this.index : ++this.index;
-		int previousTokenEnd = this.index-1;
+		int previousTokenEnd = this.index;
+		this.start = this.index;
 		int length = this.source.length;
 		while (this.index <= length) {
 			char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
@@ -98,7 +102,7 @@ class BindingKeyScanner {
 				case 'V':
 				case 'Z':
 					// base type
-					if (this.start == previousTokenEnd+1) {
+					if (this.index == previousTokenEnd) {
 						this.index++;
 						this.token = TYPE;
 						return this.token;
@@ -106,16 +110,24 @@ class BindingKeyScanner {
 					break;
 				case 'L':
 				case 'T':
-					if (this.start == previousTokenEnd+1) {
-						this.start = ++this.index;
+					if (this.index == previousTokenEnd) {
+						this.start = this.index+1;
 					}
 					break;
 				case ';':
 				case '$':
-					this.token = TYPE;
-					return this.token;
+					if (this.index == previousTokenEnd) {
+						this.start = this.index+1;
+						previousTokenEnd = this.start;
+					} else {
+						this.token = TYPE;
+						return this.token;
+					}
+					break;
 				case '.':
+				case '%':
 					this.start = this.index+1;
+					previousTokenEnd = this.start;
 					break;
 				case '[':
 					while (this.index < length && this.source[this.index] == '[')
@@ -123,18 +135,18 @@ class BindingKeyScanner {
 					this.token = ARRAY;
 					return this.token;
 				case '<':
-					if (this.start > 0) {
+					if (this.index == previousTokenEnd) {
+						this.start = this.index+1;
+						previousTokenEnd = this.start;
+					} else if (this.start > 0) {
 						switch (this.source[this.start-1]) {
 							case '.':
 								if (this.source[this.start-2] == '>')
+									// case of member type where enclosing type is parameterized
 									this.token = TYPE;
 								else
 									this.token = METHOD;
 								return this.token;
-							case '%':
-								previousTokenEnd = this.index;
-								this.start = this.index+1;
-								break;
 							default:
 								this.token = TYPE;
 								return this.token;
@@ -152,8 +164,14 @@ class BindingKeyScanner {
 					this.token = TYPE_PARAMETER;
 					return this.token;
 				case '#':
-					this.token = LOCAL_VAR;
-					return this.token;
+					if (this.index == previousTokenEnd) {
+						this.start = this.index+1;
+						previousTokenEnd = this.start;
+					} else {
+						this.token = LOCAL_VAR;
+						return this.token;
+					}
+					break;
 				case Character.MIN_VALUE:
 					switch (this.token) {
 						case START:
@@ -174,6 +192,12 @@ class BindingKeyScanner {
 							break;
 					}
 					return this.token;
+				case '*':
+				case '+':
+				case '-':
+					this.index++;
+					this.token = TYPE;
+					return this.token;
 			}
 			this.index++;
 		}
@@ -185,6 +209,12 @@ class BindingKeyScanner {
 		char currentChar;
 		while (this.index < this.source.length && (currentChar = this.source[this.index]) != '#' && currentChar != '%')
 			this.index++;
+	}
+	
+	void skipParametersEnd() {
+		while (this.index < this.source.length && this.source[this.index] != '>')
+			this.index++;
+		this.index++;
 	}
 	
 	public String toString() {
