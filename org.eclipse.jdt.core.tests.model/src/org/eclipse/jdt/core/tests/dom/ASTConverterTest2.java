@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0456"));			
+		suite.addTest(new ASTConverterTest2("test0460"));			
 		return suite;
 	}
 	/**
@@ -1579,6 +1579,19 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		expectedSource = "{    }";
 		checkSourceRange(body, expectedSource, source);		
 		assertTrue("not a block", body.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28869
+	 */
+	public void test0460() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0460", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertTrue("Has error", compilationUnit.getProblems().length == 0); //$NON-NLS-1$
 	}	
+	
 }
 
