@@ -891,18 +891,6 @@ public class TypeDeclaration
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
-			// check superclass
-			if (this.binding.superclass != null) // watch out for Object ! (and other roots)	
-				if (isTypeUseDeprecated(this.binding.superclass, this.scope))
-					this.scope.problemReporter().deprecatedType(this.binding.superclass, this.superclass);
-			// check superinterfaces
-			if (this.superInterfaces != null)
-				for (int i = this.superInterfaces.length; --i >= 0;)
-					if (this.superInterfaces[i].resolvedType != null)
-						if (isTypeUseDeprecated(this.superInterfaces[i].resolvedType, this.scope))
-							this.scope.problemReporter().deprecatedType(
-								this.superInterfaces[i].resolvedType,
-								this.superInterfaces[i]);
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
 			if (this.fields != null) {

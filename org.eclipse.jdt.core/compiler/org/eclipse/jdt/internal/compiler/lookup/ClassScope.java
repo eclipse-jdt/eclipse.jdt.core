@@ -555,7 +555,7 @@ public class ClassScope extends Scope {
 		}
 		fieldBinding.modifiers = modifiers;
 	}
-	
+
 	private void checkForInheritedMemberTypes(SourceTypeBinding sourceType) {
 		// search up the hierarchy of the sourceType to see if any superType defines a member type
 		// when no member types are defined, tag the sourceType & each superType with the HasNoMemberTypes bit
@@ -662,11 +662,8 @@ public class ClassScope extends Scope {
 		}
 		TypeReference superclassRef = referenceContext.superclass;
 		ReferenceBinding superclass = findSupertype(superclassRef);
-		if (superclass != null) { // is null if a cycle was detected cycle
-			superclassRef.resolvedType = superclass; // hold onto the problem type
-			if (!superclass.isValidBinding()) {
-				problemReporter().invalidType(superclassRef, superclass);
-			} else if (superclass.isInterface()) {
+		if (superclass != null) { // is null if a cycle was detected cycle or a problem
+			if (superclass.isInterface()) {
 				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
 			} else if (superclass.isFinal()) {
 				problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
@@ -709,16 +706,11 @@ public class ClassScope extends Scope {
 		    TypeReference superInterfaceRef = referenceContext.superInterfaces[i];
 			ReferenceBinding superInterface = findSupertype(superInterfaceRef);
 			if (superInterface == null) { // detected cycle
-				noProblems = false;
-				continue nextInterface;
-			}
-			superInterfaceRef.resolvedType = superInterface; // hold onto the problem type
-			if (!superInterface.isValidBinding()) {
-				problemReporter().invalidType(superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;
 			}
+			superInterfaceRef.resolvedType = superInterface; // hold onto the problem type
 			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (ie : a.b.I and c.d.I)
 			for (int k = 0; k < count; k++) {
 				if (interfaceBindings[k] == superInterface) {
@@ -808,17 +800,12 @@ public class ClassScope extends Scope {
 				continue nextVariable;
 			ReferenceBinding superType = findSupertype(typeRef);
 			if (superType == null) { // detected cycle
+				typeVariable.tagBits |= HierarchyHasProblems;
 				noProblems = false;
 				continue nextVariable;
 			}
 			// TODO (philippe) add warning to flag final superClass scenario (not useful usage of generics)
 			typeRef.resolvedType = superType; // hold onto the problem type
-			if (!superType.isValidBinding()) {
-				problemReporter().invalidType(typeRef, superType);
-				typeVariable.tagBits |= HierarchyHasProblems;
-				noProblems = false;
-				continue nextVariable;
-			}
 			if (superType.isClass())
 				typeVariable.superclass = superType;
 			else
@@ -855,7 +842,13 @@ public class ClassScope extends Scope {
 		}
 		return noProblems;
 	}
-	
+
+	protected boolean detectCycle(ReferenceBinding superType) {
+		if ((superType.tagBits & EndHierarchyCheck) == 0 && (superType.tagBits & BeginHierarchyCheck) != 0)
+			return detectCycle(referenceContext.binding, superType, null);
+		return false;
+	}
+
 	// Answer whether a cycle was found between the sourceType & the superType
 	private boolean detectCycle(
 		SourceTypeBinding sourceType,
@@ -920,83 +913,18 @@ public class ClassScope extends Scope {
 			sourceType.tagBits |= HierarchyHasProblems;
 		return false;
 	}
-	
+
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
 		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
-		char[][] compoundName = typeReference.getTypeName();
-		compilationUnitScope().recordQualifiedReference(compoundName);
-		SourceTypeBinding sourceType = referenceContext.binding;
-		int size = compoundName.length;
-		int n = 1;
-		ReferenceBinding superType;
+		compilationUnitScope().recordQualifiedReference(typeReference.getTypeName());
+		ReferenceBinding superType = (ReferenceBinding) typeReference.resolveType(this);
+		if (superType == null) return null;
 
-		// resolve the first name of the compoundName
-		if ((superType = sourceType.getTypeVariable(compoundName[0])) != null) {
-			// cannot bind to a type variable
-			return new ProblemReferenceBinding(
-					compoundName[0],
-					IllegalTypeVariable);
-		} else if (CharOperation.equals(compoundName[0], sourceType.sourceName)) {
-			superType = sourceType;
-			// match against the sourceType even though nested members cannot be supertypes
-		} else {
-			Binding typeOrPackage = parent.getTypeOrPackage(compoundName[0], TYPE | PACKAGE);
-			if (typeOrPackage == null || !typeOrPackage.isValidBinding())
-				return new ProblemReferenceBinding(
-					compoundName[0],
-					typeOrPackage == null ? NotFound : typeOrPackage.problemId());
-			if (typeOrPackage instanceof TypeVariableBinding) {
-				// cannot bind to a type variable defined in enclosing context
-				return new ProblemReferenceBinding(
-						compoundName[0],
-						IllegalTypeVariable);
-			}
-			boolean checkVisibility = false;
-			for (; n < size; n++) {
-				if (!(typeOrPackage instanceof PackageBinding))
-					break;
-				PackageBinding packageBinding = (PackageBinding) typeOrPackage;
-				typeOrPackage = packageBinding.getTypeOrPackage(compoundName[n]);
-				if (typeOrPackage == null || !typeOrPackage.isValidBinding())
-					return new ProblemReferenceBinding(
-						CharOperation.subarray(compoundName, 0, n + 1),
-						typeOrPackage == null ? NotFound : typeOrPackage.problemId());
-				checkVisibility = true;
-			}
-
-			// convert to a ReferenceBinding
-			if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
-			superType = (ReferenceBinding) typeOrPackage;
-			compilationUnitScope().recordTypeReference(superType); // to record supertypes
-
-			if (checkVisibility
-				&& n == size) { // if we're finished and know the final supertype then check visibility
-				if (!superType.canBeSeenBy(sourceType.fPackage))
-					// its a toplevel type so just check package access
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), superType, NotVisible);
-			}
-		}
-		// at this point we know we have a type but we have to look for cycles
-		while (true) {
-			// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
-			// must be guaranteed that the superType knows its entire hierarchy
-			if (detectCycle(sourceType, superType, typeReference))
-				return null; // cycle error was already reported
-
-			if (n >= size)
-				break;
-
-			// retrieve the next member type
-			char[] typeName = compoundName[n++];
-			superType = findMemberType(typeName, superType);
-			if (superType == null)
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
-			if (!superType.isValidBinding()) {
-				superType.compoundName = CharOperation.subarray(compoundName, 0, n);
-				return superType;
-			}
-		}
+		compilationUnitScope().recordTypeReference(superType); // to record supertypes
+		// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
+		// must be guaranteed that the superType knows its entire hierarchy
+		if (detectCycle(referenceContext.binding, superType, typeReference))
+			return null; // cycle error was already reported
 		return superType;
 	}
 

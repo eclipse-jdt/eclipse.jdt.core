@@ -116,6 +116,8 @@ public TypeBinding resolveType(ClassScope classScope) {
 			return null; // already reported error
 	} else {
 		this.resolvedType = getTypeBinding(classScope);
+		if (this.resolvedType == null)
+			return null; // detected cycle while resolving hierarchy
 		if (!this.resolvedType.isValidBinding()) {
 			reportInvalidType(classScope);
 			return null;

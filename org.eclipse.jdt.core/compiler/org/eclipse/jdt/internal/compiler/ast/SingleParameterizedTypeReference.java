@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
  * Syntactic representation of a reference to a generic type.
@@ -83,6 +79,64 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		for (int j = 0; j < argLength; j++) {
+		    argTypes[j] = this.typeArguments[j].resolveType(scope);
+		}
+		if (typeVariables == NoTypeVariables) { // check generic
+				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
+				return null;
+		} else if (argLength != typeVariables.length) { // check arity
+				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+				return null;
+		}			
+		// check argument type compatibility
+		boolean argHasError = false;
+		for (int j = 0; j < argLength; j++) {
+		    TypeBinding argType = argTypes[j];
+		    if (argType == null) {
+		        argHasError = true;
+		    } else if (!typeVariables[j].boundCheck(argType)) {
+		        argHasError = true;
+				scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, this.typeArguments[j]);
+		    }
+		}
+		if (argHasError) return null;
+		currentType = scope.createParameterizedType(currentType, argTypes);
+		this.resolvedType = currentType;
+		if (isTypeUseDeprecated(this.resolvedType, scope)) {
+			reportDeprecatedType(scope);
+		}		
+		// array type ?
+		if (this.dimensions > 0) {
+			if (dimensions > 255) {
+				scope.problemReporter().tooManyDimensions(this);
+			}
+			this.resolvedType = scope.createArray(currentType, dimensions);
+		}
+		return this.resolvedType;
+	}	
+	public TypeBinding resolveType(ClassScope scope) {
+		// handle the error here
+		this.constant = NotAConstant;
+		if (this.didResolve) { // is a shared type reference which was already resolved
+			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
+				return null; // already reported error
+			}
+			return this.resolvedType;
+		} 
+	    this.didResolve = true;
+		ReferenceBinding currentType = null;
+		TypeBinding type = scope.getType(token);
+		if (!(type.isValidBinding())) {
+			reportInvalidType(scope);
+			return null;
+		}
+		currentType = (ReferenceBinding) type;
+	    // check generic and arity
+		TypeVariableBinding[] typeVariables = currentType.typeVariables();
+		int argLength = this.typeArguments.length;
+		TypeBinding[] argTypes = new TypeBinding[argLength];
+		for (int j = 0; j < argLength; j++) {
+			// TODO what if this is null? how are error cases handled
 		    argTypes[j] = this.typeArguments[j].resolveType(scope);
 		}
 		if (typeVariables == NoTypeVariables) { // check generic

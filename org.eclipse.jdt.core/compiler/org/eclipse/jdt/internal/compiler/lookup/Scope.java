@@ -103,7 +103,11 @@ public abstract class Scope
 		}
 		return new ParameterizedTypeBinding(rawType, arguments, environment());
 	}
-	
+
+	protected boolean detectCycle(ReferenceBinding superType) {
+		return false;
+	}
+
 	public final ClassScope enclosingClassScope() {
 		Scope scope = this;
 		while ((scope = scope.parent) != null) {
@@ -1295,6 +1299,9 @@ public abstract class Scope
 					typeBinding,
 					NotVisible);
 
+		if (detectCycle(typeBinding))
+			return null; // detected cycle
+
 		while (currentIndex < typeNameLength) {
 			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
 			if (!typeBinding.isValidBinding()) {
@@ -1313,160 +1320,171 @@ public abstract class Scope
 		return typeBinding;
 	}
 
-	/* Internal use only 
-	*/
-	final Binding getTypeOrPackage(char[] name, int mask) {
-		Scope scope = this;
-		ReferenceBinding foundType = null;
-		boolean insideStaticContext = false;
-		if ((mask & TYPE) == 0) {
-			Scope next = scope;
-			while ((next = scope.parent) != null)
-				scope = next;
-		} else {
-			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
-				switch (scope.kind) {
-					case METHOD_SCOPE :
-					    insideStaticContext |= ((MethodScope) scope).isStatic;
-					case BLOCK_SCOPE :
-						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
-						if (localType != null) {
-							if (foundType != null && foundType != localType)
-								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
-							return localType;
-						}
-						break;
-					case CLASS_SCOPE :
-						SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
-						insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
-						// type variables take precedence over member types
-						TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
-						if (typeVariable != null) {
-						    if (insideStaticContext)
-								return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
-						    return typeVariable;
-						}
-						// 6.5.5.1 - member types have precedence over top-level type in same unit
-						ReferenceBinding memberType = findMemberType(name, sourceType);
-						if (memberType != null) { // skip it if we did not find anything
-							if (memberType.problemId() == Ambiguous) {
-								if (foundType == null || foundType.problemId() == NotVisible)
-									// supercedes any potential InheritedNameHidesEnclosingName problem
-									return memberType;
-								else
-									// make the user qualify the type, likely wants the first inherited type
+		/* Internal use only 
+		*/
+		final Binding getTypeOrPackage(char[] name, int mask) {
+			Scope scope = this;
+			ReferenceBinding foundType = null;
+			boolean insideStaticContext = false;
+			boolean resolvingHierarchy = false;
+			if ((mask & TYPE) == 0) {
+				Scope next = scope;
+				while ((next = scope.parent) != null)
+					scope = next;
+			} else {
+				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+					switch (scope.kind) {
+						case METHOD_SCOPE :
+						    insideStaticContext |= ((MethodScope) scope).isStatic;
+						case BLOCK_SCOPE :
+							ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
+							if (localType != null) {
+								if (foundType != null && foundType != localType)
 									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+								return localType;
 							}
-							if (memberType.isValidBinding()) {
-								if (sourceType == memberType.enclosingType()
-										|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
-									// found a valid type in the 'immediate' scope (ie. not inherited)
-									// OR in 1.4 mode (inherited shadows enclosing)
-									if (foundType == null)
-										return memberType; 
-									if (foundType.isValidBinding())
-										// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
-										if (foundType != memberType)
-											return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+							break;
+						case CLASS_SCOPE :
+							SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
+							insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
+							if ((sourceType.tagBits & EndHierarchyCheck) == 0 && (sourceType.tagBits & BeginHierarchyCheck) != 0) {
+								resolvingHierarchy = true;
+								if (sourceType.getTypeVariable(name) != null)
+									return new ProblemReferenceBinding(name, IllegalTypeVariable); // cannot bind to a type variable
+								if (CharOperation.equals(name, sourceType.sourceName))
+									return sourceType;
+								break;
+							}
+							// type variables take precedence over member types
+							TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
+							if (typeVariable != null) {
+							    if (resolvingHierarchy)
+									return new ProblemReferenceBinding(name, IllegalTypeVariable); // cannot bind to a type variable
+							    if (insideStaticContext)
+									return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
+							    return typeVariable;
+							}
+							// 6.5.5.1 - member types have precedence over top-level type in same unit
+							ReferenceBinding memberType = findMemberType(name, sourceType);
+							if (memberType != null) { // skip it if we did not find anything
+								if (memberType.problemId() == Ambiguous) {
+									if (foundType == null || foundType.problemId() == NotVisible)
+										// supercedes any potential InheritedNameHidesEnclosingName problem
+										return memberType;
+									else
+										// make the user qualify the type, likely wants the first inherited type
+										return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+								}
+								if (memberType.isValidBinding()) {
+									if (sourceType == memberType.enclosingType()
+											|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+										// found a valid type in the 'immediate' scope (ie. not inherited)
+										// OR in 1.4 mode (inherited shadows enclosing)
+										if (foundType == null)
+											return memberType; 
+										if (foundType.isValidBinding())
+											// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
+											if (foundType != memberType)
+												return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+									}
+								}
+								if (foundType == null || (foundType.problemId() == NotVisible && memberType.problemId() != NotVisible))
+									// only remember the memberType if its the first one found or the previous one was not visible & memberType is...
+									foundType = memberType;
+							}
+							if (CharOperation.equals(sourceType.sourceName, name)) {
+								if (foundType != null && foundType != sourceType && foundType.problemId() != NotVisible)
+									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+								return sourceType;
+							}
+							break;
+						case COMPILATION_UNIT_SCOPE :
+							break done;
+					}
+					scope = scope.parent;
+				}
+				if (foundType != null && foundType.problemId() != NotVisible)
+					return foundType;
+			}
+	
+			// at this point the scope is a compilation unit scope
+			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
+			PackageBinding currentPackage = unitScope.fPackage; 
+			// ask for the imports + name
+			if ((mask & TYPE) != 0) {
+				// check single type imports.
+	
+				ImportBinding[] imports = unitScope.imports;
+				if (imports != null) {
+					HashtableOfObject typeImports = unitScope.resolvedSingeTypeImports;
+					if (typeImports != null) {
+						ImportBinding typeImport = (ImportBinding) typeImports.get(name);
+						if (typeImport != null) {
+							ImportReference importReference = typeImport.reference;
+							if (importReference != null) importReference.used = true;
+							return typeImport.resolvedImport; // already know its visible
+						}
+					} else {
+						// walk all the imports since resolvedSingeTypeImports is not yet initialized
+						for (int i = 0, length = imports.length; i < length; i++) {
+							ImportBinding typeImport = imports[i];
+							if (!typeImport.onDemand) {
+								if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
+									if (unitScope.resolveSingleTypeImport(typeImport) != null) {
+										ImportReference importReference = typeImport.reference;
+										if (importReference != null) importReference.used = true;
+										return typeImport.resolvedImport; // already know its visible
+									}
 								}
 							}
-							if (foundType == null || (foundType.problemId() == NotVisible && memberType.problemId() != NotVisible))
-								// only remember the memberType if its the first one found or the previous one was not visible & memberType is...
-								foundType = memberType;
 						}
-						if (CharOperation.equals(sourceType.sourceName, name)) {
-							if (foundType != null && foundType != sourceType && foundType.problemId() != NotVisible)
-								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
-							return sourceType;
-						}
-						break;
-					case COMPILATION_UNIT_SCOPE :
-						break done;
-				}
-				scope = scope.parent;
-			}
-			if (foundType != null && foundType.problemId() != NotVisible)
-				return foundType;
-		}
-
-		// at this point the scope is a compilation unit scope
-		CompilationUnitScope unitScope = (CompilationUnitScope) scope;
-		PackageBinding currentPackage = unitScope.fPackage; 
-		// ask for the imports + name
-		if ((mask & TYPE) != 0) {
-			// check single type imports.
-
-			ImportBinding[] imports = unitScope.imports;
-			if (imports != null) {
-				HashtableOfObject typeImports = unitScope.resolvedSingeTypeImports;
-				if (typeImports != null) {
-					ImportBinding typeImport = (ImportBinding) typeImports.get(name);
-					if (typeImport != null) {
-						ImportReference importReference = typeImport.reference;
-						if (importReference != null) importReference.used = true;
-						return typeImport.resolvedImport; // already know its visible
 					}
-				} else {
-					// walk all the imports since resolvedSingeTypeImports is not yet initialized
+				}
+				// check if the name is in the current package, skip it if its a sub-package
+				unitScope.recordReference(currentPackage.compoundName, name);
+				Binding binding = currentPackage.getTypeOrPackage(name);
+				if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
+	
+				// check on demand imports
+				if (imports != null) {
+					boolean foundInImport = false;
+					ReferenceBinding type = null;
 					for (int i = 0, length = imports.length; i < length; i++) {
-						ImportBinding typeImport = imports[i];
-						if (!typeImport.onDemand) {
-							if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
-								if (unitScope.resolveSingleTypeImport(typeImport) != null) {
-									ImportReference importReference = typeImport.reference;
+						ImportBinding someImport = imports[i];
+						if (someImport.onDemand) {
+							Binding resolvedImport = someImport.resolvedImport;
+							ReferenceBinding temp = resolvedImport instanceof PackageBinding
+								? findType(name, (PackageBinding) resolvedImport, currentPackage)
+								: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
+							if (temp != null) {
+								if (temp.isValidBinding()) {
+									ImportReference importReference = someImport.reference;
 									if (importReference != null) importReference.used = true;
-									return typeImport.resolvedImport; // already know its visible
+									if (foundInImport)
+										// Answer error binding -- import on demand conflict; name found in two import on demand packages.
+										return new ProblemReferenceBinding(name, Ambiguous);
+									type = temp;
+									foundInImport = true;
+								} else if (foundType == null) {
+									foundType = temp;
 								}
 							}
 						}
 					}
+					if (type != null) return type;
 				}
 			}
-			// check if the name is in the current package, skip it if its a sub-package
-			unitScope.recordReference(currentPackage.compoundName, name);
-			Binding binding = currentPackage.getTypeOrPackage(name);
-			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
-
-			// check on demand imports
-			if (imports != null) {
-				boolean foundInImport = false;
-				ReferenceBinding type = null;
-				for (int i = 0, length = imports.length; i < length; i++) {
-					ImportBinding someImport = imports[i];
-					if (someImport.onDemand) {
-						Binding resolvedImport = someImport.resolvedImport;
-						ReferenceBinding temp = resolvedImport instanceof PackageBinding
-							? findType(name, (PackageBinding) resolvedImport, currentPackage)
-							: findDirectMemberType(name, (ReferenceBinding) resolvedImport);
-						if (temp != null) {
-							if (temp.isValidBinding()) {
-								ImportReference importReference = someImport.reference;
-								if (importReference != null) importReference.used = true;
-								if (foundInImport)
-									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-									return new ProblemReferenceBinding(name, Ambiguous);
-								type = temp;
-								foundInImport = true;
-							} else if (foundType == null) {
-								foundType = temp;
-							}
-						}
-					}
-				}
-				if (type != null) return type;
+	
+			unitScope.recordSimpleReference(name);
+			if ((mask & PACKAGE) != 0) {
+				PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
+				if (packageBinding != null) return packageBinding;
 			}
+	
+			// Answer error binding -- could not find name
+			if (foundType != null) return foundType; // problem type from above
+			return new ProblemReferenceBinding(name, NotFound);
 		}
-
-		unitScope.recordSimpleReference(name);
-		if ((mask & PACKAGE) != 0) {
-			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
-			if (packageBinding != null) return packageBinding;
-		}
-
-		// Answer error binding -- could not find name
-		if (foundType != null) return foundType; // problem type from above
-		return new ProblemReferenceBinding(name, NotFound);
-	}
 
 	// Added for code assist... NOT Public API
 	public final Binding getTypeOrPackage(char[][] compoundName) {
