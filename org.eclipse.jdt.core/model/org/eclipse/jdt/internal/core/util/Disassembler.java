@@ -492,7 +492,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 			}
 		}
-		if (classFileReader.isClass()) {
+		if ((accesssFlags & IModifierConstants.ACC_ENUM) != 0) {
+			buffer.append("enum "); //$NON-NLS-1$
+		} else if (classFileReader.isClass()) {
 			buffer.append("class "); //$NON-NLS-1$
 		} else {
 			buffer.append("interface "); //$NON-NLS-1$
