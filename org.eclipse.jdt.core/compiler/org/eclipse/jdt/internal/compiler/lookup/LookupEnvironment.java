@@ -701,7 +701,7 @@ public void reset() {
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
-	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
+	this.uniqueWildcardBindings = new SimpleLookupTable(10);
 	
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
