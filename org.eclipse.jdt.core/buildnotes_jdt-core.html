@@ -46,6 +46,32 @@ Eclipse SDK 3.0 Build - ?th June 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>IJavaProject#forceClasspathReload(IProgressMonitor)</code> to force reload of <code>.classpath</code> file
+before next automatic update occurs.
+<pre>
+/**
+ * Force the project to reload its <code>.classpath</code> file from disk and update the classpath accordingly.
+ * Usually, a change to the <code>.classpath</code> file is automatically noticed and reconciled at the next 
+ * resource change notification event. If required to consider such a change prior to the next automatic
+ * refresh, then this functionnality should be used to trigger a refresh. In particular, if a change to the file is performed,
+ * during an operation where this change needs to be reflected before the operation ends, then an explicit refresh is
+ * necessary.
+ * 
+ * @param monitor a progress monitor for reporting operation progress
+ * @exception JavaModelException if the classpath could not be updated. Reasons
+ * include:
+ *  - This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ *  - Two or more entries specify source roots with the same or overlapping paths (NAME_COLLISION)
+ *  - A entry of kind <code>CPE_PROJECT</code> refers to this project (INVALID_PATH)
+ *  - This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ *  - The output location path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
+ *  - The output location path is not an absolute path (<code>RELATIVE_PATH</code>)
+ *  - The output location path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
+ *  - The classpath is being modified during resource change event notification (CORE_EXCEPTION)
+ * @since 3.0
+ */
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
