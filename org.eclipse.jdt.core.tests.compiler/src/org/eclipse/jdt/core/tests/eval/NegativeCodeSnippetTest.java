@@ -187,7 +187,7 @@ public void testMissingDoubleQuote() {
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"System.out.println(\"3 + 3 = );",
 		"3 + 3"}), 
-		newProblem(IProblem.UnterminatedString , Error, 19, 30, 1)); // String literal is not properly closed by a double-quote
+		newProblem(IProblem.UnterminatedString , Error, 19, 29, 1)); // String literal is not properly closed by a double-quote
 }
 /**
  * Test an expression which is not the last statement.

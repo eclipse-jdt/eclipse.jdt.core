@@ -1120,9 +1120,11 @@ public int getNextToken() throws InvalidInputException {
 					try {
 						// consume next character
 						this.unicodeAsBackSlash = false;
+						boolean isUnicode = false;
 						if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 							&& (this.source[this.currentPosition] == 'u')) {
 							getNextUnicodeChar();
+							isUnicode = true;
 						} else {
 							if (this.withoutUnicodePtr != 0) {
 								this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
@@ -1133,15 +1135,29 @@ public int getNextToken() throws InvalidInputException {
 							/**** \r and \n are not valid in string literals ****/
 							if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
 								// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-								for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-									if (this.currentPosition + lookAhead == this.source.length)
-										break;
-									if (this.source[this.currentPosition + lookAhead] == '\n')
-										break;
-									if (this.source[this.currentPosition + lookAhead] == '\"') {
-										this.currentPosition += lookAhead + 1;
-										break;
+								if (isUnicode) {
+									int start = this.currentPosition;
+									for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+										if (this.currentPosition >= this.eofPosition) {
+											this.currentPosition = start;
+											break;
+										}
+										if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+											isUnicode = true;
+											getNextUnicodeChar();
+										} else {
+											isUnicode = false;
+										}
+										if (!isUnicode && this.currentCharacter == '\n') {
+											this.currentPosition--; // set current position on new line character
+											break;
+										}
+										if (this.currentCharacter == '\"') {
+											throw new InvalidInputException(INVALID_CHAR_IN_STRING);
+										}
 									}
+								} else {
+									this.currentPosition--; // set current position on new line character
 								}
 								throw new InvalidInputException(INVALID_CHAR_IN_STRING);
 							}
