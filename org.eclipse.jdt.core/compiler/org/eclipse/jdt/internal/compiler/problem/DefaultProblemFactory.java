@@ -144,7 +144,14 @@ public final String localizedMessage(IProblem problem) {
  * to the current Locale.
  */
 public static String[] loadMessageTemplates(Locale loc) {
-	ResourceBundle bundle = ResourceBundle.getBundle("org.eclipse.jdt.internal.compiler.problem.messages", loc); //$NON-NLS-1$
+	ResourceBundle bundle = null;
+	String bundleName = "org.eclipse.jdt.internal.compiler.problem.messages"; //$NON-NLS-1$
+	try {
+		bundle = ResourceBundle.getBundle(bundleName, loc); 
+	} catch(MissingResourceException e) {
+		System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + loc); //$NON-NLS-1$//$NON-NLS-2$
+		throw e;
+	}
 	String[] templates = new String[500];
 	for (int i = 0, max = templates.length; i < max; i++) {
 		try {

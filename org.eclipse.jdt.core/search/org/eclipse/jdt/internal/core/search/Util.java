@@ -101,7 +101,12 @@ public static String bind(String id) {
  * Creates a NLS catalog for the given locale.
  */
 public static void relocalize() {
-	bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+	try  {		
+		bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+	} catch(MissingResourceException e) {
+		System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+		throw e;
+	}
 }
 }
 

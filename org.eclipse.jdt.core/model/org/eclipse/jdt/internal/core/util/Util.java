@@ -29,10 +29,15 @@ public class Util {
 		"org.eclipse.jdt.internal.core.util.messages";	//$NON-NLS-1$
 
 	static {
-			/**
-			 * Creates a NLS catalog for the given locale.
-			 */
+		/**
+		 * Creates a NLS catalog for the given locale.
+		 */
+		try  {		
 			bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+		} catch(MissingResourceException e) {
+			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+			throw e;
+		}
 	}
 
 	/**
