@@ -295,7 +295,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			
 			// compute start and end of the last token
-			scanner.resetTo(nextCharacterPosition, selectionEnd);
+			scanner.resetTo(nextCharacterPosition, selectionEnd + 1);
 			do {
 				try {
 					token = scanner.getNextToken();
