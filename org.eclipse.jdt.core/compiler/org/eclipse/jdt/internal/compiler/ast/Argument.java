@@ -15,6 +15,7 @@ public class Argument extends LocalDeclaration {
 		super(null, name, (int) (posNom >>> 32), (int) posNom);
 		this.modifiers = modifiers;
 		type = tr;
+		this.bits |= IsLocalDeclarationReachableMASK;
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
