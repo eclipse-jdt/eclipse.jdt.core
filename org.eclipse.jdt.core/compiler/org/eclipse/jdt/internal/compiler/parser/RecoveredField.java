@@ -113,16 +113,28 @@ public FieldDeclaration updatedFieldDeclaration(){
 	if (this.anonymousTypes != null) {
 		if(fieldDeclaration.initialization == null) {
 			for (int i = 0; i < this.anonymousTypeCount; i++){
-				if (anonymousTypes[i].preserveContent){
-					fieldDeclaration.initialization = this.anonymousTypes[i].updatedTypeDeclaration().allocation;
+				RecoveredType recoveredType = anonymousTypes[i];
+				TypeDeclaration typeDeclaration = recoveredType.typeDeclaration;
+				if(typeDeclaration.declarationSourceEnd == 0) {
+					typeDeclaration.declarationSourceEnd = this.fieldDeclaration.declarationSourceEnd;
+					typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
+				}
+				if (recoveredType.preserveContent){
+					fieldDeclaration.initialization = recoveredType.updatedTypeDeclaration().allocation;
 				}
 			}
 			if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
 		} else if(fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 			// fieldDeclaration is an enum constant
 			for (int i = 0; i < this.anonymousTypeCount; i++){
-				if (anonymousTypes[i].preserveContent){
-					this.anonymousTypes[i].updatedTypeDeclaration();
+				RecoveredType recoveredType = anonymousTypes[i];
+				TypeDeclaration typeDeclaration = recoveredType.typeDeclaration;
+				if(typeDeclaration.declarationSourceEnd == 0) {
+					typeDeclaration.declarationSourceEnd = this.fieldDeclaration.declarationSourceEnd;
+					typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
+				}
+				if (recoveredType.preserveContent){
+					recoveredType.updatedTypeDeclaration();
 				}
 			}
 		}
