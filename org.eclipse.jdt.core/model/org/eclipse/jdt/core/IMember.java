@@ -49,6 +49,10 @@ IType getDeclaringType();
 /**
  * Returns the modifier flags for this member. The flags can be examined using class
  * <code>Flags</code>.
+ * <p>
+ * Note that only flags as indicated in the source are returned. Thus if an interface
+ * defines a method <code>void myMethod();</code> the flags don't include the
+ * 'public' flag.
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
