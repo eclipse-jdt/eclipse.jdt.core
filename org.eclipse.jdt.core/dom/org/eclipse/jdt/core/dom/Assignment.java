@@ -94,10 +94,10 @@ public class Assignment extends Expression {
 		/** &lt;&lt;== operator. */
 		public static final Operator LEFT_SHIFT_ASSIGN =
 			new Operator("<<=");//$NON-NLS-1$
-		/** &gt;&gt;== operator. */
+		/** &gt;&gt;= operator. */
 		public static final Operator RIGHT_SHIFT_SIGNED_ASSIGN =
 			new Operator(">>=");//$NON-NLS-1$
-		/** &gt;&gt;&gt;== operator. */
+		/** &gt;&gt;&gt;= operator. */
 		public static final Operator RIGHT_SHIFT_UNSIGNED_ASSIGN =
 			new Operator(">>>=");//$NON-NLS-1$
 		
