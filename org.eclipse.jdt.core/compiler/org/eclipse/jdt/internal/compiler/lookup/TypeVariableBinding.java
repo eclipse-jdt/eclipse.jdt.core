@@ -16,9 +16,16 @@ package org.eclipse.jdt.internal.compiler.lookup;
 public class TypeVariableBinding extends ReferenceBinding {
 	
 	public int rank; // declaration rank, can be used to match variable in parameterized type
-	public ReferenceBinding firstBound;
+
+	/**
+	 * Denote the first explicit (binding) bound amongst the supertypes (from declaration in source)
+	 * If no superclass was specified, then it denotes the first superinterface, or null if none was specified.
+	 */
+	public ReferenceBinding firstBound; 
+	
+	// actual resolved variable supertypes (if no superclass bound, then associated to Object)
 	public ReferenceBinding superclass;
-	public ReferenceBinding[] superInterfaces;
+	public ReferenceBinding[] superInterfaces; 
 	
 	public TypeVariableBinding(char[] sourceName, int rank){
 
