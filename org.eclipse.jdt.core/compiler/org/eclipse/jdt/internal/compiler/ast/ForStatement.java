@@ -260,9 +260,12 @@ public class ForStatement extends Statement {
 	}
 
 	public void resetStateForCodeGeneration() {
-
-		this.breakLabel.resetStateForCodeGeneration();
-		this.continueLabel.resetStateForCodeGeneration();
+		if (this.breakLabel != null) {
+			this.breakLabel.resetStateForCodeGeneration();
+		}
+		if (this.continueLabel != null) {
+			this.continueLabel.resetStateForCodeGeneration();
+		}
 	}
 
 	public void resolve(BlockScope upperScope) {

@@ -199,8 +199,9 @@ public class SwitchStatement extends Statement {
 
 
 	public void resetStateForCodeGeneration() {
-
-		this.breakLabel.resetStateForCodeGeneration();
+		if (this.breakLabel != null) {
+			this.breakLabel.resetStateForCodeGeneration();
+		}
 	}
 
 	public void resolve(BlockScope upperScope) {

@@ -393,8 +393,9 @@ public class TryStatement extends Statement {
 	}
 
 	public void resetStateForCodeGeneration() {
-
-		this.subRoutineStartLabel.resetStateForCodeGeneration();
+		if (this.subRoutineStartLabel != null) {
+			this.subRoutineStartLabel.resetStateForCodeGeneration();
+		}
 	}	
 
 	public void resolve(BlockScope upperScope) {

@@ -61,7 +61,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resetStateForCodeGeneration() {
-	this.targetLabel.resetStateForCodeGeneration();
+	if (this.targetLabel != null) {
+		this.targetLabel.resetStateForCodeGeneration();
+	}
 }
 
 public void resolve(BlockScope scope) {

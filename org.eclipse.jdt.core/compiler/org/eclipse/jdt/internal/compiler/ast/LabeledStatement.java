@@ -121,7 +121,8 @@ public class LabeledStatement extends Statement {
 	}
 
 	public void resetStateForCodeGeneration() {
-
-		this.targetLabel.resetStateForCodeGeneration();
+		if (this.targetLabel != null) {	
+			this.targetLabel.resetStateForCodeGeneration();
+		}
 	}
 }
