@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -728,23 +729,43 @@ public class TypeDeclaration
 	 */
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
-		if (!flowInfo.isReachable()) return;
+ 		if (!flowInfo.isReachable()) return;
 		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
 		
 		MethodScope methodScope = currentScope.methodScope();
 		if (!methodScope.isStatic && !methodScope.isConstructorCall){
-
-			nestedType.addSyntheticArgumentAndField(binding.enclosingType());	
+			nestedType.addSyntheticArgumentAndField(nestedType.enclosingType());	
 		}
 		// add superclass enclosing instance arg for anonymous types (if necessary)
-		if (binding.isAnonymousType()) { 
-			ReferenceBinding superclassBinding = (ReferenceBinding)binding.superclass.erasure();
+		if (nestedType.isAnonymousType()) {
+			ReferenceBinding superclassBinding = (ReferenceBinding)nestedType.superclass.erasure();
 			if (superclassBinding.enclosingType() != null && !superclassBinding.isStatic()) {
 				if (!superclassBinding.isLocalType()
 						|| ((NestedTypeBinding)superclassBinding).getSyntheticField(superclassBinding.enclosingType(), true) != null){
 
 					nestedType.addSyntheticArgument(superclassBinding.enclosingType());	
 				}
+			}
+			// From 1.5 on, provide access to enclosing instance synthetic constructor argument when declared inside constructor call
+			// only for direct anonymous type
+			//public class X {
+			//	void foo() {}
+			//	class M {
+			//		M(Object o) {}
+			//		M() { this(new Object() { void baz() { foo(); }}); } // access to #foo() indirects through constructor synthetic arg: val$this$0
+			//	}
+			//}
+			if (!methodScope.isStatic && methodScope.isConstructorCall && currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_5) {
+				ReferenceBinding enclosing = nestedType.enclosingType();
+				if (enclosing.isNestedType()) {
+					NestedTypeBinding nestedEnclosing = (NestedTypeBinding)enclosing;
+//					if (nestedEnclosing.findSuperTypeErasingTo(nestedEnclosing.enclosingType()) == null) { // only if not inheriting
+						SyntheticArgumentBinding syntheticEnclosingInstanceArgument = nestedEnclosing.getSyntheticArgument(nestedEnclosing.enclosingType(), true);
+						if (syntheticEnclosingInstanceArgument != null) {
+							nestedType.addSyntheticArgumentAndField(syntheticEnclosingInstanceArgument);	
+						}
+					}
+//				}
 			}
 		}
 	}

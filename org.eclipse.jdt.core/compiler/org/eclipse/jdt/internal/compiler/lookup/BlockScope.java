@@ -279,9 +279,11 @@ public class BlockScope extends Scope {
 	 */
 	public void emulateOuterAccess(LocalVariableBinding outerLocalVariable) {
 
-		MethodScope currentMethodScope;
-		if ((currentMethodScope = this.methodScope())
-			!= outerLocalVariable.declaringScope.methodScope()) {
+		BlockScope outerVariableScope = outerLocalVariable.declaringScope;
+		if (outerVariableScope == null)
+			return; // no need to further emulate as already inserted (val$this$0)
+		MethodScope currentMethodScope = this.methodScope();
+		if (outerVariableScope.methodScope() != currentMethodScope) {
 			NestedTypeBinding currentType = (NestedTypeBinding) this.enclosingSourceType();
 
 			//do nothing for member types, pre emulation was performed already
@@ -595,7 +597,8 @@ public class BlockScope extends Scope {
 		SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
 		// identity check
-		if (currentMethodScope == outerLocalVariable.declaringScope.methodScope()) {
+		BlockScope variableScope = outerLocalVariable.declaringScope;
+		if (variableScope == null /*val$this$0*/ || currentMethodScope == variableScope.methodScope()) {
 			return new VariableBinding[] { outerLocalVariable };
 			// implicit this is good enough
 		}
@@ -631,13 +634,13 @@ public class BlockScope extends Scope {
 	public Object[] getEmulationPath(
 			ReferenceBinding targetEnclosingType, 
 			boolean onlyExactMatch,
-			boolean ignoreEnclosingArgInConstructorCall) {
+			boolean denyEnclosingArgInConstructorCall) {
 				
 		MethodScope currentMethodScope = this.methodScope();
 		SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
 		// use 'this' if possible
-		if (!currentMethodScope.isConstructorCall && !currentMethodScope.isStatic) {
+		if (!currentMethodScope.isStatic && !currentMethodScope.isConstructorCall) {
 			if (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeErasingTo(targetEnclosingType) != null)) {
 				return EmulationPathToImplicitThis; // implicit this is good enough
 			}
@@ -656,7 +659,7 @@ public class BlockScope extends Scope {
 			SyntheticArgumentBinding syntheticArg;
 			if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, onlyExactMatch)) != null) {
 				// reject allocation and super constructor call
-				if (ignoreEnclosingArgInConstructorCall 
+				if (denyEnclosingArgInConstructorCall
 						&& currentMethodScope.isConstructorCall 
 						&& (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeErasingTo(targetEnclosingType) != null))) {
 					return NoEnclosingInstanceInConstructorCall;
@@ -669,6 +672,20 @@ public class BlockScope extends Scope {
 		if (currentMethodScope.isStatic) {
 			return NoEnclosingInstanceInStaticContext;
 		}
+		if (sourceType.isAnonymousType()) {
+			ReferenceBinding enclosingType = sourceType.enclosingType();
+			if (enclosingType.isNestedType()) {
+				NestedTypeBinding nestedEnclosingType = (NestedTypeBinding) enclosingType;
+				SyntheticArgumentBinding enclosingArgument = nestedEnclosingType.getSyntheticArgument(nestedEnclosingType.enclosingType(), onlyExactMatch);
+				if (enclosingArgument != null) {
+					FieldBinding syntheticField = sourceType.getSyntheticField(enclosingArgument);
+					if (syntheticField != null) {
+						if (syntheticField.type == targetEnclosingType || (!onlyExactMatch && ((ReferenceBinding)syntheticField.type).findSuperTypeErasingTo(targetEnclosingType) != null))
+							return new Object[] { syntheticField };
+					}
+				}
+			}
+		}
 		FieldBinding syntheticField = sourceType.getSyntheticField(targetEnclosingType, onlyExactMatch);
 		if (syntheticField != null) {
 			if (currentMethodScope.isConstructorCall){
@@ -676,6 +693,7 @@ public class BlockScope extends Scope {
 			}
 			return new Object[] { syntheticField };
 		}
+
 		// could be reached through a sequence of enclosing instance link (nested members)
 		Object[] path = new Object[2]; // probably at least 2 of them
 		ReferenceBinding currentType = sourceType.enclosingType();

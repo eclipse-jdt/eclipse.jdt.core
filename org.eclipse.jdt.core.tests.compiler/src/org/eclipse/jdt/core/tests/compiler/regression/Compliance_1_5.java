@@ -2315,11 +2315,6 @@ public void test066() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	super(new M(){});\n" + 
-		"	      ^^^^^^^^^\n" + 
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	super(new M(){});\n" + 
 		"	          ^^^\n" + 
 		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 		"----------\n");

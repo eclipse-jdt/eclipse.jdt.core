@@ -1806,11 +1806,24 @@ public void generateSyntheticEnclosingInstanceValues(
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
 		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
-		boolean complyTo14 = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
+		long compliance = currentScope.environment().options.complianceLevel;
+
 		// deny access to enclosing instance argument for allocation and super constructor call (if 1.4)
-		boolean ignoreEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression
-					|| (complyTo14 && ((invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess())));
-						
+		// always consider it if complying to 1.5
+		boolean denyEnclosingArgInConstructorCall;
+		if (compliance <= JDK1_3) {
+			denyEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression;
+		} else if (compliance == JDK1_4){
+			denyEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression
+				|| invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess();
+		} else {
+			//compliance >= JDK1_5
+			denyEnclosingArgInConstructorCall = (invocationSite instanceof AllocationExpression
+					|| invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess()) 
+				&& !targetType.isLocalType();
+		}
+		
+		boolean complyTo14 = compliance >= ClassFileConstants.JDK1_4;
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
 			if (hasExtraEnclosingInstance && syntheticArgType == targetEnclosingType) {
@@ -1825,7 +1838,7 @@ public void generateSyntheticEnclosingInstanceValues(
 				Object[] emulationPath = currentScope.getEmulationPath(
 						syntheticArgType, 
 						false /*not only exact match (that is, allow compatible)*/,
-						ignoreEnclosingArgInConstructorCall);
+						denyEnclosingArgInConstructorCall);
 				this.generateOuterAccess(emulationPath, invocationSite, syntheticArgType, currentScope);
 			}
 		}
