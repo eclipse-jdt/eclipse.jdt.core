@@ -165,7 +165,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		initsOnExceptions[index] =
 			initsOnExceptions[index] == FlowInfo.DEAD_END
 				? flowInfo.copy().unconditionalInits()
-				: initsOnExceptions[index].mergedWith(flowInfo);
+				: initsOnExceptions[index].mergedWith(flowInfo.copy().unconditionalInits());
 	}
 	
 	public void recordReturnFrom(FlowInfo flowInfo) {
@@ -174,7 +174,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		if (initsOnReturn == FlowInfo.DEAD_END) {
 			initsOnReturn = flowInfo.copy().unconditionalInits();
 		} else {
-			initsOnReturn = initsOnReturn.mergedWith(flowInfo.unconditionalInits());
+			initsOnReturn = initsOnReturn.mergedWith(flowInfo.copy().unconditionalInits());
 		}
 	}
 	
