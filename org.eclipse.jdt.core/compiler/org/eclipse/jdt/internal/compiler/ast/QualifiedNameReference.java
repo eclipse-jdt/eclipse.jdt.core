@@ -574,6 +574,12 @@ public class QualifiedNameReference extends NameReference {
 				}
 				type = field.type;
 				index++;
+				
+				if (field.isStatic()) {
+					// static field accessed through receiver? legal but unoptimal (optional warning)
+					scope.problemReporter().unnecessaryReceiverForStaticField(this, field);
+				}
+				
 			} else {
 				constant = NotAConstant; //don't fill other constants slots...
 				scope.problemReporter().invalidField(this, field, index, type);

@@ -242,11 +242,18 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, i.e. a NameReference that the TC has bound to a Type
-		if (receiver instanceof NameReference) {
-			if ((((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
-				scope.problemReporter().mustUseAStaticMethod(this, binding);
-				return null;
-			}
+		if (receiver instanceof NameReference 
+				&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
+			scope.problemReporter().mustUseAStaticMethod(this, binding);
+			return binding.returnType;
+		}
+	} else {
+		// static message invoked through receiver? legal but unoptimal (optional warning).
+		if (!(receiver == ThisReference.ThisImplicit
+				|| receiver.isSuper()
+				|| (receiver instanceof NameReference 
+					&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
+			scope.problemReporter().unnecessaryReceiverForStaticMethod(this, binding);
 		}
 	}
 	if (arguments != null)
@@ -257,7 +264,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (binding.isAbstract()) {
 		if (receiver.isSuper()) {
 			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, binding);
-			return null;
+			return binding.returnType;
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}

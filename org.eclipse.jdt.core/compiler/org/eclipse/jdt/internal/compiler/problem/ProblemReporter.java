@@ -479,6 +479,15 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
+		case IProblem.NonStaticAccessToStaticMethod :
+		case IProblem.NonStaticAccessToStaticField :
+			if ((errorThreshold & CompilerOptions.StaticAccessReceiver) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.StaticAccessReceiver) != 0){
+				return Warning;
+			}
+			return Ignore;		
 		default:
 			return Error;
 	}
@@ -1715,6 +1724,7 @@ public void mustUseAStaticMethod(MessageSend messageSend, MethodBinding method) 
 		messageSend.sourceStart,
 		messageSend.sourceEnd);
 }
+
 public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.NativeMethodsCannotBeStrictfp,
@@ -2268,6 +2278,20 @@ public void unnecessaryEnclosingInstanceSpecification(Expression expression, Ref
 		new String[]{ new String(targetType.readableName())},
 		expression.sourceStart,
 		expression.sourceEnd);
+}
+public void unnecessaryReceiverForStaticMethod(AstNode location, MethodBinding method) {
+	this.handle(
+		IProblem.NonStaticAccessToStaticMethod,
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void unnecessaryReceiverForStaticField(AstNode location, FieldBinding field) {
+	this.handle(
+		IProblem.NonStaticAccessToStaticField,
+		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void unreachableCode(Statement statement) {
 	this.handle(

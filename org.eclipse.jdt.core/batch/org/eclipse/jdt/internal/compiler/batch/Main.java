@@ -644,6 +644,9 @@ public class Main implements ProblemSeverities {
 				options.put(
 					CompilerOptions.OPTION_ReportUnusedImport,
 					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportStaticAccessReceiver,
+					CompilerOptions.IGNORE);
 
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
@@ -683,6 +686,10 @@ public class Main implements ProblemSeverities {
 					} else if (token.equals("nls")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+							CompilerOptions.WARNING);
+					} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportStaticAccessReceiver,
 							CompilerOptions.WARNING);
 					} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
 						options.put(

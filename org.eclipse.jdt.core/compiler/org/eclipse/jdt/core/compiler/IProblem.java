@@ -206,7 +206,8 @@ public interface IProblem {
 	int UsingDeprecatedField = FieldRelated + 73;
 	int NonStaticFieldFromStaticInvocation = FieldRelated + 74;
 	int ReferenceToForwardField = FieldRelated + Internal + 75;
-
+	int NonStaticAccessToStaticField = Internal + FieldRelated + 76;
+	
 	// blank final fields
 	int FinalFieldAssignment = FieldRelated + 80;
 	int UninitializedBlankFinalField = FieldRelated + 81;
@@ -229,6 +230,7 @@ public interface IProblem {
 	int NoMessageSendOnBaseType = MethodRelated + 114;
 	int ParameterMismatch = MethodRelated + 115;
 	int NoMessageSendOnArrayType = MethodRelated + 116;
+    int NonStaticAccessToStaticMethod = Internal + MethodRelated + 117;
     
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;

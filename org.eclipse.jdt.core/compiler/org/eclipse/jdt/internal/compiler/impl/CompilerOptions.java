@@ -46,6 +46,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
 	public static final String OPTION_Encoding = "org.eclipse.jdt.core.encoding"; //$NON-NLS-1$
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
+	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -81,6 +82,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int NonExternalizedString = 0x100000;
 	public static final int AssertUsedAsAnIdentifier = 0x200000;
 	public static final int UnusedImport = 0x400000;
+	public static final int StaticAccessReceiver = 0x800000;
 		
 	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
@@ -430,6 +432,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}				
 				continue;
 			}
+			// Report unnecessary receiver for static access
+			if(optionID.equals(OPTION_ReportStaticAccessReceiver)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= StaticAccessReceiver;
+					this.warningThreshold &= ~StaticAccessReceiver;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~StaticAccessReceiver;
+					this.warningThreshold |= StaticAccessReceiver;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~StaticAccessReceiver;
+					this.warningThreshold &= ~StaticAccessReceiver;
+				}
+				continue;
+			} 
 		}
 	}
 	

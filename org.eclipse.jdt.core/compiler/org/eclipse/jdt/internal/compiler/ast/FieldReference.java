@@ -533,6 +533,15 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (receiver != ThisReference.ThisImplicit)
 			constant = NotAConstant;
 
+		if (binding.isStatic()) {
+			// static field accessed through receiver? legal but unoptimal (optional warning)
+			if (!(receiver == ThisReference.ThisImplicit
+					|| receiver.isSuper()
+					|| (receiver instanceof NameReference 
+						&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
+				scope.problemReporter().unnecessaryReceiverForStaticField(this, binding);
+			}
+		}
 		return binding.type;
 	}
 
