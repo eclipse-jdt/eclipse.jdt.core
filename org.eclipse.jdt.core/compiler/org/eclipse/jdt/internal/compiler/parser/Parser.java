@@ -3171,7 +3171,11 @@ protected void consumeExitVariableWithoutInitialization() {
 	
 	AbstractVariableDeclaration variableDecl = (AbstractVariableDeclaration) this.astStack[this.astPtr];
 	variableDecl.declarationSourceEnd = variableDecl.declarationEnd;
-	
+	if(this.currentElement != null && this.currentElement instanceof RecoveredField) {
+		if(this.endStatementPosition > variableDecl.sourceEnd) {
+			this.currentElement.updateSourceEndIfNecessary(this.endStatementPosition);
+		}
+	}
 	this.recoveryExitFromVariable();
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
@@ -6870,6 +6874,9 @@ protected void consumeToken(int type) {
 			break;
 			//let extra semantic action decide when to push
 		case TokenNameRBRACKET :
+			this.endPosition = this.scanner.startPosition;
+			this.endStatementPosition = this.scanner.currentPosition - 1;
+			break;
 		case TokenNamePLUS :
 		case TokenNameMINUS :
 		case TokenNameNOT :
