@@ -197,6 +197,7 @@ public class CastExpression extends Expression {
 						}
 					}
 			}
+			return;
 		}
 		needRuntimeCheckcast = true;
 		return;
