@@ -172,6 +172,12 @@ public interface IJavaElementDelta {
 	 * Change flag indicating that this is a fine-grained delta, i.e. an analysis down
 	 * to the members level was done to determine if there were structural changes to
 	 * members.
+	 * <p>
+	 * Clients can use this flag to find out if a compilation unit 
+     * that have a <code>F_CONTENT</code> change should assume that there are 
+     * no finer grained changes (<code>F_FINE_GRAINED</code> is set) or if 
+     * finer grained changes were not considered (<code>F_FINE_GRAINED</code> 
+     * is not set). 
 	 */
 	public int F_FINE_GRAINED = 0x4000;
 /**
