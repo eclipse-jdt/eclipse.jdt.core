@@ -165,7 +165,6 @@ public class ToolFactory {
 		if (root != null){
 			try {
 				if (root instanceof JarPackageFragmentRoot) {
-						
 					String archiveName = null;
 					ZipFile jar = null;
 					try {
@@ -209,11 +208,12 @@ public class ToolFactory {
 	 * @see IClassFileReader
 	 */
 	public static IClassFileReader createDefaultClassFileReader(String zipFileName, String zipEntryName, int decodingFlag){
+		ZipFile zipFile = null;
 		try {
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 				System.out.println("(" + Thread.currentThread() + ") [ToolFactory.createDefaultClassFileReader()] Creating ZipFile on " + zipFileName); //$NON-NLS-1$	//$NON-NLS-2$
 			}
-			ZipFile zipFile = new ZipFile(zipFileName);
+			zipFile = new ZipFile(zipFileName);
 			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
 			if (zipEntry == null) {
 				return null;
@@ -227,6 +227,14 @@ public class ToolFactory {
 			return null;
 		} catch(IOException e) {
 			return null;
+		} finally {
+			if (zipFile != null) {
+				try {
+					zipFile.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
 		}
 	}	
 	
