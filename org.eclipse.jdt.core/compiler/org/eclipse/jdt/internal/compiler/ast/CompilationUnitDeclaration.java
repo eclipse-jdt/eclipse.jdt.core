@@ -90,16 +90,36 @@ public class CompilationUnitDeclaration
 	 */
 	public void cleanUp() {
 
+		if (this.types != null) {
+			for (int i = 0, max = this.types.length; i < max; i++) {
+				cleanUp(this.types[i]);
+			}
+			if (this.allLocalTypes != null) {
+				for (int i = 0, max = this.allLocalTypes.length; i < max; i++) {
+					allLocalTypes[i].scope = null; // local members are already in the list
+				}
+			}
+		}
 		ClassFile[] classFiles = compilationResult.getClassFiles();
 		for (int i = 0, max = classFiles.length; i < max; i++) {
 			// clear the classFile back pointer to the bindings
 			ClassFile classFile = classFiles[i];
 			// null out the type's scope backpointers
-			 ((SourceTypeBinding) classFile.referenceBinding).scope = null;
+			((SourceTypeBinding) classFile.referenceBinding).scope = null; // TODO: should no longer be necessary
 			// null out the classfile backpointer to a type binding
 			classFile.referenceBinding = null;
 			classFile.codeStream = null; // codeStream holds onto ast and scopes
 			classFile.innerClassesBindings = null;
+		}
+	}
+	private void cleanUp(TypeDeclaration type) {
+		if (type.memberTypes != null) {
+			for (int i = 0, max = type.memberTypes.length; i < max; i++){
+				cleanUp(type.memberTypes[i]);
+			}
+		}
+		if (type.binding != null) {
+			type.binding.scope = null;
 		}
 	}
 
@@ -202,7 +222,12 @@ public class CompilationUnitDeclaration
 		isPropagatingInnerClassEmulation = true;
 		if (allLocalTypes != null) {
 			for (int i = 0, max = allLocalTypes.length; i < max; i++) {
-				allLocalTypes[i].updateInnerEmulationDependents();
+				
+				LocalTypeBinding localType = allLocalTypes[i];
+				// only propagate for reachable local types
+				if ((localType.scope.referenceType().bits & IsReachableMASK) != 0) {
+					localType.updateInnerEmulationDependents();
+				}
 			}
 		}
 	}
@@ -211,7 +236,7 @@ public class CompilationUnitDeclaration
 	 * Keep track of all local types, so as to update their innerclass
 	 * emulation later on.
 	 */
-	public void record(LocalTypeBinding localType) {
+	public void record(LocalTypeBinding localType) { //TODO: should improve to avoid recreating arrays for each addition 
 
 		if (allLocalTypes == null) {
 			allLocalTypes = new LocalTypeBinding[] { localType };

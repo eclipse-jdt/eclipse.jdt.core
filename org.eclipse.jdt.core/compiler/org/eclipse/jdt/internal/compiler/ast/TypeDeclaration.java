@@ -123,10 +123,9 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return flowInfo;
 		try {
+			bits |= IsReachableMASK;
 			LocalTypeBinding localType = (LocalTypeBinding) binding;
 			
-			// remember local types binding for innerclass emulation propagation
-			currentScope.referenceCompilationUnit().record(localType);
 			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
 			manageEnclosingInstanceAccessIfNecessary(currentScope);
 			
@@ -167,10 +166,9 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
+			bits |= IsReachableMASK;
 			LocalTypeBinding localType = (LocalTypeBinding) binding;
 
-			// remember local types binding for innerclass emulation propagation
-			currentScope.referenceCompilationUnit().record(localType);
 			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
 			manageEnclosingInstanceAccessIfNecessary(currentScope);
 			
@@ -802,6 +800,9 @@ public class TypeDeclaration
 
 		// and TC....
 		if (binding != null) {
+			// remember local types binding for innerclass emulation propagation
+			blockScope.referenceCompilationUnit().record((LocalTypeBinding)binding);
+
 			// binding is not set if the receiver could not be created
 			resolve();
 			updateMaxFieldCount();
@@ -812,6 +813,10 @@ public class TypeDeclaration
 		// member scopes are already created
 		// request the construction of a binding if local member type
 
+		if (binding != null && binding instanceof LocalTypeBinding) {
+			// remember local types binding for innerclass emulation propagation
+			upperScope.referenceCompilationUnit().record((LocalTypeBinding)binding);
+		}
 		resolve();
 		updateMaxFieldCount();
 	}

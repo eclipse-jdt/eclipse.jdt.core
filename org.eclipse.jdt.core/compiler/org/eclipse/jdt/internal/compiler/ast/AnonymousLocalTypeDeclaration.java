@@ -110,6 +110,10 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 	}
 	public void resolve(BlockScope scope) {
 
+		if (binding != null) {
+			// remember local types binding for innerclass emulation propagation
+			scope.referenceCompilationUnit().record((LocalTypeBinding)binding);
+		}
 		// scope and binding are provided in updateBindingSuperclass 
 		resolve();
 		updateMaxFieldCount();
