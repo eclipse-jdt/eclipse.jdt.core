@@ -31,26 +31,38 @@ public interface IClassFileReader {
 	 * This value should be used to read the constant pool entries and 
 	 * the method infos of a .class file.
 	 */
-	int METHOD_INFOS 			= 0x0003;
+	int METHOD_INFOS 			= 0x0002 + CONSTANT_POOL;
 
 	/**
 	 * This value should be used to read the constant pool entries and 
 	 * the field infos of a .class file.
 	 */
-	int FIELD_INFOS 			= 0x0005;
+	int FIELD_INFOS 			= 0x0004 + CONSTANT_POOL;
 
 	/**
 	 * This value should be used to read the constant pool entries and 
 	 * the super interface names of a .class file.
 	 */
-	int SUPER_INTERFACES 		= 0x0009;
+	int SUPER_INTERFACES 		= 0x0008 + CONSTANT_POOL;
 
 	/**
 	 * This value should be used to read the constant pool entries and 
 	 * the attributes of a .class file.
 	 */
-	int CLASSFILE_ATTRIBUTES 	= 0x0011;
+	int CLASSFILE_ATTRIBUTES 	= 0x0010 + CONSTANT_POOL;
 
+	/**
+	 * This value should be used to read the method bodies.
+	 * It has to be used with METHOD_INFOS.
+	 */
+	int METHOD_BODIES 			= 0x0020;
+
+	/**
+	 * This value should be used to read the whole contents of the .class file except the
+	 * method bodies.
+	 */
+	int ALL_BUT_METHOD_BODIES   = ALL & ~METHOD_BODIES;
+	
 	/**
 	 * Answer back the access flag of the .class file.
 	 * 

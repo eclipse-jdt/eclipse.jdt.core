@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
@@ -41,9 +42,12 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	 * @param classFileBytes byte[]
 	 * @param offsets int[]
 	 * @param offset int
+	 * @param decodingFlags int
 	 */
-	public MethodInfo(byte classFileBytes[], IConstantPool constantPool, int offset)
+	public MethodInfo(byte classFileBytes[], IConstantPool constantPool, int offset, int decodingFlags)
 		throws ClassFormatException {
+			
+		boolean no_code_attribute = (decodingFlags & IClassFileReader.METHOD_BODIES) == 0;
 		accessFlags = u2At(classFileBytes, 0, offset);
 		
 		this.nameIndex = u2At(classFileBytes, 2, offset);
@@ -63,7 +67,13 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		this.attributesCount = u2At(classFileBytes, 6, offset);
 		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 		if (this.attributesCount != 0) {
-			this.attributes = new IClassFileAttribute[this.attributesCount];
+			if (no_code_attribute) {
+				if (this.attributesCount != 1) {
+					this.attributes = new IClassFileAttribute[this.attributesCount - 1];
+				}
+			} else {
+				this.attributes = new IClassFileAttribute[this.attributesCount];
+			}
 		}
 		int attributesIndex = 0;
 		int readOffset = 8;
@@ -80,8 +90,10 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 				this.isSynthetic = true;
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.CODE)) {
-				this.codeAttribute = new CodeAttribute(classFileBytes, constantPool, offset + readOffset);
-				this.attributes[attributesIndex++] = this.codeAttribute;
+				if (!no_code_attribute) {
+					this.codeAttribute = new CodeAttribute(classFileBytes, constantPool, offset + readOffset);
+					this.attributes[attributesIndex++] = this.codeAttribute;
+				}
 			} else if (equals(attributeName, IAttributeNamesConstants.EXCEPTIONS)) {
 				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.exceptionAttribute;

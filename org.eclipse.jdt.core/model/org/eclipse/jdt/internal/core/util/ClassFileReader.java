@@ -140,6 +140,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						readOffset += IConstantPoolConstant.CONSTANT_NameAndType_SIZE;
 				}
 			}
+			
 			this.constantPool = new ConstantPool(classFileBytes, constantPoolOffsets);
 			// Read and validate access flags
 			this.accessFlags = u2At(classFileBytes, readOffset, 0);
@@ -165,7 +166,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			this.interfaceNames = NO_INTERFACES_NAMES;
 			this.interfaceIndexes = NO_INTERFACE_INDEXES;
 			if (this.interfacesCount != 0) {
-				if ((decodingFlags & IClassFileReader.SUPER_INTERFACES) != 0) {
+				if ((decodingFlags & IClassFileReader.SUPER_INTERFACES) != IClassFileReader.CONSTANT_POOL) {
 					this.interfaceNames = new char[this.interfacesCount][];
 					this.interfaceIndexes = new int[this.interfacesCount];
 					for (int i = 0; i < this.interfacesCount; i++) {
@@ -182,7 +183,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			readOffset += 2;
 			this.fields = NO_FIELD_INFOS;
 			if (this.fieldsCount != 0) {
-				if ((decodingFlags & IClassFileReader.FIELD_INFOS) != 0) {
+				if ((decodingFlags & IClassFileReader.FIELD_INFOS) != IClassFileReader.CONSTANT_POOL) {
 					FieldInfo field;
 					this.fields = new FieldInfo[this.fieldsCount];
 					for (int i = 0; i < this.fieldsCount; i++) {
@@ -208,11 +209,11 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			readOffset += 2;
 			this.methods = NO_METHOD_INFOS;
 			if (this.methodsCount != 0) {
-				if ((decodingFlags & IClassFileReader.METHOD_INFOS) != 0) {
+				if ((decodingFlags & IClassFileReader.METHOD_INFOS) != IClassFileReader.CONSTANT_POOL) {
 					this.methods = new MethodInfo[this.methodsCount];
 					MethodInfo method;
 					for (int i = 0; i < this.methodsCount; i++) {
-						method = new MethodInfo(classFileBytes, this.constantPool, readOffset);
+						method = new MethodInfo(classFileBytes, this.constantPool, readOffset, decodingFlags);
 						this.methods[i] = method;
 						readOffset += method.sizeInBytes();
 					}
@@ -236,29 +237,33 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 
 			int attributesIndex = 0;
 			this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
-			if ((decodingFlags & IClassFileReader.CLASSFILE_ATTRIBUTES) != 0) {
-				if (this.attributesCount != 0) {
+			if (this.attributesCount != 0) {
+				if ((decodingFlags & IClassFileReader.CLASSFILE_ATTRIBUTES) != IClassFileReader.CONSTANT_POOL) {
 					this.attributes = new IClassFileAttribute[this.attributesCount];
-				}
-				for (int i = 0; i < attributesCount; i++) {
-					int utf8Offset = constantPoolOffsets[u2At(classFileBytes, readOffset, 0)];
-					char[] attributeName = utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
-					if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
-						this.isDeprecated = true;
-						this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
-					} else if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
-						this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
-						this.attributes[attributesIndex++] = this.innerClassesAttribute;
-					} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
-							this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
-							this.attributes[attributesIndex++] = this.sourceFileAttribute;
-					} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-							this.isSynthetic = true;
+					for (int i = 0; i < attributesCount; i++) {
+						int utf8Offset = constantPoolOffsets[u2At(classFileBytes, readOffset, 0)];
+						char[] attributeName = utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
+						if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
+							this.isDeprecated = true;
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
-					} else {
-						this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
+							this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.innerClassesAttribute;
+						} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
+								this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
+								this.attributes[attributesIndex++] = this.sourceFileAttribute;
+						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
+								this.isSynthetic = true;
+								this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+						} else {
+							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+						}
+						readOffset += (6 + u4At(classFileBytes, readOffset + 2, 0));
+					}					
+				} else {
+					for (int i = 0; i < attributesCount; i++) {
+						readOffset += (6 + u4At(classFileBytes, readOffset + 2, 0));
 					}
-					readOffset += (6 + u4At(classFileBytes, readOffset + 2, 0));
 				}
 			}
 			if (readOffset != classFileBytes.length) {

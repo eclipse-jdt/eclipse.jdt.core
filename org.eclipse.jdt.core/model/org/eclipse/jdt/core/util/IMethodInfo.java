@@ -27,7 +27,7 @@ public interface IMethodInfo {
 	char[] getDescriptor();
 
 	/**
-	 * Answer back the descriptor index of this field info.
+	 * Answer back the descriptor index of this method info.
 	 * 
 	 * @return <CODE>int</CODE>
 	 */
@@ -50,7 +50,7 @@ public interface IMethodInfo {
 	char[] getName();
 
 	/**
-	 * Answer back the name index of this field info.
+	 * Answer back the name index of this method info.
 	 * 
 	 * @return <CODE>int</CODE>
 	 */
@@ -89,7 +89,8 @@ public interface IMethodInfo {
 	boolean isDeprecated();
 
 	/**
-	 * Answer the code attribute of this method info, null if none.
+	 * Answer the code attribute of this method info, null if none or if the decoding
+	 * flag doesn't include METHOD_BODIES.
 	 * 
 	 * @return org.eclipse.jdt.core.util.ICodeAttribute
 	 */
@@ -103,15 +104,17 @@ public interface IMethodInfo {
 	IExceptionAttribute getExceptionAttribute();
 	
 	/**
-	 * Answer back the attribute number of the field info.
+	 * Answer back the attribute number of the method info. It includes the CodeAttribute
+	 * if any even if the decoding flags doesn't include METHOD_BODIES.
 	 * 
 	 * @return <CODE>int</CODE>
 	 */
 	int getAttributeCount();
 	
 	/**
-	 * Answer back the collection of all attributes of the field info. It 
-	 * includes SyntheticAttribute, CodeAttributes, etc.
+	 * Answer back the collection of all attributes of the method info. It 
+	 * includes SyntheticAttribute, CodeAttributes, etc. It doesn't include the
+	 * CodeAttribute if the decoding flags doesn't include METHOD_BODIES.
 	 * Returns an empty collection if none.
 	 * 
 	 * @return IClassFileAttribute[]
