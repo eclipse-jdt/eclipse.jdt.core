@@ -198,6 +198,93 @@ public void test33() {
 	assertEquals("SplitTrim failure", "[][hello]", buffer.toString());
 }
 
+public void test34() {
+
+	assertTrue("Path pattern matching failure",
+		CharOperation.pathMatch("hello/*/World".toCharArray(), "hello/zzz/World".toCharArray(), true, '/'));
+}
+
+public void test35() {
+
+	assertTrue("Path pattern matching failure",
+		CharOperation.pathMatch("hello/**/World".toCharArray(), "hello/x/y/z/World".toCharArray(), true, '/'));
+}
+
+public void test36() {
+
+	assertTrue("Path pattern matching failure",
+		CharOperation.pathMatch("hello/**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+}
+
+public void test37() {
+
+	assertTrue("Path pattern matching failure",
+		CharOperation.pathMatch("**/World/**/*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+}
+
+public void test38() {
+
+	assertTrue("Path pattern matching failure",
+		!CharOperation.pathMatch("*.java".toCharArray(), "hello/x/y/z/World/X.java".toCharArray(), true, '/'));
+}
+
+/*
+ * From Ant pattern set examples */
+public void test39() {
+
+	assertTrue("Path pattern matching failure-1",
+		CharOperation.pathMatch("**/CVS/*".toCharArray(), "CVS/Repository".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		CharOperation.pathMatch("**/CVS/*".toCharArray(), "org/apache/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-3",
+		CharOperation.pathMatch("**/CVS/*".toCharArray(), "org/apache/jakarta/tools/ant/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-4",
+		!CharOperation.pathMatch("**/CVS/*".toCharArray(), "org/apache/CVS/foo/bar/Entries".toCharArray(), true, '/'));
+}
+
+/*
+ * From Ant pattern set examples
+ */
+public void test40() {
+
+	assertTrue("Path pattern matching failure-1",
+		CharOperation.pathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/jakarta/tools/ant/docs/index.html".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		CharOperation.pathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/jakarta/test.xml".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-3",
+		!CharOperation.pathMatch("org/apache/jakarta/**".toCharArray(), "org/apache/xyz.java".toCharArray(), true, '/'));
+}
+
+/*
+ * From Ant pattern set examples
+ */
+public void test41() {
+
+	assertTrue("Path pattern matching failure-1",
+		CharOperation.pathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		CharOperation.pathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/jakarta/tools/ant/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-3",
+		!CharOperation.pathMatch("org/apache/**/CVS/*".toCharArray(), "org/apache/CVS/foo/bar/Entries".toCharArray(), true, '/'));
+}
+
+/*
+ * From Ant pattern set examples
+ */
+public void test42() {
+
+	assertTrue("Path pattern matching failure-1",
+		CharOperation.pathMatch("**/test/**".toCharArray(), "org/apache/test/CVS/Entries".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		CharOperation.pathMatch("**/test/**".toCharArray(), "test".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-3",
+		CharOperation.pathMatch("**/test/**".toCharArray(), "a/test".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-4",
+		CharOperation.pathMatch("**/test/**".toCharArray(), "test/a.java".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-5",
+		!CharOperation.pathMatch("**/test/**".toCharArray(), "org/apache/test.java".toCharArray(), true, '/'));
+}
+
 public static Class testClass() {
 	return UtilTest.class;
 }
