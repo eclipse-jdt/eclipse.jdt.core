@@ -1779,42 +1779,18 @@ public final class CompletionEngine
 					continue next;
 			}
 
-			MethodBinding[] existingMethods = receiverType.availableMethods();
-			for(int i =0, length = existingMethods == null ? 0 : existingMethods.length; i < length ; i++){
-				MethodBinding existingMethod = existingMethods[i];
-				if (CharOperation.equals(method.selector, existingMethod.selector, true)
-					&& method.areParametersEqual(existingMethod)){
-					continue next;	
-				}
-			}
-
 			for (int i = methodsFound.size; --i >= 0;) {
-				Object[] other = (Object[]) methodsFound.elementAt(i);
-				MethodBinding otherMethod = (MethodBinding) other[0];
+				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
 				if (method == otherMethod)
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
 					&& method.areParametersEqual(otherMethod)) {
-
-					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
-						continue next;
-
-					if (otherMethod.declaringClass.isInterface())
-						if (method
-							.declaringClass
-							.implementsInterface(otherMethod.declaringClass, true))
-							continue next;
-							
-					if (method.declaringClass.isInterface())
-						if(otherMethod
-							.declaringClass
-							.implementsInterface(method.declaringClass,true))
-							continue next;
+					continue next;
 				}
 			}
 
-			methodsFound.add(new Object[]{method, receiverType});
+			methodsFound.add(method);
 			
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
@@ -1923,10 +1899,18 @@ public final class CompletionEngine
 		InvocationSite invocationSite,
 		Scope invocationScope,
 		boolean implicitCall) {
-
 		if (selector == null)
 			return;
-			
+		
+		if(isCompletingDeclaration) {
+			MethodBinding[] methods = receiverType.availableMethods();
+			for (int i = 0; i < methods.length; i++) {
+				if(!methods[i].isDefaultAbstract()) {
+					methodsFound.add(methods[i]);
+				}
+			}
+		}
+		
 		ReferenceBinding currentType = receiverType;
 		if (receiverType.isInterface()) {
 			if(isCompletingDeclaration) {
@@ -1981,9 +1965,7 @@ public final class CompletionEngine
 		}
 		boolean hasPotentialDefaultAbstractMethods = true;
 		while (currentType != null) {
-
 			if(isCompletingDeclaration){
-
 				findLocalMethodDeclarations(
 					selector,
 					currentType.availableMethods(),
@@ -1993,7 +1975,6 @@ public final class CompletionEngine
 					exactMatch,
 					receiverType);
 			} else{
-
 				findLocalMethods(
 					selector,
 					argTypes,
