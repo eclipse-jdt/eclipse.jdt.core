@@ -167,6 +167,19 @@ public abstract class Scope
 				return null; // incompatible
 
 		if (typeVariables != NoTypeVariables) { // generic method
+			TypeBinding[] newArgs = null;
+			for (int i = 0; i < argLength; i++) {
+				TypeBinding param = i < paramLength ? parameters[i] : parameters[paramLength - 1];
+				if (arguments[i].isBaseType() != param.isBaseType()) {
+					if (newArgs == null) {
+						newArgs = new TypeBinding[argLength];
+						System.arraycopy(arguments, 0, newArgs, 0, argLength);
+					}
+					newArgs[i] = environment().computeBoxingType(arguments[i]);
+				}	
+			}
+			if (newArgs != null)
+				arguments = newArgs;
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence

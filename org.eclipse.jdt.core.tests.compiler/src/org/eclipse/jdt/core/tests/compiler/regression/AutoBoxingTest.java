@@ -1984,39 +1984,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}	
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
-	public void test077() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				" Object e() {\n" +
-				" int i = 12; \n" +
-				"  boolean b = false;\n" +
-				"  switch(i) {\n" +
-				"    case 0: return i > 0;\n" +
-				"    case 1: return i >= 0;\n" +
-				"    case 2: return i < 0;\n" +
-				"    case 3: return i <= 0;\n" +
-				"    case 4: return i == 0;\n" +
-				"    case 5: return i != 0;\n" +
-				"    case 6: return i & 0;\n" +
-				"    case 7: return i ^ 0;\n" +
-				"    case 8: return i | 0;\n" +
-				"    case 9: return b && b;\n" +
-				"    default: return b || b;\n" +
-				"  }\n" +
-				" }\n" +
-				" public static void main(String[] args) {\n" +
-				"  System.out.print(new X().e());\n" +
-				" }\n" +
-				"}",
-			},
-			"false");
-	}	
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
 	public void test076() {
 		this.runNegativeTest(
@@ -2107,5 +2076,57 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}		
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82432 - variation
+	public void test077() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" Object e() {\n" +
+				" int i = 12; \n" +
+				"  boolean b = false;\n" +
+				"  switch(i) {\n" +
+				"    case 0: return i > 0;\n" +
+				"    case 1: return i >= 0;\n" +
+				"    case 2: return i < 0;\n" +
+				"    case 3: return i <= 0;\n" +
+				"    case 4: return i == 0;\n" +
+				"    case 5: return i != 0;\n" +
+				"    case 6: return i & 0;\n" +
+				"    case 7: return i ^ 0;\n" +
+				"    case 8: return i | 0;\n" +
+				"    case 9: return b && b;\n" +
+				"    default: return b || b;\n" +
+				"  }\n" +
+				" }\n" +
+				" public static void main(String[] args) {\n" +
+				"  System.out.print(new X().e());\n" +
+				" }\n" +
+				"}",
+			},
+			"false");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81923
+	public void test078() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"	public <A extends T> X(A... t) {}\n" +
+				"	<T> void foo(T... t) {}\n" +
+				"	<T> void zip(T t) {}\n" +
+				"	void test() {\n" +
+				"		new X<Integer>(10, 20);\n" +
+				"		foo(10);\n" +
+				"		foo(10, 20);\n" +
+				"		zip(10);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			""
+		);
+	}
 }
