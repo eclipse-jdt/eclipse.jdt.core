@@ -41,11 +41,9 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 			int offset) throws ClassFormatException {
 		
 		this.typeIndex = u2At(classFileBytes, 0, offset);
-		// TODO should be u1
 		final int length = u2At(classFileBytes, 2, offset);
 		this.componentsNumber = length;
 		if (length != 0) {
-			// TODO should be 3
 			this.readOffset = 4;
 			this.components = new IAnnotationComponent[length];
 			for (int i = 0; i < length; i++) {
