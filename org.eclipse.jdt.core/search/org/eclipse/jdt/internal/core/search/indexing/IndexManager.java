@@ -67,7 +67,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	/* projects to check consistency for */
 	IProject[] projectsToCheck = null;
 
-	static String IsRunning = "IndexerIsRunning";
+	static String IsRunning = "IndexerIsRunning"; //$NON-NLS-1$
 	private File isRunningLock;
 
 /**

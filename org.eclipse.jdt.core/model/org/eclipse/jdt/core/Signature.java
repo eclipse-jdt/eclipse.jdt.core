@@ -435,142 +435,127 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 	int length = typeName.length;
 	if (length == 0) throw new IllegalArgumentException(new String(typeName));
 
-	boolean primitive = false;
-	char primitiveSig = ' ';
-	int index = 0;
+	int arrayCount = CharOperation.occurencesOf('[', typeName);
+	char[] sig;
 	
-	// primitive type?
-	switch (typeName[index]) {
+	switch (typeName[0]) {
+		// primitive type?
 		case 'b' :
-			if (CharOperation.fragmentEquals(BOOLEAN, typeName, index, true)) {
-				primitiveSig = C_BOOLEAN;
-				index += BOOLEAN.length;	
-				primitive = true;			
+			if (CharOperation.fragmentEquals(BOOLEAN, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_BOOLEAN;
 				break;
-			} else if (CharOperation.fragmentEquals(BYTE, typeName, index, true)) {
-				primitiveSig = C_BYTE;
-				index += BYTE.length;				
-				primitive = true;			
+			} else if (CharOperation.fragmentEquals(BYTE, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_BYTE;
 				break;
 			}
 		case 'c':
-			if (CharOperation.fragmentEquals(CHAR, typeName, index, true)) {
-				primitiveSig = C_CHAR;
-				index += CHAR.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(CHAR, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_CHAR;
 				break;
 			}
 		case 'd':
-			if (CharOperation.fragmentEquals(DOUBLE, typeName, index, true)) {
-				primitiveSig = C_DOUBLE;
-				index += DOUBLE.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(DOUBLE, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_DOUBLE;
 				break;
 			}
 		case 'f':
-			if (CharOperation.fragmentEquals(FLOAT, typeName, index, true)) {
-				primitiveSig = C_FLOAT;
-				index += FLOAT.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(FLOAT, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_FLOAT;
 				break;
 			}
 		case 'i':
-			if (CharOperation.fragmentEquals(INT, typeName, index, true)) {
-				primitiveSig = C_INT;
-				index += INT.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(INT, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_INT;
 				break;
 			}
 		case 'l':
-			if (CharOperation.fragmentEquals(LONG, typeName, index, true)) {
-				primitiveSig = C_LONG;
-				index += LONG.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(LONG, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_LONG;
 				break;
 			}
 		case 's':
-			if (CharOperation.fragmentEquals(SHORT, typeName, index, true)) {
-				primitiveSig = C_SHORT;
-				index += SHORT.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(SHORT, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_SHORT;
 				break;
 			}
 		case 'v':
-			if (CharOperation.fragmentEquals(VOID, typeName, index, true)) {
-				primitiveSig = C_VOID;
-				index += SHORT.length;				
-				primitive = true;			
+			if (CharOperation.fragmentEquals(VOID, typeName, 0, true)) {
+				sig = new char[arrayCount+1];
+				sig[arrayCount] = C_VOID;
 				break;
+			}
+		default:
+			// non primitive type
+			int sigLength = arrayCount + 1 + length + 1; // e.g. '[[[Ljava.lang.String;'
+			sig = new char[sigLength];
+			int sigIndex = arrayCount+1; // index in sig
+			int startID = 0; // start of current ID in typeName
+			int index = 0; // index in typeName
+			while (index < length) {
+				char currentChar = typeName[index];
+				switch (currentChar) {
+					case '.':
+						if (startID == -1) throw new IllegalArgumentException(new String(typeName));
+						if (startID < index) {
+							sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+							sigIndex += index-startID;
+						}
+						sig[sigIndex++] = C_DOT;
+						index++;
+						startID = index;
+						break;
+					case '[':
+						if (startID != -1) {
+							if (startID < index) {
+								sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+								sigIndex += index-startID;
+							}
+							startID = -1; // no more id after []
+						}
+						index++;
+						break;
+					default :
+						if (startID != -1 && CharOperation.isWhitespace(currentChar)) {
+							if (startID < index) {
+								sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+								sigIndex += index-startID;
+							}
+							startID = index+1;
+						}
+						index++;
+						break;
+				}
+			}
+			// last id
+			if (startID != -1 && startID < index) {
+				sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
+				sigIndex += index-startID;
+			}
+			
+			// add L (or Q) at the beigininig and ; at the end
+			sig[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
+			sig[sigIndex++] = C_NAME_END;
+			
+			// resize if needed
+			if (sigLength > sigIndex) {
+				System.arraycopy(sig, 0, sig = new char[sigIndex], 0, sigIndex);
 			}
 	}
 
-	// non primitive type and array count
-	char[] sig = primitive ? null : new char[length];
-	int sigIndex = 0;
-	int arrayCount = 0;
-	int startID = primitive ? -1 : 0;
-	while (index < length) {
-		char currentChar = typeName[index];
-		switch (currentChar) {
-			case '.':
-				if (startID == -1) throw new IllegalArgumentException(new String(typeName));
-				if (startID < index) {
-					sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-					sigIndex += index-startID;
-				}
-				int sigLength = sig.length;
-				if (sigIndex >= sigLength) {
-					System.arraycopy(sig, 0, sig = new char[sigLength*2], 0, sigLength);
-				}
-				sig[sigIndex++] = C_DOT;
-				index++;
-				startID = index;
-				break;
-			case '[':
-				arrayCount++;
-				if (startID != -1) {
-					if (startID < index) {
-						sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-						sigIndex += index-startID;
-					}
-					startID = -1; // no more id after []
-				}
-				index++;
-				break;
-			default :
-				if (startID != -1 && CharOperation.isWhitespace(currentChar)) {
-					if (startID < index) {
-						sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-						sigIndex += index-startID;
-					}
-					startID = index+1;
-				}
-				index++;
-				break;
-		}
-	}
-	// last id
-	if (startID != -1 && startID < index) {
-		sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-		sigIndex += index-startID;
+	// add array info
+	for (int i = 0; i < arrayCount; i++) {
+		sig[i] = C_ARRAY;
 	}
 	
-	// build result
-	char[] result;
-	if (primitive) {
-		result = new char[arrayCount+1];
-		result[arrayCount] = primitiveSig;
-	} else {
-		int resultLength = arrayCount + 1 + sigIndex + 1; // e.g. '[[[Ljava.lang.String;'
-		result = new char[resultLength];
-		System.arraycopy(sig, 0, result, arrayCount + 1, sigIndex);
-		result[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
-		result[resultLength-1] = C_NAME_END;
-	}
-	for (int i = 0; i < arrayCount; i++) {
-		result[i] = C_ARRAY;
-	}
-	return result;
+	return sig;
 }
 /**
  * Creates a new type signature from the given type name. If the type name is qualified,

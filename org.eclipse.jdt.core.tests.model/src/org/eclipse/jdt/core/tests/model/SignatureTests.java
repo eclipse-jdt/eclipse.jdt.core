@@ -20,16 +20,16 @@ public SignatureTests(String name) {
 	super(name);
 }
 /**
- * Ensures that creating an invalid type signature throws an IllegalArgumentException.
+ * Ensures that creating an invalid type signature throws an IllegalArgumentException or return the expected signature.
  */
-protected void assertInvalidTypeSignature(String typeName, boolean isResolved) throws JavaModelException {
-	boolean gotException = false;
+protected void assertInvalidTypeSignature(String typeName, boolean isResolved, String expected) throws JavaModelException {
+	String actual;
 	try {
-		Signature.createTypeSignature(typeName, isResolved);
+		actual = Signature.createTypeSignature(typeName, isResolved);
 	} catch (IllegalArgumentException e) {
-		gotException = true;
+		return;
 	}
-	assertTrue("Should have got an IllegalArgumentException for " + typeName, gotException);
+	assertEquals(expected, actual);
 }
 public static Test suite() {
 	return new TestSuite(SignatureTests.class);
@@ -74,10 +74,11 @@ public void testCreateTypeSignature() throws JavaModelException {
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
  */
 public void testCreateInvalidTypeSignature() throws JavaModelException {
-	assertInvalidTypeSignature(null, false);
-	assertInvalidTypeSignature("", false);
-	assertInvalidTypeSignature("int.Y", false);
-	assertInvalidTypeSignature("Y [].X", false);
+	assertInvalidTypeSignature(null, false, null);
+	assertInvalidTypeSignature("", false, "");
+	assertInvalidTypeSignature("int.Y", false, "I");
+	assertInvalidTypeSignature("Y [].X", false, "[QY;");
+	assertInvalidTypeSignature("X[[]", true, "[[LX;");
 }
 /**
  * @see Signature
