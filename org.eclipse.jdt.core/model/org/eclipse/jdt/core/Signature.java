@@ -36,9 +36,9 @@ import org.eclipse.jdt.core.compiler.*;
  * <ul>
  *   <li><code>"[[I"</code> denotes <code>int[][]</code></li>
  *   <li><code>"Ljava.lang.String;"</code> denotes <code>java.lang.String</code> in compiled code</li>
- *   <li><code>"QString"</code> denotes <code>String</code> in source code</li>
- *   <li><code>"Qjava.lang.String"</code> denotes <code>java.lang.String</code> in source code</li>
- *   <li><code>"[QString"</code> denotes <code>String[]</code> in source code</li>
+ *   <li><code>"QString;"</code> denotes <code>String</code> in source code</li>
+ *   <li><code>"Qjava.lang.String;"</code> denotes <code>java.lang.String</code> in source code</li>
+ *   <li><code>"[QString;"</code> denotes <code>String[]</code> in source code</li>
  * </ul>
  * </p>
  * <p>
