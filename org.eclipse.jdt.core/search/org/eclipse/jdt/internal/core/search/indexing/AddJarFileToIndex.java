@@ -102,7 +102,7 @@ public int hashCode() {
 				}
 
 				if (JobManager.VERBOSE)
-					System.out.println("INDEX ("+ Thread.currentThread()+"): " + zip.getName()); //$NON-NLS-1$//$NON-NLS-2$
+					JobManager.log("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
 				final HashSet indexedFileNames = new HashSet(100);
@@ -132,6 +132,11 @@ public int hashCode() {
 						}
 					}
 					if (!needToReindex && indexedFileNames.size() == 0) {
+						if (JobManager.VERBOSE)
+							JobManager.log(
+								"-> no indexing required for " //$NON-NLS-1$
+								+ zip.getName() + " (" //$NON-NLS-1$
+								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 						return COMPLETE;
 					}
 				}
@@ -146,8 +151,10 @@ public int hashCode() {
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE) {
-							System.out.println("INDEX : " //$NON-NLS-1$
-							+zip.getName() + " CANCELLED"); //$NON-NLS-1$
+							JobManager.log(
+								"-> indexing of " //$NON-NLS-1$
+								+ zip.getName() 
+								+ " has been cancelled"); //$NON-NLS-1$
 						}
 						return FAILED;
 					}
@@ -164,9 +171,10 @@ public int hashCode() {
 					}
 				}
 				if (JobManager.VERBOSE)
-					System.out.println("INDEX : " //$NON-NLS-1$
-					+zip.getName() + " COMPLETE in " //$NON-NLS-1$
-					+ (System.currentTimeMillis() - initialTime) + " ms"); //$NON-NLS-1$
+					JobManager.log(
+						"-> done indexing of " //$NON-NLS-1$
+						+ zip.getName() + " (" //$NON-NLS-1$
+						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
 				if (zip != null)
 					zip.close();

@@ -128,7 +128,7 @@ public class Index implements IIndex {
 	 * @see IIndex#getNumDocuments
 	 */
 	public int getNumDocuments() throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			input.open();
@@ -141,7 +141,7 @@ public class Index implements IIndex {
 	 * @see IIndex#getNumWords
 	 */
 	public int getNumWords() throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			input.open();
@@ -154,7 +154,7 @@ public class Index implements IIndex {
 	 * Returns the path corresponding to a given document number
 	 */
 	public String getPath(int documentNumber) throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			input.open();
@@ -253,7 +253,7 @@ public class Index implements IIndex {
 	 * @see IIndex#query
 	 */
 	public IQueryResult[] query(String word) throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			return input.query(word);
@@ -262,7 +262,7 @@ public class Index implements IIndex {
 		}
 	}
 	public IEntryResult[] queryEntries(char[] prefix) throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			return input.queryEntriesPrefixedBy(prefix);
@@ -274,7 +274,7 @@ public class Index implements IIndex {
 	 * @see IIndex#queryInDocumentNames
 	 */
 	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			return input.queryInDocumentNames(word);
@@ -286,7 +286,7 @@ public class Index implements IIndex {
 	 * @see IIndex#queryPrefix
 	 */
 	public IQueryResult[] queryPrefix(char[] prefix) throws IOException {
-		save();
+		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
 			return input.queryFilesReferringToPrefix(prefix);

@@ -93,9 +93,7 @@ public class PatternSearchJob implements IJob {
 				}
 			}
 			if (JobManager.VERBOSE) {
-				System.out.println(
-					"-> execution time: " + executionTime + " ms. for : " + this);//$NON-NLS-1$//$NON-NLS-2$
-				//$NON-NLS-2$ //$NON-NLS-1$
+				JobManager.log("-> execution time: " + executionTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
 			}
 			return isComplete;
 		} finally {
@@ -127,14 +125,12 @@ public class PatternSearchJob implements IJob {
 					monitor.exitRead(); // free read lock
 					monitor.enterWrite(); // ask permission to write
 					if (IndexManager.VERBOSE)
-						System.out.println("-> merging index : " + index.getIndexFile());//$NON-NLS-1$
-					//$NON-NLS-1$
+						JobManager.log("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
 					index.save();
 				} catch (IOException e) {
 					return FAILED;
 				} finally {
-					monitor.exitWrite(); // finished writing
-					monitor.enterRead(); // reaquire read permission
+					monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
 				}
 			}
 			long start = System.currentTimeMillis();

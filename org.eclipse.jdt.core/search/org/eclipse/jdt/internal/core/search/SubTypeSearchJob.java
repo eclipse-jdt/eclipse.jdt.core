@@ -56,13 +56,13 @@ public boolean search(IIndex index, IProgressMonitor progressMonitor) {
 			try {
 				monitor.exitRead(); // free read lock
 				monitor.enterWrite(); // ask permission to write
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
+				if (IndexManager.VERBOSE) 
+					JobManager.log("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
 				index.save();
 			} catch(IOException e){
 				return FAILED;
 			} finally {
-				monitor.exitWrite(); // finished writing
-				monitor.enterRead(); // reaquire read permission
+				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
 			}
 		}
 		long start = System.currentTimeMillis();

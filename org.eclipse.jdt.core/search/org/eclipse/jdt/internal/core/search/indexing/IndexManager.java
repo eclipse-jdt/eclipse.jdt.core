@@ -120,7 +120,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder) {
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) System.out.println("STARTING ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
+	if (VERBOSE) JobManager.log("STARTING ensuring consistency"); //$NON-NLS-1$
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -138,7 +138,7 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) System.out.println("DONE ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
+		if (VERBOSE) JobManager.log("DONE ensuring consistency"); //$NON-NLS-1$
 	}
 }
 private String computeIndexName(String pathString) {
@@ -146,7 +146,7 @@ private String computeIndexName(String pathString) {
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
 	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
-	if (VERBOSE) System.out.println(" index name: " + pathString + " <----> " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+	if (VERBOSE) JobManager.log("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
 	IPath indexPath = getJavaPluginWorkingLocation();
 	String indexDirectory = indexPath.toOSString();
 	if (indexDirectory.endsWith(File.separator)) {
@@ -389,13 +389,14 @@ public void saveIndexes(){
 			monitor.enterWrite();
 			if (IndexManager.VERBOSE){
 				if (index.hasChanged()){ 
-					System.out.println("-> merging index ("+ Thread.currentThread()+"): "+index.getIndexFile()); //$NON-NLS-1$//$NON-NLS-2$
+					JobManager.log("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
 				}
 			}
 			try {
 				index.save();
 			} catch(IOException e){
-				if (IndexManager.VERBOSE){
+				if (IndexManager.VERBOSE) {
+					JobManager.log("-> got the following exception while merging:");
 					e.printStackTrace();
 				}
 				//org.eclipse.jdt.internal.core.Util.log(e);
