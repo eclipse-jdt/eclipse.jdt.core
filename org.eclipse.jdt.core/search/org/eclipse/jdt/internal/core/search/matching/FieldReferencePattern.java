@@ -171,9 +171,13 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		int length = qNameRef.tokens.length;
 		int[] accuracies = new int[length];
 		Binding binding = qNameRef.binding;
-		int indexOfFirstFieldBinding = qNameRef.indexOfFirstFieldBinding > 0 ? qNameRef.indexOfFirstFieldBinding : 1;
+		int indexOfFirstFieldBinding = qNameRef.indexOfFirstFieldBinding > 0 ? qNameRef.indexOfFirstFieldBinding-1 : 0;
+		for (int i = 0; i < indexOfFirstFieldBinding; i++) {
+			accuracies[i] = -1;
+		}
 		// first token
-		if (this.matchesName(this.name, qNameRef.tokens[indexOfFirstFieldBinding-1])) {
+		if (this.matchesName(this.name, qNameRef.tokens[indexOfFirstFieldBinding])
+				&& !(binding instanceof LocalVariableBinding)) {
 			FieldBinding fieldBinding =
 				binding instanceof FieldBinding ?
 					 (FieldBinding)binding :
@@ -181,22 +185,22 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 			int level = this.matchLevel(fieldBinding);
 			switch (level) {
 				case ACCURATE_MATCH:
-					accuracies[0] = IJavaSearchResultCollector.EXACT_MATCH;
+					accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.EXACT_MATCH;
 					break;
 				case INACCURATE_MATCH:
-					accuracies[0] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+					accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.POTENTIAL_MATCH;
 					break;
 				default:
-					accuracies[0] = -1;
+					accuracies[indexOfFirstFieldBinding] = -1;
 			}
 		} else {
-			accuracies[0] = -1;
+			accuracies[indexOfFirstFieldBinding] = -1;
 		}
 		// other tokens
-		for (int i = qNameRef.indexOfFirstFieldBinding; i < length; i++){
+		for (int i = indexOfFirstFieldBinding+1; i < length; i++){
 			char[] token = qNameRef.tokens[i];
 			if (this.matchesName(this.name, token)) {
-				FieldBinding otherBinding = qNameRef.otherBindings == null ? null : qNameRef.otherBindings[i-indexOfFirstFieldBinding];
+				FieldBinding otherBinding = qNameRef.otherBindings == null ? null : qNameRef.otherBindings[i-(indexOfFirstFieldBinding+1)];
 				int level = this.matchLevel(otherBinding);
 				switch (level) {
 					case ACCURATE_MATCH:
@@ -215,12 +219,16 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		locator.reportAccurateReference(
 			reference.sourceStart, 
 			reference.sourceEnd, 
+			qNameRef.tokens, 
+			element, 
+			accuracies);
+	} else {
+		locator.reportAccurateReference(
+			reference.sourceStart, 
+			reference.sourceEnd, 
 			new char[][] {this.name}, 
 			element, 
-			accuracies,
-			true); // accuracy starts on first token
-	} else {
-		locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, new char[][] {this.name}, element, accuracy);
+			accuracy);
 	}
 }
 /**

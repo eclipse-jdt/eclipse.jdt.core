@@ -606,10 +606,11 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 	public void reportPackageReference(ImportReference node) {
 		// TBD
 	}
+
 	/**
-	 * Reports the given reference to the search requestor.
-	 * Finds the accurate positions of the tokens given by qualifiedName
-	 * in the source.
+	 * Finds the accurate positions of the sequence of tokens given by qualifiedName
+	 * in the source and reports a reference to this this qualified name
+	 * to the search requestor.
 	 */
 	public void reportAccurateReference(
 		int sourceStart,
@@ -618,29 +619,8 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		IJavaElement element,
 		int accuracy)
 		throws CoreException {
-			
-		this.reportAccurateReference(
-			sourceStart,
-			sourceEnd,
-			qualifiedName,
-			element,
-			new int[] {accuracy},
-			false);
-	}
-	/**
-	 * Reports the given reference to the search requestor.
-	 * Reports only occurence of the reference that have an accurracy which is not -1.
-	 * Finds the accurate positions of the tokens given by qualifiedName
-	 * in the source.
-	 */
-	public void reportAccurateReference(
-		int sourceStart,
-		int sourceEnd,
-		char[][] qualifiedName,
-		IJavaElement element,
-		int[] accuracies,
-		boolean accuracyStartsOnFirstToken)
-		throws CoreException {
+
+		if (accuracy == -1) return;
 
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
@@ -653,7 +633,6 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		int token = -1;
 		int previousValid = -1;
 		int i = 0;
-		int accuracyIndex = 0;
 		do {
 			int currentPosition = scanner.currentPosition;
 			// read token
@@ -685,25 +664,87 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 				}
 			}
 			if (i == tokenNumber) {
-				if (accuracies[accuracyIndex] != -1) {
-					// accept reference
-					if (refSourceStart != -1) {
-						this.report(refSourceStart, refSourceEnd, element, accuracies[accuracyIndex]);
-					} else {
-						this.report(sourceStart, sourceEnd, element, accuracies[accuracyIndex]);
+				// accept reference
+				if (refSourceStart != -1) {
+					this.report(refSourceStart, refSourceEnd, element, accuracy);
+				} else {
+					this.report(sourceStart, sourceEnd, element, accuracy);
+				}
+				return;
+			}
+		} while (token != TerminalSymbols.TokenNameEOF);
+
+	}
+	/**
+	 * Finds the accurate positions of each valid token in the source and
+	 * reports a reference to this token to the search requestor.
+	 * A token is valid if it has an accurracy which is not -1.
+	 */
+	public void reportAccurateReference(
+		int sourceStart,
+		int sourceEnd,
+		char[][] tokens,
+		IJavaElement element,
+		int[] accuracies)
+		throws CoreException {
+
+		// compute source positions of the qualified reference 
+		Scanner scanner = parser.scanner;
+		scanner.setSourceBuffer(
+			this.potentialMatches[this.potentialMatchesIndex].getSource());
+		scanner.resetTo(sourceStart, sourceEnd);
+
+		int refSourceStart = -1, refSourceEnd = -1;
+		int length = tokens.length;
+		int token = -1;
+		int previousValid = -1;
+		int i = 0;
+		int accuracyIndex = 0;
+		do {
+			int currentPosition = scanner.currentPosition;
+			// read token
+			try {
+				token = scanner.getNextToken();
+			} catch (InvalidInputException e) {
+			}
+			if (token != TerminalSymbols.TokenNameEOF) {
+				char[] currentTokenSource = scanner.getCurrentTokenSource();
+				boolean equals = false;
+				while (i < length
+					&& !(equals = CharOperation.equals(tokens[i++], currentTokenSource))) {
+				}
+				if (equals && (previousValid == -1 || previousValid == i - 2)) {
+					previousValid = i - 1;
+					if (refSourceStart == -1) {
+						refSourceStart = currentPosition;
 					}
+					refSourceEnd = scanner.currentPosition - 1;
+				} else {
 					i = 0;
 					refSourceStart = -1;
 					previousValid = -1;
-					if (!accuracyStartsOnFirstToken) {
-						accuracyIndex++;
-					}			
+				}
+				// read '.'
+				try {
+					token = scanner.getNextToken();
+				} catch (InvalidInputException e) {
 				}
 			}
-			if (accuracyStartsOnFirstToken) {
+			if (accuracies[accuracyIndex] != -1) {
+				// accept reference
+				if (refSourceStart != -1) {
+					this.report(refSourceStart, refSourceEnd, element, accuracies[accuracyIndex]);
+				} else {
+					this.report(sourceStart, sourceEnd, element, accuracies[accuracyIndex]);
+				}
+				i = 0;
+			}
+			refSourceStart = -1;
+			previousValid = -1;
+			if (accuracyIndex < accuracies.length-1) {
 				accuracyIndex++;
 			}
-		} while (token != TerminalSymbols.TokenNameEOF && accuracyIndex < accuracies.length);
+		} while (token != TerminalSymbols.TokenNameEOF);
 
 	}
 
