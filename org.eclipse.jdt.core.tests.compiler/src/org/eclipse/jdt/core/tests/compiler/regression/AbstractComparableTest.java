@@ -289,7 +289,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 						}
 					}
 				} else if (exitValue == 0) {
-					if (errorLogger.buffer.length() == 0) {
+					if (errorLogger.buffer.length() == 0 && expectedProblemLog.length() > 0) {
 						System.out.println("----------------------------------------");
 						System.out.println(testName+" - Eclipse has found error(s)/warning(s) but Javac did not find any:");
 						System.out.println(expectedProblemLog);

@@ -1403,6 +1403,24 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X<T extends X> { T x(); }\n" +
+				"abstract class Y<S extends X> implements X<S> { public abstract S x(); }\n" +
+				"abstract class Z implements X { public abstract X x(); }\n"
+			},
+			"" // no warnings
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X<T extends X> { T[] x(); }\n" +
+				"abstract class Y<S extends X> implements X<S> { public abstract S[] x(); }\n" +
+				"abstract class Z implements X { public abstract X[] x(); }\n"
+			},
+			"" // no warnings
+		);
 	}
 
 	public void test026() {
@@ -2105,6 +2123,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// foo(A<? extends java.lang.Number>) in H<java.lang.Number> cannot be applied to (A<capture of ?>)
 		);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83573
 	public void test039() {
 		this.runConformTest(
@@ -2136,5 +2155,76 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"That"
 		);
-	}	
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	public void test040() {
+		this.runNegativeTest(
+			new String[] {
+				"Base.java",
+				"interface Base<E> { Base<E> proc(); }\n" +
+				"abstract class Derived<D> implements Base<D> { public abstract Derived<D> proc(); }\n"
+			},
+			"" // no warnings
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A { <T extends Number> T test() { return null; } }\n" +
+				"class B extends A { Integer test() { return 1; } }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in A.java (at line 2)\n" + 
+			"	class B extends A { Integer test() { return 1; } }\n" + 
+			"	                    ^^^^^^^\n" + 
+			"Type safety: The return type Integer of the method test() of type B needs unchecked conversion to conform to the return type T of inherited method\n" + 
+			"----------\n"
+			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"import java.util.*;\n" + 
+				"class A { List<String> getList() { return null; } }\n" + 
+				"class B extends A { List getList() { return null; } }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in A.java (at line 3)\n" + 
+			"	class B extends A { List getList() { return null; } }\n" + 
+			"	                    ^^^^\n" + 
+			"Type safety: The return type List of the method getList() of type B needs unchecked conversion to conform to the return type List<String> of inherited method\n" + 
+			"----------\n"
+			// unchecked warning on B.getList()
+		);
+
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X<T> { X<T> x(); }\n" +
+				"abstract class Y<S> implements X<S> { public abstract X x(); }\n" + // warning: x() in Y implements x() in X; return type requires unchecked conversion
+				"abstract class Z implements X { public abstract X x(); }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	abstract class Y<S> implements X<S> { public abstract X x(); }\n" + 
+			"	                                                      ^\n" + 
+			"Type safety: The return type X of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T> of inherited method\n" + 
+			"----------\n"
+		);
+// waiting on philippe to fix array compares
+//		this.runNegativeTest(
+//			new String[] {
+//				"X.java",
+//				"interface X<T> { X<T>[] x(); }\n" +
+//				"abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + // warning: x() in Y implements x() in X; return type requires unchecked conversion
+//				"abstract class Z implements X { public abstract X[] x(); }\n"
+//			},
+//			"----------\n" + 
+//			"1. WARNING in X.java (at line 2)\n" + 
+//			"	abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + 
+//			"	                                                      ^\n" + 
+//			"Type safety: The return type X[] of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T>[] of inherited method\n" + 
+//			"----------\n"
+//		);
+	}
 }

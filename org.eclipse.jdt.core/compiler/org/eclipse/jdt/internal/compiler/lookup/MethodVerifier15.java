@@ -98,26 +98,16 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
 	if (originalInherited.returnType != currentMethod.returnType) {
-		TypeBinding originalReturnType = originalInherited.returnType.leafComponentType();
-		switch (originalReturnType.kind()) {
-			case Binding.GENERIC_TYPE :
-				// TODO (philippe) - we need this hack until SourceTypeBindings stop acting as ParameterizedTypes
-				if (originalReturnType != originalInherited.declaringClass || !inheritedMethod.returnType.leafComponentType().isParameterizedType())
-					break;
-			case Binding.PARAMETERIZED_TYPE :
-				if (!currentMethod.returnType.leafComponentType().isParameterizedType()) {
-					if (currentMethod.returnType.leafComponentType().isRawType() && inheritedMethod.returnType.leafComponentType().isRawType())
-						break;
-					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
-				}
-				break;
-			case Binding.TYPE_PARAMETER : // see 81618
-				if (((TypeVariableBinding) originalReturnType).declaringElement == originalInherited) {
-					TypeBinding returnType = currentMethod.returnType.leafComponentType();
-					if (!returnType.isTypeVariable() || ((TypeVariableBinding) returnType).declaringElement != currentMethod)
+		if (inheritedMethod.returnType.leafComponentType().isParameterizedType()) {
+			if (currentMethod.returnType.leafComponentType().isRawType())
+				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
+//		} else if (inheritedMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
+		} else if (originalInherited.returnType.leafComponentType().isTypeVariable()) { // 
+				if (((TypeVariableBinding) originalInherited.returnType.leafComponentType()).declaringElement == originalInherited) { // see 81618 - type variable from inherited method
+					TypeBinding currentReturnType = currentMethod.returnType.leafComponentType();
+					if (!currentReturnType.isTypeVariable() || ((TypeVariableBinding) currentReturnType).declaringElement != currentMethod)
 						problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
 				}
-				break;
 		}
 	}
 
