@@ -28,8 +28,6 @@ public abstract class AbstractMethodDeclaration extends AstNode implements Probl
 	public MethodBinding binding;
 	public boolean ignoreFurtherInvestigation = false;
 	public boolean needFreeReturn = false;
-	public LocalVariableBinding secretReturnValue;
-	static final char[] SecretLocalDeclarationName = " returnValue".toCharArray(); //$NON-NLS-1$
 
 	public int bodyStart;
 	public int bodyEnd = -1;
@@ -256,11 +254,6 @@ public void resolve(ClassScope upperScope) {
 		bindArguments(); //<-- shoud be done at binding/scope creation time
 		bindThrownExceptions();
 		checkName();
-
-		// create secret value location
-		scope.addLocalVariable(
-			secretReturnValue = new LocalVariableBinding(SecretLocalDeclarationName, binding.returnType, AccDefault));
-		secretReturnValue.constant = NotAConstant; // not inlinable
 
 		// and then ....deep jump into statements.....
 		if (statements != null) {

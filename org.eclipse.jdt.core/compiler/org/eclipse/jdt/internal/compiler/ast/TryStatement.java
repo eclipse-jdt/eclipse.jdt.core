@@ -27,10 +27,11 @@ public class TryStatement extends Statement {
 	public int[] preserveExceptionHandler;
 	
 	Label subRoutineStartLabel;
-	LocalVariableBinding anyExceptionVariable, returnAddressVariable;
-
+	public LocalVariableBinding anyExceptionVariable, returnAddressVariable, secretReturnValue;
+	
 	public final static char[] SecretReturnName = " returnAddress".toCharArray() ; //$NON-NLS-1$
 	public final static char[] SecretAnyHandlerName = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
+	public static final char[] SecretLocalDeclarationName = " returnValue".toCharArray(); //$NON-NLS-1$
 
 	// for local variables table attributes
 	int preTryInitStateIndex = -1;
@@ -342,15 +343,25 @@ public void resolve(BlockScope upperScope) {
 	BlockScope tryScope = new BlockScope(scope);
 	BlockScope finallyScope = null;
 	if (finallyBlock != null && finallyBlock.statements != null) { // provision for returning and forcing the finally block to run
+		MethodScope methodScope = scope.methodScope();
+		
 		returnAddressVariable = new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), 0); // the type does not matter as long as its not a normal base type
-		scope.methodScope().addLocalVariable(returnAddressVariable);
+		methodScope.addLocalVariable(returnAddressVariable);
 		returnAddressVariable.constant = NotAConstant; // not inlinable
 		subRoutineStartLabel = new Label();
 
 		finallyScope = new BlockScope(scope);
-		anyExceptionVariable = new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), 0);
-		finallyScope.addLocalVariable(anyExceptionVariable);
-		anyExceptionVariable.constant = NotAConstant; // not inlinable
+		this.anyExceptionVariable = new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), 0);
+		finallyScope.addLocalVariable(this.anyExceptionVariable);
+		this.anyExceptionVariable.constant = NotAConstant; // not inlinable
+
+		this.secretReturnValue = new LocalVariableBinding(
+			SecretLocalDeclarationName, 
+			((AbstractMethodDeclaration)methodScope.referenceContext).binding.returnType, 
+			AccDefault);
+		finallyScope.addLocalVariable(this.secretReturnValue);
+		this.secretReturnValue.constant = NotAConstant; // not inlinable
+
 		finallyBlock.resolveUsing(finallyScope);
 		// force the finally scope to have variable positions shifted after its try scope.
 		finallyScope.shiftScope = tryScope; 

@@ -201,7 +201,7 @@ public class BlockScope extends Scope {
 				if (subscopes[iscope] instanceof BlockScope) {
 					BlockScope subscope = (BlockScope) subscopes[iscope];
 					int subOffset =
-						subscope.shiftScope == null ? this.offset : subscope.shiftScope.offset;
+						subscope.shiftScope == null ? this.offset : subscope.shiftScope.maxOffset;
 					subscope.computeLocalVariablePositions(subOffset, codeStream);
 					if (subscope.maxOffset > this.maxOffset)
 						this.maxOffset = subscope.maxOffset;
