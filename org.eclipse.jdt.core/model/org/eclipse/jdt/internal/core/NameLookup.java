@@ -648,7 +648,7 @@ public class NameLookup {
 				}
 			}
 			
-			if (unitToLookInside != null || nameMatches(unitName, compilationUnit, partialMatch)) {
+			if ((unitToLookInside != null && !potentialMemberType) || nameMatches(unitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
 					types= compilationUnit.getTypes();
