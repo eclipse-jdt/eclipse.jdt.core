@@ -5,21 +5,137 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * All Rights Reserved.
  */
 
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.util.LookupTable;
 import java.io.*;
 
 public class NameEnvironment implements INameEnvironment {
 
 ClasspathLocation[] classpathLocations;
-State state;
 String[] initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
 String[] additionalSourceFilenames; // assumed that each name is of the form "d:/eclipse/Test/a/b/ClassName.java"
 
-public NameEnvironment(ClasspathLocation[] classpathLocations, State state) {
+public NameEnvironment(ClasspathLocation[] classpathLocations) {
 	this.classpathLocations = classpathLocations;
-	this.state = state;
+}
+
+public NameEnvironment(IJavaProject project, boolean isUsingSourceFolder) {
+	try {
+		this.classpathLocations = computeLocations(project, isUsingSourceFolder, null, null);
+	} catch(JavaModelException e){
+		this.classpathLocations = new ClasspathLocation[0];
+	}
+}
+
+	/* Some examples of resolved class path entries.
+	* Remember to search class path in the order that it was defined.
+	*
+	* 1a. typical project with no source folders:
+	*   /Test[CPE_SOURCE][K_SOURCE] -> D:/eclipse.test/Test
+	* 1b. project with source folders:
+	*   /Test/src1[CPE_SOURCE][K_SOURCE] -> D:/eclipse.test/Test/src1
+	*   /Test/src2[CPE_SOURCE][K_SOURCE] -> D:/eclipse.test/Test/src2
+	*  NOTE: These can be in any order & separated by prereq projects or libraries
+	* 1c. project external to workspace (only detectable using getLocation()):
+	*   /Test/src[CPE_SOURCE][K_SOURCE] -> d:/eclipse.zzz/src
+	*  Need to search source folder & output folder TOGETHER
+	*  Use .java file if its more recent than .class file
+	*
+	* 2. zip files:
+	*   D:/j9/lib/jclMax/classes.zip[CPE_LIBRARY][K_BINARY][sourcePath:d:/j9/lib/jclMax/source/source.zip]
+	*      -> D:/j9/lib/jclMax/classes.zip
+	*  ALWAYS want to take the library path as is
+	*
+	* 3a. prereq project (regardless of whether it has a source or output folder):
+	*   /Test[CPE_PROJECT][K_SOURCE] -> D:/eclipse.test/Test
+	*  ALWAYS want to append the output folder & ONLY search for .class files
+	*/
+public static ClasspathLocation[] computeLocations(IJavaProject project, boolean isUsingSourceFolders, ObjectVector sourceFolders, LookupTable prereqOutputFolders) throws JavaModelException {
+
+	IClasspathEntry[] classpathEntries = ((JavaProject)project).getExpandedClasspath(true);
+	int cpCount = 0;
+	int max = classpathEntries.length;
+	ClasspathLocation[] classpathLocations = new ClasspathLocation[max];
+	IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+
+	boolean firstSourceFolder = true;
+	IPath projectPath = project.getProject().getFullPath();
+	IResource outputFolder = workspaceRoot.findMember(project.getOutputLocation());
+	
+	nextEntry : for (int i = 0; i < max; i++) {
+		IClasspathEntry entry = classpathEntries[i];
+		Object target = JavaModel.getTarget(workspaceRoot, entry.getPath(), true);
+		if (target == null) continue nextEntry;
+
+		if (target instanceof IResource) {
+			IResource resource = (IResource) target;
+			switch(entry.getEntryKind()) {
+				case IClasspathEntry.CPE_SOURCE :
+					if (!(resource instanceof IContainer)) continue nextEntry;
+					if (outputFolder == null || !outputFolder.exists() || !(outputFolder instanceof IContainer)){
+						continue nextEntry;
+					}
+					if (isUsingSourceFolders){ // sources + binaries mode
+						if (sourceFolders != null) sourceFolders.add(resource);
+						classpathLocations[cpCount++] = ClasspathLocation.forSourceFolder(
+							resource.getLocation().toString(),
+							outputFolder.getLocation().toString());
+					} else { // only consider binaries(once)
+						if (firstSourceFolder){
+							firstSourceFolder = false;
+							classpathLocations[cpCount++] = ClasspathLocation.forRequiredProject(outputFolder.getLocation().toString());
+						}
+					}
+					continue nextEntry;
+
+				case IClasspathEntry.CPE_PROJECT :
+					if (!(resource instanceof IProject)) continue nextEntry;
+					IProject prereqProject = (IProject) resource;
+					IPath outputLocation = JavaCore.create(prereqProject).getOutputLocation();
+					IResource prereqOutputFolder;
+					if (prereqProject.getFullPath().equals(outputLocation)) {
+						prereqOutputFolder = prereqProject;
+					} else {
+						prereqOutputFolder = workspaceRoot.findMember(outputLocation);
+						if (prereqOutputFolder == null || !prereqOutputFolder.exists() || !(prereqOutputFolder instanceof IFolder))
+							continue nextEntry;
+					}
+					if (prereqOutputFolders != null) prereqOutputFolders.put(prereqProject, prereqOutputFolder);
+					classpathLocations[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toString());
+					continue nextEntry;
+
+				case IClasspathEntry.CPE_LIBRARY :
+					if (resource instanceof IFile) {
+						String extension = entry.getPath().getFileExtension();
+						if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
+							continue nextEntry;
+					} else if (!(resource instanceof IFolder)) {
+						continue nextEntry;
+					}
+					classpathLocations[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
+					continue nextEntry;
+			}
+		} else if (target instanceof File) {
+			String extension = entry.getPath().getFileExtension();
+			if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
+				continue nextEntry;
+			classpathLocations[cpCount++] = ClasspathLocation.forLibrary(entry.getPath().toString());
+		}
+	}
+	if (cpCount < max) {
+		System.arraycopy(classpathLocations, 0, (classpathLocations = new ClasspathLocation[cpCount]), 0, cpCount);
+	}
+	return classpathLocations;
 }
 
 static String assembleName(char[] fileName, char[][] packageName, char separator) {
@@ -36,10 +152,11 @@ static String assembleName(String fileName, char[][] packageName, char separator
 
 private NameEnvironmentAnswer findClass(char[] name, char[][] packageName) {
 	String fullName = assembleName(name, packageName, '/');
-	for (int i = 0, length = initialTypeNames.length; i < length; i++)
-		if (fullName.equals(initialTypeNames[i]))
-			return null; // looking for a file which we know was provided at the beginning of the compilation
-
+	if (initialTypeNames != null){
+		for (int i = 0, length = initialTypeNames.length; i < length; i++)
+			if (fullName.equals(initialTypeNames[i]))
+				return null; // looking for a file which we know was provided at the beginning of the compilation
+	}
 	for (int i = 0, length = classpathLocations.length; i < length; i++) {
 		NameEnvironmentAnswer answer = classpathLocations[i].findClass(name, packageName);
 		if (answer != null) return answer;

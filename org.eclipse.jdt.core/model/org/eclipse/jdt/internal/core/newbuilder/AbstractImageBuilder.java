@@ -60,7 +60,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.notifier = javaBuilder.notifier;
 
 	this.hasSeparateOutputFolder = !outputFolder.getFullPath().equals(javaBuilder.currentProject.getFullPath());
-	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath, javaBuilder.lastState);
+	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
 	this.compiler = newCompiler();
 	this.newState = new State(javaBuilder);
 	this.workQueue = new WorkQueue();

@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.core.util.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import java.io.File;
 import java.util.*;
 
@@ -147,10 +148,6 @@ private LookupTable findDeltas() {
 	return deltas;
 }
 
-private IJavaProject getJavaProject(IProject project) {
-	return JavaCore.create(project);
-}
-
 private State getLastState() {
 	return (State) JavaModelManager.getJavaModelManager().getLastBuiltState2(currentProject, notifier.monitor);
 }
@@ -210,7 +207,7 @@ private void createFolder(IContainer folder) throws CoreException {
 }
 
 private void initializeBuilder() throws CoreException {
-	this.javaProject = getJavaProject(currentProject);
+	this.javaProject = JavaCore.create(currentProject);
 	this.workspaceRoot = currentProject.getWorkspace().getRoot();
 	this.outputFolder = (IContainer) workspaceRoot.findMember(javaProject.getOutputLocation());
 	if (this.outputFolder == null) {
@@ -219,91 +216,14 @@ private void initializeBuilder() throws CoreException {
 	}
 	this.lastState = getLastState();
 
-	/* Some examples of resolved class path entries.
-	* Remember to search class path in the order that it was defined.
-	*
-	* 1a. typical project with no source folders:
-	*   /Test[CPE_SOURCE][K_SOURCE] -> D:/eclipse.test/Test
-	* 1b. project with source folders:
-	*   /Test/src1[CPE_SOURCE][K_SOURCE] -> D:/eclipse.test/Test/src1
-	*   /Test/src2[CPE_SOURCE][K_SOURCE] -> D:/eclipse.test/Test/src2
-	*  NOTE: These can be in any order & separated by prereq projects or libraries
-	* 1c. project external to workspace (only detectable using getLocation()):
-	*   /Test/src[CPE_SOURCE][K_SOURCE] -> d:/eclipse.zzz/src
-	*  Need to search source folder & output folder TOGETHER
-	*  Use .java file if its more recent than .class file
-	*
-	* 2. zip files:
-	*   D:/j9/lib/jclMax/classes.zip[CPE_LIBRARY][K_BINARY][sourcePath:d:/j9/lib/jclMax/source/source.zip]
-	*      -> D:/j9/lib/jclMax/classes.zip
-	*  ALWAYS want to take the library path as is
-	*
-	* 3a. prereq project (regardless of whether it has a source or output folder):
-	*   /Test[CPE_PROJECT][K_SOURCE] -> D:/eclipse.test/Test
-	*  ALWAYS want to append the output folder & ONLY search for .class files
-	*/
-
-	IClasspathEntry[] entries = ((JavaProject) javaProject).getExpandedClasspath(true);
-	int srcCount = 0, cpCount = 0;
-	int max = entries.length;
-	this.sourceFolders = new IContainer[max];
-	this.classpath = new ClasspathLocation[max];
-	this.prereqOutputFolders = new LookupTable();
-	
-	nextEntry : for (int i = 0; i < max; i++) {
-		IClasspathEntry entry = entries[i];
-		Object target = JavaModel.getTarget(workspaceRoot, entry.getPath(), true);
-		if (target == null) continue nextEntry;
-
-		if (target instanceof IResource) {
-			IResource resource = (IResource) target;
-			switch(entry.getEntryKind()) {
-				case IClasspathEntry.CPE_SOURCE :
-					if (!(resource instanceof IContainer)) continue nextEntry;
-					sourceFolders[srcCount++] = (IContainer) resource;
-					classpath[cpCount++] = ClasspathLocation.forSourceFolder(
-						resource.getLocation().toString(),
-						outputFolder.getLocation().toString());
-					continue nextEntry;
-
-				case IClasspathEntry.CPE_PROJECT :
-					if (!(resource instanceof IProject)) continue nextEntry;
-					IProject prereqProject = (IProject) resource;
-					IPath outputLocation = getJavaProject(prereqProject).getOutputLocation();
-					IResource prereqOutputFolder;
-					if (prereqProject.getFullPath().equals(outputLocation)) {
-						prereqOutputFolder = prereqProject;
-					} else {
-						prereqOutputFolder = workspaceRoot.findMember(outputLocation);
-						if (prereqOutputFolder == null || !prereqOutputFolder.exists() || !(prereqOutputFolder instanceof IFolder))
-							continue nextEntry;
-					}
-					prereqOutputFolders.put(prereqProject, prereqOutputFolder);
-					classpath[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toString());
-					continue nextEntry;
-
-				case IClasspathEntry.CPE_LIBRARY :
-					if (resource instanceof IFile) {
-						String extension = entry.getPath().getFileExtension();
-						if (!(JAR_EXTENSION.equalsIgnoreCase(extension) || ZIP_EXTENSION.equalsIgnoreCase(extension)))
-							continue nextEntry;
-					} else if (!(resource instanceof IFolder)) {
-						continue nextEntry;
-					}
-					classpath[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
-					continue nextEntry;
-			}
-		} else if (target instanceof File) {
-			String extension = entry.getPath().getFileExtension();
-			if (!(JAR_EXTENSION.equalsIgnoreCase(extension) || ZIP_EXTENSION.equalsIgnoreCase(extension)))
-				continue nextEntry;
-			classpath[cpCount++] = ClasspathLocation.forLibrary(entry.getPath().toString());
-		}
-	}
-	if (srcCount < max)
-		System.arraycopy(sourceFolders, 0, (sourceFolders = new IContainer[srcCount]), 0, srcCount);
-	if (cpCount < max)
-		System.arraycopy(classpath, 0, (classpath = new ClasspathLocation[cpCount]), 0, cpCount);
+	ObjectVector sourceList;
+	this.classpath = NameEnvironment.computeLocations(
+		this.javaProject,
+		true,
+		sourceList = new ObjectVector(),
+		this.prereqOutputFolders = new LookupTable());
+	this.sourceFolders = new IContainer[sourceList.size()];
+	sourceList.copyInto(this.sourceFolders);
 }
 
 /**
