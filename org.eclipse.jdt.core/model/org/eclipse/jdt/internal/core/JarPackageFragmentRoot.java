@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -231,6 +232,13 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 	ZipFile jar= null;
 	try {
 		jar= getJar();
+
+		if (isExternal()){
+			// remember the timestamp of this library
+			long timestamp = DeltaProcessor.getTimeStamp(new File(getPath().toOSString()));
+			JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(getPath(), new Long(timestamp));			
+		}
+
 		HashMap packageFragToTypes= new HashMap();
 
 		// always create the default package
