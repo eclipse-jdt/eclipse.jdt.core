@@ -277,16 +277,7 @@ public class WildcardBinding extends ReferenceBinding {
 				? (ReferenceBinding) superType
 				: environment.getType(JAVA_LANG_OBJECT);
 		}
-//			TypeBinding superType = null;
-//			if (this.kind == Wildcard.EXTENDS) {
-//				superType = this.bound;
-//			} else if (this.typeVariable() != null) {
-//				superType = this.typeVariable.firstBound;
-//			}
-//			this.superclass = superType != null && superType.isClass()
-//				? (ReferenceBinding) superType
-//				: environment.getType(JAVA_LANG_OBJECT);
-//		}
+
 		return this.superclass;
     }
     /* (non-Javadoc)
