@@ -965,7 +965,7 @@ public abstract class AbstractCommentParser {
 		// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=47215
 		char ch = peekChar();
 		if (ch == '(') {
-			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMissingHashCharacter(typeRefStartPosition, this.lineEnd, String.valueOf(this.source, typeRefStartPosition, this.lineEnd-typeRefStartPosition));
+			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMissingHashCharacter(typeRefStartPosition, this.lineEnd, String.valueOf(this.source, typeRefStartPosition, this.lineEnd-typeRefStartPosition+1));
 			return false;
 		}
 

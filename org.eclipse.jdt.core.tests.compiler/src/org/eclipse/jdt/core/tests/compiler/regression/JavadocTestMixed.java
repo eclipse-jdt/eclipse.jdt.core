@@ -1304,7 +1304,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	* @see X(double)\n" + 
 				"	       ^^^^^^^^^\n" + 
-				"Javadoc: Missing #: \"X(double\"\n" + 
+				"Javadoc: Missing #: \"X(double)\"\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 6)\n" + 
 				"	* @see X[double]\n" + 
@@ -1319,7 +1319,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @see foo()\n" + 
 				"	       ^^^^^\n" + 
-				"Javadoc: Missing #: \"foo(\"\n" + 
+				"Javadoc: Missing #: \"foo()\"\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 9)\n" + 
 				"	* @see foo  ()\n" + 
