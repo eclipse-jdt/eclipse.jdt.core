@@ -309,6 +309,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					try {
 						container = JavaCore.getClasspathContainer(path, javaProject);
 					} catch(JavaModelException e){
+						// project doesn't exist: ignore
 					}
 					if (container == null) {
 						 initializer = JavaCore.getClasspathContainerInitializer(path.segment(0));

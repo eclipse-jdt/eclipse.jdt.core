@@ -87,7 +87,8 @@ protected IJavaElement generateResultHandle() {
 					}
 			}
 		}
-	} catch (JavaModelException jme) {
+	} catch (JavaModelException e) {
+		// type doesn't exist: ignore
 	}
 	return null;
 }
@@ -116,6 +117,7 @@ protected void initializeDefaultPosition() {
 			}
 		}
 	} catch (JavaModelException e) {
+		// type doesn't exist: ignore
 	}
 }
 }

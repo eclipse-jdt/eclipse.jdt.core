@@ -135,6 +135,7 @@ public class InternalNamingConventions {
 					break;
 			}	
 		} catch(InvalidInputException e){
+			// ignore
 		}
 
 		// compute variable name for non base type

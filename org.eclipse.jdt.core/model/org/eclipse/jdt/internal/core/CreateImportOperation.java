@@ -111,7 +111,8 @@ protected void initializeDefaultPosition() {
 				return;
 			}
 		}
-	} catch (JavaModelException npe) {
+	} catch (JavaModelException e) {
+		// cu doesn't exit: ignore
 	}
 }
 /**

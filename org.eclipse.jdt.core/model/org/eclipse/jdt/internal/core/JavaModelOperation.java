@@ -106,6 +106,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected static PerThreadObject operationStacks = new PerThreadObject();
 	protected JavaModelOperation() {
+		// default constructor used in subclasses
 	}
 	/**
 	 * A common constructor for all Java Model operations.

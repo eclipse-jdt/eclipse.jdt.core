@@ -91,6 +91,7 @@ protected void initializeDefaultPosition() {
 			}
 		}
 	} catch (JavaModelException e) {
+		// type doesn't exist: ignore
 	}
 }
 /**

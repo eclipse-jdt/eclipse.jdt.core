@@ -109,7 +109,8 @@ protected void initializeDefaultPosition() {
 			createBefore(types[0]);
 			return;
 		}
-	} catch (JavaModelException npe) {
+	} catch (JavaModelException e) {
+		// cu doesn't exist: ignore
 	}
 }
 /**
