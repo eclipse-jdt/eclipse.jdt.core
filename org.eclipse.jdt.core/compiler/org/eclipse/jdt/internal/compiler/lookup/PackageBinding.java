@@ -145,18 +145,14 @@ ReferenceBinding getType0(char[] name) {
 /* Answer the package or type named name; ask the oracle if it is not in the cache.
 * Answer null if it could not be resolved.
 *
-* When collisions exist between a type name & a package name, answer the package.
-* Treat the type as if it does not exist... a problem was already reported when the type was defined.
+* When collisions exist between a type name & a package name, answer the type.
+* Treat the package as if it does not exist... a problem was already reported when the type was defined.
 *
 * NOTE: no visibility checks are performed.
 * THIS SHOULD ONLY BE USED BY SOURCE TYPES/SCOPES.
 */
 
 public Binding getTypeOrPackage(char[] name) {
-	PackageBinding packageBinding = getPackage0(name);
-	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage)
-		return packageBinding;
-
 	ReferenceBinding typeBinding = getType0(name);
 	if (typeBinding != null && typeBinding != LookupEnvironment.TheNotFoundType) {
 		if (typeBinding instanceof UnresolvedReferenceBinding)
@@ -166,32 +162,29 @@ public Binding getTypeOrPackage(char[] name) {
 		return typeBinding;
 	}
 
-	// always look for the name as a sub-package if its not a known type
-	if (packageBinding == null && (packageBinding = findPackage(name)) != null)
+	PackageBinding packageBinding = getPackage0(name);
+	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage)
 		return packageBinding;
-	if (typeBinding == null) {
-		// if no package was found, find the type named name relative to the receiver
+
+	if (typeBinding == null) { // have not looked for it before
 		if ((typeBinding = environment.askForType(this, name)) != null) {
 			if (typeBinding.isNestedType())
 				return new ProblemReferenceBinding(name, InternalNameProvided);
 			return typeBinding;
 		}
 
-		// Since name could not be found, add problem bindings
+		// Since name could not be found, add a problem binding
 		// to the collections so it will be reported as an error next time.
-		addNotFoundPackage(name);
 		addNotFoundType(name);
-	} else {
-		if (packageBinding == LookupEnvironment.TheNotFoundPackage)
-			packageBinding = null;
-		if (typeBinding == LookupEnvironment.TheNotFoundType)
-			typeBinding = null;
 	}
 
-	if (packageBinding != null)
-		return packageBinding;
-	else
-		return typeBinding;
+	if (packageBinding == null) { // have not looked for it before
+		if ((packageBinding = findPackage(name)) != null)
+			return packageBinding;
+		addNotFoundPackage(name);
+	}
+
+	return null;
 }
 public char[] readableName() /*java.lang*/ {
 	return CharOperation.concatWith(compoundName, '.');
