@@ -224,8 +224,8 @@ public final char[] constantPoolName() {
 	return selector;
 }
 /**
- * <param1 ... paremN>superclass superinterface1 ... superinterfaceN
- * T foo(T t)   --->   (TT;)TT;
+ * <param1 ... paramN>returnType thrownException1 ... thrownExceptionP
+ * T foo(T t) throws X<T>   --->   (TT;)TT;LX<TT;>;
  * void bar(X<T> t)   -->   (LX<TT;>;)V
  */
 public char[] genericSignature() {
@@ -235,8 +235,10 @@ public char[] genericSignature() {
     for (int i = 0, length = this.parameters.length; i < length; i++) {
         sig.append(this.parameters[i].genericTypeSignature());
     }
-    sig.append(')');
-    if (this.returnType != null) sig.append(this.returnType.genericTypeSignature());
+    sig.append(')').append(this.returnType.genericTypeSignature());
+    for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
+        sig.append(this.thrownExceptions[i].genericTypeSignature());
+    }
 	return sig.toString().toCharArray();
 }
 public final int getAccessFlags() {
