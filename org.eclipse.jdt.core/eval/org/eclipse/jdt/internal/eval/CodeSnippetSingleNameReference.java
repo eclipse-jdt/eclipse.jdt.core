@@ -120,8 +120,8 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 			&& ((variableReference = (SingleNameReference) operation.right).binding == this.binding)
 			&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-			&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_String) // exclude string concatenation which would occur backwards
-			&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_String)) { // exclude string concatenation which would occur backwards
+			&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
+			&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 			// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 			variableReference.generateCompoundAssignment(currentScope, codeStream, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
 			return;
@@ -332,7 +332,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			int increment;
 			// using incr bytecode if possible
 			switch (localBinding.type.id) {
-				case T_String :
+				case T_JavaLangString :
 					codeStream.generateStringConcatenationAppend(currentScope, this, expression);
 					if (valueRequired) {
 						codeStream.dup();
@@ -365,7 +365,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	}
 	// perform the actual compound operation
 	int operationTypeID;
-	if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String || operationTypeID == T_Object) {
+	if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString || operationTypeID == T_JavaLangObject) {
 		codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 	} else {
 		// promote the array reference to the suitable operation type
@@ -583,7 +583,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			&& !fieldBinding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 					&& !fieldBinding.isStatic()
-					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields (if there was any)
 				|| !((FieldBinding)this.codegenBinding).declaringClass.canBeSeenBy(currentScope))){
 			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding((FieldBinding)this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
 		}

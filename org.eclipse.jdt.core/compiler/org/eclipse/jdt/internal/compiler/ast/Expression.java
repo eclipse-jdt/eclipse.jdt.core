@@ -298,7 +298,7 @@ public abstract class Expression extends Statement {
 			} else if (
 				castType.isClass()) {
 				//------(castType.isClass) expressionType.isArray ---------------	
-				if (castType.id == T_Object) {
+				if (castType.id == T_JavaLangObject) {
 					tagAsUnnecessaryCast(scope, castType);
 					return true;
 				}
@@ -315,7 +315,7 @@ public abstract class Expression extends Statement {
 		if (expressionType.isClass()) {
 			if (castType.isArrayType()) {
 				// ---- (castType.isArray) expressionType.isClass -------
-				if (expressionType.id == T_Object) { // potential runtime error
+				if (expressionType.id == T_JavaLangObject) { // potential runtime error
 					tagAsNeedCheckCast();
 					return true;
 				}
@@ -323,7 +323,7 @@ public abstract class Expression extends Statement {
 				
 				ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
 				if (match != null) {
-					if (expression != null && castType.id == T_String) this.constant = expression.constant; // (String) cst is still a constant
+					if (expression != null && castType.id == T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
 					return checkUnsafeCast(scope, castType, expressionType, match, false);
 				}
 				match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
@@ -365,7 +365,7 @@ public abstract class Expression extends Statement {
 			}
 		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
 
-			if (castType.id == T_Object) { // no runtime error
+			if (castType.id == T_JavaLangObject) { // no runtime error
 				tagAsUnnecessaryCast(scope, castType);
 				return true;
 			}
@@ -487,8 +487,9 @@ public abstract class Expression extends Statement {
 			}
 		} else {
 			if (compileTimeType.isBaseType()) {
-				compileTimeType = scope.computeBoxingType(compileTimeType);
-				this.implicitConversion = BOXING | compileTimeType.id;
+				TypeBinding boxedType = scope.computeBoxingType(compileTimeType);
+				this.implicitConversion = BOXING | (compileTimeType.id << 4) | compileTimeType.id; // use primitive type only in implicitConversion
+				compileTimeType =boxedType;
 				return;
 			}
 		}
@@ -499,7 +500,7 @@ public abstract class Expression extends Statement {
 			case T_char :
 				this.implicitConversion |= (T_int << 4) + compileTimeType.id;
 				break;
-			case T_String :
+			case T_JavaLangString :
 			case T_float :
 			case T_boolean :
 			case T_double :
@@ -626,7 +627,7 @@ public abstract class Expression extends Statement {
 		CodeStream codeStream,
 		int typeID) {
 
-		if (typeID == T_String && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
+		if (typeID == T_JavaLangString && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
 			return; // optimize str + ""
 		}
 		generateCode(blockScope, codeStream, true);
@@ -643,19 +644,19 @@ public abstract class Expression extends Statement {
 		int typeID) {
 
 		// Optimization only for integers and strings
-		if (typeID == T_Object) {
+		if (typeID == T_JavaLangObject) {
 			// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
 			// append(Object) returns append(valueOf(Object)), which means that the null case is handled by append(String).
 			codeStream.newStringContatenation();
 			codeStream.dup();
 			codeStream.invokeStringConcatenationDefaultConstructor();
 			generateCode(blockScope, codeStream, true);
-			codeStream.invokeStringConcatenationAppendForType(T_Object);
+			codeStream.invokeStringConcatenationAppendForType(T_JavaLangObject);
 			return;
 		}
 		codeStream.newStringContatenation();
 		codeStream.dup();
-		if (typeID == T_String || typeID == T_null) {
+		if (typeID == T_JavaLangString || typeID == T_null) {
 			if (constant != NotAConstant) {
 				String stringValue = constant.stringValue();
 				if (stringValue.length() == 0) {  // optimize ""+<str> 
@@ -665,7 +666,7 @@ public abstract class Expression extends Statement {
 				codeStream.ldc(stringValue);
 			} else {
 				generateCode(blockScope, codeStream, true);
-				codeStream.invokeStringValueOf(T_Object);
+				codeStream.invokeStringValueOf(T_JavaLangObject);
 			}
 		} else {
 			generateCode(blockScope, codeStream, true);

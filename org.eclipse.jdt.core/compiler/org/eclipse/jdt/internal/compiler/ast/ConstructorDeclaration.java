@@ -419,7 +419,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		if (this.constructorCall != null) {
 			// e.g. using super() in java.lang.Object
 			if (this.binding != null
-				&& this.binding.declaringClass.id == T_Object
+				&& this.binding.declaringClass.id == T_JavaLangObject
 				&& this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 					if (this.constructorCall.accessMode == ExplicitConstructorCall.Super) {
 						scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);

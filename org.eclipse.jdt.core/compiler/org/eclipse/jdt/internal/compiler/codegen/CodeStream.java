@@ -1359,30 +1359,30 @@ final public void generateCodeAttributeForProblemMethod(String problemMessage) {
 public void generateConstant(Constant constant, int implicitConversionCode) {
 	if ((implicitConversionCode & BOXING) != 0) {
 		// need to box the constant
-		final int typeId = implicitConversionCode & IMPLICIT_CONVERSION_MASK;
+		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
 		switch (typeId) {
-			case T_JavaLangBoolean :
+			case T_boolean :
 				generateInlinedValue(constant.booleanValue());
 				break;
-			case T_JavaLangCharacter :
+			case T_char :
 				generateInlinedValue(constant.charValue());
 				break;
-			case T_JavaLangByte :
+			case T_byte :
 				generateInlinedValue(constant.byteValue());
 				break;
-			case T_JavaLangShort :
+			case T_short :
 				generateInlinedValue(constant.shortValue());
 				break;
-			case T_JavaLangInteger :
+			case T_int :
 				generateInlinedValue(constant.intValue());
 				break;
-			case T_JavaLangLong :
+			case T_long :
 				generateInlinedValue(constant.longValue());
 				break;
-			case T_JavaLangFloat :
+			case T_float :
 				generateInlinedValue(constant.floatValue());
 				break;
-			case T_JavaLangDouble :
+			case T_double :
 				generateInlinedValue(constant.doubleValue());
 				break;
 		}
@@ -1451,7 +1451,7 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 			case T_double :
 				generateInlinedValue(constant.doubleValue());
 				break;
-			case T_String :
+			case T_JavaLangString :
 				ldc(constant.stringValue());
 		}
 	} else {
@@ -1467,7 +1467,7 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 public void generateImplicitConversion(int implicitConversionCode) {
 	if ((implicitConversionCode & BOXING) != 0) {
 		// need to unbox/box the constant
-		final int typeId = implicitConversionCode & IMPLICIT_CONVERSION_MASK;
+		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
 		generateBoxingConversion(typeId);
 		// no further implicit conversion when boxing
 		return;
@@ -1807,7 +1807,7 @@ public void generateStringConcatenationAppend(BlockScope blockScope, Expression 
 		this.swap();
 		// If argument is reference type, need to transform it 
 		// into a string (handles null case)
-		this.invokeStringValueOf(T_Object);
+		this.invokeStringValueOf(T_JavaLangObject);
 		this.invokeStringConcatenationStringConstructor();
 	} else {
 		pc = position;
@@ -2120,9 +2120,9 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBi
 	else
 		this.areturn();
 }
-public void generateBoxingConversion(int boxedTypeID) {
-	switch (boxedTypeID) {
-		case T_JavaLangByte :
+public void generateBoxingConversion(int unboxedTypeID) {
+	switch (unboxedTypeID) {
+		case T_byte :
 			// invokestatic: Byte.valueOf(byte)
 			this.invoke(
 				OPC_invokestatic,
@@ -2132,7 +2132,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.byteByteSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangShort :
+		case T_short :
 			// invokestatic: Short.valueOf(short)
 			this.invoke(
 				OPC_invokestatic,
@@ -2142,7 +2142,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.shortShortSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangCharacter :
+		case T_char :
 			// invokestatic: Character.valueOf(char)
 			this.invoke(
 				OPC_invokestatic,
@@ -2152,7 +2152,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.charCharacterSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangInteger :
+		case T_int :
 			// invokestatic: Integer.valueOf(int)
 			this.invoke(
 				OPC_invokestatic,
@@ -2162,7 +2162,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.IntIntegerSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangLong :
+		case T_long :
 			// invokestatic: Long.valueOf(long)
 			this.invoke(
 				OPC_invokestatic,
@@ -2172,7 +2172,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.longLongSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangFloat :
+		case T_float :
 			// invokestatic: Float.valueOf(float)
 			this.invoke(
 				OPC_invokestatic,
@@ -2182,7 +2182,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.floatFloatSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangDouble :
+		case T_double :
 			// invokestatic: Double.valueOf(double)
 			this.invoke(
 				OPC_invokestatic,
@@ -2192,7 +2192,7 @@ public void generateBoxingConversion(int boxedTypeID) {
 				QualifiedNamesConstants.ValueOf,
 				QualifiedNamesConstants.doubleDoubleSignature); //$NON-NLS-1$
 			break;
-		case T_JavaLangBoolean :
+		case T_boolean :
 			// invokestatic: Boolean.valueOf(boolean)
 			this.invoke(
 				OPC_invokestatic,
@@ -3495,7 +3495,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				signature = QualifiedNamesConstants.StringBufferAppendBooleanSignature;
 			}
 			break;
-		case T_Object :
+		case T_JavaLangObject :
 			if (this.targetLevel >= JDK1_5) {
 				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
 				signature = QualifiedNamesConstants.StringBuilderAppendObjectSignature;
@@ -3504,7 +3504,7 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 				signature = QualifiedNamesConstants.StringBufferAppendObjectSignature;
 			}
 			break;
-		case T_String :
+		case T_JavaLangString :
 		case T_null :
 			if (this.targetLevel >= JDK1_5) {
 				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
@@ -3552,8 +3552,8 @@ public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 		case T_boolean :
 			signature = QualifiedNamesConstants.BooleanConstrSignature;
 			break;
-		case T_Object :
-		case T_String :
+		case T_JavaLangObject :
+		case T_JavaLangString :
 		case T_null :
 			signature = QualifiedNamesConstants.ObjectConstrSignature;
 			break;
@@ -3735,8 +3735,8 @@ public void invokeStringValueOf(int typeID) {
 		case T_boolean :
 			signature = QualifiedNamesConstants.ValueOfBooleanSignature;
 			break;
-		case T_Object :
-		case T_String :
+		case T_JavaLangObject :
+		case T_JavaLangString :
 		case T_null :
 			signature = QualifiedNamesConstants.ValueOfObjectSignature;
 			break;
@@ -4349,7 +4349,7 @@ final public void ldc(String constant) {
 				bCodeStream[classFileOffset++] = (byte) index;
 			}
 			// now on the stack it should be a StringBuffer and a string.
-			invokeStringConcatenationAppendForType(T_String);
+			invokeStringConcatenationAppendForType(T_JavaLangString);
 		}
 		invokeStringConcatenationToString();
 		invokeStringIntern();

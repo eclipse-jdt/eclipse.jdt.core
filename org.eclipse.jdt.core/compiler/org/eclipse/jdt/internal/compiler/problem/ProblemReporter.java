@@ -5010,14 +5010,14 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 	}
 	// no report for serialization support 'Object readResolve()'
 	if (!method.isStatic()
-			&& TypeIds.T_Object == method.returnType.id
+			&& TypeIds.T_JavaLangObject == method.returnType.id
 			&& method.parameters.length == 0
 			&& CharOperation.equals(method.selector, TypeConstants.READRESOLVE)) {
 		return;
 	}
 	// no report for serialization support 'Object writeReplace()'
 	if (!method.isStatic()
-			&& TypeIds.T_Object == method.returnType.id
+			&& TypeIds.T_JavaLangObject == method.returnType.id
 			&& method.parameters.length == 0
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
 		return;

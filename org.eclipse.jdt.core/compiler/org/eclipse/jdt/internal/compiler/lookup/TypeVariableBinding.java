@@ -69,7 +69,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 //		if (this == argumentType) 
 //			return true;
 		boolean hasSubstitution = substitution != null;
-		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(hasSubstitution ? substitution.substitute(this.superclass) : this.superclass)) {
+		if (this.superclass.id != T_JavaLangObject && !argumentType.isCompatibleWith(hasSubstitution ? substitution.substitute(this.superclass) : this.superclass)) {
 		    return false;
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {

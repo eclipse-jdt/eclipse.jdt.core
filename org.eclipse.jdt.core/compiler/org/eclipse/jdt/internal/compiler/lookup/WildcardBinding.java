@@ -152,7 +152,7 @@ public class WildcardBinding extends ReferenceBinding {
             if (this.bound instanceof ReferenceBinding) {
                 return ((ReferenceBinding) this.bound).isSuperclassOf(otherType);
             } else { // array bound
-                return otherType.id == T_Object;
+                return otherType.id == T_JavaLangObject;
             }
         }
         return false;

@@ -44,7 +44,7 @@ public class QualifiedSuperReference extends QualifiedThisReference {
 		if (currentCompatibleType == null)
 			return null; // error case
 
-		if (currentCompatibleType.id == T_Object) {
+		if (currentCompatibleType.id == T_JavaLangObject) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}

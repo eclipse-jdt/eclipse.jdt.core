@@ -136,7 +136,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		// the last field access is a write access
 		// perform the actual compound operation
 		int operationTypeID;
-		if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
+		if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString) {
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
@@ -172,7 +172,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		// the last field access is a write access
 		// perform the actual compound operation
 		int operationTypeID;
-		if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
+		if ((operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString) {
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
@@ -518,7 +518,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			&& !fieldBinding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 					&& ((index < 0 ? fieldBinding != binding : index > 0) || this.indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-					&& fieldBinding.declaringClass.id != T_Object)
+					&& fieldBinding.declaringClass.id != T_JavaLangObject)
 				|| !(useDelegate
 						? new CodeSnippetScope(currentScope).canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) this.delegateThis.type)
 						: fieldBinding.declaringClass.canBeSeenBy(currentScope)))){

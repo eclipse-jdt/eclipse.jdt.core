@@ -446,15 +446,15 @@ public class EqualExpression extends BinaryExpression {
 				|| this.checkCastTypesCompatibility(scope, rightType, leftType, null)) {
 
 			// (special case for String)
-			if ((rightType.id == T_String) && (leftType.id == T_String)) {
+			if ((rightType.id == T_JavaLangString) && (leftType.id == T_JavaLangString)) {
 				computeConstant(leftType, rightType);
 			} else {
 				constant = NotAConstant;
 			}
-			if (rightType.id == T_String) {
+			if (rightType.id == T_JavaLangString) {
 				right.implicitConversion = String2String;
 			}
-			if (leftType.id == T_String) {
+			if (leftType.id == T_JavaLangString) {
 				left.implicitConversion = String2String;
 			}
 			// check need for operand cast

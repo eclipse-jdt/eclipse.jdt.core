@@ -320,21 +320,22 @@ public class ForeachStatement extends Statement {
 				}
 				// in case we need to do a conversion
 				this.arrayElementTypeID = collectionElementType.id;
-				int compileTimeTypeId = this.arrayElementTypeID;
+				int compileTimeTypeID = this.arrayElementTypeID;
 				if (elementType.isBaseType()) {
 					if (!collectionElementType.isBaseType()) {
-						compileTimeTypeId = scope.computeBoxingType(collectionElementType).id;
+						compileTimeTypeID = scope.computeBoxingType(collectionElementType).id;
 						this.elementVariableImplicitWidening = UNBOXING;
 						if (elementType.isBaseType()) {
-							this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeId;
+							this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeID;
 						}
 					} else {
-						this.elementVariableImplicitWidening = (elementType.id << 4) + compileTimeTypeId;
+						this.elementVariableImplicitWidening = (elementType.id << 4) + compileTimeTypeID;
 					}
 				} else {
 					if (collectionElementType.isBaseType()) {
-						compileTimeTypeId = scope.computeBoxingType(collectionElementType).id;
-						this.elementVariableImplicitWidening = BOXING | compileTimeTypeId;
+						int boxedID = scope.computeBoxingType(collectionElementType).id;
+						this.elementVariableImplicitWidening = BOXING | (compileTimeTypeID << 4) | compileTimeTypeID; // use primitive type in implicit conversion
+						compileTimeTypeID = boxedID;
 					}
 				}
 			} else if (collectionType instanceof ReferenceBinding) {

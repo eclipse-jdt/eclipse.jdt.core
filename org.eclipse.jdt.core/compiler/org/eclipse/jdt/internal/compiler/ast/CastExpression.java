@@ -197,10 +197,10 @@ public class CastExpression extends Expression {
 		}
 		if (leftIsCast || rightIsCast) {
 			if (alternateLeftTypeId > 15 || alternateRightTypeId > 15) { // must convert String + Object || Object + String
-				if (alternateLeftTypeId == T_String) {
-					alternateRightTypeId = T_Object;
-				} else if (alternateRightTypeId == T_String) {
-					alternateLeftTypeId = T_Object;
+				if (alternateLeftTypeId == T_JavaLangString) {
+					alternateRightTypeId = T_JavaLangObject;
+				} else if (alternateRightTypeId == T_JavaLangString) {
+					alternateLeftTypeId = T_JavaLangObject;
 				} else {
 					return; // invalid operator
 				}

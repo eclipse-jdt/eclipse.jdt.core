@@ -129,7 +129,7 @@ public class AssertStatement extends Statement {
 					case T_void :
 						scope.problemReporter().illegalVoidExpression(exceptionArgument);
 					default:
-					    id = T_Object;
+					    id = T_JavaLangObject;
 					case T_boolean :
 					case T_byte :
 					case T_char :
@@ -138,7 +138,7 @@ public class AssertStatement extends Statement {
 					case T_float :
 					case T_int :
 					case T_long :
-					case T_String :
+					case T_JavaLangString :
 						exceptionArgument.implicitConversion = (id << 4) + id;
 				}
 			}

@@ -122,7 +122,7 @@ public class ArrayReference extends Reference {
 		codeStream.dup2();
 		codeStream.arrayAt(this.resolvedType.id);
 		int operationTypeID;
-		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
+		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString) {
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type

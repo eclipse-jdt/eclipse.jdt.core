@@ -735,7 +735,7 @@ public class ClassFile
 					contents[contentsOffset++] = (byte) (longValueIndex >> 8);
 					contents[contentsOffset++] = (byte) longValueIndex;
 					break;
-				case T_String :
+				case T_JavaLangString :
 					int stringValueIndex =
 						constantPool.literalIndex(
 							((StringConstant) fieldConstant).stringValue());
@@ -2970,7 +2970,7 @@ public class ClassFile
 				contents[contentsOffset++] = (byte) (longValueIndex >> 8);
 				contents[contentsOffset++] = (byte) longValueIndex;
 				break;
-			case T_String :
+			case T_JavaLangString :
 				contents[contentsOffset++] = (byte) 's';
 				int stringValueIndex =
 					constantPool.literalIndex(((StringConstant) constant).stringValue().toCharArray());

@@ -599,7 +599,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
     
 	if (otherType == this)
 		return true;
-	if (otherType.id == T_Object)
+	if (otherType.id == T_JavaLangObject)
 		return true;
 	if (!(otherType instanceof ReferenceBinding))
 		return false;

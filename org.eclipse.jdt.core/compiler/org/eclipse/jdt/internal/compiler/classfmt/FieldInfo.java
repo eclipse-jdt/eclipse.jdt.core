@@ -254,7 +254,7 @@ public Object getWrappedConstantValue() {
 				case T_long :
 					this.wrappedConstantValue = new Long(fieldConstant.longValue());
 					break;
-				case T_String :
+				case T_JavaLangString :
 					this.wrappedConstantValue = fieldConstant.stringValue();
 			}
 		}

@@ -192,7 +192,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			FieldBinding originalBinding = ((FieldBinding)this.binding).original();
 			if (originalBinding != this.binding) {
 			    // extra cast needed if method return type has type variable
-			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 			        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
 			    }
 			} 	
@@ -216,8 +216,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 				&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
 				&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-				&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_String) // exclude string concatenation which would occur backwards
-				&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_String)) { // exclude string concatenation which would occur backwards
+				&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
+				&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 				// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
 				return;
@@ -397,7 +397,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				int increment;
 				// using incr bytecode if possible
 				switch (localBinding.type.id) {
-					case T_String :
+					case T_JavaLangString :
 						codeStream.generateStringConcatenationAppend(currentScope, this, expression);
 						if (valueRequired) {
 							codeStream.dup();
@@ -430,7 +430,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		// perform the actual compound operation
 		int operationTypeID;
-		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String || operationTypeID == T_Object) {
+		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString || operationTypeID == T_JavaLangObject) {
 			// we enter here if the single name reference is a field of type java.lang.String or if the type of the 
 			// operation is java.lang.Object
 			// For example: o = o + ""; // where the compiled type of o is java.lang.Object.
@@ -601,7 +601,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& !fieldBinding.isConstantValue()
 				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 						&& !fieldBinding.isStatic()
-						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+						&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields (if there was any)
 					|| !codegenField.declaringClass.canBeSeenBy(currentScope))){
 				this.codegenBinding = 
 				    currentScope.enclosingSourceType().getUpdatedFieldBinding(

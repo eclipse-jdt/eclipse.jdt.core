@@ -133,7 +133,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			FieldBinding originalBinding = this.binding.original();
 			if (originalBinding != this.binding) {
 			    // extra cast needed if method return type has type variable
-			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 			        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
 			    }
 			}
@@ -250,7 +250,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		}
 		int operationTypeID;
-		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
+		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString) {
 		    // no need for generic cast on previous #getfield since using Object string buffer methods.
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
@@ -453,7 +453,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			&& this.binding.declaringClass != null // array.length
 			&& !this.binding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& this.binding.declaringClass.id != T_Object)
+				&& this.binding.declaringClass.id != T_JavaLangObject)
 			//no change for Object fields (in case there was)
 				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
 			this.codegenBinding =

@@ -96,7 +96,7 @@ public class BinaryExpression extends OperatorExpression {
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
 			case PLUS :
 				switch (bits & ReturnTypeIDMASK) {
-					case T_String :
+					case T_JavaLangString :
 						codeStream.generateStringConcatenationAppend(currentScope, left, right);
 						if (!valueRequired)
 							codeStream.pop();
@@ -1536,7 +1536,7 @@ public class BinaryExpression extends OperatorExpression {
 		 */
 
 		if ((((bits & OperatorMASK) >> OperatorSHIFT) == PLUS)
-			&& ((bits & ReturnTypeIDMASK) == T_String)) {
+			&& ((bits & ReturnTypeIDMASK) == T_JavaLangString)) {
 			if (constant != NotAConstant) {
 				codeStream.generateConstant(constant, implicitConversion);
 				codeStream.invokeStringConcatenationAppendForType(implicitConversion & COMPILE_TYPE_MASK);
@@ -1570,7 +1570,7 @@ public class BinaryExpression extends OperatorExpression {
 		 */
 
 		if ((((bits & OperatorMASK) >> OperatorSHIFT) == PLUS)
-			&& ((bits & ReturnTypeIDMASK) == T_String)) {
+			&& ((bits & ReturnTypeIDMASK) == T_JavaLangString)) {
 			if (constant != NotAConstant) {
 				codeStream.newStringContatenation(); // new: java.lang.StringBuffer
 				codeStream.dup();
@@ -1678,14 +1678,14 @@ public class BinaryExpression extends OperatorExpression {
 		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
-			if (!leftType.isBaseType() && rightTypeID != T_String) {
+			if (!leftType.isBaseType() && rightTypeID != T_JavaLangString) {
 				int unboxedID = scope.computeBoxingType(leftType).id;
 				if (unboxedID != leftTypeID) {
 					leftTypeID = unboxedID;
 					unboxedLeft = true;
 				}
 			}
-			if (!rightType.isBaseType() && leftTypeID != T_String) {
+			if (!rightType.isBaseType() && leftTypeID != T_JavaLangString) {
 				int unboxedID = scope.computeBoxingType(rightType).id;
 				if (unboxedID != rightTypeID) {
 					rightTypeID = unboxedID;
@@ -1695,10 +1695,10 @@ public class BinaryExpression extends OperatorExpression {
 		}
 		if (leftTypeID > 15
 			|| rightTypeID > 15) { // must convert String + Object || Object + String
-			if (leftTypeID == T_String) {
-				rightTypeID = T_Object;
-			} else if (rightTypeID == T_String) {
-				leftTypeID = T_Object;
+			if (leftTypeID == T_JavaLangString) {
+				rightTypeID = T_JavaLangObject;
+			} else if (rightTypeID == T_JavaLangString) {
+				leftTypeID = T_JavaLangObject;
 			} else {
 				constant = Constant.NotAConstant;
 				scope.problemReporter().invalidOperator(this, leftType, rightType);
@@ -1706,13 +1706,13 @@ public class BinaryExpression extends OperatorExpression {
 			}
 		}
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
-			if (leftTypeID == T_String) {
+			if (leftTypeID == T_JavaLangString) {
 				this.left.computeConversion(scope, leftType, leftType);
 				if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == CharBinding) {
 					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
 				}
 			}
-			if (rightTypeID == T_String) {
+			if (rightTypeID == T_JavaLangString) {
 				this.right.computeConversion(scope, rightType, rightType);
 				if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == CharBinding) {
 					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
@@ -1756,7 +1756,7 @@ public class BinaryExpression extends OperatorExpression {
 			case T_long :
 				this.resolvedType = LongBinding;
 				break;
-			case T_String :
+			case T_JavaLangString :
 				this.resolvedType = scope.getJavaLangString();
 				break;
 			default : //error........

@@ -66,11 +66,11 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		MethodBinding originalBinding = this.binding.original();
 		if (originalBinding != this.binding) {
 		    // extra cast needed if method return type has type variable
-		    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+		    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 		        this.valueCast = originalBinding.returnType.genericCast(runtimeTimeType);
 		    }
 		} 	else if (this.actualReceiverType.isArrayType() 
-						&& runtimeTimeType.id != T_Object
+						&& runtimeTimeType.id != T_JavaLangObject
 						&& this.binding.parameters == NoParameters 
 						&& scope.environment().options.complianceLevel >= JDK1_5 
 						&& CharOperation.equals(this.binding.selector, CLONE)) {
@@ -201,7 +201,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		&& !this.actualReceiverType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (!receiver.isImplicitThis() || !this.codegenBinding.isStatic())
-				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
+				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
 
 		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(

@@ -341,7 +341,7 @@ public class ClassScope extends Scope {
 		}
 		sourceType.typeVariables = NoTypeVariables; // safety
 
-		if (sourceType.id == T_Object) { // handle the case of redefining java.lang.Object up front
+		if (sourceType.id == T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			problemReporter().objectCannotBeGeneric(referenceContext);
 			return; 
 		}
@@ -793,7 +793,7 @@ public class ClassScope extends Scope {
 			}
 			return true;
 		}
-		if (sourceType.id == T_Object) // already handled the case of redefining java.lang.Object
+		if (sourceType.id == T_JavaLangObject) // already handled the case of redefining java.lang.Object
 			return true;
 
 		boolean noProblems = true;

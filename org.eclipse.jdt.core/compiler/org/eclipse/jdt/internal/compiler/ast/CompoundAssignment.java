@@ -103,18 +103,39 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		if (lhsType == null || expressionType == null)
 			return null;
 	
-		int lhsId = lhsType.id;
-		int expressionId = expressionType.id;
+		int lhsID = lhsType.id;
+		int expressionID = expressionType.id;
+		
+		// autoboxing support
+		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		boolean unboxedLhs = false, unboxedExpression = false;
+		if (use15specifics) {
+			if (!lhsType.isBaseType() && expressionID != T_JavaLangString) {
+				int unboxedID = scope.computeBoxingType(lhsType).id;
+				if (unboxedID != lhsID) {
+					lhsID = unboxedID;
+					unboxedLhs = true;
+				}
+			}
+			if (!expressionType.isBaseType() && lhsID != T_JavaLangString) {
+				int unboxedID = scope.computeBoxingType(expressionType).id;
+				if (unboxedID != expressionID) {
+					expressionID = unboxedID;
+					unboxedExpression = true;
+				}
+			}
+		}
+		
 		if (restrainUsageToNumericTypes() && !lhsType.isNumericType()) {
 			scope.problemReporter().operatorOnlyValidOnNumericType(this, lhsType, expressionType);
 			return null;
 		}
-		if (lhsId > 15 || expressionId > 15) {
-			if (lhsId != T_String) { // String += Thread is valid whereas Thread += String  is not
+		if (lhsID > 15 || expressionID > 15) {
+			if (lhsID != T_JavaLangString) { // String += Thread is valid whereas Thread += String  is not
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 				return null;
 			}
-			expressionId = T_Object; // use the Object has tag table
+			expressionID = T_JavaLangObject; // use the Object has tag table
 		}
 	
 		// the code is an int
@@ -123,28 +144,27 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		//  <<16   <<12       <<8     <<4        <<0
 	
 		// the conversion is stored INTO the reference (info needed for the code gen)
-		int result = OperatorExpression.OperatorSignatures[operator][ (lhsId << 4) + expressionId];
+		int result = OperatorExpression.OperatorSignatures[operator][ (lhsID << 4) + expressionID];
 		if (result == T_undefined) {
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
 		}
 		if (operator == PLUS){
-			if(lhsId == T_JavaLangObject) {
+			if(lhsID == T_JavaLangObject) {
 				// <Object> += <String> is illegal (39248)
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 				return null;
 			} else {
 				// <int | boolean> += <String> is illegal
-				if ((lhsType.isNumericType() || lhsId == T_boolean) && !expressionType.isNumericType()){
+				if ((lhsType.isNumericType() || lhsID == T_boolean) && !expressionType.isNumericType()){
 					scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 					return null;
 				}
 			}
 		}
-		// TODO (philippe) should retrofit in using #computeConversion
-		lhs.implicitConversion = result >>> 12;
-		expression.implicitConversion = (result >>> 4) & 0x000FF;
-		assignmentImplicitConversion = (lhsId << 4) + (result & 0x0000F);
+		this.lhs.implicitConversion = (unboxedLhs ? UNBOXING : 0) | (result >>> 12);
+		this.expression.implicitConversion = (unboxedExpression ? UNBOXING : 0) | ((result >>> 4) & 0x000FF);
+		this.assignmentImplicitConversion =  (unboxedLhs ? BOXING : 0) | (lhsID << 4) | (result & 0x0000F);
 		return this.resolvedType = lhsType;
 	}
 	

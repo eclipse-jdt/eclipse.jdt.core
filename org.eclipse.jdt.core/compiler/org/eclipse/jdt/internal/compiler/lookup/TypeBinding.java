@@ -48,9 +48,9 @@ public static final TypeBinding wellKnownType(Scope scope, int id) {
 				return IntBinding;
 			case T_long :
 				return LongBinding;
-			case T_Object :
+			case T_JavaLangObject :
 				return scope.getJavaLangObject();
-			case T_String :
+			case T_JavaLangString :
 				return scope.getJavaLangString();
 			default : 
 				return null;

@@ -914,7 +914,7 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 				return currentConstant.doubleValue() != otherConstant.doubleValue();
 			case TypeIds.T_boolean :
 				return currentConstant.booleanValue() != otherConstant.booleanValue();
-			case TypeIds.T_String :
+			case TypeIds.T_JavaLangString :
 				return !currentConstant.stringValue().equals(otherConstant.stringValue());
 		}
 	}

@@ -65,7 +65,7 @@ class VariableBinding implements IVariableBinding {
 				return new Long(c.longValue());
 			case TypeIds.T_short:
 				return new Short(c.shortValue());
-			case TypeIds.T_String:
+			case TypeIds.T_JavaLangString:
 				return c.stringValue();
 		}
 		return null;

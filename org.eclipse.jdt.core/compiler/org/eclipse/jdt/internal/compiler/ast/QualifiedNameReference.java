@@ -280,7 +280,7 @@ public class QualifiedNameReference extends NameReference {
 			FieldBinding originalBinding = field.original();
 			if (originalBinding != field) {
 			    // extra cast needed if method return type has type variable
-			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
 			    	setGenericCast(length,originalBinding.type.genericCast(runtimeTimeType));
 			    }
 			} 	
@@ -385,7 +385,7 @@ public class QualifiedNameReference extends NameReference {
 		// the last field access is a write access
 		// perform the actual compound operation
 		int operationTypeID;
-		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_String) {
+		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString) {
 			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
@@ -629,7 +629,7 @@ public class QualifiedNameReference extends NameReference {
 				FieldBinding originalBinding = field.original();
 				if (originalBinding != field) {
 				    // extra cast needed if method return type has type variable
-				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && type.id != T_Object) {
+				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && type.id != T_JavaLangObject) {
 				    	setGenericCast(index-1,originalBinding.type.genericCast(type));
 				    }
 				} 	
@@ -732,7 +732,7 @@ public class QualifiedNameReference extends NameReference {
 			&& !fieldBinding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-					&& fieldBinding.declaringClass.id != T_Object)
+					&& fieldBinding.declaringClass.id != T_JavaLangObject)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
 		    setCodegenBinding(
 		            index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index, 

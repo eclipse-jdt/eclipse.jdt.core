@@ -656,7 +656,7 @@ public abstract class Scope
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
-				if (receiverType.id != T_Object
+				if (receiverType.id != T_JavaLangObject
 					&& argumentTypes == NoParameters
 				    && CharOperation.equals(selector, GETCLASS)
 				    && exactMethod.returnType.isParameterizedType()/*1.5*/) {

@@ -112,7 +112,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	//	    case (T_String<<4)+T_long  		 : return NotAConstant;   
 	//	    case (T_String<<4)+T_short  	 : return NotAConstant;   
 	//	    case (T_String<<4)+T_void  		 : return NotAConstant;   
-		    case (T_String<<4)+T_String  	 : return this;   
+		    case (T_JavaLangString<<4)+T_JavaLangString  	 : return this;   
 	//	    case (T_String<<4)+T_Object  	 : return NotAConstant;   
 	//	    case (T_String<<4)+T_double  	 : return NotAConstant;   
 	//	    case (T_String<<4)+T_float  	 : return NotAConstant;   
@@ -501,15 +501,15 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_long:	return Constant.fromValue(left.longValue() == right.longValue());
 				}
 			break;
-			case T_String :
-				if (rightId == T_String) {
+			case T_JavaLangString :
+				if (rightId == T_JavaLangString) {
 					//String are interned in th compiler==>thus if two string constant
 					//get to be compared, it is an equal on the vale which is done
 					return Constant.fromValue(((StringConstant)left).compileTimeEqual((StringConstant)right));
 				}
 			break;	
 			case T_null :
-				if (rightId == T_String) { 
+				if (rightId == T_JavaLangString) { 
 					return Constant.fromValue(false);
 				} else {
 					if (rightId == T_null) { 
@@ -1144,12 +1144,12 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	public static final Constant computeConstantOperationPLUS(Constant left, int leftId, Constant right, int rightId) {
 		
 		switch (leftId){
-			case T_Object :
-				if (rightId == T_String) {
+			case T_JavaLangObject :
+				if (rightId == T_JavaLangString) {
 					return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			case T_boolean :
-				if (rightId == T_String) {
+				if (rightId == T_JavaLangString) {
 					return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;
@@ -1162,7 +1162,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.charValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.charValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.charValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue());
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;
 			case T_float :
@@ -1174,7 +1174,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.floatValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.floatValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.floatValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
 				}
 			break;
 			case T_double :
@@ -1186,7 +1186,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.doubleValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.doubleValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.doubleValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue());
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;
 			case T_byte :
@@ -1198,7 +1198,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.byteValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.byteValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.byteValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
 				}
 	
 			break;			
@@ -1211,7 +1211,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.shortValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.shortValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.shortValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue());
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;
 			case T_int :
@@ -1223,7 +1223,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.intValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.intValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.intValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue());
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;		
 			case T_long :
@@ -1235,10 +1235,10 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.longValue() + right.shortValue());
 					case T_int:		return Constant.fromValue(left.longValue() + right.intValue());
 					case T_long:	return Constant.fromValue(left.longValue() + right.longValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
 				}
 			break;
-			case T_String :
+			case T_JavaLangString :
 				switch (rightId){
 					case T_char :	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_float:	return Constant.fromValue(left.stringValue() + right.stringValue());
@@ -1247,7 +1247,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
 					case T_boolean:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;	
@@ -1260,7 +1260,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_short:	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
-					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_JavaLangString:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
 				}
 				
 			}
@@ -1604,7 +1604,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 			case T_double : return "double"; //$NON-NLS-1$
 			case T_boolean : return "boolean"; //$NON-NLS-1$
 			case T_long : return "long";//$NON-NLS-1$
-			case T_String : return "java.lang.String"; //$NON-NLS-1$
+			case T_JavaLangString : return "java.lang.String"; //$NON-NLS-1$
 			case T_null : return "null";	 //$NON-NLS-1$
 			default: return "unknown"; //$NON-NLS-1$
 		}
