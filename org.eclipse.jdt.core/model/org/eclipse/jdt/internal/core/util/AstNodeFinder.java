@@ -113,6 +113,24 @@ public class AstNodeFinder {
 		final char[] typeName = typeHandle.getElementName().toCharArray();
 		final int occurenceCount = ((SourceType)typeHandle).occurrenceCount;
 		final boolean isAnonymous = typeName.length == 0;
+		class Visitor extends AbstractSyntaxTreeVisitorAdapter {
+			TypeDeclaration result;
+			int count = 0;
+			public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
+				if (result != null) return false;
+				if (isAnonymous && ++count == occurenceCount) {
+					result = anonymousTypeDeclaration;
+				}
+				return false; // visit only one level
+			}
+			public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
+				if (result != null) return false;
+				if (!isAnonymous && CharOperation.equals(typeName, typeDeclaration.name)) {
+					result = typeDeclaration;
+				}
+				return false; // visit only one level
+			}
+		}
 		switch (parent.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
 				TypeDeclaration[] types = this.unit.types;
@@ -138,24 +156,6 @@ public class AstNodeFinder {
 				}
 				break;
 			case IJavaElement.FIELD:
-				class Visitor extends AbstractSyntaxTreeVisitorAdapter {
-					TypeDeclaration result;
-					int count = 0;
-					public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
-						if (result != null) return false;
-						if (isAnonymous && ++count == occurenceCount) {
-							result = anonymousTypeDeclaration;
-						}
-						return false; // visit only one level
-					}
-					public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
-						if (result != null) return false;
-						if (!isAnonymous && CharOperation.equals(typeName, typeDeclaration.name)) {
-							result = typeDeclaration;
-						}
-						return false; // visit only one level
-					}
-				}
 				FieldDeclaration fieldDecl = findField((IField)parent);
 				Visitor visitor = new Visitor();
 				fieldDecl.traverse(visitor, null);
