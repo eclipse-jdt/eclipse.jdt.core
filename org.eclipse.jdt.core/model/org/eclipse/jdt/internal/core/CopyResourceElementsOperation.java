@@ -262,11 +262,10 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 
 		// update new resource content
 		try {
-			if (!destFile.isReadOnly() && newContent != null){
+			if (newContent != null){
 				String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
-				ByteArrayInputStream stream = new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding));				
 				destFile.setContents(
-					stream, 
+					new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
 					getSubProgressMonitor(1));
 			}

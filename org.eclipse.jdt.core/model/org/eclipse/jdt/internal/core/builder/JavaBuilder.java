@@ -409,12 +409,14 @@ private void initializeBuilder() throws CoreException {
 		int fileCount = 0, folderCount = 0;
 		for (int i = 0, length = filters.length; i < length; i++) {
 			char[] f = filters[i];
+			if (f.length == 0) continue;
 			if (f[f.length - 1] == '/') folderCount++; else fileCount++;
 		}
 		this.fileFilters = new char[fileCount][];
 		this.folderFilters = new String[folderCount];
 		for (int i = 0, length = filters.length; i < length; i++) {
 			char[] f = filters[i];
+			if (f.length == 0) continue;
 			if (f[f.length - 1] == '/')
 				folderFilters[--folderCount] = new String(CharOperation.subarray(f, 0, f.length - 1));
 			else
