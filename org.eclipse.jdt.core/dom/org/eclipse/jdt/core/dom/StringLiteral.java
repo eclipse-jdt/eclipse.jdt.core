@@ -223,7 +223,7 @@ public class StringLiteral extends Expression {
 								|| c3 < 0
 								|| (c4 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
 								|| c4 < 0){
-								throw new IllegalArgumentException("Invalid string literal");
+								throw new IllegalArgumentException("Invalid string literal"); //$NON-NLS-1$
 							} else {
 								b.append((char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4));
 								i = currentPosition - 1;
@@ -270,63 +270,63 @@ public class StringLiteral extends Expression {
 		int len = value.length();
 		StringBuffer b = new StringBuffer(len + 2);
 		
-		b.append("\""); // opening delimiter
+		b.append("\""); // opening delimiter //$NON-NLS-1$
 		for (int i = 0; i < len; i++) {
 			char c = value.charAt(i);
 			switch(c) {
 				case '\b' :
-					b.append("\\b");
+					b.append("\\b"); //$NON-NLS-1$
 					break;
 				case '\t' :
-					b.append("\\t");
+					b.append("\\t"); //$NON-NLS-1$
 					break;
 				case '\n' :
-					b.append("\\n");
+					b.append("\\n"); //$NON-NLS-1$
 					break;
 				case '\f' :
-					b.append("\\f");
+					b.append("\\f"); //$NON-NLS-1$
 					break;
 				case '\r' :
-					b.append("\\r");
+					b.append("\\r"); //$NON-NLS-1$
 					break;
 				case '\"':
-					b.append("\\\"");
+					b.append("\\\""); //$NON-NLS-1$
 					break;
 				case '\'':
-					b.append("\\\'");
+					b.append("\\\'"); //$NON-NLS-1$
 					break;
 				case '\\':
-					b.append("\\\\");
+					b.append("\\\\"); //$NON-NLS-1$
 					break;
 				case '\0' :
-					b.append("\\0");
+					b.append("\\0"); //$NON-NLS-1$
 					break;
 				case '\1' :
-					b.append("\\1");
+					b.append("\\1"); //$NON-NLS-1$
 					break;
 				case '\2' :
-					b.append("\\2");
+					b.append("\\2"); //$NON-NLS-1$
 					break;
 				case '\3' :
-					b.append("\\3");
+					b.append("\\3"); //$NON-NLS-1$
 					break;
 				case '\4' :
-					b.append("\\4");
+					b.append("\\4"); //$NON-NLS-1$
 					break;
 				case '\5' :
-					b.append("\\5");
+					b.append("\\5"); //$NON-NLS-1$
 					break;
 				case '\6' :
-					b.append("\\6");
+					b.append("\\6"); //$NON-NLS-1$
 					break;
 				case '\7' :
-					b.append("\\7");
+					b.append("\\7"); //$NON-NLS-1$
 					break;			
 				default:
 					b.append(c);
 			}
 		}
-		b.append("\""); // closing delimiter
+		b.append("\""); // closing delimiter //$NON-NLS-1$
 		setEscapedValue(b.toString());
 	}
 	/* (omit javadoc for this method)
