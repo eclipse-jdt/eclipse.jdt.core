@@ -44,6 +44,7 @@
  *                                 COMPILER_PB_UNNECESSARY_CAST
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INVALID_JAVADOC
+ *                                 COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -171,6 +172,12 @@ public final class JavaCore extends Plugin {
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE = PLUGIN_ID + ".compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD = "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1421,6 +1428,13 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will signal use of deprecated API inside deprecated code.
 	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 *
+	 * COMPILER / Reporting Deprecation When Overriding Deprecated Method
+	 *    When enabled, the compiler will signal the declaration of a method overriding a deprecated one.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
+	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 *

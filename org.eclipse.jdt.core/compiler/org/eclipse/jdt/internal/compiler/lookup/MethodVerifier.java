@@ -96,7 +96,7 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 				this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 			if (!this.isAsVisible(currentMethod, inheritedMethod))
 				this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-			if (inheritedMethod.isViewedAsDeprecated()) {
+			if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
 				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
 					// check against the other inherited methods to see if they hide this inheritedMethod
 					ReferenceBinding declaringClass = inheritedMethod.declaringClass;

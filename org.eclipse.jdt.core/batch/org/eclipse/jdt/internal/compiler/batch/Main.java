@@ -740,6 +740,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+						this.options.put(
+							CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
+							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 					} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedLocal, 

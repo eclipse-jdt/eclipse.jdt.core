@@ -43,6 +43,16 @@ Eclipse SDK 3.0M6 Build - ?th December 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added option to avoid reporting a warning when overriding a deprecated method. By default, such
+warnings are no longer reported.
+<pre>
+ * COMPILER / Reporting Deprecation When Overriding Deprecated Method
+ *    When enabled, the compiler will signal the declaration of a method overriding a deprecated one.
+ *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
+ *     - option id:        "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "disabled"
+</pre>	 
 <li>Compiler options to signal problems with javadoc comments have been improved. User can now decide to report
 independently problems on invalid tags (syntax and references), missing tags and missing comments.
 Invalid references, missing tags or missing comments problem can be now ignored below a specific visibility level.
@@ -126,7 +136,9 @@ will be supported until 3.0M7 build and removed after.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48523">48523</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48335">48335</a>
+[Compiler] Need option to not report deprecation in override scenarii
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48523">48523</a>
 @throws reference incorrectly warned as not declared
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47940">47940</a>
 Unable to control level  of JavaDoc errors

@@ -35,6 +35,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecationInDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeprecationWhenOverridingDeprecatedMethod = "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
@@ -196,6 +197,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
+	public boolean reportDeprecationWhenOverridingDeprecatedMethod = false;
 	
 	// unused parameters report
 	public boolean reportUnusedParameterWhenImplementingAbstract = false;
@@ -247,6 +249,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod)); 
 		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI)); 
 		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock)); 
 		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable)); 
 		optionsMap.put(OPTION_ReportUnusedParameter, getSeverityString(UnusedArgument)); 
@@ -363,6 +366,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.reportDeprecationInsideDeprecatedCode = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportDeprecationInsideDeprecatedCode = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportDeprecationWhenOverridingDeprecatedMethod = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportDeprecationWhenOverridingDeprecatedMethod = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_Compliance)) != null) {
@@ -598,6 +608,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- task tags: ").append(this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- task priorities : ").append(this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- report deprecation inside deprecated code : ").append(this.reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- report deprecation when overriding deprecated method : ").append(this.reportDeprecationWhenOverridingDeprecatedMethod ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(this.reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report unused parameter when overriding concrete method : ").append(this.reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(this.reportSpecialParameterHidingField ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
