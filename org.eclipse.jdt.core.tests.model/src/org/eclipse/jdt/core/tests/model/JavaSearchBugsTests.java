@@ -15,9 +15,11 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
@@ -29,6 +31,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 
 /**
@@ -49,7 +52,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug73112";
 //		TESTS_NAMES = new String[] { "testBug83304" };
-		TESTS_NUMBERS = new int[] { 79378 };
+//		TESTS_NUMBERS = new int[] { 83388 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -1303,6 +1306,64 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 83388: [1.5][search] Search for varargs method not finding match
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83388"
+	 */
+	public void testBug83388() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83388/R.java",
+			"package b83388;\n" + 
+			"import b83388.*;\n" + 
+			"public class R {}\n"
+		);
+		IImportDeclaration importDeclaration = workingCopies[0].getImport("pack");
+		assertNotNull("Cannot find \"pack\" import declaration for "+workingCopies[0].getElementName(), importDeclaration);
+		SearchPattern pattern = SearchPattern.createPattern(
+			"pack", 
+			PACKAGE,
+			DECLARATIONS, 
+			EXACT_RULE);
+		assertNotNull("Pattern should not be null", pattern);
+		MatchLocator.setFocus(pattern, importDeclaration);
+		new SearchEngine(workingCopies).search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchScopeBugs(),
+			resultCollector,
+			null
+		);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83388/R.java b83388 [No source] EXACT_MATCH"
+		);
+	}
+	public void testBug83388b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IPackageDeclaration packageDeclaration = workingCopies[0].getPackageDeclaration("pack");
+		assertNotNull("Cannot find \"pack\" import declaration for "+workingCopies[0].getElementName(), packageDeclaration);
+		SearchPattern pattern = SearchPattern.createPattern(
+			"pack", 
+			PACKAGE,
+			DECLARATIONS, 
+			EXACT_RULE);
+		assertNotNull("Pattern should not be null", pattern);
+		MatchLocator.setFocus(pattern, packageDeclaration);
+		new SearchEngine(workingCopies).search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchScopeBugs(),
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"src/b83388/R.java b83388 [No source] EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 84100: [1.5][search] Search for varargs method not finding match
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84100"
 	 */
@@ -1382,6 +1443,31 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(method, REFERENCES);
 		assertSearchResults(
 			"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", 3, \"\", \"\")] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 84121: [1.5][search][varargs] reference to type reported as inaccurate in vararg
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84121"
+	 */
+	public void testBug84121() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84121/Test.java",
+			"package b84121;\n" + 
+			"public class Test {\n" + 
+			"	void foo(Test... t) {}\n" + 
+			"	void foo(int x, Test... t) {}\n" + 
+			"	void foo(Test[] t1, Test... t2) {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test");
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b84121/Test.java void b84121.Test.foo(Test ...) [Test] EXACT_MATCH\n" + 
+			"src/b84121/Test.java void b84121.Test.foo(int, Test ...) [Test] EXACT_MATCH\n" + 
+			"src/b84121/Test.java void b84121.Test.foo(Test[], Test ...) [Test] EXACT_MATCH\n" + 
+			"src/b84121/Test.java void b84121.Test.foo(Test[], Test ...) [Test] EXACT_MATCH"
 		);
 	}
 
@@ -1538,19 +1624,45 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86596/A.java",
 			"package b86596.com.ibm.link;\n" + 
 			"public interface A {}\n"
-			);
+		);
 		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86596/X.java",
 			"package b86596;\n" + 
 			"public class X {\n" + 
 			"	A a;\n" + 
 			"}\n"
-			);
+		);
 		search("link", TYPE, REFERENCES);
 		assertSearchResults("");
 	}
-	public void testBug86596b() throws CoreException {
+
+	/**
+	 * Bug 86642: [search] no match found of package-visible supertypes in subtypes
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86642"
+	 */
+	public void testBug86642() throws CoreException {
 		resultCollector.showRule = true;
-		search("util", TYPE, REFERENCES);
-		assertSearchResults("");
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86642/A.java",
+			"package b86642;\n" + 
+			"class A {\n" + 
+			"	public void m() {}\n" + 
+			"	protected void f(A a){}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86642/B.java",
+			"package b86642;\n" + 
+			"public class B extends A{\n" + 
+			"	protected void f(A a){\n" + 
+			"		a.m();\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("A");
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b86642/A.java void b86642.A.f(A) [A] EXACT_MATCH\n" + 
+			"src/b86642/B.java b86642.B [A] EXACT_MATCH\n" + 
+			"src/b86642/B.java void b86642.B.f(A) [A] EXACT_MATCH"
+		);
 	}
 }
