@@ -34,6 +34,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GK6WD3: ITPJCORE:WIN2000 - search:no fully qualified references are found
   1GK7231: ITPJCORE:WIN2000 - typos in comments
   1GK77HA: ITPJCORE:WINNT - Search - missing base type references
   1GJY2XN: ITPJUI:WIN2000 - rename type: error when with reference
