@@ -599,14 +599,14 @@ public final class CompletionEngine
 		
 		if(compilationUnit != null) {	
 			// build AST from snippet
-			AbstractMethodDeclaration fakeMethod = parseSnippetMethod(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+			Initializer fakeInitializer = parseSnippeInitializer(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 			
 			// merge AST
-			AbstractMethodDeclaration[] oldMethods = typeDeclaration.methods;
-			AbstractMethodDeclaration[] newMethods = new AbstractMethodDeclaration[oldMethods.length + 1];
-			System.arraycopy(oldMethods, 0, newMethods, 0, oldMethods.length);
-			newMethods[oldMethods.length] = fakeMethod;
-			typeDeclaration.methods = newMethods;
+			FieldDeclaration[] oldFields = typeDeclaration.fields;
+			FieldDeclaration[] newFields = new FieldDeclaration[oldFields.length + 1];
+			System.arraycopy(oldFields, 0, newFields, 0, oldFields.length);
+			newFields[oldFields.length] = fakeInitializer;
+			typeDeclaration.fields = newFields;
 	
 			if(DEBUG) {
 				System.out.println("SNIPPET COMPLETION AST :");
@@ -633,69 +633,13 @@ public final class CompletionEngine
 		}
 	}
 	
-//	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
-//		char[] fullyQualifiedName = type.getFullyQualifiedName().toCharArray();
-//		char[][] compoundname = CharOperation.splitOn('.', fullyQualifiedName);
-//		NameEnvironmentAnswer answer =  nameEnvironment.findType(compoundname);
-//		
-//		if(answer != null && answer.isBinaryType()) {
-//			// build AST from classfile
-//			IBinaryType binaryType = answer.getBinaryType();
-//			
-//			CompilationResult result = new CompilationResult(binaryType.getFileName(), 1, 1);
-//			
-//			char[] packageName = CharOperation.subarray(fullyQualifiedName, 0,CharOperation.lastIndexOf('.', fullyQualifiedName));
-//			
-//			BinaryTypeConverter converter = new BinaryTypeConverter();
-//			CompilationUnitDeclaration typeAST = converter.buildCompilationUnit(new IBinaryType[]{binaryType}, packageName, new char[0][],true, true, problemReporter, result, nameEnvironment);
-//			if(typeAST != null) {
-//				complete(typeAST, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
-//			}
-//		}
-//	}
-	
-//	private void complete(CompilationUnitDeclaration typeAST, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
-//		// build AST from snippet
-//		AbstractMethodDeclaration fakeMethod = parseSnippetMethod(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
-//		
-//		// merge AST
-//		AbstractMethodDeclaration[] oldMethods = typeAST.types[0].methods;
-//		AbstractMethodDeclaration[] newMethods = new AbstractMethodDeclaration[oldMethods.length + 1];
-//		System.arraycopy(oldMethods, 0, newMethods, 0, oldMethods.length);
-//		newMethods[oldMethods.length] = fakeMethod;
-//		typeAST.types[0].methods = newMethods;
-//
-//		if(DEBUG) {
-//			System.out.println("SNIPPET COMPLETION AST :");
-//			System.out.println(typeAST.toString());
-//		}
-//		
-//		if (typeAST.types != null) {
-//			try {
-//				lookupEnvironment.buildTypeBindings(typeAST);
-//		
-//				if ((unitScope = typeAST.scope) != null) {
-//					lookupEnvironment.completeTypeBindings(typeAST, true);
-//					typeAST.scope.faultInTypes();
-//					typeAST.resolve();
-//				}
-//			} catch (CompletionNodeFound e) {
-//				//					completionNodeFound = true;
-//				if (e.astNode != null) {
-//					// if null then we found a problem in the completion node
-//					complete(e.astNode, e.qualifiedBinding, e.scope);
-//				}
-//			}
-//		}
-//	}
-	
-	private AbstractMethodDeclaration parseSnippetMethod(char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
+	private Initializer parseSnippeInitializer(char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
 		StringBuffer prefix = new StringBuffer();
-		prefix.append("public class FakeType {\npublic "); //$NON-NLS-1$
+		prefix.append("public class FakeType {\n "); //$NON-NLS-1$
 		if(isStatic) {
-			prefix.append("static"); //$NON-NLS-1$
+			prefix.append("static "); //$NON-NLS-1$
 		}
-		prefix.append(" void fakeMethod(){\n"); //$NON-NLS-1$
+		prefix.append("{\n"); //$NON-NLS-1$
 		for (int i = 0; i < localVariableTypeNames.length; i++) {
 			prefix.append(AstNode.modifiersString(localVariableModifiers[i]));
 			prefix.append(' ');
@@ -722,9 +666,7 @@ public final class CompletionEngine
 		
 		parseMethod(fakeAST, actualCompletionPosition);
 		
-		AbstractMethodDeclaration fakeMethod = fakeAST.types[0].methods[1];
-		fakeMethod.selector[0] = ' ';
-		return fakeMethod;
+		return (Initializer)fakeAST.types[0].fields[0];
 	}
 
 	/**
