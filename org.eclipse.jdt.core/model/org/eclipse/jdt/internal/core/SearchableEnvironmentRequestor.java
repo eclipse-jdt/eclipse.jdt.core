@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -91,6 +90,7 @@ public void acceptType(IType type) {
 		if (this.unitToSkip != null && this.unitToSkip.equals(type.getCompilationUnit())){
 			return;
 		}
+		char[] packageName = type.getPackageFragment().getElementName().toCharArray();
 		boolean isBinary = type instanceof BinaryType;
 		
 		// determine associated access restriction
@@ -103,25 +103,16 @@ public void acceptType(IType type) {
 				accessRestriction = entry.getImportRestriction();
 				if (accessRestriction != null) {
 					// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-					IPath typePath = type.getPath();
-					IPath rootPath = root.getPath();
-					IPath relativePath = typePath.removeFirstSegments(rootPath.segmentCount());
-					char[] path;
-					if (relativePath.segmentCount() == 0) {
-						// case of a binary type in a jar (see 82542 Internal error during AST creation)
-						char[][] packageChars = CharOperation.splitOn('.', type.getParent().getElementName().toCharArray());
-						char[] classFileChars = type.getParent().getElementName().toCharArray();
-						path = CharOperation.concatWith(packageChars, classFileChars, '/');
-					} else
-						path = relativePath.toString().toCharArray();
-					accessRestriction = accessRestriction.getViolatedRestriction(path, null);
+					char[][] packageChars = CharOperation.splitOn('.', packageName);
+					char[] classFileChars = type.getParent().getElementName().toCharArray();
+					accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'), null);
 				}
 			}
 		}
 		if (type.isClass()) {
-			this.requestor.acceptClass(type.getPackageFragment().getElementName().toCharArray(), type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
+			this.requestor.acceptClass(packageName, type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
 		} else {
-			this.requestor.acceptInterface(type.getPackageFragment().getElementName().toCharArray(), type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
+			this.requestor.acceptInterface(packageName, type.getElementName().toCharArray(), type.getFlags(), accessRestriction);
 		}
 	} catch (JavaModelException jme) {
 		// ignore

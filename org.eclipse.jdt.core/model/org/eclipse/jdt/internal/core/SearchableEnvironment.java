@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -106,18 +105,9 @@ public class SearchableEnvironment
 					accessRestriction = entry.getImportRestriction();
 					if (accessRestriction != null) {
 						// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-						IPath typePath = type.getPath();
-						IPath rootPath = root.getPath();
-						IPath relativePath = typePath.removeFirstSegments(rootPath.segmentCount());
-						char[] path;
-						if (relativePath.segmentCount() == 0) {
-							// case of a binary type in a jar (see 82542 Internal error during AST creation)
-							char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-							char[] classFileChars = type.getParent().getElementName().toCharArray();
-							path = CharOperation.concatWith(packageChars, classFileChars, '/');
-						} else
-							path = relativePath.toString().toCharArray();
-						accessRestriction = accessRestriction.getViolatedRestriction(path, null);
+						char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
+						char[] classFileChars = type.getParent().getElementName().toCharArray();
+						accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'), null);
 					}
 				}
 			}
