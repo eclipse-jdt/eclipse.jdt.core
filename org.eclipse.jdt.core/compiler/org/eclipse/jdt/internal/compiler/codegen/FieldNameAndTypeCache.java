@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class FieldNameAndTypeCache {
 	public FieldBinding keyTable[];

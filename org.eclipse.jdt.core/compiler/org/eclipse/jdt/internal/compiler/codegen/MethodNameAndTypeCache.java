@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class MethodNameAndTypeCache {
 	public MethodBinding keyTable[];

@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import org.eclipse.jdt.core.compiler.*;
+
 /**
  * Hashtable of {char[] --> Object }
  */

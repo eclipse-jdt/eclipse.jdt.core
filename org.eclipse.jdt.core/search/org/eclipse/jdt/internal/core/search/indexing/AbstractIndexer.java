@@ -12,8 +12,8 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IIndexer;
 import org.eclipse.jdt.internal.core.index.IIndexerOutput;

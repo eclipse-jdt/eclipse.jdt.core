@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core.index.impl;
 
 import java.io.UTFDataFormatException;
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Does no compression of words, and uses 4-byte ints for file numbers and number of files.

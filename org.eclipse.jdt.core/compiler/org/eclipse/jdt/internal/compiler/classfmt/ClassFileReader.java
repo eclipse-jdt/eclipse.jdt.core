@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;

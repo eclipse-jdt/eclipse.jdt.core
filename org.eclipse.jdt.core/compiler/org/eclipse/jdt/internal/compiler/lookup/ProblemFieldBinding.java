@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class ProblemFieldBinding extends FieldBinding {
 	private int problemId;

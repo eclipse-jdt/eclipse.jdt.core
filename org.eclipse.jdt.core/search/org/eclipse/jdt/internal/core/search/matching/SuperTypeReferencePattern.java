@@ -11,12 +11,12 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.util.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.index.impl.*;

@@ -10,9 +10,9 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class SelectionOnFieldType extends FieldDeclaration {
 	public SelectionOnFieldType(TypeReference type) {

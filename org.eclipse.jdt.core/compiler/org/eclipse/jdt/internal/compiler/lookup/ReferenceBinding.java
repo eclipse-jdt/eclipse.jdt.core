@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /*
 Not all fields defined by this type (& its subclasses) are initialized when it is created.

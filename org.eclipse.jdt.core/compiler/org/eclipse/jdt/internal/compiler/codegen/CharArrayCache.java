@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class CharArrayCache {
 	// to avoid using Enumerations, walk the individual tables skipping nulls

@@ -14,9 +14,9 @@ package org.eclipse.jdt.core.dom;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Internal class for resolving bindings using old ASTs.

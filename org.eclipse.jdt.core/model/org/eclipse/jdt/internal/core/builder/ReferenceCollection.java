@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.util.*;
 

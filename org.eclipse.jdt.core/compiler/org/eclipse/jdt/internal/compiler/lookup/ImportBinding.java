@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class ImportBinding extends Binding {
 	public char[][] compoundName;

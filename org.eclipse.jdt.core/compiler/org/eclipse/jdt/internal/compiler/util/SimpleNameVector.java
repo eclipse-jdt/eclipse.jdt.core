@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import org.eclipse.jdt.core.compiler.*;
+
 public final class SimpleNameVector {
 	
 	static int INITIAL_SIZE = 10;

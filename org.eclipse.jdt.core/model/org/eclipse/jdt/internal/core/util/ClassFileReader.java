@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.util;
 /**
  * Default implementation of IClassFileReader.
  */
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
@@ -24,7 +25,6 @@ import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.ISourceAttribute;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
 	private static final IFieldInfo[] NO_FIELD_INFOS = new IFieldInfo[0];

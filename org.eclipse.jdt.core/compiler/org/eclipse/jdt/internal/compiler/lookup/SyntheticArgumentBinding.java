@@ -21,7 +21,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * the user arguments.
  */
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class SyntheticArgumentBinding extends LocalVariableBinding {
 

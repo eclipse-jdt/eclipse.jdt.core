@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 public interface EvaluationConstants {
 	public static final char[] CODE_SNIPPET_CLASS_NAME_PREFIX = "CodeSnippet_".toCharArray(); //$NON-NLS-1$

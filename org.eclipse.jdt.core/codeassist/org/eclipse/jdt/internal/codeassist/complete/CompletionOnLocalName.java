@@ -10,10 +10,10 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 
 public class CompletionOnLocalName extends LocalDeclaration {

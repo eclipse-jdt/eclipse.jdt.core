@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;
@@ -30,7 +31,6 @@ import org.eclipse.jdt.core.util.ILocalVariableTableEntry;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.ISourceAttribute;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Disassembler of .class files. It generates an output in the Writer that looks close to

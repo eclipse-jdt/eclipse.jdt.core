@@ -10,10 +10,10 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Reflects the context of code analysis, keeping track of enclosing

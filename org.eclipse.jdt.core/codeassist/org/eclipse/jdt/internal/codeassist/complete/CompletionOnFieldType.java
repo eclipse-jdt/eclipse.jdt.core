@@ -31,9 +31,9 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * before the cursor.
  */
  
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class CompletionOnFieldType extends FieldDeclaration {
 	public boolean isLocalVariable;

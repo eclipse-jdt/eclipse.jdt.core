@@ -10,10 +10,10 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Provides methods for encoding and decoding type and method signature strings.

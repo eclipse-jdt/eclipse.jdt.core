@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * This contains information about the installed variables such as

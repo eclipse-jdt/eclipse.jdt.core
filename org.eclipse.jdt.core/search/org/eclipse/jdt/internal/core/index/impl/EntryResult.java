@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.index.impl;
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 
 public class EntryResult implements IEntryResult {

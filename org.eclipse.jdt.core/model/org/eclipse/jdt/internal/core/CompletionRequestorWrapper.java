@@ -15,9 +15,9 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class CompletionRequestorWrapper implements ICompletionRequestor {
 	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$

@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public final class ArrayBinding extends TypeBinding {
 	// creation and initialization of the length field

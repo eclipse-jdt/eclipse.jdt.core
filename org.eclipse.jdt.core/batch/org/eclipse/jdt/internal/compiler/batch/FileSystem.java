@@ -14,9 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipFile;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class FileSystem implements INameEnvironment  {
 	Classpath[] classpaths;
