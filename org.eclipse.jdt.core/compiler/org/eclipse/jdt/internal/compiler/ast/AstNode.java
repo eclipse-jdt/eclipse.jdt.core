@@ -63,27 +63,27 @@ public final boolean isTypeUseDeprecated(TypeBinding type, Scope scope) {
 }
 public static String modifiersString(int modifiers) {
 	
-	String s = "";
+	String s = ""/*nonNLS*/;
 	if ((modifiers & AccPublic) != 0)
-		s = s + "public ";
+		s = s + "public "/*nonNLS*/;
 	if ((modifiers & AccPrivate) != 0)
-		s = s + "private ";
+		s = s + "private "/*nonNLS*/;
 	if ((modifiers & AccProtected) != 0)
-		s = s + "protected ";
+		s = s + "protected "/*nonNLS*/;
 	if ((modifiers & AccStatic) != 0)
-		s = s + "static ";
+		s = s + "static "/*nonNLS*/;
 	if ((modifiers & AccFinal) != 0)
-		s = s + "final ";
+		s = s + "final "/*nonNLS*/;
 	if ((modifiers & AccSynchronized) != 0)
-		s = s + "synchronized ";
+		s = s + "synchronized "/*nonNLS*/;
 	if ((modifiers & AccVolatile) != 0)
-		s = s + "volatile ";
+		s = s + "volatile "/*nonNLS*/;
 	if ((modifiers & AccTransient) != 0)
-		s = s + "transient ";
+		s = s + "transient "/*nonNLS*/;
 	if ((modifiers & AccNative) != 0)
-		s = s + "native ";
+		s = s + "native "/*nonNLS*/;
 	if ((modifiers & AccAbstract) != 0)
-		s = s + "abstract ";
+		s = s + "abstract "/*nonNLS*/;
 	return s;
 }
 /** @Deprecated
@@ -97,8 +97,8 @@ public int sourceStart() {
 public static String tabString(int tab){
 	/*slow code*/
 
-	String s = "" ;
-	for (int i = tab ; i > 0 ; i--) s = s + "  " ;
+	String s = ""/*nonNLS*/ ;
+	for (int i = tab ; i > 0 ; i--) s = s + "  "/*nonNLS*/ ;
 	return s;}
 public String toString() {
 	/* low speed */
@@ -109,7 +109,7 @@ public String toString(int tab){
 	/* low speed */
 
 	/*If reach here fetchs the default display*/
-	return "****"+ super.toString()+ "****";}
+	return "****"/*nonNLS*/+ super.toString()+ "****"/*nonNLS*/;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope){
 }
 }

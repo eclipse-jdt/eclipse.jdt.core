@@ -29,7 +29,7 @@ public abstract class AbstractMethodDeclaration extends AstNode implements Probl
 	public boolean ignoreFurtherInvestigation = false;
 	public boolean needFreeReturn = false;
 	public LocalVariableBinding secretReturnValue;
-	static final char[] SecretLocalDeclarationName = " returnValue".toCharArray();
+	static final char[] SecretLocalDeclarationName = " returnValue"/*nonNLS*/.toCharArray();
 
 	public int bodyStart;
 	public int bodyEnd = -1;
@@ -249,7 +249,7 @@ public void resolve(ClassScope upperScope) {
 public String returnTypeToString(int tab) {
 	/*slow code */
 
-	return "";
+	return ""/*nonNLS*/;
 }
 public void tagAsHavingErrors() {
 	ignoreFurtherInvestigation = true;
@@ -264,21 +264,21 @@ public String toString(int tab) {
 
 	s += returnTypeToString(0);
 
-	s += new String(selector) + "(";
+	s += new String(selector) + "("/*nonNLS*/;
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length; i++) {
 			s += arguments[i].toString(0);
 			if (i != (arguments.length - 1))
-				s = s + ", ";
+				s = s + ", "/*nonNLS*/;
 		};
 	};
-	s += ")";
+	s += ")"/*nonNLS*/;
 	if (thrownExceptions != null) {
-		s += " throws ";
+		s += " throws "/*nonNLS*/;
 		for (int i = 0; i < thrownExceptions.length; i++) {
 			s += thrownExceptions[i].toString(0);
 			if (i != (thrownExceptions.length - 1))
-				s = s + ", ";
+				s = s + ", "/*nonNLS*/;
 		};
 	};
 
@@ -289,18 +289,18 @@ public String toString(int tab) {
 public String toStringStatements(int tab) {
 	/* slow code */
 
-	if (isAbstract() || (this.modifiers & AccSemicolonBody) != 0) return ";";
+	if (isAbstract() || (this.modifiers & AccSemicolonBody) != 0) return ";"/*nonNLS*/;
 	
-	String s = " {";
+	String s = " {"/*nonNLS*/;
 	if (statements != null) {
 		for (int i = 0; i < statements.length; i++){
-			s = s + "\n" + statements[i].toString(tab);
+			s = s + "\n"/*nonNLS*/ + statements[i].toString(tab);
 			if (!(statements[i] instanceof Block)){
-				s += ";";
+				s += ";"/*nonNLS*/;
 			}
 		}
 	}
-	s += "\n" + tabString(tab == 0 ? 0 : tab - 1) + "}";
+	s += "\n"/*nonNLS*/ + tabString(tab == 0 ? 0 : tab - 1) + "}"/*nonNLS*/;
 	return s;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {

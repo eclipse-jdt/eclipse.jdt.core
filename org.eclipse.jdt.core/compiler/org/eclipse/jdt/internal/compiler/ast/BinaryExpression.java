@@ -1402,8 +1402,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/
 	
-	return	left.toStringExpression() + " " +
-			operatorToString() + " " +
+	return	left.toStringExpression() + " "/*nonNLS*/ +
+			operatorToString() + " "/*nonNLS*/ +
 			right.toStringExpression() ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

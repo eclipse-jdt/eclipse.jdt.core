@@ -10,6 +10,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Expression extends Statement {
 	//some expression may not be used - from a java semantic point
@@ -154,7 +155,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this);
 	} else {
 		// actual non-constant code generation
-		throw new ShouldNotImplement("Missing code gen implementation");
+		throw new ShouldNotImplement(Util.bind("ast.missingCode"/*nonNLS*/));
 	}
 }
 /**
@@ -343,7 +344,7 @@ public String toString(int tab) {
 		//before TC has runned
 		if (constant != NotAConstant)
 			//after the TC has runned
-			s += " /*cst:" + constant.toString() + "*/ ";
+			s += " /*cst:"/*nonNLS*/ + constant.toString() + "*/ "/*nonNLS*/;
 	return s + toStringExpression(tab);
 }
 public String toStringExpression() {
