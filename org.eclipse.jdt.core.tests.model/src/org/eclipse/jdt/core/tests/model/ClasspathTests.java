@@ -78,6 +78,7 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
 	IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+	this.sortMarkers(markers);
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = markers.length; i < length; i++) {
 		IMarker marker = markers[i];
@@ -121,6 +122,16 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 	return result;
 }
 
+protected void sortMarkers(IMarker[] markers) {
+	org.eclipse.jdt.internal.core.Util.Comparer comparer = new org.eclipse.jdt.internal.core.Util.Comparer() {
+		public int compare(Object a, Object b) {
+			IMarker markerA = (IMarker)a;
+			IMarker markerB = (IMarker)b;
+			return markerA.getAttribute(IMarker.MESSAGE, "").compareTo(markerB.getAttribute(IMarker.MESSAGE, "")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	};
+	org.eclipse.jdt.internal.core.Util.sort(markers, comparer);
+}
 public static Test suite() {
 
 	if (false){
