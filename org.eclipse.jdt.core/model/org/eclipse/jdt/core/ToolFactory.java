@@ -11,6 +11,8 @@ Contributors:
 
 package org.eclipse.jdt.core;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -62,7 +64,7 @@ public class ToolFactory {
 				}	
 			}
 		// no proper contribution found, use default formatter			
-		return createDefaultCodeFormatter();
+		return createDefaultCodeFormatter(null);
 	}
 
 	/**
@@ -70,12 +72,18 @@ public class ToolFactory {
 	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory will 
 	 * default to using the default code formatter.
 	 * 
+	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
+	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
+	 * 	the current settings from <code>JavaCore#getOptions</code>.
+	 * 
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createCodeFormatter()
+	 * @see JavaCore#getOptions()
 	 */
-	public static ICodeFormatter createDefaultCodeFormatter(){
+	public static ICodeFormatter createDefaultCodeFormatter(Map options){
 
-		return new CodeFormatter(JavaCore.getOptions());
+		if (options == null) options = JavaCore.getOptions();
+		return new CodeFormatter(options);
 	}
 	
 	/**

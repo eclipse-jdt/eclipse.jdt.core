@@ -59,7 +59,7 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
 	CompilationUnitVisitor.visit(this, visitor);
 } 
 
-protected void buildStructure(OpenableElementInfo info, IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, final IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
 
 	// remove existing (old) infos
 	removeInfo();
@@ -67,7 +67,7 @@ protected void buildStructure(OpenableElementInfo info, IProblemRequestor proble
 	//if (problemRequestor != null) 	problemRequestor.clear();
 
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), problemRequestor));
+	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), null));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
@@ -75,6 +75,10 @@ protected void buildStructure(OpenableElementInfo info, IProblemRequestor proble
 		fgJavaModelManager.putInfo(key, value);
 	}
 
+	if (problemRequestor != null){
+		CompilationUnitProblemFinder.resolve(this, problemRequestor);
+	}
+	
 //	if (problemRequestor != null) 	problemRequestor.done();
 
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
