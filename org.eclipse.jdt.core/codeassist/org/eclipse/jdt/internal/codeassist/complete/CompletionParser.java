@@ -601,7 +601,33 @@ private void buildMoreCompletionContext(Expression expression) {
 				}
 				assistNodeParent = arrayReference;
 				break;
-				
+			case K_BETWEEN_CASE_AND_COLON :
+				if(this.expressionPtr > 0) {
+					SwitchStatement switchStatement = new SwitchStatement();
+					switchStatement.expression = this.expressionStack[this.expressionPtr - 1];
+					if(this.astLengthPtr > -1 && this.astPtr > -1) {
+						int length = this.astLengthStack[this.astLengthPtr];
+						int newAstPtr = this.astPtr - length;
+						ASTNode firstNode = this.astStack[newAstPtr + 1];
+						if(length != 0 && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
+							switchStatement.statements = new Statement[length + 1];
+							System.arraycopy(
+								this.astStack, 
+								newAstPtr + 1, 
+								switchStatement.statements, 
+								0, 
+								length); 
+						}
+					}
+					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
+					if(switchStatement.statements == null) {
+						switchStatement.statements = new Statement[]{caseStatement};
+					} else {
+						switchStatement.statements[switchStatement.statements.length - 1] = caseStatement;
+					}
+					assistNodeParent = switchStatement;
+				}
+				break;
 		}
 	}
 	if(assistNodeParent != null) {

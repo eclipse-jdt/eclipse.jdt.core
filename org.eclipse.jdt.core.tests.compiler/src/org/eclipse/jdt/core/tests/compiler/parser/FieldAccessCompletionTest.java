@@ -2083,7 +2083,9 @@ public void testSwitchLabel() {
 		"  void foo() {\n" + 
 		"    int i;\n" + 
 		"    {\n" + 
-		"      <CompleteOnMemberAccess:fred().x>;\n" + 
+		"      switch (i) {\n" + 
+		"      case <CompleteOnMemberAccess:fred().x> : ;\n" + 
+		"      }\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"}\n",

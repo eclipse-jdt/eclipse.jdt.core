@@ -87,7 +87,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0075"));			
+	suite.addTest(new CompletionTests_1_5("test0136"));			
 	return suite;
 }
 
@@ -1591,5 +1591,250 @@ public void test0087() throws JavaModelException {
 			"Test2[TYPE_REF]{Test2, test0087, Ltest0087.Test2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
 			"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
+}
+
+//TODO (david) tests test0088 - test0135 are not currently released
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0136() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0136/Colors.java",
+				"package test0136;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0136/Test.java",
+				"package test0136;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors c) {\n" +
+				"    switch(c) {\n" + 
+				"      case RED :\n" + 
+				"        break;\n" + 
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"RED[FIELD_REF]{RED, Ltest0136.Colors;, Ltest0136.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0137() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0137/Colors.java",
+				"package test0137;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0137/Test.java",
+				"package test0137;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors c) {\n" +
+				"    switch(c) {\n" + 
+				"      case BLUE :\n" + 
+				"      case RED :\n" + 
+				"        break;\n" + 
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"RED[FIELD_REF]{RED, Ltest0137.Colors;, Ltest0137.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0138() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0138/Colors.java",
+				"package test0138;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0138/Test.java",
+				"package test0138;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors c) {\n" +
+				"    switch(c) {\n" + 
+				"      case BLUE :\n" + 
+				"        break;\n" + 
+				"      case RED :\n" + 
+				"        break;\n" + 
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"RED[FIELD_REF]{RED, Ltest0138.Colors;, Ltest0138.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0139() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0139/Colors.java",
+				"package test0139;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0139/Test.java",
+				"package test0139;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors c) {\n" +
+				"    switch(c) {\n" + 
+				"      case BLUE :\n" + 
+				"        break;\n" + 
+				"      case RED :\n" + 
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"RED[FIELD_REF]{RED, Ltest0139.Colors;, Ltest0139.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0140() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0140/Colors.java",
+				"package test0140;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0140/Test.java",
+				"package test0140;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors c) {\n" +
+				"    switch(c) {\n" + 
+				"      case BLUE :\n" + 
+				"        break;\n" + 
+				"      case RED\n" + 
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"RED[FIELD_REF]{RED, Ltest0140.Colors;, Ltest0140.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0141() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0141/Colors.java",
+				"package test0141;\n" +
+				"public class Colors {\n" +
+				"  public final static int RED = 0, BLUE = 1, WHITE = 3;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0141/Test.java",
+				"package test0141;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors c) {\n" +
+				"    switch(c) {\n" + 
+				"      case BLUE :\n" + 
+				"        break;\n" + 
+				"      case RED :\n" + 
+				"        break;\n" + 
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0142() throws JavaModelException {
+	ICompilationUnit enumeration = null;
+	try {
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0142/Colors.java",
+				"package test0142;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"  public static final int RED2 = 0;\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0142/Test.java",
+				"package test0142;\n" +
+				"public class Test {\n" +
+				"  void bar(Colors REDc) {\n" +
+				"    switch(REDc) {\n" + 
+				"      case BLUE :\n" + 
+				"        break;\n" + 
+				"      case RED:\n" + 
+				"        break;\n" +
+				"    }\n" + 
+				"  }\n" +
+				"}",
+				"RED");
+		
+		assertResults(
+				"REDc[LOCAL_VARIABLE_REF]{REDc, null, Ltest0142.Colors;, REDc, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				result);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+	}
 }
 }

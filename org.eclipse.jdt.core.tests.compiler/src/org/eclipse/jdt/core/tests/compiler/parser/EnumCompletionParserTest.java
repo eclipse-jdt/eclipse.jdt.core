@@ -72,4 +72,432 @@ public void test0001(){
 			expectedReplacedSource,
 	"diet ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0002(){
+	String str =
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"	  switch(c) {\n" + 
+		"	  	case FOO :\n" + 
+		"	  	  break;\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "FOO";
+	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
+	expectedParentNodeToString =
+		"switch (c) {\n" + 
+		"case <CompleteOnName:FOO> : ;\n" + 
+		"}";
+	completionIdentifier = "FOO";
+	expectedReplacedSource = "FOO";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (c) {\n" + 
+		"      case <CompleteOnName:FOO> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0003(){
+	String str =
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"	  switch(c) {\n" + 
+		"	  	case BAR :\n" + 
+		"	  	case FOO :\n" + 
+		"	  	  break;\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "FOO";
+	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
+	expectedParentNodeToString =
+		"switch (c) {\n" + 
+		"case BAR : ;\n" + 
+		"case <CompleteOnName:FOO> : ;\n" + 
+		"}";
+	completionIdentifier = "FOO";
+	expectedReplacedSource = "FOO";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (c) {\n" + 
+		"      case BAR : ;\n" + 
+		"      case <CompleteOnName:FOO> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0004(){
+	String str =
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"	  switch(c) {\n" + 
+		"	  	case BAR :\n" + 
+		"	  	  break;\n" + 
+		"	  	case FOO :\n" + 
+		"	  	  break;\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "FOO";
+	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
+	expectedParentNodeToString =
+		"switch (c) {\n" + 
+		"case BAR : ;\n" + 
+		"    break ;\n" + 
+		"case <CompleteOnName:FOO> : ;\n" + 
+		"}";
+	completionIdentifier = "FOO";
+	expectedReplacedSource = "FOO";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (c) {\n" + 
+		"      case BAR : ;\n" + 
+		"          break ;\n" + 
+		"      case <CompleteOnName:FOO> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0005(){
+	String str =
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"	  switch(c) {\n" + 
+		"	  	case BAR :\n" + 
+		"	  	  break;\n" + 
+		"	  	case FOO :\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "FOO";
+	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
+	expectedParentNodeToString =
+		"switch (c) {\n" + 
+		"case BAR : ;\n" + 
+		"    break ;\n" + 
+		"case <CompleteOnName:FOO> : ;\n" + 
+		"}";
+	completionIdentifier = "FOO";
+	expectedReplacedSource = "FOO";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (c) {\n" + 
+		"      case BAR : ;\n" + 
+		"          break ;\n" + 
+		"      case <CompleteOnName:FOO> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0006(){
+	String str =
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"	  switch(c) {\n" + 
+		"	  	case BAR :\n" + 
+		"	  	  break;\n" + 
+		"	  	case FOO\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "FOO";
+	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
+	expectedParentNodeToString =
+		"switch (c) {\n" + 
+		"case BAR : ;\n" + 
+		"    break ;\n" + 
+		"case <CompleteOnName:FOO> : ;\n" + 
+		"}";
+	completionIdentifier = "FOO";
+	expectedReplacedSource = "FOO";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (c) {\n" + 
+		"      case BAR : ;\n" + 
+		"          break ;\n" + 
+		"      case <CompleteOnName:FOO> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0007(){
+	String str =
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"	  switch(c) {\n" + 
+		"	  	case BAR0 :\n" + 
+		"	      switch(c) {\n" + 
+		"	        case BAR :\n" + 
+		"	  	      break;\n" + 
+		"	  	    case FOO\n" + 
+		"	      }\n" + 
+		"	  	  break;\n" + 
+		"	  	case BAR2 :\n" + 
+		"	  	  break;\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "FOO";
+	int cursorLocation = str.indexOf("FOO") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:FOO>";
+	expectedParentNodeToString =
+		"switch (c) {\n" + 
+		"case BAR : ;\n" + 
+		"    break ;\n" + 
+		"case <CompleteOnName:FOO> : ;\n" + 
+		"}";
+	completionIdentifier = "FOO";
+	expectedReplacedSource = "FOO";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      {\n" + 
+		"        switch (c) {\n" + 
+		"        case BAR : ;\n" + 
+		"            break ;\n" + 
+		"        case <CompleteOnName:FOO> : ;\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

@@ -578,6 +578,9 @@ public final class CompletionEngine
 					// can be the start of a qualified type name
 					findTypesAndPackages(this.completionToken, scope);
 					findKeywords(this.completionToken, singleNameReference.possibleKeywords);
+					if(astNodeParent instanceof SwitchStatement) {
+						this.findEnumConstant(this.completionToken, (SwitchStatement) astNodeParent);
+					}
 					if(singleNameReference.canBeExplicitConstructor){
 						if(CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
 							ReferenceBinding ref = scope.enclosingSourceType();
@@ -1361,7 +1364,61 @@ public final class CompletionEngine
 			}
 		}
 	}
+	private void findEnumConstant(char[] enumConstantName, SwitchStatement switchStatement) {
+		TypeBinding expressionType = switchStatement.expression.resolvedType;
+		if(expressionType != null && expressionType.isEnum()) {
+			ReferenceBinding enumType = (ReferenceBinding) expressionType;
+			
+			FieldBinding[] fields = enumType.fields();
+			
+			int enumConstantLength = enumConstantName.length;
+			next : for (int f = fields.length; --f >= 0;) {			
+				FieldBinding field = fields[f];
 
+				if (field.isSynthetic()) continue next;
+
+				if ((field.modifiers & Flags.AccEnum) == 0) continue next;
+
+				if (enumConstantLength > field.name.length) continue next;
+
+				if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */))	continue next;
+
+				boolean hasRestrictedAccess = false;
+//				boolean hasRestrictedAccess = field.declaringClass.hasRestrictedAccess();
+//				if(this.options.checkRestrictions && hasRestrictedAccess) continue next;
+				
+				char[] completion = field.name;
+
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal(field);
+				relevance += R_ENUM_CONSTANT;
+				relevance += computeRelevanceForCaseMatching(enumConstantName, field.name);
+				relevance += computeRelevanceForExpectingType(field.type);
+				relevance += computeRelevanceForQualification(false);
+				relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
+				
+				this.noProposal = false;
+				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(getSignature(field.declaringClass));
+					proposal.setSignature(getSignature(field.type));
+					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+					proposal.setPackageName(field.type.qualifiedPackageName());
+					proposal.setTypeName(field.type.qualifiedSourceName()); 
+					proposal.setName(field.name);
+					proposal.setCompletion(completion);
+					proposal.setFlags(field.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			}
+		}
+	}
 	private void findExplicitConstructors(
 		char[] name,
 		ReferenceBinding currentType,

@@ -6693,18 +6693,23 @@ public void test0119(){
 		"diet ast");
 
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
+	expectedParentNodeToString =
+		"switch (1) {\n" + 
+		"case <CompleteOnName:zzz> : ;\n" + 
+		"}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  }\n" +
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (1) {\n" + 
+		"      case <CompleteOnName:zzz> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkMethodParse(
@@ -6754,18 +6759,25 @@ public void test0120(){
 		"diet ast");
 
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
+	expectedParentNodeToString =
+		"switch (1) {\n" + 
+		"case Something : ;\n" + 
+		"case <CompleteOnName:zzz> : ;\n" + 
+		"}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
-		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" +
-		"  }\n" +
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      switch (1) {\n" + 
+		"      case Something : ;\n" + 
+		"      case <CompleteOnName:zzz> : ;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
 		"}\n";
 
 	checkMethodParse(
