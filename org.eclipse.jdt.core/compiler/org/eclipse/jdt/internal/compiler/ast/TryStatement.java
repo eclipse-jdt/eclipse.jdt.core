@@ -29,8 +29,8 @@ public class TryStatement extends Statement {
 	Label subRoutineStartLabel;
 	LocalVariableBinding anyExceptionVariable, returnAddressVariable;
 
-	final static char[] SecretReturnName = " returnAddress".toCharArray() ; //$NON-NLS-1$
-	final static char[] SecretAnyHandlerName = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
+	public final static char[] SecretReturnName = " returnAddress".toCharArray() ; //$NON-NLS-1$
+	public final static char[] SecretAnyHandlerName = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
 
 	// for local variables table attributes
 	int preTryInitStateIndex = -1;
@@ -340,19 +340,24 @@ public void resolve(BlockScope upperScope) {
 
 	// special scope for secret locals optimization.	
 	scope = new BlockScope(upperScope);
+
+	BlockScope tryScope = new BlockScope(scope);
+	BlockScope finallyScope = null;
 	if (finallyBlock != null && finallyBlock.statements != null) { // provision for returning and forcing the finally block to run
 		returnAddressVariable = new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), 0); // the type does not matter as long as its not a normal base type
-		scope.addLocalVariable(returnAddressVariable);
+		scope.methodScope().addLocalVariable(returnAddressVariable);
 		returnAddressVariable.constant = NotAConstant; // not inlinable
 		subRoutineStartLabel = new Label();
 
-		BlockScope finallyScope = new BlockScope(scope);
+		finallyScope = new BlockScope(scope);
 		anyExceptionVariable = new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), 0);
 		finallyScope.addLocalVariable(anyExceptionVariable);
 		anyExceptionVariable.constant = NotAConstant; // not inlinable
 		finallyBlock.resolveUsing(finallyScope);
+		// force the finally scope to have variable positions shifted after its try scope.
+		finallyScope.shiftScope = tryScope; 
 	}
-	tryBlock.resolve(scope);
+	tryBlock.resolveUsing(tryScope);
 
 	// arguments type are checked against JavaLangThrowable in resolveForCatch(..)
 	if (catchBlocks != null) {

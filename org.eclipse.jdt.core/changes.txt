@@ -113,6 +113,8 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  4919      Cannot duplicate local variable in finally block 
+  4943      Verification error 
   4385		QualifiedAllocationExpression.sourceEnd incorrect if type is an AnonymousLocalTypeDeclaration 
   3230 		Search - Too many type references for query ending with * (1GAZVGI)
   
