@@ -843,9 +843,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Hashtable defaultOptions = new Hashtable(10);
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
-		Plugin plugin = getPlugin();
-		if (plugin == null) return defaultOptions;
-		Preferences preferences = plugin.getPluginPreferences();
+		Preferences preferences = getPlugin().getPluginPreferences();
 		
 		// get preferences set to their default
 		String[] defaultPropertyNames = preferences.defaultPropertyNames();
@@ -913,9 +911,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Hashtable options = new Hashtable(10);
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
-		Plugin plugin = getPlugin();
-		if (plugin == null) return options;
-		Preferences preferences = plugin.getPluginPreferences();
+		Preferences preferences = getPlugin().getPluginPreferences();
 		
 		// get preferences set to their default
 		String[] defaultPropertyNames = preferences.defaultPropertyNames();

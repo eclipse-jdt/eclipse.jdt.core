@@ -38,8 +38,15 @@
 	<echo message="UPDATE jdtcore.jar" />
 	<jar 
 		jarfile="${dest}/jdtcore.jar"
-		basedir="bin" />
+		basedir="bin" 
+		excludes="**/JDTCompilerAdapter.class"/>
 		
+	<echo message="UPDATE jdtCompilerAdapter.jar" />
+	<jar 
+		jarfile="${dest}/jdtCompilerAdapter.jar"
+		basedir="bin" 
+		includes="**/JDTCompilerAdapter.class"/>
+
 	<echo message="UPDATE plugin.xml" />
 	<copy file="plugin.xml" todir="${dest}" />
 	<echo message="UPDATE plugin.properties" />
@@ -54,18 +61,17 @@
 	<echo message="UPDATE about.html" />
 	<copy file="about.html" todir="${dest}" />
 
-	<echo message="UPDATE jdtCompilerAdapter.jar" />
-	<copy file="jdtCompilerAdapter.jar" todir="${dest}" />
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${dest}/jdtcoresrc.zip">
+	    <zipfileset dir="antadapter" />
 	    <zipfileset dir="batch" />
 	    <zipfileset dir="codeassist" />
 	    <zipfileset dir="compiler" />
-	    <zipfileset dir="search" />
-	    <zipfileset dir="eval" />
-	    <zipfileset dir="model" />
-	    <zipfileset dir="formatter" />
 	    <zipfileset dir="dom" />
+	    <zipfileset dir="eval" />
+	    <zipfileset dir="formatter" />
+	    <zipfileset dir="model" />
+	    <zipfileset dir="search" />
 	</zip>		
 </target>
 
