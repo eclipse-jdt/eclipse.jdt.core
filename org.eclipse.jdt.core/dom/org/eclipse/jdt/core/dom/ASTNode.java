@@ -1500,8 +1500,7 @@ public abstract class ASTNode {
 	 * @return a debug string 
 	 */
 	public final String toString() {
-		// allocate a buffer that is large enough to hold an average compilation unit
-		StringBuffer buffer = new StringBuffer(6000);
+		StringBuffer buffer = new StringBuffer();
 		int p = buffer.length();
 		try {
 			appendDebugString(buffer);
@@ -1512,7 +1511,6 @@ public abstract class ASTNode {
 			buffer.append("!"); //$NON-NLS-1$
 			buffer.append(standardToString());
 		}
-		// convert to a string, but lose the extra space in the string buffer by copying
 		return buffer.toString();
 	}
 	
