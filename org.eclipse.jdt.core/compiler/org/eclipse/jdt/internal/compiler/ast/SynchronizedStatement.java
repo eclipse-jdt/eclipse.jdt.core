@@ -41,6 +41,8 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
+	    // TODO (philippe) shouldn't it be protected by a check whether reachable statement ?
+	    
 		// mark the synthetic variable as being used
 		synchroVariable.useFlag = LocalVariableBinding.USED;
 
