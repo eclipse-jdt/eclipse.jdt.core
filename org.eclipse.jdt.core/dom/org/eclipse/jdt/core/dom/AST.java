@@ -250,13 +250,6 @@ public final class AST {
 	 * <li>If the given source doesn't correspond to the given kind.</li>
 	 * </ol>
 	 * </p>
-	 * TODO (jeem) revise spec
-	 * - always return non-null
-	 * - promise that node.getRoot() is a CompilationUnit
-	 * - compilation unit carries problems, and possibly line table, and comment table
-	 * - if things are very wrong, the call may return CompilationUnit
-	 * - nodes between compilation unit and result are unspec'd
-	 * - rationalize use of progress monitor, and null ness
 	 * 
 	 * @param kind the kind of construct to parse: one of 
 	 * {@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS},
@@ -272,9 +265,12 @@ public final class AST {
 	 * @see ASTNode#getLength()
 	 * @see JavaCore#getOptions()
 	 * @since 3.0
+	 * @deprecated Replaced by parse(int kind, char[] source, int offset, int length, Map options), which
+	 * (a) returns a different result in the case of severe errors,
+	 * and (b) does not take a progress monitor.
+	 * TODO (olivier) remove this method before 3.0 ships
 	 */
 	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options, IProgressMonitor monitor) {
-		// TODO add argument checking
 		if (options == null) {
 			options = JavaCore.getOptions();
 		}
@@ -313,6 +309,109 @@ public final class AST {
 				}
 		}
 		return null;
+	}
+
+	/**
+	 * Parses the given source between the bounds specified by the given offset (inclusive)
+	 * and the given length and creates and returns a corresponding abstract syntax tree.
+	 * <p>
+	 * When the parse is successful the result returned includes the ASTs for the
+	 * requested source:
+	 * <ul>
+	 * <li>{@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS}: The result node
+	 * is a {@link TypeDeclaration TypeDeclaration} whose
+	 * {@link TypeDeclaration#bodyDeclarations() bodyDeclarations}
+	 * are the new trees. Other aspects of the type declaration are unspecified.</li>
+	 * <li>{@link #K_STATEMENTS K_STATEMENTS}: The result node is a
+	 * {@link Block Block} whose {@link Block#statements() statements}
+	 * are the new trees. Other aspects of the block are unspecified.</li>
+	 * <li>{@link #K_EXPRESSION K_EXPRESSION}: The result node is a subclass of
+	 * {@link Expression Expression}. Other aspects of the expression are unspecified.</li>
+	 * </ul>
+	 * The resulting AST node is rooted under an contrived
+	 * {@link CompilationUnit CompilationUnit} node, to allow the
+	 * client to retrieve the following pieces of information 
+	 * available there:
+	 * <ul>
+	 * <li>{@linkplain CompilationUnit#lineNumber(int) Line number map}. Line
+	 * numbers start at 1 and only cover the subrange scanned
+	 * (<code>source[offset]</code> through <code>source[offset+length-1]</code>).</li>
+	 * <li>{@linkplain CompilationUnit#getMessages() Compiler messages}
+	 * and {@linkplain CompilationUnit#getProblems) detailed problem reports}.
+	 * Character positions are relative to the start of 
+	 * <code>source</code>; line positions are for the subrange scanned.</li>
+	 * <li>{@linkplain CompilationUnit#getCommentTable() Comment table}
+	 * for the subrange scanned.</li>
+	 * </ul>
+	 * The contrived nodes do not have source positions. Other aspects of the
+	 * {@link CompilationUnit CompilationUnit} node are unspecified, including
+	 * the exact arrangment of intervening nodes.
+	 * </p>
+	 * <p>
+	 * Lexical or syntax errors detected while parsing can result in
+	 * a result node being marked as {@link ASTNode#MALFORMED MALFORMED}.
+	 * In more severe failure cases where the parser is unable to
+	 * recognize the input, this method returns 
+	 * a {@link CompilationUnit CompilationUnit} node with at least the
+	 * compiler messages.
+	 * </p>
+	 * <p>Each node in the subtree (other than the contrived nodes) 
+	 * carries source range(s) information relating back
+	 * to positions in the given source (the given source itself
+	 * is not remembered with the AST). 
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including the various body declarations); the
+	 * specification for these node type spells out the details.
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * </p>
+	 * <p>
+	 * This method does not compute binding information; all <code>resolveBinding</code>
+	 * methods applied to nodes of the resulting AST return <code>null</code>.
+	 * </p>
+	 * 
+	 * @param kind the kind of construct to parse: one of 
+	 * {@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS},
+	 * {@link #K_EXPRESSION K_EXPRESSION},
+	 * {@link #K_STATEMENTS K_STATEMENTS}
+	 * @param source the source to be parsed
+     * @param  offset  the index of the first byte to decode
+     * @param  length  the number of bytes to decode
+	 * @param options the options; if null, <code>JavaCore.getOptions()</code> is used
+	 * @return an AST node whose type depends on the kind of parse
+	 *  requested, with a fallback to a <code>CompilationUnit</code>
+	 *  in the case of severe parsing errors
+     * @throws IndexOutOfBoundsException
+     *         if the <code>offset</code> and the <code>length</code>
+     *         arguments index characters outside the bounds of
+     *         <code>source</code>
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see JavaCore#getOptions()
+	 * @since 3.0
+	 */
+	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options) {
+		if (kind != K_CLASS_BODY_DECLARATIONS
+				&& kind != K_EXPRESSION
+				&& kind != K_STATEMENTS) {
+			throw new IllegalArgumentException();
+		}
+		if (source == null) {
+			throw new IllegalArgumentException();
+		}
+		if (length < 0 || offset < 0 || offset > source.length - length) {
+		    throw new IndexOutOfBoundsException();
+		}
+		if (options == null) {
+			options = JavaCore.getOptions();
+		}
+		// TODO (olivier) missing implementation
+		throw new RuntimeException();
 	}
 	
 	/**
