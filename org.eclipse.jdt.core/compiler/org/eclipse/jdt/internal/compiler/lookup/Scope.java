@@ -120,7 +120,7 @@ public abstract class Scope
             if (mostSpecificSubstitute == null)
                 return null; // incompatible
            mostSpecificSubstitutes[i] = mostSpecificSubstitute;
-System.out.println(new String(typeVariables[i].shortReadableName()) + " --> " + new String(mostSpecificSubstitute.shortReadableName()));
+System.out.println(new String(typeVariables[i].shortReadableName()) + " --> " + new String(mostSpecificSubstitute.shortReadableName())); //$NON-NLS-1$
 		}
 
 		// apply inferred variable substitutions, then recheck argument compatibility
