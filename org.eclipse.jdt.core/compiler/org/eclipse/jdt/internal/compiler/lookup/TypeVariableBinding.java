@@ -21,7 +21,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public TypeVariableBinding(char[] sourceName, int rank){
 
 		this.sourceName = sourceName;
-		this.rank = rank;
+		this.rank = rank; 
 	}
 
 	/**
