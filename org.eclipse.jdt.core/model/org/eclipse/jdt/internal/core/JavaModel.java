@@ -26,7 +26,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -75,56 +74,19 @@ public boolean contains(IResource resource) {
 			return true;
 	}
 	// file or folder
+	IJavaProject[] projects;
 	try {
-		IPath path = resource.getFullPath();
-		IJavaProject[] projects = this.getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject project = projects[i];
-			IClasspathEntry[] classpath = project.getResolvedClasspath(true);
-			
-			IPath output = project.getOutputLocation();
-			IPath innerMostOutput = output.isPrefixOf(path) ? output : null;
-			IClasspathEntry innerMostEntry = null;
-			for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
-				IClasspathEntry entry = classpath[j];
-
-				IPath entryPath = entry.getPath();
-				if ((innerMostEntry == null || innerMostEntry.getPath().isPrefixOf(entryPath))
-						&& entryPath.isPrefixOf(path)) {
-					innerMostEntry = entry;
-				}
-				IPath entryOutput = classpath[j].getOutputLocation();
-				if (entryOutput != null && entryOutput.isPrefixOf(path)) {
-					innerMostOutput = entryOutput;
-				}
-			}
-			if (innerMostEntry != null) {
-				// special case prj==src and nested output location
-				if (innerMostOutput != null && innerMostOutput.segmentCount() > 1 // output isn't project
-						&& innerMostEntry.getPath().segmentCount() == 1) { // 1 segment must be project name
-					return false;
-				}
-				if  (resource instanceof IFolder) {
-					 // folders are always included in src/lib entries
-					 return true;
-				}
-				switch (innerMostEntry.getEntryKind()) {
-					case IClasspathEntry.CPE_SOURCE:
-						// .class files are not visible in source folders 
-						return !Util.isClassFileName(path.lastSegment());
-					case IClasspathEntry.CPE_LIBRARY:
-						// .java files are not visible in library folders
-						return !Util.isJavaFileName(path.lastSegment());
-				}
-			}
-			if (innerMostOutput != null) {
-				return false;
-			}
-		}
-		return true;
+		projects = this.getJavaProjects();
 	} catch (JavaModelException e) {
 		return false;
 	}
+	for (int i = 0, length = projects.length; i < length; i++) {
+		JavaProject project = (JavaProject)projects[i];
+		if (!project.contains(resource)) {
+			return false;
+		}
+	}
+	return true;
 }
 /**
  * @see IJavaModel

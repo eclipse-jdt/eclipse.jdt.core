@@ -57,6 +57,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testProjectGetChildren"));
 	suite.addTest(new JavaProjectTests("testProjectGetPackageFragments"));
 	suite.addTest(new JavaProjectTests("testRootGetPackageFragments"));
+	suite.addTest(new JavaProjectTests("testRootGetPackageFragments2"));
 	suite.addTest(new JavaProjectTests("testInternalArchiveCorrespondingResource"));
 	suite.addTest(new JavaProjectTests("testExternalArchiveCorrespondingResource"));
 	suite.addTest(new JavaProjectTests("testProjectCorrespondingResource"));
@@ -773,6 +774,32 @@ public void testRootGetPackageFragments() throws JavaModelException {
 	root= getPackageFragmentRoot("JavaProjectTests", "lib.jar");
 	fragments= root.getChildren();	
 	assertTrue("should be package 3 package fragments in lib.jar, were " + fragments.length , fragments.length == 3);
+}
+/**
+ * Test that the correct package fragments exist in the project.
+ * (regression test for bug 32041 Multiple output folders fooling Java Model)
+ */
+public void testRootGetPackageFragments2() throws CoreException {
+	try {
+		this.createJavaProject("P");
+		this.createFolder("/P/bin");
+		this.createFolder("/P/bin2");
+		this.editFile(
+			"/P/.classpath", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" output=\"bin2\" path=\"\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>"
+		);
+		IPackageFragmentRoot root = getPackageFragmentRoot("/P");
+		assertElementsEqual(
+			"Unexpected packages",
+			"",
+			root.getChildren());
+	} finally {
+		this.deleteProject("P");
+	}
 }
 /**
  * Ensure a source folder can have a name ending with ".jar"

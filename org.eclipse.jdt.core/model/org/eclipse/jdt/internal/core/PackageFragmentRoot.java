@@ -223,7 +223,7 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 	IPackageFragment pkg = getPackageFragment(prefix);
 	vChildren.add(pkg);
 	try {
-		IPath outputLocationPath = getJavaProject().getOutputLocation();
+		JavaProject javaProject = (JavaProject)getJavaProject();
 		IResource[] members = folder.members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];
@@ -232,14 +232,14 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 				&& Util.isValidFolderNameForPackage(memberName)
 				&& !Util.isExcluded(member, exclusionPatterns)) {
 					
-				String newPrefix;
-				if (prefix.length() == 0) {
-					newPrefix = memberName;
-				} else {
-					newPrefix = prefix + "." + memberName; //$NON-NLS-1$
-				}
 				// eliminate binary output only if nested inside direct subfolders
-				if (!member.getFullPath().equals(outputLocationPath)) {
+				if (javaProject.contains(member)) {
+					String newPrefix;
+					if (prefix.length() == 0) {
+						newPrefix = memberName;
+					} else {
+						newPrefix = prefix + "." + memberName; //$NON-NLS-1$
+					}
 					computeFolderChildren((IFolder) member, newPrefix, vChildren, exclusionPatterns);
 				}
 			}
@@ -250,7 +250,7 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 		throw new JavaModelException(e);
 	}
 }
-/**
+/*
  * Computes and returns the source attachment root path for the given source attachment path.
  * Returns <code>null</code> if none could be found.
  * 

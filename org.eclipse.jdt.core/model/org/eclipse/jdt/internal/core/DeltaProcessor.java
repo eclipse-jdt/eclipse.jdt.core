@@ -675,7 +675,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
 					if (root == null) {
 						element =  rootInfo == null ? JavaCore.create(resource) : JavaModelManager.create(resource, rootInfo.project);
-					} else if (!JavaModelManager.conflictsWithOutputLocation(path, (JavaProject)root.getJavaProject())) {
+					} else if (((JavaProject)root.getJavaProject()).contains(resource)) {
 						// create package handle
 						IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
 						String pkg = Util.packageName(pkgPath);
@@ -1277,13 +1277,14 @@ public class DeltaProcessor implements IResourceChangeListener {
 		IJavaElement parent) {
 	
 		IResource resource = delta.getResource();
-		IJavaElement element = JavaCore.create(resource);
+		IJavaElement element = null;
 		boolean processChildren = false;
 	
 		switch (resource.getType()) {
 	
 			case IResource.ROOT :
 				if (delta.getKind() == IResourceDelta.CHANGED) {
+					element = JavaCore.create(resource);
 					processChildren = true;
 				}
 				break;
@@ -1293,6 +1294,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					case IResourceDelta.CHANGED:
 						// do not visit non-java projects (see bug 16140 Non-java project gets .classpath)
 						if (JavaProject.hasJavaNature(resource.getProject())) {
+							element = JavaCore.create(resource);
 							processChildren = true;
 						}
 						break;
@@ -1301,7 +1303,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						break;
 					case IResourceDelta.REMOVED:
 						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
-						this.manager.removePerProjectInfo((JavaProject) element);
+						this.manager.removePerProjectInfo((JavaProject)JavaCore.create(resource));
 						
 						this.rootsAreStale = true;
 						break;

@@ -451,6 +451,62 @@ public class JavaProject
 		// register Java builder
 		addToBuildSpec(JavaCore.BUILDER_ID);
 	}
+	/*
+	 * Returns whether the given resource is accessible through the children or the non-Java resources of this project.
+	 * Returns true if the resource is not in the project.
+	 * Assumes that the resource is a folder or a file.
+	 */
+	public boolean contains(IResource resource) {
+			
+		IClasspathEntry[] classpath;
+		IPath output;
+		try {
+			classpath = getResolvedClasspath(true);
+			output = getOutputLocation();
+		} catch (JavaModelException e) {
+			return false;
+		}
+		
+		IPath fullPath = resource.getFullPath();
+		IPath innerMostOutput = output.isPrefixOf(fullPath) ? output : null;
+		IClasspathEntry innerMostEntry = null;
+		for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
+			IClasspathEntry entry = classpath[j];
+		
+			IPath entryPath = entry.getPath();
+			if ((innerMostEntry == null || innerMostEntry.getPath().isPrefixOf(entryPath))
+					&& entryPath.isPrefixOf(fullPath)) {
+				innerMostEntry = entry;
+			}
+			IPath entryOutput = classpath[j].getOutputLocation();
+			if (entryOutput != null && entryOutput.isPrefixOf(fullPath)) {
+				innerMostOutput = entryOutput;
+			}
+		}
+		if (innerMostEntry != null) {
+			// special case prj==src and nested output location
+			if (innerMostOutput != null && innerMostOutput.segmentCount() > 1 // output isn't project
+					&& innerMostEntry.getPath().segmentCount() == 1) { // 1 segment must be project name
+				return false;
+			}
+			if  (resource instanceof IFolder) {
+				 // folders are always included in src/lib entries
+				 return true;
+			}
+			switch (innerMostEntry.getEntryKind()) {
+				case IClasspathEntry.CPE_SOURCE:
+					// .class files are not visible in source folders 
+					return !Util.isClassFileName(fullPath.lastSegment());
+				case IClasspathEntry.CPE_LIBRARY:
+					// .java files are not visible in library folders
+					return !Util.isJavaFileName(fullPath.lastSegment());
+			}
+		}
+		if (innerMostOutput != null) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Record a new marker denoting a classpath problem 
@@ -529,8 +585,8 @@ public class JavaProject
 							defaultOutput = entry; // separate output
 						} else {
 							paths.add(entry);
-						}
-					}
+				}
+			}
 				}
 			}
 		} catch (IOException e) {
@@ -2324,4 +2380,6 @@ public class JavaProject
 				}
 			}
 	}
+
+
 }
