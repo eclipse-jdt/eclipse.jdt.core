@@ -593,7 +593,6 @@ public void testResolveInClassFileWithSource() throws JavaModelException {
 public void testResolveInClassFileWithoutSource() throws JavaModelException {
 	IClassFile cu = getClassFile("Resolve", "p4.jar", "p4", "X.class");
 
-	String selectAt = "Object"; // start location of 'Object' is 34
 	String selection = "Object";
 	int start = 34;
 	int length = selection.length();

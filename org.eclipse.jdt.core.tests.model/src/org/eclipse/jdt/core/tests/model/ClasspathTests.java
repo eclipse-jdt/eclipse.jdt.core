@@ -138,8 +138,6 @@ public void testClasspathAddRoot() throws JavaModelException, CoreException, IOE
 public void testClasspathChangeExternalResources() throws CoreException {
 	try {
 		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, "bin");
-		IClasspathEntry[] originalCP = proj.getRawClasspath();
-		IPackageFragmentRoot root = getPackageFragmentRoot("P", "src");
 
 		IClasspathEntry[] newEntries = new IClasspathEntry[2];
 		newEntries[0] = JavaCore.newLibraryEntry(new Path(getExternalJCLPath()), null, null, false);
@@ -222,7 +220,6 @@ public void testClasspathCreateLibraryEntry() throws CoreException {
 public void testClasspathCreateLocalJarLibraryEntry() throws CoreException {
 	IJavaProject proj = this.createJavaProject("P", new String[] {""}, "");
 	IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
-	IClasspathEntry[] originalCP= proj.getRawClasspath();
 	IClasspathEntry newEntry= JavaCore.newLibraryEntry(new Path(getExternalJCLPath()), null, null, false);
 	IClasspathEntry[] newEntries= new IClasspathEntry[]{newEntry};
 	IPackageFragmentRoot newRoot= proj.getPackageFragmentRoot(getExternalJCLPath());
@@ -257,7 +254,6 @@ public void testClasspathCreateLocalJarLibraryEntry() throws CoreException {
 public void testClasspathCrossProject() throws JavaModelException, CoreException {
 	IJavaProject project = this.createJavaProject("P1", new String[] {""}, "");
 	this.createJavaProject("P2", new String[] {}, "");
-	IClasspathEntry[] oldClasspath= project.getRawClasspath(); 
 	try {
 		startDeltas();
 		IPackageFragmentRoot oldRoot= getPackageFragmentRoot("P1", "");
@@ -288,7 +284,6 @@ public void testClasspathDeleteNestedRoot() throws JavaModelException, CoreExcep
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
 	// delete the root
-	IFolder folder= (IFolder)root.getUnderlyingResource();
 	root.getUnderlyingResource().delete(false, null);
 
 	IClasspathEntry[] newCP= project.getRawClasspath();
@@ -889,7 +884,7 @@ public void testHasClasspathCycle() throws JavaModelException, CoreException, IO
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {""}, "");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {""}, "");
-		IJavaProject p3 = this.createJavaProject("P3", new String[] {""}, new String[] {}, new String[] {"/P1"}, "");
+		this.createJavaProject("P3", new String[] {""}, new String[] {}, new String[] {"/P1"}, "");
 	
 		IClasspathEntry[] originalP1CP= p1.getRawClasspath();
 		IClasspathEntry[] originalP2CP= p2.getRawClasspath();
@@ -1499,7 +1494,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
 					allProjectsInCycle[i] = 1;
 				}		
-				long start = System.currentTimeMillis();
+				//long start = System.currentTimeMillis();
 				for (int i = 0; i < numberOfParticipants; i++){
 					IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
 					int index = 0;

@@ -203,7 +203,6 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError){
-			MethodBinding closestMethod = null;
 			if(receiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
 				this.codegenBinding = this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);

@@ -76,7 +76,7 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 }
 public void testAddPackageFrament() throws CoreException {
 	try {
-		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src1"}, "bin");
+		this.createJavaProject("P1", new String[] {"src1"}, "bin");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "");
 		IClasspathEntry[] classpath = 
 			new IClasspathEntry[] {

@@ -1327,11 +1327,12 @@ protected void consumeCastExpressionLL1() {
 
 	//optimize push/pop
 
-	Expression castType,cast,exp;
+	Expression cast,exp;
 	expressionPtr--;
 	expressionStack[expressionPtr] = 
-			cast = new CastExpression(	exp=expressionStack[expressionPtr+1] ,
-								castType = getTypeReference(expressionStack[expressionPtr]));
+		cast = new CastExpression(
+			exp=expressionStack[expressionPtr+1] ,
+			getTypeReference(expressionStack[expressionPtr]));
 	expressionLengthPtr -- ;
 	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;

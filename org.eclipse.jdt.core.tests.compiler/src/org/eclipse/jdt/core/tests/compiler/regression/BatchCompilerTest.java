@@ -34,7 +34,7 @@ public void test01() {
 		//System.out.println(Util.displayString(result, 2));
 		assertEquals("incorrect tokenized command line",
 			expected,
-			buffer.toString());
+			result);
 }
 public void test02() {
 	
@@ -50,7 +50,7 @@ public void test02() {
 		//System.out.println(Util.displayString(result, 2));
 		assertEquals("incorrect tokenized command line",
 			expected,
-			buffer.toString());
+			result);
 }
 public void test03() {
 	
@@ -66,7 +66,7 @@ public void test03() {
 		//System.out.println(Util.displayString(result, 2));
 		assertEquals("incorrect tokenized command line",
 			expected,
-			buffer.toString());
+			result);
 }
 public void test04() {
 	
@@ -82,7 +82,7 @@ public void test04() {
 		//System.out.println(Util.displayString(result, 2));
 		assertEquals("incorrect tokenized command line",
 			expected,
-			buffer.toString());
+			result);
 }
 public void test05() {
 	
@@ -98,7 +98,7 @@ public void test05() {
 		//System.out.println(Util.displayString(result, 2));
 		assertEquals("incorrect tokenized command line",
 			expected,
-			buffer.toString());
+			result);
 }
 public void test06() {
 	
@@ -114,7 +114,7 @@ public void test06() {
 		//System.out.println(Util.displayString(result, 2));
 		assertEquals("incorrect tokenized command line",
 			expected,
-			buffer.toString());
+			result);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;

@@ -746,7 +746,7 @@ public class ASTVisitorTest extends TestCase {
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue("[(tS[(nSZZnS)]tS)]".equals(b.toString()));
+		assertTrue("[(tS[(nSZZnS)]tS)]".equals(result));
 	}
 
 	public void testArrayType() {

@@ -40,9 +40,9 @@ public class PackageTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, "");
 		IPath src = env.addPackageFragmentRoot(projectPath, "src");
 		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2");
-		IPath bin = env.setOutputFolder(projectPath, "bin");
+		env.setOutputFolder(projectPath, "bin");
 		
-		IPath x = env.addClass(src, "pack", "X",
+		env.addClass(src, "pack", "X",
 			"package pack;\n"+
 			"public class X {\n"+
 			"}\n"

@@ -285,7 +285,7 @@ public class Main implements ProblemSeverities {
 		int count = 0;
 		String[] arguments = new String[10];
 		StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
-		String token = "", lastToken; //$NON-NLS-1$
+		String token = ""; //$NON-NLS-1$
 		boolean insideQuotes = false;
 		boolean startNewToken = true;
 
@@ -295,7 +295,6 @@ public class Main implements ProblemSeverities {
 		// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
 		// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
 		while (tokenizer.hasMoreTokens()) {
-			lastToken = token;
 			token = tokenizer.nextToken();
 
 			if (token.equals(" ")) { //$NON-NLS-1$

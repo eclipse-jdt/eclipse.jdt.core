@@ -131,7 +131,6 @@ public void testAppendReadOnly() throws CoreException {
 	);
 	try {
 		buffer.getUnderlyingResource().setReadOnly(true);
-		int oldLength= buffer.getLength();
 		buffer.append("\nclass B {}");
 		assertTrue("unexpected event", this.event == null);
 		assertEquals(

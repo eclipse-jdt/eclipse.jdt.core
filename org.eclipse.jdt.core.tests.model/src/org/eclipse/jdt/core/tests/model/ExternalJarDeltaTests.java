@@ -238,13 +238,11 @@ public void testExternalJarAdded1() throws CoreException {
 		
 		String libPath = getLibraryPath();
 		String pPath = getExternalPath()+"/pAdded1.jar";
-		String p1Path = libPath+"/p1.jar";
 		String p2Path = libPath+"/p2.jar";
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
 		File f2 = new File(p2Path);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -277,13 +275,11 @@ public void testExternalJarAdded2() throws CoreException {
 		
 		String libPath = getLibraryPath();
 		String pPath = getExternalPath()+"/pAdded2.jar";
-		String p1Path = libPath+"/p1.jar";
 		String p2Path = libPath+"/p2.jar";
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
 		File f2 = new File(p2Path);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -316,13 +312,11 @@ public void testExternalJarAdded3() throws CoreException {
 		
 		String libPath =getLibraryPath();
 		String pPath = getExternalPath()+"/pAdded3.jar";
-		String p1Path = libPath+"/p1.jar";
 		String p2Path = libPath+"/p2.jar";
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
 		File f2 = new File(p2Path);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
@@ -356,13 +350,11 @@ public void testExternalJarRemoved1() throws CoreException {
 		
 		String libPath = getLibraryPath();
 		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
 		String p2Path = libPath+"/p2.jar";
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
 		File f2 = new File(p2Path);
 		
 		copy(f2, f);
@@ -396,13 +388,11 @@ public void testExternalJarRemoved2() throws CoreException {
 		
 		String libPath = getLibraryPath();
 		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
 		String p2Path = libPath+"/p2.jar";
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
 		File f2 = new File(p2Path);
 		
 		copy(f2, f);
@@ -436,13 +426,11 @@ public void testExternalJarRemoved3() throws CoreException {
 		
 		String libPath = getLibraryPath();
 		String pPath = getExternalPath()+"/p.jar";
-		String p1Path = libPath+"/p1.jar";
 		String p2Path = libPath+"/p2.jar";
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		f = new File(pPath);
-		File f1 = new File(p1Path);
 		File f2 = new File(p2Path);
 		
 		copy(f2, f);

@@ -212,7 +212,6 @@ public class TestingEnvironment {
 		/* remove any existing zip from the java model */
 		removeInternalJar(projectPath, zipName);
 
-		IFile file = fWorkspace.getRoot().getFile(path);
 		createFile(path, contents);
 		addPackageFragmentRoot(projectPath, zipName);
 		return path;
@@ -664,7 +663,6 @@ public class TestingEnvironment {
 			}
 		}
 		IPath rootPath = getPackageFragmentRootPath(projectPath, packageFragmentRootName);
-		IPath[] oldEntries = getClasspath(projectPath);
 		removeEntry(projectPath, rootPath);
 	}
 	

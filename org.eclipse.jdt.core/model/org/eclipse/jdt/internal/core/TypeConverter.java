@@ -199,7 +199,6 @@ public class TypeConverter {
 	private static TypeReference createTypeReference(char[] type, IType contextType) {
 		try {
 			String[][] resolvedName = contextType.resolveType(new String(type));
-			char[] superClassName = null;
 			if(resolvedName != null && resolvedName.length == 1) {
 				type= CharOperation.concat(resolvedName[0][0].toCharArray(), resolvedName[0][1].toCharArray(), '.');
 			}

@@ -44,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -699,7 +698,6 @@ class DefaultBindingResolver extends BindingResolver {
 		if (methodBinding != null && !methodBinding.isValidBinding()) {
 			/*
 			 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597			 */
-			ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) methodBinding;
 			if (methodBinding.problemId() == ProblemReasons.NotVisible) {
 				ReferenceBinding declaringClass = methodBinding.declaringClass;
 				if (declaringClass != null) {

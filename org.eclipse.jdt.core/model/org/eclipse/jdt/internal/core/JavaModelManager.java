@@ -999,8 +999,6 @@ public class JavaModelManager implements ISaveParticipant {
 				if (!cpElement.getNodeName().equalsIgnoreCase("variables")) { //$NON-NLS-1$
 					return;
 				}
-				ArrayList variableNamesList = new ArrayList();
-				ArrayList variablePathsList = new ArrayList();
 				
 				NodeList list= cpElement.getChildNodes();
 				int length= list.getLength();

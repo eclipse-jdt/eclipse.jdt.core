@@ -684,7 +684,6 @@ final static public char[] trim(char[] chars){
 	
 	if (chars == null) return null;
 	
-	char[] result = chars;
 	int start = 0, length = chars.length, end = length - 1;
 	while (start < length && chars[start] == ' ') {
 		start++;

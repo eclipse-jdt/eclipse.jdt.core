@@ -94,7 +94,7 @@ public class IncrementalTests extends Tests {
 		IPath root = env.addPackageFragmentRoot(projectPath, "src");
 		env.setOutputFolder(projectPath, "bin");
 
-		IPath pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p;	\n"+
 			"public class AA {}	\n"+
 			"class AZ {}");
@@ -103,7 +103,7 @@ public class IncrementalTests extends Tests {
 			"package p;	\n"+
 			"public class AB extends AZ {}");
 
-		IPath pathToBB = env.addClass(root, "p", "BB",
+		env.addClass(root, "p", "BB",
 			"package p;	\n"+
 			"public class BB {	\n"+
 			"	void foo(){	\n" +
@@ -112,7 +112,7 @@ public class IncrementalTests extends Tests {
 			"	}	\n" +
 			"}");
 
-		IPath pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p;	\n"+
 			"public class ZZ {}	\n"+
 			"class ZA {}");
@@ -121,11 +121,11 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 
 		/* Remove AZ and touch BB */
-		pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p;	\n"+
 			"public class AA {}");
 
-		pathToBB = env.addClass(root, "p", "BB",
+		env.addClass(root, "p", "BB",
 			"package p;	\n"+
 			"public class BB {	\n"+
 			"	void foo() {	\n" +
@@ -138,7 +138,7 @@ public class IncrementalTests extends Tests {
 		expectingProblemsFor(new IPath[]{ pathToAB });
 		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved or is not a valid superclass", pathToAB));
 
-		pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p;	\n"+
 			"public class AA {}	\n"+
 			"class AZ {}");
@@ -161,12 +161,12 @@ public class IncrementalTests extends Tests {
 		IPath root = env.addPackageFragmentRoot(projectPath, "src");
 		env.setOutputFolder(projectPath, "bin");
 
-		IPath pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p;	\n"+
 			"public class AA {}	\n"+
 			"class AZ {}");
 
-		IPath pathToAB = env.addClass(root, "p", "AB",
+		env.addClass(root, "p", "AB",
 			"package p;	\n"+
 			"public class AB extends AZ {}");
 
@@ -179,7 +179,7 @@ public class IncrementalTests extends Tests {
 			"	}	\n" +
 			"}");
 
-		IPath pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p;	\n"+
 			"public class ZZ {}	\n"+
 			"class ZA {}");
@@ -188,7 +188,7 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 
 		/* Remove ZA and touch BB */
-		pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p;	\n"+
 			"public class ZZ {}");
 
@@ -205,7 +205,7 @@ public class IncrementalTests extends Tests {
 		expectingProblemsFor(new IPath[]{ pathToBB });
 		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved or is not a type", pathToBB));
 
-		pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p;	\n"+
 			"public class ZZ {}	\n"+
 			"class ZA {}");
@@ -277,18 +277,18 @@ public class IncrementalTests extends Tests {
 		IPath root = env.addPackageFragmentRoot(projectPath, "src");
 		env.setOutputFolder(projectPath, "bin");
 
-		IPath pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p; \n"+
 			"public class AA {} \n"+
 			"class AZ {static class M{}}");
 
-		IPath pathToAB = env.addClass(root, "p", "AB",
+		env.addClass(root, "p", "AB",
 			"package p; \n"+
 			"import p.AZ.*; \n"+
 			"import p.ZA.*; \n"+
 			"public class AB extends M {}");
 
-		IPath pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p; \n"+
 			"public class ZZ {} \n"+
 			"class ZA {}");
@@ -297,12 +297,12 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 
 		/* Move M from AA to ZZ */
-		pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p; \n"+
 			"public class AA {} \n"+
 			"class AZ {}");
 
-		pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p; \n"+
 			"public class ZZ {} \n"+
 			"class ZA {static class M{}}");
@@ -311,12 +311,12 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 
 		/* Move M from ZZ to AA */
-		pathToAA = env.addClass(root, "p", "AA",
+		env.addClass(root, "p", "AA",
 			"package p; \n"+
 			"public class AA {} \n"+
 			"class AZ {static class M{}}");
 
-		pathToZZ = env.addClass(root, "p", "ZZ",
+		env.addClass(root, "p", "ZZ",
 			"package p; \n"+
 			"public class ZZ {} \n"+
 			"class ZA {}");

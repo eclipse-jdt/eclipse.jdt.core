@@ -260,7 +260,6 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 		//add as the last element of the parent
 		parent.addChild(child);
 		fCreatedElement = (DOMNode)child;
-		DOMNode lastChild = (DOMNode)fCreatedElement.getPreviousNode();
 		fInsertionPosition = ((DOMNode)parent).getInsertionPosition();
 	//	fInsertionPosition = lastChild == null ? ((DOMNode)parent).getInsertionPosition() : lastChild.getInsertionPosition();
 		fReplacementLength = parent.getParent() == null ? -1 : 0;

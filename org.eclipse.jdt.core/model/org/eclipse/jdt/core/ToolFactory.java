@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
@@ -151,11 +150,9 @@ public class ToolFactory {
 	 */
 	public static IClassFileReader createDefaultClassFileReader(IClassFile classfile, int decodingFlag){
 
-		IPath filePath = classfile.getPath();
 		IPackageFragmentRoot root = (IPackageFragmentRoot) classfile.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		if (root != null){
 			try {
-				IPath rootPath = root.getPath();
 				if (root instanceof JarPackageFragmentRoot) {
 						
 					String archiveName = ((JarPackageFragmentRoot)root).getJar().getName();
