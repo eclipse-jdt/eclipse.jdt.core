@@ -176,10 +176,12 @@ public abstract class Scope
 				problemReporter().finalVariableBound(typeVariable, typeRef);
 			}
 			typeRef.resolvedType = superType; // hold onto the problem type
-			if (superType.isClass())
+			if (superType.isClass()) {
 				typeVariable.superclass = superType;
-			else
+			} else {
 				typeVariable.superInterfaces = new ReferenceBinding[] {superType};
+				typeVariable.modifiers |= AccInterface;
+			}
 			typeVariable.firstBound = superType; // first bound used to compute erasure
 	
 			TypeReference[] boundRefs = typeParameter.bounds;
