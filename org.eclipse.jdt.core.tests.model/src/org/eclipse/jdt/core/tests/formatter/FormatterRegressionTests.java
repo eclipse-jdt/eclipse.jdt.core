@@ -220,18 +220,18 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		try {
-				ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
-				String s = sourceUnit.getSource();
-				assertNotNull(s);
-				ICompilationUnit outputUnit = getCompilationUnit("Formatter" , "", packageName, getOut(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
-				assertNotNull(outputUnit);
-				String result;
-				if (length == -1) {
-					result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length());
-				} else {
-					result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length);
-				}
-				assertLineEquals(result, s, outputUnit.getSource(), checkNull);
+			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
+			String s = sourceUnit.getSource();
+			assertNotNull(s);
+			ICompilationUnit outputUnit = getCompilationUnit("Formatter" , "", packageName, getOut(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
+			assertNotNull(outputUnit);
+			String result;
+			if (length == -1) {
+				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length());
+			} else {
+				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length);
+			}
+			assertLineEquals(result, s, outputUnit.getSource(), checkNull);
 		} catch (JavaModelException e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -4678,12 +4678,45 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49551
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49577
 	 */
 	public void test410() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.blank_lines_between_type_declarations = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test410", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49577
+	 */
+	public void test411() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.blank_lines_between_type_declarations = 2;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test411", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49551
+	 */
+	public void _test412() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test410", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49551
+	 */
+	public void _test413() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.blank_lines_between_type_declarations = 1;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test411", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 }

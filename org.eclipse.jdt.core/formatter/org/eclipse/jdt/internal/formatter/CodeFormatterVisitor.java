@@ -2365,11 +2365,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 
-		if (isSemiColon()) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
-			this.scribe.printNewLine();
-		}
+		int blankLineBetweenTypeDeclarations = this.preferences.blank_lines_between_type_declarations;
 		/*
 		 * Type declarations
 		 */
@@ -2379,20 +2375,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			for (int i = 0; i < typesLength - 1; i++) {
 				types[i].traverse(this, scope);
 				this.scribe.printComment();
-				this.scribe.printNewLine();
-				if (isSemiColon()) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-					this.scribe.printTrailingComment();
+				if (blankLineBetweenTypeDeclarations != 0) {
+					this.scribe.printEmptyLines(blankLineBetweenTypeDeclarations);
+				} else {
 					this.scribe.printNewLine();
 				}
 			}
 			format(types[typesLength - 1]);
-		}
-		if (isSemiColon()) {
-			this.scribe.printNewLine();
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
-			this.scribe.printNewLine();
 		}
 		this.scribe.printComment();
 		return false;

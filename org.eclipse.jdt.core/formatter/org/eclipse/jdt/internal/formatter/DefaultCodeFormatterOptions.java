@@ -39,6 +39,7 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_BLANK_LINES_BEFORE_METHOD = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_PACKAGE = 0;
+	public static final int DEFAULT_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS = 0;
 	public static final String DEFAULT_BLOCK_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
 	public static final boolean DEFAULT_COMPACT_ELSE_IF = true;
 	public static final int DEFAULT_COMPACT_IF_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
@@ -203,6 +204,7 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_before_method;
 	public int blank_lines_before_new_chunk;
 	public int blank_lines_before_package;
+	public int blank_lines_between_type_declarations;
 	public String block_brace_position;
 	public boolean compact_else_if;
 	public int compact_if_alignment;
@@ -367,6 +369,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, Integer.toString(this.blank_lines_before_method));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK, Integer.toString(this.blank_lines_before_new_chunk));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE, Integer.toString(this.blank_lines_before_package));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS, Integer.toString(this.blank_lines_between_type_declarations));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION, this.block_brace_position);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF, this.compact_else_if ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMPACT_IF_ALIGNMENT, getAlignment(this.compact_if_alignment));
@@ -562,6 +565,10 @@ public class DefaultCodeFormatterOptions {
 		if (blankLinesBeforePackageOption != null) {
 			this.blank_lines_before_package = Integer.parseInt((String) blankLinesBeforePackageOption);
 		}
+		final Object blankLinesBetweenTypeDeclarationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS);
+		if (blankLinesBetweenTypeDeclarationsOption != null) {
+			this.blank_lines_between_type_declarations = Integer.parseInt((String) blankLinesBetweenTypeDeclarationsOption);
+		}		
 		final Object blockBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION);
 		if (blockBracePositionOption != null) {
 			this.block_brace_position = (String) blockBracePositionOption;
@@ -1105,6 +1112,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_before_method = DEFAULT_BLANK_LINES_BEFORE_METHOD;
 		this.blank_lines_before_new_chunk = DEFAULT_BLANK_LINES_BEFORE_NEW_CHUNK;
 		this.blank_lines_before_package = DEFAULT_BLANK_LINES_BEFORE_PACKAGE;
+		this.blank_lines_between_type_declarations = DEFAULT_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS;
 		this.block_brace_position = DEFAULT_BLOCK_BRACE_POSITION;
 		this.compact_else_if = DEFAULT_COMPACT_ELSE_IF;
 		this.compact_if_alignment = DEFAULT_COMPACT_IF_ALIGNMENT;
@@ -1246,12 +1254,13 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_imports = 1;
 		this.blank_lines_after_package = 1;
 		this.blank_lines_before_field = 1;
-		this.blank_lines_before_first_class_body_declaration = 0;
+		this.blank_lines_before_first_class_body_declaration = 1;
 		this.blank_lines_before_imports= 1;
 		this.blank_lines_before_member_type = 1;
 		this.blank_lines_before_method = 1;
 		this.blank_lines_before_new_chunk = 1;
 		this.blank_lines_before_package = 0;
+		this.blank_lines_between_type_declarations = 1;
 		this.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.compact_else_if = true;
 		this.compact_if_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
