@@ -40,9 +40,6 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 /**
  * Constructs a handle to a compilation unit with the given name in the
  * specified package for the specified owner
- *
- * @exception IllegalArgumentException if the name of the compilation unit
- * does not end with ".java"
  */
 protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
 	super(parent);
