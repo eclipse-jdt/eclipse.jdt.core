@@ -605,11 +605,16 @@ class ASTConverter {
 			}
 			methodDecl.setBody(block);
 		} else if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-			Block block = this.ast.newBlock();
 			int start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
 			int end = retrieveEndBlockPosition(methodDeclaration.sourceStart, this.compilationUnitSource.length);
-			block.setSourceRange(start, end - start + 1);
-			methodDecl.setBody(block);
+			if (start != -1 && end != -1) {
+				/*
+				 * start or end can be equal to -1 if we have an interface's method.
+				 */
+				Block block = this.ast.newBlock();
+				block.setSourceRange(start, end - start + 1);
+				methodDecl.setBody(block);
+			}
 		}
 		setJavaDocComment(methodDecl);
 		return methodDecl;
