@@ -19,11 +19,11 @@ public class FilteredTestSuite extends TestSuite {
  * from the given test suite if Tests.EXPERT is false.
  */
 public FilteredTestSuite(String[] excludedTests) {
-	this.excludedTests = excludedTests;
 	if(!EXPERT) {
-		for (int i = 0; i < excludedTests.length; i+=2) {
-			System.out.println("excluded : "+excludedTests[i]+"#"+excludedTests[i+1]);
-		}
+		this.excludedTests = excludedTests;
+		//for (int i = 0; i < excludedTests.length; i+=2) {
+		//	System.out.println("excluded : "+excludedTests[i]+"#"+excludedTests[i+1]);
+		//}
 	}
 }
 /**

@@ -66,14 +66,14 @@ public class Tests extends TestCase {
 			System.out.println(Util.displayString(verifier.getExecutionOutput()));
 		}
 		String actualError = verifier.getExecutionError();
-		if (!expectedError.equals(actualError)){
+		if (actualError.indexOf(expectedError) == -1){
 			System.out.println("ERRORS\n");
 			System.out.println(Util.displayString(actualError));
 		}
 		assertTrue("unexpected error", actualError.indexOf(expectedError) != -1);
 
 		String actualOutput = verifier.getExecutionOutput();
-		if (!expectingOutput.equals(actualOutput)){
+		if (actualOutput.indexOf(expectingOutput) == -1){
 			System.out.println("OUTPUT\n");
 			System.out.println(Util.displayString(actualOutput));
 		}
