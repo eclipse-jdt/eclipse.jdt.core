@@ -12408,4 +12408,59 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79144
+	public void test463() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Set;\n" + 
+				"public class X {\n" + 
+				"   Zork z;\n" +
+				"	public Set<String>[] test() {\n" + 
+				"	   Set[] sets = new Set[10];\n" + 
+				"	   return sets;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Zork z;\r\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\r\n" + 
+			"	return sets;\r\n" + 
+			"	       ^^^^\n" + 
+			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"----------\n");
+	}	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79144
+	public void test464() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    Zork z;\n" +
+				"    public static void main(String[] args) {\n" + 
+				"        List<Integer>[] nums = new List[] {Collections.singletonList(\"Uh oh\")};\n" + 
+				"        System.out.println(nums[0].get(0).intValue());\n" + 
+				"    } \n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Zork z;\r\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\r\n" + 
+			"	return sets;\r\n" + 
+			"	       ^^^^\n" + 
+			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"----------\n");
+	}		
 }

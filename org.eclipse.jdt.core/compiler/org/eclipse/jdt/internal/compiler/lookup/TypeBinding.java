@@ -368,6 +368,25 @@ public boolean isWildcard() {
  * Meant to be invoked on compatible types, to figure if unchecked conversion is necessary
  */
 public boolean needsUncheckedConversion(TypeBinding targetType) {
+
+	if (this == targetType) return false;
+	targetType = targetType.leafComponentType();
+	if (!(targetType instanceof ReferenceBinding)) 
+		return false;
+
+	TypeBinding currentType = this.leafComponentType();
+	if (!(currentType instanceof ReferenceBinding))
+		return false;
+	
+	ReferenceBinding compatible = ((ReferenceBinding)currentType).findSuperTypeErasingTo((ReferenceBinding)targetType.erasure());
+	if (compatible == null) 
+		return false;
+	if (!compatible.isPartOfRawType()) return false;
+	do {
+		if (compatible.isRawType() && (targetType.isBoundParameterizedType() || targetType.isGenericType())) {
+			return true;
+		}
+	} while ((compatible = compatible.enclosingType()) != null && (targetType = targetType.enclosingType()) != null);
 	return false;
 }
 
