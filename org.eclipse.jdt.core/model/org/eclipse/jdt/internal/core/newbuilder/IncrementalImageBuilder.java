@@ -432,7 +432,8 @@ protected boolean isClassFileChanged(IFile file, String fileName, byte[] newByte
 				return false; // bytes are identical so skip them
 			}
 			ClassFileReader reader = new ClassFileReader(oldBytes, file.getLocation().toString().toCharArray());
-			if (reader.hasStructuralChanges(newBytes)) {
+			// ignore local types since they're only visible inside a single method
+			if (!reader.isLocal() && reader.hasStructuralChanges(newBytes)) {
 				if (JavaBuilder.DEBUG)
 					System.out.println("Type has structural changes " + fileName); //$NON-NLS-1$
 				addDependentsOf(new Path(fileName), true);
