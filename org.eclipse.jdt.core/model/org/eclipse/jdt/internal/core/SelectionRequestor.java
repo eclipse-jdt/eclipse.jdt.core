@@ -206,19 +206,15 @@ protected IJavaElement[] growAndAddToArray(IJavaElement[] array, IJavaElement ad
  * Resolve the type
  */
 protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags) {
-	//fix for 1FVXGDK
+
 	IType type= null;
-	if (packageName == null || packageName.length == 0) {
-		// default package
-		type= fNameLookup.findType(new String(typeName), false, acceptFlags);
-	} else {
-		IPackageFragment[] pkgs = fNameLookup.findPackageFragments(new String(packageName), false);
-		if (pkgs != null) {
-			for (int i = 0, length = pkgs.length; i < length; i++) {
-				type= fNameLookup.findType(new String(typeName), pkgs[i], false, acceptFlags);
-				if (type != null) break;	
-			}
-		}
+	IPackageFragment[] pkgs = fNameLookup.findPackageFragments(
+		(packageName == null || packageName.length == 0) ? IPackageFragment.DEFAULT_PACKAGE_NAME : new String(packageName), 
+		false);
+	// iterate type lookup in each package fragment
+	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
+		type= fNameLookup.findType(new String(typeName), pkgs[i], false, acceptFlags);
+		if (type != null) break;	
 	}
 	if (type == null) {
 		String pName= IPackageFragment.DEFAULT_PACKAGE_NAME;
