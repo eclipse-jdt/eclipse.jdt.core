@@ -121,9 +121,9 @@ public interface IJavaElement extends IAdaptable {
 	 * can be navigated to from the root of the Java model along a chain of
 	 * existing Java elements.
 	 * </p>
-	 *TODO: Verify improved API spec (Specify that one can navigate to this element from the Java model)
 	 *
-	 * @return <code>true</code> if this element exists in the Java model
+	 * @return <code>true</code> if this element exists in the Java model, and
+	 * <code>false</code> if this element does not exist
 	 */
 	boolean exists();
 	
