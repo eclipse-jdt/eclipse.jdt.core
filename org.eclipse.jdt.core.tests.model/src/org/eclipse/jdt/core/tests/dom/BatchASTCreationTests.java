@@ -1054,4 +1054,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				bindings);
 	}
 	
+	/*
+	 * Ensures that attempting to create a top level type that doesn't exist using its key i in batch creation.
+	 * returns null.
+	 */
+	public void test051() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {"Lp1/DoesNotExist;"});
+		assertBindingsEqual(
+				"", 
+				bindings);
+	}
+	
+
 }

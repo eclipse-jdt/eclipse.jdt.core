@@ -147,6 +147,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeNonParameterizedType() {
+		if (this.typeBinding == null) return;
 		if (this.typeBinding.typeVariables().length > 0) {
 			// raw type
 			this.typeBinding = this.environment.createRawType((ReferenceBinding) this.typeBinding, null/*no enclosing type*/);
