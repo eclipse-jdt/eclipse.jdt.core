@@ -185,16 +185,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED); 
 			optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
-			
 			optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-	
-			Object sourceOption = this.options.get(CompilerOptions.OPTION_Source);
-			if (sourceOption != null) {
-				optionsMap.put(CompilerOptions.OPTION_Source, sourceOption);
-			} else {
-				optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-			}
-	
 			optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2); 
 			optionsMap.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 			optionsMap.put(CompilerOptions.OPTION_TaskPriorities, ""); //$NON-NLS-1$
@@ -204,8 +195,13 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED); 
 			optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
 			optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED); 
-			
 			this.defaultCompilerOptions = optionsMap;
+		}
+		Object sourceOption = this.options.get(CompilerOptions.OPTION_Source);
+		if (sourceOption != null) {
+			this.defaultCompilerOptions.put(CompilerOptions.OPTION_Source, sourceOption);
+		} else {
+			this.defaultCompilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 		}
 		return this.defaultCompilerOptions;		
 	}
