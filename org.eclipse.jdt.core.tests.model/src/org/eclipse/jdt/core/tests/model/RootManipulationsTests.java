@@ -87,7 +87,7 @@ public static Test suite() {
  * Ensure that a simple copy of a source root to another project triggers the right delta
  * and that the model is up-to-date.
  */
-public void testCopySourceRoot1() throws CoreException {
+public void testCopySourceFolder1() throws CoreException {
 	try {
 		this.createJavaProject("P1", new String[] {"src"}, "bin");
 		this.createJavaProject("P2", new String[] {}, "bin");
@@ -119,7 +119,7 @@ public void testCopySourceRoot1() throws CoreException {
  * Ensure that coping and renaming a source root to another project triggers the right delta
  * and that the model is up-to-date.
  */
-public void testCopySourceRoot2() throws CoreException {
+public void testCopySourceFolder2() throws CoreException {
 	try {
 		this.createJavaProject("P1", new String[] {"src"}, "bin");
 		this.createJavaProject("P2", new String[] {}, "bin");
@@ -151,7 +151,7 @@ public void testCopySourceRoot2() throws CoreException {
  * Ensure that coping a source root to another project triggers the right delta
  * and doesn't copy a nested source folder.
  */
-public void testCopySourceRoot3() throws CoreException {
+public void testCopySourceFolder3() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {}, "bin");
 		p1.setRawClasspath(createClasspath(new String[] {"/P1/src1", "src2/**", "/P1/src1/src2", ""}), null);
@@ -193,7 +193,7 @@ public void testCopySourceRoot3() throws CoreException {
  * Ensure that copying a source root to another project using a sibling classpath entry triggers the right delta
  * and that the model is up-to-date.
  */
-public void testCopySourceRoot4() throws CoreException {
+public void testCopySourceFolder4() throws CoreException {
 	try {
 		this.createJavaProject("P1", new String[] {"src"}, "bin");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src1", "src2"}, "bin");
@@ -261,7 +261,7 @@ public void testCopySourceRoot4() throws CoreException {
  * Ensure that a simple delete of a source root triggers the right delta
  * and that the model is up-to-date.
  */
-public void testDeleteSourceRoot1() throws CoreException {
+public void testDeleteSourceFolder1() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFolder("/P/src/p");
@@ -296,7 +296,7 @@ public void testDeleteSourceRoot1() throws CoreException {
  * Ensure that deleting a source root triggers the right delta
  * and doesn't delete a nested source folder.
  */
-public void testDeleteSourceRoot2() throws CoreException {
+public void testDeleteSourceFolder2() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {}, "bin");
 		project.setRawClasspath(createClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""}), null);
@@ -349,10 +349,10 @@ public void testDeleteSourceRoot2() throws CoreException {
  * Ensure that a simple move of a source root to another project triggers the right delta
  * and that the model is up-to-date.
  */
-public void testMoveSourceRoot1() throws CoreException {
+public void testMoveSourceFolder1() throws CoreException {
 	try {
-		this.createJavaProject("P1", new String[] {"src"}, "bin");
-		this.createJavaProject("P2", new String[] {}, "bin");
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, "bin");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "bin");
 		this.createFolder("/P1/src/p");
 		this.createFile(
 			"/P1/src/p/X.java", 
@@ -361,7 +361,6 @@ public void testMoveSourceRoot1() throws CoreException {
 			"}"
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
-		ICompilationUnit cu = this.getCompilationUnit("/P1/src/p/X.java");
 		this.startDeltas();
 		root.move(new Path("/P2/src"), IResource.NONE, true, null, null);
 		// TODO: (jerome) Improve deltas (it should really only show root deltas)
@@ -376,9 +375,20 @@ public void testMoveSourceRoot1() throws CoreException {
 			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]"
 		);
-		assertTrue("Original cu should not exist", !cu.exists());
-		cu = this.getCompilationUnit("/P2/src/p/X.java");
-		assertTrue("Destination cu should exist", cu.exists());
+		assertJavaProject(
+			"P1\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");
@@ -389,10 +399,10 @@ public void testMoveSourceRoot1() throws CoreException {
  * Ensure that moving and renaming a source root to another project triggers the right delta
  * and that the model is up-to-date.
  */
-public void testMoveSourceRoot2() throws CoreException {
+public void testMoveSourceFolder2() throws CoreException {
 	try {
-		this.createJavaProject("P1", new String[] {"src"}, "bin");
-		this.createJavaProject("P2", new String[] {}, "bin");
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, "bin");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "bin");
 		this.createFolder("/P1/src/p");
 		this.createFile(
 			"/P1/src/p/X.java", 
@@ -401,7 +411,6 @@ public void testMoveSourceRoot2() throws CoreException {
 			"}"
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
-		ICompilationUnit cu = this.getCompilationUnit("/P1/src/p/X.java");
 		this.startDeltas();
 		root.move(new Path("/P2/src2"), IResource.NONE, true, null, null);
 		
@@ -417,9 +426,20 @@ public void testMoveSourceRoot2() throws CoreException {
 			"	ResourceDelta(/P1/src)[-]"
 		);
 		
-		assertTrue("Original cu should not exist", !cu.exists());
-		cu = this.getCompilationUnit("/P2/src2/p/X.java");
-		assertTrue("Destination cu should exist", cu.exists());
+		assertJavaProject(
+			"P1\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src2\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");
@@ -430,11 +450,11 @@ public void testMoveSourceRoot2() throws CoreException {
  * Ensure that moving a source root to another project triggers the right delta
  * and doesn't move a nested source folder.
  */
-public void testMoveSourceRoot3() throws CoreException {
+public void testMoveSourceFolder3() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {}, "bin");
 		p1.setRawClasspath(createClasspath(new String[] {"/P1/src1", "src2/**", "/P1/src1/src2", ""}), null);
-		this.createJavaProject("P2", new String[] {}, "bin");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "bin");
 		this.createFolder("/P1/src1/p");
 		this.createFile(
 			"/P1/src1/p/X.java", 
@@ -450,8 +470,6 @@ public void testMoveSourceRoot3() throws CoreException {
 			"}"
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src1");
-		ICompilationUnit x = this.getCompilationUnit("/P1/src1/p/X.java");
-		ICompilationUnit y = this.getCompilationUnit("/P1/src1/src2/q/Y.java");
 		this.startDeltas();
 		root.move(new Path("/P2/src1"), IResource.NONE, true, null, null);
 		
@@ -467,13 +485,25 @@ public void testMoveSourceRoot3() throws CoreException {
 			"	ResourceDelta(/P1/src1)[*]"
 		);
 		
-		assertTrue("Original X.java should not exist", !x.exists());
-		x = getCompilationUnit("/P2/src1/p/X.java");
-		assertTrue("Destination X.java should exist", x.exists());
-
-		assertTrue("Original nested Y.java should exist", y.exists());
-		y = getCompilationUnit("/P2/src1/src2/q/Y.java");
-		assertTrue("Destination nested Y.java should not exist", !y.exists());
+		assertJavaProject(
+			"P1\n" + 
+			"	src1/src2\n" + 
+			"		[default]\n" + 
+			"		q\n" + 
+			"			Y.java\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project\n" + 
+			"	F/P1/src1",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src1\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");
@@ -484,7 +514,7 @@ public void testMoveSourceRoot3() throws CoreException {
  * Ensure that moving a source root to another project before the first root triggers the right delta
  * and that the model is up-to-date.
  */
-public void testMoveSourceRoot4() throws CoreException {
+public void testMoveSourceFolder4() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, "bin");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src1", "src2"}, "bin");
@@ -505,16 +535,22 @@ public void testMoveSourceRoot4() throws CoreException {
 			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]"
 		);
-		assertElementsEqual(
-			"Unexpected roots of P1",
-			"",
-			p1.getPackageFragmentRoots());
-		assertElementsEqual(
-			"Unexpected roots of P2",
-			"src\n" + 
-			"src1\n" + 
-			"src2",
-			p2.getPackageFragmentRoots());
+		assertJavaProject(
+			"P1\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	src1\n" + 
+			"		[default]\n" + 
+			"	src2\n" + 
+			"		[default]\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");
@@ -525,7 +561,7 @@ public void testMoveSourceRoot4() throws CoreException {
  * Ensure that moving a source root to another project in the middle of existing roots triggers the right delta
  * and that the model is up-to-date.
  */
-public void testMoveSourceRoot5() throws CoreException {
+public void testMoveSourceFolder5() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, "bin");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src1", "src2"}, "bin");
@@ -546,16 +582,22 @@ public void testMoveSourceRoot5() throws CoreException {
 			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]"
 		);
-		assertElementsEqual(
-			"Unexpected roots of P1",
-			"",
-			p1.getPackageFragmentRoots());
-		assertElementsEqual(
-			"Unexpected roots of P2",
-			"src1\n" + 
-			"src\n" + 
-			"src2",
-			p2.getPackageFragmentRoots());
+		assertJavaProject(
+			"P1\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src1\n" + 
+			"		[default]\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	src2\n" + 
+			"		[default]\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");
@@ -566,7 +608,7 @@ public void testMoveSourceRoot5() throws CoreException {
  * Ensure that moving a source root to another project at the end of the classpath triggers the right delta
  * and that the model is up-to-date.
  */
-public void testMoveSourceRoot6() throws CoreException {
+public void testMoveSourceFolder6() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, "bin");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src1", "src2"}, "bin");
@@ -586,16 +628,22 @@ public void testMoveSourceRoot6() throws CoreException {
 			"	ResourceDelta(/P1/.project)[*]\n" + 
 			"	ResourceDelta(/P1/src)[-]"
 		);
-		assertElementsEqual(
-			"Unexpected roots of P1",
-			"",
-			p1.getPackageFragmentRoots());
-		assertElementsEqual(
-			"Unexpected roots of P2",
-			"src1\n" + 
-			"src2\n" +
-			"src",
-			p2.getPackageFragmentRoots());
+		assertJavaProject(
+			"P1\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src1\n" + 
+			"		[default]\n" + 
+			"	src2\n" + 
+			"		[default]\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");
