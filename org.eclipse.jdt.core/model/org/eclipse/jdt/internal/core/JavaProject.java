@@ -1489,25 +1489,24 @@ public IResource getResource() {
 	 * Compare current classpath with given one to see if any different.
 	 * Note that the argument classpath contains its binary output.
 	 */
-	public boolean isClasspathEqualsTo(IClasspathEntry[] otherClasspathWithOutput)
+	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, IClasspathEntry[] otherClasspathWithOutput)
 		throws JavaModelException {
 
 		if (otherClasspathWithOutput != null && otherClasspathWithOutput.length > 0) {
 
-			IClasspathEntry[] classpath = getRawClasspath();
 			int length = otherClasspathWithOutput.length;
-			if (length == classpath.length + 1) {
+			if (length == newClasspath.length + 1) {
 				// output is amongst file entries (last one)
 
 				// compare classpath entries
 				for (int i = 0; i < length - 1; i++) {
-					if (!otherClasspathWithOutput[i].equals(classpath[i]))
+					if (!otherClasspathWithOutput[i].equals(newClasspath[i]))
 						return false;
 				}
 				// compare binary outputs
 				if (otherClasspathWithOutput[length - 1].getContentKind()
 					== ClasspathEntry.K_OUTPUT
-					&& otherClasspathWithOutput[length - 1].getPath().equals(getOutputLocation()))
+					&& otherClasspathWithOutput[length - 1].getPath().equals(newOutputLocation))
 					return true;
 			}
 		}
@@ -1862,15 +1861,12 @@ public IResource getResource() {
 	
 	/**
 	 * Saves the classpath in a shareable format (VCM-wise) if necessary (i.e. semantically different)
+	 * Will never write an identical one.
 	 * Returns whether the .classpath file was modified.
 	 */
-	public boolean saveClasspath(boolean force) throws JavaModelException {
+	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
 
-		if (!getProject().exists())
-			return false;
-
-		if (!isOpen())
-			return false; // no update for closed projects
+		if (!getProject().exists()) return false;
 
 		QualifiedName classpathProp = getClasspathPropertyName();
 
@@ -1879,7 +1875,7 @@ public IResource getResource() {
 			String fileClasspathString = getSharedProperty(classpathProp);
 			if (fileClasspathString != null) {
 				IClasspathEntry[] fileEntries = readPaths(fileClasspathString);
-				if (!force && isClasspathEqualsTo(fileEntries)) {
+				if (isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
 					// no need to save it, it is the same
 					return false;
 				}
@@ -1893,7 +1889,7 @@ public IResource getResource() {
 		try {
 			setSharedProperty(
 				classpathProp,
-				getClasspathAsXMLString(getRawClasspath(), getOutputLocation()));
+				getClasspathAsXMLString(newClasspath, newOutputLocation));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);

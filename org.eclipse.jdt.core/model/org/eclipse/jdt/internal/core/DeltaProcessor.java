@@ -139,7 +139,7 @@ public class DeltaProcessor {
 						switch (delta.getKind()) {
 							case IResourceDelta.REMOVED : // recreate one based on in-memory path
 								try {
-									project.saveClasspath(false);
+									project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
 								} catch (JavaModelException e) {
 								}
 								break;
@@ -156,7 +156,7 @@ public class DeltaProcessor {
 									IClasspathEntry[] fileEntries = project.readPaths(fileClasspathString);
 									if (fileEntries == null)
 										break; // could not read, ignore 
-									if (project.isClasspathEqualsTo(fileEntries))
+									if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries))
 										break;
 
 									// will force an update of the classpath/output location based on the file information
