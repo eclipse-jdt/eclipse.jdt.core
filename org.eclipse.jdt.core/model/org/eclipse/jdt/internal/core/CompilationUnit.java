@@ -758,7 +758,6 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
  * @see ICompilationUnit
  */
 public IJavaElement getOriginalElement() {
-	if (!isWorkingCopy()) return null;
 	return new CompilationUnit((IPackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
 protected IType getOriginalType(ArrayList hierarchy) {
