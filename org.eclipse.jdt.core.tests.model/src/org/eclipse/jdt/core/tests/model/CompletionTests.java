@@ -116,6 +116,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionUnresolvedFieldType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
 	suite.addTest(new CompletionTests("testCompletionObjectsMethodWithInterfaceReceiver"));
+	suite.addTest(new CompletionTests("testCompletionConstructorForAnonymousType"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -2063,6 +2064,22 @@ public void testCompletionObjectsMethodWithInterfaceReceiver() throws JavaModelE
 
 	assertEquals(
 		"element:hashCode    completion:hashCode()    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=24939
+*/
+public void testCompletionConstructorForAnonymousType() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionConstructorForAnonymousType.java");
+
+	String str = cu.getSource();
+	String completeBehind = "TypeWithConstructor(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:TypeWithConstructor    completion:)    relevance:"+(R_DEFAULT),
 		requestor.getResults());
 }
 }

@@ -956,7 +956,10 @@ public final class CompletionEngine
 					if (constructor.isSynthetic()) continue next;
 						
 					if (options.checkVisibility
-						&& !constructor.canBeSeenBy(invocationSite, scope)) continue next;
+						&& !constructor.canBeSeenBy(invocationSite, scope)) {
+						if(!forAnonymousType || !constructor.isProtected())
+							continue next;
+					}
 	
 					TypeBinding[] parameters = constructor.parameters;
 					int paramLength = parameters.length;
