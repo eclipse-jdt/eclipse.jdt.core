@@ -416,6 +416,7 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 			this.focusType = binaryTypeBinding;
 		} else if (focus.isBinary()) {
 			// may have been resolved indirectly, should then be in type cache
+			// TODO (jerome) review this fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043
 			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
 			this.focusType = this.lookupEnvironment.getCachedType(CharOperation.splitOn('.', fullyQualifiedName));
 			if (this.focusType == null) return;
@@ -491,6 +492,7 @@ public void resolve(IGenericType suppliedType) {
 			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType);
 			remember(suppliedType, binaryTypeBinding);
 			// We still need to add superclasses and superinterfaces bindings (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
+			// TODO (jerome) review this fix
 			int startIndex = this.typeIndex;
 			for (int i = startIndex; i <= this.typeIndex; i++) {
 				IGenericType igType = this.typeModels[i];
