@@ -178,6 +178,10 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 		this.nameLookup = project.getNameLookup();
 		this.hierarchyResolver = 
 			new HierarchyResolver(this.searchableEnvironment, this, new DefaultProblemFactory());
+		if (focusType != null) {
+			char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+			this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+		}
 		this.hierarchyResolver.resolve(genericTypes, compilationUnits);
 		if (focusType != null && focusType.getJavaProject().equals(project)) {
 			this.searchableEnvironment.unitToLookInside = null;

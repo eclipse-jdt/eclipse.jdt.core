@@ -34,6 +34,8 @@ public class HierarchyResolver implements ITypeRequestor {
 	private int typeIndex;
 	private IGenericType[] typeModels;
 	private ReferenceBinding[] typeBindings;
+	private ReferenceBinding focusType;
+	
 public HierarchyResolver(
 	INameEnvironment nameEnvironment,
 	IErrorHandlingPolicy policy,
@@ -96,6 +98,10 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 }
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
+	
+	if (!subOrSuperOfFocus(typeBinding)) {
+		return; // ignore types outside of hierarchy
+	}
 
 	if (++typeIndex == typeModels.length) {
 		System.arraycopy(typeModels, 0, typeModels = new IGenericType[typeIndex * 2], 0, typeIndex);
@@ -227,11 +233,11 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		int suppliedLength = suppliedTypes == null ? 0 : suppliedTypes.length;
 		int sourceLength = sourceUnits == null ? 0 : sourceUnits.length;
 		CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[suppliedLength + sourceLength];
-		int count = -1;
+		
+		// build type bindings
 		for (int i = 0; i < suppliedLength; i++) {
 			if (suppliedTypes[i].isBinaryType()) {
 				IBinaryType binaryType = (IBinaryType) suppliedTypes[i];
-				suppliedTypes[i] = null; // no longer needed pass this point
 				try {
 					remember(binaryType, lookupEnvironment.cacheBinaryType(binaryType, false));
 				} catch (AbortCompilation e) {
@@ -240,18 +246,13 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			} else {
 				// must start with the top level type
 				ISourceType topLevelType = (ISourceType) suppliedTypes[i];
-				suppliedTypes[i] = null; // no longer needed pass this point				
 				while (topLevelType.getEnclosingType() != null)
 					topLevelType = topLevelType.getEnclosingType();
 				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength);
-				units[++count] = SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
-
-				if (units[count] == null) {
-					count--;
-				} else {
+				units[i] = SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
+				if (units[i] != null) {
 					try {
-						lookupEnvironment.buildTypeBindings(units[count]);
-						rememberWithMemberTypes(topLevelType, units[count].types[0].binding);
+						lookupEnvironment.buildTypeBindings(units[i]);
 					} catch (AbortCompilation e) {
 						// classpath problem for this type: ignore
 					}
@@ -260,22 +261,47 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		}
 		for (int i = 0; i < sourceLength; i++){
 			ICompilationUnit sourceUnit = sourceUnits[i];
-			sourceUnits[i] = null; // no longer needed pass this point
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
 			CompilerOptions options = new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault()));
 			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.getAssertMode());
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
-				units[++count] = parsedUnit;
-				lookupEnvironment.buildTypeBindings(units[count]);
+				units[suppliedLength+i] = parsedUnit;
+				lookupEnvironment.buildTypeBindings(parsedUnit);
+			}
+		}
+		
+		// complete type bindings (ie. connect super types) and remember them
+		for (int i = 0; i < suppliedLength; i++) {
+			if (!suppliedTypes[i].isBinaryType()) { // note that binary types have already been remembered above
+				CompilationUnitDeclaration parsedUnit = units[i];
+				if (parsedUnit != null) {
+					// must start with the top level type
+					ISourceType topLevelType = (ISourceType) suppliedTypes[i];
+					suppliedTypes[i] = null; // no longer needed pass this point				
+					while (topLevelType.getEnclosingType() != null)
+						topLevelType = topLevelType.getEnclosingType();
+					try {
+						lookupEnvironment.completeTypeBindings(parsedUnit, false);
+						rememberWithMemberTypes(topLevelType, parsedUnit.types[0].binding);
+					} catch (AbortCompilation e) {
+						// classpath problem for this type: ignore
+					}
+				}
+			}
+		}
+		for (int i = 0; i < sourceLength; i++) {
+			CompilationUnitDeclaration parsedUnit = units[suppliedLength+i];
+			if (parsedUnit != null) {
+				lookupEnvironment.completeTypeBindings(parsedUnit, false);
 				int typeCount = parsedUnit.types == null ? 0 : parsedUnit.types.length;
+				ICompilationUnit sourceUnit = sourceUnits[i];
+				sourceUnits[i] = null; // no longer needed pass this point
 				for (int j = 0; j < typeCount; j++){
 					rememberWithMemberTypes(parsedUnit.types[j], null, sourceUnit);
 				}
 			}
 		}
-		for (int i = 0; i <= count; i++)
-			lookupEnvironment.completeTypeBindings(units[i], false);
 
 		reportHierarchy();
 		
@@ -316,5 +342,31 @@ public void resolve(IGenericType suppliedType) {
 	} finally {
 		reset();
 	}
+}
+/**
+ * Set the focus type (ie. the type that this resolver is computing the hierarch for.
+ */
+public void setFocusType(char[][] compoundName) {
+	if (compoundName == null || this.lookupEnvironment == null) return;
+	this.focusType = this.lookupEnvironment.askForType(compoundName);
+	
+}
+private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
+	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)
+	if (this.subTypeOfType(this.focusType, typeBinding)) return true;
+	if (this.subTypeOfType(typeBinding, this.focusType)) return true;
+	return false;
+}
+private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding) {
+	if (typeBinding == null || subType == null) return false;
+	if (subType == typeBinding) return true;
+	if (this.subTypeOfType(subType.superclass(), typeBinding)) return true;
+	ReferenceBinding[] superInterfaces = subType.superInterfaces();
+	if (superInterfaces != null) {
+		for (int i = 0, length = superInterfaces.length; i < length; i++) {
+			if (this.subTypeOfType(superInterfaces[i], typeBinding)) return true;
+		} 
+	}
+	return false;
 }
 }
