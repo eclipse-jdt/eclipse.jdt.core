@@ -424,7 +424,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 
 			case IClasspathEntry.CPE_CONTAINER :
 				try {
-					IClasspathEntry[] containerEntries = javaProject.getResolvedClasspathContainer(rawEntry.getPath());
+					IClasspathEntry[] containerEntries = JavaCore.getResolvedClasspathContainer(rawEntry.getPath(), javaProject);
 					if (containerEntries != null){
 						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 							 resolvedEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
@@ -528,7 +528,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 			case IClasspathEntry.CPE_CONTAINER :
 				if (path != null && path.segmentCount() >= 1){
 					try {
-						IClasspathEntry[] containerEntries = javaProject.getResolvedClasspathContainer(path);
+						IClasspathEntry[] containerEntries = JavaCore.getResolvedClasspathContainer(path, javaProject);
 						if (containerEntries == null){
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", path.toString())); //$NON-NLS-1$
 						}

@@ -129,11 +129,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IPackageFragmentRoot[] getAllPackageFragmentRoots() throws JavaModelException;
 
-	/** TOFIX
-	 * 
-	 */
-	IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath) throws JavaModelException;
-
 	/**
 	 * Returns an array of non-Java resources directly contained in this project.
 	 * It does not transitively answer non-Java resources contained in folders;

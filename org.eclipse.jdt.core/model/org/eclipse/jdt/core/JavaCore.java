@@ -407,6 +407,78 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return JAVA_CORE_PLUGIN;
 	}
 
+	/** 
+	 * Answers the set of classpath entries corresponding to a given container for a specific project.
+	 * Indeed, classpath containers can have a different meaning in different project, according to the behavior
+	 * of the <code>ClasspathContainerResolver</code> which got involved for resolving this container.
+	 * In case this container path could not be resolved, then will answer <code>null</code>.
+	 * <p>
+	 * Both the container path and the project context are supposed to be non-null.
+	 * <p>
+	 * The set of entries associated with a classpath container may contain any of the following:
+	 * <ul>
+	 * <li> source entries (<code>CPE_SOURCE</code>) </li>
+	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
+	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
+	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
+	 * </ul>
+	 * A classpath container cannot reference further classpath containers.
+	 * <p>
+	 * @since 2.0
+	 */
+	public static IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
+
+		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
+		if (projectContainers == null){
+			projectContainers = new HashMap(1);
+			JavaModelManager.Containers.put(project, projectContainers);
+		}
+		IClasspathEntry[] entries = (IClasspathEntry[])projectContainers.get(containerPath);
+
+		if (entries == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+		if (entries == null){
+			ClasspathContainerResolver resolver = JavaModelManager.getClasspathContainerResolver(containerPath);
+			if (resolver != null){
+				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				try {
+					entries = resolver.resolve(containerPath, project);
+					
+					// validation - no nested classpath container
+					if (entries != null){
+						for (int i = 0; i < entries.length; i++){
+							IClasspathEntry entry = entries[i];
+							if (entry == null || entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER){
+								JavaModelManager.Containers.put(project, null); // flush cache
+								throw new JavaModelException(
+									new JavaModelStatus(
+										IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
+										containerPath.toString()));
+							}
+						}
+					}
+
+				} catch(CoreException e){
+					JavaModelManager.Containers.put(project, null); // flush cache
+					throw new JavaModelException(e);
+				}
+				if (entries != null){
+					projectContainers.put(containerPath, entries);
+				}
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> {"); //$NON-NLS-2$//$NON-NLS-1$
+					if (entries != null){
+						for (int i = 0; i < entries.length; i++){
+							if (i > 0) System.out.println(", ");//$NON-NLS-1$
+							System.out.println(entries[i]);
+						}
+					}
+					System.out.println("}");//$NON-NLS-1$
+				}
+			}
+		}
+		return entries;			
+	}
+
 	/**
 	 * This is a helper method which returns the resolved classpath entry denoted 
 	 * by a given entry (if it is a variable entry). It is obtained by resolving the variable 
@@ -420,6 +492,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </ul>
 	 * <p>
 	 * Variable source attachment path and root path are also resolved and recorded in the resulting classpath entry.
+	 * <p>
+	 * NOTE: This helper method does not handle classpath containers, for which should rather be used
+	 * <code>#getResolvedClasspathContainer(IJavaProject)</code>.
 	 * <p>
 	 * @return the resolved library or project classpath entry, or <code>null</code>
 	 *   if the given variable entry could not be resolved to a valid classpath entry
@@ -497,6 +572,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		return null;
 	}
+
 
 	/**
 	 * Resolve a variable path (helper method)

@@ -564,8 +564,7 @@ public class JavaProject
 			}
 		}
 		return type;
-	}
-	/**
+	}	/**
 	 * @see IJavaProject#findType(String, String)
 	 */
 	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
@@ -575,9 +574,7 @@ public class JavaProject
 				typeQualifiedName, 
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-	}
-
-	
+	}	
 	/**
 	 * @see Openable
 	 */
@@ -689,43 +686,6 @@ public class JavaProject
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
 		return writer.toString();
-	}
-
-	public IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath) throws JavaModelException {
-
-		Map projectContainers = (Map)JavaModelManager.Containers.get(this);
-		if (projectContainers == null){
-			projectContainers = new HashMap(1);
-			JavaModelManager.Containers.put(this, projectContainers);
-		}
-		IClasspathEntry[] entries = (IClasspathEntry[])projectContainers.get(containerPath);
-
-		if (entries == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
-		if (entries == null){
-			ClasspathContainerResolver resolver = JavaModelManager.getClasspathContainerResolver(containerPath);
-			if (resolver != null){
-				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
-				try {
-					entries = resolver.resolve(containerPath, this);
-				} catch(CoreException e){
-					throw new JavaModelException(e);
-				}
-				if (entries != null){
-					projectContainers.put(containerPath, entries);
-				}
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> {"); //$NON-NLS-2$//$NON-NLS-1$
-					if (entries != null){
-						for (int i = 0; i < entries.length; i++){
-							if (i > 0) System.out.println(", ");//$NON-NLS-1$
-							System.out.println(entries[i]);
-						}
-					}
-					System.out.println("}");//$NON-NLS-1$
-				}
-			}
-		}
-		return entries;			
 	}
 
 	/**
@@ -1291,7 +1251,7 @@ public IResource getResource() {
 
 				case IClasspathEntry.CPE_CONTAINER :
 				
-					IClasspathEntry[] containerEntries = getResolvedClasspathContainer(rawEntry.getPath());
+					IClasspathEntry[] containerEntries = JavaCore.getResolvedClasspathContainer(rawEntry.getPath(), this);
 					if (containerEntries == null){
 						// unbound container
 						if (!ignoreUnresolvedEntry) {
