@@ -440,7 +440,7 @@ public void saveIndex(IIndex index) throws IOException {
 	// must have permission to write from the write monitor
 	if (index.hasChanged()) {
 		if (VERBOSE)
-			JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
+			JobManager.verbose("-> saving index " + index.getIndexFile()); //$NON-NLS-1$
 		index.save();
 	}
 	String indexName = index.getIndexFile().getPath();
@@ -480,7 +480,7 @@ public void saveIndexes() {
 				saveIndex(index);
 			} catch(IOException e){
 				if (VERBOSE) {
-					JobManager.verbose("-> got the following exception while merging:"); //$NON-NLS-1$
+					JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
 					e.printStackTrace();
 				}
 				//Util.log(e);
@@ -545,8 +545,7 @@ private void updateIndexState(String indexName, Integer indexState) {
 		for (int i = 0, l = states.length; i < l; i++) {
 			if (states[i] == SAVED_STATE) {
 				writer.write((String) indexNames[i]);
-				if (i > 0)
-					writer.write('\n');
+				writer.write('\n');
 			}
 		}
 	} catch (IOException ignored) {
@@ -559,7 +558,13 @@ private void updateIndexState(String indexName, Integer indexState) {
 			} catch (IOException e) {}
 		}
 	}
-	if (VERBOSE)
-		JobManager.verbose("Saved indexes are now : " + new String(readIndexState())); //$NON-NLS-1$
+	if (VERBOSE) {
+		String state = "?"; //$NON-NLS-1$
+		if (indexState == SAVED_STATE) state = "SAVED"; //$NON-NLS-1$
+		else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
+		else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
+		else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
+		JobManager.verbose("-> index state updated to: " + state + " for: "+indexName); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
 }
