@@ -7133,4 +7133,16 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Cannot refer to the type parameter T as a supertype\n" + 
 			"----------\n");
 	}
+	// TODO (philippe) we fail to create the member type Entry properly - it has no type args
+	public void _test258() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"abstract class X<K,V> implements java.util.Map<K,V> {\n" + 
+				"    static abstract class M<K,V> implements Entry<K,V> {}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
+
 }
