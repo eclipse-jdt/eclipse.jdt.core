@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.eval;
 
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.core.eval.IGlobalVariable;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompletionRequestorWrapper;
@@ -145,6 +147,7 @@ public void evaluateCodeSnippet(
 		varNames[i] = localVariableNames[i].toCharArray();
 	}
 
+	Map options = this.project.getOptions(true);
 	// transfer the imports of the IType to the evaluation context
 	if (declaringType != null) {
 		// retrieves the package statement 
@@ -160,6 +163,9 @@ public void evaluateCodeSnippet(
 					importsNames[i] = imports[i].getElementName().toCharArray();
 				}
 				this.context.setImports(importsNames);
+				// turn off import complaints for implicitly added ones
+				options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
+				options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.IGNORE);
 			}
 		} else {
 			// try to retrieve imports from the source
@@ -168,6 +174,9 @@ public void evaluateCodeSnippet(
 				char[][] imports = sourceMapper.getImports((BinaryType) declaringType);
 				if (imports != null) {
 					this.context.setImports(imports);
+					// turn off import complaints for implicitly added ones
+					options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
+					options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.IGNORE);
 				}
 			}
 		}
@@ -183,7 +192,7 @@ public void evaluateCodeSnippet(
 			isStatic,
 			isConstructorCall,
 			environment = getBuildNameEnvironment(), 
-			this.project.getOptions(true), 
+			options, 
 			getInfrastructureEvaluationRequestor(requestor), 
 			getProblemFactory());
 	} catch (InstallException e) {

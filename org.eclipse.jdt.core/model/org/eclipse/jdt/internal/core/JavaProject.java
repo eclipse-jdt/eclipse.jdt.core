@@ -967,16 +967,20 @@ public class JavaProject
 				// put the info now, because computing the roots requires it
 				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
-				// compute the pkg fragment roots
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				IWorkspaceRoot wRoot = workspace.getRoot();
+				// request marker refresh on project opening (so as to diagnose unbound variables on startup)
+				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, !workspace.isTreeLocked()  /*refresh CP markers*/);
+
+				// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
 				updatePackageFragmentRoots();				
 	
 				// remember the timestamps of external libraries the first time they are looked up
-				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
 				for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
 					IClasspathEntry entry = resolvedClasspath[i];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 						IPath path = entry.getPath();
-						Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+						Object target = JavaModel.getTarget(wRoot, path, true);
 						if (target instanceof java.io.File) {
 							Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
 							if (externalTimeStamps.get(path) == null) {
@@ -2264,6 +2268,7 @@ public class JavaProject
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		HashSet cycleParticipants = new HashSet();
+		HashSet alreadyVisited = new HashSet();
 		int length = projects.length;
 		
 		/* alternate implementation for cycle participants computation
@@ -2274,9 +2279,9 @@ public class JavaProject
 		ArrayList visited = new ArrayList();
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
-			if (!cycleParticipants.contains(project)){
+			if (!cycleParticipants.contains(project) && !alreadyVisited.contains(project)){
 				visited.clear();
-				project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+				project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot, alreadyVisited);
 			}
 		}
 		
@@ -2312,7 +2317,13 @@ public class JavaProject
 	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly),
 	 * no cycle if the set is empty (and started empty)
 	 */
-	public void updateCycleParticipants(IClasspathEntry[] preferredClasspath, ArrayList visited, HashSet cycleParticipants, IWorkspaceRoot workspaceRoot){
+	public void updateCycleParticipants(
+			IClasspathEntry[] preferredClasspath, 
+			ArrayList visited, 
+			HashSet cycleParticipants, 
+			IWorkspaceRoot workspaceRoot,
+			HashSet alreadyTraversed){
+				
 		visited.add(this);
 		try {
 			IClasspathEntry[] classpath = preferredClasspath == null ? getResolvedClasspath(true) : preferredClasspath;
@@ -2331,7 +2342,9 @@ public class JavaProject
 							for (int size = visited.size(); index < size; index++)
 								cycleParticipants.add(visited.get(index)); 
 						} else {
-							project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+							if (!alreadyTraversed.contains(project)) {
+								project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot, alreadyTraversed);
+							}
 						}
 					}
 				}
@@ -2339,6 +2352,7 @@ public class JavaProject
 		} catch(JavaModelException e){
 		}
 		visited.remove(this);
+		alreadyTraversed.add(this);
 	}
 		
 	/**

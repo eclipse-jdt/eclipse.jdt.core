@@ -417,9 +417,9 @@ public static String getCodeSnippetSource() {
 		"/**\n" + //$NON-NLS-1$
 		" * Stores the result type and value of the code snippet evaluation.\n" + //$NON-NLS-1$
 		" */\n" + //$NON-NLS-1$
-		"public void setResult(Object resultValue, Class resultType) {\n" + //$NON-NLS-1$
-		"	this.resultValue = resultValue;\n" + //$NON-NLS-1$
-		"	this.resultType = resultType;\n" + //$NON-NLS-1$
+		"public void setResult(Object someResultValue, Class someResultType) {\n" + //$NON-NLS-1$
+		"	this.resultValue = someResultValue;\n" + //$NON-NLS-1$
+		"	this.resultType = someResultType;\n" + //$NON-NLS-1$
 		"}\n" + //$NON-NLS-1$
 		"}\n"; //$NON-NLS-1$
 }

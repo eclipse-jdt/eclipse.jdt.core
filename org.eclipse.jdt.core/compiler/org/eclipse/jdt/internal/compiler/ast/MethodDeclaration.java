@@ -74,12 +74,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 			// check for missing returning path
-			TypeBinding returnType = binding.returnType;
-			if ((returnType == VoidBinding) || isAbstract()) {
+			TypeBinding returnTypeBinding = binding.returnType;
+			if ((returnTypeBinding == VoidBinding) || isAbstract()) {
 				this.needFreeReturn = flowInfo.isReachable();
 			} else {
 				if (flowInfo != FlowInfo.DEAD_END) { 
-					scope.problemReporter().shouldReturn(returnType, this);
+					scope.problemReporter().shouldReturn(returnTypeBinding, this);
 				}
 			}
 		} catch (AbortMethod e) {

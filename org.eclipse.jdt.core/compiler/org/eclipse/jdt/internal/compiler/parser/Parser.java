@@ -4847,15 +4847,13 @@ protected CompilationUnitDeclaration endParse(int act) {
 	if (scanner.recordLineSeparator) {
 		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 	}
-	if (scanner.taskTags != null){
-		for (int i = 0; i < scanner.foundTaskCount; i++){
-			problemReporter().task(
-				new String(scanner.foundTaskTags[i]), 
-				new String(scanner.foundTaskMessages[i]),
-				scanner.foundTaskPriorities[i] == null ? null : new String(scanner.foundTaskPriorities[i]), 
-				scanner.foundTaskPositions[i][0], 
-				scanner.foundTaskPositions[i][1]);
-		}
+	for (int i = 0; i < scanner.foundTaskCount; i++){
+		problemReporter().task(
+			new String(scanner.foundTaskTags[i]), 
+			new String(scanner.foundTaskMessages[i]),
+			scanner.foundTaskPriorities[i] == null ? null : new String(scanner.foundTaskPriorities[i]), 
+			scanner.foundTaskPositions[i][0], 
+			scanner.foundTaskPositions[i][1]);
 	}
 	return compilationUnit;
 }

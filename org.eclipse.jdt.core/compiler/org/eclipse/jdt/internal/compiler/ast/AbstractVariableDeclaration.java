@@ -13,28 +13,64 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
-public abstract class AbstractVariableDeclaration extends Statement {
-	public int modifiers;
-
-	public TypeReference type;
+public abstract class AbstractVariableDeclaration extends Statement implements InvocationSite {
+	public int declarationEnd;
+	public int declarationSourceEnd;
+	public int declarationSourceStart;
+	public int hiddenVariableDepth; // used to diagnose hiding scenarii
 	public Expression initialization;
+	public int modifiers;
+	public int modifiersSourceStart;
 
 	public char[] name;
-	public int declarationEnd;
-	public int declarationSourceStart;
-	public int declarationSourceEnd;
-	public int modifiersSourceStart;
+
+	public TypeReference type;
 	
 	public AbstractVariableDeclaration() {}
 
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		return flowInfo;
 	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
+	 */
+	public boolean isSuperAccess() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isTypeAccess()
+	 */
+	public boolean isTypeAccess() {
+		return false;
+	}
 
 	public abstract String name();
 
 	public void resolve(BlockScope scope) {}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setActualReceiverType(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
+	 */
+	public void setActualReceiverType(ReferenceBinding receiverType) {
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setDepth(int)
+	 */
+	public void setDepth(int depth) {
+
+		this.hiddenVariableDepth = depth;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setFieldIndex(int)
+	 */
+	public void setFieldIndex(int depth) {
+	}
 		
 	public String toString(int tab) {
 
@@ -47,4 +83,5 @@ public abstract class AbstractVariableDeclaration extends Statement {
 			s += " = " + initialization.toStringExpression(tab); //$NON-NLS-1$
 		return s;
 	}
+
 }

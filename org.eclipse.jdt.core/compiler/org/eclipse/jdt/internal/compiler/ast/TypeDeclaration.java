@@ -55,22 +55,15 @@ public class TypeDeclaration
 	 */
 	public void abort(int abortLevel) {
 
-		if (scope == null) {
-			throw new AbortCompilation(); // cannot do better
-		}
-
-		CompilationResult compilationResult =
-			scope.referenceCompilationUnit().compilationResult;
-
 		switch (abortLevel) {
 			case AbortCompilation :
-				throw new AbortCompilation(compilationResult);
+				throw new AbortCompilation(this.compilationResult);
 			case AbortCompilationUnit :
-				throw new AbortCompilationUnit(compilationResult);
+				throw new AbortCompilationUnit(this.compilationResult);
 			case AbortMethod :
-				throw new AbortMethod(compilationResult);
+				throw new AbortMethod(this.compilationResult);
 			default :
-				throw new AbortType(compilationResult);
+				throw new AbortType(this.compilationResult);
 		}
 	}
 	/**
@@ -653,12 +646,12 @@ public class TypeDeclaration
 		}
 		// add superclass enclosing instance arg for anonymous types (if necessary)
 		if (binding.isAnonymousType()) { 
-			ReferenceBinding superclass = binding.superclass;
-			if (superclass.enclosingType() != null && !superclass.isStatic()) {
-				if (!binding.superclass.isLocalType()
-						|| ((NestedTypeBinding)binding.superclass).getSyntheticField(superclass.enclosingType(), true) != null){
+			ReferenceBinding superclassBinding = binding.superclass;
+			if (superclassBinding.enclosingType() != null && !superclassBinding.isStatic()) {
+				if (!superclassBinding.isLocalType()
+						|| ((NestedTypeBinding)superclassBinding).getSyntheticField(superclassBinding.enclosingType(), true) != null){
 
-					nestedType.addSyntheticArgument(superclass.enclosingType());	
+					nestedType.addSyntheticArgument(superclassBinding.enclosingType());	
 				}
 			}
 		}

@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class LocalDeclaration extends AbstractVariableDeclaration {
 
 	public LocalVariableBinding binding;
-
+	
 	public LocalDeclaration(
 		Expression expr,
 		char[] name,
@@ -78,7 +78,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 
 	/**
 	 * Code generation for a local declaration:
-	 *	  normal assignment to a local variable + unused variable handling 
+	 *	i.e.&nbsp;normal assignment to a local variable + unused variable handling 
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
@@ -160,12 +160,18 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				return;
 			}
 		}
-
-		// duplicate checks
-		if ((binding = scope.duplicateName(name)) != null) {
-			// the name already exists... may carry on with the first binding...
-			scope.problemReporter().redefineLocal(this);
-		} else {
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		boolean shouldInsertInScope = true;
+		if (existingVariable != null && existingVariable.isValidBinding()){
+			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
+				shouldInsertInScope = false;
+				scope.problemReporter().redefineLocal(this);
+			} else {
+				scope.problemReporter().localVariableHiding(this, existingVariable, false);
+			}
+		}
+				
+		if (shouldInsertInScope) {
 			if ((modifiers & AccFinal)!= 0 && this.initialization == null) {
 				modifiers |= AccBlankFinal;
 			}
@@ -205,10 +211,12 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			// change the constant in the binding when it is final
 			// (the optimization of the constant propagation will be done later on)
 			// cast from constant actual type to variable type
-			binding.constant =
-				binding.isFinal()
-					? initialization.constant.castTo((tb.id << 4) + initialization.constant.typeID())
-					: NotAConstant;
+			if (binding != null) {
+				binding.constant =
+					binding.isFinal()
+						? initialization.constant.castTo((tb.id << 4) + initialization.constant.typeID())
+						: NotAConstant;
+			}
 		}
 	}
 

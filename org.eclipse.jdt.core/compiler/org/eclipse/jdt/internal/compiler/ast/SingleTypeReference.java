@@ -38,7 +38,7 @@ public TypeBinding getTypeBinding(Scope scope) {
 		return this.resolvedType;
 	return scope.getType(token);
 }
-public char [][] getTypeName() {
+public char [][] getTypeName() { // TODO (kent) should improve since most type references are single names
 	return new char[][] { token };
 }
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {

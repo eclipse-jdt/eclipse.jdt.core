@@ -30,19 +30,25 @@ public class Argument extends LocalDeclaration {
 			this.type.resolvedType = typeBinding;
 		// record the resolved type into the type reference
 		int modifierFlag = this.modifiers;
-		if ((this.binding = scope.duplicateName(this.name)) != null) {
-			//the name already exist....may carry on with the first binding ....
-			scope.problemReporter().redefineArgument(this);
-		} else {
-			scope.addLocalVariable(
-				this.binding =
-					new LocalVariableBinding(this, typeBinding, modifierFlag, true));
-			//true stand for argument instead of just local
-			if (typeBinding != null && isTypeUseDeprecated(typeBinding, scope))
-				scope.problemReporter().deprecatedType(typeBinding, this.type);
-			this.binding.declaration = this;
-			this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
+
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		if (existingVariable != null && existingVariable.isValidBinding()){
+			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
+				scope.problemReporter().redefineArgument(this);
+				return;
+			} else {
+				scope.problemReporter().localVariableHiding(this, existingVariable, scope.isInsideConstructor() && existingVariable instanceof FieldBinding);
+			}
 		}
+
+		scope.addLocalVariable(
+			this.binding =
+				new LocalVariableBinding(this, typeBinding, modifierFlag, true));
+		//true stand for argument instead of just local
+		if (typeBinding != null && isTypeUseDeprecated(typeBinding, scope))
+			scope.problemReporter().deprecatedType(typeBinding, this.type);
+		this.binding.declaration = this;
+		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
 	}
 
 	public TypeBinding resolveForCatch(BlockScope scope) {
@@ -54,11 +60,17 @@ public class Argument extends LocalDeclaration {
 		TypeBinding tb = type.resolveTypeExpecting(scope, scope.getJavaLangThrowable());
 		if (tb == null)
 			return null;
-		if ((binding = scope.duplicateName(name)) != null) {
-			// the name already exists....may carry on with the first binding ....
-			scope.problemReporter().redefineArgument(this);
-			return null;
+
+		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this);
+		if (existingVariable != null && existingVariable.isValidBinding()){
+			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
+				scope.problemReporter().redefineArgument(this);
+				return null;
+			} else {
+				scope.problemReporter().localVariableHiding(this, existingVariable, false);
+			}
 		}
+
 		binding = new LocalVariableBinding(this, tb, modifiers, false); // argument decl, but local var  (where isArgument = false)
 		scope.addLocalVariable(binding);
 		binding.constant = NotAConstant;

@@ -357,6 +357,11 @@ public class MethodScope extends BlockScope {
 		return field;
 	}
 
+	public boolean isInsideConstructor() {
+
+		return (referenceContext instanceof ConstructorDeclaration);
+	}
+	
 	public boolean isInsideInitializer() {
 
 		return (referenceContext instanceof TypeDeclaration);
@@ -441,6 +446,14 @@ public class MethodScope extends BlockScope {
 				extraInits.length);
 		}
 		return lastIndex++;
+	}
+
+	/* Answer the reference method of this scope, or null if initialization scoope.
+	*/
+	public AbstractMethodDeclaration referenceMethod() {
+
+		if (referenceContext instanceof AbstractMethodDeclaration) return (AbstractMethodDeclaration) referenceContext;
+		return null;
 	}
 
 	/* Answer the reference type of this scope.

@@ -228,6 +228,24 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.2
+	 */
+	public static final String COMPILER_PB_LOCAL_VARIABLE_HIDING = PLUGIN_ID + ".compiler.problem.localVariableHiding"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.2
+	 */
+	public static final String COMPILER_PB_CONSTRUCTOR_PARAMETER_HIDING_FIELD = PLUGIN_ID + ".compiler.problem.constructorParameterHidingField"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.2
+	 */
+	public static final String COMPILER_PB_FIELD_HIDING = PLUGIN_ID + ".compiler.problem.fieldHiding"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
@@ -1287,6 +1305,27 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
+	 * COMPILER / Reporting Local Variable Declaration Hiding another Variable
+	 *    When enabled, the compiler will issue an error or a warning whenever a local variable
+	 *    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.localVariableHiding"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Field Declaration Hiding another Variable
+	 *    When enabled, the compiler will issue an error or a warning whenever a field
+	 *    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.fieldHiding"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Constructor Parameter Hiding another Field
+	 *    When enabled, the compiler will issue an error or a warning whenever a constructor parameter
+	 *    declaration is hiding some field (either locally, inherited or defined in enclosing type).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.constructorParameterHidingField"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
@@ -1883,10 +1922,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION, WARNING); 
 		optionNames.add(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION);
 
-		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); //$NON-NLS-1$
+		preferences.setDefault(COMPILER_PB_LOCAL_VARIABLE_HIDING, WARNING);
+		optionNames.add(COMPILER_PB_LOCAL_VARIABLE_HIDING);
+
+		preferences.setDefault(COMPILER_PB_FIELD_HIDING, WARNING);
+		optionNames.add(COMPILER_PB_FIELD_HIDING);
+
+		preferences.setDefault(COMPILER_PB_CONSTRUCTOR_PARAMETER_HIDING_FIELD, IGNORE);
+		optionNames.add(COMPILER_PB_CONSTRUCTOR_PARAMETER_HIDING_FIELD);
+
+		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); 
 		optionNames.add(COMPILER_TASK_TAGS);
 
-		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY); //$NON-NLS-1$
+		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY); 
 		optionNames.add(COMPILER_TASK_PRIORITIES);
 
 		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
@@ -2677,7 +2725,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Runs the given action as an atomic Java model operation.
 	 * <p>
-	 * After running a method that modifies Java elements,
+	 * After running a method that modifies java elements,
 	 * registered listeners receive after-the-fact notification of
 	 * what just transpired, in the form of a element changed event.
 	 * This method allows clients to call a number of
@@ -2762,13 +2810,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 		if (JavaModelManager.CP_RESOLVE_VERBOSE){
 			System.out.println("CPContainer SET  - setting container: ["+containerPath+"] for projects: {" //$NON-NLS-1$ //$NON-NLS-2$
-				+ (Util.toString(affectedProjects, 
-						new Util.Displayable(){ 
+				+ (org.eclipse.jdt.internal.compiler.util.Util.toString(affectedProjects, 
+						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
 							public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
 						}))
 				+ "} with values: " //$NON-NLS-1$
-				+ (Util.toString(respectiveContainers, 
-						new Util.Displayable(){ 
+				+ (org.eclipse.jdt.internal.compiler.util.Util.toString(respectiveContainers, 
+						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
 							public String displayString(Object o) { return ((IClasspathContainer) o).getDescription(); }
 						}))
 					);
@@ -2853,7 +2901,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								monitor,
 								!ResourcesPlugin.getWorkspace().isTreeLocked(), // can save resources
 								oldResolvedPaths[i],
-								false, // updating - no validation
+								false, // updating - no need for early validation
 								false); // updating - no need to save
 					}
 				}
@@ -3078,8 +3126,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (monitor != null && monitor.isCanceled()) return;
 		
 		if (JavaModelManager.CP_RESOLVE_VERBOSE){
-			System.out.println("CPVariable SET  - setting variables: {" + Util.toString(variableNames)  //$NON-NLS-1$
-				+ "} with values: " + Util.toString(variablePaths)); //$NON-NLS-1$
+			System.out.println("CPVariable SET  - setting variables: {" + org.eclipse.jdt.internal.compiler.util.Util.toString(variableNames)  //$NON-NLS-1$
+				+ "} with values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variablePaths)); //$NON-NLS-1$
 		}
 
 		int varLength = variableNames.length;
@@ -3180,7 +3228,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								JavaProject project = (JavaProject) projectsToUpdate.next();
 
 								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									System.out.println("CPVariable SET  - updating affected project: ["+project.getElementName()+"] due to setting variables: "+ Util.toString(dbgVariableNames)); //$NON-NLS-1$ //$NON-NLS-2$
+									System.out.println("CPVariable SET  - updating affected project: ["+project.getElementName() //$NON-NLS-1$
+										+"] due to setting variables: "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
 								}
 								
 								project
@@ -3190,7 +3239,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
 										!ResourcesPlugin.getWorkspace().isTreeLocked(), // can change resources
 										(IClasspathEntry[]) affectedProjects.get(project),
-										false, // updating - no validation
+										false, // updating - no need for early validation
 										false); // updating - no need to save
 							}
 						}
@@ -3198,7 +3247,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					monitor);
 			} catch (CoreException e) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPVariable SET  - FAILED DUE TO EXCEPTION: "+Util.toString(dbgVariableNames)); //$NON-NLS-1$
+					System.out.println("CPVariable SET  - FAILED DUE TO EXCEPTION: " //$NON-NLS-1$
+						+org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); 
 					e.printStackTrace();
 				}
 				if (e instanceof JavaModelException) {

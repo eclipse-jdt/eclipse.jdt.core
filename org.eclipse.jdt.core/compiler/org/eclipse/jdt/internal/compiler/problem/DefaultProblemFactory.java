@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblemFactory implements IProblemFactory {
 
@@ -116,9 +117,13 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 				} catch (NumberFormatException nfe) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
-					return "Corrupted compiler resources for problem id: " //$NON-NLS-1$
+					return "Cannot bind message for problem (id: " //$NON-NLS-1$
 						+ (id & IProblem.IgnoreCategoriesMask)
-						+ ". Check compiler resources.";  //$NON-NLS-1$
+						+ ") \""  //$NON-NLS-1$
+						+ message
+						+ "\" with arguments: {" //$NON-NLS-1$
+						+ Util.toString(problemArguments)
+						+"}"; //$NON-NLS-1$
 				}
 			} else {
 				output.append(message.substring(end, length));

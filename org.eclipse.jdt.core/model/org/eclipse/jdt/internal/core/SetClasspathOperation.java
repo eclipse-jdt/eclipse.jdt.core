@@ -271,7 +271,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newResolvedPath,
 		final JavaProject project) {
-	
+
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
@@ -310,7 +310,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					this.needCycleCheck = true;
 					continue; 
 				}
-	
+
 				IPackageFragmentRoot[] pkgFragmentRoots = null;
 				if (oldRoots != null) {
 					IPackageFragmentRoot oldRoot = (IPackageFragmentRoot)  oldRoots.get(oldResolvedPath[i].getPath());
@@ -340,7 +340,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				
 				int changeKind = oldResolvedPath[i].getEntryKind();
 				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
-	
+
 				// Remove the .java files from the index for a source folder
 				// For a lib folder or a .jar file, remove the corresponding index if not shared.
 				if (indexManager != null) {
@@ -378,7 +378,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					}		
 				}
 				hasDelta = true;
-	
+
 			} else {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
@@ -419,9 +419,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 				}
 			}
 		}
-	
+
 		for (int i = 0; i < newLength; i++) {
-	
+
 			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
 				// do not notify remote project changes
@@ -480,10 +480,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 				
 				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || newResolvedPath[i].isExported();
 				hasDelta = true;
-	
+
 			} // classpath reordering has already been generated in previous loop
 		}
-	
+
 		if (hasDelta) {
 			this.addDelta(delta);
 		}
@@ -653,24 +653,21 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (!this.needCycleCheck) return;
 		if (!this.canChangeResource) return;
 		 
-		try {
-			JavaProject project = getProject();
-			if (!project.hasCycleMarker() && !project.hasClasspathCycle(project.getResolvedClasspath(true))){
-				return;
-			}
-		
-			postAction(
-				new IPostAction() {
-					public String getID() {
-						return "updateCycleMarkers";  //$NON-NLS-1$
-					}
-					public void run() throws JavaModelException {
-						JavaProject.updateAllCycleMarkers();
-					}
-				},
-				REMOVEALL_APPEND);
-		} catch(JavaModelException e){
+		JavaProject project = getProject();
+		if (!project.hasCycleMarker() && !project.hasClasspathCycle(newResolvedPath)){
+			return;
 		}
+	
+		postAction(
+			new IPostAction() {
+				public String getID() {
+					return "updateCycleMarkers";  //$NON-NLS-1$
+				}
+				public void run() throws JavaModelException {
+					JavaProject.updateAllCycleMarkers();
+				}
+			},
+			REMOVEALL_APPEND);
 	}
 
 	/**
@@ -736,7 +733,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		String[] oldRequired = jproject.projectPrerequisites(this.oldResolvedPath);
 
 		if (this.newResolvedPath == null) {
-			this.newResolvedPath = jproject.getResolvedClasspath(this.newRawPath, null, true, this.needValidation, null /*no reverse map*/);
+			this.newResolvedPath = jproject.getResolvedClasspath(this.newRawPath, null, true, true, null/*no reverse map*/);
 		}
 		String[] newRequired = jproject.projectPrerequisites(this.newResolvedPath);
 	

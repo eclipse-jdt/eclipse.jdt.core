@@ -27,6 +27,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class Util {
 
+	public interface Displayable {
+		String displayString(Object o);
+	}
 	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	public static char[] LINE_SEPARATOR_CHARS = LINE_SEPARATOR.toCharArray();
 	public final static char[] SUFFIX_class = ".class".toCharArray(); //$NON-NLS-1$
@@ -384,4 +387,30 @@ public class Util {
 		}
 		return true;		
 	}
+	/**
+	 * Converts an array of Objects into String.
+	 */
+	public static String toString(Object[] objects) {
+		return toString(objects, 
+			new Displayable(){ 
+				public String displayString(Object o) { 
+					if (o == null) return "null"; //$NON-NLS-1$
+					return o.toString(); 
+				}
+			});
+	}
+
+	/**
+	 * Converts an array of Objects into String.
+	 */
+	public static String toString(Object[] objects, Displayable renderer) {
+		if (objects == null) return ""; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer(10);
+		for (int i = 0; i < objects.length; i++){
+			if (i > 0) buffer.append(", "); //$NON-NLS-1$
+			buffer.append(renderer.displayString(objects[i]));
+		}
+		return buffer.toString();
+	}
+	
 }

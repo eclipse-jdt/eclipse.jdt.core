@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -184,7 +185,12 @@ public void evaluateWithExpectedDisplayString(char[] codeSnippet, char[] display
 	} catch (InstallException e) {
 		assertTrue("Target exception " + e.getMessage(), false);
 	}
-	assertTrue("Got one result", requestor.resultIndex == 0);
+	if (requestor.resultIndex != 0) {
+		for (int i = 0; i < requestor.resultIndex; i++){
+			System.out.println("unexpected result["+i+"]: " + requestor.results[i]);
+		}
+	}
+	assertTrue("Unexpected result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Has problem", !result.hasProblems());
 	assertTrue("Empty problem list", result.getProblems().length == 0);
@@ -307,6 +313,11 @@ protected void evaluateWithExpectedType(char[] codeSnippet, char[] expectedTypeN
 	} catch (InstallException e) {
 		assertTrue("Target exception " + e.getMessage(), false);
 	}
+	if (requestor.resultIndex != 0) {
+		for (int i = 0; i < requestor.resultIndex; i++){
+			System.out.println("unexpected result["+i+"]: " + requestor.results[i]);
+		}
+	}
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	if (expectedTypeName == null) {
@@ -331,7 +342,7 @@ protected void evaluateWithExpectedValue(char[] codeSnippet, char[] displayStrin
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	if (displayString == null) {
-		assertTrue("Has value", !result.hasValue());
+		assertTrue("Missing value", !result.hasValue());
 	} else {
 		assertTrue("Has value", result.hasValue());
 		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
@@ -350,7 +361,12 @@ protected void evaluateWithExpectedValue(GlobalVariable var, char[] displayStrin
 	} catch (InstallException e) {
 		assertTrue("Target exception " + e.getMessage(), false);
 	}
-	assertTrue("Got one result", requestor.resultIndex == 0);
+	if (requestor.resultIndex != 0) {
+		for (int i = 0; i < requestor.resultIndex; i++){
+			System.out.println("unexpected result["+i+"]: " + requestor.results[i]);
+		}
+	}
+	assertTrue("Unexpected result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	if (displayString == null) {
 		assertTrue("Has value", !result.hasValue());
@@ -407,27 +423,29 @@ public INameEnvironment getEnv() {
 	return env;
 }
 public Map getOptions() {
-	Hashtable options = new Hashtable();
-	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
-	options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
-	options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
-	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-	options.put(CompilerOptions.OPTION_ReportUnreachableCode, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-	options.put(CompilerOptions.OPTION_Encoding, "");	
-	return options;
+	
+		Map defaultOptions = Main.getDefaultOptions();
+		defaultOptions.put(
+			CompilerOptions.OPTION_LocalVariableAttribute,
+			CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_LineNumberAttribute,
+			CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_SourceFileAttribute,
+			CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedLocal, 
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedImport, 
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameter,
+			CompilerOptions.WARNING);
+		return defaultOptions;
 }
+
 public IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(java.util.Locale.getDefault());
 }

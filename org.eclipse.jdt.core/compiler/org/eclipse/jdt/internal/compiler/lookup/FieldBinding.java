@@ -31,8 +31,7 @@ public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBindi
 }
 public FieldBinding(FieldDeclaration field, TypeBinding type, ReferenceBinding declaringClass) {
 	this(field.name, type, field.modifiers, declaringClass, null);
-
-	field.binding = this;
+	field.binding = this; // record binding in declaration
 }
 // special API used to change field declaring class for runtime visibility check
 public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaringClass) {

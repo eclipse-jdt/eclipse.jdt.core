@@ -59,10 +59,6 @@ public class Util {
 		int compare(Object a, Object b);
 	}
 	
-	public interface Displayable {
-		String displayString(Object o);
-	}
-	
 	public static final String[] fgEmptyStringArray = new String[0];
 
 	/**
@@ -1245,32 +1241,6 @@ public class Util {
 		return new String(c);
 	}
 
-	/**
-	 * Converts an array of Objects into String.
-	 */
-	public static String toString(Object[] objects) {
-		return toString(objects, 
-			new Displayable(){ 
-				public String displayString(Object o) { 
-					if (o == null) return "null"; //$NON-NLS-1$
-					return o.toString(); 
-				}
-			});
-	}
-
-	/**
-	 * Converts an array of Objects into String.
-	 */
-	public static String toString(Object[] objects, Displayable renderer) {
-		if (objects == null) return ""; //$NON-NLS-1$
-		StringBuffer buffer = new StringBuffer(10);
-		for (int i = 0; i < objects.length; i++){
-			if (i > 0) buffer.append(", "); //$NON-NLS-1$
-			buffer.append(renderer.displayString(objects[i]));
-		}
-		return buffer.toString();
-	}
-	
 	/**
 	 * Asserts that the given method signature is valid.
 	 */

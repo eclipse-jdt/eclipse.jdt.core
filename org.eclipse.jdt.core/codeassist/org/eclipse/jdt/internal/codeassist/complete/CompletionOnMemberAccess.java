@@ -42,11 +42,11 @@ public class CompletionOnMemberAccess extends FieldReference {
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
-		TypeBinding receiverType = receiver.resolveType(scope);
-		if (receiverType == null || receiverType.isBaseType())
+		this.receiverType = receiver.resolveType(scope);
+		if (this.receiverType == null || this.receiverType.isBaseType())
 			throw new CompletionNodeFound();
 		else
-			throw new CompletionNodeFound(this, receiverType, scope);
+			throw new CompletionNodeFound(this, this.receiverType, scope);
 		// array types are passed along to find the length field
 	}
 	

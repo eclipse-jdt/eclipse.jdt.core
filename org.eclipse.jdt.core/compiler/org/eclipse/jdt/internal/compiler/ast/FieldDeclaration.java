@@ -149,6 +149,29 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 			this.hasBeenResolved = true;
 
+			// check if field is hiding some variable
+			ClassScope classScope = initializationScope.enclosingClassScope();
+			if (classScope != null) {
+				SourceTypeBinding declaringType = classScope.enclosingSourceType();
+				boolean checkLocal = true;
+				if (declaringType.superclass != null) { 
+					Binding existingVariable = classScope.findField(declaringType.superclass, name, this);
+					if (existingVariable != null && existingVariable.isValidBinding()) {
+						initializationScope.problemReporter().fieldHiding(this, existingVariable);
+						checkLocal = false; // already found a matching field
+					}
+				}
+				if (checkLocal) {
+					MethodScope outerMethodScope = classScope.enclosingMethodScope();
+					if (outerMethodScope != null) { // local type scenario
+						Binding existingVariable = outerMethodScope.getBinding(name, BindingIds.VARIABLE, this);
+						if (existingVariable != null && existingVariable.isValidBinding()){
+							initializationScope.problemReporter().fieldHiding(this, existingVariable);
+						}
+					}
+				}
+			}
+			
 			if (isTypeUseDeprecated(this.binding.type, initializationScope))
 				initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
 
