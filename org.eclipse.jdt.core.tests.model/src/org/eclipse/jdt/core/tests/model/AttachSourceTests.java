@@ -670,4 +670,24 @@ public void testRootPath11() throws JavaModelException {
 	root.close();
 }
 
+/**
+ * Attach a jar with a source attachement that is itself. The jar contains 2 root paths for the same class file.
+ * (regression test for bug 74014 prefix path for source attachements - automatic detection does not seem to work)
+ */
+public void testRootPath12() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test5.jar"));
+	attachSource(root, "/AttachSourceTests/test5.jar", null);
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("X.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"public class X {\n" +
+		"}\n",
+		cf.getSource());
+	attachSource(root, null, null); // detach source
+	root.close();
+}
+
 }
