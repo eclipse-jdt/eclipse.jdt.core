@@ -71,7 +71,7 @@ public abstract class JobManager implements Runnable {
 		}
 		return null;
 	}
-	public synchronized void disable() {
+	public void disable() {
 		enabled = false;
 		if (VERBOSE)
 			JobManager.verbose("DISABLING background indexing"); //$NON-NLS-1$
@@ -134,12 +134,12 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			JobManager.verbose("DISCARD   DONE with background job family - " + jobFamily); //$NON-NLS-1$
 	}
-	public synchronized void enable() {
+	public void enable() {
 		enabled = true;
 		if (VERBOSE)
 			JobManager.verbose("ENABLING  background indexing"); //$NON-NLS-1$
 	}
-	public synchronized boolean isEnabled() {
+	public boolean isEnabled() {
 		return enabled;
 	}
 	/**

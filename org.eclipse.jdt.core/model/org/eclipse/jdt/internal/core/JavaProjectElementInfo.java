@@ -212,7 +212,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	/**
 	 * Set the fNonJavaResources to res value
 	 */
-	synchronized void setNonJavaResources(Object[] resources) {
+	void setNonJavaResources(Object[] resources) {
 
 		fNonJavaResources = resources;
 	}

@@ -56,7 +56,7 @@ Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot r
 /**
  * Set the fNonJavaResources to res value
  */
-synchronized void setNonJavaResources(Object[] resources) {
+void setNonJavaResources(Object[] resources) {
 	fNonJavaResources = resources;
 }
 }

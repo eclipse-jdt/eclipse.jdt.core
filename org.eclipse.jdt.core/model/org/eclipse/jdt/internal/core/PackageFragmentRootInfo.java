@@ -143,7 +143,7 @@ public int getRootKind() {
  * Retuns the SourceMapper for this root, or <code>null</code>
  * if this root does not have attached source.
  */
-protected synchronized SourceMapper getSourceMapper() {
+protected SourceMapper getSourceMapper() {
 	return this.sourceMapper;
 }
 private static boolean isClasspathEntry(IPath path, IClasspathEntry[] resolvedClasspath) {
@@ -158,7 +158,7 @@ private static boolean isClasspathEntry(IPath path, IClasspathEntry[] resolvedCl
 /**
  * Set the fNonJavaResources to res value
  */
-synchronized void setNonJavaResources(Object[] resources) {
+void setNonJavaResources(Object[] resources) {
 	fNonJavaResources = resources;
 }
 /**
@@ -170,7 +170,7 @@ protected void setRootKind(int newRootKind) {
 /**
  * Sets the SourceMapper for this root.
  */
-protected synchronized void setSourceMapper(SourceMapper mapper) {
+protected void setSourceMapper(SourceMapper mapper) {
 	this.sourceMapper= mapper;
 }
 }
