@@ -267,16 +267,24 @@ public class SetClasspathOperation extends JavaModelOperation {
 		boolean oldResolvedPathLongest = oldLength >= newLength;
 			
 		final IndexManager indexManager = manager.getIndexManager();
-		Map allRemovedRoots = manager.deltaProcessor.removedRoots;
-		Map removedRoots = null;
-		if (allRemovedRoots != null) {
-			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) allRemovedRoots.get(project);
-			if (roots != null) {
-				removedRoots = new HashMap();
-				for (int i = 0; i < roots.length; i++) {
-					IPackageFragmentRoot root = roots[i];
-					removedRoots.put(root.getPath(), root);
-				}
+		Map oldRoots = null;
+		IPackageFragmentRoot[] roots = null;
+		if (project.isOpen()) {
+			try {
+				roots = project.getPackageFragmentRoots();
+			} catch (JavaModelException e) {
+			}
+		} else {
+			Map allRemovedRoots ;
+			if ((allRemovedRoots = manager.deltaProcessor.removedRoots) != null) {
+		 		roots = (IPackageFragmentRoot[]) allRemovedRoots.get(project);
+			}
+		}
+		if (roots != null) {
+			oldRoots = new HashMap();
+			for (int i = 0; i < roots.length; i++) {
+				IPackageFragmentRoot root = roots[i];
+				oldRoots.put(root.getPath(), root);
 			}
 		}
 		for (int i = 0; i < oldResolvedPath.length; i++) {
@@ -291,10 +299,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 				}
 
 				IPackageFragmentRoot[] pkgFragmentRoots = null;
-				if (removedRoots != null) {
-					IPackageFragmentRoot removedRoot = (IPackageFragmentRoot)  removedRoots.get(oldResolvedPath[i].getPath());
-					if (removedRoot != null) { // use old root if any (could be none if entry wasn't bound)
-						pkgFragmentRoots = new IPackageFragmentRoot[] { removedRoot };
+				if (oldRoots != null) {
+					IPackageFragmentRoot oldRoot = (IPackageFragmentRoot)  oldRoots.get(oldResolvedPath[i].getPath());
+					if (oldRoot != null) { // use old root if any (could be none if entry wasn't bound)
+						pkgFragmentRoots = new IPackageFragmentRoot[] { oldRoot };
 					}
 				}
 				if (pkgFragmentRoots == null) {

@@ -146,6 +146,9 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable2"));
 	suite.addTest(new JavaElementDeltaTests("testChangeRootKind"));
 	suite.addTest(new JavaElementDeltaTests("testOverwriteClasspath"));
+	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot1"));
+	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot2"));
+	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot3"));
 	
 	// batch operations
 	suite.addTest(new JavaElementDeltaTests("testBatchOperation"));
@@ -1155,6 +1158,110 @@ public void testRemoveAddJavaProject() throws CoreException {
 			"P[*]: {CONTENT}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
 			"	ResourceDelta(/P/.project)[*]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Change the .classpath file so as to remove a classpath entry and remove the corresponding resource.
+ * (regression test for bug 24517 type view does not notice when jar disappears)
+
+ */
+public void testRemoveCPEntryAndRoot1() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		
+		// ensure that the project is open (there are clients of the delta only if the project is open)
+		project.open(null);
+		 
+		this.startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					editFile(
+						"/P/.classpath",
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+						"<classpath>\n" +
+						"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+						"</classpath>");
+					deleteFolder("/P/src");
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/src)[-]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Remove a classpath entry and remove the corresponding resource.
+ * (regression test for bug 24517 type view does not notice when jar disappears)
+
+ */
+public void testRemoveCPEntryAndRoot2() throws CoreException {
+	try {
+		final IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		
+		// ensure that the project is open (there are clients of the delta only if the project is open)
+		project.open(null);
+		 
+		this.startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					project.setRawClasspath(new IClasspathEntry[] {}, null);
+					deleteFolder("/P/src");
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/src)[-]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Remove  the resource of a classpath entry and remove the  classpath entry.
+ * (regression test for bug 24517 type view does not notice when jar disappears)
+
+ */
+public void testRemoveCPEntryAndRoot3() throws CoreException {
+	try {
+		final IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		
+		// ensure that the project is open (there are clients of the delta only if the project is open)
+		project.open(null);
+		 
+		this.startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					deleteFolder("/P/src");
+					project.setRawClasspath(new IClasspathEntry[] {}, null);
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/src)[-]"
 		);
 	} finally {
 		this.stopDeltas();
