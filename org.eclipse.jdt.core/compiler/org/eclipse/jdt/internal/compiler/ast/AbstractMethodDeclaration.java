@@ -112,14 +112,7 @@ public abstract class AbstractMethodDeclaration
 				this.needFreeReturn = flowInfo.isReachable();
 			} else {
 				if (flowInfo != FlowInfo.DEAD_END) { 
-					// special test for empty methods that should return something
-					if ((statements == null) && (returnType != VoidBinding)) {
-						scope.problemReporter().shouldReturn(returnType, this);
-					} else {
-						scope.problemReporter().shouldReturn(
-							returnType,
-							statements[statements.length - 1]);
-					}
+					scope.problemReporter().shouldReturn(returnType, this);
 				}
 			}
 		} catch (AbortMethod e) {
