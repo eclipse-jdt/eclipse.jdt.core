@@ -191,23 +191,6 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	}
 }
 /**
- * Note: a buffer with no unsaved changes can be closed by the Java Model
- * since it has a finite number of buffers allowed open at one time. If this
- * is the first time a request is being made for the buffer, an attempt is
- * made to create and fill this element's buffer. If the buffer has been
- * closed since it was first opened, the buffer is re-created.
- * 
- * @see IOpenable
- */
-public IBuffer getBuffer() throws JavaModelException {
-	IBuffer buffer = getBufferManager().getBuffer(this);
-	if (buffer == null) {
-		// try to (re)open a buffer
-		return openBuffer(null);
-	}
-	return buffer;
-}
-/**
  * @see IMember
  */
 public IClassFile getClassFile() {
