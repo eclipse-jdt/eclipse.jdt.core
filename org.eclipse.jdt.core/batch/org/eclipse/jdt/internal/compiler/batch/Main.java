@@ -1147,59 +1147,36 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.proceed = false;
 				return;
 			 }
-			 String javaVMName = System.getProperty("java.vm.name");//$NON-NLS-1$
-			 if (javaVMName != null && javaVMName.equalsIgnoreCase("J9")) {//$NON-NLS-1$
-			 	/*
-			 	 * Handle J9 VM settings: Retrieve jclMax by default
-			 	 */
-			 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-			 	 if (javaHome != null) {
-			 	 	File javaHomeFile = new File(javaHome);
-			 	 	if (javaHomeFile.exists()) {
-						try {
-							javaHomeFile = new File(javaHomeFile.getCanonicalPath());
-							File defaultLibrary = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "classes.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-							File locales = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "locale.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-							File charconv = new File(javaHomeFile, "lib" +  File.separator + "charconv.zip"); //$NON-NLS-1$//$NON-NLS-2$
-							/* we don't need to check if defaultLibrary exists. This is done later when the user
-							 * classpath and the bootclasspath are merged. 
-							 */
-							bootclasspaths = new String[] {
-								defaultLibrary.getAbsolutePath(),
-								locales.getAbsolutePath(),
-								charconv.getAbsolutePath()};
-							bootclasspathCount = 3;
-						} catch (IOException e) {
-							// cannot retrieve libraries
-						}
-			 	 	}
-			 	 }
-			 } else {
-			 	/*
-			 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
-			 	 */
-			 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-			 	 if (javaHome != null) {
-			 	 	File javaHomeFile = new File(javaHome);
-			 	 	if (javaHomeFile.exists()) {
-						try {
-							javaHomeFile = new File(javaHomeFile.getCanonicalPath());
-							// add all jars in the lib subdirectory
-							File[] systemLibrariesJars = getFilesFrom(new File(javaHomeFile, "lib"), SUFFIX_STRING_jar);//$NON-NLS-1$
-							int length = systemLibrariesJars.length;
+
+		 	/*
+		 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
+		 	 */
+		 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+		 	 if (javaHome != null) {
+		 	 	File javaHomeFile = new File(javaHome);
+		 	 	if (javaHomeFile.exists()) {
+					try {
+						javaHomeFile = new File(javaHomeFile.getCanonicalPath());
+						// add all jars in the lib subdirectory
+						File[] directoriesToCheck = new File[] { new File(javaHomeFile, "lib"), new File(javaHomeFile, "lib/ext")};//$NON-NLS-1$//$NON-NLS-2$
+						File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
+						if (systemLibrariesJars != null) {
+							int length = getLength(systemLibrariesJars);
 							bootclasspaths = new String[length];
-							for (int i = 0; i < length; i++) {
-								/* we don't need to check if this file exists. This is done later when the user
-								 * classpath and the bootclasspath are merged. 
-								 */
-								bootclasspaths[bootclasspathCount++] = systemLibrariesJars[i].getAbsolutePath();
-							} 
-						} catch (IOException e) {
-							// cannot retrieve libraries
+							for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+								File[] current = systemLibrariesJars[i];
+								if (current != null) {
+									for (int j = 0, max2 = current.length; j < max2; j++) {
+										bootclasspaths[bootclasspathCount++] = current[j].getAbsolutePath();
+									}
+								}
+							}
 						}
-			 	 	}
-			 	 }
-			 }
+					} catch (IOException e) {
+						// cannot retrieve libraries
+					}
+		 	 	}
+		 	 }
 		}
 
 		if (this.log != null) {
@@ -1417,15 +1394,38 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		return units;
 	}
 	
-	private File[] getFilesFrom(File f, final String extension) {
-		return f.listFiles(new FilenameFilter() {
+	private File[][] getLibrariesFiles(File[] files) {
+		FilenameFilter filter = new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				if (name.toLowerCase().endsWith(extension)) {
+				String lowerCaseName = name.toLowerCase();
+				if (lowerCaseName.endsWith(SUFFIX_STRING_jar) || lowerCaseName.endsWith(SUFFIX_STRING_zip)) {
 					return true;
 				}
 				return false;
 			}
-		});
+		};
+		final int filesLength = files.length;
+		File[][] result = new File[filesLength][];
+		for (int i = 0; i < filesLength; i++) {
+			File currentFile = files[i];
+			if (currentFile.exists() && currentFile.isDirectory()) {
+				result[i] = currentFile.listFiles(filter);
+			}
+		}
+		return result;
+	}
+	
+	private int getLength(File[][] libraries) {
+		int sum = 0;
+		if (libraries != null) {
+			for (int i = 0, max = libraries.length; i < max; i++) {
+				final File[] currentFiles = libraries[i];
+				if (currentFiles != null) {
+					sum+= currentFiles.length;
+				}
+			}
+		}
+		return sum;
 	}
 	/*
 	 *  Low-level API performing the actual compilation
