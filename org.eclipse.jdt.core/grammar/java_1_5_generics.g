@@ -18,7 +18,7 @@
 --Usefull macros helping reading/writing semantic actions
 $Define 
 $putCase 
-/.    case $rule_number : System.out.println("$rule_text");  //$NON-NLS-1$
+/.    case $rule_number : // System.out.println("$rule_text");  //$NON-NLS-1$
 		   ./
 
 $break
@@ -95,6 +95,7 @@ $Terminals
 	COMMA
 	DOT
 	EQUAL
+	AT
 
 --    BodyMarker
 
@@ -147,13 +148,14 @@ $Alias
 	','    ::= COMMA
 	'.'    ::= DOT
 	'='    ::= EQUAL
+	'@'	   ::= AT
 	
 $Start
 	Goal
 
 $Rules
 
-/. // This method is part of an automatic generation : do NOT edit-modify  
+/.// This method is part of an automatic generation : do NOT edit-modify  
 protected void consumeRule(int act) {
   switch ( act ) {
 ./
@@ -349,6 +351,7 @@ TypeDeclaration ::= ';'
 -----------------------------------------------
 TypeDeclaration ::= EnumDeclaration
 /:$readableName TypeDeclaration:/
+TypeDeclaration ::= AnnotationTypeDeclaration
 
 --18.7 Only in the LALR(1) Grammar
 
@@ -1715,7 +1718,6 @@ AdditionalBound1 ::= '&' ReferenceType1
 -- Duplicate rules to remove ambiguity for (x) --
 -------------------------------------------------
 PostfixExpression_NotName ::= Primary
-/.$putCase consumePostfixExpression(); $break ./
 PostfixExpression_NotName ::= PostIncrementExpression
 PostfixExpression_NotName ::= PostDecrementExpression
 /:$readableName Expression:/
@@ -1741,117 +1743,117 @@ MultiplicativeExpression_NotName ::= UnaryExpression_NotName
 MultiplicativeExpression_NotName ::= MultiplicativeExpression_NotName '*' UnaryExpression
 /.$putCase consumeBinaryExpression(OperatorIds.MULTIPLY); $break ./
 MultiplicativeExpression_NotName ::= Name '*' UnaryExpression
-/.$putCase consumeBinaryExpression(OperatorIds.MULTIPLY); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.MULTIPLY); $break ./
 MultiplicativeExpression_NotName ::= MultiplicativeExpression_NotName '/' UnaryExpression
 /.$putCase consumeBinaryExpression(OperatorIds.DIVIDE); $break ./
 MultiplicativeExpression_NotName ::= Name '/' UnaryExpression
-/.$putCase consumeBinaryExpression(OperatorIds.DIVIDE); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.DIVIDE); $break ./
 MultiplicativeExpression_NotName ::= MultiplicativeExpression_NotName '%' UnaryExpression
 /.$putCase consumeBinaryExpression(OperatorIds.REMAINDER); $break ./
 MultiplicativeExpression_NotName ::= Name '%' UnaryExpression
-/.$putCase consumeBinaryExpression(OperatorIds.REMAINDER); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.REMAINDER); $break ./
 /:$readableName Expression:/
 
 AdditiveExpression_NotName ::= MultiplicativeExpression_NotName
 AdditiveExpression_NotName ::= AdditiveExpression_NotName '+' MultiplicativeExpression
 /.$putCase consumeBinaryExpression(OperatorIds.PLUS); $break ./
 AdditiveExpression_NotName ::= Name '+' MultiplicativeExpression
-/.$putCase consumeBinaryExpression(OperatorIds.PLUS); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.PLUS); $break ./
 AdditiveExpression_NotName ::= AdditiveExpression_NotName '-' MultiplicativeExpression
 /.$putCase consumeBinaryExpression(OperatorIds.MINUS); $break ./
 AdditiveExpression_NotName ::= Name '-' MultiplicativeExpression
-/.$putCase consumeBinaryExpression(OperatorIds.MINUS); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.MINUS); $break ./
 /:$readableName Expression:/
 
 ShiftExpression_NotName ::= AdditiveExpression_NotName
 ShiftExpression_NotName ::= ShiftExpression_NotName '<<'  AdditiveExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LEFT_SHIFT); $break ./
 ShiftExpression_NotName ::= Name '<<'  AdditiveExpression
-/.$putCase consumeBinaryExpression(OperatorIds.LEFT_SHIFT); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.LEFT_SHIFT); $break ./
 ShiftExpression_NotName ::= ShiftExpression_NotName '>>'  AdditiveExpression
 /.$putCase consumeBinaryExpression(OperatorIds.RIGHT_SHIFT); $break ./
 ShiftExpression_NotName ::= Name '>>'  AdditiveExpression
-/.$putCase consumeBinaryExpression(OperatorIds.RIGHT_SHIFT); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.RIGHT_SHIFT); $break ./
 ShiftExpression_NotName ::= ShiftExpression_NotName '>>>' AdditiveExpression
 /.$putCase consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT); $break ./
 ShiftExpression_NotName ::= Name '>>>' AdditiveExpression
-/.$putCase consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.UNSIGNED_RIGHT_SHIFT); $break ./
 /:$readableName Expression:/
 
 RelationalExpression_NotName ::= ShiftExpression_NotName
 RelationalExpression_NotName ::= ShiftExpression_NotName '<'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS); $break ./
 RelationalExpression_NotName ::= Name '<'  ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorIds.LESS); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.LESS); $break ./
 RelationalExpression_NotName ::= ShiftExpression_NotName '>'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER); $break ./
 RelationalExpression_NotName ::= Name '>'  ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorIds.GREATER); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.GREATER); $break ./
 RelationalExpression_NotName ::= RelationalExpression_NotName '<=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS_EQUAL); $break ./
 RelationalExpression_NotName ::= Name '<=' ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorIds.LESS_EQUAL); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.LESS_EQUAL); $break ./
 RelationalExpression_NotName ::= RelationalExpression_NotName '>=' ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression_NotName ::= Name '>=' ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression_NotName  ::= RelationalExpression_NotName 'instanceof' ReferenceType
 /.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
 RelationalExpression_NotName  ::= Name 'instanceof' ReferenceType
-/.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
+/.$putCase consumeInstanceOfExpressionWithName(OperatorIds.INSTANCEOF); $break ./
 /:$readableName Expression:/
 
 EqualityExpression_NotName ::= RelationalExpression_NotName
 EqualityExpression_NotName ::= EqualityExpression_NotName '==' RelationalExpression
 /.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
 EqualityExpression_NotName ::= Name '==' RelationalExpression
-/.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
+/.$putCase consumeEqualityExpressionWithName(OperatorIds.EQUAL_EQUAL); $break ./
 EqualityExpression_NotName ::= EqualityExpression_NotName '!=' RelationalExpression
 /.$putCase consumeEqualityExpression(OperatorIds.NOT_EQUAL); $break ./
 EqualityExpression_NotName ::= Name '!=' RelationalExpression
-/.$putCase consumeEqualityExpression(OperatorIds.NOT_EQUAL); $break ./
+/.$putCase consumeEqualityExpressionWithName(OperatorIds.NOT_EQUAL); $break ./
 /:$readableName Expression:/
 
 AndExpression_NotName ::= EqualityExpression_NotName
 AndExpression_NotName ::= AndExpression_NotName '&' EqualityExpression
 /.$putCase consumeBinaryExpression(OperatorIds.AND); $break ./
 AndExpression_NotName ::= Name '&' EqualityExpression
-/.$putCase consumeBinaryExpression(OperatorIds.AND); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.AND); $break ./
 /:$readableName Expression:/
 
 ExclusiveOrExpression_NotName ::= AndExpression_NotName
 ExclusiveOrExpression_NotName ::= ExclusiveOrExpression_NotName '^' AndExpression
 /.$putCase consumeBinaryExpression(OperatorIds.XOR); $break ./
 ExclusiveOrExpression_NotName ::= Name '^' AndExpression
-/.$putCase consumeBinaryExpression(OperatorIds.XOR); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.XOR); $break ./
 /:$readableName Expression:/
 
 InclusiveOrExpression_NotName ::= ExclusiveOrExpression_NotName
 InclusiveOrExpression_NotName ::= InclusiveOrExpression_NotName '|' ExclusiveOrExpression
 /.$putCase consumeBinaryExpression(OperatorIds.OR); $break ./
 InclusiveOrExpression_NotName ::= Name '|' ExclusiveOrExpression
-/.$putCase consumeBinaryExpression(OperatorIds.OR); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.OR); $break ./
 /:$readableName Expression:/
 
 ConditionalAndExpression_NotName ::= InclusiveOrExpression_NotName
 ConditionalAndExpression_NotName ::= ConditionalAndExpression_NotName '&&' InclusiveOrExpression
 /.$putCase consumeBinaryExpression(OperatorIds.AND_AND); $break ./
 ConditionalAndExpression_NotName ::= Name '&&' InclusiveOrExpression
-/.$putCase consumeBinaryExpression(OperatorIds.AND_AND); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.AND_AND); $break ./
 /:$readableName Expression:/
 
 ConditionalOrExpression_NotName ::= ConditionalAndExpression_NotName
 ConditionalOrExpression_NotName ::= ConditionalOrExpression_NotName '||' ConditionalAndExpression
 /.$putCase consumeBinaryExpression(OperatorIds.OR_OR); $break ./
 ConditionalOrExpression_NotName ::= Name '||' ConditionalAndExpression
-/.$putCase consumeBinaryExpression(OperatorIds.OR_OR); $break ./
+/.$putCase consumeBinaryExpressionWithName(OperatorIds.OR_OR); $break ./
 /:$readableName Expression:/
 
 ConditionalExpression_NotName ::= ConditionalOrExpression_NotName
 ConditionalExpression_NotName ::= ConditionalOrExpression_NotName '?' Expression ':' ConditionalExpression
 /.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 ConditionalExpression_NotName ::= Name '?' Expression ':' ConditionalExpression
-/.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
+/.$putCase consumeConditionalExpressionWithName(OperatorIds.QUESTIONCOLON) ; $break ./
 /:$readableName Expression:/
 
 AssignmentExpression_NotName ::= ConditionalExpression_NotName
@@ -1863,8 +1865,95 @@ Expression_NotName ::= AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : end of generics
 -----------------------------------------------
+-----------------------------------------------
+-- 1.5 features : annotation - Metadata feature jsr175
+-----------------------------------------------
+AnnotationTypeDeclaration ::= Modifiersopt '@' interface Identifier AnnotationTypeBody
+/.$putCase consumeAnnotationTypeDeclaration() ; $break ./
+/:$readableName AnnotationTypeDeclaration:/
 
+AnnotationTypeBody ::= '{' AnnotationTypeMemberDeclarationsopt '}'
+/.$putCase consumeAnnotationTypeBody() ; $break ./
+/:$readableName AnnotationTypeBody:/
 
+AnnotationTypeMemberDeclarationsopt ::= $empty
+/.$putCase consumeEmptyAnnotationTypeMemberDeclarations() ; $break ./
+AnnotationTypeMemberDeclarationsopt ::= AnnotationTypeMemberDeclarations
+/:$readableName AnnotationTypeMemberDeclarationsopt:/
+
+AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclaration
+AnnotationTypeMemberDeclarations ::= AnnotationTypeMemberDeclarations AnnotationTypeMemberDeclaration
+/.$putCase consumeAnnotationTypeMemberDeclarations() ; $break ./
+/:$readableName AnnotationTypeMemberDeclarations:/
+
+AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' DefaultValueopt ';'
+/.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
+AnnotationTypeMemberDeclaration ::= ';'
+/.$putCase consumeEmptyAnnotationTypeMemberDeclaration() ; $break ./
+/:$readableName AnnotationTypeMemberDeclaration:/
+
+DefaultValueopt ::= $empty
+/.$putCase consumeEmptyDefaultValue() ; $break ./
+DefaultValueopt ::= DefaultValue
+/:$readableName DefaultValueopt:/
+
+DefaultValue ::= 'default' MemberValue
+/.$putCase consumeDefaultValue() ; $break ./
+/:$readableName DefaultValue:/
+
+Annotation ::= NormalAnnotation
+Annotation ::= MarkerAnnotation
+Annotation ::= SingleMemberAnnotation
+/:$readableName Annotation:/
+
+NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
+/.$putCase consumeNormalAnnotation() ; $break ./
+/:$readableName NormalAnnotation:/
+
+MemberValuePairsopt ::= $empty
+/.$putCase consumeEmptyMemberValuePairs() ; $break ./
+MemberValuePairsopt ::= MemberValuePairs
+/:$readableName MemberValuePairsopt:/
+
+MemberValuePairs ::= MemberValuePair
+MemberValuePairs ::= MemberValuePairs ',' MemberValuePair
+/.$putCase consumeMemberValuePairs() ; $break ./
+/:$readableName MemberValuePairs:/
+
+MemberValuePair ::= SimpleName '=' MemberValue
+/.$putCase consumeMemberValuePair() ; $break ./
+/:$readableName MemberValuePair:/
+
+MemberValue ::= ConditionalExpression_NotName
+MemberValue ::= Annotation
+MemberValue ::= MemberValueArrayInitializer
+/:$readableName MemberValue:/
+
+MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
+/.$putCase consumeMemberValueArrayInitializer() ; $break ./
+MemberValueArrayInitializer ::= '{' MemberValues '}'
+/.$putCase consumeMemberValueArrayInitializer() ; $break ./
+MemberValueArrayInitializer ::= '{' ',' '}'
+/.$putCase consumeMemberValueArrayInitializer() ; $break ./
+MemberValueArrayInitializer ::= '{' '}'
+/.$putCase consumeMemberValueArrayInitializer() ; $break ./
+/:$readableName MemberValueArrayInitializer:/
+
+MemberValues ::= MemberValue
+MemberValues ::= MemberValues ',' MemberValue
+/.$putCase consumeMemberValues() ; $break ./
+/:$readableName MemberValues:/
+
+MarkerAnnotation ::= '@' Name
+/.$putCase consumeMarkerAnnotation() ; $break ./
+/:$readableName MarkerAnnotation:/
+
+SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
+/.$putCase consumeSingleMemberAnnotation() ; $break ./
+/:$readableName SingleMemberAnnotation:/
+-----------------------------------------------
+-- 1.5 features : end of annotation
+-----------------------------------------------
 /.	}
 } ./
 
