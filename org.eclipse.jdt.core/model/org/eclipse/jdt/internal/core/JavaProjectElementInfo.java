@@ -69,7 +69,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				IClasspathEntry entry = classpath[i];
 				if (projectPath.equals(entry.getPath())) {
 					srcIsProject = true;
-					exclusionPatterns = ((ClasspathEntry)entry).fulExclusionPatternChars();
+					exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 					break;
 				}
 			}

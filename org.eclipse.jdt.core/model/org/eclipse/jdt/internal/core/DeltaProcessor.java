@@ -1020,7 +1020,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				IPath path = entry.getPath();
 				if (this.roots.get(path) == null) {
 					this.roots.put(path, project);
-					this.exclusionPatterns.put(path, ((ClasspathEntry)entry).fulExclusionPatternChars());
+					this.exclusionPatterns.put(path, ((ClasspathEntry)entry).fullExclusionPatternChars());
 				} else {
 					HashSet set = (HashSet)this.otherRoots.get(path);
 					if (set == null) {

@@ -179,7 +179,7 @@ char[][] getExclusionPatterns() {
 		if (entry == null) {
 			return null;
 		} else {
-			return entry.fulExclusionPatternChars();
+			return entry.fullExclusionPatternChars();
 		}
 	} catch (JavaModelException e) { 
 		return null;

@@ -405,7 +405,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 						case IClasspathEntry.CPE_SOURCE:
 							IClasspathEntry entry = newResolvedPath[i];
 							final IPath path = entry.getPath();
-							final char[][] exclusionPatterns = ((ClasspathEntry)entry).fulExclusionPatternChars();
+							final char[][] exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 							postAction(new IPostAction() {
 								public String getID() {
 									return path.toString();

@@ -143,7 +143,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 	/*
 	 * Returns a char based representation of the exclusions patterns full path.	 */
-	public char[][] fulExclusionPatternChars() {
+	public char[][] fullExclusionPatternChars() {
 
 		if (this.fullCharExclusionPatterns == UNINIT_PATTERNS) {
 			int length = this.exclusionPatterns.length;

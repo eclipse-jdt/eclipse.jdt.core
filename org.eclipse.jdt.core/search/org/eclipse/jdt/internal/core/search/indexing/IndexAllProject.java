@@ -111,7 +111,7 @@ public int hashCode() {
 					IPath entryPath = entry.getPath();
 					IResource sourceFolder = root.findMember(entryPath);
 					if (sourceFolder != null) {
-						this.currentExclusionPatterns = ((ClasspathEntry)entry).fulExclusionPatternChars();
+						this.currentExclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 						sourceFolder.accept(this);
 					}
 				}
