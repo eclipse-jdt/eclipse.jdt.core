@@ -34,16 +34,16 @@ public final int bindingType() {
 }
 /* Answer true if the receiver can be instantiated
  */
-
 public boolean canBeInstantiated() {
 	return !isBaseType();
 }
-/* Answer the receiver's constant pool name.
- *
- * NOTE: This method should only be used during/after code gen.
+/**
+ *  Answer the receiver's constant pool name.
+ *  NOTE: This method should only be used during/after code gen.
+ *  e.g. java/lang/Object 
  */
+public abstract char[] constantPoolName();
 
-public abstract char[] constantPoolName(); /* java/lang/Object */
 String debugName() {
 	return new String(readableName());
 }
