@@ -47,9 +47,9 @@ protected static boolean areSimilarMethods(
 			for (int i = 0; i < params1Length; i++) {
 				String simpleName1 = 
 					simpleNames1 == null ? 
-						Signature.getSimpleName(Signature.toString(params1[i])) :
+						Signature.getSimpleName(Signature.toString(Signature.getTypeErasure(params1[i]))) :
 						simpleNames1[i];
-				String simpleName2 = Signature.getSimpleName(Signature.toString(params2[i]));
+				String simpleName2 = Signature.getSimpleName(Signature.toString(Signature.getTypeErasure(params2[i])));
 				if (!simpleName1.equals(simpleName2)) {
 					return false;
 				}
@@ -109,7 +109,8 @@ public static IMethod[] findMethods(IMethod method, IMethod[] methods) {
 	int paramLength = parameters.length;
 	String[] simpleNames = new String[paramLength];
 	for (int i = 0; i < paramLength; i++) {
-		simpleNames[i] = Signature.getSimpleName(Signature.toString(parameters[i]));
+		String erasure = Signature.getTypeErasure(parameters[i]);
+		simpleNames[i] = Signature.getSimpleName(Signature.toString(erasure));
 	}
 	ArrayList list = new ArrayList();
 	next: for (int i = 0, length = methods.length; i < length; i++) {

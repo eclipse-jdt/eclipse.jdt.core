@@ -195,6 +195,35 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 	
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
+	 * (regression test for bug 81258 IMethodBinding#getJavaElement() is null with inferred method parameterization)
+	 */
+	public void testMethod4() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		/*start*/bar(new B<Object>())/*end*/;\n" + 
+			"	}\n" + 
+			"	<T extends Object> void bar(A<? extends T> arg) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A<T> {\n" + 
+			"}\n" + 
+			"class B<T> extends A<T> {	\n" + 
+			"}"
+		);
+		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar(A<? extends T>) [in X [in [Working copy] X.java [in <default> [in <project root> [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
 	public void testAnonymousType() throws JavaModelException {
