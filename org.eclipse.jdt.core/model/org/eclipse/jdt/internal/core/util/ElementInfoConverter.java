@@ -266,7 +266,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 		TypeDeclaration type;
 		boolean isAnonymous = false;
 		if (sourceType.getEnclosingType() == null) {
-			IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
+			IType typeHandle = sourceType.getHandle();
 			try {
 				if (typeHandle.isAnonymous()) {
 					type = new AnonymousLocalTypeDeclaration(compilationResult);
