@@ -308,13 +308,6 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
 	
-	if (suppliedType.isBinaryType()) {
-		// fault in its hierarchy...
-		// NB: AbortCompilation is handled by caller
-		typeBinding.superclass();
-		typeBinding.superInterfaces();
-	}
-	
 	if (++typeIndex == typeModels.length) {
 		System.arraycopy(typeModels, 0, typeModels = new IGenericType[typeIndex * 2], 0, typeIndex);
 		System.arraycopy(typeBindings, 0, typeBindings = new ReferenceBinding[typeIndex * 2], 0, typeIndex);
@@ -638,7 +631,20 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				}
 			}
 		}
-				
+		
+		for (int i = 0; i <= this.typeIndex; i++) {
+			IGenericType suppliedType = this.typeModels[i];
+			if (suppliedType != null && suppliedType.isBinaryType()) {
+				// fault in its hierarchy...
+				try {
+					ReferenceBinding typeBinding = this.typeBindings[i];
+					typeBinding.superclass();
+					typeBinding.superInterfaces();
+				} catch (AbortCompilation e) {
+					// classpath problem for this type: ignore
+				}
+			}
+		}		
 		
 		// complete type bindings (ie. connect super types)
 		for (int i = 0; i < unitsIndex; i++) {
