@@ -398,9 +398,6 @@ protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaMod
 		// 3) build the structure of the openable
 		buildStructure(info, pm);
 
-		// 4) anything special
-		opening(info);
-		
 		if (JavaModelManager.VERBOSE) {
 			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
 			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$

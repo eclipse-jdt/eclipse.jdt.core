@@ -501,11 +501,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		}
 	}
 	/**
-	 * This element has just been opened.  Do any necessary setup.
-	 */
-	protected void opening(Object info) {
-	}
-	/**
 	 */
 	public String readableName() {
 		return this.getElementName();
