@@ -1521,7 +1521,7 @@ EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression 
 /:$readableName EnhancedForStatement:/
 
 EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
-/.$putCase consumeEnhancedForStatementNoShortIf(); $break ./
+/.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
 
 -----------------------------------------------
@@ -1994,9 +1994,7 @@ QUESTION ::=    '?'
 COLON ::=    ':'    
 COMMA ::=    ','    
 DOT ::=    '.'    
-EQUAL ::=    '='  
-AT ::= '@'
-ELLIPSIS  ::= '...'  
+EQUAL ::=    '='    
 
 $end
 -- need a carriage return after the $end
