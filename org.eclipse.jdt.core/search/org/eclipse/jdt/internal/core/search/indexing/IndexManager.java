@@ -100,6 +100,7 @@ public void cleanUpIndexes() {
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
 	for (int j = 0, max = selectedIndexes.length; j < max; j++) {
+		// TODO should use getJavaPluginWorkingLocation()+index simple name to avoid bugs such as https://bugs.eclipse.org/bugs/show_bug.cgi?id=62267
 		String path = selectedIndexes[j].getIndexFile().getAbsolutePath();
 		knownPaths.put(path, path);
 	}
@@ -489,6 +490,7 @@ public void saveIndex(Index index) throws IOException {
 			Util.verbose("-> saving index " + index.getIndexFile()); //$NON-NLS-1$
 		index.save();
 	}
+	// TODO should use getJavaPluginWorkingLocation()+index simple name to avoid bugs such as https://bugs.eclipse.org/bugs/show_bug.cgi?id=62267
 	String indexLocation = index.getIndexFile().getPath();
 	if (this.jobEnd > this.jobStart) {
 		Object containerPath = this.indexLocations.keyForValue(indexLocation);
