@@ -391,9 +391,12 @@ private boolean hasStructuralDelta() {
 			for (int i = 0, l = classFoldersAndJars.length; i < l; i++) {
 				ClasspathLocation classFolderOrJar = classFoldersAndJars[i]; // either a .class file folder or a zip/jar file
 				if (classFolderOrJar != null) {
-					IResourceDelta binaryDelta = delta.findMember(classFolderOrJar.getRelativePath());
-					if (binaryDelta != null && binaryDelta.getKind() != IResourceDelta.NO_CHANGE)
-						return true;
+					IPath p = classFolderOrJar.getProjectRelativePath();
+					if (p != null) {
+						IResourceDelta binaryDelta = delta.findMember(p);
+						if (binaryDelta != null && binaryDelta.getKind() != IResourceDelta.NO_CHANGE)
+							return true;
+					}
 				}
 			}
 		}

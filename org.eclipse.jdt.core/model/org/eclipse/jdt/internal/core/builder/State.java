@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.core.internal.resources.WorkspaceRoot;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 import java.io.*;
@@ -35,7 +36,7 @@ SimpleLookupTable structuralBuildTimes;
 
 private String[] knownPackageNames; // of the form "p1/p2"
 
-static final byte VERSION = 0x0005;
+static final byte VERSION = 0x0006;
 
 State() {
 }
@@ -209,8 +210,9 @@ static State read(IProject project, DataInputStream in) throws IOException {
 			case 3 : // external jar
 				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF());
 				break;
-			case 4 : // project relative jar
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(project.getFile(in.readUTF()));
+			case 4 : // workspace relative jar
+				WorkspaceRoot root = (WorkspaceRoot) project.getWorkspace().getRoot();
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(in.readUTF()));
 		}
 	}
 
@@ -355,12 +357,12 @@ void write(DataOutputStream out) throws IOException {
 			out.writeBoolean(cd.isOutputFolder);
 		} else {
 			ClasspathJar jar = (ClasspathJar) c;
-			if (jar.zipFilename.equals(jar.relativePathname)) {
+			if (jar.resource == null) {
 				out.writeByte(3); // external jar
 				out.writeUTF(jar.zipFilename);
 			} else {
-				out.writeByte(4); // project relative jar
-				out.writeUTF(jar.relativePathname);
+				out.writeByte(4); // workspace relative jar
+				out.writeUTF(jar.resource.getFullPath().toString());
 			}
 		}
 	}

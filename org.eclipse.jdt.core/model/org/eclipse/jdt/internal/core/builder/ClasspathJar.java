@@ -23,20 +23,20 @@ import java.util.zip.*;
 class ClasspathJar extends ClasspathLocation {
 
 String zipFilename; // keep for equals
-String relativePathname;
+IFile resource;
 ZipFile zipFile;
 SimpleLookupTable packageCache;
 
 ClasspathJar(String zipFilename) {
 	this.zipFilename = zipFilename;
-	this.relativePathname = zipFilename;
 	this.zipFile = null;
 	this.packageCache = null;
 }
 
 ClasspathJar(IFile resource) {
-	this.zipFilename = resource.getLocation().toString();
-	this.relativePathname = resource.getProjectRelativePath().toString();
+	this.resource = resource;
+	IPath location = resource.getLocation();
+	this.zipFilename = location != null ? location.toString() : ""; //$NON-NLS-1$
 	this.zipFile = null;
 	this.packageCache = null;
 }
@@ -66,8 +66,9 @@ NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageNa
 	return null;
 }
 
-IPath getRelativePath() {
-	return new Path(relativePathname);
+IPath getProjectRelativePath() {
+	if (resource == null) return null;
+	return	resource.getProjectRelativePath();
 }
 
 boolean isPackage(String qualifiedPackageName) {

@@ -199,23 +199,26 @@ protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocatio
 		ClasspathLocation bLocation = classFoldersAndJars[i];
 		// either a .class file folder or a zip/jar file
 		if (bLocation != null) { // skip unchanged output folder
-			IResourceDelta binaryDelta = delta.findMember(bLocation.getRelativePath());
-			if (binaryDelta != null) {
-				if (bLocation instanceof ClasspathJar) {
-					if (JavaBuilder.DEBUG)
-						System.out.println("ABORTING incremental build... found delta to jar/zip file"); //$NON-NLS-1$
-					return false; // do full build since jar file was changed (added/removed were caught as classpath change)
+			IPath p = bLocation.getProjectRelativePath();
+			if (p != null) {
+				IResourceDelta binaryDelta = delta.findMember(p);
+				if (binaryDelta != null) {
+					if (bLocation instanceof ClasspathJar) {
+						if (JavaBuilder.DEBUG)
+							System.out.println("ABORTING incremental build... found delta to jar/zip file"); //$NON-NLS-1$
+						return false; // do full build since jar file was changed (added/removed were caught as classpath change)
+					}
+					if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED) {
+						if (JavaBuilder.DEBUG)
+							System.out.println("ABORTING incremental build... found added/removed binary folder"); //$NON-NLS-1$
+						return false; // added/removed binary folder should not make it here (classpath change), but handle anyways
+					}
+					int segmentCount = binaryDelta.getFullPath().segmentCount();
+					IResourceDelta[] children = binaryDelta.getAffectedChildren(); // .class files from class folder
+					for (int j = 0, m = children.length; j < m; j++)
+						findAffectedSourceFiles(children[j], segmentCount);
+					notifier.checkCancel();
 				}
-				if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED) {
-					if (JavaBuilder.DEBUG)
-						System.out.println("ABORTING incremental build... found added/removed binary folder"); //$NON-NLS-1$
-					return false; // added/removed binary folder should not make it here (classpath change), but handle anyways
-				}
-				int segmentCount = binaryDelta.getFullPath().segmentCount();
-				IResourceDelta[] children = binaryDelta.getAffectedChildren(); // .class files from class folder
-				for (int j = 0, m = children.length; j < m; j++)
-					findAffectedSourceFiles(children[j], segmentCount);
-				notifier.checkCancel();
 			}
 		}
 	}

@@ -27,7 +27,8 @@ String[] missingPackageHolder = new String[1];
 ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder) {
 	this.binaryFolder = binaryFolder;
 	this.isOutputFolder = isOutputFolder;
-	this.binaryLocation = binaryFolder.getLocation().addTrailingSeparator().toString();
+	IPath location = binaryFolder.getLocation();
+	this.binaryLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
 
 	this.directoryCache = new SimpleLookupTable(5);
 }
@@ -91,7 +92,7 @@ NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageNa
 	return null;
 }
 
-IPath getRelativePath() {
+IPath getProjectRelativePath() {
 	return binaryFolder.getProjectRelativePath();
 }
 

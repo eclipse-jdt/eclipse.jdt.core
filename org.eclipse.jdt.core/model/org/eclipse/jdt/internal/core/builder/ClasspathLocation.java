@@ -35,7 +35,7 @@ static ClasspathLocation forLibrary(IFile library) {
 
 abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);
 
-abstract IPath getRelativePath();
+abstract IPath getProjectRelativePath();
 
 boolean isOutputFolder() {
 	return false;
