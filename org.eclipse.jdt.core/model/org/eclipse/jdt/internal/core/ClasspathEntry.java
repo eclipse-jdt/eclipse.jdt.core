@@ -200,8 +200,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		
 		if (this.specificOutputLocation != null) {
-			IPath outputLocation = this.specificOutputLocation;
-			element.setAttribute("output", outputLocation.equals(projectPath) ? "" : outputLocation.toString()); //$NON-NLS-1$ //$NON-NLS-2$ 
+			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
+			outputLocation = outputLocation.makeRelative();
+			element.setAttribute("output", outputLocation.toString()); //$NON-NLS-1$ 
 		}
 		return element;
 	}
@@ -247,7 +248,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 		// custom output location
 		String outputLocationStr = element.getAttribute("output"); //$NON-NLS-1$ 
-		IPath outputLocation = outputLocationStr.equals("") ? null : new Path(outputLocationStr); //$NON-NLS-1$
+		IPath outputLocation = outputLocationStr.equals("") ? null : projectPath.append(outputLocationStr); //$NON-NLS-1$
 		
 		// recreate the CP entry
 		switch (kind) {
