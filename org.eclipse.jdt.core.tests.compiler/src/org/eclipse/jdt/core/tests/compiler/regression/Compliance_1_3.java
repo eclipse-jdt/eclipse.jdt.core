@@ -2665,11 +2665,22 @@ public void test076() {
 				"\n"
 		},
 		"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	* @throws Problem \n" + 
-			"	          ^^^^^^^\n" + 
-			"Javadoc: The type Problem is defined in an inherited type and an enclosing scope\n" + 
-			"----------\n"
+		"1. WARNING in IX.java (at line 2)\n" + 
+		"	public static class Problem extends Exception {}\n" + 
+		"	                    ^^^^^^^\n" + 
+		"The serializable class Problem does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public static class Problem extends Exception {}\n" + 
+		"	                    ^^^^^^^\n" + 
+		"The serializable class Problem does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	* @throws Problem \n" + 
+		"	          ^^^^^^^\n" + 
+		"Javadoc: The type Problem is defined in an inherited type and an enclosing scope\n" + 
+		"----------\n"
 	);
 }
 /**
@@ -2811,7 +2822,17 @@ public void test080() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	private static class C1 extends ArrayList {\n" + 
+		"	                     ^^\n" + 
+		"The serializable class C1 does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	private static class C2 extends ArrayList {\n" + 
+		"	                     ^^\n" + 
+		"The serializable class C2 does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	ArrayList list = args == null ? new C1(): new C2();\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Incompatible conditional operand types C1 and C2\n" + 

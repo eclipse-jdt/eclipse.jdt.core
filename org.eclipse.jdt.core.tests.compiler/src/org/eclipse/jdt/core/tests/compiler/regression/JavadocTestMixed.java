@@ -1484,11 +1484,16 @@ public class JavadocTestMixed extends JavadocTest {
 				"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	public X(String message) {\n" + 
-				"	                ^^^^^^^\n" + 
-				"Javadoc: Missing tag for parameter message\n" + 
-				"----------\n"
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	public class X extends RuntimeException {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public X(String message) {\n" + 
+			"	                ^^^^^^^\n" + 
+			"Javadoc: Missing tag for parameter message\n" + 
+			"----------\n"
 		);
 	}
 

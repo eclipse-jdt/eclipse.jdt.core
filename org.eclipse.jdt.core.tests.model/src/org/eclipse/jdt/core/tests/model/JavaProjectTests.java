@@ -888,6 +888,7 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"META-INF [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
 		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
 		"java [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
+		"java.io [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
 		"java.lang [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
 		"p [in lib.jar [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 

@@ -2500,12 +2500,22 @@ public void test076() {
 				"\n"
 		},
 		"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	* @throws Problem \n" + 
-			"	          ^^^^^^^\n" + 
-			"Javadoc: Exception Problem is not declared\n" + 
-			"----------\n"
-	);
+		"1. WARNING in IX.java (at line 2)\n" + 
+		"	public static class Problem extends Exception {}\n" + 
+		"	                    ^^^^^^^\n" + 
+		"The serializable class Problem does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public static class Problem extends Exception {}\n" + 
+		"	                    ^^^^^^^\n" + 
+		"The serializable class Problem does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	* @throws Problem \n" + 
+		"	          ^^^^^^^\n" + 
+		"Javadoc: Exception Problem is not declared\n" + 
+		"----------\n"	);
 }
 /**
  * Test fix bug 58069 for method.

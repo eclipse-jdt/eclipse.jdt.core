@@ -297,6 +297,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 						project,
 						WAIT_UNTIL_READY_TO_SEARCH,
 						monitor,
+						"java.io.Serializable\n" + 
 						"java.lang.Class\n" + 
 						"java.lang.CloneNotSupportedException\n" + 
 						"java.lang.Error\n" + 

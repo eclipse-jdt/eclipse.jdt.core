@@ -525,6 +525,7 @@ public void testRegion1() throws JavaModelException {
 	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
+		"java.io.Serializable\n" + //TODO (jerome) is Serializable meant to appear in resulting type hierarchy?
 		"java.lang.Object\n" + 
 		"q1.X\n" +
 		"q1.Z\n" +
@@ -543,6 +544,7 @@ public void testRegion2() throws JavaModelException {
 	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
+		"java.io.Serializable\n" + //TODO (jerome) is Serializable meant to appear in resulting type hierarchy?
 		"java.lang.Object\n" + 
 		"q1.X\n" +
 		"q2.Y\n",
@@ -556,6 +558,7 @@ public void testRegion3() throws JavaModelException {
 	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
 	assertTypesEqual(
 		"Unexpected types in hierarchy",
+		"java.io.Serializable\n" + //TODO (jerome) is Serializable meant to appear in resulting type hierarchy?
 		"java.lang.Object\n" + 
 		"p9.X\n" + 
 		"p9.X$1\n" + 

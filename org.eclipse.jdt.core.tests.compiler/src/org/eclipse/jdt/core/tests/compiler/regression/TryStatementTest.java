@@ -792,6 +792,16 @@ public void test024() {
 		"	} catch(LookupException le) {	\n" + 
 		"	        ^^^^^^^^^^^^^^^\n" + 
 		"Unreachable catch block for LookupException. It is already handled by the catch block for DataException\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\X.java (at line 17)\n" + 
+		"	class DataException extends Throwable {	\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DataException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in p\\X.java (at line 19)\n" + 
+		"	class LookupException extends DataException {	\n" + 
+		"	      ^^^^^^^^^^^^^^^\n" + 
+		"The serializable class LookupException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
 // 60081
