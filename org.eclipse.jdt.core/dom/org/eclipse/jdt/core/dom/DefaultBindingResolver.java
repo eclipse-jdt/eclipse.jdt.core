@@ -1157,7 +1157,7 @@ class DefaultBindingResolver extends BindingResolver {
 				this.bindingsToAstNodes.put(typeBinding, type);
 				String key = typeBinding.getKey();
 				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, type);				
+					this.bindingTables.bindingKeysToBindings.put(key, typeBinding);
 				}
 				return typeBinding;
 			}
