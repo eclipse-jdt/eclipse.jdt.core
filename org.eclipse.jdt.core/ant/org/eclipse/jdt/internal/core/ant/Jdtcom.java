@@ -1,4 +1,4 @@
-package org.eclipse.jdt.core.ant;
+package org.eclipse.jdt.internal.core.ant;
 
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
