@@ -100,14 +100,17 @@ protected void executeOperation() throws JavaModelException {
 
 	// save the cu
 	char[] originalContents = original.getBuffer().getCharacters();
+	boolean hasSaved = false;
 	try {
 		original.getBuffer().setContents(copy.getBuffer().getCharacters());
 		original.save(fMonitor, fForce);
 		this.hasModifiedResource = true;
-	} catch(JavaModelException e){
-		// restore original buffer contents since something went wrong
-		original.getBuffer().setContents(originalContents);
-		throw e;
+		hasSaved = true;
+	} finally {
+		if (!hasSaved){
+			// restore original buffer contents since something went wrong
+			original.getBuffer().setContents(originalContents);
+		}
 	}
 	// make sure working copy is in sync
 	copy.updateTimeStamp((CompilationUnit)original);
