@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.core.CompilationUnit;
@@ -64,8 +65,19 @@ public class ReconcilerTests extends ModifyingResourceTests {
 public ReconcilerTests(String name) {
 	super(name);
 }
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+	//testsNames = new String[] { "Bug60689" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+	//testsNumbers = new int[] { 13 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+	//testsRange = new int[] { 16, -1 };
+}
 public static Test suite() {
-	return new Suite(ReconcilerTests.class);
+//	return new Suite(ReconcilerTests.class);
+	return buildTestSuite(ReconcilerTests.class);
 }
 protected void assertProblems(String message, String expected) {
 	String actual = Util.convertToIndependantLineDelimiter(this.problemRequestor.problems.toString());
@@ -959,5 +971,26 @@ public void testMakeConsistentFoolingReconciler() throws JavaModelException {
 		"Should have got NO delta", 
 		""
 	);
+}
+/**
+ * Check that forcing a make consistent action is leading the next reconcile to not notice changes.
+ */
+public void testBug60689() throws JavaModelException {
+	setWorkingCopyContents("public class X {\n" +
+		"	/**\n" +
+		"	 * Returns the length of the string representing the number of \n" +
+		"	 * indents in the given string <code>line</code>. Returns \n" +
+		"	 * <code>-1<code> if the line isn't prefixed with an indent of\n" +
+		"	 * the given number of indents. \n" +
+		"	 */\n" +
+		"	public static int computeIndentLength(String line, int numberOfIndents, int tabWidth) {\n" +
+		"		return 0;\n" +
+		"}"
+	);
+	org.eclipse.jdt.core.dom.CompilationUnit testCU = this.workingCopy.reconcile(AST.JLS2, true, null, null);
+	assertEquals("Wrong size of comments!", 1, testCU.getCommentList().size());
+	testCU = this.workingCopy.reconcile(AST.JLS2, true, null, null);
+	assertNotNull("We should have a comment!", testCU.getCommentList());
+	assertEquals("We should have one comment!", 1, testCU.getCommentList().size());
 }
 }
