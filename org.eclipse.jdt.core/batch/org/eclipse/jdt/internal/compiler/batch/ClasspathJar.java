@@ -73,6 +73,6 @@ public void reset() {
 	this.packageCache = null;
 }
 public String toString() {
-	return "Classpath for jar file " + zipFile; //$NON-NLS-1$
+	return "Classpath for jar file " + zipFile.getName(); //$NON-NLS-1$
 }
 }
