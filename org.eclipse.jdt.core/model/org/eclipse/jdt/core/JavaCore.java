@@ -1156,7 +1156,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
 	 * @see JavaCore#getDefaultOptions
-	 * @since 2.0
 	 */
 	public static void setOptions(Hashtable newOptions) {
 		if (newOptions == null){
@@ -1179,7 +1178,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions
-	 * @since 2.0
 	 */
 	public static Hashtable getOptions() {
 		return (Hashtable)Options.clone();
@@ -1404,7 +1402,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return a mutable table containing the default settings of all known options
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see #setOptions
-	 * @since 2.0
 	 */
  	public static Hashtable getDefaultOptions(){
 	
