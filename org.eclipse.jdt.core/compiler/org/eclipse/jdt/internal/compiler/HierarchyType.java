@@ -18,12 +18,25 @@ public class HierarchyType implements IGenericType {
 	public boolean isClass;
 	public char[] name;
 	public int modifiers;
+	public char[] superclassName;
+	public char[][] superInterfaceNames;
 	public ICompilationUnit originatingUnit;
-public HierarchyType(HierarchyType enclosingType, boolean isClass, char[] name, int modifiers, ICompilationUnit originatingUnit) {
+	
+public HierarchyType(
+	HierarchyType enclosingType, 
+	boolean isClass, 
+	char[] name, 
+	int modifiers, 
+	char[] superclassName,
+	char[][] superInterfaceNames,
+	ICompilationUnit originatingUnit) {
+		
 	this.enclosingType = enclosingType;
 	this.isClass = isClass;
 	this.name = name;
 	this.modifiers = modifiers;
+	this.superclassName = superclassName;
+	this.superInterfaceNames = superInterfaceNames;
 	this.originatingUnit = originatingUnit;
 }
 /**

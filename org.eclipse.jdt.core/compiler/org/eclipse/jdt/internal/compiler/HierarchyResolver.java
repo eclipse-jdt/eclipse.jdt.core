@@ -167,13 +167,16 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 	ReferenceBinding superBinding = typeBinding.superclass();
 	if (superBinding != null) {
 		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
-			char[]superclassName;
+			char[] superclassName;
 			char separator;
 			if (type instanceof IBinaryType) {
 				superclassName = ((IBinaryType)type).getSuperclassName();
 				separator = '/';
 			} else if (type instanceof ISourceType) {
 				superclassName = ((ISourceType)type).getSuperclassName();
+				separator = '.';
+			} else if (type instanceof HierarchyType) {
+				superclassName = ((HierarchyType)type).superclassName;
 				separator = '.';
 			} else {
 				return null;
@@ -205,7 +208,10 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 	} else if (type instanceof ISourceType) {
 		superInterfaceNames = ((ISourceType)type).getInterfaceNames();
 		separator = '.';
-	} else {
+	} else if (type instanceof HierarchyType) {
+		superInterfaceNames = ((HierarchyType)type).superInterfaceNames;
+		separator = '.';
+	} else{
 		return null;
 	}
 	
@@ -258,11 +264,34 @@ private void rememberWithMemberTypes(TypeDeclaration typeDeclaration, HierarchyT
 
 	if (typeDeclaration.binding == null) return;
 
+	// simple super class name
+	char[] superclassName = null;
+	TypeReference superclass = typeDeclaration.superclass;
+	if (superclass != null) {
+		char[][] typeName = superclass.getTypeName();
+		superclassName = typeName == null ? null : typeName[typeName.length-1];
+	}
+	
+	// simple super interface names
+	char[][] superInterfaceNames = null;
+	TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+	if (superInterfaces != null) {
+		int length = superInterfaces.length;
+		superInterfaceNames = new char[length][];
+		for (int i = 0; i < length; i++) {
+			TypeReference superInterface = superInterfaces[i];
+			char[][] typeName = superInterface.getTypeName();
+			superInterfaceNames[i] = typeName[typeName.length-1];
+		}
+	}
+
 	HierarchyType hierarchyType = new HierarchyType(
 		enclosingType, 
 		!typeDeclaration.isInterface(),
 		typeDeclaration.name,
 		typeDeclaration.binding.modifiers,
+		superclassName,
+		superInterfaceNames,
 		unit);
 	remember(hierarchyType, typeDeclaration.binding);
 

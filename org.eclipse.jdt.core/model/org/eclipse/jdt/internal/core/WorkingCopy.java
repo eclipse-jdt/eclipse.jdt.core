@@ -318,6 +318,21 @@ public IJavaElement rootedAt(IJavaProject project) {
 
 }
 /**
+ * @see IOpenable
+ */
+public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
+	if (isReadOnly()) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
+	}
+	IBuffer buf = getBuffer();
+	if (buf != null) { // some Openables (like a JavaProject) don't have a buffer
+		buf.save(pm, force);
+		this.reconcile();   // not simply makeConsistent, also computes fine-grain deltas
+							// in case the working copy is being reconciled already (if not it would miss
+							// one iteration of deltas).
+	}
+}
+/**
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
