@@ -922,6 +922,25 @@ public void test037() {
 		"SUCCESS");
 }	
 
+// TODO (kent) reenable once supported
+public void _test038() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Cloneable, T extends Thread & Cloneable> {\n" + 
+			"	void foo(E e){}\n" + 
+			"	void foo(T t){}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<XY,XY> x = new X<XY, XY>();\n" + 
+			"		x.foo(new XY());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class XY extends Thread implements Cloneable {\n" + 
+			"}\n" ,
+		},
+		"foo invocation is ambiguous");
+}	
+
 //public void test028() {
 //	this.runConformTest(
 //		new String[] {
