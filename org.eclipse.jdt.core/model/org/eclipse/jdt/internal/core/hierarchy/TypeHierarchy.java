@@ -729,7 +729,7 @@ public boolean hasFineGrainChanges() {
  * or this type has the given simple name.
  */
 private boolean hasSubtypeNamed(String simpleName) {
-	if (this.focusType.getElementName().equals(simpleName)) {
+	if (this.focusType != null && this.focusType.getElementName().equals(simpleName)) {
 		return true;
 	}
 	IType[] types = this.getAllSubtypes(this.focusType);

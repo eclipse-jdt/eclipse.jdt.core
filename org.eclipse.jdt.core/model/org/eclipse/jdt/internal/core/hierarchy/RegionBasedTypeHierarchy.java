@@ -72,9 +72,9 @@ protected void compute() throws JavaModelException, CoreException {
 	builder.build(this.computeSubtypes);
 }
 protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element) {
-	// ignore changes to working copies
+	// change to working copy
 	if (element instanceof CompilationUnit && ((CompilationUnit)element).isWorkingCopy()) {
-		return false;
+		return super.isAffectedByOpenable(delta, element);
 	}
 
 	// if no focus, hierarchy is affected if the element is part of the region
