@@ -260,7 +260,7 @@ public static String createArraySignature(String typeSignature, int arrayCount) 
 }
 /**
  * Creates a method signature from the given parameter and return type 
- * signatures.
+ * signatures. The encoded method signature is dot-based.
  *
  * @param parameterTypes the list of parameter type signatures
  * @param returnType the return type signature
@@ -280,7 +280,8 @@ public static String createMethodSignature(String[] parameterTypes, String retur
  * Creates a new type signature from the given type name encoded as a character
  * array. This method is equivalent to
  * <code>createTypeSignature(new String(typeName),isResolved)</code>, although
- * more efficient for callers with character arrays rather than strings.
+ * more efficient for callers with character arrays rather than strings. If the 
+ * type name is qualified, then it is expected to be dot-based.
  *
  * @param typeName the possibly qualified type name
  * @param isResolved <code>true</code> if the type name is to be considered
@@ -315,7 +316,8 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
 	return createTypeSignature(new String(typeName), isResolved);
 }
 /**
- * Creates a new type signature from the given type name.
+ * Creates a new type signature from the given type name. If the type name is qualified,
+ * then it is expected to be dot-based.
  * <p>
  * For example:
  * <pre>
@@ -514,7 +516,8 @@ public static int getParameterCount(String methodSignature) throws IllegalArgume
 	}
 }
 /**
- * Extracts the parameter type signatures from the given method signature.
+ * Extracts the parameter type signatures from the given method signature. 
+ * The method signature is expected to be dot-based.
  *
  * @param methodSignature the method signature
  * @return the list of parameter type signatures
@@ -624,7 +627,8 @@ public static String getQualifier(String name) {
 	return name.substring(0, lastDot);
 }
 /**
- * Extracts the return type from the given method signature.
+ * Extracts the return type from the given method signature. The method signature is 
+ * expected to be dot-based.
  *
  * @param methodSignature the method signature
  * @return the type signature of the return type
@@ -731,7 +735,9 @@ public static String toQualifiedName(String[] segments) {
 	return sb.toString();
 }
 /**
- * Converts the given type signature to a readable string.
+ * Converts the given type signature to a readable string. The signature is expected to
+ * be dot-based.
+ * 
  * <p>
  * For example:
  * <pre>
@@ -803,7 +809,8 @@ public static String toString(String signature) throws IllegalArgumentException 
 	}
 }
 /**
- * Converts the given method signature to a readable string.
+ * Converts the given method signature to a readable string. The method signature is expected to
+ * be dot-based.
  * <p>
  * For example:
  * <pre>
