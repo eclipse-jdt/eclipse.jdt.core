@@ -44,12 +44,14 @@ import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class SourceTypeConverter implements CompilerModifiers {
@@ -395,6 +397,47 @@ public class SourceTypeConverter implements CompilerModifiers {
 		typeLoop: while (this.namePos < length) {
 			char currentChar = typeName[this.namePos];
 			switch (currentChar) {
+				case '?' :
+					this.namePos++; // skip '?'
+					while (typeName[this.namePos] == ' ') this.namePos++;
+					switch(typeName[this.namePos]) {
+						case 's' :
+							checkSuper: {
+								int max = TypeConstants.WILDCARD_SUPER.length-1;
+								for (int ahead = 1; ahead < max; ahead++) {
+									if (typeName[this.namePos+ahead] != TypeConstants.WILDCARD_SUPER[ahead+1]) {
+										break checkSuper;
+									}
+								}
+								this.namePos += max;
+								Wildcard result = new Wildcard(Wildcard.SUPER);
+								result.bound = decodeType(typeName, length, start, end);
+								result.sourceStart = start;
+								result.sourceEnd = end;
+								return result;
+							}
+							break;
+						case 'e' :
+							checkExtends: {
+								int max = TypeConstants.WILDCARD_EXTENDS.length-1;
+								for (int ahead = 1; ahead < max; ahead++) {
+									if (typeName[this.namePos+ahead] != TypeConstants.WILDCARD_EXTENDS[ahead+1]) {
+										break checkExtends;
+									}
+								}
+								this.namePos += max;
+								Wildcard result = new Wildcard(Wildcard.EXTENDS);
+								result.bound = decodeType(typeName, length, start, end);
+								result.sourceStart = start;
+								result.sourceEnd = end;
+								return result;
+							}
+							break;
+					}
+					Wildcard result = new Wildcard(Wildcard.UNBOUND);
+					result.sourceStart = start;
+					result.sourceEnd = end;
+					return result;
 				case '[' :
 					if (dim == 0) nameFragmentEnd = this.namePos-1;
 					dim++;

@@ -1074,6 +1074,55 @@ public void testMethodWithError11() throws CoreException {
 		deleteFolder("/Reconciler15/src/test");
 	}
 }
+/*
+ * Scenario of reconciling using a working copy owner (68557 variation with wildcards)
+ */
+public void testMethodWithError12() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		createFolder("/Reconciler15/src/test/cheetah");
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		workingCopy1.getBuffer().setContents(
+			"package test.cheetah;\n"+
+			"import java.util.*;\n"+
+			"public class NestedGenerics {\n"+
+			"    Map<List<?>,? super String> map = null;\n"+
+			"    Stack<List<? extends Object>> stack2 = null;\n"+
+			"    Map<List<Object[]>,List<Object>[]> map3 = null;\n"+
+			"}\n"
+		);
+		workingCopy1.makeConsistent(null);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
+			"package test.cheetah;\n"+
+			"import java.util.*;\n"+
+			"public class NestedGenericsTest {\n"+
+			"    void test() {  \n"+
+			"        Map m = new NestedGenerics().map;  \n"+
+			"		 Stack s2 = new NestedGenerics().stack2;    \n"+
+			"        Map m3 = new NestedGenerics().map3;    \n"+
+			"    }\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+		deleteFolder("/Reconciler15/src/test");
+	}
+}
 /**
  * Ensures that the reconciler handles member move correctly.
  */
