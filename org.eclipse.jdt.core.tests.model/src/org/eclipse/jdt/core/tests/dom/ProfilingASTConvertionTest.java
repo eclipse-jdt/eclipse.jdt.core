@@ -209,7 +209,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupExternalJCL("converterJcl");
+		setupExternalJCL("converterJclMin");
 
 		IJavaProject javaProject = setUpJavaProject("Compiler", "1.4"); //$NON-NLS-1$ //$NON-NLS-2$
 
