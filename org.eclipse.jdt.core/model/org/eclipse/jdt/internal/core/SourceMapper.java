@@ -1050,6 +1050,7 @@ public class SourceMapper
 			}
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse, true/*optimize string literals*/);
+			parser.javadocParser.checkDocComment = false; // disable javadoc parsing
 			IJavaElement javaElement = this.binaryType.getCompilationUnit();
 			if (javaElement == null) javaElement = this.binaryType.getParent();
 			parser.parseCompilationUnit(

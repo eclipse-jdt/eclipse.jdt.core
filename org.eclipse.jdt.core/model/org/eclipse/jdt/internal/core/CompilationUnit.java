@@ -123,6 +123,8 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		true/*report local declarations*/,
 		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;
+	if (!computeProblems && !createAST) // disable javadoc parsing if not computing problems and not creating ast
+		parser.javadocParser.checkDocComment = false;
 	requestor.parser = parser;
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
