@@ -91,6 +91,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionLocalName"));
 	suite.addTest(new CompletionTests("testCompletionArgumentName"));
 	suite.addTest(new CompletionTests("testCompletionCatchArgumentName"));
+	suite.addTest(new CompletionTests("testCompletionCatchArgumentName2"));
 	suite.addTest(new CompletionTests("testCompletionAmbiguousType"));
 	suite.addTest(new CompletionTests("testCompletionAmbiguousType2"));
 	suite.addTest(new CompletionTests("testCompletionWithBinaryFolder"));
@@ -8062,5 +8063,30 @@ public void testCompletionToplevelType1() throws JavaModelException {
 		assertEquals(
 			"element:CompletionToplevelType1    completion:CompletionToplevelType1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME),
 			requestor.getResults());
+}
+public void testCompletionCatchArgumentName2() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_ARGUMENT_PREFIXES);
+	options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,"arg"); //$NON-NLS-1$
+	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"loc"); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionCatchArgumentName2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Exception ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		requestor.getResults());
+		
+	options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,argumentPrefixPreviousValue);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,localPrefixPreviousValue);
+	JavaCore.setOptions(options);
 }
 }

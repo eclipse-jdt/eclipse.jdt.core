@@ -1276,12 +1276,14 @@ protected void consumeFormalParameter() {
 		long namePositions = identifierPositionStack[identifierPtr--];
 		TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
 		intPtr -= 2;
-		Argument arg = 
+		CompletionOnArgumentName arg = 
 			new CompletionOnArgumentName(
 				name, 
 				namePositions, 
 				type, 
 				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+				
+		arg.isCatchArgument = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN;
 		pushOnAstStack(arg);
 		
 		assistNode = arg;

@@ -697,8 +697,9 @@ public final class CompletionEngine
 																	token = ((CompletionOnLocalName) variable).realName;
 																	findVariableNames(token, variable.type, excludeNames, LOCAL, variable.modifiers);
 																} else {
-																	token = ((CompletionOnArgumentName) variable).realName;
-																	findVariableNames(token, variable.type, excludeNames, ARGUMENT, variable.modifiers);
+																	CompletionOnArgumentName arg = (CompletionOnArgumentName) variable;
+																	token = arg.realName;
+																	findVariableNames(token, variable.type, excludeNames, arg.isCatchArgument ? LOCAL : ARGUMENT, variable.modifiers);
 																}
 															} else {
 																if(astNode instanceof CompletionOnKeyword) {
