@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ForStatement extends Statement {
@@ -91,7 +92,8 @@ public class ForStatement extends Statement {
 		// process the action
 		LoopingFlowContext loopingContext;
 		FlowInfo actionInfo;
-		if ((action == null) || action.isEmptyBlock()) {
+		if (action == null 
+			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= CompilerOptions.JDK1_3)) {
 			if (condLoopContext != null)
 				condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 			if (conditionIsInlinedToTrue) {

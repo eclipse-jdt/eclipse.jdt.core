@@ -39,7 +39,7 @@ public class WhileStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		breakLabel = new Label();
-		continueLabel = new Label(); // TODO: could optimize also case where optimizedBooleanConstant is available
+		continueLabel = new Label(); 
 
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -52,7 +52,8 @@ public class WhileStatement extends Statement {
 				flowInfo);
 
 		LoopingFlowContext loopingContext;
-		if ((action == null) || action.isEmptyBlock()) {
+		if (action == null 
+			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= CompilerOptions.JDK1_3)) {
 			condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
 			if ((condition.constant != NotAConstant)
 				&& (condition.constant.booleanValue() == true)) {
