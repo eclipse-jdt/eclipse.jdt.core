@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -1326,20 +1327,6 @@ public class Util implements SuffixConstants {
 	}
 
 	/**
-	 * Asserts that the given method signature is valid.
-	 */
-	public static void validateMethodSignature(String sig) {
-		Assert.isTrue(isValidMethodSignature(sig));
-	}
-
-	/**
-	 * Asserts that the given type signature is valid.
-	 */
-	public static void validateTypeSignature(String sig, boolean allowVoid) {
-		Assert.isTrue(isValidTypeSignature(sig, allowVoid));
-	}
-
-	/**
 	 * Creates a NLS catalog for the given locale.
 	 */
 	public static void relocalize() {
@@ -1410,4 +1397,35 @@ public class Util implements SuffixConstants {
 		System.arraycopy(args, 0, args = new String[count], 0, count);
 		return args;
 	}
+	
+	/*
+	 * Returns the unresolved type signature of the given type reference, 
+	 * e.g. "QString;", "[int", "[[Qjava.util.Vector;"
+	 */
+	public static String typeSignature(TypeReference type) {
+		char[][] compoundName = type.getTypeName();
+		char[] typeName =CharOperation.concatWith(compoundName, '.');
+		String signature = Signature.createTypeSignature(typeName, false/*don't resolve*/);
+		int dimensions = type.dimensions();
+		if (dimensions > 0) {
+			signature =  Signature.createArraySignature(signature, dimensions);
+		}
+		return signature;
+	}
+
+	/**
+	 * Asserts that the given method signature is valid.
+	 */
+	public static void validateMethodSignature(String sig) {
+		Assert.isTrue(isValidMethodSignature(sig));
+	}
+
+	/**
+	 * Asserts that the given type signature is valid.
+	 */
+	public static void validateTypeSignature(String sig, boolean allowVoid) {
+		Assert.isTrue(isValidTypeSignature(sig, allowVoid));
+	}
+
+
 }

@@ -62,7 +62,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected String fName;
 
-	protected static final IJavaElement[] NO_CHILDREN = new IJavaElement[0];
+	protected static final IJavaElement[] NO_ELEMENTS = new IJavaElement[0];
 	protected static final Object NO_INFO = new Object();
 	
 	/**
@@ -218,7 +218,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		if (elementInfo instanceof JavaElementInfo) {
 			return ((JavaElementInfo)elementInfo).getChildren();
 		} else {
-			return NO_CHILDREN;
+			return NO_ELEMENTS;
 		}
 	}
 	/**

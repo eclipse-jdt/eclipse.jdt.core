@@ -8,17 +8,19 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.core;
+package org.eclipse.jdt.internal.core.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -28,6 +30,16 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 
 /**
@@ -46,14 +58,12 @@ public class HandleFactory {
 	 */
 	private Map packageHandles;
 
-	private IWorkspace workspace;
 	private JavaModel javaModel;
 
-
-	public HandleFactory(IWorkspace workspace) {
-		this.workspace = workspace;
+	public HandleFactory() {
 		this.javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
 	}
+	
 	/**
 	 * Creates an Openable handle from the given resource path.
 	 * The resource path can be a path to a file in the workbench (eg. /Proj/com/ibm/jdt/core/HandleFactory.java)
@@ -113,7 +123,7 @@ public class HandleFactory {
 				this.packageHandles.put(packageName, pkgFragment);
 			}
 			String simpleName= resourcePath.substring(lastSlash + 1);
-			if (Util.isJavaFileName(simpleName)) {
+			if (org.eclipse.jdt.internal.core.Util.isJavaFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
 			} else {
@@ -122,7 +132,120 @@ public class HandleFactory {
 			}
 		}
 	}
-/**
+	
+	/*
+	 * Returns an element handle corresponding to the given AstNode in the given parsed unit.
+	 * Returns null if the given AstNode could not be found.
+	 */
+	public IJavaElement createElement(final AstNode toBeFound, CompilationUnitDeclaration parsedUnit, final Openable openable) {
+		class EndVisit extends RuntimeException {
+			// marker to stop traversing ast
+		}
+		class Visitor extends AbstractSyntaxTreeVisitorAdapter {
+			IJavaElement currentElement = openable;
+			HashSet knownElements = new HashSet();
+			
+			public boolean visit(AnonymousLocalTypeDeclaration node, BlockScope scope) {
+				currentElement = updateOccurenceCount(((IMember)currentElement).getType("", 1)); //$NON-NLS-1$
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(AnonymousLocalTypeDeclaration node, BlockScope scope) {
+				currentElement = currentElement.getParent();
+			}
+			public boolean visit(ConstructorDeclaration node, ClassScope scope) {
+				currentElement = ((IType)currentElement).getMethod(currentElement.getElementName(), getParameterTypeSignatures(node));
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(ConstructorDeclaration node, ClassScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(FieldDeclaration node, MethodScope scope) {
+				currentElement = ((IType)currentElement).getField(currentElement.getElementName());
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(FieldDeclaration node, MethodScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(Initializer node, MethodScope scope) {
+				currentElement = updateOccurenceCount(((IType)currentElement).getInitializer(1));
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(Initializer node, MethodScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(LocalTypeDeclaration node, BlockScope scope) {
+				currentElement = updateOccurenceCount(((IMember)currentElement).getType(new String(node.name), 1));
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(LocalTypeDeclaration node, BlockScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(MemberTypeDeclaration node, ClassScope scope) {
+				currentElement = ((IType)currentElement).getType(new String(node.name));
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(MemberTypeDeclaration node, ClassScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(MethodDeclaration node, ClassScope scope) {
+				currentElement = ((IType)currentElement).getMethod(new String(node.selector), getParameterTypeSignatures(node));
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(MethodDeclaration node, ClassScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(TypeDeclaration node, CompilationUnitScope scope) {
+				currentElement = ((ICompilationUnit)currentElement).getType(new String(node.name));
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(TypeDeclaration node, CompilationUnitScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			private String[] getParameterTypeSignatures(AbstractMethodDeclaration method) {
+				Argument[] args = method.arguments;
+				if (args != null) {
+					int length = args.length;
+					String[] signatures = new String[length];
+					for (int i = 0; i < args.length; i++) {
+						Argument arg = args[i];
+						signatures[i] = org.eclipse.jdt.internal.core.Util.typeSignature(arg.type);
+					}
+					return signatures;
+				}
+				return new String[0];
+			}
+			private IJavaElement updateOccurenceCount(IJavaElement element) {
+				while (knownElements.contains(element)) {
+					((JavaElement)element).occurrenceCount++;
+				}
+				return element;
+			}
+		}
+		Visitor visitor = new Visitor();
+		try {
+			parsedUnit.traverse(visitor, parsedUnit.scope);
+		} catch (EndVisit e) {
+			return visitor.currentElement;
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the package fragment root that corresponds to the given jar path.
 	 * See createOpenable(...) for the format of the jar path string.
 	 * If not null, uses the given scope as a hint for getting Java project handles.
@@ -131,7 +254,7 @@ public class HandleFactory {
 
 		IPath jarPath= new Path(jarPathString);
 		
-		Object target = JavaModel.getTarget(this.workspace.getRoot(), jarPath, false);
+		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), jarPath, false);
 		if (target instanceof IFile) {
 			// internal jar: is it on the classpath of its project?
 			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar 
@@ -160,7 +283,7 @@ public class HandleFactory {
 			int index = 0;
 			for (int i = 0; i < length; i++) {
 				IPath path = enclosingProjectsAndJars[i];
-				if (!Util.isArchiveFileName(path.lastSegment())) {
+				if (!org.eclipse.jdt.internal.core.Util.isArchiveFileName(path.lastSegment())) {
 					projects[index++] = this.javaModel.getJavaProject(path.segment(0));
 				}
 			}
@@ -182,6 +305,7 @@ public class HandleFactory {
 		}
 		return getJarPkgFragmentRoot(jarPath, target, projects);
 	}
+	
 	private IPackageFragmentRoot getJarPkgFragmentRoot(
 		IPath jarPath,
 		Object target,
@@ -207,13 +331,14 @@ public class HandleFactory {
 		}
 		return null;
 	}
-/**
+
+	/**
 	 * Returns the package fragment root that contains the given resource path.
 	 */
 	private IPackageFragmentRoot getPkgFragmentRoot(String pathString) {
 
 		IPath path= new Path(pathString);
-		IProject[] projects= this.workspace.getRoot().getProjects();
+		IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (int i= 0, max= projects.length; i < max; i++) {
 			try {
 				IProject project = projects[i];
@@ -223,7 +348,7 @@ public class HandleFactory {
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
-					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullExclusionPatternChars())) {
+					if (root.getPath().isPrefixOf(path) && !org.eclipse.jdt.internal.core.Util.isExcluded(path, root.fullExclusionPatternChars())) {
 						return root;
 					}
 				}

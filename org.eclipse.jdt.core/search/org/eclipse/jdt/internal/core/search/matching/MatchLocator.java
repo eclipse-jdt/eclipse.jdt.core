@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
+import org.eclipse.jdt.internal.core.util.HandleFactory;
 
 public class MatchLocator implements ITypeRequestor {
 
@@ -624,7 +625,7 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 			
 		// initialize handle factory (used as a cache of handles so as to optimize space)
 		if (this.handleFactory == null)
-			this.handleFactory = new HandleFactory(workspace);
+			this.handleFactory = new HandleFactory();
 		
 		// substitute compilation units with working copies
 		HashMap wcPaths = new HashMap(); // a map from path to working copies

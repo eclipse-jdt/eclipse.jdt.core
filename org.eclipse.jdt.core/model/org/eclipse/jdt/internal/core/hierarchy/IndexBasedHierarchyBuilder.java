@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
@@ -40,6 +39,7 @@ import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
+import org.eclipse.jdt.internal.core.util.HandleFactory;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements SuffixConstants {
 	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
@@ -285,7 +285,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 
 	try {
 		// create element infos for subtypes
-		HandleFactory factory = new HandleFactory(ResourcesPlugin.getWorkspace());
+		HandleFactory factory = new HandleFactory();
 		IJavaProject currentProject = null;
 		if (monitor != null) monitor.beginTask("", length*2 /* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
 		for (int i = 0; i < length; i++) {

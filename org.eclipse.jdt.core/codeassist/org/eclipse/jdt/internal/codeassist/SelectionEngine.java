@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.AstNodeFinder;
 
@@ -403,6 +404,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		return parser;
 	}
 
+	/*
+	 * Returns whether the given binding is a local/anonymous reference binding, or if its declaring class is
+	 * local.
+	 */
+	private boolean isLocal(ReferenceBinding binding) {
+		if (!(binding instanceof SourceTypeBinding)) return false;
+		if (binding instanceof LocalTypeBinding) return true;
+		if (binding instanceof MemberTypeBinding) {
+			return isLocal(((MemberTypeBinding)binding).enclosingType);
+		}
+		return false;
+	}
+
 	/**
 	 * Ask the engine to compute the selection at the specified position
 	 * of the given compilation unit.
@@ -500,7 +514,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding);
+								selectFrom(e.binding, parsedUnit);
 							}
 						}
 					}
@@ -526,7 +540,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
-	private void selectFrom(Binding binding) {
+	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit) {
 		if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			if (qualifiedSelection != null
@@ -535,10 +549,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			if (typeBinding.isInterface()) {
 				noProposal = false;
-				requestor.acceptInterface(
-					typeBinding.qualifiedPackageName(),
-					typeBinding.qualifiedSourceName(),
-					false);
+				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalType(
+						(SourceTypeBinding)typeBinding,
+						parsedUnit);
+				} else {
+					this.requestor.acceptInterface(
+						typeBinding.qualifiedPackageName(),
+						typeBinding.qualifiedSourceName(),
+						false);
+				}
 			} else if(typeBinding instanceof ProblemReferenceBinding){
 				ProblemReferenceBinding problemBinding = (ProblemReferenceBinding)typeBinding;
 				if(problemBinding.original == null
@@ -547,16 +567,28 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 				ReferenceBinding original = (ReferenceBinding) problemBinding.original;
 				noProposal = false;
-				requestor.acceptClass(
-					original.qualifiedPackageName(),
-					original.qualifiedSourceName(),
-					false);
+				if (isLocal(original) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalType(
+						(SourceTypeBinding)original,
+						parsedUnit);
+				} else {
+					this.requestor.acceptClass(
+						original.qualifiedPackageName(),
+						original.qualifiedSourceName(),
+						false);
+				}
 			} else {
 				noProposal = false;
-				requestor.acceptClass(
-					typeBinding.qualifiedPackageName(),
-					typeBinding.qualifiedSourceName(),
-					false);
+				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalType(
+						(SourceTypeBinding)typeBinding,
+						parsedUnit);
+				} else {
+					this.requestor.acceptClass(
+						typeBinding.qualifiedPackageName(),
+						typeBinding.qualifiedSourceName(),
+						false);
+				}
 			}
 			acceptedAnswer = true;
 		} else
@@ -594,11 +626,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 				} else
 					if (binding instanceof LocalVariableBinding) {
-						selectFrom(((LocalVariableBinding) binding).type);
+						selectFrom(((LocalVariableBinding) binding).type, parsedUnit);
 						// open on the type of the variable
 					} else
 						if (binding instanceof ArrayBinding) {
-							selectFrom(((ArrayBinding) binding).leafComponentType);
+							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit);
 							// open on the type of the array
 						} else
 							if (binding instanceof PackageBinding) {
@@ -703,7 +735,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding);
+								selectFrom(e.binding, parsedUnit);
 							}
 						}
 					}

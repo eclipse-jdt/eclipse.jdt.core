@@ -81,15 +81,17 @@ public class AstNodeFinder {
 		AbstractMethodDeclaration[] methods = typeDecl.methods;
 		if (methods != null) {
 			char[] selector = methodHandle.getElementName().toCharArray();
-			String[] parameterTypeNames = methodHandle.getParameterTypes();
-			int parameterCount = parameterTypeNames.length;
+			String[] parameterTypeSignatures = methodHandle.getParameterTypes();
+			int parameterCount = parameterTypeSignatures.length;
 			nextMethod: for (int i = 0, length = methods.length; i < length; i++) {
 				AbstractMethodDeclaration method = methods[i];
 				if (CharOperation.equals(selector, method.selector)) {
 					Argument[] args = method.arguments;
 					if (args != null && args.length == parameterCount) {
 						for (int j = 0; j < parameterCount; j++) {
-							if (!CharOperation.equals(args[j].name, parameterTypeNames[j].toCharArray())) {
+							TypeReference type = args[j].type;
+							String signature = org.eclipse.jdt.internal.core.Util.typeSignature(type);
+							if (!signature.equals(parameterTypeSignatures[j])) {
 								continue nextMethod;
 							}
 						}

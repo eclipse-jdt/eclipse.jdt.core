@@ -413,7 +413,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 /*
  * Returns the exclusion patterns from the classpath entry associated with this root.
  */
-char[][] fullExclusionPatternChars() {
+public char[][] fullExclusionPatternChars() {
 	try {
 		if (this.isOpen() && this.getKind() != IPackageFragmentRoot.K_SOURCE) return null;
 		ClasspathEntry entry = (ClasspathEntry)getRawClasspathEntry();
