@@ -421,21 +421,23 @@ public class JavaProject
 	 * Returns (local/all) the package fragment roots identified by the given project's classpath.
 	 * Note: this follows project classpath references to find required project contributions,
 	 * eliminating duplicates silently.
+	 * Only works with resolved entries
 	 */
-	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry[] classpath, boolean retrieveExportedRoots) throws JavaModelException {
+	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry[] resolvedClasspath, boolean retrieveExportedRoots) throws JavaModelException {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
-		computePackageFragmentRoots(classpath, accumulatedRoots, new HashSet(5), true, true, retrieveExportedRoots);
+		computePackageFragmentRoots(resolvedClasspath, accumulatedRoots, new HashSet(5), true, true, retrieveExportedRoots);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
 		return rootArray;
 	}
 
-	/*
-	 * Computes the package fragment roots identified by the given entry.	 */
-	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry entry) {
+	/**
+	 * Computes the package fragment roots identified by the given entry.
+	 * Only works with resolved entry	 */
+	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry resolvedEntry) {
 		try {
-			return computePackageFragmentRoots(getResolvedClasspath(new IClasspathEntry[] {entry}, true, false), false);
+			return computePackageFragmentRoots(new IClasspathEntry[]{ resolvedEntry }, false);
 		} catch (JavaModelException e) {
 			return new IPackageFragmentRoot[] {};
 		}
@@ -444,23 +446,24 @@ public class JavaProject
 	/**
 	 * Returns the package fragment roots identified by the given entry. In case it refers to
 	 * a project, it will follow its classpath so as to find exported roots as well.
+	 * Only works with resolved entry
 	 */
 	public void computePackageFragmentRoots(
-		IClasspathEntry entry,
+		IClasspathEntry resolvedEntry,
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
 		boolean retrieveExportedRoots) throws JavaModelException {
 			
-		String rootID = ((ClasspathEntry)entry).rootID();
+		String rootID = ((ClasspathEntry)resolvedEntry).rootID();
 		if (rootIDs.contains(rootID)) return;
 
 		IPath projectPath = getProject().getFullPath();
-		IPath entryPath = entry.getPath();
+		IPath entryPath = resolvedEntry.getPath();
 		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
 		
-		switch(entry.getEntryKind()){
+		switch(resolvedEntry.getEntryKind()){
 			
 			// source folder
 			case IClasspathEntry.CPE_SOURCE :
@@ -480,7 +483,7 @@ public class JavaProject
 			// internal/external JAR or folder
 			case IClasspathEntry.CPE_LIBRARY :
 			
-				if (!insideOriginalProject && !entry.isExported()) return;
+				if (!insideOriginalProject && !resolvedEntry.isExported()) return;
 
 				String extension = entryPath.getFileExtension();
 
@@ -522,7 +525,7 @@ public class JavaProject
 			case IClasspathEntry.CPE_PROJECT :
 
 				if (!retrieveExportedRoots) return;
-				if (!insideOriginalProject && !entry.isExported()) return;
+				if (!insideOriginalProject && !resolvedEntry.isExported()) return;
 
 				IResource member = workspaceRoot.findMember(entryPath);
 				if (member != null && member.getType() == IResource.PROJECT){// double check if bound to project (23977)
@@ -547,9 +550,10 @@ public class JavaProject
 	 * Returns (local/all) the package fragment roots identified by the given project's classpath.
 	 * Note: this follows project classpath references to find required project contributions,
 	 * eliminating duplicates silently.
+	 * Only works with resolved entries
 	 */
 	public void computePackageFragmentRoots(
-		IClasspathEntry[] classpath,
+		IClasspathEntry[] resolvedClasspath,
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
 		boolean insideOriginalProject,
@@ -559,9 +563,9 @@ public class JavaProject
 		if (insideOriginalProject){
 			rootIDs.add(rootID());
 		}	
-		for (int i = 0, length = classpath.length; i < length; i++){
+		for (int i = 0, length = resolvedClasspath.length; i < length; i++){
 			computePackageFragmentRoots(
-				classpath[i],
+				resolvedClasspath[i],
 				accumulatedRoots,
 				rootIDs,
 				insideOriginalProject,
@@ -792,8 +796,8 @@ public class JavaProject
 		try {
 			IClasspathEntry[] classpath = this.getRawClasspath();
 			for (int i = 0, length = classpath.length; i < length; i++) {
-				if (classpath[i].equals(entry)) {
-					return computePackageFragmentRoots(entry);
+				if (classpath[i].equals(entry)) { // entry may need to be resolved
+					return computePackageFragmentRoots(getResolvedClasspath(new IClasspathEntry[] {entry}, true, false), false);
 				}
 			}
 		} catch (JavaModelException e) {
