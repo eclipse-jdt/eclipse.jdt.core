@@ -127,7 +127,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment#findType(char[][])
+	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#findType(char[][])
 	 */
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		if (compoundTypeName == null) return null;
@@ -300,7 +300,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see INameEnvironment#isPackage(char[][], char[])
+	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#isPackage(char[][], char[])
 	 */
 	public boolean isPackage(char[][] parentPackageName, char[] subPackageName) {
 		if (subPackageName == null || CharOperation.contains('.', subPackageName))
