@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import junit.framework.Test;
@@ -33,175 +32,11 @@ public class WorkingCopyTests extends ModifyingResourceTests {
 		 * @see IBufferFactory#createBuffer(IOpenable)
 		 */
 		public IBuffer createBuffer(IOpenable owner) {
-			return new Buffer(owner);
+			return new TestBuffer(owner);
 		}
 
 	}
-	public class Buffer implements IBuffer {
-		IOpenable owner;
-		ArrayList changeListeners;
-		char[] contents = null;
-		public Buffer(IOpenable owner) {
-			this.owner = owner;	
-		}
-		/*
-		 * @see IBuffer#addBufferChangedListener(IBufferChangedListener)
-		 */
-		public void addBufferChangedListener(IBufferChangedListener listener) {
-			if (this.changeListeners == null) {
-				this.changeListeners = new ArrayList(5);
-			}
-			if (!this.changeListeners.contains(listener)) {
-				this.changeListeners.add(listener);
-			}
-		}
-
-			/*
-		 * @see IBuffer#append(char[])
-		 */
-		public void append(char[] text) {
-		}
-
-		/*
-		 * @see IBuffer#append(String)
-		 */
-		public void append(String text) {
-		}
-
-		/*
-		 * @see IBuffer#close()
-		 */
-		public void close() {
-			this.contents = null; // mark as closed
-			if (this.changeListeners != null) {
-				BufferChangedEvent event = null;
-				event = new BufferChangedEvent(this, 0, 0, null);
-				for (int i = 0, size = this.changeListeners.size(); i < size; ++i) {
-					IBufferChangedListener listener = (IBufferChangedListener) this.changeListeners.get(i);
-					listener.bufferChanged(event);
-				}
-				this.changeListeners = null;
-			}
-	}
-
-		/*
-		 * @see IBuffer#getChar(int)
-		 */
-		public char getChar(int position) {
-			return 0;
-		}
-
-		/*
-		 * @see IBuffer#getCharacters()
-		 */
-		public char[] getCharacters() {
-			return contents;
-		}
-
-		/*
-		 * @see IBuffer#getContents()
-		 */
-		public String getContents() {
-			return new String(contents);
-		}
-
-		/*
-		 * @see IBuffer#getLength()
-		 */
-		public int getLength() {
-			return contents.length;
-		}
-
-		/*
-		 * @see IBuffer#getOwner()
-		 */
-		public IOpenable getOwner() {
-			return this.owner;
-		}
-
-		/*
-		 * @see IBuffer#getText(int, int)
-		 */
-		public String getText(int offset, int length) {
-			return null;
-		}
-
-		/*
-		 * @see IBuffer#getUnderlyingResource()
-		 */
-		public IResource getUnderlyingResource() {
-			return null;
-		}
-
-		/*
-		 * @see IBuffer#hasUnsavedChanges()
-		 */
-		public boolean hasUnsavedChanges() {
-			return false;
-		}
-
-		/*
-		 * @see IBuffer#isClosed()
-		 */
-		public boolean isClosed() {
-			return this.contents == null;
-		}
-
-		/*
-		 * @see IBuffer#isReadOnly()
-		 */
-		public boolean isReadOnly() {
-			return false;
-		}
-
-		/*
-		 * @see IBuffer#removeBufferChangedListener(IBufferChangedListener)
-		 */
-		public void removeBufferChangedListener(IBufferChangedListener listener) {
-			if (this.changeListeners != null) {
-				this.changeListeners.remove(listener);
-				if (this.changeListeners.size() == 0) {
-					this.changeListeners = null;
-				}
-			}
-		}
-
-		/*
-		 * @see IBuffer#replace(int, int, char[])
-		 */
-		public void replace(int position, int length, char[] text) {
-		}
-
-		/*
-		 * @see IBuffer#replace(int, int, String)
-		 */
-		public void replace(int position, int length, String text) {
-		}
-
-		/*
-		 * @see IBuffer#save(IProgressMonitor, boolean)
-		 */
-		public void save(IProgressMonitor progress, boolean force)
-			throws JavaModelException {
-		}
-
-		/*
-		 * @see IBuffer#setContents(char[])
-		 */
-		public void setContents(char[] characters) {
-			contents = characters;
-		}
-
-		/*
-		 * @see IBuffer#setContents(String)
-		 */
-		public void setContents(String characters) {
-			contents = characters.toCharArray();
-		}
-
-}
-	
-public WorkingCopyTests(String name) {
+	public WorkingCopyTests(String name) {
 	super(name);
 }
 
@@ -311,7 +146,7 @@ public void testOnClassFile() throws JavaModelException {
 	try {
 		assertTrue("Should be an IOpenable", customizedCopy instanceof ICompilationUnit);
 		IBuffer buffer = ((ICompilationUnit)customizedCopy).getBuffer();
-		assertTrue("Unexpected buffer", buffer instanceof Buffer);	
+		assertTrue("Unexpected buffer", buffer instanceof TestBuffer);	
 		assertTrue("Buffer should be initialized with source", buffer.getCharacters().length > 0);
 	} finally {
 		if (customizedCopy instanceof IWorkingCopy) {
@@ -335,7 +170,7 @@ public void testCustomizedBuffer() throws JavaModelException {
 	IWorkingCopy customizedCopy = (IWorkingCopy)this.cu.getWorkingCopy(null, factory, null);
 	try {
 		assertTrue("Should be an IOpenable", customizedCopy instanceof IOpenable);
-		assertTrue("Unexpected buffer", ((IOpenable)customizedCopy).getBuffer() instanceof Buffer);
+		assertTrue("Unexpected buffer", ((IOpenable)customizedCopy).getBuffer() instanceof TestBuffer);
 	} finally {
 		customizedCopy.destroy();
 	}
@@ -351,7 +186,7 @@ public void testCustomizedBuffer2() throws JavaModelException {
 		IOpenable openableCopy = (IOpenable)customizedCopy;
 		openableCopy.close();
 		openableCopy.open(null);
-		assertTrue("Unexpected buffer", openableCopy.getBuffer() instanceof Buffer);		
+		assertTrue("Unexpected buffer", openableCopy.getBuffer() instanceof TestBuffer);		
 	} finally {
 		customizedCopy.destroy();
 	}

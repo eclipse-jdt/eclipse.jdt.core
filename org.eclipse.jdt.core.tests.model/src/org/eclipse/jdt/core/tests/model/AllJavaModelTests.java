@@ -137,6 +137,12 @@ public static Test suite() {
 
 	// Package fragment root manipulation tests
 	suite.addTest(RootManipulationsTests.suite());
+	
+	// Owverflowing cache tests
+	suite.addTest(OverflowingCacheTests.suite());
+	
+	// Working copy owner tests
+	suite.addTest(WorkingCopyOwnerTests.suite());
 
 	return suite;
 }

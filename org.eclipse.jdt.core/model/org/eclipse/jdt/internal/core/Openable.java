@@ -187,7 +187,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	openParent(info, newElements, monitor);
 	if (monitor != null && monitor.isCanceled()) return;
 
-	 // puts the info before building the structure so that questions to the handle behave has if the element existed
+	 // puts the info before building the structure so that questions to the handle behave as if the element existed
 	 // (case of compilation units becoming working copies)
 	newElements.put(this, info);
 

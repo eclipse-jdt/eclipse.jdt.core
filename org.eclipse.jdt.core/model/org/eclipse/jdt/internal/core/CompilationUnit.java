@@ -977,11 +977,12 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	// set the buffer source
 	if (buffer.getCharacters() == null) {
 		if (isWorkingCopy) {
-			ICompilationUnit original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
-			if (original.isOpen()) {
+			ICompilationUnit original;
+			if (this.owner != DefaultWorkingCopyOwner.PRIMARY 
+					&& (original = new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY)).isOpen()) {
 				buffer.setContents(original.getSource());
 			} else {
-				IFile file = (IFile)original.getResource();
+				IFile file = (IFile)getResource();
 				if (file == null || !file.exists()) {
 					// initialize buffer with empty contents
 					buffer.setContents(CharOperation.NO_CHAR);
