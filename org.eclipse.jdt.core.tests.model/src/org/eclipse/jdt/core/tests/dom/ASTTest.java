@@ -28,6 +28,11 @@ import org.eclipse.jdt.core.dom.*;
 public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase { 
 	
 	class CheckPositionsMatcher extends ASTMatcher {
+		
+		public CheckPositionsMatcher() {
+			// include doc tags
+			super(true);
+		}
 	
 		private void checkPositions(Object source, Object destination) {
 			assertTrue(source instanceof ASTNode);
@@ -4813,6 +4818,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		final List stack = new ArrayList();
 		// pretend that every construct begins with "(" and ends with ")"
 		class PositionAssigner extends ASTVisitor {
+			PositionAssigner() {
+				// visit Javadoc.tags();
+				super(true);
+			}
 			public void preVisit(ASTNode node) {
 				int start = buffer.length();
 				buffer.append("(");
@@ -4849,7 +4858,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testNullResolve() {
 		ASTNode x = oneOfEach(ast);
 		
-		ASTVisitor v = new ASTVisitor() {
+		ASTVisitor v = new ASTVisitor(true) {
 			// NAMES
 
 			public boolean visit(SimpleName node) {

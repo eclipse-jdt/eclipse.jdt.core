@@ -23,8 +23,7 @@ package org.eclipse.jdt.core.dom;
  * if <code>false</code> is returned, the given node's child nodes will 
  * not be visited. The default implementation provided by this class does
  * nothing and returns <code>true</code> (with the exception of 
- * {@link #visit(Javadoc) ASTVisitor.visit(Javadoc)} which returns
- * <code>true</code> for backward compatibility).
+ * {@link #visit(Javadoc) ASTVisitor.visit(Javadoc)}).
  * Subclasses may reimplement this method as needed.</li>
  * <li><code>public void endVisit(<it>T</it> node)</code> - Visits
  * the given node to perform some arbitrary operation. When used in the
@@ -98,6 +97,38 @@ package org.eclipse.jdt.core.dom;
  * @see ASTNode#accept
  */
 public abstract class ASTVisitor {
+
+	/**
+	 * Indicates whether doc tags should be visited by default.
+	 * @since 3.0
+	 */
+	private boolean visitDocTags;
+	
+	/**
+	 * Creates a new AST visitor instance.
+	 * <p>
+	 * For backwards compatibility, the visitor does not visit tag
+	 * elements below doc comments by default. Use 
+	 * {@link #ASTVisitor(boolean) ASTVisitor(true)}
+	 * for an visitor that includes doc comments by default.
+	 * </p>
+	 */
+	public ASTVisitor() {
+		this(false);
+	}
+	
+	/**
+	 * Creates a new AST visitor instance. 
+	 * 
+	 * @param visitDocTags <code>true</code> if doc comment tags are
+	 * to be visited by default, and <code>false</code> otherwise
+	 * @see Javadoc#tags()
+	 * @see #visit(Javadoc)
+	 * @since 3.0
+	 */
+	public ASTVisitor(boolean visitDocTags) {
+		this.visitDocTags = visitDocTags;
+	}
 	
 	/**
 	 * Visits the given AST node prior to the type-specific visit.
@@ -223,21 +254,22 @@ public abstract class ASTVisitor {
 	/**
 	 * Visits the given AST node.
 	 * <p>
-	 * Unlike other node types, the default implementation returns 
-	 * <code>false</code>. This means that, by default, the subtree
-	 * under the given doc commment is not visited (for backward
-	 * compatibility).  Subclasses may reimplement; returning
-	 * <code>true</code> ensures that the doc elements parented by
-	 * the given doc comment will be visited in turn.
+	 * Unlike other node types, the boolean returned by the default
+	 * implementation is controlled by a constructor-supplied
+	 * parameter  {@link #ASTVisitor(boolean) ASTVisitor(boolean)} 
+	 * which is <code>false</code> by default.
+	 * Subclasses may reimplement.
 	 * </p>
 	 * 
 	 * @param node the node to visit
 	 * @return <code>true</code> to visit the children of the given
 	 *   node, and <code>false</code> to skip the children
+	 * @see #ASTVisitor()
+	 * @see #ASTVisitor(boolean)
 	 */
 	public boolean visit(Javadoc node) {
-		// do not visit tag elements inside doc comments by default
-		return false;
+		// visit tag elements inside doc comments only if requested
+		return this.visitDocTags;
 	}
 	
 	public boolean visit(LabeledStatement node) {

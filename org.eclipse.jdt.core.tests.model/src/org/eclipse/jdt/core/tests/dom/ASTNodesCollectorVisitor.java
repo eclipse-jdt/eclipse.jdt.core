@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 
 class ASTNodesCollectorVisitor extends ASTVisitor {
-
+	
 	private Set detachedAstNodes;
 	
 	/**
@@ -26,6 +26,8 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see java.lang.Object#Object()
 	 */
 	ASTNodesCollectorVisitor() {
+        // visit Javadoc.tags()
+		super(true); 
 		this.detachedAstNodes = new HashSet();
 	}
 
@@ -33,15 +35,6 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 		this.detachedAstNodes.add(node);
 	}
 		
-	/**
-	 * @see ASTVisitor#visit(Javadoc)
-	 * @since 3.0
-	 */
-	public boolean visit(Javadoc node) {
-		// explicitly ask to visit inside doc comments
-		return true;
-	}
-
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.AnonymousClassDeclaration)
 	 */

@@ -30,6 +30,8 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	private HashSet set;
 	
 	BindingsCollectorVisitor() {
+		// visit Javadoc.tags() as well
+		super(true);
 		this.hashMap = new HashMap();
 		this.set = new HashSet();
 	}
@@ -42,15 +44,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 		} else {
 			set.add(node);
 		}
-	}
-
-	/**
-	 * @see ASTVisitor#visit(Javadoc)
-	 * @since 3.0
-	 */
-	public boolean visit(Javadoc node) {
-		// explicitly ask to visit inside doc comments
-		return true;
 	}
 
 	/**

@@ -214,6 +214,17 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		
 		boolean visitTheKids = true;
 		
+		boolean visitDocTags;
+		
+		TestVisitor() {
+			this(false);
+		}
+		
+		TestVisitor(boolean visitDocTags) {
+			super(visitDocTags);
+			this.visitDocTags = visitDocTags;
+		}
+		
 		public boolean isVisitingChildren() {
 			return visitTheKids;
 		}
@@ -511,10 +522,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.append("(JD"); //$NON-NLS-1$
 			b.append(node.getComment());
 			
-			// verify that children of Javadoc nodes are not visited automatically
-			assertTrue(super.visit(node) == false);
-
-			return isVisitingChildren();
+			// verify that children of Javadoc nodes are visited only if requested
+			if (visitDocTags) {
+				assertTrue(super.visit(node) == true);
+			} else {
+				assertTrue(super.visit(node) == false);
+			}
+			return isVisitingChildren() && super.visit(node);
 		}
 
 		/**
@@ -1200,11 +1214,33 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Javadoc x1 = ast.newJavadoc();
 		x1.setComment("/**?*/"); //$NON-NLS-1$
 		x1.tags().add(TAG1);
-		TestVisitor v1 = new TestVisitor();
-		b.setLength(0);
-		x1.accept(v1);
-		String result = b.toString();
-		assertTrue(("[(JD/**?*/"+TAG1S+"/**?*/JD)]").equals(result)); //$NON-NLS-1$
+		
+		// ASTVisitor() does not visit doc tags
+		{
+			TestVisitor v1 = new TestVisitor();
+			b.setLength(0);
+			x1.accept(v1);
+			String result = b.toString();
+			assertTrue(("[(JD/**?*//**?*/JD)]").equals(result)); //$NON-NLS-1$
+		}
+		
+		// ASTVisitor(false) does not visit doc tags
+		{
+			TestVisitor v1 = new TestVisitor(false);
+			b.setLength(0);
+			x1.accept(v1);
+			String result = b.toString();
+			assertTrue(("[(JD/**?*//**?*/JD)]").equals(result)); //$NON-NLS-1$
+		}
+		
+		// ASTVisitor(true) does visit doc tags
+		{
+			TestVisitor v1 = new TestVisitor(true);
+			b.setLength(0);
+			x1.accept(v1);
+			String result = b.toString();
+			assertTrue(("[(JD/**?*/"+TAG1S+"/**?*/JD)]").equals(result)); //$NON-NLS-1$
+		}
 	}
 
 	public void testLabeledStatement() {

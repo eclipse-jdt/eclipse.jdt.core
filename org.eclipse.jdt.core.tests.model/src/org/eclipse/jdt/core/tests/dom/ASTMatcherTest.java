@@ -174,6 +174,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public int matchCalls = 0;
 
 		TestMatcher() {
+			this(false);
+		}
+
+		TestMatcher(boolean visitDocTags) {
+			super(visitDocTags);
 		}
 
 		boolean standardBody(ASTNode receiver, Object other, boolean matchResult) {
@@ -398,12 +403,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * AST node visitor that counts the nodes visited.
 	 */
 	static class NodeCounter extends ASTVisitor {
-		public int count = 0;
-
-		public boolean visit(Javadoc node) {
-			// explicitly ask to visit inside doc comments
-			return true;
+		public NodeCounter(boolean visitDocTags) {
+			super(visitDocTags);
 		}
+		
+		public int count = 0;
 
 		/* (no javadoc for this method)
 		 * Method declared on ASTVisitor.
@@ -418,10 +422,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * Returns the number of AST nodes in the given subtree.
 	 * 
 	 * @param node the root of the subtree
+	 * @param visitDocTags true if doc tags should be visited
 	 * @return the number of nodes (always positive)
 	 */
-	static int nodeCount(ASTNode node) {
-		NodeCounter c = new NodeCounter();
+	static int nodeCount(ASTNode node, boolean visitDocTags) {
+		NodeCounter c = new NodeCounter(visitDocTags);
 		node.accept(c);
 		return c.count;
 	}		
@@ -431,36 +436,69 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * for a node of a given type. 
 	 */
 	void basicMatch(ASTNode node) {
-		int count = nodeCount(node);
+		TestMatcher[] m = {
+			new TestMatcher(),
+			new TestMatcher(true),
+			new TestMatcher(false)};
+		for (int i = 0; i < m.length; i++) {
+			// check that matcher was called with right arguments
+			// and that matches succeed
+			TestMatcher m1 = m[i];
+			Object o1 = new Object();
+			m1.result = true;
+			boolean result = node.subtreeMatch(m1, o1);
+			assertTrue(m1.matchCalls == 1);
+			assertTrue(m1.receiverNode == node);
+			assertTrue(m1.otherNode == o1);
+			assertTrue(result == true);
+		}
 		
-		// check that matcher was called with right arguments
-		// and that matches succeed
-		TestMatcher m1 = new TestMatcher();
-		Object o1 = new Object();
-		m1.result = true;
-		boolean result = node.subtreeMatch(m1, o1);
-		assertTrue(m1.matchCalls == 1);
-		assertTrue(m1.receiverNode == node);
-		assertTrue(m1.otherNode == o1);
-		assertTrue(result == true);
+		m = new TestMatcher[] {
+							new TestMatcher(),
+							new TestMatcher(true),
+							new TestMatcher(false)};
+		for (int i = 0; i < m.length; i++) {
+			// check that matcher was called with right arguments
+			// and that non-matches fail
+			TestMatcher m1 = m[i];
+			Object o1 = new Object();
+			m1.result = false;
+			boolean result = node.subtreeMatch(m1, o1);
+			assertTrue(m1.matchCalls == 1);
+			assertTrue(m1.receiverNode == node);
+			assertTrue(m1.otherNode == o1);
+			assertTrue(result == false);
+		}
 		
-		// check that matcher was called with right arguments
-		// and that non-matches fail
-		m1 = new TestMatcher();
-		o1 = new Object();
-		m1.result = false;
-		result = node.subtreeMatch(m1, o1);
-		assertTrue(m1.matchCalls == 1);
-		assertTrue(m1.receiverNode == node);
-		assertTrue(m1.otherNode == o1);
-		assertTrue(result == false);
+		// check that ASTMatcher() default implementations delegate
+		{
+			int count = nodeCount(node, false); // ignore doc tags
+			TestMatcher m1 = new TestMatcher();
+			m1.superMatch = true;
+			boolean result = node.subtreeMatch(m1, node);
+			assertTrue(m1.matchCalls == count);
+			assertTrue(result == true);
+		}
 		
-		// check that ASTMatcher default implementations delegate
-		m1 = new TestMatcher();
-		m1.superMatch = true;
-		result = node.subtreeMatch(m1, node);
-		assertTrue(m1.matchCalls == count);
-		assertTrue(result == true);
+		// check that ASTMatcher(false) default implementations delegate
+		{
+			int count = nodeCount(node, false); // ignore doc tags
+			TestMatcher m1 = new TestMatcher(false);
+			m1.superMatch = true;
+			boolean result = node.subtreeMatch(m1, node);
+			assertTrue(m1.matchCalls == count);
+			assertTrue(result == true);
+		}
+		
+		// check that ASTMatcher(true) default implementations delegate
+		{
+			int count = nodeCount(node, true); // include doc tags
+			TestMatcher m1 = new TestMatcher(true);
+			m1.superMatch = true;
+			boolean result = node.subtreeMatch(m1, node);
+			assertTrue(m1.matchCalls == count);
+			assertTrue(result == true);
+		}
 		
 	}
 
