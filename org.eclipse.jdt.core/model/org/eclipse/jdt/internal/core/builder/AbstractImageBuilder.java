@@ -378,7 +378,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					IMarker.CHAR_START, 
 					IMarker.CHAR_END, 
 					IMarker.LINE_NUMBER,
-					"userEditable", //$NON-NLS-1$ //TODO: (philippe) replace with once available: IMarker.USER_EDITABLE,
+					IMarker.USER_EDITABLE, 
 				}, 
 				new Object[] { 
 					task.getMessage(),
