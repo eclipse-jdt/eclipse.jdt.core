@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.*;
 
 import java.util.Vector;
@@ -32,7 +33,7 @@ class DOMCompilationUnit extends DOMNode implements IDOMCompilationUnit {
  * Creates a new empty COMPILATION_UNIT document fragment.
  */
 DOMCompilationUnit() {
-	fHeader="";
+	fHeader=""/*nonNLS*/;
 }
 /**
  * Creates a new COMPILATION_UNIT on the given range of the document.
@@ -46,7 +47,7 @@ DOMCompilationUnit() {
  */
 DOMCompilationUnit(char[] document, int[] sourceRange) {
 	super(document, sourceRange, null, new int[]{-1, -1});
-	fHeader = "";
+	fHeader = ""/*nonNLS*/;
 }
 /**
  * @see DOMNode#appendContents(CharArrayBuffer)
@@ -74,7 +75,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 		return ((IPackageFragment)parent).getCompilationUnit(getName());
 	} else {
-		throw new IllegalArgumentException("Illegal parent argument");
+		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
 	}
 }
 /**
@@ -101,7 +102,7 @@ public String getName() {
 		topLevelType= firstType;
 	}
 	if (topLevelType != null) {
-		return topLevelType.getName() + ".java"; 
+		return topLevelType.getName() + ".java"/*nonNLS*/; 
 	} else {
 		return null;
 	}
@@ -173,6 +174,6 @@ protected void shareContents(DOMNode node) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "COMPILATION_UNIT: " + getName();
+	return "COMPILATION_UNIT: "/*nonNLS*/ + getName();
 }
 }

@@ -22,11 +22,11 @@ public CompilationUnit(char[] contents, char[] filename) {
 	fFileName = filename;
 
 	String file = new String(filename);
-	int start = file.lastIndexOf("/") + 1;
-	if (start == 0 || start < file.lastIndexOf("\\"))
-		start = file.lastIndexOf("\\") + 1;
+	int start = file.lastIndexOf("/"/*nonNLS*/) + 1;
+	if (start == 0 || start < file.lastIndexOf("\\"/*nonNLS*/))
+		start = file.lastIndexOf("\\"/*nonNLS*/) + 1;
 
-	int end = file.lastIndexOf(".");
+	int end = file.lastIndexOf("."/*nonNLS*/);
 	if (end == -1)
 		end = file.length();
 
@@ -42,6 +42,6 @@ public char[] getMainTypeName() {
 	return fMainTypeName;
 }
 public String toString() {
-	return "CompilationUnit[" + new String(fFileName) + "]"; 
+	return "CompilationUnit["/*nonNLS*/ + new String(fFileName) + "]"/*nonNLS*/; 
 }
 }

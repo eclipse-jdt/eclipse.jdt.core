@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
@@ -74,7 +75,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 			return name;
 		}
 		public String toString(){
-			StringBuffer buffer = new StringBuffer("Queue:\n");
+			StringBuffer buffer = new StringBuffer("Queue:\n"/*nonNLS*/);
 			for (int i = this.start; i <= this.end; i++){
 				buffer.append(names[i]).append('\n');		
 			}
@@ -318,7 +319,7 @@ private void createInfoFromClassFile(Openable handle, String osPath, Vector info
  */
 private void createInfoFromClassFileInJar(Openable classFile, Vector infos) throws JavaModelException {
 	IJavaElement pkg = classFile.getParent();
-	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName();
+	String classFilePath = pkg.getElementName().replace('.', '/') + "/"/*nonNLS*/ + classFile.getElementName();
 	IGenericType info = null;
 	java.util.zip.ZipFile zipFile = null;
 	try {
@@ -442,7 +443,7 @@ public static void searchAllPossibleSubTypes(
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
 			pathRequestor.acceptPath(resourcePath);
-			if (resourcePath.endsWith("class")){
+			if (resourcePath.endsWith("class"/*nonNLS*/)){
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);
 				if (binaryType == null){
 					binaryType = new HierarchyBinaryType(modifiers, qualification, typeName, enclosingTypeName, classOrInterface);
