@@ -2851,9 +2851,25 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 			if (getNextChar('d', 'D') >= 0) {
 				return TokenNameDoubleLiteral;
 			} else { //make the distinction between octal and float ....
-				if (getNextChar('.')) { //bingo ! ....
+				boolean isInteger = true;
+				if (getNextChar('.')) { 
+					isInteger = false;
 					while (getNextCharAsDigit()) {};
-					if (getNextChar('e', 'E') >= 0) { // consume next character
+				}
+				if (getNextChar('e', 'E') >= 0) { // consume next character
+					isInteger = false;
+					unicodeAsBackSlash = false;
+					if (((currentCharacter = source[currentPosition++]) == '\\')
+						&& (source[currentPosition] == 'u')) {
+						getNextUnicodeChar();
+					} else {
+						if (withoutUnicodePtr != 0) {
+							withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
+						}
+					}
+
+					if ((currentCharacter == '-')
+						|| (currentCharacter == '+')) { // consume next character
 						unicodeAsBackSlash = false;
 						if (((currentCharacter = source[currentPosition++]) == '\\')
 							&& (source[currentPosition] == 'u')) {
@@ -2863,30 +2879,16 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 								withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
 							}
 						}
-
-						if ((currentCharacter == '-')
-							|| (currentCharacter == '+')) { // consume next character
-							unicodeAsBackSlash = false;
-							if (((currentCharacter = source[currentPosition++]) == '\\')
-								&& (source[currentPosition] == 'u')) {
-								getNextUnicodeChar();
-							} else {
-								if (withoutUnicodePtr != 0) {
-									withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
-								}
-							}
-						}
-						if (!Character.isDigit(currentCharacter))
-							throw new InvalidInputException(INVALID_FLOAT);
-						while (getNextCharAsDigit()) {};
 					}
-					if (getNextChar('f', 'F') >= 0)
-						return TokenNameFloatingPointLiteral;
-					getNextChar('d', 'D'); //jump over potential d or D
-					return TokenNameDoubleLiteral;
-				} else {
-					return TokenNameIntegerLiteral;
+					if (!Character.isDigit(currentCharacter))
+						throw new InvalidInputException(INVALID_FLOAT);
+					while (getNextCharAsDigit()) {};
 				}
+				if (getNextChar('f', 'F') >= 0)
+					return TokenNameFloatingPointLiteral;
+				if (getNextChar('d', 'D') >= 0 || !isInteger)
+					return TokenNameDoubleLiteral;
+				return TokenNameIntegerLiteral;
 			}
 		} else {
 			/* carry on */
