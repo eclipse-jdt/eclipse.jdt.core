@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.formatter;
  * WebSphere Studio Workbench
  * (c) Copyright IBM Corp 2000
  */
+import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -113,12 +114,21 @@ public class CodeFormatter implements TerminalSymbols {
 	private int multipleLineCommentCounter;
 	
 	/** 
+	 * Creates a new instance of Code Formatter using the given settings.
+	 * 
+	 * @deprecated backport 1.0 internal functionality
+	 */
+	public CodeFormatter(ConfigurableOption[] settings) {
+		this(convertConfigurableOptions(settings));
+	}
+	
+	/** 
 	 * Creates a new instance of Code Formatter using the FormattingOptions object
 	 * given as argument
 	 * @deprecated Use CodeFormatter(ConfigurableOption[]) instead
 	 */
 	public CodeFormatter() {
-		this(null);
+		this((Map)null);
 	}
 	/** 
 	 * Creates a new instance of Code Formatter using the given settings.
@@ -156,6 +166,50 @@ public class CodeFormatter implements TerminalSymbols {
 			default :
 				return true;
 		}
+	}
+	
+		/** 
+	 * @deprecated backport 1.0 internal functionality
+	 */
+	private static Map convertConfigurableOptions(ConfigurableOption[] settings) {
+		Hashtable options = new Hashtable(10);
+		
+		for (int i = 0; i < settings.length; i++) {
+			if(settings[i].getComponentName().equals(CodeFormatter.class.getName())){
+				String optionName = settings[i].getOptionName();
+				int valueIndex = settings[i].getCurrentValueIndex();
+				
+				if(optionName.equals("newline.openingBrace")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.newline.openingBrace", valueIndex == 0 ? "insert" : "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("newline.controlStatement")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.newline.controlStatement",  valueIndex == 0 ? "insert" : "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("newline.clearAll")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.newline.clearAll",  valueIndex == 0 ? "clear all" : "preserve one"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("newline.elseIf")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.newline.elseIf",  valueIndex == 0 ? "do not insert" : "insert" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("newline.emptyBlock")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.newline.emptyBlock",  valueIndex == 0 ? "insert" : "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("lineSplit")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.lineSplit", String.valueOf(valueIndex)); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				} else if(optionName.equals("style.assignment")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.style.assignment",  valueIndex == 0 ? "compact" : "normal"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("tabulation.char")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.tabulation.char",  valueIndex == 0 ? "tab" : "space"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				
+				} else if(optionName.equals("tabulation.size")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.tabulation.size", String.valueOf(valueIndex)); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+		}
+		
+		return options;
 	}
 
 	/** 
@@ -877,7 +931,7 @@ public class CodeFormatter implements TerminalSymbols {
 	 * @return the formatted ouput.
 	 */
 	public String format(String string, int indentationLevel) {
-		return format(string, indentationLevel, null);
+		return format(string, indentationLevel, (int[])null);
 	}	
 	
 	/** 
@@ -910,7 +964,19 @@ public class CodeFormatter implements TerminalSymbols {
 	 * @return the formatted ouput.
 	 */
 	public String format(String string) {
-		return this.format(string, 0, null);
+		return this.format(string, 0, (int[])null);
+	}
+	
+	/** 
+	 * Formats a given source string, starting indenting it at a particular 
+	 * depth and using the given options
+	 * 
+	 * @deprecated backport 1.0 internal functionality
+	 */
+	public static String format(String sourceString, int initialIndentationLevel, ConfigurableOption[] options) {
+		CodeFormatter formatter = new CodeFormatter(options);
+		formatter.setInitialIndentationLevel(initialIndentationLevel);
+		return formatter.formatSourceString(sourceString);
 	}
 	
 	/**
@@ -953,6 +1019,29 @@ public class CodeFormatter implements TerminalSymbols {
 			}
 		}
 		return offset;
+	}
+	
+	/**
+	 * Returns an array of descriptions for the configurable options.
+	 * The descriptions may be changed and passed back to a different
+	 * compiler.
+	 * 
+	 * @deprecated backport 1.0 internal functionality
+	 */
+	public static ConfigurableOption[] getDefaultOptions(Locale locale) {
+		String componentName = CodeFormatter.class.getName();
+		FormatterOptions options = new FormatterOptions();
+		return new ConfigurableOption[] {
+			new ConfigurableOption(componentName, "newline.openingBrace",  locale, options.newLineBeforeOpeningBraceMode ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "newline.controlStatement",  locale, options.newlineInControlStatementMode ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "newline.clearAll",  locale, options.clearAllBlankLinesMode ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "newline.elseIf",  locale, options.compactElseIfMode ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "newline.emptyBlock",  locale, options.newLineInEmptyBlockMode ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "line.split",  locale, options.maxLineLength),//$NON-NLS-1$
+			new ConfigurableOption(componentName, "style.compactAssignment",  locale, options.compactAssignmentMode ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "tabulation.char",  locale, options.indentWithTab ? 0 : 1), //$NON-NLS-1$
+			new ConfigurableOption(componentName, "tabulation.size",  locale, options.tabSize)	//$NON-NLS-1$
+		};
 	}
 
 	/**

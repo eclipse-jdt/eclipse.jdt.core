@@ -41,6 +41,19 @@ What's new in this drop</h2>
     To enable it, see the following line in the org.eclipse.jdt.core/.options file:
     <code>org.eclipse.jdt.core/debug/zipaccess=true</code>
 </li>
+<li>Resurrect some code for backport 1.0 internal functionality
+	<ul>
+	<li> org.eclipse.jdt.internal.compiler.ConfigurableOption (all the class).
+	<li> org.eclipse.jdt.internal.formatter.CodeFormatter (some methods) :
+		<ul>
+		<li> public CodeFormatter(ConfigurableOption[] settings)
+		<li> private static Map convertConfigurableOptions(ConfigurableOption[] settings)
+		<li> public static ConfigurableOption[] getDefaultOptions(Locale locale)
+		<li> public static String format(String sourceString, int initialIndentationLevel, ConfigurableOption[] options)
+		</ul>
+	<li> org.eclipse.jdt.internal.formatter.Options.properties (all the file)
+	</ul>
+</li>
 </ul>
 <h3>
 Problem Reports Fixed</h3>
