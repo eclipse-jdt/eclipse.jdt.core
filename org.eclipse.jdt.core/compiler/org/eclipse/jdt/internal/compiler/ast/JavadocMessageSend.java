@@ -80,7 +80,9 @@ public class JavadocMessageSend extends MessageSend {
 			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
 			return null;
 		}
-		this.codegenBinding = this.binding = scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
+		this.binding = (this.receiver != null && this.receiver.isThis())
+			? scope.getImplicitMethod(this.selector, argumentTypes, this)
+			: scope.getMethod(this.receiverType, this.selector, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
 			if (this.binding.declaringClass == null) {
 				if (this.receiverType instanceof ReferenceBinding) {

@@ -39,28 +39,32 @@ public class JavadocFieldReference extends FieldReference {
 			return null;
 		}
 
-		this.binding = scope.getField(this.receiverType, this.token, this);
-		if (!this.binding.isValidBinding()) {
+		Binding fieldBinding = (this.receiver != null && this.receiver.isThis())
+			? scope.getBinding(this.token, this.bits & RestrictiveFlagMASK, this, true /*resolve*/)
+			: scope.getField(this.receiverType, this.token, this);
+		if (!fieldBinding.isValidBinding() || !(fieldBinding instanceof FieldBinding)) {
 			if (this.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
 				MethodBinding[] bindings = refBinding.getMethods(this.token);
 				if (bindings == null) {
-					scope.problemReporter().javadocInvalidField(this, this.receiverType, scope.getDeclarationModifiers());
-					return null;
-				} 
-				switch (bindings.length) {
-					case 0:
-						scope.problemReporter().javadocInvalidField(this, this.receiverType, scope.getDeclarationModifiers());
-						return null;
-					case 1:
-						this.binding = null;
-						return null;
-					default:
-						scope.problemReporter().javadocAmbiguousMethodReference(this, scope.getDeclarationModifiers());
-						return null;
+					scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+				} else {
+					switch (bindings.length) {
+						case 0:
+							scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+							break;
+						case 1:
+							this.binding = null;
+							break;
+						default:
+							scope.problemReporter().javadocAmbiguousMethodReference(this.sourceStart, this.sourceEnd, fieldBinding, scope.getDeclarationModifiers());
+							break;
+					}
 				}
 			}
+			return null;
 		}
+		this.binding = (FieldBinding) fieldBinding;
 
 		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssignedMASK) != 0)) {
 			scope.problemReporter().javadocDeprecatedField(this.binding, this, scope.getDeclarationModifiers());
