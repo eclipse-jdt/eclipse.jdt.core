@@ -188,10 +188,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	constant = NotAConstant;
 	boolean containsCast = false; 
-	if (this.receiver instanceof CastExpression) {
-			this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-			//containsCast = true; - always ignore receiver cast, since may affect constant pool reference
-	}
+	if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
 	
 	// will check for null after args are resolved

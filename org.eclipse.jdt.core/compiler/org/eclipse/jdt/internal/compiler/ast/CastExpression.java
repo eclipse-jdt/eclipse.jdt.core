@@ -218,6 +218,29 @@ public class CastExpression extends Expression {
 	}
 
 	/**
+	 * Casting an enclosing instance will considered as useful if removing it would actually bind to a different type
+	 */
+	public static void checkNeedForEnclosingInstanceCast(BlockScope scope, Expression enclosingInstance, TypeBinding enclosingInstanceType, TypeBinding memberType) {
+	
+		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		
+		TypeBinding castedExpressionType = ((CastExpression)enclosingInstance).expression.resolvedType;
+		if (castedExpressionType == null) return; // cannot do better
+		// obvious identity cast
+		if (castedExpressionType == enclosingInstanceType) { 
+			scope.problemReporter().unnecessaryCast((CastExpression)enclosingInstance);
+		} else if (castedExpressionType == NullBinding){
+			return; // tolerate null enclosing instance cast
+		} else {
+			TypeBinding alternateEnclosingInstanceType = castedExpressionType; 
+			if (castedExpressionType.isBaseType() || castedExpressionType.isArrayType()) return; // error case
+			if (memberType == scope.getMemberType(memberType.sourceName(), (ReferenceBinding) alternateEnclosingInstanceType)) {
+				scope.problemReporter().unnecessaryCast((CastExpression)enclosingInstance);
+			}
+		}
+	}
+	
+	/**
 	 * Cast expressions will considered as useful if removing them all would actually bind to a different method
 	 * (no fine grain analysis on per casted argument basis, simply separate widening cast from narrowing ones)
 	 */

@@ -197,8 +197,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		TypeBinding enclosingInstanceType = null;
 		TypeBinding receiverType = null;
 		boolean hasError = false;
+		boolean enclosingInstanceContainsCast = false;
 		boolean argsContainCast = false;
 		if (anonymousType == null) { //----------------no anonymous class------------------------	
+			if (enclosingInstance instanceof CastExpression) {
+				enclosingInstance.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				enclosingInstanceContainsCast = true;
+			}
 			if ((enclosingInstanceType = enclosingInstance.resolveType(scope)) == null){
 				hasError = true;
 			} else if (enclosingInstanceType.isBaseType() || enclosingInstanceType.isArrayType()) {
@@ -206,10 +211,15 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					enclosingInstanceType,
 					enclosingInstance);
 				hasError = true;
-			} else if ((receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
-							scope,
-							(ReferenceBinding) enclosingInstanceType)) == null) {
-				hasError = true;
+			} else {
+				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
+				if (receiverType == null) {
+					hasError = true;
+				} else {
+					if (enclosingInstanceContainsCast) {
+						CastExpression.checkNeedForEnclosingInstanceCast(scope, enclosingInstance, enclosingInstanceType, receiverType);
+					}
+				}
 			}
 			// will check for null after args are resolved
 			TypeBinding[] argumentTypes = NoParameters;
@@ -268,6 +278,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		//--------------there is an anonymous type declaration-----------------
 		if (this.enclosingInstance != null) {
+			if (enclosingInstance instanceof CastExpression) {
+				enclosingInstance.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				enclosingInstanceContainsCast = true;
+			}
 			if ((enclosingInstanceType = this.enclosingInstance.resolveType(scope)) == null) {
 				hasError = true;
 			} else if (enclosingInstanceType.isBaseType() || enclosingInstanceType.isArrayType()) {
@@ -279,6 +293,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
 										scope,
 										(ReferenceBinding) enclosingInstanceType);				
+				if (enclosingInstanceContainsCast) {
+					CastExpression.checkNeedForEnclosingInstanceCast(scope, enclosingInstance, enclosingInstanceType, receiverType);
+				}
 			}
 		} else {
 			receiverType = type.resolveType(scope);
