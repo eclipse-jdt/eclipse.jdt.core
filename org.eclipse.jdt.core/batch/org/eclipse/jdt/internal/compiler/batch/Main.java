@@ -643,13 +643,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				printUsageRequired = true;
 				continue;
 			}
-			if (currentArg.equals("-noImportError")) { //$NON-NLS-1$
-				mode = Default;
-				this.options.put(
-					CompilerOptions.OPTION_ReportInvalidImport,
-					CompilerOptions.WARNING);
-				continue;
-			}
 			if (currentArg.equals("-noExit")) { //$NON-NLS-1$
 				mode = Default;
 				this.systemExitWhenFinished = false;

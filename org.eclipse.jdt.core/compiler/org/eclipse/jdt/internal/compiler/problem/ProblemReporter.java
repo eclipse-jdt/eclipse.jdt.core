@@ -496,21 +496,7 @@ public int computeSeverity(int problemId){
 		case IProblem.MaskedCatch : 
 			return this.options.getSeverity(CompilerOptions.MaskedCatchBlock);
 
-		case IProblem.ImportNotFound :
-		case IProblem.ImportNotVisible :
-		case IProblem.ImportAmbiguous :
-		case IProblem.ImportInternalNameProvided :
-		case IProblem.ImportInheritedNameHidesEnclosingName :
-		case IProblem.DuplicateImport :
-		case IProblem.ConflictingImport :
-		case IProblem.CannotImportPackage :
-			return this.options.getSeverity(CompilerOptions.ImportProblem);
-
 		case IProblem.UnusedImport :
-			// if import problem are disabled, then ignore
-			if (this.options.getSeverity(CompilerOptions.ImportProblem) == Ignore) {
-				return Ignore;
-			}
 			return this.options.getSeverity(CompilerOptions.UnusedImport);
 			
 		case IProblem.MethodButWithConstructorName :

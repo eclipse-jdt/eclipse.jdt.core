@@ -207,7 +207,6 @@ public void evaluateCodeSnippet(
 				this.context.setImports(importsNames);
 				// turn off import complaints for implicitly added ones
 				options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
-				options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.IGNORE);
 			}
 		} else {
 			// try to retrieve imports from the source
@@ -218,7 +217,6 @@ public void evaluateCodeSnippet(
 					this.context.setImports(imports);
 					// turn off import complaints for implicitly added ones
 					options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
-					options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.IGNORE);
 				}
 			}
 		}

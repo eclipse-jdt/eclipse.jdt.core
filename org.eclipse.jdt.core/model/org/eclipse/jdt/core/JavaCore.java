@@ -149,6 +149,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @deprecated - discontinued since turning off would violate language specs
 	 */
 	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"; //$NON-NLS-1$
 	/**
@@ -1393,13 +1394,6 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "error"
 	 *
-	 * COMPILER / Reporting Invalid Import
-	 *    An import statement that cannot be resolved might optionally be reported 
-	 *    as an error, as a warning or ignored.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidImport"
-	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "error"
-	 *
 	 * COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
 	 *    cannot be overridden. When enabling this option, the compiler will signal 
@@ -1917,6 +1911,8 @@ public final class JavaCore extends Plugin {
 		}		
 		// get encoding through resource plugin
 		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); 
+		// backward compatibility
+		defaultOptions.put(COMPILER_PB_INVALID_IMPORT, ERROR);		
 		
 		return defaultOptions;
 	}
@@ -1947,6 +1943,10 @@ public final class JavaCore extends Plugin {
 		
 		if (CORE_ENCODING.equals(optionName)){
 			return ResourcesPlugin.getEncoding();
+		}
+		// backward compatibility
+		if (COMPILER_PB_INVALID_IMPORT.equals(optionName)) {
+			return ERROR;
 		}
 		if (JavaModelManager.OptionNames.contains(optionName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
@@ -1994,6 +1994,8 @@ public final class JavaCore extends Plugin {
 			}		
 			// get encoding through resource plugin
 			options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
+			// backward compatibility
+			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
 		}
 		return options;
 	}
