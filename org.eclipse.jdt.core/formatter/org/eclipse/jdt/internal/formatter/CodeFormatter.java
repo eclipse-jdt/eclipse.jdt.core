@@ -272,7 +272,19 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 		} else {
 			outputLine(currentString, false, currentLineIndentationLevel, 0, -1, null, 0);
 		}
-		updateMappedPositions(scanner.startPosition);	
+		int scannerSourceLength = scanner.source.length;
+		if (scanner.source[scannerSourceLength - 1] == '\n' && 
+			scanner.source[scannerSourceLength - 2] == '\r') {
+				formattedSource.append(options.lineSeparatorSequence);
+				increaseGlobalDelta(options.lineSeparatorSequence.length - 2);
+		} else if (scanner.source[scannerSourceLength - 1] == '\n') {
+			formattedSource.append(options.lineSeparatorSequence);
+			increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
+		} else if (scanner.source[scannerSourceLength - 1] == '\r') {
+			formattedSource.append(options.lineSeparatorSequence);
+			increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
+		}
+		updateMappedPositions(scanner.startPosition);
 	}
 
 	/** 
