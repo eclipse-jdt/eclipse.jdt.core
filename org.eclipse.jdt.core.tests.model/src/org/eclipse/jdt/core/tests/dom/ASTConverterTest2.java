@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0465"));			
+		suite.addTest(new ASTConverterTest2("test0467"));			
 		return suite;
 	}
 	/**
@@ -1724,5 +1724,60 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "i", variableBinding.getName());
 		assertEquals("Wrong type", "int", variableBinding.getType().getName());
 	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33949
+	 */
+	public void test0466() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		try {
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			JavaCore.setOptions(newOptions);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0466", "Assert.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(sourceUnit, true);
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			char[] source = sourceUnit.getSource().toCharArray();
+			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+			checkSourceRange(node, "assert ref != null : message;", source);
+			assertTrue("not an assert statement", node.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+			AssertStatement statement = (AssertStatement) node;
+			checkSourceRange(statement.getExpression(), "ref != null", source);
+			checkSourceRange(statement.getMessage(), "message", source);
+		} finally {
+			JavaCore.setOptions(options);
+		}
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33949
+	 */
+	public void test0467() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		try {
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			JavaCore.setOptions(newOptions);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0467", "Assert.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(sourceUnit, true);
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			char[] source = sourceUnit.getSource().toCharArray();
+			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+			checkSourceRange(node, "assert ref != null : message\\u003B", source);
+			assertTrue("not an assert statement", node.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+			AssertStatement statement = (AssertStatement) node;
+			checkSourceRange(statement.getExpression(), "ref != null", source);
+			checkSourceRange(statement.getMessage(), "message", source);
+			
+			node = getASTNode(compilationUnit, 0, 0, 1);
+			checkSourceRange(node, "assert ref != null\\u003B", source);
+			assertTrue("not an assert statement", node.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+			statement = (AssertStatement) node;
+			checkSourceRange(statement.getExpression(), "ref != null", source);
+		} finally {
+			JavaCore.setOptions(options);
+		}
+	}	
+	
 }
 
