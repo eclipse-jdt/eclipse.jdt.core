@@ -210,6 +210,30 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 
 	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
+	 * @since 3.1
+	 */
+	final SimplePropertyDescriptor internalExtraDimensionsProperty() {
+		return EXTRA_DIMENSIONS_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
+	 * @since 3.1
+	 */
+	final ChildPropertyDescriptor internalInitializerProperty() {
+		return INITIALIZER_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on VariableDeclaration.
+	 * @since 3.1
+	 */
+	final ChildPropertyDescriptor internalNameProperty() {
+		return NAME_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	final List internalStructuralPropertiesForType(int apiLevel) {

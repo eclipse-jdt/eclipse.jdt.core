@@ -39,6 +39,17 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	abstract ChildPropertyDescriptor internalTypeNameProperty();
 
 	/**
+	 * Returns structural property descriptor for the "typeName" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	public final ChildPropertyDescriptor getTypeNameProperty() {
+		return internalTypeNameProperty();
+	}
+
+	/**
 	 * Creates and returns a structural property descriptor for the
 	 * "typeName" property declared on the given concrete node type.
 	 * 

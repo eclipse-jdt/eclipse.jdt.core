@@ -49,12 +49,34 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	abstract ChildListPropertyDescriptor internalBodyDeclarationsProperty();
 
 	/**
+	 * Returns structural property descriptor for the "bodyDeclarations" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	public final ChildListPropertyDescriptor getBodyDeclarationsProperty() {
+		return internalBodyDeclarationsProperty();
+	}
+
+	/**
 	 * Returns structural property descriptor for the "name" property
 	 * of this node.
 	 * 
 	 * @return the property descriptor
 	 */
 	abstract ChildPropertyDescriptor internalNameProperty();
+	
+	/**
+	 * Returns structural property descriptor for the "name" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @si
+	 */
+	public final ChildPropertyDescriptor getNameProperty() {
+		return internalNameProperty();
+	}
 	
 	/**
 	 * Creates and returns a structural property descriptor for the

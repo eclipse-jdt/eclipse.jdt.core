@@ -29,6 +29,66 @@ package org.eclipse.jdt.core.dom;
 public abstract class VariableDeclaration extends ASTNode {
 	
 	/**
+	 * Returns structural property descriptor for the "extraDimensions" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	abstract SimplePropertyDescriptor internalExtraDimensionsProperty();
+
+	/**
+	 * Returns structural property descriptor for the "extraDimensions" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	public final SimplePropertyDescriptor getExtraDimensionsProperty() {
+		return internalExtraDimensionsProperty();
+	}
+
+	/**
+	 * Returns structural property descriptor for the "initializer" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	abstract ChildPropertyDescriptor internalInitializerProperty();
+
+	/**
+	 * Returns structural property descriptor for the "initializer" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	public final ChildPropertyDescriptor getInitializerProperty() {
+		return internalInitializerProperty();
+	}
+
+	/**
+	 * Returns structural property descriptor for the "name" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	abstract ChildPropertyDescriptor internalNameProperty();
+
+	/**
+	 * Returns structural property descriptor for the "name" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 * @since 3.1
+	 */
+	public final ChildPropertyDescriptor getNameProperty() {
+		return internalNameProperty();
+	}
+
+	/**
 	 * Creates a new AST node for a variable declaration owned by the given AST.
 	 * <p>
 	 * N.B. This constructor is package-private.
