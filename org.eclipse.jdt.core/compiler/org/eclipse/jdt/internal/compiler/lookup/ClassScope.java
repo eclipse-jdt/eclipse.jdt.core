@@ -812,6 +812,7 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextVariable;
 			}
+			// TODO (philippe) add warning to flag final superClass scenario (not useful usage of generics)
 			typeRef.resolvedType = superType; // hold onto the problem type
 			if (!superType.isValidBinding()) {
 				problemReporter().invalidType(typeRef, superType);
