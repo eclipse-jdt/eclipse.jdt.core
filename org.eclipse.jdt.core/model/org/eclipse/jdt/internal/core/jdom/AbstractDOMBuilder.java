@@ -116,7 +116,7 @@ public void acceptLineSeparatorPositions(int[] positions) {
 /**
  * Does nothing.
  */
-public void acceptProblem(IProblem problem) {}
+public void acceptProblem(IProblem problem) {} //TODO: (olivier) unused?
 /**
  * Adds the given node to the current enclosing scope, building the JDOM
  * tree. Nodes are only added to an enclosing scope when a compilation unit or type
