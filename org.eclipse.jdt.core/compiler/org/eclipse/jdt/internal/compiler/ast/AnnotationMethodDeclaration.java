@@ -50,6 +50,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 			// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
 			checkAnnotationMethodType: {
 				TypeBinding leafReturnType = returnTypeBinding.leafComponentType();
+					
 				switch (leafReturnType.erasure().id) {
 					case T_byte :
 					case T_short :
@@ -61,14 +62,17 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 					case T_boolean :
 					case T_JavaLangString :
 					case T_JavaLangClass :
-						break checkAnnotationMethodType;
+						if (returnTypeBinding.dimensions() <= 1) // only 1-dimensional array permitted
+							break checkAnnotationMethodType;
 				}
 				if (leafReturnType.isEnum()) {
-					break checkAnnotationMethodType;
+					if (returnTypeBinding.dimensions() <= 1) // only 1-dimensional array permitted
+						break checkAnnotationMethodType;
 				}
 				if (leafReturnType.isAnnotationType()) {
 					scope.classScope().detectAnnotationCycle(scope.enclosingSourceType(), leafReturnType, this.returnType);
-					break checkAnnotationMethodType;
+					if (returnTypeBinding.dimensions() <= 1) // only 1-dimensional array permitted
+						break checkAnnotationMethodType;
 				}
 				scope.problemReporter().invalidAnnotationMemberType(this);
 			}

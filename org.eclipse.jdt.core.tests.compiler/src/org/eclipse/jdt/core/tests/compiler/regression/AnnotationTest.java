@@ -2094,4 +2094,47 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"");
 	}	
 
+	// 79847
+	public void test070() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    int[][] ids();\n" + 
+				"    Object[][] obs();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"    @I(ids = {{1 , 2}, { 3 }}) public void foo(){\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int[][] ids();\n" + 
+			"	^^^^^^^\n" + 
+			"Invalid type int[][] for the annotation attribute I.ids; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Object[][] obs();\n" + 
+			"	^^^^^^^^^^\n" + 
+			"Invalid type Object[][] for the annotation attribute I.obs; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	@I(ids = {{1 , 2}, { 3 }}) public void foo(){\n" + 
+			"	^^\n" + 
+			"The annotation @I must define the attribute obs\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	@I(ids = {{1 , 2}, { 3 }}) public void foo(){\n" + 
+			"	          ^^^^^^^\n" + 
+			"The value for annotation attribute I.ids must be a constant expression\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 8)\n" + 
+			"	@I(ids = {{1 , 2}, { 3 }}) public void foo(){\n" + 
+			"	                   ^^^^^\n" + 
+			"The value for annotation attribute I.ids must be a constant expression\n" + 
+			"----------\n");
+	}	
 }
