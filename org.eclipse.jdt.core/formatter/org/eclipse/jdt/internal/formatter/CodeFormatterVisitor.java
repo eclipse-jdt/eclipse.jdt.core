@@ -1095,7 +1095,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		Alignment cascadingMessageSendAlignment =
 			this.scribe.createAlignment(
-				"cascadingMessageSendAlignment",
+				"cascadingMessageSendAlignment", //$NON-NLS-1$
 				this.preferences.alignment_for_selector_in_method_invocation,
 				Alignment.R_INNERMOST,
 				size,
