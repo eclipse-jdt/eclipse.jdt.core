@@ -35,7 +35,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 99 };
+//		TESTS_NUMBERS = new int[] { 105 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -3243,5 +3243,52 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"}\n"
 			},
 			"");	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82136
+	public void test105() {
+		this.runConformTest(
+			new String[] {
+				"Property.java",
+				"import java.lang.annotation.Documented;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"\n" +
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"public @interface Property\n" +
+				"{\n" +
+				"  String property();\n" +
+				"  String identifier() default \"\";\n" +
+				"}",
+				"Properties.java",
+				"import java.lang.annotation.Documented;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"\n" +
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"public @interface Properties {\n" +
+				"  Property[] value();\n" +
+				"}",
+				"X.java",
+				"@Properties({\n" +
+				"  @Property(property = \"prop\", identifier = \"someIdentifier\"),\n" +
+				"  @Property(property = \"type\")\n" +
+				"})\n" +
+				"public interface X {\n" +
+				"  void setName();\n" +
+				"  String getName();\n" +
+				"}"
+			},
+			"");	
+			try {
+				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+				new ClassFileReader(classFileBytes, "X.java".toCharArray(), true);
+			} catch (ClassFormatException e) {
+				assertTrue("ClassFormatException", false);
+			} catch (IOException e) {
+				assertTrue("IOException", false);
+			}
 	}
 }
