@@ -125,8 +125,22 @@ public class JavaModelManager implements ISaveParticipant {
 				return true;
 			}
 			if (outputLocation.isPrefixOf(folderPath)) {
-				// only allow nesting in outputlocation if there is a corresponding source folder
-				return project.getClasspathEntryFor(outputLocation) == null;
+				// only allow nesting in project's output if there is a corresponding source folder
+				// or if the project's output is not used (i.e. all source folders have a custom output)
+				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+				boolean isOutputUsed = false;
+				for (int i = 0, length = classpath.length; i < length; i++) {
+					IClasspathEntry entry = classpath[i];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+						if (entry.getPath().equals(outputLocation)) {
+							return false;
+						}
+						if (entry.getOutputLocation() == null) {
+							isOutputUsed = true;
+						}
+					}
+				}
+				return isOutputUsed;
 			}
 			return false;
 		} catch (JavaModelException e) {

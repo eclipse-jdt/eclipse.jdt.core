@@ -116,6 +116,9 @@ public static Test suite() {
 	// Variable initializers and container initializers tests
 	suite.addTest(ClasspathInitializerTests.suite());
 
+	//Java Model Factory tests
+	suite.addTest(FactoryTests.suite());
+			
 	return suite;
 }
 

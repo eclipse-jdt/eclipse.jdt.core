@@ -493,10 +493,13 @@ public final class JavaConventions {
 		outputLocations[0] = projectOutputLocation;
 		
 		// retrieve and check output locations
+		IPath potentialNestedOutput = null;
+		int sourceEntryCount = 0;
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry resolvedEntry = classpath[i];
 			switch(resolvedEntry.getEntryKind()){
 				case IClasspathEntry.CPE_SOURCE :
+					sourceEntryCount++;
 					IPath customOutput; 
 					if ((customOutput = resolvedEntry.getOutputLocation()) != null) {
 						int index;
@@ -504,12 +507,22 @@ public final class JavaConventions {
 							continue; // already found
 						}
 						if ((index = indexOfEnclosingPath(customOutput, outputLocations, outputCount)) != -1) {
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.toString(), outputLocations[index].toString())); //$NON-NLS-1$
+							if (index == 0) {
+								// custom output is nested in project's output: need to check if all source entries have a custom
+								// output before complaining
+								if (potentialNestedOutput == null) potentialNestedOutput = customOutput;
+							} else {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.toString(), outputLocations[index].toString())); //$NON-NLS-1$
+							}
 						}
 						outputLocations[outputCount++] = resolvedEntry.getOutputLocation();
 					}
 			}	
 		}	
+		// allow custom output nesting in project's output if all source entries have a custom output
+		if (potentialNestedOutput != null && sourceEntryCount > outputCount-1) {
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", potentialNestedOutput.toString(), outputLocations[0].toString())); //$NON-NLS-1$
+		}
 		
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry resolvedEntry = classpath[i];
@@ -597,8 +610,11 @@ public final class JavaConventions {
 
 			// prevent nesting entry inside output location - when distinct from project or a source folder
 			if ((index = indexOfEnclosingPath(entryPath, outputLocations, outputCount)) != -1) {
-				if (!allowNestingInOutputLocations[index]){
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.toString(), outputLocations[index].toString())); //$NON-NLS-1$
+				if (!allowNestingInOutputLocations[index]) {
+					// allow nesting in project's output if all source entries have a custom output
+					if (index != 0 || sourceEntryCount > outputCount - 1) {
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.toString(), outputLocations[index].toString())); //$NON-NLS-1$
+					}
 				}
 			}
 		}

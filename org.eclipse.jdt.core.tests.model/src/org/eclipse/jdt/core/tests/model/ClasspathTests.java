@@ -794,8 +794,7 @@ public void testClasspathValidation10() throws CoreException {
 	}
 }
 /**
- * Should not allow a nested library folder in the project's output folder.
- * (regression test for bug 25538 Conflict of classfolder and outputfolder not reported)
+ * Should allow a nested library folder in the project's output folder if the project's output is not used.
 */ 
 public void testClasspathValidation11() throws CoreException {
 	try {
@@ -809,8 +808,8 @@ public void testClasspathValidation11() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertEquals(
-			"should not allow nested library folder in output folder", 
-			"Cannot nest '/P/lib' inside output folder '/P'.",
+			"should allow nested library folder in output folder", 
+			"OK",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -915,6 +914,50 @@ public void testClasspathValidation15() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/**
+ * Should allow custom output folder to be nested in default output folder if default output is not used.
+ * (regression test for bug 28596 Default output folder cause of validation error even if not used)
+ */ 
+public void testClasspathValidation16() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[0], new Path("/P/bin"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"OK",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Should not allow source folder to be nested in default output folder if default output is used.
+ */ 
+public void testClasspathValidation17() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {"src1"}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/bin/src2"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest '/P/bin/src2' inside output folder '/P/bin'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
 /**
  * Setting the classpath with two entries specifying the same path
  * should fail.
