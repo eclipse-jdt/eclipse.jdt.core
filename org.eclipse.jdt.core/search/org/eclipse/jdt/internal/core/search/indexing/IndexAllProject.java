@@ -163,7 +163,6 @@ public class IndexAllProject extends IndexRequest {
 
 			Object[] names = indexedFileNames.keyTable;
 			Object[] values = indexedFileNames.valueTable;
-			boolean shouldSave = false;
 			for (int i = 0, length = names.length; i < length; i++) {
 				String name = (String) names[i];
 				if (name != null) {
@@ -171,7 +170,6 @@ public class IndexAllProject extends IndexRequest {
 
 					Object value = values[i];
 					if (value != OK) {
-						shouldSave = true;
 						if (value == DELETED)
 							this.manager.remove(name, this.indexPath);
 						else
@@ -180,10 +178,8 @@ public class IndexAllProject extends IndexRequest {
 				}
 			}
 
-			// request to save index when all cus have been indexed
-			if (shouldSave)
-				this.manager.request(new SaveIndex(this.indexPath, this.manager));
-
+			// request to save index when all cus have been indexed... also sets state to SAVED_STATE
+			this.manager.request(new SaveIndex(this.indexPath, this.manager));
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
