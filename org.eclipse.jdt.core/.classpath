@@ -14,5 +14,8 @@
     <classpathentry kind="src" path="Eclipse Java Evaluation"/>
     <classpathentry kind="src" path="Eclipse Java Model"/>
     <classpathentry kind="src" path="Eclipse Java Formatter"/>
+    <classpathentry kind="lib" path="/org.eclipse.ant.core/ant.jar"/>
+    <classpathentry kind="lib"
+        path="/org.eclipse.ant.core/antsupport.jar" sourcepath="/org.eclipse.ant.core/antsupportsrc.zip"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

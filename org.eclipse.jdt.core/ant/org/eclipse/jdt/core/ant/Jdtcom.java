@@ -7,7 +7,7 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.core.ant.AntPrintWriter;
+import org.eclipse.jdt.internal.core.ant.*;
 
 public class Jdtcom extends MatchingTask {
 	private Path src;
@@ -22,9 +22,9 @@ public class Jdtcom extends MatchingTask {
 
 	public void execute() throws BuildException {
 		if(src == null)
-			throw new BuildException("no");
+			throw new BuildException(Util.bind("jdtcom.source"/*nonNLS*/));
 		if(dest == null)
-			throw new BuildException("no");
+			throw new BuildException(Util.bind("jdtcom.destination"/*nonNLS*/));
 		
 		arguments.append(" -d "/*nonNLS*/);
 		arguments.append(dest.getAbsolutePath());
@@ -35,7 +35,7 @@ public class Jdtcom extends MatchingTask {
 			for(int i = 0 ; i < classpathList.length ; i++){
 				File pathElement = project.resolveFile(classpathList[i]);
 				if(!pathElement.exists())
-					throw new BuildException("no");
+					throw new BuildException(Util.bind("jdtcom.classpath"/*nonNLS*/,pathElement.getAbsolutePath()));
 				if(i != 0)
 					arguments.append(";"/*nonNLS*/);
 				arguments.append(pathElement);
@@ -46,9 +46,9 @@ public class Jdtcom extends MatchingTask {
 		for(int i = 0 ; i < srcList.length ; i++){
 			File file = project.resolveFile(srcList[i]);
 			if(!file.exists())
-				throw new BuildException("no");
+				throw new BuildException(Util.bind("jdtcom.sourcepath"/*nonNLS*/,file.getAbsolutePath()));
 			if(!file.isDirectory())
-				throw new BuildException("no");
+				throw new BuildException(Util.bind("jdtcom.sourcedir"/*nonNLS*/,file.getAbsolutePath()));
 			DirectoryScanner ds = getDirectoryScanner(file);
 			String[] files = ds.getIncludedFiles();
 			for(int j =  0; j < files.length ; j++){
@@ -105,7 +105,7 @@ public class Jdtcom extends MatchingTask {
 	
 	public void setTarget(String target){
 		if (!target.equals("1.1"/*nonNLS*/) && !target.equals("1.2"/*nonNLS*/))
-			throw new BuildException("no");
+			throw new BuildException(Util.bind("jdtcom.target"/*nonNLS*/));
 		arguments.append(" -target "/*nonNLS*/);
 		arguments.append(target);
 	}
@@ -114,7 +114,7 @@ public class Jdtcom extends MatchingTask {
 		try {
 			new PrintWriter(new FileOutputStream(log.getAbsolutePath(), false));
 		} catch(IOException e){
-			throw new BuildException("no");
+			throw new BuildException(Util.bind("jdtcom.log"/*nonNLS*/,log.getAbsolutePath()));
 		}
 		arguments.append(" -log "/*nonNLS*/);
 		arguments.append(log.getAbsolutePath());
@@ -122,7 +122,7 @@ public class Jdtcom extends MatchingTask {
 	
 	public void setRepeat(int repeat){
 		if(repeat < 0)
-			throw new BuildException("no");
+			throw new BuildException(Util.bind("jdtcom.repeat"/*nonNLS*/));
 		arguments.append(" -repeat "/*nonNLS*/);
 		arguments.append(String.valueOf(repeat));
 	}
@@ -143,7 +143,7 @@ public class Jdtcom extends MatchingTask {
 					!token.equals("unusedArguments"/*nonNLS*/) &&
 					!token.equals("syntheticAccess"/*nonNLS*/) &&
 					!token.equals("nls"/*nonNLS*/))
-					throw new BuildException("no");
+					throw new BuildException(Util.bind("jdtcom.warning"/*nonNLS*/));
 			}
 			arguments.append(" -warn:"/*nonNLS*/+warning);
 		}
@@ -161,7 +161,7 @@ public class Jdtcom extends MatchingTask {
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
 				if (!token.equals("vars"/*nonNLS*/) && !token.equals("lines"/*nonNLS*/) && !token.equals("source"/*nonNLS*/))
-					throw new BuildException("no");
+					throw new BuildException(Util.bind("jdtcom.debug"/*nonNLS*/));
 			}
 			arguments.append(" -g:"/*nonNLS*/+debug);
 		}
