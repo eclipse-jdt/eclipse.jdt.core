@@ -1215,6 +1215,22 @@ public int matchLevel(Binding binding) {
 	return INACCURATE_MATCH;
 }
 /**
+ * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	int level = matchLevel(binding);
+	if (level >= SearchPattern.INACCURATE_MATCH) {
+		matchReportImportRef(
+			importRef, 
+			binding, 
+			locator.createImportHandle(importRef), 
+			level == SearchPattern.ACCURATE_MATCH
+				? IJavaSearchResultCollector.EXACT_MATCH
+				: IJavaSearchResultCollector.POTENTIAL_MATCH,
+			locator);
+	}
+}
+/**
  * Returns whether the given type binding matches the given simple name pattern 
  * and qualification pattern.
  * Returns ACCURATE_MATCH if it does.
@@ -1234,22 +1250,6 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 	return matchesType(simpleNamePattern, qualificationPattern, fullyQualifiedTypeName)
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;
-}
-/**
- * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
- */
-protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
-	int level = matchLevel(binding);
-	if (level >= SearchPattern.INACCURATE_MATCH) {
-		matchReportImportRef(
-			importRef, 
-			binding, 
-			locator.createImportHandle(importRef), 
-			level == SearchPattern.ACCURATE_MATCH
-				? IJavaSearchResultCollector.EXACT_MATCH
-				: IJavaSearchResultCollector.POTENTIAL_MATCH,
-			locator);
-	}
 }
 /**
  * Report the match of the given import reference

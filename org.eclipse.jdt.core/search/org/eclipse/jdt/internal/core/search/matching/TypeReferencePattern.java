@@ -144,11 +144,11 @@ protected boolean matchIndexEntry() {
  */
 public int matchLevel(AstNode node, boolean resolve) {
 	if (node instanceof TypeReference)
-		return this.matchLevel((TypeReference)node, resolve);
+		return matchLevel((TypeReference)node, resolve);
 	if (node instanceof NameReference)
-		return this.matchLevel((NameReference)node, resolve);
+		return matchLevel((NameReference)node, resolve);
 	if (node instanceof ImportReference)
-		return this.matchLevel((ImportReference)node, resolve);
+		return matchLevel((ImportReference)node, resolve);
 	return IMPOSSIBLE_MATCH;
 }
 /**
@@ -164,7 +164,7 @@ public int matchLevel(Binding binding) {
 	if (typeBinding instanceof ProblemReferenceBinding) return INACCURATE_MATCH;
 
 	while (typeBinding != null) {
-		int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+		int level = matchLevelForType(this.simpleName, this.qualification, typeBinding);
 		if (level != IMPOSSIBLE_MATCH) return level;
 		if (typeBinding instanceof ReferenceBinding)
 			typeBinding = ((ReferenceBinding) typeBinding).enclosingType();
@@ -178,7 +178,6 @@ public int matchLevel(Binding binding) {
  */
 protected int matchLevel(ImportReference importRef, boolean resolve) {
 	// NOTE: Not called when resolve is true, see MatchingNodeSet.reportMatching(unit)
-	// EXCEPT for OrPatterns since they choose the matching pattern again using this method instead of matchLevel(binding)
 	if (this.qualification != null) {
 		char[][] tokens = importRef.tokens;
 		char[] pattern = this.simpleName == null
@@ -217,7 +216,7 @@ protected int matchLevel(NameReference nameRef, boolean resolve) {
 
 		char[][] tokens = ((QualifiedNameReference) nameRef).tokens;
 		for (int i = 0, max = tokens.length; i < max; i++)
-			if (this.matchesName(this.simpleName, tokens[i]))
+			if (matchesName(this.simpleName, tokens[i]))
 				// can only be a possible match since resolution is needed to find out if it is a type ref
 				return POTENTIAL_MATCH;
 		return IMPOSSIBLE_MATCH;
@@ -278,7 +277,7 @@ protected int matchLevel(NameReference nameRef, boolean resolve) {
 	}
 	// try to match all enclosing types for which the token matches as well.
 	while (typeBinding != null && lastIndex >= 0) {
-		if (this.matchesName(this.simpleName, tokens[lastIndex--])) {
+		if (matchesName(this.simpleName, tokens[lastIndex--])) {
 			int level = matchLevelForType(this.simpleName, this.qualification, typeBinding);
 			if (level != IMPOSSIBLE_MATCH) return level;
 		}
@@ -305,7 +304,7 @@ protected int matchLevel(TypeReference typeRef, boolean resolve) {
 			char[][] tokens = ((QualifiedTypeReference) typeRef).tokens;
 			// can only be a possible match since resolution is needed to find out if it is a type ref
 			for (int i = 0, max = tokens.length; i < max; i++)
-				if (this.matchesName(this.simpleName, tokens[i])) return POTENTIAL_MATCH;
+				if (matchesName(this.simpleName, tokens[i])) return POTENTIAL_MATCH;
 		}
 		return IMPOSSIBLE_MATCH;
 	}
@@ -427,8 +426,8 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 	}
 	// try to match all enclosing types for which the token matches as well.
 	while (typeBinding != null && lastIndex >= 0) {
-		if (this.matchesName(this.simpleName, nameTokens[lastIndex--])) {
-			int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+		if (matchesName(this.simpleName, nameTokens[lastIndex--])) {
+			int level = matchLevelForType(this.simpleName, this.qualification, typeBinding);
 			if (level != IMPOSSIBLE_MATCH) {
 				tokens = new char[lastIndex+2][];
 				System.arraycopy(nameTokens, 0, tokens, 0, lastIndex+2);
@@ -468,7 +467,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 	// try to match all enclosing types for which the token matches as well.
 	while (typeBinding != null && lastIndex >= 0) {
 		if (matchesName(this.simpleName, typeTokens[lastIndex--])) {
-			int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+			int level = matchLevelForType(this.simpleName, this.qualification, typeBinding);
 			if (level != IMPOSSIBLE_MATCH) {
 				tokens = new char[lastIndex+2][];
 				System.arraycopy(typeTokens, 0, tokens, 0, lastIndex+2);

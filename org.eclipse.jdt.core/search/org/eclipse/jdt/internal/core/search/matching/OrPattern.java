@@ -49,11 +49,11 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	else
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 }
-protected SearchPattern findClosestPattern(AstNode reference) {
+protected SearchPattern findClosestPattern(AstNode reference, boolean resolve) {
 	SearchPattern closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patterns.length; i < length; i++) {
-		int newLevel = this.patterns[i].matchLevel(reference, true);
+		int newLevel = this.patterns[i].matchLevel(reference, resolve);
 		if (newLevel > level) {
 			if (newLevel == ACCURATE_MATCH) return this.patterns[i];
 			closestPattern = this.patterns[i];
@@ -146,7 +146,7 @@ public int matchLevel(Binding binding) {
  * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
  */
 protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
-	SearchPattern closestPattern = findClosestPattern(importRef);
+	SearchPattern closestPattern = findClosestPattern(importRef, false);
 	if (closestPattern != null)
 		closestPattern.matchLevelAndReportImportRef(importRef, binding, locator);
 }
@@ -154,7 +154,7 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	SearchPattern closestPattern = findClosestPattern(reference);
+	SearchPattern closestPattern = findClosestPattern(reference, true);
 	if (closestPattern != null)
 		closestPattern.matchReportReference(reference, element, accuracy, locator);
 }
