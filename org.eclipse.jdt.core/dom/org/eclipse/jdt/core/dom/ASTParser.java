@@ -580,26 +580,35 @@ public class ASTParser {
 	}
 	
 	/**
+	 * @deprecated
+	 */
+	public void createASTs(ASTRequestor requestor, IProgressMonitor monitor) {
+		createASTs(requestor.getSources(), new String[] {}, requestor, monitor);
+	}
+	
+	/**
      * Creates a batch of abstract syntax trees using this AST
      * parser. The compilation units must all be from the same
      * project. When bindings are being resolved, processing a
      * batch of compilation units is more efficient because much
      * of the work involved in resolving bindings can be shared.
      * <p>
-     * The AST requestor furnishes the list of compilation units
-     * that are to be parsed. Each of the compilation units is then
-     * parsed, and the resulting AST handed back to the requestor.
-     * This process is repeated until the requestor indicates that
-     * there are no more compilation units to process.
+     * Each of the given compilation units is parsed, and the 
+     * resulting AST handed back to the requestor.
      * </p>
      * <p>
-     * Note that if bindings are resolved, more ASTs than originaly requested can be reported back.
-     * These ASTs come from compilation units required to resolve the original ones.
+     * Note only ASTs from the given compilation units are reported
+     * back. If bindings are resolved and more compilation units are
+     * required to resolve the original ones, then the corresponding
+     * ASTs are not reported back.
      * </p><p>
      * A successful call to this method returns all settings to their
      * default values so the object is ready to be reused.
      * </p><p>
 	 * Note that this API is under development and subject to change without notice.
+	 * </p>
+	 * <p>
+	 * [TODO (jerome) explain binding keys, none returned if not resolving bindings]
 	 * </p>
 	 * <p>
 	 * [TODO (jerome) issue: Consider passing IJavaProject as the first parameter to this
@@ -615,7 +624,9 @@ public class ASTParser {
 	 * setFocalPosition.]
 	 * </p>
      * 
-     * @param requestor the AST requestor that provides sources and that collects abtract syntax trees
+     * @param compilationUnits the compilation units to create ASTs for
+     * @param bindingKeys the binding keys to create bindings for
+     * @param requestor the AST requestor that collects abtract syntax trees
 	 * @param monitor the progress monitor used to report progress and request cancelation,
 	 *   or <code>null</code> if none
 	 * @exception IllegalStateException if the settings provided
@@ -623,14 +634,14 @@ public class ASTParser {
 	 * @since 3.1
      */
 	// TODO (jerome) remove statement about API being under development above
-	public void createASTs(ASTRequestor requestor, IProgressMonitor monitor) {
+	public void createASTs(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, IProgressMonitor monitor) {
 		try {
 			if (this.resolveBindings) {
 				if (this.project == null)
 					throw new IllegalStateException("project not specified"); //$NON-NLS-1$
-				CompilationUnitResolver.resolve(requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, monitor);
+				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, monitor);
 			} else {
-				CompilationUnitResolver.parse(requestor, this.apiLevel, this.compilerOptions, monitor);
+				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, monitor);
 			}
 		} finally {
 	   	   // re-init defaults to allow reuse (and avoid leaking)

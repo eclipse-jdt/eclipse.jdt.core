@@ -270,7 +270,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName) {
 /* Used to guarantee array type identity.
 */
 
-ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
+public ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 	if (type instanceof LocalTypeBinding) // cache local type arrays with the local type itself
 		return ((LocalTypeBinding) type).createArrayType(dimensionCount);
 

@@ -200,7 +200,7 @@ class MethodBinding implements IMethodBinding {
 		IType declaringType = (IType) getDeclaringClass().getJavaElement();
 		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-		MethodDeclaration method = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingTables.bindingsToAstNodes.get(this);
+		MethodDeclaration method = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
 		if (method == null) return null;
 		ArrayList parameterSignatures = new ArrayList();
 		Iterator iterator = method.parameters().iterator();
@@ -257,24 +257,10 @@ class MethodBinding implements IMethodBinding {
 	public String getKey() {
 		if (this.key == null) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(this.getDeclaringClass().getKey());
+			buffer.append(getDeclaringClass().getKey());
 			buffer.append('/');
-			ITypeBinding _returnType = getReturnType();
-			if (_returnType != null) {
-				if (_returnType.isTypeVariable()) {
-					buffer.append(_returnType.getQualifiedName());
-				} else if (_returnType.isArray() && _returnType.getElementType().isTypeVariable()) {
-					int dimensions = _returnType.getDimensions();
-					buffer.append(_returnType.getElementType().getQualifiedName());
-					for (int i = 0; i < dimensions; i++) {
-						buffer.append('[').append(']');
-					}
-				} else {
-					buffer.append(_returnType.getKey());
-				}
-			}
 			if (!isConstructor()) {
-				buffer.append(this.getName());
+				buffer.append(getName());
 			}
 			ITypeBinding[] parameters = getParameterTypes();
 			buffer.append('(');
@@ -291,27 +277,11 @@ class MethodBinding implements IMethodBinding {
 						}
 					} else {
 						buffer.append(parameter.getKey());
+						buffer.append(',');
 					}
 				}
 			}
 			buffer.append(')');
-			ITypeBinding[] thrownExceptions = getExceptionTypes();
-			for (int i = 0, max = thrownExceptions.length; i < max; i++) {
-				final ITypeBinding thrownException = thrownExceptions[i];
-				if (thrownException != null) {
-					if (thrownException.isTypeVariable()) {
-						buffer.append(thrownException.getQualifiedName());					
-					} else if (thrownException.isArray() && thrownException.getElementType().isTypeVariable()) {
-						int dimensions = thrownException.getDimensions();
-						buffer.append(thrownException.getElementType().getQualifiedName());
-						for (int j = 0; j < dimensions; j++) {
-							buffer.append('[').append(']');
-						}
-					} else {
-						buffer.append(thrownException.getKey());
-					}
-				}
-			}
 			this.key = String.valueOf(buffer);
 		}
 		return this.key;

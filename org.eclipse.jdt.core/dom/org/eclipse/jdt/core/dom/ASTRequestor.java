@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 
 /**
@@ -43,50 +44,62 @@ import org.eclipse.jdt.core.ICompilationUnit;
  * Note that this API is under development and subject to change without notice.
  * </p>
  * 
- * @see ASTParser#createASTs(ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
+ * @see ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
  * @since 3.1
  */
 // TODO (jerome) remove statement about API being under development above
 public abstract class ASTRequestor {
 	
 	/**
-	 * Accepts an AST. The AST is either for one of the compilation units
-	 * included in the result of an earlier call to {@link #getSources()},
-	 * or a compilation unit in the same project that also needed to
-	 * be parsed in the course of resolving bindings.
-	 * <p>
-	 * [TODO (jerome) issue: Consider passing ICompilationUnit as the first parameter
-	 * to this method. This would make it for clients to track which
-	 * compilation units have been done, since it is an error to
-	 * ask for the same compilation unit again.]
-	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: The parameter type could be CompilationUnit
-	 * rather than ASTNode as long as ASTParser.setKind(K_COMPILATION_UNIT)
-	 * is always used.]
-	 * </p>
+	 * The compilation unit resolver used to resolve bindings.
 	 * 
-	 * @param node the abtract syntax tree to be accepted
 	 */
-	public abstract void acceptAST(ASTNode node);
-
+	CompilationUnitResolver compilationUnitResolver;
+	
+	
 	/**
-	 * Returns the compilation units for which ASTs should be created.
-	 * All of the compilation units must belong to the same project,
-	 * and there must not be any duplicates.
-	 * <p>
-	 * [TODO (jerome) issue: It would make sense to return an empty list
-	 * rather than null when there are no more compilation units to
-	 * process.]
-	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: It would simplify clients if requesting a compilation
-	 * unit that had already been processed were ignored rather than
-	 * being considered an error. Otherwise some clients would
-	 * have to maintain a list of compilation units they'd accepted.]
-	 * </p>
+	 * Accepts an AST.
 	 * 
-	 * @return the compilation units to process, or <code>null</code> if none
+	 * @param ast the requested abtract syntax tree
+	 * @param source the compilation unit the ast is coming from
 	 */
-	public abstract ICompilationUnit[] getSources();
+	public void acceptAST(CompilationUnit ast, ICompilationUnit source) {
+		// method will be abstract when clients don't use acceptAST(ASTNode) any longer
+		acceptAST(ast);
+	}
+	
+	/**
+	 * Accepts a binding.
+	 * 
+	 * @param binding the requested binding 
+	 * @param bindingKey the key of the requested binding
+	 */
+	public abstract void acceptBinding(IBinding binding, String bindingKey);
+	
+	/**
+	 * @deprecated
+	 */
+	public void acceptAST(ASTNode node) {
+		// TODO (jerome) remove when no more clients
+	}
+	
+	/**
+	 * Creates the bindings corresponding to the given keys.
+	 * The given keys cannot be part of a source or other keys that are being requested.
+	 * 
+	 * @param bindingKeys the keys of bindings to create
+	 * @return the created bindings
+	 * @see ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)
+	 */
+	public IBinding[] createBindings(String[] bindingKeys) {
+		return this.compilationUnitResolver.createBindings(bindingKeys);
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	public ICompilationUnit[] getSources() {
+		return new ICompilationUnit[] {};
+	}
+
 }

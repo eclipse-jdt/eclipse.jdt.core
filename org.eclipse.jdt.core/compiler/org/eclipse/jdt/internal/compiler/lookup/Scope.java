@@ -1189,7 +1189,7 @@ public abstract class Scope
 		return null;
 	}
 	
-	public TypeBinding getBaseType(char[] name) {
+	public static TypeBinding getBaseType(char[] name) {
 		// list should be optimized (with most often used first)
 		int length = name.length;
 		if (length > 2 && length < 8) {

@@ -27,11 +27,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -39,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -280,7 +277,7 @@ class TypeBinding implements ITypeBinding {
 			if (cu == null) return null;
 			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
 			DefaultBindingResolver bindingResolver = (DefaultBindingResolver) this.resolver;
-			ASTNode node = (ASTNode) bindingResolver.bindingTables.bindingsToAstNodes.get(this);
+			ASTNode node = (ASTNode) bindingResolver.bindingsToAstNodes.get(this);
 			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
 			try {
 				return cu.getElementAt(node.getStartPosition());
@@ -598,43 +595,26 @@ class TypeBinding implements ITypeBinding {
 				// declaring method or type
 				SourceTypeBinding sourceBinding = (SourceTypeBinding) this.binding; // per construction, a local type can only be defined in source
 				ClassScope scope = sourceBinding.scope;
-				ReferenceContext referenceContext;
-				if (isAnonymous()) {
-					ClassScope classScope = scope.enclosingClassScope();
-					referenceContext = classScope.referenceContext;
-				} else {
-					MethodScope methodScope = scope.enclosingMethodScope();
-					referenceContext = methodScope.referenceContext;
+				ClassScope classScope = scope.enclosingClassScope();
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration referenceContext = classScope.referenceContext;
+				org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = referenceContext.binding;
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
+				if (typeBinding != null) {
+					buffer.append(typeBinding.getKey());
 				}
-				if (referenceContext instanceof AbstractMethodDeclaration) {
-					org.eclipse.jdt.internal.compiler.lookup.MethodBinding internalBinding = ((AbstractMethodDeclaration) referenceContext).binding;
-					IMethodBinding methodBinding = this.resolver.getMethodBinding(internalBinding);
-					if (methodBinding != null) {
-						buffer.append(getNonRecursiveKey(methodBinding));
-					}
-				} else if (referenceContext instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-					org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = ((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) referenceContext).binding;
-					ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
-					if (typeBinding != null) {
-						buffer.append(typeBinding.getKey());
-					}
-				}
-	
-				if (isAnonymous()) {
-					buffer.append('$');
-					CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
-					CompilationUnitDeclaration compilationUnitDeclaration = compilationUnitScope.referenceContext;
-					LocalTypeBinding[] localTypeBindings = compilationUnitDeclaration.localTypes;
-					for (int i = 0, max = compilationUnitDeclaration.localTypeCount; i < max; i++) {
-						if (localTypeBindings[i] == sourceBinding) {
-							buffer.append(i+1);
-							break;
+				buffer.append('$');
+				CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
+				CompilationUnitDeclaration compilationUnitDeclaration = compilationUnitScope.referenceContext;
+				LocalTypeBinding[] localTypeBindings = compilationUnitDeclaration.localTypes;
+				for (int i = 0, max = compilationUnitDeclaration.localTypeCount; i < max; i++) {
+					if (localTypeBindings[i] == sourceBinding) {
+						buffer.append(i+1);
+						if (!isAnonymous()) {
+							buffer.append('$');
+							buffer.append(sourceBinding.sourceName);
 						}
+						break;
 					}
-				} else {
-					// type name
-					buffer.append('/');
-					buffer.append(getName());
 				}
 				
 				this.key = buffer.toString();
@@ -663,23 +643,18 @@ class TypeBinding implements ITypeBinding {
 						|| this.isEnum()
 						|| this.isAnnotation()) {
 					StringBuffer buffer = new StringBuffer();
-					char[] constantPoolName = this.binding.constantPoolName();
-					if (constantPoolName != null) {
-						buffer.append(constantPoolName);
+					char[] qualifiedSourceName = this.binding.qualifiedSourceName();
+					if (qualifiedSourceName != null) {
+						CharOperation.replace(qualifiedSourceName, '.', '$');
+						buffer
+							.append(getPackage().getName())
+							.append('/')
+							.append(qualifiedSourceName);
 					} else {
-						char[] qualifiedSourceName = this.binding.qualifiedSourceName();
-						if (qualifiedSourceName != null) {
-							CharOperation.replace(qualifiedSourceName, '.', '$');
-							buffer
-								.append(getPackage().getName())
-								.append('/')
-								.append(qualifiedSourceName);
-						} else {
-							buffer
-								.append(getPackage().getName())
-								.append('/')
-								.append(getName());
-						}
+						buffer
+							.append(getPackage().getName())
+							.append('/')
+							.append(getName());
 					}
 					ITypeBinding[] typeArgs = this.getTypeArguments();
 					final int typeArgsLength = typeArgs.length;
@@ -712,7 +687,7 @@ class TypeBinding implements ITypeBinding {
 					}
 				} else {
 					// this is a primitive type
-					this.key = this.getName();
+					this.key = getName();
 				}
 			}
 		}
