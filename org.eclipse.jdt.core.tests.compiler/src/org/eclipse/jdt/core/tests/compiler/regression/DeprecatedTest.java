@@ -346,6 +346,19 @@ public void _test010() {
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.WARNING);
 	this.runNegativeTest(
 		new String[] {
+            "X.java",
+            "/**\n" + 
+            " * @deprecated\n" + 
+            " */\n" + 
+            "public class X {\n" + 
+            "        /**\n" + 
+            "         * @see I2#foo()\n" + 
+            "         */\n" + 
+            "        I1 foo() {\n" + 
+            "                return null;\n" + 
+            "        }\n" + 
+            "       Zork z;\n" +
+            "}\n",              
 			"I1.java",
 			"/**\n" + 
 			" * @deprecated\n" + 
@@ -360,19 +373,6 @@ public void _test010() {
 			"public interface I2 {\n" + 
 			"		 I1 foo(); // unexpected warning here\n" + 
 			"}\n",
-			"X.java",
-			"/**\n" + 
-			" * @deprecated\n" + 
-			" */\n" + 
-			"public class X {\n" + 
-			"		 /**\n" + 
-			"		  * @see I2#foo()\n" + 
-			"		  */\n" + 
-			"		 I1 foo() {\n" + 
-			"		 		 return null;\n" + 
-			"		 }\n" + 
-			"		Zork z;\n" +
-			"}\n",				
 		}, 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 11)\n" + 
