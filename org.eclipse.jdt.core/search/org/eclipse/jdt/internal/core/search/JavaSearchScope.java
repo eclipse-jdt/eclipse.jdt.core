@@ -102,26 +102,23 @@ public void add(IJavaElement element) throws JavaModelException {
 			}
 			break;
 		default:
-			IResource resource = element.getUnderlyingResource();
-			if (resource != null && resource.isAccessible()) {
-				// remember sub-cu (or sub-class file) java elements
-				if (element instanceof IMember) {
-					if (this.elements == null) {
-						this.elements = new ArrayList();
-					}
-					this.elements.add(element);
+			// remember sub-cu (or sub-class file) java elements
+			if (element instanceof IMember) {
+				if (this.elements == null) {
+					this.elements = new ArrayList();
 				}
-				this.add(resource.getFullPath(), true);
-				
-				// find package fragment root including this java element
-				IJavaElement parent = element.getParent();
-				while (parent != null && !(parent instanceof IPackageFragmentRoot)) {
-					parent = parent.getParent();
-				}
-				if (parent instanceof IPackageFragmentRoot) {
-					root = (IPackageFragmentRoot)parent;
-				}
-			}	
+				this.elements.add(element);
+			}
+			this.add(this.fullPath(element), true);
+			
+			// find package fragment root including this java element
+			IJavaElement parent = element.getParent();
+			while (parent != null && !(parent instanceof IPackageFragmentRoot)) {
+				parent = parent.getParent();
+			}
+			if (parent instanceof IPackageFragmentRoot) {
+				root = (IPackageFragmentRoot)parent;
+			}
 	}
 	
 	if (root != null) {
