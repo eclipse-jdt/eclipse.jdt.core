@@ -2368,4 +2368,131 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n"
 		);
 	}
+
+	/**
+	 * Bug 83393: [1.5][javadoc] reference to vararg method also considers non-array type as correct
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83393"
+	 */
+	public void testBug83393a() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	public void foo(int a, int b) {} \n" + 
+				"	public void foo(int a, int... args) {}\n" + 
+				"	public void foo(String... args) {}\n" + 
+				"	public void foo(Exception str, boolean... args) {}\n" + 
+				"}\n",
+				"Valid.java",
+				"/**\n" + 
+				" * @see Test#foo(int, int)\n" + 
+				" * @see Test#foo(int, int[])\n" + 
+				" * @see Test#foo(int, int...)\n" + 
+				" * @see Test#foo(String[])\n" + 
+				" * @see Test#foo(String...)\n" + 
+				" * @see Test#foo(Exception, boolean[])\n" + 
+				" * @see Test#foo(Exception, boolean...)\n" + 
+				" */\n" + 
+				"public class Valid {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 3)\r\n" + 
+			"	public void foo(int a, int... args) {}\r\n" + 
+			"	                       ^^^^^^^^^^^\n" + 
+			"Syntax error, varargs are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 4)\r\n" + 
+			"	public void foo(String... args) {}\r\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Syntax error, varargs are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 5)\r\n" + 
+			"	public void foo(Exception str, boolean... args) {}\r\n" + 
+			"	                               ^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, varargs are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83393b() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	public void foo(int a, int b) {} \n" + 
+				"	public void foo(int a, int... args) {}\n" + 
+				"	public void foo(String... args) {}\n" + 
+				"	public void foo(Exception str, boolean... args) {}\n" + 
+				"}\n",
+				"Invalid.java",
+				"/**\n" + 
+				" * @see Test#foo(int)\n" + 
+				" * @see Test#foo(int, int, int)\n" + 
+				" * @see Test#foo()\n" + 
+				" * @see Test#foo(String)\n" + 
+				" * @see Test#foo(String, String)\n" + 
+				" * @see Test#foo(Exception)\n" + 
+				" * @see Test#foo(Exception, boolean)\n" + 
+				" * @see Test#foo(Exception, boolean, boolean)\n" + 
+				" */\n" + 
+				"public class Invalid {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 3)\n" + 
+			"	public void foo(int a, int... args) {}\n" + 
+			"	                       ^^^^^^^^^^^\n" + 
+			"Syntax error, varargs are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 4)\n" + 
+			"	public void foo(String... args) {}\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Syntax error, varargs are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 5)\n" + 
+			"	public void foo(Exception str, boolean... args) {}\n" + 
+			"	                               ^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, varargs are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Invalid.java (at line 2)\n" + 
+			"	* @see Test#foo(int)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (int)\n" + 
+			"----------\n" + 
+			"2. ERROR in Invalid.java (at line 3)\n" + 
+			"	* @see Test#foo(int, int, int)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (int, int, int)\n" + 
+			"----------\n" + 
+			"3. ERROR in Invalid.java (at line 4)\n" + 
+			"	* @see Test#foo()\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments ()\n" + 
+			"----------\n" + 
+			"4. ERROR in Invalid.java (at line 5)\n" + 
+			"	* @see Test#foo(String)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (String)\n" + 
+			"----------\n" + 
+			"5. ERROR in Invalid.java (at line 6)\n" + 
+			"	* @see Test#foo(String, String)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (String, String)\n" + 
+			"----------\n" + 
+			"6. ERROR in Invalid.java (at line 7)\n" + 
+			"	* @see Test#foo(Exception)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(Exception, boolean[]) in the type Test is not applicable for the arguments (Exception)\n" + 
+			"----------\n" + 
+			"7. ERROR in Invalid.java (at line 8)\n" + 
+			"	* @see Test#foo(Exception, boolean)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean)\n" + 
+			"----------\n" + 
+			"8. ERROR in Invalid.java (at line 9)\n" + 
+			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
+			"----------\n"
+		);
+	}
 }

@@ -128,7 +128,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
-	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
+	protected Object createArgumentReference(char[] name, int dim, boolean isVarargs, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		try {
 			TypeReference argTypeRef = (TypeReference) typeRef;
 			if (dim > 0) {
@@ -142,7 +142,12 @@ public class JavadocParser extends AbstractCommentParser {
 				}
 			}
 			int argEnd = argTypeRef.sourceEnd;
-			if (dim > 0) argEnd = (int) dimPositions[dim-1];
+			if (dim > 0) {
+				argEnd = (int) dimPositions[dim-1];
+				if (isVarargs) {
+					argTypeRef.bits |= ASTNode.IsVarArgs; // set isVarArgs
+				}
+			}
 			if (argNamePos >= 0) argEnd = (int) argNamePos;
 			return new JavadocArgumentExpression(name, argTypeRef.sourceStart, argEnd, argTypeRef);
 		}
@@ -184,6 +189,15 @@ public class JavadocParser extends AbstractCommentParser {
 			boolean isConstructor = false;
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
+				int ptr = this.sourceParser.astPtr;
+				while (ptr >= 0) {
+					Object node = this.sourceParser.astStack[ptr];
+					if (node instanceof TypeDeclaration) {
+						name = ((TypeDeclaration)node).name;
+						break;
+					}
+					ptr--;
+				}
 				isConstructor = CharOperation.equals(this.identifierStack[0], name);
 				typeRef = new JavadocImplicitTypeReference(name, this.memberStart);
 			} else {

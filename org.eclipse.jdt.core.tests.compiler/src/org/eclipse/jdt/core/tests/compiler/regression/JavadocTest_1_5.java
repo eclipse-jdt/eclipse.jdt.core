@@ -36,7 +36,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	static {
 //		TESTS_PREFIX = "testBug83127";
 //		TESTS_NAMES = new String[] { "testBug83127g" };
-//		TESTS_NUMBERS = new int[] { 21 };
+//		TESTS_NUMBERS = new int[] { 83393 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -1286,7 +1286,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see #add(T)\n" + 
 			"	        ^^^\n" + 
-			"Javadoc: The method add(T) in the type Test<T> is not applicable for the arguments (T)\n" + 
+			"Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)\n" + 
 			"----------\n" + 
 			"3. ERROR in Test.java (at line 4)\n" + 
 			"	* @see Test#Test(T)\n" + 
@@ -1597,6 +1597,101 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Unrelated2#add(T)\n" + 
 			"	                  ^^^\n" + 
 			"Javadoc: The method add(Object) in the type Unrelated2 is not applicable for the arguments (T)\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 83393: [1.5][javadoc] reference to vararg method also considers non-array type as correct
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83393"
+	 */
+	public void testBug83393a() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	public void foo(int a, int b) {} \n" + 
+				"	public void foo(int a, int... args) {}\n" + 
+				"	public void foo(String... args) {}\n" + 
+				"	public void foo(Exception str, boolean... args) {}\n" + 
+				"}\n",
+				"Valid.java",
+				"/**\n" + 
+				" * @see Test#foo(int, int)\n" + 
+				" * @see Test#foo(int, int[])\n" + 
+				" * @see Test#foo(int, int...)\n" + 
+				" * @see Test#foo(String[])\n" + 
+				" * @see Test#foo(String...)\n" + 
+				" * @see Test#foo(Exception, boolean[])\n" + 
+				" * @see Test#foo(Exception, boolean...)\n" + 
+				" */\n" + 
+				"public class Valid {}\n"
+			}
+		);
+	}
+	public void testBug83393b() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	public void foo(int a, int b) {} \n" + 
+				"	public void foo(int a, int... args) {}\n" + 
+				"	public void foo(String... args) {}\n" + 
+				"	public void foo(Exception str, boolean... args) {}\n" + 
+				"}\n",
+				"Invalid.java",
+				"/**\n" + 
+				" * @see Test#foo(int)\n" + 
+				" * @see Test#foo(int, int, int)\n" + 
+				" * @see Test#foo()\n" + 
+				" * @see Test#foo(String)\n" + 
+				" * @see Test#foo(String, String)\n" + 
+				" * @see Test#foo(Exception)\n" + 
+				" * @see Test#foo(Exception, boolean)\n" + 
+				" * @see Test#foo(Exception, boolean, boolean)\n" + 
+				" */\n" + 
+				"public class Invalid {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Invalid.java (at line 2)\n" + 
+			"	* @see Test#foo(int)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int...) in the type Test is not applicable for the arguments (int)\n" + 
+			"----------\n" + 
+			"2. ERROR in Invalid.java (at line 3)\n" + 
+			"	* @see Test#foo(int, int, int)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(int, int...) in the type Test is not applicable for the arguments (int, int, int)\n" + 
+			"----------\n" + 
+			"3. ERROR in Invalid.java (at line 4)\n" + 
+			"	* @see Test#foo()\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(String...) in the type Test is not applicable for the arguments ()\n" + 
+			"----------\n" + 
+			"4. ERROR in Invalid.java (at line 5)\n" + 
+			"	* @see Test#foo(String)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(String...) in the type Test is not applicable for the arguments (String)\n" + 
+			"----------\n" + 
+			"5. ERROR in Invalid.java (at line 6)\n" + 
+			"	* @see Test#foo(String, String)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(String...) in the type Test is not applicable for the arguments (String, String)\n" + 
+			"----------\n" + 
+			"6. ERROR in Invalid.java (at line 7)\n" + 
+			"	* @see Test#foo(Exception)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception)\n" + 
+			"----------\n" + 
+			"7. ERROR in Invalid.java (at line 8)\n" + 
+			"	* @see Test#foo(Exception, boolean)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean)\n" + 
+			"----------\n" + 
+			"8. ERROR in Invalid.java (at line 9)\n" + 
+			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
 			"----------\n"
 		);
 	}

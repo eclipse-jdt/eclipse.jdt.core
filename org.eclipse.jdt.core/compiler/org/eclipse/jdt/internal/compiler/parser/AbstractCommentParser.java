@@ -318,7 +318,7 @@ public abstract class AbstractCommentParser {
 		updateLineEnd();
 	}
 
-	protected abstract Object createArgumentReference(char[] name, int dim, Object typeRef, long[] dimPos, long argNamePos) throws InvalidInputException;
+	protected abstract Object createArgumentReference(char[] name, int dim, boolean isVarargs, Object typeRef, long[] dimPos, long argNamePos) throws InvalidInputException;
 	protected abstract Object createFieldReference(Object receiver) throws InvalidInputException;
 	protected abstract Object createMethodReference(Object receiver, List arguments) throws InvalidInputException;
 	protected Object createReturnStatement() { return null; }
@@ -420,10 +420,12 @@ public abstract class AbstractCommentParser {
 			}
 			iToken++;
 
-			// Read possible array declaration
+			// Read possible additional type info
 			int dim = 0;
+			boolean isVarargs = false;
 			long[] dimPositions = new long[20]; // assume that there won't be more than 20 dimensions...
 			if (readToken() == TerminalTokens.TokenNameLBRACKET) {
+				// array declaration
 				int dimStart = this.scanner.getCurrentTokenStartPosition();
 				while (readToken() == TerminalTokens.TokenNameLBRACKET) {
 					consumeToken();
@@ -433,6 +435,12 @@ public abstract class AbstractCommentParser {
 					consumeToken();
 					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
 				}
+			} else if (readToken() == TerminalTokens.TokenNameELLIPSIS) {
+				// ellipsis declaration
+				int dimStart = this.scanner.getCurrentTokenStartPosition();
+				dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
+				consumeToken();
+				isVarargs = true;
 			}
 
 			// Read argument name
@@ -471,7 +479,7 @@ public abstract class AbstractCommentParser {
 			char[] name = argName == null ? new char[0] : argName;
 			if (token == TerminalTokens.TokenNameCOMMA) {
 				// Create new argument
-				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
+				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
 				consumeToken();
 				iToken++;
@@ -484,7 +492,7 @@ public abstract class AbstractCommentParser {
 					return null;
 				}
 				// Create new argument
-				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
+				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
 				consumeToken();
 				return createMethodReference(receiver, arguments);
