@@ -19,7 +19,7 @@
 --Usefull macros helping reading/writing semantic actions
 $Define 
 $putCase 
-/.    case $rule_number : // System.out.println("$rule_text");  
+/.    case $rule_number : // System.out.println("$rule_text");  //$NON-NLS-1$
 		   ./
 
 $break
