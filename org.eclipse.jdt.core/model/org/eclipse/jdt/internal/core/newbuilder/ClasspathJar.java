@@ -81,6 +81,6 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 }
 
 public String toString() {
-	return "Classpath for jar file " + zipFile; //$NON-NLS-1$
+	return "Classpath jar file " + zipFilename; //$NON-NLS-1$
 }
 }

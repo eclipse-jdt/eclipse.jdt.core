@@ -120,7 +120,13 @@ protected void addAffectedSourceFiles() {
 
 	// the qualifiedStrings are of the form 'p1/p1' & the simpleStrings are just 'X'
 	char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedStrings);
+	// if a well known qualified name was found then we can skip over these
+	if (qualifiedNames.length < qualifiedStrings.size())
+		qualifiedNames = null;
 	char[][] simpleNames = ReferenceCollection.internSimpleNames(simpleStrings);
+	// if a well known name was found then we can skip over these
+	if (simpleNames.length < simpleStrings.size())
+		simpleNames = null;
 
 	next : for (int i = 0, l = keyTable.length; i < l; i++) {
 		char[] key = keyTable[i];
@@ -217,6 +223,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 					if (removedPackageFolder.exists() && canRemovePackage(removedPackagePath))
 						removedPackageFolder.delete(true, null);
 				}
+				newState.removePackage(sourceDelta);
 				// add dependents even when the package thinks it does not exist to be on the safe side
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
@@ -242,6 +249,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 						System.out.println("Deleting class file of removed file " + typePath); //$NON-NLS-1$
 					classFile.delete(true, null);
 				}
+				newState.remove(location);
 				// add dependents even when the type thinks it does not exist to be on the safe side
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of removed source file " + typePath); //$NON-NLS-1$
@@ -353,8 +361,8 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 	}
 }
 
-protected void finishedWith(char[] fileId, char[][] additionalTypeNames) throws CoreException {
-	char[][] previousTypeNames = (char[][]) newState.additionalTypeNames.get(fileId);
+protected void finishedWith(char[] fileId, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
+	char[][] previousTypeNames = (char[][]) newState.getAdditionalTypeNamesFor(fileId);
 	if (previousTypeNames != null) {
 		next : for (int i = 0, x = previousTypeNames.length; i < x; i++) {
 			char[] previous = previousTypeNames[i];
@@ -368,7 +376,7 @@ protected void finishedWith(char[] fileId, char[][] additionalTypeNames) throws 
 			resource.delete(true, null);
 		}
 	}
-	super.finishedWith(fileId, additionalTypeNames);
+	super.finishedWith(fileId, result, additionalTypeNames);
 }
 
 protected boolean isClassFileChanged(IFile file, String fileName, byte[] newBytes, boolean isSecondaryType) throws CoreException {

@@ -98,14 +98,13 @@ public void acceptResult(CompilationResult result) {
 					otherTypeNames.add(writeClassFile(classFile, isSecondaryType));
 				}
 			}
-			newState.recordDependencies(fileId, result.qualifiedReferences, result.simpleNameReferences);
 			updateProblemsFor(result);
 			if (otherTypeNames.isEmpty()) {
-				finishedWith(fileId, new char[0][]);
+				finishedWith(fileId, result, new char[0][]);
 			} else {
 				char[][] additionalTypeNames = new char[otherTypeNames.size()][];
 				otherTypeNames.toArray(additionalTypeNames);
-				finishedWith(fileId, additionalTypeNames);
+				finishedWith(fileId, result, additionalTypeNames);
 			}
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
@@ -198,8 +197,8 @@ void compile(CompilationUnit[] units, String[] initialTypeNames, String[] additi
 	notifier.checkCancel();
 }
 
-protected void finishedWith(char[] fileId, char[][] additionalTypeNames) throws CoreException {
-	newState.rememberAdditionalTypes(fileId, additionalTypeNames);
+protected void finishedWith(char[] fileId, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
+	newState.record(fileId, result.qualifiedReferences, result.simpleNameReferences, additionalTypeNames);
 }
 
 protected RuntimeException internalException(Throwable t) {

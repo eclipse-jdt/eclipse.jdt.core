@@ -97,6 +97,6 @@ void reset() {
 }
 
 public String toString() {
-	return "ClasspathDirectory " + binaryPath; //$NON-NLS-1$
+	return "Binary classpath directory " + binaryPath; //$NON-NLS-1$
 }
 }

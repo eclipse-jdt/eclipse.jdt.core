@@ -398,6 +398,15 @@ OR 'a.b' -> 'a' & 'b'
 OR 'a' -> '' & 'a'
 -> As long as each single char[] is interned, we should not have a space problem
  and can handle collision cases.
+
+4. when we resolve 'a.b.c', lets keep 'a.b' & 'a', 'b', 'c'
+ & when we fail to resolve 'c' in 'a.b', lets keep 'a.b' & 'a', 'b', 'c'
+THEN when we come across a new/changed/removed item named 'a.b.c',
+ we would find all references to 'a.b' & 'c'
+OR 'a.b' -> 'a' & 'b' in the simple name collection
+OR 'a' -> 'a' in the simple name collection
+-> As long as each single char[] is interned, we should not have a space problem
+ and can handle collision cases.
 */
 void recordReference(char[][] qualifiedName) {
 	if (qualifiedReferences == null) return; // we're not recording dependencies
@@ -406,30 +415,32 @@ void recordReference(char[][] qualifiedName) {
 	switch (length) {
 		case 0 : return;
 		case 1 :
-			recordReference(NoCharChar, qualifiedName[0]);
+			recordSimpleReference(qualifiedName[0]);
 			return;
 		case 2 :
-			recordReference(new char[][] {qualifiedName[0]}, qualifiedName[1]);
+			if (!qualifiedReferences.contains(qualifiedName))
+				qualifiedReferences.add(qualifiedName);
+
+			recordSimpleReference(qualifiedName[0]);
+			recordSimpleReference(qualifiedName[1]);
 			return;
 		default :
+			if (!qualifiedReferences.contains(qualifiedName))
+				qualifiedReferences.add(qualifiedName);
+
 			char[][] qName = new char[length - 1][];
 			System.arraycopy(qualifiedName, 0, qName, 0, length - 1);
-			recordReference(qName, qualifiedName[length - 1]);
+			recordReference(qName);
+			recordSimpleReference(qualifiedName[length - 1]);
 	}
 }
 void recordReference(char[][] qualifiedEnclosingName, char[] simpleName) {
-	if (qualifiedReferences == null) return; // we're not recording dependencies
-
-	if (!qualifiedReferences.contains(qualifiedEnclosingName)) {
-		qualifiedReferences.add(qualifiedEnclosingName);
-		recordReference(qualifiedEnclosingName);
-	}
-	if (!simpleNameReferences.contains(simpleName))
-		simpleNameReferences.add(simpleName);
+	recordReference(qualifiedEnclosingName);
+	recordSimpleReference(simpleName);
 }
 void recordReferences(TypeBinding[] types) {
 	if (qualifiedReferences == null) return; // we're not recording dependencies
-	if (types == null || types == NoExceptions) return;
+	if (types == null || types.length == 0) return;
 
 // Do not think we need to record supertypes of method arguments & thrown exceptions
 // If a field/method is retrieved from such a type then a separate call does the job
@@ -456,13 +467,15 @@ void recordTypeReference(TypeBinding type) {
 	if (type.isArrayType())
 		type = ((ArrayBinding) type).leafComponentType;
 	if (!type.isBaseType()) {
-		ReferenceBinding actualtype = (ReferenceBinding) type;
-		recordReference(actualtype.compoundName);
-		if (actualtype.enclosingType() != null)
-			recordTypeReference(actualtype.enclosingType());
-		if (actualtype.superclass() != null)
-			recordTypeReference(actualtype.superclass());
-		ReferenceBinding[] interfaces = actualtype.superInterfaces();
+		ReferenceBinding actualType = (ReferenceBinding) type;
+		recordReference(actualType.isNestedType()
+			? CharOperation.splitOn('.', actualType.readableName())
+			: actualType.compoundName);
+		if (actualType.enclosingType() != null)
+			recordTypeReference(actualType.enclosingType());
+		if (actualType.superclass() != null)
+			recordTypeReference(actualType.superclass());
+		ReferenceBinding[] interfaces = actualType.superInterfaces();
 		if (interfaces != null && interfaces.length > 0)
 			for (int j = 0, length = interfaces.length; j < length; j++)
 				recordTypeReference(interfaces[j]);

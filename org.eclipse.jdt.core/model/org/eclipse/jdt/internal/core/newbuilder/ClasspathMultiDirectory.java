@@ -52,6 +52,7 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 }
 
 public String toString() {
-	return "ClasspathMultiDirectory " + sourcePath; //$NON-NLS-1$
+	return "Source classpath directory " + sourcePath + //$NON-NLS-1$
+		" with binary directory " + binaryPath; //$NON-NLS-1$
 }
 }

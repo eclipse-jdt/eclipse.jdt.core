@@ -156,6 +156,7 @@ private State getLastState() {
 }
 
 private void setLastState(State state) {
+//	if (state != null) state.dump();
 	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, state);
 }
 
