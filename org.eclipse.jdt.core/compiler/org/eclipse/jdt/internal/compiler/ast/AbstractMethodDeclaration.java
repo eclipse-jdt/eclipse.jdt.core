@@ -279,6 +279,11 @@ public abstract class AbstractMethodDeclaration
 		return false;
 	}
 
+	public boolean isMethod() {
+
+		return false;
+	}
+
 	public boolean isNative() {
 
 		if (this.binding != null)

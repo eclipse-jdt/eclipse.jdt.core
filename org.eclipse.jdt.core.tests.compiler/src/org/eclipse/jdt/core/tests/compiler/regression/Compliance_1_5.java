@@ -50,7 +50,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 78 };
+//	testsNumbers = new int[] { 83 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 76, -1 };
 }
@@ -2716,6 +2716,23 @@ public void test082() {
 			"}\n"
 		},
 		"SUCCESS");
+}
+
+/**
+ * Test fix for bug 71079: [1.5] ClassCastException resolving Javadoc
+ * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71079">71079</a>
+ */
+public void test083() {
+	docSupport = true;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public @interface X {\n" + 
+				"    /** Value */\n" + 
+				"    String[] value();\n" + 
+				"}\n"
+		}
+	);
 }
 public static Class testClass() {
 	return Compliance_1_5.class;

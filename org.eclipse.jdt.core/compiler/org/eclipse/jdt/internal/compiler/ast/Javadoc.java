@@ -207,7 +207,7 @@ public class Javadoc extends ASTNode {
 		// @return tags
 		if (this.returnStatement == null) {
 			if (reportMissing && methDecl != null) {
-				if (!methDecl.isConstructor() && !methDecl.isClinit()) {
+				if (methDecl.isMethod()) {
 					MethodDeclaration meth = (MethodDeclaration) methDecl;
 					if (meth.binding.returnType != VoidBinding) {
 						// method with return should have @return tag

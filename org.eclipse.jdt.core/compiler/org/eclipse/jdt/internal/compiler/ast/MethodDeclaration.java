@@ -90,6 +90,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 	}
 
+	public boolean isMethod() {
+
+		return true;
+	}
+
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 
 		//fill up the method body with statement
