@@ -54,7 +54,7 @@ protected Buffer(IFile file, IOpenable owner, boolean readOnly) {
 /**
  * @see IBuffer
  */
-public void addBufferChangedListener(IBufferChangedListener listener) {
+public synchronized void addBufferChangedListener(IBufferChangedListener listener) {
 	if (this.changeListeners == null) {
 		this.changeListeners = new ArrayList(5);
 	}
@@ -249,9 +249,10 @@ protected void moveAndResizeGap(int position, int size) {
  * To avoid deadlock, this should not be called in a synchronized block.
  */
 protected void notifyChanged(final BufferChangedEvent event) {
-	if (this.changeListeners != null) {
-		for (int i = 0, size = this.changeListeners.size(); i < size; ++i) {
-			final IBufferChangedListener listener = (IBufferChangedListener) this.changeListeners.get(i);
+	ArrayList listeners = this.changeListeners;
+	if (listeners != null) {
+		for (int i = 0, size = listeners.size(); i < size; ++i) {
+			final IBufferChangedListener listener = (IBufferChangedListener) listeners.get(i);
 			Platform.run(new ISafeRunnable() {
 				public void handleException(Throwable exception) {
 					Util.log(exception, "Exception occurred in listener of buffer change notification"); //$NON-NLS-1$
@@ -267,7 +268,7 @@ protected void notifyChanged(final BufferChangedEvent event) {
 /**
  * @see IBuffer
  */
-public void removeBufferChangedListener(IBufferChangedListener listener) {
+public synchronized void removeBufferChangedListener(IBufferChangedListener listener) {
 	if (this.changeListeners != null) {
 		this.changeListeners.remove(listener);
 		if (this.changeListeners.size() == 0) {
