@@ -92,8 +92,7 @@ protected int matchLevel(ImportReference importRef) {
 	if (this.pattern.qualification == null) {
 		if (this.pattern.simpleName == null) return ACCURATE_MATCH;
 		char[][] tokens = importRef.tokens;
-		for (int i = 0, length = tokens.length; i < length; i++)
-			if (matchesName(this.pattern.simpleName, tokens[i])) return ACCURATE_MATCH;
+		if (matchesName(this.pattern.simpleName, tokens[tokens.length-1])) return ACCURATE_MATCH;
 	} else {
 		char[][] tokens = importRef.tokens;
 		char[] qualifiedPattern = this.pattern.simpleName == null
