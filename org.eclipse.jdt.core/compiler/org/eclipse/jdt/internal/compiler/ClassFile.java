@@ -570,10 +570,11 @@ public class ClassFile
 				// access flag
 				if (innerClass.isAnonymousType()) {
 					accessFlags |= AccPrivate;
-				} else
-					if (innerClass.isLocalType() && !innerClass.isMemberType()) {
-						accessFlags |= AccPrivate;
-					}
+				} else if (innerClass.isLocalType() && !innerClass.isMemberType()) {
+					accessFlags |= AccPrivate;
+				} else if (innerClass.isMemberType() && (innerClass.isInterface() || innerClass.isAnnotationType())) {
+					accessFlags |= AccStatic; // implicitely static
+				}
 				contents[contentsOffset++] = (byte) (accessFlags >> 8);
 				contents[contentsOffset++] = (byte) accessFlags;
 			}

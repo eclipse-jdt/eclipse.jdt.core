@@ -35,7 +35,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 7 };
+//		TESTS_NUMBERS = new int[] { 99 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -2972,7 +2972,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80328
-	public void test099() {
+	public void test098() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2994,7 +2994,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80780
-	public void test098() {
+	public void test099() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3017,8 +3017,37 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"    public @interface MyAnon {\n" +
 				"        Class c();\n" +
 				"    }\n" +
+				"    public interface I {\n" +
+				"    }\n" +
 				"}"
 			},
 			"class X");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  Inner classes:\n" + 
+			"    [inner class info: #30 X$MyAnon, outer class info: #2 X\n" + 
+			"     inner name: #68 MyAnon, accessflags: 9737 public static abstract ],\n" + 
+			"    [inner class info: #70 X$I, outer class info: #2 X\n" + 
+			"     inner name: #71 I, accessflags: 1545 public static abstract ]"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 }
