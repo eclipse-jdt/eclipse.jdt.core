@@ -1194,7 +1194,9 @@ public class DeltaProcessor {
 				if (rootInfo != null && rootInfo.isRootOfProject(res.getFullPath())) {
 					return IJavaElement.PACKAGE_FRAGMENT_ROOT;
 				} 
-				return NON_JAVA_RESOURCE; // not yet in a package fragment root or root of another project
+				// not yet in a package fragment root or root of another project
+				// or package fragment to be included (see below)
+				// -> let it go through
 
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			case IJavaElement.PACKAGE_FRAGMENT:

@@ -278,6 +278,43 @@ public void testCreateResourceIncludedCompilationUnit() throws CoreException {
 		pkg.getNonJavaResources());
 }
 /*
+ * Ensure that creating a file that corresponds to an included compilation unit
+ * in a folder that is not included makes it appear as a child of its package and not as a non-java resource.
+ * (regression test for bug 65234 Inclusion filter not working)
+ */
+public void testCreateResourceIncludedCompilationUnit2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/p3/A.java"});
+	createFolder("/P/src/p1/p2/p3");
+	
+	clearDeltas();
+	createFile(
+		"/P/src/p1/p2/p3/A.java",
+		"package p1.p2.p3;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p1.p2.p3[*]: {CHILDREN}\n" + 
+		"			A.java[+]: {}\n" + 
+		"		ResourceDelta(/P/src/p1)[*]"
+	);
+	
+	IPackageFragment pkg = getPackage("/P/src/p1/p2/p3");
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"A.java [in p1.p2.p3 [in src [in P]]]",
+		pkg.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"",
+		pkg.getNonJavaResources());
+}
+/*
  * Ensure that creating a folder that corresponds to an included package 
  * makes it appear as a child of its package fragment root and not as a non-java resource.
  */
@@ -303,6 +340,37 @@ public void testCreateResourceIncludedPackage() throws CoreException {
 	assertResourcesEqual(
 		"Unexpected non-java resources",
 		"",
+		root.getNonJavaResources());
+}
+/*
+ * Ensure that creating a folder that is included in a folder that is not included
+ * makes it appear as a child of its package fragment root and not as a non-java resource.
+ * (regression test for bug 65234 Inclusion filter not working)
+ */
+public void testCreateResourceIncludedPackage2() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/p3/"});
+	createFolder("/P/src/p1/p2");
+	
+	clearDeltas();
+	createFolder("/P/src/p1/p2/p3");
+	
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN | CONTENT}\n" + 
+		"		p1.p2.p3[+]: {}\n" + 
+		"		ResourceDelta(/P/src/p1)[*]"
+	);
+	
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	assertSortedElementsEqual(
+		"Unexpected children",
+		"p1.p2.p3 [in src [in P]]",
+		root.getChildren());
+		
+	assertResourcesEqual(
+		"Unexpected non-java resources",
+		"p1",
 		root.getNonJavaResources());
 }
 /*
