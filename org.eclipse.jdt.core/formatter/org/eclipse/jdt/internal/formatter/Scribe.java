@@ -18,7 +18,8 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
-import org.eclipse.jdt.internal.formatter.align.*;
+import org.eclipse.jdt.internal.formatter.align.Alignment;
+import org.eclipse.jdt.internal.formatter.align.AlignmentException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -485,13 +486,12 @@ public class Scribe {
 			} else if (editOffset + editLength == this.textRegionStart) {
 				int i = editOffset;
 				for (int max = editOffset + editLength; i < max; i++) {
-					if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
+					int replacementStringIndex = i - editOffset;
+					if (replacementStringIndex >= editReplacementLength || scanner.source[i] != edit.replacement.charAt(replacementStringIndex)) {
 						break;
 					}
 				}
-				if (i == editOffset + editLength - 1) {
-					return false;
-				} else {
+				if (i - editOffset != editReplacementLength && i != editOffset + editLength - 1) {
 					edit.offset = textRegionStart;
 					edit.length = 0;
 					edit.replacement = edit.replacement.substring(i - editOffset);

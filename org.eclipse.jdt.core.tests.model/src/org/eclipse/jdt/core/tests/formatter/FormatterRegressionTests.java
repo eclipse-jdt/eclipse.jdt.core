@@ -70,7 +70,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test405"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test451"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -5458,5 +5458,53 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test453", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50736
+	 */
+	public void test454() {
+		String resourcePath = getResource("test454", "test454.zip");
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "1");//$NON-NLS-1$
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String input = getZipEntryContents(resourcePath, getIn("A.java"));
+		assertNotNull("No input", input);
+		String output = getZipEntryContents(resourcePath, getOut("A.java"));
+		assertNotNull("No output", output);
+		int start = input.indexOf("launch.setAttribute");
+		int end = input.indexOf(";", start + 1);
+		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50736
+	 */
+	public void test455() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "1");//$NON-NLS-1$
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test455", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50736
+	 */
+	public void test456() {
+		String resourcePath = getResource("test456", "test456.zip");
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String input = getZipEntryContents(resourcePath, getIn("A.java"));
+		assertNotNull("No input", input);
+		String output = getZipEntryContents(resourcePath, getOut("A.java"));
+		assertNotNull("No output", output);
+		int start = input.indexOf("launch.setAttribute");
+		int end = input.indexOf(";", start + 1);
+		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
