@@ -1757,7 +1757,12 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
-	pushOnAstLengthStack(0);
+	if (this.scanner.source[endStatementPosition] == ';') {
+		pushOnAstStack(new EmptyStatement(endStatementPosition, endStatementPosition));
+	} else {
+		// we have a Unicode for the ';' (/u003B)
+		pushOnAstStack(new EmptyStatement(endStatementPosition - 5, endStatementPosition));
+	}
 }
 protected void consumeEmptySwitchBlock() {
 	// SwitchBlock ::= '{' '}'

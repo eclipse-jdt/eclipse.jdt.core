@@ -106,6 +106,8 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public void endVisit(FloatLiteral floatLiteral, BlockScope scope) {
 	}
+	public void endVisit(EmptyStatement emptyStatement, BlockScope scope) {
+	}
 	public void endVisit(ForStatement forStatement, BlockScope scope) {
 	}
 	public void endVisit(IfStatement ifStatement, BlockScope scope) {
@@ -318,6 +320,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true;
 	}
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
+		return true;
+	}
+	public boolean visit(EmptyStatement emptyStatement, BlockScope scope) {
 		return true;
 	}
 	public boolean visit(
