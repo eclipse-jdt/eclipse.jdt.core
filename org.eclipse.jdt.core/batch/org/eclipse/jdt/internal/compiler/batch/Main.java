@@ -81,7 +81,6 @@ public class Main implements ProblemSeverities {
 		options.put(
 			CompilerOptions.OPTION_PreserveUnusedLocal,
 			CompilerOptions.OPTIMIZE_OUT);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 		options.put(
 			CompilerOptions.OPTION_ReportUnreachableCode,
 			CompilerOptions.ERROR);
@@ -109,7 +108,15 @@ public class Main implements ProblemSeverities {
 		options.put(
 			CompilerOptions.OPTION_ReportAssertIdentifier,
 			CompilerOptions.IGNORE);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+		options.put(
+			CompilerOptions.OPTION_Compliance,
+			CompilerOptions.VERSION_1_3);
+		options.put(
+			CompilerOptions.OPTION_Source,
+			CompilerOptions.VERSION_1_3);
+		options.put(
+			CompilerOptions.OPTION_TargetPlatform,
+			CompilerOptions.VERSION_1_1);
 	}
 
 	/*
@@ -319,6 +326,7 @@ public class Main implements ProblemSeverities {
 		boolean didSpecifyCompliance = false;
 		boolean didSpecifySourceLevel = false;
 		boolean didSpecifyDefaultEncoding = false;
+		boolean didSpecifyTarget = false;
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -402,14 +410,10 @@ public class Main implements ProblemSeverities {
 			if (currentArg.equals("-1.3")) { //$NON-NLS-1$
 				if (didSpecifyCompliance) {
 					throw new InvalidInputException(
-						Main.bind("configure.duplicateCompliance", currentArg));
-					//$NON-NLS-1$
+						Main.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
 				}
 				didSpecifyCompliance = true;
 				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-				if (!didSpecifySourceLevel) {
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				}
 				mode = Default;
 				continue;
 			}
@@ -420,9 +424,6 @@ public class Main implements ProblemSeverities {
 				}
 				didSpecifyCompliance = true;
 				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-				if (!didSpecifySourceLevel) {
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-				}
 				mode = Default;
 				continue;
 			}
@@ -649,6 +650,7 @@ public class Main implements ProblemSeverities {
 				continue;
 			}
 			if (currentArg.equals("-target")) { //$NON-NLS-1$
+				didSpecifyTarget = true;
 				mode = TargetSetting;
 				continue;
 			}
@@ -663,6 +665,10 @@ public class Main implements ProblemSeverities {
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+				} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
+				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
@@ -856,6 +862,46 @@ public class Main implements ProblemSeverities {
 
 		if (filenames == null)
 			throw new InvalidInputException(Main.bind("configure.noSource")); //$NON-NLS-1$
+
+		// check and set compliance/source/target compatibilities
+		if (!didSpecifyCompliance){
+				if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+				} else {
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+				}
+		}
+		String compliance = (String)options.get(CompilerOptions.OPTION_Compliance);
+		if (CompilerOptions.VERSION_1_4.equals(compliance)){
+			
+			// default 1.4 settings
+			if (!didSpecifySourceLevel){
+				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+			}
+			if (!didSpecifyTarget){
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+			}
+		} else if (CompilerOptions.VERSION_1_3.equals(compliance)){
+
+			// default 1.4 settings
+			if (!didSpecifySourceLevel){
+				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+			}
+			if (!didSpecifyTarget){
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+			}
+		}
+		// compliance must be 1.4 if source is 1.4
+		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
+				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+		}
+		
+		// target must be 1.4 if source is 1.4
+		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
+				&& !options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
+		}
 
 		if (log != null) {
 			try {

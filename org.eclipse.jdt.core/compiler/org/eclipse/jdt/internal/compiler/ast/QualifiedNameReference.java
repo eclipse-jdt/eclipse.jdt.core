@@ -529,7 +529,7 @@ public class QualifiedNameReference extends NameReference {
 		int length = tokens.length;
 		if (index == length) { //	restrictiveFlag == FIELD
 			constant =
-				FieldReference.getConstantFor((FieldBinding) binding, false, this, index - 1);
+				FieldReference.getConstantFor((FieldBinding) binding, false, this, scope, index - 1);
 			return type;
 		}
 		// allocation of the fieldBindings array	and its respective constants
@@ -540,7 +540,7 @@ public class QualifiedNameReference extends NameReference {
 		// fill the first constant (the one of the binding)
 		constant =
 			((bits & FIELD) != 0)
-				? FieldReference.getConstantFor((FieldBinding) binding, false, this, index - 1)
+				? FieldReference.getConstantFor((FieldBinding) binding, false, this, scope, index - 1)
 				: ((VariableBinding) binding).constant;
 		// save first depth, since will be updated by visibility checks of other bindings
 		int firstDepth = (bits & DepthMASK) >> DepthSHIFT;
@@ -557,7 +557,7 @@ public class QualifiedNameReference extends NameReference {
 				if (isFieldUseDeprecated(field, scope))
 					scope.problemReporter().deprecatedField(field, this);
 				Constant someConstant =
-					FieldReference.getConstantFor(field, false, this, place);
+					FieldReference.getConstantFor(field, false, this, scope, place);
 				// constant propagation can only be performed as long as the previous one is a constant too.
 				if (constant != NotAConstant) {
 					constant = someConstant;

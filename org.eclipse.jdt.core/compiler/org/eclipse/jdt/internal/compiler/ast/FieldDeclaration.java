@@ -138,50 +138,60 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		// existence is not at all the same. See comment for the second one.
 
 		//--------------------------------------------------------
-		if (!hasBeenResolved && binding != null && binding.isValidBinding()) {
-			hasBeenResolved = true;
-			if (isTypeUseDeprecated(binding.type, initializationScope))
-				initializationScope.problemReporter().deprecatedType(binding.type, type);
+		if (!this.hasBeenResolved && binding != null && this.binding.isValidBinding()) {
+
+			this.hasBeenResolved = true;
+
+			if (isTypeUseDeprecated(this.binding.type, initializationScope))
+				initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
 
 			this.type.binding = this.binding.type; // update binding for type reference
 
 			// the resolution of the initialization hasn't been done
-			if (initialization == null) {
-				binding.constant = Constant.NotAConstant;
+			if (this.initialization == null) {
+				this.binding.constant = Constant.NotAConstant;
 			} else {
-				// break dead-lock cycles by forcing constant to NotAConstant
 				int previous = initializationScope.fieldDeclarationIndex;
 				try {
-					initializationScope.fieldDeclarationIndex = binding.id;
-					binding.constant = Constant.NotAConstant;
-					TypeBinding tb = binding.type;
-					TypeBinding initTb;
+					initializationScope.fieldDeclarationIndex = this.binding.id;
+
+					// break dead-lock cycles by forcing constant to NotAConstant
+					this.binding.constant = Constant.NotAConstant;
+					
+					TypeBinding typeBinding = this.binding.type;
+					TypeBinding initializationTypeBinding;
+					
 					if (initialization instanceof ArrayInitializer) {
-						if ((initTb = initialization.resolveTypeExpecting(initializationScope, tb))
-							!= null) {
-							((ArrayInitializer) initialization).binding = (ArrayBinding) initTb;
-							initialization.implicitWidening(tb, initTb);
+
+						if ((initializationTypeBinding = this.initialization.resolveTypeExpecting(initializationScope, typeBinding)) 	!= null) {
+							((ArrayInitializer) this.initialization).binding = (ArrayBinding) initializationTypeBinding;
+							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
 						}
-					} else if (
-						(initTb = initialization.resolveType(initializationScope)) != null) {
-						if (initialization.isConstantValueOfTypeAssignableToType(initTb, tb)
-							|| (tb.isBaseType() && BaseTypeBinding.isWidening(tb.id, initTb.id)))
-							initialization.implicitWidening(tb, initTb);
-						else if (initializationScope.areTypesCompatible(initTb, tb))
-							initialization.implicitWidening(tb, initTb);
-						else
-							initializationScope.problemReporter().typeMismatchError(initTb, tb, this);
-						if (binding.isFinal()) // cast from constant actual type to variable type
-							binding.constant =
-								initialization.constant.castTo(
-									(binding.type.id << 4) + initialization.constant.typeID());
+					} else if ((initializationTypeBinding = initialization.resolveType(initializationScope)) != null) {
+
+						if (this.initialization.isConstantValueOfTypeAssignableToType(initializationTypeBinding, typeBinding)
+							|| (typeBinding.isBaseType() && BaseTypeBinding.isWidening(typeBinding.id, initializationTypeBinding.id))) {
+
+							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
+
+						}	else if (initializationScope.areTypesCompatible(initializationTypeBinding, typeBinding)) {
+							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
+
+						} else {
+							initializationScope.problemReporter().typeMismatchError(initializationTypeBinding, typeBinding, this);
+						}
+						if (this.binding.isFinal()){ // cast from constant actual type to variable type
+							this.binding.constant =
+								this.initialization.constant.castTo(
+									(this.binding.type.id << 4) + this.initialization.constant.typeID());
+						}
 					} else {
-						binding.constant = NotAConstant;
+						this.binding.constant = NotAConstant;
 					}
 				} finally {
 					initializationScope.fieldDeclarationIndex = previous;
-					if (binding.constant == null)
-						binding.constant = Constant.NotAConstant;
+					if (this.binding.constant == null)
+						this.binding.constant = Constant.NotAConstant;
 				}
 			}
 		}
