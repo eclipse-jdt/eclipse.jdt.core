@@ -264,6 +264,7 @@ public static Test suite() {
 	// method declaration
 	suite.addTest(new JavaSearchTests("testSimpleMethodDeclaration"));
 	suite.addTest(new JavaSearchTests("testSimpleConstructorDeclaration"));
+	suite.addTest(new JavaSearchTests("testMethodDeclaration"));
 	suite.addTest(new JavaSearchTests("testInnerMethodDeclaration"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInHierarchyScope1"));
 	suite.addTest(new JavaSearchTests("testMethodDeclarationInHierarchyScope2"));
@@ -1350,6 +1351,24 @@ public void testMemberTypeReference2() throws JavaModelException, CoreException 
 	assertEquals(
 		"src/a/A.java a.B.ax [A.X]\n" +
 		"src/a/A.java a.B.sx [S.X]", 
+		resultCollector.toString());
+}
+/**
+ * Method declaration test.
+ * (regression test for bug 38568 Search for method declarations fooled by array types)
+ */
+public void testMethodDeclaration() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "e2", "X.java").getType("X");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"foo(String, String)",
+		METHOD,
+		DECLARATIONS, 
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), 
+		resultCollector);
+	assertEquals(
+		"src/e2/X.java e2.X.foo(String, String) -> void [foo]", 
 		resultCollector.toString());
 }
 /**
