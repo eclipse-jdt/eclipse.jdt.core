@@ -287,8 +287,6 @@ public static IJavaElement determineIfOnClasspath(
 	 */
 	protected ArrayList fJavaModelDeltas= new ArrayList();
 
-
-
 	/**
 	 * Collection of listeners for Java element deltas
 	 */
@@ -325,6 +323,12 @@ public static IJavaElement determineIfOnClasspath(
 	 * Table from IProject to PerProjectInfo.
 	 */
 	protected Map perProjectInfo = new HashMap(5);
+	
+	/**
+	 * A map from ICompilationUnit to IWorkingCopy
+	 * of the managed working copies.
+	 */
+	protected Map managedWorkingCopies = new HashMap();
 
 	static class PerProjectInfo {
 		IProject project;

@@ -26,18 +26,21 @@ public class WorkingCopy extends CompilationUnit {
 	protected IBufferFactory bufferFactory;
 	
 	/**
-	 * A boolean indicating if this working copy has been
-	 * destroyed. Once destroyed, it cannot be opened
+	 * A counter of the number of time clients have asked for a managed
+	 * working copy on the original element. It is set to 1, if the working
+	 * copy is not managed. When destroyed, this counter is
+	 * set to 0. Once destroyed, this working copy cannot be opened
 	 * and non-handle info can not be accessed. This is
 	 * never true if this compilation unit is not a working
 	 * copy.
 	 */
-	protected boolean isDestroyed= false;
+	protected int managedCount = 0;
 /**
  */
 protected WorkingCopy(IPackageFragment parent, String name, IBufferFactory bufferFactory) {
 	super(parent, name);
 	this.bufferFactory = bufferFactory;
+	this.managedCount = 1;
 }
 /**
  * @see IWorkingCopy
@@ -56,17 +59,29 @@ protected OpenableElementInfo createElementInfo() {
  * @see IWorkingCopy
  */
 public void destroy() {
+	if (--this.managedCount > 0) return;
 	try {
 		close();
 		
 		// if original element is not on classpath flush it from the cache 
+		IJavaElement originalElement = this.getOriginalElement();
 		if (!this.getParent().exists()) {
-			((CompilationUnit)this.getOriginalElement()).close();
+			((CompilationUnit)originalElement).close();
 		}
+		
+		// remove working copy from the cache
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		if (manager.managedWorkingCopies.remove(originalElement) != null) {
+			// report removed java delta
+			JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+			delta.removed(this);
+			manager.registerJavaModelDelta(delta);
+			manager.fire();
+		}
+		
 	} catch (JavaModelException e) {
 		// do nothing
 	}
-	isDestroyed= true;
 }
 /**
  * Working copies must be identical to be equal.
@@ -190,7 +205,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
 /**
  * @see IWorkingCopy
  */
-public IWorkingCopy getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
+public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, boolean isManaged) throws JavaModelException {
 	return this;
 }
 /**
@@ -200,7 +215,7 @@ public boolean isBasedOn(IResource resource) {
 	if (resource.getType() != IResource.FILE) {
 		return false;
 	}
-	if (isDestroyed) {
+	if (this.managedCount == 0) {
 		return false;
 	}
 	try {
@@ -225,7 +240,7 @@ public boolean isWorkingCopy() {
  * 	or if this is a working copy being opened after it has been destroyed.
  */
 public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-	if (isDestroyed) {
+	if (this.managedCount == 0) {
 		throw newNotPresentException();
 	} else {
 		super.open(pm, buffer);
@@ -312,7 +327,7 @@ public IMarker[] reconcile() throws JavaModelException {
  * @see IWorkingCopy
  */
 public void restore() throws JavaModelException {
-	if (!isDestroyed) {
+	if (this.managedCount > 0) {
 		CompilationUnit original = (CompilationUnit) getOriginalElement();
 		getBuffer().setContents(original.getContents());
 

@@ -406,16 +406,38 @@ public IType[] getTypes() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
-	return (IJavaElement)this.getWorkingCopy(null, null);
+	return this.getWorkingCopy(null, null, false);
 }
 /**
  * @see IWorkingCopy
  */
-public IWorkingCopy getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
-	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory);
+public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, boolean isManaged) throws JavaModelException {
+	WorkingCopy workingCopy;
+	Map managedWorkingCopies = null;
+	JavaModelManager manager = null;
+	if (isManaged) {
+		manager = JavaModelManager.getJavaModelManager();
+		managedWorkingCopies = manager.managedWorkingCopies;
+		workingCopy = (WorkingCopy)managedWorkingCopies.get(this);
+		if (workingCopy != null) {
+			workingCopy.managedCount++;
+			return workingCopy;
+		}
+	}
+	workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory);
 	// open the working copy now to ensure contents are that of the current state of this element
 	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
 	workingCopy.open(pm, buffer);
+	if (isManaged) {
+		managedWorkingCopies.put(this, workingCopy);
+
+		// report added java delta
+		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+		delta.added(workingCopy);
+		manager.registerJavaModelDelta(delta);
+		manager.fire();
+		
+	}
 	return workingCopy;
 }
 /**
@@ -435,6 +457,12 @@ public boolean hasChildren() throws JavaModelException {
 	} else {
 		return true;
 	}
+}
+/**
+ * @see IWorkingCopy#hasManagedWorkingCopy
+ */
+public boolean hasManagedWorkingCopy() {
+	return JavaModelManager.getJavaModelManager().managedWorkingCopies.get(this) != null;
 }
 /**
  * Returns false, this is not a working copy.

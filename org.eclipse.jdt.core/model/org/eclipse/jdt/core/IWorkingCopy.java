@@ -75,6 +75,11 @@ void commit(boolean force, IProgressMonitor monitor) throws JavaModelException;
  * its structure. Subsequent attempts to access non-handle information
  * for this working copy will result in <code>IJavaModelException</code>s. Has
  * no effect if this element is not a working copy.
+ * <p>
+ * If this working copy is managed, it is destroyed only when the number of calls to
+ * <code>destroy()</code> is the same as the number of calls to <code>
+ * getWorkingCopy(IProgressMonitor, IBufferFactory, boolean)</code>. 
+ * A REMOVED IJavaElementDelta is then reported on this working copy.
  */
 void destroy();
 /**
@@ -100,17 +105,24 @@ IJavaElement getOriginalElement();
  */
 IJavaElement getWorkingCopy() throws JavaModelException;
 /**
- * Returns an open working copy of this element using the given factory to create
+ * Returns an open working copy (managed or not) of this element using the given factory to create
  * the buffer, or this element if this element is a working copy.
+ * <p>
  * Note that this factory will be used for the life time of this working copy, i.e. if the 
  * working copy is closed then reopened, this factory will be used.
  * The buffer will be automatically initialized with the original's compilation unit content
  * upon creation.
+ * <p>
+ * A managed working copy is a special instance of working copy that is remembered and returned
+ * by this element. Thus the same instance of working copy is always returned until it is destroyed.
+ * When the managed working copy instance is created, an ADDED IJavaElementDelta is reported on this
+ * working copy.
  *
  * @param monitor a progress monitor used to report progress while opening this compilation unit
  *                 or <code>null</code> if no progress should be reported 
  * @param factory the factory that creates a buffer that is used to get the content of the working copy
  *                 or <code>null</code> if the internal factory should be used
+ * @param isManaged whether the created working is managed
  * @exception JavaModelException if the contents of this element can
  *   not be determined. Reasons include:
  * <ul>
@@ -118,7 +130,14 @@ IJavaElement getWorkingCopy() throws JavaModelException;
  * </ul>
  * @since 2.0
  */
-IWorkingCopy getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
+IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, boolean isManaged) throws JavaModelException;
+/**
+ * Returns whether this element has been asked at least once for a managed working copy, 
+ * and this working has not been destroyed yet.
+ * 
+ * @since 2.0
+ */
+boolean hasManagedWorkingCopy();
 /**
  * Returns whether this working copy's original element's content
  * has not changed since the inception of this working copy.

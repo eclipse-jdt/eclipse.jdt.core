@@ -15,6 +15,10 @@ Eclipse SDK Build ? - ? February 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added the notion of a managed working copy. This allows clients to always
+     get the same <code>IWorkingCopy</code> instance when asking for a working copy.
+     See <code>IWorkingCopy.getWorkingCopy(IProgressMonitor, IBufferFactory, boolean)</code>
+     and <code>IWorkingCopy.destroy()</code> for more detail.
 <li> Added JavaCore option to control Java builder behavior in presence of an invalid project classpath.
 	Allows to toggle the builder to abort if the classpath is invalid
 	<ul>
