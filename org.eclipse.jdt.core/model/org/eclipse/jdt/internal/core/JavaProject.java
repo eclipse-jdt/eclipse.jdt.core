@@ -1102,7 +1102,7 @@ public class JavaProject
 		boolean wasSuccessful = false; // flag recording if .classpath file change got reflected
 		try {
 			// force to (re)read the property file
-			IClasspathEntry[] fileEntries = readClasspathFile(true/*create markers*/, false/*don't log problems*/);
+			IClasspathEntry[] fileEntries = readClasspathFile(!ResourcesPlugin.getWorkspace().isTreeLocked()/*create markers*/, false/*don't log problems*/);
 			if (fileEntries == null)
 				return; // could not read, ignore 
 			JavaModelManager.PerProjectInfo info = getPerProjectInfo();
@@ -1135,7 +1135,7 @@ public class JavaProject
 				fileEntries, 
 				outputLocation, 
 				monitor, 
-				true, // canChangeResource
+				!ResourcesPlugin.getWorkspace().isTreeLocked(), // canChangeResource
 				oldResolvedClasspath != null ? oldResolvedClasspath : getResolvedClasspath(true), // ignoreUnresolvedVariable
 				true, // needValidation
 				false); // no need to save

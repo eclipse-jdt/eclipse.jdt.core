@@ -451,12 +451,6 @@ public class JavaModelManager implements ISaveParticipant {
 	public IndexManager indexManager = new IndexManager();
 	
 	/**
-	 * Workaround for bug 15168 circular errors not reported  
-	 * This is a cache of the projects before any project addition/deletion has started.
-	 */
-	public IJavaProject[] javaProjectsCache;
-
-	/**
 	 * Table from IProject to PerProjectInfo.
 	 * NOTE: this object itself is used as a lock to synchronize creation/removal of per project infos
 	 */

@@ -403,8 +403,8 @@ public void testResolveInvalidResolve() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "p1", "X.java");
 	try {
 		cu.codeSelect(-1, 10); 
-	} catch (Assert.AssertionFailedException e) {
-		assertEquals("Incorrect message on assertion failure", "Assertion failed; selected range (-1, 9) is not located in supplied source range (0, 36)", e.getMessage());
+	} catch (IllegalArgumentException e) {
+		assertEquals("Incorrect message on assertion failure", "Selected range (-1, 9) is not located in supplied source range (0, 36)", e.getMessage());
 		return;
 	}
 	assertTrue("Exception should have been thrown for out of bounds resolution", false);

@@ -59,7 +59,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
  */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
-		Assert.isTrue(false, "completion requestor cannot be null"); //$NON-NLS-1$
+		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();

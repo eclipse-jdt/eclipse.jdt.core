@@ -410,10 +410,9 @@ public Object[] getNonJavaResources() throws JavaModelException {
  */
 public IJavaProject[] getOldJavaProjectsList() throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	return 
-		manager.javaProjectsCache == null ? 
+	return manager.deltaState.modelProjectsCache == null ? 
 			this.getJavaProjects() : 
-			manager.javaProjectsCache; 
+			manager.deltaState.modelProjectsCache; 
 }
 /*
  * @see IJavaElement

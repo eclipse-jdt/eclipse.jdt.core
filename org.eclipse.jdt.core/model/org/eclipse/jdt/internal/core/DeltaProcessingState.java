@@ -69,7 +69,13 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	public boolean rootsAreStale = true;
 	
 	public Hashtable externalTimeStamps = new Hashtable();
-	
+
+	/**
+	 * Workaround for bug 15168 circular errors not reported  
+	 * This is a cache of the projects before any project addition/deletion has started.
+	 */
+	public IJavaProject[] modelProjectsCache;
+		
 	/*
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
 	 * any of the other (for example, if it deregisters itself).

@@ -321,9 +321,9 @@ public class DeltaProcessor {
 		switch (resource.getType()) {
 			case IResource.ROOT :
 				// workaround for bug 15168 circular errors not reported 
-				if (this.manager.javaProjectsCache == null) {
+				if (this.state.modelProjectsCache == null) {
 					try {
-						this.manager.javaProjectsCache = this.manager.getJavaModel().getJavaProjects();
+						this.state.modelProjectsCache = this.manager.getJavaModel().getJavaProjects();
 					} catch (JavaModelException e) {
 						// java model doesn't exist: never happens
 					}
@@ -385,15 +385,15 @@ public class DeltaProcessor {
 							if (isJavaProject) {
 								this.addToParentInfo(javaProject);
 							} else {
-								// flush classpath markers
-								javaProject.
-									flushClasspathProblemMarkers(
-										true, // flush cycle markers
-										true  //flush classpath format markers
-									);
-									
-								// remove problems and tasks created  by the builder
-								JavaBuilder.removeProblemsAndTasksFor(project);
+//								// flush classpath markers
+//								javaProject.
+//									flushClasspathProblemMarkers(
+//										true, // flush cycle markers
+//										true  //flush classpath format markers
+//									);
+//									
+//								// remove problems and tasks created  by the builder
+//								JavaBuilder.removeProblemsAndTasksFor(project);
 
 								// close project
 								try {
@@ -821,8 +821,8 @@ public class DeltaProcessor {
 			javaProject.close();
 
 			// workaround for bug 15168 circular errors not reported
-			if (this.manager.javaProjectsCache == null) {
-				this.manager.javaProjectsCache = this.manager.getJavaModel().getJavaProjects();
+			if (this.state.modelProjectsCache == null) {
+				this.state.modelProjectsCache = this.manager.getJavaModel().getJavaProjects();
 			}
 			this.removeFromParentInfo(javaProject);
 
@@ -1519,7 +1519,6 @@ public class DeltaProcessor {
 					case IResourceDelta.REMOVED:
 						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
 						this.manager.removePerProjectInfo((JavaProject)JavaCore.create(resource));
-						
 						this.state.rootsAreStale = true;
 						break;
 				}
@@ -1862,7 +1861,7 @@ public class DeltaProcessor {
 							fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
 							// workaround for bug 15168 circular errors not reported 
-							this.manager.javaProjectsCache = null;
+							this.state.modelProjectsCache = null;
 							this.removedRoots = null;
 						}
 					}

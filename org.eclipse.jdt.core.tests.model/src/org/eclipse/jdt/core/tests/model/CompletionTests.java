@@ -1039,8 +1039,8 @@ public void testCompletionOutOfBounds() throws JavaModelException {
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionOutOfBounds.java");
 	try {
 		cu.codeComplete(cu.getSource().length() + 1, requestor);
-	} catch (JavaModelException e) {
-		assertTrue("Should be out of bounds", e.getStatus().getCode() == IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
+	} catch (IllegalArgumentException e) {
+		assertEquals("Should be out of bounds", "Completion position 43 is not located in supplied source range (0, 42)", e.getMessage());
 		return;
 	}
 	assertTrue("should have failed", false);
