@@ -477,14 +477,17 @@ class CompilationUnitResolver extends Compiler {
 		}
 		if (type.binding != null && (type.binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
 			type.binding = null;
-			final org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = type.fields;
-			if (fields != null) {
-				for (int i = 0, max = fields.length; i < max; i++){
+		}
+		
+		final org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = type.fields;
+		if (fields != null) {
+			for (int i = 0, max = fields.length; i < max; i++){
+				if (fields[i].binding != null && (fields[i].binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
 					fields[i].binding = null;
 				}
 			}
 		}
-
+	
 		final AbstractMethodDeclaration[] methods = type.methods;
 		if (methods != null) {
 			for (int i = 0, max = methods.length; i < max; i++){
