@@ -480,7 +480,6 @@ public static Hashtable getDefaultOptions(){
 			Enumeration enum = bundle.getKeys();
 			while(enum.hasMoreElements()){
 				String id = (String)enum.nextElement();
-				System.out.println(id);
 				DefaultOptions.put(id,bundle.getString(id));
 			}
 		} catch(Exception ex){}
