@@ -206,6 +206,9 @@ public FieldDeclaration updatedFieldDeclaration(){
 		if (this.localTypeCount > 0) fieldDeclaration.bits |= AstNode.HasLocalTypeMASK;
 
 	}	
+	if (fieldDeclaration.sourceEnd == 0){
+		fieldDeclaration.sourceEnd = fieldDeclaration.declarationSourceEnd;
+	}
 	return fieldDeclaration;
 }
 /*
