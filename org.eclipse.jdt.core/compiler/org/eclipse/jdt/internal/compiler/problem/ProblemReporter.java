@@ -55,8 +55,20 @@ public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBindi
 	this.handle(
 		// %1 must be abstract since it cannot override the inherited package-private abstract method %2
 		IProblem.AbstractMethodCannotBeOverridden,
-		new String[] {new String(type.sourceName()), new String(concreteMethod.readableName())},
-		new String[] {new String(type.sourceName()), new String(concreteMethod.shortReadableName())},
+		new String[] {
+			new String(type.sourceName()), 
+			new String(
+					CharOperation.concat(
+						concreteMethod.declaringClass.readableName(),
+						concreteMethod.readableName(),
+						'.'))},
+		new String[] {
+			new String(type.sourceName()), 
+			new String(
+					CharOperation.concat(
+						concreteMethod.declaringClass.shortReadableName(),
+						concreteMethod.shortReadableName(),
+						'.'))},
 		type.sourceStart(),
 		type.sourceEnd());
 }
