@@ -2802,10 +2802,10 @@ public class ClassFile
 		throws IOException {
 		String fileName;
 		File file;
-		FileOutputStream output =
+		BufferedOutputStream output = new BufferedOutputStream(
 			new FileOutputStream(
 				file =
-					new File((fileName = buildAllDirectoriesInto(outputPath, relativeFileName))));
+					new File((fileName = buildAllDirectoriesInto(outputPath, relativeFileName)))));
 		output.write(contents);
 		output.flush();
 		output.close();

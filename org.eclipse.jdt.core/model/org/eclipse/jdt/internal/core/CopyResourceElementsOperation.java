@@ -7,6 +7,8 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.*;
+
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 
@@ -226,7 +228,7 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 	// update new resource content
 	try {
 		if (newContent != null){
-			destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
+			destFile.setContents(new BufferedInputStream(new ByteArrayInputStream(newContent.getBytes())), fForce, true, getSubProgressMonitor(1));
 		}
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
