@@ -2672,4 +2672,110 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"0.5"
         );
     }        
+    
+    public void test093() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer someInteger = 12;\n" + 
+				"		System.out.println((args == null ? someInteger : \'A\') == \'A\');\n" + 
+				"	}\n" + 
+				"}\n"
+            },
+			"true"
+        );
+    }
+        
+    public void test094() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer someInteger = 12;\n" + 
+				"		System.out.println((args == null ? someInteger : \'A\') == \'A\');\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Integer someInteger = 12;\n" + 
+			"	                      ^^\n" + 
+			"The expression of type int is boxed into Integer\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	System.out.println((args == null ? someInteger : \'A\') == \'A\');\n" + 
+			"	                                   ^^^^^^^^^^^\n" + 
+			"The expression of type Integer is unboxed into int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+        );
+    }      
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80630
+    public void test095() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		boolean b = true;\n" + 
+				"		Character _Character = new Character(\' \');\n" + 
+				"		char c = \' \';\n" + 
+				"		Integer _Integer = new Integer(2);\n" + 
+				"		if ((b ? _Character : _Integer) == c) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		} else {\n" + 
+				"			System.out.println(\"FAILURE\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+            },
+			"SUCCESS"
+        );
+    }          
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=80630 - variation
+    public void test096() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		boolean b = true;\n" + 
+				"		Character _Character = new Character(\' \');\n" + 
+				"		char c = \' \';\n" + 
+				"		Integer _Integer = new Integer(2);\n" + 
+				"		if ((b ? _Character : _Integer) == c) {\n" + 
+				"			System.out.println(zork);\n" + 
+				"		} else {\n" + 
+				"			System.out.println(\"FAILURE\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	if ((b ? _Character : _Integer) == c) {\n" + 
+			"	         ^^^^^^^^^^\n" + 
+			"The expression of type Character is unboxed into int\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	if ((b ? _Character : _Integer) == c) {\n" + 
+			"	                      ^^^^^^^^\n" + 
+			"The expression of type Integer is unboxed into int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	System.out.println(zork);\n" + 
+			"	                   ^^^^\n" + 
+			"zork cannot be resolved\n" + 
+			"----------\n"
+        );
+    }          
 }
