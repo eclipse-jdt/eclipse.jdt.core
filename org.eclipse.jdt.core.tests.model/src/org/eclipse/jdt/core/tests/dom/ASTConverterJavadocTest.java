@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -114,6 +115,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			return suite;
 		}
 		suite.addTest(new ASTConverterJavadocTest("testBug54776"));
+		suite.addTest(new ASTConverterJavadocTest("testBug55221a"));
+		suite.addTest(new ASTConverterJavadocTest("testBug55221b"));
+		suite.addTest(new ASTConverterJavadocTest("testBug55221c"));
 		return suite;
 	}
 
@@ -747,7 +751,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	private void verifyPositions(Javadoc docComment, char[] source) {
 		boolean stop = this.stopOnFailure;
-		this.stopOnFailure = false;
+//		this.stopOnFailure = false;
 		// Verify javadoc start and end position
 		int start = docComment.getStartPosition();
 		int end = start+docComment.getLength()-1;
@@ -967,7 +971,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	private void verifyBindings(Javadoc docComment) {
 		boolean stop = this.stopOnFailure;
-		this.stopOnFailure = false;
+//		this.stopOnFailure = false;
 		// Verify tags
 		Iterator tags = docComment.tags().listIterator();
 		while (tags.hasNext()) {
@@ -1421,9 +1425,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		final CompilationUnit compilUnit = (CompilationUnit) result;
 		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
 		assumeEquals(this.prefix+"Wrong number of comments", 2, compilUnit.getCommentList().size());
+		// get comments range
 		Comment comment = (Comment) compilUnit.getCommentList().get(0);
 		int commentStart = comment.getStartPosition();
-		int commentLength = ((Comment) compilUnit.getCommentList().get(1)).getStartPosition()-commentStart+comment.getLength();
+		int extendedLength = ((Comment) compilUnit.getCommentList().get(1)).getStartPosition()-commentStart+comment.getLength();
+		// get method invocation in field initializer
 		ASTNode node = getASTNode((CompilationUnit) result, 0);
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
@@ -1436,33 +1442,157 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		Expression expression = fragment.getInitializer();
 		assumeTrue("We should get an expression", expression instanceof MethodInvocation);
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		// verify  that methodinvocation extended range includes leading and trailing comment
 		int methodStart = compilUnit.getExtendedStartPosition(methodInvocation);
 		assumeEquals("Method invocation "+methodInvocation+" does not start at the right position", commentStart, methodStart);
 		int methodLength = compilUnit.getExtendedLength(methodInvocation);
-		assumeEquals("Method invocation "+methodInvocation+" does not have the correct length", commentLength, methodLength);
+		assumeEquals("Method invocation "+methodInvocation+" does not have the correct length", extendedLength, methodLength);
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=54xxx
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=55221
 	 */
-	public void _testBug54xxx() throws JavaModelException {
-		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug54xxx", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public void testBug55221a() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.a", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
 		final CompilationUnit compilUnit = (CompilationUnit) result;
 		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
 		assumeEquals(this.prefix+"Wrong number of comments", 1, compilUnit.getCommentList().size());
+		// Get comment range
+		Comment comment = (Comment) compilUnit.getCommentList().get(0);
+		int commentStart = comment.getStartPosition();
+		// get first method
 		ASTNode node = getASTNode(compilUnit, 0, 0);
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration method = (MethodDeclaration) node;
+		// verify that first method does not include comment
+		int methodStart = compilUnit.getExtendedStartPosition(method);
+		assumeEquals("Method "+method+" does not start at the right position", method.getStartPosition(), methodStart);
+		int methodLength = compilUnit.getExtendedLength(method);
+		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
+		// get method body
 		node = method.getBody();
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not a block", node.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
 		Block block = (Block) node;
+		// verify that body does not include following comment
 		int blockStart = compilUnit.getExtendedStartPosition(block);
 		assumeEquals("Body block "+block+" does not start at the right position", block.getStartPosition(), blockStart);
 		int blockLength = compilUnit.getExtendedLength(block);
 		assumeEquals("Body block "+block+" does not have the correct length", block.getLength(), blockLength);
+		// get second method
+		node = getASTNode(compilUnit, 0, 1);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		method = (MethodDeclaration) node;
+		// verify that second method start includes comment
+		assumeEquals("Method declaration "+method+" does not start at the right position", commentStart, method.getStartPosition());
+	}
+	public void testBug55221b() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.b", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 1, compilUnit.getCommentList().size());
+		// Get comment range
+		Comment comment = (Comment) compilUnit.getCommentList().get(0);
+		int commentStart = comment.getStartPosition();
+		// get first method
+		ASTNode node = getASTNode(compilUnit, 0, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration method = (MethodDeclaration) node;
+		// verify that first method does not include comment
+		int methodStart = compilUnit.getExtendedStartPosition(method);
+		assumeEquals("Method "+method+" does not start at the right position", method.getStartPosition(), methodStart);
+		int methodLength = compilUnit.getExtendedLength(method);
+		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
+		// get method body
+		node = method.getBody();
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a block", node.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
+		Block block = (Block) node;
+		// verify that body does not include following comment
+		int blockStart = compilUnit.getExtendedStartPosition(block);
+		assumeEquals("Body block "+block+" does not start at the right position", block.getStartPosition(), blockStart);
+		int blockLength = compilUnit.getExtendedLength(block);
+		assumeEquals("Body block "+block+" does not have the correct length", block.getLength(), blockLength);
+		// get second method
+		node = getASTNode(compilUnit, 0, 1);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		method = (MethodDeclaration) node;
+		// verify that second method start includes comment
+		assumeEquals("Method declaration "+method+" does not start at the right position", commentStart, method.getStartPosition());
+	}
+	public void testBug55221c() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.c", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 1, compilUnit.getCommentList().size());
+		// Get comment range
+		Comment comment = (Comment) compilUnit.getCommentList().get(0);
+		int commentStart = comment.getStartPosition();
+		int commentEnd = commentStart+comment.getLength()-1;
+		// get first method
+		ASTNode node = getASTNode(compilUnit, 0, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration method = (MethodDeclaration) node;
+		// verify that first method includes comment
+		int methodStart = compilUnit.getExtendedStartPosition(method);
+		assumeEquals("Method "+method+" does not start at the right position", method.getStartPosition(), methodStart);
+		int methodLength = compilUnit.getExtendedLength(method);
+		assumeEquals("Method "+method+" does not end at the right position", commentEnd, methodStart+methodLength-1);
+		// get method body
+		node = method.getBody();
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a block", node.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
+		Block block = (Block) node;
+		// verify that body includes following comment
+		int blockStart = compilUnit.getExtendedStartPosition(block);
+		assumeEquals("Body block "+block+" does not start at the right position", block.getStartPosition(), blockStart);
+		int blockLength = compilUnit.getExtendedLength(block);
+		assumeEquals("Body block "+block+" does not end at the right position", commentEnd, blockStart+blockLength-1);
+		// get second method
+		node = getASTNode(compilUnit, 0, 1);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		method = (MethodDeclaration) node;
+		// verify that second method does not include comment
+		methodStart = compilUnit.getExtendedStartPosition(method);
+		assumeEquals("Method "+method+" does not start at the right position", method.getStartPosition(), methodStart);
+		methodLength = compilUnit.getExtendedLength(method);
+		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
+	}
+	public void testBug55221d() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.d", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 2, compilUnit.getCommentList().size());
+		// get first method
+		ASTNode node = getASTNode(compilUnit, 0, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration method = (MethodDeclaration) node;
+		// verify that first method includes comment
+		int methodStart = compilUnit.getExtendedStartPosition(method);
+		assumeEquals("Method "+method+" does not start at the right position", method.getStartPosition(), methodStart);
+		int methodLength = compilUnit.getExtendedLength(method);
+		assumeEquals("Method "+method+" does not have the right length", methodLength, method.getLength());
+		// get return type
+		node = method.getReturnType();
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not return type", node.getNodeType() == ASTNode.PRIMITIVE_TYPE); //$NON-NLS-1$
+		PrimitiveType returnType = (PrimitiveType) node;
+		// verify that body includes following comment
+		int returnStart = compilUnit.getExtendedStartPosition(returnType);
+		assumeEquals("Return type "+returnType+" does not start at the right position", returnType.getStartPosition(), returnStart);
+		int returnLength = compilUnit.getExtendedLength(returnType);
+		assumeEquals("Return type "+returnType+" does not have the right length", returnType.getLength(), returnLength);
 	}
 	/*
 	 * End DefaultCommentMapper verifications
