@@ -23,6 +23,7 @@ public final class ArrayBinding extends TypeBinding {
 	public int dimensions;
 	LookupEnvironment environment;	
 	char[] constantPoolName;
+	char[] genericTypeSignature;
 	
 public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment) {
 	this.tagBits |= IsArrayType;
@@ -94,6 +95,16 @@ public TypeBinding erasure() {
 }
 public LookupEnvironment environment() {
     return this.environment;
+}
+
+public char[] genericTypeSignature() {
+	
+    if (this.genericTypeSignature == null) {
+		char[] brackets = new char[dimensions];
+		for (int i = dimensions - 1; i >= 0; i--) brackets[i] = '[';
+		this.genericTypeSignature = CharOperation.concat(brackets, leafComponentType.genericTypeSignature());
+    }
+    return this.genericTypeSignature;
 }
 
 public PackageBinding getPackage() {

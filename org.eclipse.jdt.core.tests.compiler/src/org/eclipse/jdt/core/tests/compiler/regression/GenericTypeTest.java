@@ -7321,5 +7321,42 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                    ^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not convert expression of raw type ArrayList to type ArrayList<X>. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
-	}			
+	}
+	// 70975 - test compilation against binary generic method
+	public void test269() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	<U> U[] bar(U[] u)  { \n" +
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"		return null; }\n" + 
+				"\n" + 
+				"	static String[] foo() {\n" + 
+				"		X<String> xs = new X<String>();\n" + 
+				"		return xs.bar(new String[0]);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		foo();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"public class Y {\n" +
+				"    public static void main(String [] args) {\n" + 
+				"		X<String> xs = new X<String>();\n" + 
+				"		String[] s = xs.bar(new String[0]);\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false, // do not flush output
+			null);		
+	}		
 }
