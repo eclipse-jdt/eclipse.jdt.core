@@ -872,4 +872,20 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"1"
 		);
 	}			
+	
+	public void test027() { // equal expression
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		if (0 == new X()) {\n" + 
+				"			System.out.println();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"1"
+		);
+	}				
 }

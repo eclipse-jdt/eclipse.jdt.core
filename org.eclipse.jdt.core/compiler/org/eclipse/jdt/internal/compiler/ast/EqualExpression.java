@@ -421,18 +421,21 @@ public class EqualExpression extends BinaryExpression {
 		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
-			if (!leftType.isBaseType()) {
-				TypeBinding unboxedType = scope.computeBoxingType(leftType);
-				if (unboxedType != leftType) {
-					leftType = unboxedType;
-					unboxedLeft = true;
+			if (leftType.isBaseType()) {
+				if (!rightType.isBaseType()) {
+					TypeBinding unboxedType = scope.computeBoxingType(rightType);
+					if (unboxedType != rightType) {
+						rightType = unboxedType;
+						unboxedRight = true;
+					}
 				}
-			}
-			if (!rightType.isBaseType()) {
-				TypeBinding unboxedType = scope.computeBoxingType(rightType);
-				if (unboxedType != rightType) {
-					rightType = unboxedType;
-					unboxedRight = true;
+			} else {
+				if (rightType.isBaseType()) {
+					TypeBinding unboxedType = scope.computeBoxingType(leftType);
+					if (unboxedType != leftType) {
+						leftType = unboxedType;
+						unboxedLeft = true;
+					}
 				}
 			}
 		}
