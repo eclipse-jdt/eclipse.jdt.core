@@ -262,7 +262,7 @@ public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file, 
 	// Create a jar package fragment root only if on the classpath
 	IPath resourcePath = file.getFullPath();
 	try {
-		IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
+		IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			IPath rootPath = entry.getPath();
@@ -1325,7 +1325,6 @@ public void saving(ISaveContext context) throws CoreException {
 	public void shutdown () {
 		if (fDeltaProcessor.indexManager != null){ // no more indexing
 			fDeltaProcessor.indexManager.shutdown();
-			fDeltaProcessor.indexManager = null; 
 		}
 		try {
 			IJavaModel model = this.getJavaModel();

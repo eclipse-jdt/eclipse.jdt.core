@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+
 import java.util.*;
 
 import org.eclipse.jdt.core.*;
@@ -147,33 +148,52 @@ public boolean equals(Object o) {
 			fResource.equals(other.fResource) &&
 			fOccurrenceCount == other.fOccurrenceCount;
 }
-/**
- * @see IJavaElement
- */
-public boolean exists() {
-	if (!this.exists0()) return false;
+
 	
-	// Make the root path a workspace relative path (case of a jar external to its project but internal to the workspace)
-	IPath path = this.getPath();
-	IJavaProject project = this.getJavaProject();
-	
-	// Check that the package fragment root is in its parent's classpath
-	try {
-		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
-		for (int i = 0, length = roots.length; i < length; i++) {
-			if (this.equals(roots[i])) return true;
-		}
-		if (project.getOutputLocation().equals(path)){ // special permission granted to project binary output (when building)
-			return true;
-		}
-		return false;
-	} catch (JavaModelException e) {
+public boolean exists0() {
+	if (!JavaModelManager.USING_NEW_BUILDER) {
+		return this.resourceExists();
+	} else {
+		// should not be used with new builder
 		return false;
 	}
 }
+
+protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+	if (!this.resourceExists() || !this.isOnClasspath()) throw newNotPresentException();
+	super.openWhenClosed(pm, buffer);
+}
+
+/*
+ * Returns whether this package fragment root is on the classpath of its project.
+ */
+private boolean isOnClasspath() throws JavaModelException {
+	IPath path = this.getPath();
+	IJavaProject project = this.getJavaProject();
+
+	// special permission granted to project binary output (when using old builder)
+	if (!JavaModelManager.USING_NEW_BUILDER && project.getOutputLocation().equals(path)) { 
+		return true;
+	}
 	
-public boolean exists0() {
-	return JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), getPath(), true) != null;
+	// check package fragment root on classpath of its project
+	IClasspathEntry[] classpath = project.getResolvedClasspath(true);	boolean onClasspath = false;
+	for (int i = 0, length = classpath.length; i < length; i++) {
+		IClasspathEntry entry = classpath[i];
+		if (entry.getPath().equals(path)) {
+			return true;
+		}
+	}
+	return false;
+
+}
+
+/*
+ * Returns whether the java.io.File (a folder, an internal jar, or an external one)
+ * corresponding to this package fragment root exists.
+ */
+private boolean resourceExists() {
+	return JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.getPath(), true) != null;
 }
 	
 /**

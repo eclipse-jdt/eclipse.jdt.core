@@ -651,7 +651,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 	 * </ul>
 	 */
 	protected void verifyAttachSource(IPath zipPath) throws JavaModelException {
-		if (!exists0()) {
+		if (!exists()) {
 			throw newNotPresentException();
 		} else if (zipPath != null && !zipPath.isAbsolute()) {
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, zipPath));

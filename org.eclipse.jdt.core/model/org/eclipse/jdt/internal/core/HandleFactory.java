@@ -125,7 +125,7 @@ public class HandleFactory {
 					if (!project.isAccessible() 
 						|| !project.hasNature(JavaCore.NATURE_ID)) continue;
 					IJavaProject javaProject= this.javaModel.getJavaProject(project);
-					IClasspathEntry[] classpathEntries= ((JavaProject)javaProject).getExpandedClasspath(true);
+					IClasspathEntry[] classpathEntries= ((JavaProject)javaProject).getResolvedClasspath(true);
 					for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 						if (classpathEntries[j].getPath().equals(jarPath)) {
 							return javaProject.getPackageFragmentRoot(jarPathString);
