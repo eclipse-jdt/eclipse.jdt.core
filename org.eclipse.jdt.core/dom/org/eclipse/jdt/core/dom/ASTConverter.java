@@ -3139,11 +3139,14 @@ class ASTConverter {
 			if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 				org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) compilerNode;
 				if (name.isQualifiedName()) {
+					int count = 0;
 					SimpleName simpleName = null;
 					while (name.isQualifiedName()) {
 						simpleName = ((QualifiedName) name).getName();
 						recordNodes(simpleName, typeRef);
+						simpleName.index = count++;
 						name = ((QualifiedName) name).getQualifier();
+						name.index = count;
 						recordNodes(name, typeRef);
 					}
 				}

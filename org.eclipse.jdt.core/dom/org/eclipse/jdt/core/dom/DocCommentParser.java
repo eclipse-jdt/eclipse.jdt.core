@@ -271,10 +271,25 @@ class DocCommentParser extends AbstractCommentParser {
 	 */
 	protected boolean parseTag() {
 		TagElement tag = this.ast.newTagElement();
-		int length = this.scanner.currentPosition-this.tagSourceStart;
-		tag.setTagName(new String(this.source, this.tagSourceStart, length));
-		tag.setSourceRange(this.tagSourceStart, length);
-		pushOnAstStack(tag, true);
+		int start = this.tagSourceStart;
+		tag.setTagName(new String(this.source, start, this.tagSourceEnd-start+1));
+		if (this.inlineTagStarted) {
+			start = this.inlineTagStart;
+			TagElement previousTag = null;
+			if (this.astPtr == -1) {
+				previousTag = this.ast.newTagElement();
+				previousTag.setSourceRange(start, this.tagSourceEnd-start+1);
+				pushOnAstStack(previousTag, true);
+			} else {
+				previousTag = (TagElement) this.astStack[this.astPtr];
+			}
+			int previousStart = previousTag.getStartPosition();
+			previousTag.fragments().add(tag);
+			previousTag.setSourceRange(previousStart, this.tagSourceEnd-previousStart+1);
+		} else {
+			pushOnAstStack(tag, true);
+		}
+		tag.setSourceRange(start, this.tagSourceEnd-start+1);
 		return true;
 	}
 
@@ -356,6 +371,7 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		previousTag.fragments().add(text);
 		previousTag.setSourceRange(previousStart, end-previousStart+1);
+		this.textStart = -1;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
