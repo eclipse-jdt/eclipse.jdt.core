@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0384"));
+//		suite.addTest(new ASTConverterTest("test0386"));
 		return suite;
 	}
 		
@@ -3873,6 +3873,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not from source", typeBinding.isFromSource());
 		assertTrue("Is a top level", !typeBinding.isTopLevel());
 		assertTrue("A primitive type", !typeBinding.isPrimitive());
+		assertEquals("wrong qualified name", "", typeBinding.getQualifiedName());
 		ITypeBinding superclass = typeBinding.getSuperclass();
 		assertNotNull("No superclass", superclass);
 		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
@@ -3942,6 +3943,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not from source", typeBinding.isFromSource());
 		assertTrue("Is a top level", !typeBinding.isTopLevel());
 		assertTrue("A primitive type", !typeBinding.isPrimitive());
+		assertEquals("wrong qualified name", "", typeBinding.getQualifiedName());
 		ITypeBinding superclass = typeBinding.getSuperclass();
 		assertNotNull("No superclass", superclass);
 		assertEquals("Has fields", 0, typeBinding.getDeclaredFields().length);
@@ -7857,6 +7859,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		ITypeBinding typeBinding = nullLiteral.resolveTypeBinding();
 		assertNotNull("no type binding", typeBinding);
 		assertTrue("Not the null type", typeBinding.isNullType());
+		assertEquals("Wrong qualified name", typeBinding.getQualifiedName(), "null");
 	}
 
 	/**
@@ -9586,7 +9589,159 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("errors found", 1, compilationUnit.getMessages().length);
 	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23259
+	 */
+	public void test0386() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0386", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a switch statement", node.getNodeType() == ASTNode.SWITCH_STATEMENT);
+		SwitchStatement switchStatement = (SwitchStatement) node;
+		List statements = switchStatement.statements();
+		assertEquals("Wrong size", 5, statements.size());
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not a case statement", statement.getNodeType() == ASTNode.SWITCH_CASE);
+		checkSourceRange(statement, "case 1:", source);
+		statement = (Statement) statements.get(3);
+		assertTrue("Not a default case statement", statement.getNodeType() == ASTNode.SWITCH_CASE);
+		checkSourceRange(statement, "default :", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22939
+	 */
+	public void test0387() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0387", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = variableDeclarationFragment.getInitializer();
+		assertTrue("Not a cast expression", expression.getNodeType() == ASTNode.CAST_EXPRESSION);
+		Type type = ((CastExpression) expression).getType();
+		checkSourceRange(type, "A", source);
+	}
 	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0388() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0388", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "test0388.A", typeBinding.getQualifiedName());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0389() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0389", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "test0389.A.B", typeBinding.getQualifiedName());
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0390() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0390", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "int", typeBinding.getQualifiedName());
+	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0391() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0391", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "int[]", typeBinding.getQualifiedName());
+	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0392() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0392", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
+	}	
+
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
