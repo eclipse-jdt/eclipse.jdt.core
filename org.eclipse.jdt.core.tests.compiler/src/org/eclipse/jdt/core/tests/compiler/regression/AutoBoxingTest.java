@@ -215,8 +215,43 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"12"
 		);
 	}
-
-	public void test008() { // local declaration assignment tests
+	public void test008() { // autoboxing method is chosen over private exact match & visible varargs method
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Y.test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private static void test(int i) { System.out.print('n'); }\n" +
+				"	static void test(int... i) { System.out.print('n'); }\n" +
+				"	public static void test(Integer i) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int bar() {return 1;}\n" +
+				"	public static void main(String[] s) {\n" +
+				"		new Y().test(bar());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private void test(int i) { System.out.print('n'); }\n" +
+				"	void test(int... i) { System.out.print('n'); }\n" +
+				"	public void test(Integer i) { System.out.print('y'); }\n" +
+				"}\n",
+			},
+			"y"
+		);
+	}
+	public void test009() { // local declaration assignment tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -249,7 +284,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 
-	public void test009() { // field declaration assignment tests
+	public void test010() { // field declaration assignment tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
