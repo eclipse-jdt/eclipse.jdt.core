@@ -33,6 +33,12 @@ public class DefaultCodeFormatterOptions {
 		return options;
 	}
 	
+	public static DefaultCodeFormatterOptions getEclipseDefaultSettings() {
+		DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions();
+		options.setEclipseDefaultSettings();
+		return options;
+	}
+
 	public static DefaultCodeFormatterOptions getJavaConventionsSettings() {
 		DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions();
 		options.setJavaConventionsSettings();
@@ -2024,6 +2030,12 @@ public class DefaultCodeFormatterOptions {
 		this.tab_char = TAB; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 	}
 	
+	public void setEclipseDefaultSettings() {
+		setJavaConventionsSettings();
+		this.tab_char = TAB;
+		this.tab_size = 4;
+	}
+
 	public void setJavaConventionsSettings() {
 		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_enum_constant = Alignment.M_COMPACT_SPLIT;
@@ -2262,6 +2274,6 @@ public class DefaultCodeFormatterOptions {
 		this.put_empty_statement_on_new_line = true;
 		this.tab_size = 4;
 		this.page_width = 80;
-		this.tab_char = TAB; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89739
+		this.tab_char = SPACE;
 	}
 }

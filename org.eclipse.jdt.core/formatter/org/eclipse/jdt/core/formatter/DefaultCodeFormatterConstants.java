@@ -44,7 +44,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @since 3.0
 	 */
-    public static final String FALSE = "false"; //$NON-NLS-1$
+	public static final String FALSE = "false"; //$NON-NLS-1$
 	
 	/**
 	 * <pre>
@@ -3122,6 +3122,16 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static Map getEclipse21Settings() {
 		return DefaultCodeFormatterOptions.getDefaultSettings().getMap();
+	}
+
+	/**
+	 * Returns the default Eclipse formatter settings
+	 * 
+	 * @return the Eclipse default settings
+	 * @since 3.1
+	 */
+	public static Map getEclipseDefaultSettings() {
+		return DefaultCodeFormatterOptions.getEclipseDefaultSettings().getMap();
 	}
 
 	/**

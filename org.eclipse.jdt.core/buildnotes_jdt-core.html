@@ -47,6 +47,16 @@ Eclipse SDK 3.1M6 - 1st April 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>
+New Code Formatter built-in profile has been added: "Eclipse [built-in]".<br>
+This new profile is based on "Java Conventions" but uses tab character (instead of space) and set tab size to 4 (instead of 8).<br>
+JavaCore was using these values by default but they were wrongly showed them as "Java Conventions" in Code Formatter
+preference page. This problem is now fixed (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89739">89739</a>).<br>
+Code formatter behavior is still fully compatible with previous milestones for users who have not modified Code Formatter
+options in their workspace. However, users who have explicitely modified them and have troubles with use of tab character,
+should open Code Formatter preference page and either select this new "Eclipse" profile or verify state of "Use of tab character"
+check-box.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
