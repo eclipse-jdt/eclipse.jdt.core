@@ -65,7 +65,7 @@ public class PotentialMatch implements ICompilationUnit {
 		}
 		return source;
 	}
-	// TODO: Cache contents (only after diet parse)
+	// TODO: (jerome) Cache contents (only after diet parse)
 	public char[] getContents() {
 		char[] source = null;
 		try {
