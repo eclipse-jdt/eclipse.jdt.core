@@ -30,14 +30,9 @@ public class SelectionParser extends AssistParser {
 	public int selectionStart, selectionEnd;
 	public AstNode selectionNode;
 
-	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
-
-/** @deprecated - should use constructor with assertMode */
+	public static final char[] SUPER = "super"/*nonNLS*/.toCharArray();
 public SelectionParser(ProblemReporter problemReporter) {
-	this(problemReporter, false/*no assertion by default*/);
-}	
-public SelectionParser(ProblemReporter problemReporter, boolean assertMode) {
-	super(problemReporter, assertMode);
+	super(problemReporter);
 }
 public char[] assistIdentifier(){
 	return ((SelectionScanner)scanner).selectionIdentifier;
@@ -422,7 +417,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	return reference;
 }
 public void initializeScanner(){
-	this.scanner = new SelectionScanner(this.assertMode);
+	this.scanner = new SelectionScanner();
 }
 protected MessageSend newMessageSend() {
 	// '(' ArgumentListopt ')'

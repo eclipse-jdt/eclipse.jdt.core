@@ -44,6 +44,6 @@ public IHandle inState(IState s) throws org.eclipse.jdt.internal.core.builder.St
  * toString method comment.
  */
 public String toString() {
-	return getDeclaringClass().getName() + "." + getName(); //$NON-NLS-1$
+	return getDeclaringClass().getName() + "."/*nonNLS*/ + getName();
 }
 }

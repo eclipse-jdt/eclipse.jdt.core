@@ -42,18 +42,18 @@ public MatchSet(MatchLocator locator) {
 	this.matchContainer = locator.pattern.matchContainer();
 }
 public void addPossibleMatch(AstNode node) {
-	this.potentialMatchingNodes.put(node, new Integer(SearchPattern.POSSIBLE_MATCH));
+	this.potentialMatchingNodes.put(node, node);
 }
 public void addTrustedMatch(AstNode node) {
-	this.matchingNodes.put(node, new Integer(SearchPattern.ACCURATE_MATCH));
+	this.matchingNodes.put(node, node);
 }
 public void checkMatching(AstNode node) {
-	int matchLevel = this.locator.pattern.matchLevel(node, false);
+	int matchLevel = this.locator.pattern.matchLevel(node);
 	switch (matchLevel) {
 		case SearchPattern.POSSIBLE_MATCH:
 			this.addPossibleMatch(node);
 			break;
-		case SearchPattern.ACCURATE_MATCH:
+		case SearchPattern.TRUSTED_MATCH:
 			this.addTrustedMatch(node);
 	}
 }
@@ -109,15 +109,9 @@ private void reportMatching(AbstractMethodDeclaration method, char[][] definingT
 	AstNode[] nodes = this.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
 	for (int i = 0; i < nodes.length; i++) {
 		AstNode node = nodes[i];
-		Integer level = (Integer)this.matchingNodes.remove(node);
+		this.matchingNodes.remove(node);
 		if ((this.matchContainer & SearchPattern.METHOD) != 0) {
-			this.locator.reportReference(
-				node, 
-				method, 
-				definingTypeNames, 
-				level.intValue() == SearchPattern.ACCURATE_MATCH ?
-					IJavaSearchResultCollector.EXACT_MATCH :
-					IJavaSearchResultCollector.POTENTIAL_MATCH);
+			this.locator.reportReference(node, method, definingTypeNames, this.accuracy);
 		}
 	}
 	if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {
@@ -134,9 +128,8 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 		// move the potential matching nodes that exactly match the search pattern to the matching nodes set
 		for (Enumeration potentialMatches = this.potentialMatchingNodes.keys(); potentialMatches.hasMoreElements();) {
 			AstNode node = (AstNode) potentialMatches.nextElement();
-			int level = this.locator.pattern.matchLevel(node, true);
-			if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {
-				this.matchingNodes.put(node, new Integer(level));
+			if (this.locator.pattern.matches(node)) {
+				this.matchingNodes.put(node, node);
 			}
 		}
 		this.potentialMatchingNodes = new Hashtable();
@@ -144,8 +137,8 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 	
 	// package declaration
 	ImportReference pkg = unit.currentPackage;
-	Integer level;
-	if (pkg != null && (level = (Integer)this.matchingNodes.remove(pkg)) != null) {
+	if (pkg != null && this.matchingNodes.get(pkg) == pkg) {
+		this.matchingNodes.remove(pkg);
 		if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0) {
 			this.locator.reportPackageDeclaration(pkg);
 		}
@@ -156,13 +149,10 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 	if (imports != null) {
 		for (int i = 0; i < imports.length; i++) {
 			ImportReference importRef = imports[i];
-			if ((level = (Integer)this.matchingNodes.remove(importRef)) != null) {
+			if (this.matchingNodes.get(importRef) == importRef) {
+				this.matchingNodes.remove(importRef);
 				if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0) {
-					this.locator.reportImport(
-						importRef, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+					this.locator.reportImport(importRef, this.accuracy);
 				}
 			}
 		}
@@ -173,14 +163,10 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 	if (types != null) {
 		for (int i = 0; i < types.length; i++) {
 			TypeDeclaration type = types[i];
-			if ((level = (Integer)this.matchingNodes.remove(type)) != null) {
+			if (this.matchingNodes.get(type) == type) {
+				this.matchingNodes.remove(type);
 				if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0) {
-					this.locator.reportTypeDeclaration(
-						type, 
-						new char[][] {type.name}, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+					this.locator.reportTypeDeclaration(type, new char[][] {type.name}, this.accuracy);
 				}
 			}
 			this.reportMatching(type, EMPTY_CHAR_CHAR);
@@ -196,16 +182,9 @@ private void reportMatching(FieldDeclaration field, char[][] definingTypeNames, 
 	AstNode[] nodes = this.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
 	for (int i = 0; i < nodes.length; i++) {
 		AstNode node = nodes[i];
-		Integer level = (Integer)this.matchingNodes.remove(node);
+		this.matchingNodes.remove(node);
 		if ((this.matchContainer & SearchPattern.FIELD) != 0) {
-			this.locator.reportReference(
-				node, 
-				type, 
-				field, 
-				definingTypeNames, 
-				level.intValue() == SearchPattern.ACCURATE_MATCH ?
-					IJavaSearchResultCollector.EXACT_MATCH :
-					IJavaSearchResultCollector.POTENTIAL_MATCH);
+			this.locator.reportReference(node, type, field, definingTypeNames, this.accuracy);
 		}
 	}
 }
@@ -216,21 +195,16 @@ private void reportMatching(FieldDeclaration field, char[][] definingTypeNames, 
  */
 private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) throws CoreException {
 	char[][] definingTypeNames = CharOperation.arrayConcat(enclosingTypeNames, type.name);
-	Integer level;
 	
 	// fields
 	FieldDeclaration[] fields = type.fields;
 	if (fields != null) {
 		for (int i = 0; i < fields.length; i++) {
 			FieldDeclaration field = fields[i];
-			if ((level = (Integer)this.matchingNodes.remove(field)) != null) {
+			if (this.matchingNodes.get(field) == field) {
+				this.matchingNodes.remove(field);
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-					this.locator.reportFieldDeclaration(
-						field, 
-						definingTypeNames, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+					this.locator.reportFieldDeclaration(field, definingTypeNames, this.accuracy);
 				}
 			}
 			this.reportMatching(field, definingTypeNames, type);
@@ -242,14 +216,10 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 	if (methods != null) {
 		for (int i = 0; i < methods.length; i++) {
 			AbstractMethodDeclaration method = methods[i];
-			if ((level = (Integer)this.matchingNodes.remove(method)) != null) {
+			if (this.matchingNodes.get(method) == method) {
+				this.matchingNodes.remove(method);
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-					this.locator.reportMethodDeclaration(
-						method, 
-						definingTypeNames, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+					this.locator.reportMethodDeclaration(method, definingTypeNames, this.accuracy);
 				}
 			}
 			this.reportMatching(method, definingTypeNames);
@@ -261,15 +231,11 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 	if (memberTypes != null) {
 		for (int i = 0; i < memberTypes.length; i++) {
 			MemberTypeDeclaration memberType = memberTypes[i];
-			if ((level = (Integer)this.matchingNodes.remove(memberType)) != null) {
+			if (this.matchingNodes.get(memberType) == memberType) {
+				this.matchingNodes.remove(memberType);
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
 					char[][] memberTypeNames = CharOperation.arrayConcat(definingTypeNames, memberType.name);
-					this.locator.reportTypeDeclaration(
-						memberType, 
-						memberTypeNames, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+					this.locator.reportTypeDeclaration(memberType, memberTypeNames, this.accuracy);
 				}
 			}
 			this.reportMatching(memberType, definingTypeNames);
@@ -278,28 +244,20 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 
 	// super types
 	TypeReference superClass = type.superclass;
-	if (superClass != null && (level = (Integer)this.matchingNodes.remove(superClass)) != null) {
+	if (superClass != null && this.matchingNodes.get(superClass) == superClass) {
+		this.matchingNodes.remove(superClass);
 		if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-			this.locator.reportSuperTypeReference(
-				superClass, 
-				definingTypeNames, 
-				level.intValue() == SearchPattern.ACCURATE_MATCH ?
-					IJavaSearchResultCollector.EXACT_MATCH :
-					IJavaSearchResultCollector.POTENTIAL_MATCH);
+			this.locator.reportSuperTypeReference(superClass, definingTypeNames, this.accuracy);
 		}
 	}
 	TypeReference[] superInterfaces = type.superInterfaces;
 	if (superInterfaces != null) {
 		for (int i = 0; i < superInterfaces.length; i++) {
 			TypeReference superInterface = superInterfaces[i];
-			if ((level = (Integer)this.matchingNodes.get(superInterface)) != null) {
+			if (this.matchingNodes.get(superInterface) == superInterface) {
+				this.matchingNodes.remove(superInterface);
 				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-					this.locator.reportSuperTypeReference(
-						superInterface, 
-						definingTypeNames, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+					this.locator.reportSuperTypeReference(superInterface, definingTypeNames, this.accuracy);
 				}
 			}
 		}
@@ -308,55 +266,17 @@ private void reportMatching(TypeDeclaration type, char[][] enclosingTypeNames) t
 }
 public String toString() {
 	StringBuffer result = new StringBuffer();
-	result.append("Exact matches:"); //$NON-NLS-1$
+	result.append("Exact matches:"/*nonNLS*/);
 	for (Enumeration enum = this.matchingNodes.keys(); enum.hasMoreElements();) {
-		result.append("\n"); //$NON-NLS-1$
+		result.append("\n"/*nonNLS*/);
 		AstNode node = (AstNode)enum.nextElement();
-		Object value = this.matchingNodes.get(node);
-		if (value instanceof Integer) {
-			result.append('\t');
-			int accuracy = ((Integer)value).intValue();
-			switch (accuracy) {
-				case SearchPattern.IMPOSSIBLE_MATCH:
-					result.append("IMPOSSIBLE_MATCH: "); //$NON-NLS-1$
-					break;
-				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: "); //$NON-NLS-1$
-					break;
-				case SearchPattern.INACCURATE_MATCH:
-					result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
-					break;
-				case SearchPattern.ACCURATE_MATCH:
-					result.append("ACCURATE_MATCH: "); //$NON-NLS-1$
-					break;
-			}
-		} 
-		result.append(node.toString(0));
+		result.append(node.toString(1));
 	}
-	result.append("\nPotential matches:"); //$NON-NLS-1$
+	result.append("\nPotential matches:"/*nonNLS*/);
 	for (Enumeration enum = this.potentialMatchingNodes.keys(); enum.hasMoreElements();) {
-		result.append("\n"); //$NON-NLS-1$
+		result.append("\n"/*nonNLS*/);
 		AstNode node = (AstNode)enum.nextElement();
-		Object value = this.potentialMatchingNodes.get(node);
-		if (value instanceof Integer) {
-			result.append("\t"); //$NON-NLS-1$
-			int accuracy = ((Integer)value).intValue();
-			switch (accuracy) {
-				case SearchPattern.IMPOSSIBLE_MATCH:
-					result.append("IMPOSSIBLE_MATCH: "); //$NON-NLS-1$
-					break;
-				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: "); //$NON-NLS-1$
-					break;
-				case SearchPattern.INACCURATE_MATCH:
-					result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
-					break;
-				case SearchPattern.ACCURATE_MATCH:
-					result.append("ACCURATE_MATCH: "); //$NON-NLS-1$
-					break;
-			}
-		}
-		result.append(node.toString(0));
+		result.append(node.toString(1));
 	}
 	return result.toString();
 }

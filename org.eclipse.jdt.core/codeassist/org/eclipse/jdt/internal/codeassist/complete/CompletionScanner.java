@@ -29,8 +29,8 @@ public class CompletionScanner extends Scanner {
 	public int completedIdentifierEnd = -1;
 
 	public static final char[] EmptyCompletionIdentifier = {};
-public CompletionScanner(boolean assertMode) {
-	super(false, false, false, assertMode);
+public CompletionScanner() {
+	super();
 }
 /* 
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed
@@ -646,7 +646,7 @@ public int getNextToken() throws InvalidInputException {
 					if (atEnd())
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
-					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
+					throw new InvalidInputException("Ctrl-Z"/*nonNLS*/);
 
 				default :
 					if (Character.isJavaIdentifierStart(currentCharacter))

@@ -23,7 +23,7 @@ public MethodBinding createsInternalConstructorWithBinding(MethodBinding inherit
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with the same arguments
 
-	String baseName = "$anonymous"; //$NON-NLS-1$
+	String baseName = "$anonymous"/*nonNLS*/;
 	TypeBinding[] argumentTypes = inheritedConstructorBinding.parameters;
 	int argumentsLength = argumentTypes.length;
 	//the constructor

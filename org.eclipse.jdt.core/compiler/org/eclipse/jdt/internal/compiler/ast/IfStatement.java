@@ -187,10 +187,10 @@ public String toString(int tab){
 
 	String inFront , s = tabString(tab) ;
 	inFront = s ;
-	s = s + "if ("+ condition.toStringExpression()+") \n"; //$NON-NLS-1$ //$NON-NLS-2$
-	s = s + thenStatement.toString(tab+2) + ";" ; //$NON-NLS-1$
+	s = s + "if ("/*nonNLS*/+ condition.toStringExpression()+") \n"/*nonNLS*/;
+	s = s + thenStatement.toString(tab+2) + ";"/*nonNLS*/ ;
 	if (elseStatement != null)
-		s = s + "\n" + inFront + "else\n" + elseStatement.toString(tab+2) + ";"; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
+		s = s + "\n"/*nonNLS*/ + inFront + "else\n"/*nonNLS*/ + elseStatement.toString(tab+2) + ";"/*nonNLS*/;
 	return s ;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

@@ -9,20 +9,20 @@ import org.eclipse.jdt.internal.core.search.processing.*;
 public interface IIndexConstants extends IJobConstants {
 
 	/* index encoding */
-	char[] REF= "ref/".toCharArray(); //$NON-NLS-1$
-	char[] FIELD_REF= "fieldRef/".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_REF= "methodRef/".toCharArray(); //$NON-NLS-1$
-	char[] CONSTRUCTOR_REF= "constructorRef/".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_REF= "typeRef/".toCharArray(); //$NON-NLS-1$
-	char[] SUPER_REF = "superRef/".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_DECL = "typeDecl/".toCharArray(); //$NON-NLS-1$
+	char[] REF= "ref/"/*nonNLS*/.toCharArray();
+	char[] FIELD_REF= "fieldRef/"/*nonNLS*/.toCharArray();
+	char[] METHOD_REF= "methodRef/"/*nonNLS*/.toCharArray();
+	char[] CONSTRUCTOR_REF= "constructorRef/"/*nonNLS*/.toCharArray();
+	char[] TYPE_REF= "typeRef/"/*nonNLS*/.toCharArray();
+	char[] SUPER_REF = "superRef/"/*nonNLS*/.toCharArray();
+	char[] TYPE_DECL = "typeDecl/"/*nonNLS*/.toCharArray();
 	int 	TYPE_DECL_LENGTH = 9;
-	char[] CLASS_DECL= "typeDecl/C/".toCharArray(); //$NON-NLS-1$
-	char[] INTERFACE_DECL= "typeDecl/I/".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_DECL= "methodDecl/".toCharArray(); //$NON-NLS-1$
-	char[] CONSTRUCTOR_DECL= "constructorDecl/".toCharArray(); //$NON-NLS-1$
-	char[] FIELD_DECL= "fieldDecl/".toCharArray(); //$NON-NLS-1$
-	char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
+	char[] CLASS_DECL= "typeDecl/C/"/*nonNLS*/.toCharArray();
+	char[] INTERFACE_DECL= "typeDecl/I/"/*nonNLS*/.toCharArray();
+	char[] METHOD_DECL= "methodDecl/"/*nonNLS*/.toCharArray();
+	char[] CONSTRUCTOR_DECL= "constructorDecl/"/*nonNLS*/.toCharArray();
+	char[] FIELD_DECL= "fieldDecl/"/*nonNLS*/.toCharArray();
+	char[] OBJECT = "Object"/*nonNLS*/.toCharArray();
 	char[][] COUNTS= 
 		new char[][] { new char[] {'0'}, new char[] {'1'}, new char[] {'2'}, new char[] {'3'}, new char[] {'4'}, new char[] {'5'}, new char[] {'6'}, new char[] {'7'}, new char[] {'8'}, new char[] {'9'}
 	};

@@ -36,13 +36,13 @@ public String stringValue() {
 	
 	String s = new Float(value).toString() ;
 	if (s == null)
-		return "null"; //$NON-NLS-1$
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(float)" + value ; } //$NON-NLS-1$
+	return "(float)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_float;
 }

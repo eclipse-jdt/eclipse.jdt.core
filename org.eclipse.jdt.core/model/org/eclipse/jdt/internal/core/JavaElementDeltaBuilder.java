@@ -422,7 +422,7 @@ private void removeElementInfo(IJavaElement element) {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Built delta:\n"); //$NON-NLS-1$
+	buffer.append("Built delta:\n"/*nonNLS*/);
 	buffer.append(this.delta.toString());
 	return buffer.toString();
 }

@@ -23,7 +23,6 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(ArrayReference arrayReference, BlockScope scope);
 	void endVisit(ArrayTypeReference arrayTypeReference, BlockScope scope);
 	void endVisit(ArrayTypeReference arrayTypeReference, ClassScope scope);
-	void endVisit(AssertStatement assertStatement, BlockScope scope);
 	void endVisit(Assignment assignment, BlockScope scope);
 	void endVisit(BinaryExpression binaryExpression, BlockScope scope);
 	void endVisit(Block block, BlockScope scope);
@@ -99,7 +98,6 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(ArrayReference arrayReference, BlockScope scope);
 	boolean visit(ArrayTypeReference arrayTypeReference, BlockScope scope);
 	boolean visit(ArrayTypeReference arrayTypeReference, ClassScope scope);
-	boolean visit(AssertStatement assertStatement, BlockScope scope);
 	boolean visit(Assignment assignment, BlockScope scope);
 	boolean visit(BinaryExpression binaryExpression, BlockScope scope);
 	boolean visit(Block block, BlockScope scope);

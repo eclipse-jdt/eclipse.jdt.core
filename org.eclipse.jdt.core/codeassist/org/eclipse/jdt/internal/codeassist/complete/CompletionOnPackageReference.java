@@ -34,14 +34,14 @@ public CompletionOnPackageReference(char[][] tokens , long[] positions) {
 }
 public String toString(int tab, boolean withOnDemand) {
 	StringBuffer buffer = new StringBuffer(tabString(tab));
-	buffer.	append("<CompleteOnPackage:"); //$NON-NLS-1$
+	buffer.	append("<CompleteOnPackage:"/*nonNLS*/);
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append("."); //$NON-NLS-1$
+			buffer.append("."/*nonNLS*/);
 		}
 	}
-	buffer.append(">"); //$NON-NLS-1$
+	buffer.append(">"/*nonNLS*/);
 	return buffer.toString();
 }
 }

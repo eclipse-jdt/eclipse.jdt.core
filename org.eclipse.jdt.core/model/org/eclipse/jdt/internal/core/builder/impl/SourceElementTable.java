@@ -123,6 +123,6 @@ SourceEntry removeSourceEntry(IPackage pkg, String fileName) {
 	 * @return a string representation of the receiver
 	 */
 	public String toString() {
-		return "SourceElementTable(" + fPackageTable + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "SourceElementTable("/*nonNLS*/ + fPackageTable + ")"/*nonNLS*/;
 	}
 }

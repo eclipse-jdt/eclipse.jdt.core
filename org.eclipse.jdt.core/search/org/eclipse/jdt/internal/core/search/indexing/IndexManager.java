@@ -57,13 +57,13 @@ public void activateProcessing() {
 public void add(IFile resource){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
 	String extension = resource.getFileExtension();
-	if ("java".equals(extension)){ //$NON-NLS-1$
+	if ("java"/*nonNLS*/.equals(extension)){
 		AddCompilationUnitToIndex job = new AddCompilationUnitToIndex(resource, this);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
 		}
 		request(job);
-	} else if ("class".equals(extension)){ //$NON-NLS-1$
+	} else if ("class"/*nonNLS*/.equals(extension)){
 		AddClassFileToIndex job = new AddClassFileToIndex(resource, this);
 		if (this.awaitingJobsCount() < MAX_FILES_IN_MEMORY) {
 			job.initializeContents();
@@ -77,7 +77,7 @@ public void add(IFile resource){
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) System.out.println("STARTING - ensuring consistency"); //$NON-NLS-1$
+	if (VERBOSE) System.out.println("STARTING - ensuring consistency"/*nonNLS*/);
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -94,15 +94,15 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) System.out.println("DONE - ensuring consistency"); //$NON-NLS-1$
+		if (VERBOSE) System.out.println("DONE - ensuring consistency"/*nonNLS*/);
 	}
 }
 private String computeIndexName(String pathString) {
 	byte[] pathBytes = pathString.getBytes();
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
-	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
-	if (VERBOSE) System.out.println(" index name: " + pathString + " <----> " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"/*nonNLS*/;
+	if (VERBOSE) System.out.println(" index name: "/*nonNLS*/ + pathString + " <----> "/*nonNLS*/ + fileName);
 	IPath indexPath = getJavaPluginWorkingLocation();
 	String indexDirectory = indexPath.toOSString();
 	if (indexDirectory.endsWith(File.separator)) {
@@ -183,7 +183,7 @@ public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
 			if (index == null) {
 				// New index: add same index for given path and canonical path
 				String indexPath = computeIndexName(canonicalPath.toOSString());
-				index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString()); //$NON-NLS-1$
+				index = IndexFactory.newIndex(indexPath, "Index for "/*nonNLS*/ + canonicalPath.toOSString());
 				indexes.put(canonicalPath, index);
 				indexes.put(path, index);
 				monitors.put(index, new ReadWriteMonitor());
@@ -257,7 +257,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name", IndexManager.class.getName()); //$NON-NLS-1$
+	return Util.bind("process.name"/*nonNLS*/, IndexManager.class.getName());
 }
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
@@ -273,7 +273,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 			// Add same index for given path and canonical path
 			String indexPath = computeIndexName(canonicalPath.toOSString());
 			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
-			index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString()); //$NON-NLS-1$
+			index = IndexFactory.newIndex(indexPath, "Index for "/*nonNLS*/ + canonicalPath.toOSString());
 			index.empty();
 			indexes.put(canonicalPath, index);
 			indexes.put(path, index);
@@ -318,7 +318,7 @@ public void saveIndexes(){
 			if (monitor == null) continue; // index got deleted since acquired
 			try {
 				monitor.enterWrite();
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
+				if (IndexManager.VERBOSE) System.out.println("-> merging index : "/*nonNLS*/+index.getIndexFile());
 				index.save();
 			} finally {
 				monitor.exitWrite();

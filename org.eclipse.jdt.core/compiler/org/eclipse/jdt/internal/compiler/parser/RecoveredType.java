@@ -185,27 +185,27 @@ public int sourceEnd(){
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
-	result.append("Recovered type:\n"); //$NON-NLS-1$
+	result.append("Recovered type:\n"/*nonNLS*/);
 	if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
 		result.append(tabString(tab));
-		result.append(" "); //$NON-NLS-1$
+		result.append(" "/*nonNLS*/);
 	}
 	result.append(typeDeclaration.toString(tab + 1));
 	if (this.memberTypes != null) {
 		for (int i = 0; i < this.memberTypeCount; i++) {
-			result.append("\n"); //$NON-NLS-1$
+			result.append("\n"/*nonNLS*/);
 			result.append(this.memberTypes[i].toString(tab + 1));
 		}
 	}
 	if (this.fields != null) {
 		for (int i = 0; i < this.fieldCount; i++) {
-			result.append("\n"); //$NON-NLS-1$
+			result.append("\n"/*nonNLS*/);
 			result.append(this.fields[i].toString(tab + 1));
 		}
 	}
 	if (this.methods != null) {
 		for (int i = 0; i < this.methodCount; i++) {
-			result.append("\n"); //$NON-NLS-1$
+			result.append("\n"/*nonNLS*/);
 			result.append(this.methods[i].toString(tab + 1));
 		}
 	}

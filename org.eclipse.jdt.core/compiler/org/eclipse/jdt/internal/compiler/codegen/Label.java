@@ -151,11 +151,6 @@ public void place() { // Currently lacking wide support.
 						LocalVariableBinding local = locals[i];
 						if ((local != null) && (local.initializationCount > 0)) {
 							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
-								// we want to prevent interval of size 0 to have a negative size.
-								// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
-								if (local.initializationPCs[((local.initializationCount - 1) << 1)] == oldPosition) {
-									local.initializationPCs[((local.initializationCount - 1) << 1)] = position;
-								}
 								local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = position;
 							}
 						}
@@ -195,14 +190,14 @@ public void place() { // Currently lacking wide support.
  * Print out the receiver
  */
 public String toString() {
-	StringBuffer buffer = new StringBuffer("(position="); //$NON-NLS-1$
+	StringBuffer buffer = new StringBuffer("(position="/*nonNLS*/);
 	buffer.append(position);
-	buffer.append(", forwards = ["); //$NON-NLS-1$
+	buffer.append(", forwards = ["/*nonNLS*/);
 	for (int i = 0; i < forwardReferenceCount - 1; i++)
-		buffer.append(forwardReferences[i] + ", "); //$NON-NLS-1$
+		buffer.append(forwardReferences[i] + ", "/*nonNLS*/);
 	if (forwardReferenceCount >= 1)
 		buffer.append(forwardReferences[forwardReferenceCount-1]);
-	buffer.append("] )"); //$NON-NLS-1$
+	buffer.append("] )"/*nonNLS*/);
 	return buffer.toString();
 }
 }

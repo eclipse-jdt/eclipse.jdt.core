@@ -45,7 +45,7 @@ public String errorReportSource(ICompilationUnit compilationUnit) {
 	//sanity .....
 	if ((startPosition > endPosition)
 		|| ((startPosition <= 0) && (endPosition <= 0)))
-		return Util.bind("problem.noSourceInformation"); //$NON-NLS-1$
+		return Util.bind("problem.noSourceInformation"/*nonNLS*/);
 
 	//regular behavior....(slow code)
 
@@ -111,8 +111,8 @@ public String errorReportSource(ICompilationUnit compilationUnit) {
 	//resize underneathto remove 'null' chars
 	System.arraycopy(underneath, 0, underneath = new char[pos], 0, pos);
 
-	return " " + Util.bind("problem.atLine",String.valueOf(line)) + //$NON-NLS-2$ //$NON-NLS-1$
-	"\n\t" + new String(extract) + "\n\t" + new String(underneath); //$NON-NLS-2$ //$NON-NLS-1$
+	return " "/*nonNLS*/ + Util.bind("problem.atLine"/*nonNLS*/,String.valueOf(line)) +
+	"\n\t"/*nonNLS*/ + new String(extract) + "\n\t"/*nonNLS*/ + new String(underneath);
 }
 /**
  * Answer back the original arguments recorded into the problem.
@@ -212,13 +212,13 @@ public void setSourceStart(int sourceStart) {
 }
 public String toString() {
 
-	String s = "Pb(" + (id & IgnoreCategoriesMask) + ") "; //$NON-NLS-1$ //$NON-NLS-2$
+	String s = "Pb("/*nonNLS*/ + (id & IgnoreCategoriesMask) + ") "/*nonNLS*/;
 	if (message != null) {
 		s += message;
 	} else {
 		if (arguments != null)
 			for (int i = 0; i < arguments.length; i++)
-				s += " " + arguments[i]; //$NON-NLS-1$
+				s += " "/*nonNLS*/ + arguments[i];
 	}
 	return s;
 }

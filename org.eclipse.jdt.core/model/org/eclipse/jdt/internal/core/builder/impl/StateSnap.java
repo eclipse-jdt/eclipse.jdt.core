@@ -75,7 +75,7 @@ public StateImpl read(JavaDevelopmentContextImpl dc, IProject project, DataInput
 	int magic = in.readInt();
 	int version = in.readShort();
 	if (magic != MAGIC) { // magic = "STAT"e
-		throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+		throw new IOException(Util.bind("build.wrongFileFormat"/*nonNLS*/));
 	}
 
 	/* dispatch to appropriate reader */
@@ -85,7 +85,7 @@ public StateImpl read(JavaDevelopmentContextImpl dc, IProject project, DataInput
 		case VERSION6:
 			return new StateSnapV6().read(dc, project, in);
 		default:
-			throw new IOException(Util.bind("build.unhandledVersionFormat")); //$NON-NLS-1$
+			throw new IOException(Util.bind("build.unhandledVersionFormat"/*nonNLS*/));
 	}
 }
 /** 

@@ -114,12 +114,12 @@ public static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 
-	if ((modifiers & AccPublic) != 0) print.print("public "); //$NON-NLS-1$
-	if ((modifiers & AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
-	if ((modifiers & AccFinal) != 0) print.print("final "); //$NON-NLS-1$
-	if ((modifiers & AccSuper) != 0) print.print("super "); //$NON-NLS-1$
-	if ((modifiers & AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
-	if ((modifiers & AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	if ((modifiers & AccPublic) != 0) print.print("public "/*nonNLS*/);
+	if ((modifiers & AccPrivate) != 0) print.print("private "/*nonNLS*/);
+	if ((modifiers & AccFinal) != 0) print.print("final "/*nonNLS*/);
+	if ((modifiers & AccSuper) != 0) print.print("super "/*nonNLS*/);
+	if ((modifiers & AccInterface) != 0) print.print("interface "/*nonNLS*/);
+	if ((modifiers & AccAbstract) != 0) print.print("abstract "/*nonNLS*/);
 	print.flush();
 	return out.toString();
 }
@@ -270,7 +270,7 @@ public static void verifyMethodNameAndSignature(char[] name, char[] signature) t
 
 	// if name begins with the < character it must be clinit or init
 	if (name[0] == '<') {
-		if (new String(name).equals("<clinit>") || new String(name).equals("<init>")) { //$NON-NLS-2$ //$NON-NLS-1$
+		if (new String(name).equals("<clinit>"/*nonNLS*/) || new String(name).equals("<init>"/*nonNLS*/)) {
 			int signatureLength = signature.length;
 			if (!((signatureLength > 2)
 				&& (signature[0] == '(')

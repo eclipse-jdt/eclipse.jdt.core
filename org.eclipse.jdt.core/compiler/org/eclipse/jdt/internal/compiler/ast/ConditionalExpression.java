@@ -254,8 +254,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/
 
-	return	condition.toStringExpression() + " ? " + //$NON-NLS-1$
-			valueIfTrue.toStringExpression() + " : " + //$NON-NLS-1$
+	return	condition.toStringExpression() + " ? "/*nonNLS*/ +
+			valueIfTrue.toStringExpression() + " : "/*nonNLS*/ +
 			valueIfFalse.toStringExpression() ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

@@ -365,7 +365,7 @@ public String toStringExpression(){
 	/* slow code */
 	
 	return 	receiver.toString()
-			+ "."  //$NON-NLS-1$
+			+ "."/*nonNLS*/ 
 			+ new String(token);}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

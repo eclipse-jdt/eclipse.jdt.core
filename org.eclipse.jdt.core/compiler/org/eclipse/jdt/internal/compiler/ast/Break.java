@@ -65,7 +65,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "break "; //$NON-NLS-1$
+	s = s + "break "/*nonNLS*/;
 	if (label != null )
 		s = s + new String(label) ;
 	return s;

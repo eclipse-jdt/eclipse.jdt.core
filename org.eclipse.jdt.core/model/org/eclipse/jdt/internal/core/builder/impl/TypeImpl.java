@@ -16,7 +16,7 @@ public abstract class TypeImpl extends NonStateSpecificHandleImpl implements ITy
 				typeA = (IType)a;
 				typeB = (IType)b;
 			} catch (ClassCastException e) {
-				Assert.isTrue(false, "Should only be comparing ITypes"); //$NON-NLS-1$
+				Assert.isTrue(false, "Should only be comparing ITypes"/*nonNLS*/);
 			}
 			return typeA.getName().compareTo(typeB.getName());
 		}
@@ -149,7 +149,7 @@ public int getDeclaredModifiers() throws NotPresentException {
  * a String of length 0.
  */
 public String getDeclaredName() throws NotPresentException {
-	return ""; //$NON-NLS-1$
+	return ""/*nonNLS*/;
 }
 /**
  * If the class or interface represented by this Type object is
@@ -476,6 +476,6 @@ public boolean isTopLevel() throws org.eclipse.jdt.internal.core.builder.NotPres
 	 * only (NON-NLS).
 	 */
 	public String toString() {
-		return "type " + getName(); //$NON-NLS-1$
+		return "type "/*nonNLS*/ + getName();
 	}
 }
