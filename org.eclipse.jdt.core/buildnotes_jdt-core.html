@@ -65,7 +65,7 @@ Corresponding problem IDs are: <code>IProblem.FieldMissingDeprecatedAnnotation</
 </pre>
 </li>
 <li>JLS2 API have been deprecated (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69657">69657</a>).</li>
-<li>Allow javadoc reference to varargs methods (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87845">87845</a>).<br>
+<li>Allowed javadoc reference to varargs methods (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87845">87845</a>).<br>
 The 1.5 spec for the Javadoc tool does not mention the possibility
 of a variable arity indicator in method references. However, the 1.5
 Javadoc tool itself does indeed support it. Since it makes sense to have
@@ -109,7 +109,7 @@ public boolean isVarargs();
 public void setVarargs(boolean variableArity);
 </pre>
 </li>
-<li>Add new flags on nature of match to specify that declaring or return type should be ignored during the search
+<li>Added new flags on nature of match to specify that declaring or return type should be ignored during the search
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264">80264</a>).<br>
 These flags are defined on <code>IJavaSearchConstants</code> interface:
 <pre>
@@ -132,7 +132,7 @@ int IGNORE_RETURN_TYPE = 0x20;
 Note that these flags are active only for search of declarations (ie. <code>IJavaSearchConstants.DECLARATIONS</code> and <code>IJavaSearchConstants.ALL_OCCURRENCES</code>)
 and while searching for IJavaElement (see doc of <code>SearchPattern.createPattern(IJavaElement, int)</code> API method).
 </li>
-<li>Modify API for type name requestor. Abstract class <code>TypeNameRequestor</code> replaces interface <code>ITypeNameRequestor</code> which is deprecated.<br>
+<li>Improved API for type name requestor. Abstract class <code>TypeNameRequestor</code> replaces interface <code>ITypeNameRequestor</code> which is deprecated.<br>
 There's now only a single method for type name requestor while accepting a type:
 <pre>
 /**
@@ -166,7 +166,7 @@ public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName,
 </pre>
 Clients can now distinguish Annotation, Enum, Interface and Class using <code>Flags</code> API methods on <code>modifiers</code> parameter.
 </li>
-<li>Add support for package-info.java. This allows to define annotations on the package declaration. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86167">86167</a> for 
+<li>Added support for package-info.java. This allows to define annotations on the package declaration. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86167">86167</a> for 
 further details.</li>
 <li>Added API <code>JavaCore#newProjectEntry(IPath, IPath[], IPath[], boolean, IClasspathAttribute[], boolean)</code>
       that take a 'combineAccessRestrictions' flag to control whether access restrictions of exported libraries of the project
