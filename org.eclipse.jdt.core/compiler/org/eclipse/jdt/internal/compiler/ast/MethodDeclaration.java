@@ -14,8 +14,8 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -33,7 +33,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 	public void analyseCode(
 		ClassScope classScope,
-		FlowContext flowContext,
+		InitializationFlowContext initializationContext,
 		FlowInfo flowInfo) {
 
 		// starting of the code analysis for methods
@@ -55,7 +55,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 			ExceptionHandlingFlowContext methodContext =
 				new ExceptionHandlingFlowContext(
-					flowContext,
+					initializationContext,
 					this,
 					binding.thrownExceptions,
 					scope,

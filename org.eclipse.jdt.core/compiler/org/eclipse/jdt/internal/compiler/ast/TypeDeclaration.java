@@ -615,15 +615,15 @@ public class TypeDeclaration
 					continue;
 				if (method.isInitializationMethod()) {
 					if (method.isStatic()) { // <clinit>
-						((Clinit)method).analyseCode(
+						method.analyseCode(
 							scope, 
 							staticInitializerContext, 
 							staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 					} else { // constructor
-						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
+						method.analyseCode(scope, initializerContext, constructorInfo.copy());
 					}
 				} else { // regular method
-					((MethodDeclaration)method).analyseCode(scope, null, flowInfo.copy());
+					method.analyseCode(scope, null, flowInfo.copy());
 				}
 			}
 		}

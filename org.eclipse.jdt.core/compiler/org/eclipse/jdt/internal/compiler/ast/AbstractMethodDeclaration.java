@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -70,7 +72,9 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
-	/**
+	public abstract void analyseCode(ClassScope scope, InitializationFlowContext initializationContext, FlowInfo info);
+
+		/**
 	 * Bind and add argument's binding into the scope of the method
 	 */
 	public void bindArguments() {
