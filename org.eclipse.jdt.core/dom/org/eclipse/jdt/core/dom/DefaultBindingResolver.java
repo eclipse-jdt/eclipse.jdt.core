@@ -197,6 +197,9 @@ class DefaultBindingResolver extends BindingResolver {
 		if (node != null) {
 			if (node instanceof TypeReference) {
 				TypeReference typeReference = (TypeReference) node;
+				if (typeReference.binding == null) {
+					return null;
+				}
 				ITypeBinding typeBinding = this.getTypeBinding(typeReference.binding);
 				if (index != 0) {
 					if (typeBinding.isArray()) {
@@ -229,6 +232,9 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			} else if (node instanceof SingleNameReference) {
 				SingleNameReference singleNameReference = (SingleNameReference) node;
+				if (singleNameReference.binding == null) {
+					return null;
+				}
 				if (singleNameReference.isTypeReference()) {
 					ITypeBinding typeBinding = this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
 					if (index != 0) {
@@ -255,6 +261,9 @@ class DefaultBindingResolver extends BindingResolver {
 			} else if (node instanceof QualifiedNameReference) {
 				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
 				if (qualifiedNameReference.isTypeReference()) {
+					if (qualifiedNameReference.binding == null) {
+						return null;
+					}
 					ITypeBinding typeBinding = this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
 					if (index != 0) {
 						if (typeBinding.isArray()) {
@@ -280,6 +289,9 @@ class DefaultBindingResolver extends BindingResolver {
 			} else if (node instanceof ArrayAllocationExpression) {
 				ArrayAllocationExpression arrayAllocationExpression = (ArrayAllocationExpression) node;
 				ArrayBinding arrayBinding = arrayAllocationExpression.arrayTb;
+				if (arrayBinding == null) {
+					return null;
+				}
 				if (index != 0) {
 					return this.getTypeBinding(this.scope.createArray(arrayBinding.leafComponentType, arrayBinding.dimensions - index));
 				} 
@@ -757,6 +769,9 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (node instanceof QualifiedTypeReference) {
 			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) node;
+			if (qualifiedTypeReference.binding == null) {
+				return null;
+			}
 			if (index == 0) {
 				return this.getTypeBinding(qualifiedTypeReference.binding.leafComponentType());
 			} else {
