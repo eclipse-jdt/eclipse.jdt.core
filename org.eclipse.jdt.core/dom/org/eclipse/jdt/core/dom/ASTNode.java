@@ -900,12 +900,16 @@ public abstract class ASTNode {
 		if (visitor == null) {
 			throw new IllegalArgumentException();
 		}
-		// dynamic dispatch to internal method
+		// begin with the generic pre-visit
+		visitor.preVisit(this);
+		// dynamic dispatch to internal method for type-specific visit/endVisit
 		accept0(visitor);
+		// end with the generic post-visit
+		visitor.postVisit(this);
 	}
 
 	/**
-	 * Accepts the given visitor on a visit of the current node.
+	 * Accepts the given visitor on a type-specific visit of the current node.
 	 * This method must be implemented in all concrete AST node types.
 	 * <p>
 	 * General template for implementation on each concrete ASTNode class:
@@ -921,6 +925,9 @@ public abstract class ASTNode {
 	 * visitor.endVisit(this);
 	 * </code>
 	 * </pre>
+	 * Note that <code>accept</code>, <code>acceptChild</code>,
+	 * and <code>acceptChildren</code> take care of invoking
+	 * <code>visitor.preVisit</code> and <code>visitor.postVisit</code>.
 	 * </p>
 	 * 
 	 * @param visitor the visitor object
@@ -944,8 +951,12 @@ public abstract class ASTNode {
 		if (child == null) {
 			return;
 		}
-		// dynamic dispatch to internal method
+		// begin with the generic pre-visit
+		visitor.preVisit(this);
+		// dynamic dispatch to internal method for type-specific visit/endVisit
 		child.accept0(visitor);
+		// end with the generic post-visit
+		visitor.postVisit(this);
 	}
 
 	/**
@@ -969,7 +980,12 @@ public abstract class ASTNode {
 			while (cursor.hasNext()) {
 				ASTNode child = (ASTNode) cursor.next();
 				// dynamic dispatch to internal method
+				// begin with the generic pre-visit
+				visitor.preVisit(this);
+				// dynamic dispatch to internal method for type-specific visit/endVisit
 				child.accept0(visitor);
+				// end with the generic post-visit
+				visitor.postVisit(this);
 			}
 		} finally {
 			children.releaseCursor(cursor);
