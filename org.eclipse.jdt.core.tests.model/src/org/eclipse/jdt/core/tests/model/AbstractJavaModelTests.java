@@ -1169,6 +1169,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	protected IJavaProject setUpJavaProject(final String projectName) throws CoreException, IOException {
+		return setUpJavaProject(projectName, "1.4");
+	}
+	protected IJavaProject setUpJavaProject(final String projectName, String compliance) throws CoreException, IOException {
 		// copy files in project from source workspace to target workspace
 		String sourceWorkspacePath = getSourceWorkspacePath();
 		String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
@@ -1191,7 +1194,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		};
 		getWorkspace().run(populate, null);
-		return JavaCore.create(project);
+		IJavaProject javaProject = JavaCore.create(project);
+		if ("1.5".equals(compliance)) {
+			Map options = new HashMap();
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+			javaProject.setOptions(options);
+		}
+		return javaProject;
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();

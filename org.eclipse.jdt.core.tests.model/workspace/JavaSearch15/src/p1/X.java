@@ -1,3 +1,3 @@
-package s6;
+package p1;
 public class X {
 }
