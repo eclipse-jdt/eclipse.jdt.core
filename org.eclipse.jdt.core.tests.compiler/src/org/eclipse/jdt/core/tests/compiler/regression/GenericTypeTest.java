@@ -3529,5 +3529,88 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	^\n" + 
 			"The type T is not generic; it cannot be parameterized with arguments <String>\n" + 
 			"----------\n");
+	}		
+	// generic method with indirect type inference: BX<String, Thread> --> AX<W>
+	public void test124() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    <W> void foo(AX<W> aw) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"     }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X().foo(new BX<String,Thread>());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<T> {\n" + 
+				"}\n" + 
+				"class BX<U, V> extends AX<V> {\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
+	// generic method with indirect type inference: CX  --> AX<W>
+	public void test125() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    <W> void foo(AX<W> aw) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"     }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X().foo(new CX());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<T> {\n" + 
+				"}\n" + 
+				"class BX<U, V> extends AX<V> {\n" + 
+				"}\n" + 
+				"class CX extends BX<String, Thread> {\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}			
+	// variation on test125 with typo: CX extends B instead of BX.
+	public void test126() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    <W> void foo(AX<W> aw) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"     }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X().foo(new CX());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<T> {\n" + 
+				"}\n" + 
+				"class BX<U, V> extends AX<V> {\n" + 
+				"}\n" + 
+				"class CX extends B<String, Thread> {\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().foo(new CX());\n" + 
+			"	        ^^^\n" + 
+			"The method foo(AX<W>) in the type X is not applicable for the arguments (CX)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
+			"	class CX extends B<String, Thread> {\n" + 
+			"	                 ^\n" + 
+			"B cannot be resolved to a type\n" + 
+			"----------\n");
 	}			
 }
