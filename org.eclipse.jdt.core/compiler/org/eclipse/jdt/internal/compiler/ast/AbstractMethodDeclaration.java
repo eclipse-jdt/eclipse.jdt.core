@@ -113,6 +113,7 @@ public abstract class AbstractMethodDeclaration
 					TypeReference thrownException = this.thrownExceptions[i];
 					ReferenceBinding thrownExceptionBinding = this.binding.thrownExceptions[bindingIndex];
 					char[][] bindingCompoundName = thrownExceptionBinding.compoundName;
+					if (bindingCompoundName == null) continue; // skip problem case
 					if (thrownException instanceof SingleTypeReference) {
 						// single type reference
 						int lengthName = bindingCompoundName.length;

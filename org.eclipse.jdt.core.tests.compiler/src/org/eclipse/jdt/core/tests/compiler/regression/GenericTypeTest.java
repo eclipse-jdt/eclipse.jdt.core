@@ -16150,4 +16150,23 @@ public void test500(){
 				"}\n",
 			},
 			"5");	
-	}	}
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89778
+	public void test569() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X\n" + 
+				"{\n" + 
+				"    protected static <T extends Exception> void foo() throws T, Exce {\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	protected static <T extends Exception> void foo() throws T, Exce {\n" + 
+			"	                                                            ^^^^\n" + 
+			"Exce cannot be resolved to a type\n" + 
+			"----------\n");	
+	}		
+}
