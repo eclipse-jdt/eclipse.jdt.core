@@ -2212,10 +2212,18 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			argument.type.traverse(this, scope);
 		}
 		
-		/*
-		 * Print the argument name
-		 */	
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+		if (argument.isVarArgs) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameELLIPSIS, this.preferences.insert_space_before_ellipsis);
+			if (this.preferences.insert_space_after_ellipsis) {
+				this.scribe.space();
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
+		} else {
+			/*
+			 * Print the argument name
+			 */	
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+		}
 
 
 		/*

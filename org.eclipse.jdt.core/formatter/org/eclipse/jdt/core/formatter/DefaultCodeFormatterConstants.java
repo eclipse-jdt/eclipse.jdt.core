@@ -1320,6 +1320,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_PARAMETERS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_type_parameters"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space after ellipsis
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_ellipsis"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_ELLIPSIS  = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_ellipsis";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after the opening angle bracket in parameterized type reference
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_parameterized_type_reference"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2194,6 +2206,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_PARAMETERS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_type_parameters";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before ellipsis
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_ellipsis"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_ELLIPSIS  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_ellipsis";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before the opening angle bracket in parameterized type reference

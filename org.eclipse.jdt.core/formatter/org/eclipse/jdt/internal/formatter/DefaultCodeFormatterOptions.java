@@ -138,7 +138,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_comma_in_superinterfaces;
 	public boolean insert_space_after_comma_in_type_arguments;
 	public boolean insert_space_after_comma_in_type_parameters;
-	public boolean insert_space_after_question_in_wilcard;
+	public boolean insert_space_after_ellipsis;
 	public boolean insert_space_after_opening_angle_bracket_in_parameterized_type_reference;
 	public boolean insert_space_after_opening_angle_bracket_in_type_arguments;
 	public boolean insert_space_after_opening_angle_bracket_in_type_parameters;
@@ -161,6 +161,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_postfix_operator;
 	public boolean insert_space_after_prefix_operator;
 	public boolean insert_space_after_question_in_conditional;
+	public boolean insert_space_after_question_in_wilcard;
 	public boolean insert_space_after_semicolon_in_for;
 	public boolean insert_space_after_unary_operator;
 	public boolean insert_space_before_and_in_type_parameter;
@@ -211,6 +212,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_superinterfaces;
 	public boolean insert_space_before_comma_in_type_arguments;
 	public boolean insert_space_before_comma_in_type_parameters;
+	public boolean insert_space_before_ellipsis;
 	public boolean insert_space_before_question_in_wilcard;
 	public boolean insert_space_before_opening_angle_bracket_in_parameterized_type_reference;
 	public boolean insert_space_before_opening_angle_bracket_in_type_arguments;
@@ -385,6 +387,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_ARGUMENTS, this.insert_space_after_comma_in_type_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_PARAMETERS, this.insert_space_after_comma_in_type_parameters ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_after_opening_bracket_in_array_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ELLIPSIS, this.insert_space_after_ellipsis ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS, this.insert_space_after_opening_angle_bracket_in_type_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_TYPE_PARAMETERS, this.insert_space_after_opening_angle_bracket_in_type_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -457,6 +460,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_ARGUMENTS, this.insert_space_before_comma_in_type_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_PARAMETERS, this.insert_space_before_comma_in_type_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_before_comma_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ELLIPSIS, this.insert_space_before_ellipsis ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS, this.insert_space_before_opening_angle_bracket_in_type_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_TYPE_PARAMETERS, this.insert_space_before_opening_angle_bracket_in_type_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1134,6 +1138,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInTypeParametersOption != null) {
 			this.insert_space_after_comma_in_type_parameters = JavaCore.INSERT.equals(insertSpaceAfterCommaInTypeParametersOption);
 		}
+		final Object insertSpaceAfterEllipsisOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ELLIPSIS);
+		if (insertSpaceAfterEllipsisOption != null) {
+			this.insert_space_after_ellipsis = JavaCore.INSERT.equals(insertSpaceAfterEllipsisOption);
+		}
 		final Object insertSpaceAfterOpeningAngleBracketInParameterizedTypeReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE);
 		if (insertSpaceAfterOpeningAngleBracketInParameterizedTypeReferenceOption != null) {
 			this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = JavaCore.INSERT.equals(insertSpaceAfterOpeningAngleBracketInParameterizedTypeReferenceOption);
@@ -1425,6 +1433,10 @@ public class DefaultCodeFormatterOptions {
 		final Object insertSpaceBeforeCommaInTypeParametersOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_PARAMETERS);
 		if (insertSpaceBeforeCommaInTypeParametersOption != null) {
 			this.insert_space_before_comma_in_type_parameters = JavaCore.INSERT.equals(insertSpaceBeforeCommaInTypeParametersOption);
+		}
+		final Object insertSpaceBeforeEllipsisOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ELLIPSIS);
+		if (insertSpaceBeforeEllipsisOption != null) {
+			this.insert_space_before_ellipsis = JavaCore.INSERT.equals(insertSpaceBeforeEllipsisOption);
 		}
 		final Object insertSpaceBeforeOpeningAngleBrackerInParameterizedTypeReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE);
 		if (insertSpaceBeforeOpeningAngleBrackerInParameterizedTypeReferenceOption != null) {
@@ -1764,6 +1776,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_superinterfaces = true;
 		this.insert_space_after_comma_in_type_arguments = true;
 		this.insert_space_after_comma_in_type_parameters = true;
+		this.insert_space_after_ellipsis = true;
 		this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_after_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_opening_angle_bracket_in_type_parameters = false;
@@ -1836,6 +1849,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_superinterfaces = false;
 		this.insert_space_before_comma_in_type_arguments = false;
 		this.insert_space_before_comma_in_type_parameters = false;
+		this.insert_space_before_ellipsis = false;
 		this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_before_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_before_opening_angle_bracket_in_type_parameters = false;
@@ -1991,6 +2005,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_superinterfaces = true;
 		this.insert_space_after_comma_in_type_arguments = true;
 		this.insert_space_after_comma_in_type_parameters = true;
+		this.insert_space_after_ellipsis = true;
 		this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_after_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_opening_angle_bracket_in_type_parameters = false;
@@ -2063,6 +2078,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_superinterfaces = false;
 		this.insert_space_before_comma_in_type_arguments = false;
 		this.insert_space_before_comma_in_type_parameters = false;
+		this.insert_space_before_ellipsis = false;
 		this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_before_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_before_opening_angle_bracket_in_type_parameters = false;
