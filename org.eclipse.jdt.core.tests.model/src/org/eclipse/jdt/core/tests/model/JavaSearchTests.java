@@ -52,7 +52,6 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 		}
 	}
 	public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
-
 		try {
 			if (results.length() > 0) results.append("\n");
 			JavaSearchMatch javaMatch = (JavaSearchMatch) match;
