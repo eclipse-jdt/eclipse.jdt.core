@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -404,7 +405,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			&& !this.receiverType.isArrayType()
 			&& binding.declaringClass != null // array.length
 			&& binding.constant == NotAConstant
-			&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2
+			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& binding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)
 				|| !binding.declaringClass.canBeSeenBy(currentScope))) {
@@ -462,7 +463,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			&& !this.receiverType.isArrayType()
 			&& binding.declaringClass != null // array.length
 			&& binding.constant == NotAConstant
-			&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2
+			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& binding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)
 				|| !binding.declaringClass.canBeSeenBy(currentScope))) {

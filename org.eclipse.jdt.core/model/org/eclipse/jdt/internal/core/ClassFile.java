@@ -435,7 +435,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 			// root is a jar file or a zip file
 			String elementName = getElementName();
 			StringBuffer sourceFileName = new StringBuffer(elementName.substring(0, elementName.lastIndexOf('.')));
-			sourceFileName.append(Util.SUFFIX_java);
+			sourceFileName.append(SuffixConstants.SUFFIX_java);
 			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
 			ZipFile jar = null;
 			try {

@@ -1046,7 +1046,7 @@ public final class CompletionEngine
 				CharOperation.NO_CHAR,
 				CharOperation.NO_CHAR,
 				classField,
-				CompilerModifiers.AccStatic | CompilerModifiers.AccPublic,
+				IConstants.AccStatic | IConstants.AccPublic,
 				startPosition - offset,
 				endPosition - offset,
 				relevance);
@@ -1438,7 +1438,7 @@ public final class CompletionEngine
 					CharOperation.NO_CHAR,
 					CharOperation.NO_CHAR,
 					lengthField,
-					CompilerModifiers.AccPublic,
+					IConstants.AccPublic,
 					startPosition - offset,
 					endPosition - offset,
 					relevance);
@@ -1519,73 +1519,73 @@ public final class CompletionEngine
 		int count = 0;
 				
 		// visibility
-		if((modifiers & CompilerModifiers.AccPrivate) == 0
-			&& (modifiers & CompilerModifiers.AccProtected) == 0
-			&& (modifiers & CompilerModifiers.AccPublic) == 0) {
+		if((modifiers & IConstants.AccPrivate) == 0
+			&& (modifiers & IConstants.AccProtected) == 0
+			&& (modifiers & IConstants.AccPublic) == 0) {
 			keywords[count++] = Keywords.PROTECTED;
 			keywords[count++] = Keywords.PUBLIC;
-			if((modifiers & CompilerModifiers.AccAbstract) == 0) {
+			if((modifiers & IConstants.AccAbstract) == 0) {
 				keywords[count++] = Keywords.PRIVATE;
 			}
 		}
 		
-		if((modifiers & CompilerModifiers.AccAbstract) == 0) {
+		if((modifiers & IConstants.AccAbstract) == 0) {
 			// abtract
-			if((modifiers & ~(CompilerModifiers.AccVisibilityMASK | CompilerModifiers.AccStatic)) == 0) {
+			if((modifiers & ~(CompilerModifiers.AccVisibilityMASK | IConstants.AccStatic)) == 0) {
 				keywords[count++] = Keywords.ABSTRACT;
 			}
 			
 			// final
-			if((modifiers & CompilerModifiers.AccFinal) == 0) {
+			if((modifiers & IConstants.AccFinal) == 0) {
 				keywords[count++] = Keywords.FINAL;
 			}
 			
 			// static
-			if((modifiers & CompilerModifiers.AccStatic) == 0) {
+			if((modifiers & IConstants.AccStatic) == 0) {
 				keywords[count++] = Keywords.STATIC;
 			}
 			
 			boolean canBeField = true;
 			boolean canBeMethod = true;
 			boolean canBeType = true;
-			if((modifiers & CompilerModifiers.AccNative) != 0
-				|| (modifiers & CompilerModifiers.AccStrictfp) != 0
-				|| (modifiers & CompilerModifiers.AccSynchronized) != 0) {
+			if((modifiers & IConstants.AccNative) != 0
+				|| (modifiers & IConstants.AccStrictfp) != 0
+				|| (modifiers & IConstants.AccSynchronized) != 0) {
 				canBeField = false;
 				canBeType = false;
 			}
 			
-			if((modifiers & CompilerModifiers.AccTransient) != 0
-				|| (modifiers & CompilerModifiers.AccVolatile) != 0) {
+			if((modifiers & IConstants.AccTransient) != 0
+				|| (modifiers & IConstants.AccVolatile) != 0) {
 				canBeMethod = false;
 				canBeType = false;
 			}
 			
 			if(canBeField) {
 				// transient
-				if((modifiers & CompilerModifiers.AccTransient) == 0) {
+				if((modifiers & IConstants.AccTransient) == 0) {
 					keywords[count++] = Keywords.TRANSIENT;
 				}
 				
 				// volatile
-				if((modifiers & CompilerModifiers.AccVolatile) == 0) {
+				if((modifiers & IConstants.AccVolatile) == 0) {
 					keywords[count++] = Keywords.VOLATILE;
 				}
 			}
 			
 			if(canBeMethod) {
 				// native
-				if((modifiers & CompilerModifiers.AccNative) == 0) {
+				if((modifiers & IConstants.AccNative) == 0) {
 					keywords[count++] = Keywords.NATIVE;
 				}
 	
 				// strictfp
-				if((modifiers & CompilerModifiers.AccStrictfp) == 0) {
+				if((modifiers & IConstants.AccStrictfp) == 0) {
 					keywords[count++] = Keywords.STRICTFP;
 				}
 				
 				// synchronized
-				if((modifiers & CompilerModifiers.AccSynchronized) == 0) {
+				if((modifiers & IConstants.AccSynchronized) == 0) {
 					keywords[count++] = Keywords.SYNCHRONIZED;
 				}
 			}
@@ -2255,7 +2255,7 @@ public final class CompletionEngine
 			
 			StringBuffer completion = new StringBuffer(10);
 			// flush uninteresting modifiers
-			int insertedModifiers = method.modifiers & ~(CompilerModifiers.AccNative | CompilerModifiers.AccAbstract);
+			int insertedModifiers = method.modifiers & ~(IConstants.AccNative | IConstants.AccAbstract);
 
 			if (!exactMatch) {
 				if(insertedModifiers != CompilerModifiers.AccDefault){
@@ -3024,7 +3024,7 @@ public final class CompletionEngine
 
 		if(type != null &&
 			type.resolvedType != null &&
-			type.resolvedType.problemId() == Binding.NoError){
+			type.resolvedType.problemId() == ProblemReasons.NoError){
 			TypeBinding tb = type.resolvedType;
 			findVariableName(
 				name,

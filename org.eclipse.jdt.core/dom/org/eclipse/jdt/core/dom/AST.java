@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
@@ -121,7 +121,7 @@ public final class AST {
 			true /*comment*/, 
 			true /*whitespace*/, 
 			false /*nls*/, 
-			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? CompilerOptions.JDK1_4 : CompilerOptions.JDK1_3 /*sourceLevel*/, 
+			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
 			null/*taskTag*/, 
 			null/*taskPriorities*/);
 	}

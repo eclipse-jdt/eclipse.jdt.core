@@ -15,9 +15,9 @@ import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
@@ -292,7 +292,7 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowIn
 		&& !this.receiverType.isArrayType()
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
-		&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2
+		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 			|| !binding.declaringClass.canBeSeenBy(currentScope))){
 			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(binding, (ReferenceBinding) this.receiverType);
@@ -313,7 +313,7 @@ public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowI
 		&& !this.receiverType.isArrayType()
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
-		&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2
+		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 			|| !binding.declaringClass.canBeSeenBy(currentScope))){
 			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(binding, (ReferenceBinding) this.receiverType);

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -561,7 +562,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& !this.actualReceiverType.isArrayType()	
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
-				&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2 
+				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 						&& !fieldBinding.isStatic()
 						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
 					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
@@ -596,7 +597,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& !this.actualReceiverType.isArrayType()	
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
-				&& ((currentScope.environment().options.targetJDK >= CompilerOptions.JDK1_2 
+				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 						&& !fieldBinding.isStatic()
 						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
 					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){

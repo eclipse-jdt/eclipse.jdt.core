@@ -21,7 +21,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -44,7 +45,7 @@ class ASTConverter {
 					true /*comment*/,
 					false /*whitespace*/,
 					false /*nls*/,
-					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? CompilerOptions.JDK1_4 : CompilerOptions.JDK1_3 /*sourceLevel*/, 
+					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
 					null /*taskTags*/,
 					null/*taskPriorities*/);
 	}
@@ -142,8 +143,8 @@ class ASTConverter {
 	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		TypeDeclaration typeDecl = this.ast.newTypeDeclaration();
 		int modifiers = typeDeclaration.modifiers;
-		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
-		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
+		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
+		modifiers &= CompilerModifiers.AccJustFlag;
 		/**
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built nodes with invalid modifiers.
@@ -492,8 +493,8 @@ class ASTConverter {
 	public TypeDeclaration convert(MemberTypeDeclaration typeDeclaration) {
 		TypeDeclaration typeDecl = this.ast.newTypeDeclaration();
 		int modifiers = typeDeclaration.modifiers;
-		modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
-		modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
+		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
+		modifiers &= CompilerModifiers.AccJustFlag;
 		/**
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built nodes with invalid modifiers.
@@ -1209,10 +1210,10 @@ class ASTConverter {
 		prefixExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		prefixExpression.setOperand(convert(expression.lhs));
 		switch (expression.operator) {
-			case org.eclipse.jdt.internal.compiler.ast.PrefixExpression.PLUS :
+			case OperatorIds.PLUS :
 				prefixExpression.setOperator(PrefixExpression.Operator.INCREMENT);
 				break;
-			case org.eclipse.jdt.internal.compiler.ast.PrefixExpression.MINUS :
+			case OperatorIds.MINUS :
 				prefixExpression.setOperator(PrefixExpression.Operator.DECREMENT);
 				break;
 		}
@@ -1227,10 +1228,10 @@ class ASTConverter {
 		postfixExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		postfixExpression.setOperand(convert(expression.lhs));
 		switch (expression.operator) {
-			case org.eclipse.jdt.internal.compiler.ast.PostfixExpression.PLUS :
+			case OperatorIds.PLUS :
 				postfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
 				break;
-			case org.eclipse.jdt.internal.compiler.ast.PostfixExpression.MINUS :
+			case OperatorIds.MINUS :
 				postfixExpression.setOperator(PostfixExpression.Operator.DECREMENT);
 				break;
 		}
@@ -1430,7 +1431,7 @@ class ASTConverter {
 			this.recordNodes(infixExpression, expression);
 		}
 
-		int expressionOperatorID = (expression.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT;
+		int expressionOperatorID = (expression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT;
 		switch (expressionOperatorID) {
 			case OperatorIds.EQUAL_EQUAL :
 				infixExpression.setOperator(InfixExpression.Operator.EQUALS);
@@ -1497,8 +1498,8 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Expression rightOperand = null;
 			do {
 				rightOperand = ((BinaryExpression) leftOperand).right;
-				if ((((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID && ((leftOperand.bits & AstNode.ParenthesizedMASK) == 0))
-				 || ((rightOperand instanceof BinaryExpression && ((rightOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID) && ((rightOperand.bits & AstNode.ParenthesizedMASK) == 0))) {
+				if ((((leftOperand.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) != expressionOperatorID && ((leftOperand.bits & AstNode.ParenthesizedMASK) == 0))
+				 || ((rightOperand instanceof BinaryExpression && ((rightOperand.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) != expressionOperatorID) && ((rightOperand.bits & AstNode.ParenthesizedMASK) == 0))) {
 				 	List extendedOperands = infixExpression.extendedOperands();
 				 	InfixExpression temp = this.ast.newInfixExpression();
 					if (this.resolveBindings) {
@@ -1562,7 +1563,7 @@ class ASTConverter {
 		}
 		prefixExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		prefixExpression.setOperand(convert(expression.expression));
-		switch ((expression.bits & UnaryExpression.OperatorMASK) >> UnaryExpression.OperatorSHIFT) {
+		switch ((expression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.PLUS :
 				prefixExpression.setOperator(PrefixExpression.Operator.PLUS);
 				break;
@@ -1710,7 +1711,7 @@ class ASTConverter {
 		infixExpression.setRightOperand(convert(expression.right));
 		int startPosition = leftExpression.getStartPosition();
 		infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
-		switch ((expression.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) {
+		switch ((expression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.EQUAL_EQUAL :
 				infixExpression.setOperator(InfixExpression.Operator.EQUALS);
 				break;

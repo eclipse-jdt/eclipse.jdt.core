@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -723,7 +724,7 @@ public class ClassFile
 		MethodBinding methodBinding,
 		IProblem[] problems) {
 		if (methodBinding.isAbstract() && methodBinding.declaringClass.isInterface()) {
-			method.abort(AbstractMethodDeclaration.AbortType);
+			method.abort(ProblemSeverities.AbortType);
 		}
 		// always clear the strictfp/native/abstract bit for a problem method
 		methodBinding.modifiers &= ~(AccStrictfp | AccNative | AccAbstract);
@@ -1296,7 +1297,7 @@ public class ClassFile
 				localContents[localContentsOffset++] = 0;
 			} else {
 				int nameIndex;
-				if (exceptionHandler.exceptionType == TypeBinding.NullBinding) {
+				if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
 					/* represents ClassNotFoundException, see class literal access*/
 					nameIndex = constantPool.literalIndexForJavaLangClassNotFoundException();
 				} else {
@@ -1567,7 +1568,7 @@ public class ClassFile
 				localContents[localContentsOffset++] = 0;
 			} else {
 				int nameIndex;
-				if (exceptionHandler.exceptionType == TypeBinding.NullBinding) {
+				if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
 					/* represents denote ClassNotFoundException, see class literal access*/
 					nameIndex = constantPool.literalIndexForJavaLangClassNotFoundException();
 				} else {
@@ -2076,8 +2077,8 @@ public class ClassFile
 						localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						localContents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = argSize;
-						if ((argumentBinding == TypeBinding.LongBinding)
-							|| (argumentBinding == TypeBinding.DoubleBinding))
+						if ((argumentBinding == BaseTypes.LongBinding)
+							|| (argumentBinding == BaseTypes.DoubleBinding))
 							argSize += 2;
 						else
 							argSize++;

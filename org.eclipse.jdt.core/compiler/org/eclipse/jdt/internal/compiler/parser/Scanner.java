@@ -15,7 +15,7 @@ import java.util.Iterator;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * IMPORTANT NOTE: Internal Scanner implementation. It is mirrored in 
@@ -167,7 +167,7 @@ public class Scanner implements TerminalTokens {
 	public static final int BracketKinds = 3;
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
 }
 
 public Scanner(
@@ -182,7 +182,7 @@ public Scanner(
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = sourceLevel >= CompilerOptions.JDK1_4;
+	this.assertMode = sourceLevel >= ClassFileConstants.JDK1_4;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 }

@@ -325,7 +325,7 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (type.isPrimitiveType()) {
 			if (((PrimitiveType) type).getPrimitiveTypeCode() == PrimitiveType.VOID) {
-				return this.getTypeBinding(BaseTypeBinding.VoidBinding);
+				return this.getTypeBinding(BaseTypes.VoidBinding);
 			}
 		}
 		return null;
@@ -662,7 +662,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (importReference.onDemand) {
 				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 				if (binding != null) {
-					if (binding.bindingType() == Binding.PACKAGE) {
+					if (binding.bindingType() == BindingIds.PACKAGE) {
 						IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 						if (packageBinding == null) {
 							return null;

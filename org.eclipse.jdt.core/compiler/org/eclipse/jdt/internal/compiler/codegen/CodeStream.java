@@ -1344,8 +1344,8 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 
 	// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 
-	anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NullBinding /* represents ClassNotFoundException*/);
-	if (accessedType == TypeBinding.NullBinding) {
+	anyExceptionHandler = new ExceptionLabel(this, BaseTypes.NullBinding /* represents ClassNotFoundException*/);
+	if (accessedType == BaseTypes.NullBinding) {
 		this.ldc("java.lang.Object"); //$NON-NLS-1$
 	} else if (accessedType.isArrayType()) {
 		this.ldc(String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
@@ -1801,7 +1801,7 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
 		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
-		boolean needEnclosingInstanceNullCheck = currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4;
+		boolean needEnclosingInstanceNullCheck = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
 						
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];

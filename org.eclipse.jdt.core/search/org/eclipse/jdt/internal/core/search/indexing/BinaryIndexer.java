@@ -13,8 +13,8 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileStruct;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
@@ -393,14 +393,14 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 		char[] name = null;
 		char[] type = null;
 		switch (tag) {
-			case ClassFileStruct.FieldRefTag :
+			case ClassFileConstants.FieldRefTag :
 				// add reference to the class/interface and field name and type
 				name = extractName(constantPoolOffsets, reader, i);
 				addFieldReference(name);
 				break;
-			case ClassFileStruct.MethodRefTag :
+			case ClassFileConstants.MethodRefTag :
 				// add reference to the class and method name and type
-			case ClassFileStruct.InterfaceMethodRefTag :
+			case ClassFileConstants.InterfaceMethodRefTag :
 				// add reference to the interface and method name and type
 				name = extractName(constantPoolOffsets, reader, i);
 				type = extractType(constantPoolOffsets, reader, i);
@@ -413,7 +413,7 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 					addMethodReference(name, extractArgCount(type));
 				}
 				break;
-			case ClassFileStruct.ClassTag :
+			case ClassFileConstants.ClassTag :
 				// add a type reference 
 				name = replace('/', '.', extractClassReference(constantPoolOffsets, reader, i)); // so that it looks like java.lang.String
 				addTypeReference(name);

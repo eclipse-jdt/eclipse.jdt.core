@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.NLSLine;
 
 public class PublicScanner implements IScanner, ITerminalSymbols {
@@ -163,7 +163,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 
 public PublicScanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
 }
 
 public PublicScanner(
@@ -178,7 +178,7 @@ public PublicScanner(
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = sourceLevel >= CompilerOptions.JDK1_4;
+	this.assertMode = sourceLevel >= ClassFileConstants.JDK1_4;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 }

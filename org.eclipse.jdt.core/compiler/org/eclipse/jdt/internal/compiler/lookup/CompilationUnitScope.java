@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CompoundNameVector;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -386,7 +386,7 @@ private Binding findOnDemandImport(char[][] compoundName) {
 	ReferenceBinding type;
 	if (binding == null) {
 		if (environment.defaultPackage == null
-				|| environment.options.complianceLevel >= CompilerOptions.JDK1_4){
+				|| environment.options.complianceLevel >= ClassFileConstants.JDK1_4){
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, i),
 				NotFound);
@@ -421,7 +421,7 @@ private Binding findSingleTypeImport(char[][] compoundName) {
 		// findType records the reference
 		// the name cannot be a package
 		if (environment.defaultPackage == null 
-			|| environment.options.complianceLevel >= CompilerOptions.JDK1_4)
+			|| environment.options.complianceLevel >= ClassFileConstants.JDK1_4)
 			return new ProblemReferenceBinding(compoundName, NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], environment.defaultPackage, fPackage);
 		if (typeBinding == null)

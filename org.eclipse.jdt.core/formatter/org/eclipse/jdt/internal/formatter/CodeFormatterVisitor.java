@@ -71,7 +71,6 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
-import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.PostfixExpression;
 import org.eclipse.jdt.internal.compiler.ast.PrefixExpression;
@@ -193,7 +192,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
 		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
 		
-		switch((binaryExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
+		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.AND_AND :
 				binaryExpression.left.traverse(builder, scope);
 				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND_AND));
@@ -1768,7 +1767,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
 
-		switch((binaryExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
+		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.AND :
 				return dumpBinaryExpression(binaryExpression, ITerminalSymbols.TokenNameAND, scope);
 			case OperatorIds.DIVIDE :
@@ -2285,7 +2284,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 */
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
 
-		if ((equalExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT == OperatorIds.EQUAL_EQUAL) {
+		if ((equalExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT == OperatorIds.EQUAL_EQUAL) {
 			return dumpBinaryExpression(equalExpression, ITerminalSymbols.TokenNameEQUAL_EQUAL, scope);
 		} else {
 			return dumpBinaryExpression(equalExpression, ITerminalSymbols.TokenNameNOT_EQUAL, scope);
@@ -3524,7 +3523,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 * Print the operator
 		 */
 		int operator;
-		switch((unaryExpression.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) {
+		switch((unaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
 			case OperatorIds.PLUS:
 				operator = ITerminalSymbols.TokenNamePLUS;
 				break;

@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
@@ -75,7 +75,7 @@ public void addDefaultAbstractMethods() {
 	tagBits |= KnowsDefaultAbstractMethods;
 
 	if (isClass() && isAbstract()) {
-		if (fPackage.environment.options.targetJDK >= CompilerOptions.JDK1_2) return; // no longer added for post 1.2 targets
+		if (fPackage.environment.options.targetJDK >= ClassFileConstants.JDK1_2) return; // no longer added for post 1.2 targets
 
 		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 		int lastPosition = 0;
