@@ -353,6 +353,29 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	}
 	return null;
 }
+/**
+ *  Rewrite of default getMemberType to avoid resolving eagerly all member types when one is requested
+ */
+public ReferenceBinding getMemberType(char[] typeName) {
+	for (int i = this.memberTypes.length; --i >= 0;) {
+	    ReferenceBinding memberType = this.memberTypes[i];
+	    if (memberType instanceof UnresolvedReferenceBinding) {
+			char[] name = memberType.sourceName; // source name is qualified with enclosing type name
+			int prefixLength = this.sourceName.length + 1; // enclosing$
+			if (name.length != (prefixLength + typeName.length)) { // enclosing $ typeName
+			    continue;
+			}
+			if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) { // only check trailing portion
+		        memberType = ((UnresolvedReferenceBinding) memberType).resolve(environment);
+		        this.memberTypes[i] = memberType;
+			}
+	    }
+	    if (CharOperation.equals(typeName, memberType.sourceName)) {
+	        return memberType;
+	    }
+	}
+	return null;
+}
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 
 public MethodBinding[] getMethods(char[] selector) {
@@ -380,6 +403,9 @@ public MethodBinding[] getMethods(char[] selector) {
 		return result;
 	}
 	return NoMethods;
+}
+public boolean hasMemberTypes() {
+    return this.memberTypes.length > 0;
 }
 // NOTE: member types of binary types are resolved when needed
 

@@ -68,6 +68,7 @@ public interface TypeConstants {
 	// Method collections
 	final TypeBinding[] NoParameters = new TypeBinding[0];
 	final ReferenceBinding[] NoExceptions = new ReferenceBinding[0];
+	final ReferenceBinding[] AnyException = new ReferenceBinding[] { null }; // special handler for all exceptions
 	// Type collections
 	final FieldBinding[] NoFields = new FieldBinding[0];
 	final MethodBinding[] NoMethods = new MethodBinding[0];

@@ -623,7 +623,6 @@ public class TypeDeclaration
 			}
 		}
 
-		ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
 		InitializationFlowContext initializerContext = new InitializationFlowContext(null, this, initializerScope);
 		InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, staticInitializerScope);
 		FlowInfo nonStaticFieldInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
@@ -635,7 +634,7 @@ public class TypeDeclaration
 					/*if (field.isField()){
 						staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
 					} else {*/
-					staticInitializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+					staticInitializerContext.handledExceptions = AnyException; // tolerate them all, and record them
 					/*}*/
 					staticFieldInfo =
 						field.analyseCode(
@@ -652,7 +651,7 @@ public class TypeDeclaration
 					/*if (field.isField()){
 						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
 					} else {*/
-						initializerContext.handledExceptions = defaultHandledExceptions; // tolerate them all, and record them
+						initializerContext.handledExceptions = AnyException; // tolerate them all, and record them
 					/*}*/
 					nonStaticFieldInfo =
 						field.analyseCode(initializerScope, initializerContext, nonStaticFieldInfo);

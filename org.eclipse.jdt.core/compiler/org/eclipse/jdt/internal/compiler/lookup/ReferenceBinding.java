@@ -349,6 +349,9 @@ public MethodBinding[] getMethods(char[] selector) {
 public PackageBinding getPackage() {
 	return fPackage;
 }
+public boolean hasMemberTypes() {
+    return false;
+}
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
