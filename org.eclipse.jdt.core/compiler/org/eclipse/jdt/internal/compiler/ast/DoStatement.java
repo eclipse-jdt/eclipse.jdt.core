@@ -49,7 +49,9 @@ public class DoStatement extends Statement {
 				continueLabel,
 				currentScope);
 
-		Constant cst = condition.optimizedBooleanConstant();
+		Constant cst = condition.constant;
+		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
+		cst = condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
 		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 
@@ -87,17 +89,17 @@ public class DoStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if (isConditionOptimizedTrue) {
+		if (isConditionTrue) {
 			mergedInfo = loopingContext.initsOnBreak;
-			mergedInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(mergedInfo);
-			return mergedInfo;
+		} else {
+			// end of loop: either condition false or break
+			mergedInfo =
+				flowInfo.initsWhenFalse().unconditionalInits().mergedWith(
+					loopingContext.initsOnBreak);
+			if (isConditionOptimizedTrue && !loopingContext.initsOnBreak.isReachable()) {
+				mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
+			}
 		}
-
-		// end of loop: either condition false or break
-		mergedInfo =
-			flowInfo.initsWhenFalse().unconditionalInits().mergedWith(
-				loopingContext.initsOnBreak);
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
