@@ -237,7 +237,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 					if (newContent != null) flags |= IResource.KEEP_HISTORY;
 					sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 				}
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute("hasModifiedResource", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (JavaModelException e) {
 				throw e;
 			} catch (CoreException e) {
@@ -375,7 +375,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			if (shouldMoveFolder) {
 				// move underlying resource
 				srcFolder.move(destPath, fForce, true /* keep history */, getSubProgressMonitor(1));
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute("hasModifiedResource", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				// process the leaf resources
 				if (resources.length > 0) {

@@ -52,7 +52,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Class c = Class.forName(compilerClass);
 			Constructor batchCompilerConstructor = c.getConstructor(new Class[] { PrintWriter.class, Boolean.TYPE});
 			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new Boolean(true)});
-			Method compile = c.getMethod("compile", new Class[] {String[].class});
+			Method compile = c.getMethod("compile", new Class[] {String[].class}); //$NON-NLS-1$
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			return ((Boolean) result).booleanValue();
 		} catch (ClassNotFoundException cnfe) {

@@ -230,7 +230,7 @@ protected void createErrorFor(IResource resource, String message) {
 	try {
 		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		int severity = IMarker.SEVERITY_ERROR;
-		if (message.equals(Util.bind("build.duplicateResource")))
+		if (message.equals(Util.bind("build.duplicateResource"))) //$NON-NLS-1$
 			if (JavaCore.WARNING.equals(javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true)))
 				severity = IMarker.SEVERITY_WARNING;
 		marker.setAttributes(
