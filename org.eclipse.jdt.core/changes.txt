@@ -188,6 +188,7 @@ STREAM: 2.0
   1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as a compilation unit?
   1G98XR7: ITPJCORE:WIN2000 - Feature Request for JavaDoc CodeAssist
 
+
 **********************************************************************************
 *** STABLE CONTENT (2.0 STREAM, v_202_01) ****************************************
 **********************************************************************************
@@ -232,7 +233,8 @@ STREAM: 2.0
   1GK9NB0: ITPJCORE:WIN2000 - Another core dump - sorry
   1GJYG33: ITPJUI:WIN2000 - Core dump in run time workbench in Search
   1GK9S59: ITPJUI:WIN2000 - Internal error when synchronizing
-  
+  1GL2TZY: ITPJUI:WIN2000 - Code Completion should only show visible items
+
   
 **********************************************************************************
 *** BUILD 202 (2.0 STREAM, v_202) ************************************************

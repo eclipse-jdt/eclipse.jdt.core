@@ -1024,7 +1024,7 @@ public class JavaProject
 		boolean generateMarkerOnError)	throws JavaModelException {
 
 		ObjectVector accumulatedEntries = new ObjectVector();		
-		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new ObjectVector(), accumulatedEntries);
+		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new Hashtable(5), accumulatedEntries);
 		
 		IClasspathEntry[] result = new IClasspathEntry[accumulatedEntries.size()];
 		accumulatedEntries.copyInto(result);
@@ -1039,11 +1039,11 @@ public class JavaProject
 		JavaProject initialProject, 
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError,
-		ObjectVector visitedProjects, 
+		Hashtable visitedProjects, 
 		ObjectVector accumulatedEntries) throws JavaModelException {
 		
-		if (visitedProjects.contains(this)) return; // break cycles if any
-		visitedProjects.add(this);
+		if (visitedProjects.get(this) != null) return; // break cycles if any
+		visitedProjects.put(this, this);
 		
 		IClasspathEntry[] immediateClasspath = getResolvedClasspath(ignoreUnresolvedVariable, false);
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
