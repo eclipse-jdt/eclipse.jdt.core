@@ -41,8 +41,7 @@ import org.eclipse.jdt.internal.core.Util;
  * @since 2.0
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
-	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; String logFileName;
-	//$NON-NLS-1$
+	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; String logFileName; //$NON-NLS-1$
 	/**
 	 * Performs a compile using the JDT batch compiler 
 	 */
@@ -58,7 +57,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			final boolean resultValue = ((Boolean) result).booleanValue();
 			if (!resultValue && verbose) {
-				System.out.println(Util.bind("ant.jdtadapter.error.compilationFailed", this.logFileName));
+				System.out.println(Util.bind("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
 			}
 			return resultValue;
 		} catch (ClassNotFoundException cnfe) {
@@ -237,7 +236,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 * extra option allowed by the Eclipse compiler
 			 */
 			cmd.createArgument().setValue("-log"); //$NON-NLS-1$
-			logFileName = destDir.getAbsolutePath() + ".log";
+			logFileName = destDir.getAbsolutePath() + ".log"; //$NON-NLS-1$
 			cmd.createArgument().setValue(logFileName); //$NON-NLS-1$
 		}
 
