@@ -794,7 +794,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
 		}		
 		// get encoding through resource plugin
-		defaultOptions.put(CompilerOptions.OPTION_Encoding, ResourcesPlugin.getEncoding()); //$NON-NLS-1$
+		defaultOptions.put(CORE_ENCODING, ""/*ResourcesPlugin.getEncoding()*/); //$NON-NLS-1$
 		
 		return defaultOptions;
 	}
