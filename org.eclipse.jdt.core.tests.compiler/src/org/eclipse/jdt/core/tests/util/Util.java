@@ -226,7 +226,7 @@ public static String getJavaClassLib() {
  * Returns the JRE directory this tests are running on.
  * Returns null if none could be found.
  *
- * Example of use: [org.eclipse.jdt.core.tests.util.Util.getJDKDirectory()]
+ * Example of use: [org.eclipse.jdt.core.tests.util.Util.getJREDirectory()]
 */
 public static String getJREDirectory() {
 	return System.getProperty("java.home");

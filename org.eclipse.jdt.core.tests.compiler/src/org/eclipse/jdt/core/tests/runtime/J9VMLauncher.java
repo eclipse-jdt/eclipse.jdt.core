@@ -14,7 +14,7 @@ import java.util.Enumeration;
  * A J9 VM launcher launches an external J9 VM (and J9 Proxy if needed) with
  * the given arguments on the same machine.
  * <p>
- * Unlike with the <code>SunVMLauncher</code>, a debugger would have to
+ * Unlike with the <code>StandardVMLauncher</code>, a debugger would have to
  * connect to the J9 Proxy instead of connecting to the VM directly. In this case,
  * the Proxy port is the specified debug port. Note that an internal debug port
  * must also be specified. This port is used for the communication between the

@@ -19,7 +19,7 @@ import java.util.Enumeration;
 public class StandardVMLauncher extends LocalVMLauncher implements RuntimeConstants {
 	String batchFileName;
 /**
- * Creates a new StandardVMLauncher that launches a JDK VM
+ * Creates a new StandardVMLauncher that launches a standard VM
  * on the same machine.
  */
 public StandardVMLauncher() {
@@ -61,19 +61,6 @@ protected String buildBootClassPath() {
 	}
 
 	return bootPathString.toString();
-}
-/**
- * Checks that the version of the VM is the correct JDK version.
- * @exception com.ibm.jdt.eval.launcher.TargetException if the version is not the correct one.
- */
-private void checkVMVersion() throws TargetException {
-	/* TO DO: 
-		- Launch the VM with "-version" option
-		- Check that the ouput is:
-			java version "1.2"
-			Classic VM (build JDK-1.2-V, native threads)
-		- Shutdown the VM
-	*/
 }
 /**
  * Returns the name of the batch file used to launch the VM.
