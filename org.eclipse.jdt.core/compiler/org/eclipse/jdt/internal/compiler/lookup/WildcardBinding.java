@@ -212,14 +212,13 @@ public class WildcardBinding extends ReferenceBinding {
         }
     }
     
-    /* (non-Javadoc)
+    /**
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
      */
     public char[] signature() {
-        if (this.signature == null) {
-            this.signature = this.bound.signature();
-        } 
-        return this.signature;
+     	// should not be called directly on a wildcard; signature should only be asked on
+    	// original methods or type erasures (which cannot denote wildcards at first level)
+		return genericTypeSignature();
     }
     
     /* (non-Javadoc)
