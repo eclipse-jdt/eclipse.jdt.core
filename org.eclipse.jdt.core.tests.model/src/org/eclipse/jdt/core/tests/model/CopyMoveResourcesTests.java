@@ -426,6 +426,36 @@ public void testCopyPackageFragment() throws CoreException {
 	copyPositive(pkgSource, rootDest, null, null, false);
 }
 /**
+ * Ensures that a package fragment can be copied to a different package fragment root.
+ */
+public void testCopyReadOnlyPackageFragment() throws CoreException {
+	try {
+		this.createFolder("/P/src/p1/p2/p3");
+		this.createFile(
+			"/P/src/p1/p2/p3/X.java",
+			"package p1.p2.p3;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		getFile("/P/src/p1/p2/p3/X.java").setReadOnly(true);
+		IPackageFragment pkgSource = getPackage("/P/src/p1");
+		pkgSource.getResource().setReadOnly(true);
+		IPackageFragment pkg2 = getPackage("/P/src/p1/p2/p3");
+		pkg2.getResource().setReadOnly(true);
+	
+		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
+	
+		copyPositive(pkg2, rootDest, null, null, false);
+		
+		assertTrue("Not readOnly", getPackage("/P/src2/p1").getResource().isReadOnly());
+		assertTrue("Is readOnly", !getPackage("/P/src2/p1/p2").getResource().isReadOnly());
+		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
+		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
+	} finally {
+		deleteFolder("/P/src/p1");
+	}
+}
+/**
  * Ensures that a WorkingCopy can be copied to a different package.
  */
 public void testCopyWorkingCopy() throws CoreException {
@@ -774,6 +804,36 @@ public void testMovePackageFragment() throws CoreException {
 	IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
 
 	movePositive(pkgSource, rootDest, null, null, false);
+}
+/**
+ * Ensures that a package fragment can be copied to a different package fragment root.
+ */
+public void testMoveReadOnlyPackageFragment() throws CoreException {
+	try {
+		this.createFolder("/P/src/p1/p2/p3");
+		this.createFile(
+			"/P/src/p1/p2/p3/X.java",
+			"package p1.p2.p3;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		getFile("/P/src/p1/p2/p3/X.java").setReadOnly(true);
+		IPackageFragment pkgSource = getPackage("/P/src/p1");
+		pkgSource.getResource().setReadOnly(true);
+		IPackageFragment pkg2 = getPackage("/P/src/p1/p2/p3");
+		pkg2.getResource().setReadOnly(true);
+	
+		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
+	
+		movePositive(pkg2, rootDest, null, null, false);
+		
+		assertTrue("Not readOnly", getPackage("/P/src2/p1").getResource().isReadOnly());
+		assertTrue("Is readOnly", !getPackage("/P/src2/p1/p2").getResource().isReadOnly());
+		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
+		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
+	} finally {
+		deleteFolder("/P/src/p1");
+	}
 }
 /**
  * Ensures that a WorkingCopy cannot be moved to a different package.

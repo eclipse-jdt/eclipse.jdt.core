@@ -128,7 +128,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	/**
 	 * Creates any destination package fragment(s) which do not exists yet.
 	 */
-	private void createNeededPackageFragments(IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
+	private void createNeededPackageFragments(IContainer sourceFolder, IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
 		IContainer parentFolder = (IContainer) root.getResource();
 		JavaElementDelta projectDelta = null;
 		String[] names = org.eclipse.jdt.internal.core.Util.getTrimmedSimpleNames(newFragName);
@@ -144,6 +144,10 @@ public class CopyResourceElementsOperation extends MultiOperation {
 					createFolder(parentFolder, subFolderName, fForce);
 				}
 				parentFolder = parentFolder.getFolder(new Path(subFolderName));
+				sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
+				if (sourceFolder.isReadOnly()) {
+					parentFolder.setReadOnly(true);
+				}
 				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
 				if (i < names.length - 1 // all but the last one are side effect packages
 						&& !org.eclipse.jdt.internal.core.Util.isExcluded(parentFolder, exclusionsPatterns)) { 
@@ -373,7 +377,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 					}
 				}	
 			}
-			createNeededPackageFragments(root, newFragName, shouldMoveFolder);
+			createNeededPackageFragments((IContainer) source.getParent().getResource(), root, newFragName, shouldMoveFolder);
 	
 			// Process resources
 			if (shouldMoveFolder) {
