@@ -173,7 +173,7 @@ boolean filterResource(IResource resource) {
 	if (resourceFilters != null) {
 		char[] name = resource.getName().toCharArray();
 		for (int i = 0, length = resourceFilters.length; i < length; i++)
-			if (CharOperation.match(resourceFilters[i], resource.getName().toCharArray(), true))
+			if (CharOperation.match(resourceFilters[i], name, true))
 				return true;
 	}
 	return false;
