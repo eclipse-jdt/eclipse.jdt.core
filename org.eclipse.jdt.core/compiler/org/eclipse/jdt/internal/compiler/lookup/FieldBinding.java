@@ -62,19 +62,33 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		// answer true if the invocationType is the declaringClass or they are in the same package
 		// OR the invocationType is a subclass of the declaringClass
 		//    AND the receiverType is the invocationType or its subclass
-		//    OR the field is a static field accessed directly through a type
+		//    OR the method is a static method accessed directly through a type
+		//    OR previous assertions are true for one of the enclosing type
 		if (invocationType == declaringClass) return true;
 		if (invocationType.fPackage == declaringClass.fPackage) return true;
-		if (declaringClass.isSuperclassOf(invocationType)) {
-			if (invocationSite.isSuperAccess()) return true;
-			// receiverType can be an array binding in one case... see if you can change it
-			if (receiverType instanceof ArrayBinding)
-				return false;
-			if (invocationType == receiverType || invocationType.isSuperclassOf((ReferenceBinding) receiverType))
-				return true;
-			if (isStatic())
-				return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
-		}
+		
+		ReferenceBinding currentType = invocationType;
+		int depth = 0;
+		do {
+			if (declaringClass.isSuperclassOf(currentType)) {
+				if (invocationSite.isSuperAccess()){
+					return true;
+				}
+				// receiverType can be an array binding in one case... see if you can change it
+				if (receiverType instanceof ArrayBinding){
+					return false;
+				}
+				if (isStatic()){
+					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
+				}
+				if (currentType == receiverType || currentType.isSuperclassOf((ReferenceBinding) receiverType)){
+					if (depth > 0) invocationSite.setDepth(depth);
+					return true;
+				}
+			}
+			depth++;
+			currentType = currentType.enclosingType();
+		} while (currentType != null);
 		return false;
 	}
 
@@ -118,12 +132,6 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
-}
-public SyntheticAccessMethodBinding getSyntheticReadAccess() {
-	return ((SourceTypeBinding) declaringClass).addSyntheticMethod(this, true);
-}
-public SyntheticAccessMethodBinding getSyntheticWriteAccess() {
-	return ((SourceTypeBinding) declaringClass).addSyntheticMethod(this, false);
 }
 /* Answer true if the receiver has default visibility
 */

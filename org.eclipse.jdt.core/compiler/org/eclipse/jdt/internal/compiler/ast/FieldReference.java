@@ -308,18 +308,60 @@ public boolean isTypeAccess() {
  * No need to emulate access to protected fields since not implicitly accessed
  */
 public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope){
-	if (binding.isPrivate() 
-		&& (currentScope.enclosingSourceType() != binding.declaringClass)
-		&& (binding.constant == NotAConstant)) {
-		syntheticReadAccessor = binding.getSyntheticReadAccess();
+	if (binding.isPrivate()) {
+		if ((currentScope.enclosingSourceType() != binding.declaringClass) && (binding.constant == NotAConstant)) {
+			syntheticReadAccessor =  ((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, true);
+			currentScope.problemReporter().needToEmulateFieldReadAccess(binding, this);
+		}
+
+	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
+
+		// qualified super need emulation always
+		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
+		syntheticReadAccessor = destinationType.addSyntheticMethod(binding, true);
+		currentScope.problemReporter().needToEmulateFieldReadAccess(binding, this);
+
+	} else if (binding.isProtected()) {
+
+		SourceTypeBinding enclosingSourceType;
+		if (((bits & DepthMASK) != 0) 
+				&& binding.declaringClass.getPackage() 
+					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
+
+			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+			syntheticReadAccessor = currentCompatibleType.addSyntheticMethod(binding, true);
+			currentScope.problemReporter().needToEmulateFieldReadAccess(binding, this);
+		}
 	}
 }
 /*
  * No need to emulate access to protected fields since not implicitly accessed
  */
 public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope){
-	if (binding.isPrivate() && (currentScope.enclosingSourceType() != binding.declaringClass)) {
-		syntheticWriteAccessor = binding.getSyntheticWriteAccess();
+	if (binding.isPrivate()) {
+		if (currentScope.enclosingSourceType() != binding.declaringClass) {
+			syntheticWriteAccessor = ((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, false);
+			currentScope.problemReporter().needToEmulateFieldWriteAccess(binding, this);
+		}
+		
+	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
+
+		// qualified super need emulation always
+		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
+		syntheticWriteAccessor = destinationType.addSyntheticMethod(binding, false);
+		currentScope.problemReporter().needToEmulateFieldWriteAccess(binding, this);
+
+	} else if (binding.isProtected()) {
+
+		SourceTypeBinding enclosingSourceType;
+		if (((bits & DepthMASK) != 0) 
+				&& binding.declaringClass.getPackage() 
+					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
+
+			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+			syntheticWriteAccessor = currentCompatibleType.addSyntheticMethod(binding, false);
+			currentScope.problemReporter().needToEmulateFieldWriteAccess(binding, this);
+		}
 	}
 }
 public TypeBinding resolveType(BlockScope scope) {
@@ -358,15 +400,20 @@ public TypeBinding resolveType(BlockScope scope) {
 			binding = new FieldBinding(binding, (ReferenceBinding) this.receiverType);
 	return binding.type;
 }
-public void setDepth(int d) {
+public void setDepth(int depth) {
+	if (depth > 0) {
+		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
+	}
 }
 public void setFieldIndex(int index){}
+
 public String toStringExpression(){
-	/* slow code */
 	
-	return 	receiver.toString()
+	return receiver.toString()
 			+ "."  //$NON-NLS-1$
-			+ new String(token);}
+			+ new String(token);
+}
+
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		receiver.traverse(visitor, scope);

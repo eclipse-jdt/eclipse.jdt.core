@@ -59,8 +59,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate receiver/enclosing instance access
 	boolean isStatic = binding.isStatic();
 	// outer access ?
-	if (!isStatic && ((bits & DepthMASK) != 0)){
-		// outer method can be reached through emulation
+	if (!isStatic && ((bits & DepthMASK) != 0) && (receiver == ThisReference.ThisImplicit)){
+		// outer method can be reached through emulation if implicit access
 		Object[] path = currentScope.getExactEmulationPath(currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT));
 		if (path == null) {
 			// emulation was not possible (should not happen per construction)
@@ -134,9 +134,9 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 
 	if (binding.isPrivate()){
-		
-		if (((bits & DepthMASK) != 0) 
-			|| currentScope.enclosingSourceType() != binding.declaringClass){
+
+		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
+		if (currentScope.enclosingSourceType() != binding.declaringClass){
 		
 			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(binding);
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
@@ -144,7 +144,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 
 	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
 
-		// need emulation always
+		// qualified super need emulation always
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
 		syntheticAccessor = destinationType.addSyntheticMethod(binding);
 		currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
