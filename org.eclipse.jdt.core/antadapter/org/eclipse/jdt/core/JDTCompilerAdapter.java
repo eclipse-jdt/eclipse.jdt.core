@@ -188,18 +188,23 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * Handle the nowarn option. If none, then we generate all warnings.
 		 */		
         if (attributes.getNowarn()) {
-            cmd.createArgument().setValue("-nowarn"); //$NON-NLS-1$
+			if (deprecation) {
+				cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
+			} else {
+	            cmd.createArgument().setValue("-nowarn"); //$NON-NLS-1$
+			}
         } else {
-			cmd.createArgument().setValue(
-				"-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,deprecation"); //$NON-NLS-1$
+			/*
+			 * deprecation option.
+			 */		
+			if (deprecation) {
+				cmd.createArgument().setValue(
+					"-warn:allDeprecation,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedLocals,unusedArguments,unusedImports,syntheticAccess,staticReceiver"); //$NON-NLS-1$
+			} else {
+				cmd.createArgument().setValue(
+					"-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,unusedLocals,unusedArguments,unusedImports,syntheticAccess,staticReceiver"); //$NON-NLS-1$
+			}
         }
-
-		/*
-		 * deprecation option.
-		 */		
-		if (deprecation) {
-			cmd.createArgument().setValue("-deprecation"); //$NON-NLS-1$
-		}
 
 		/*
 		 * destDir option.
