@@ -474,7 +474,11 @@ public boolean isEquivalentTo(ReferenceBinding otherType) {
         return otherType.isRawType() && otherType.erasure() == this.erasure();
     } else if (this.isRawType()) {
         return otherType.erasure() == this.erasure();
-    } 
+    } else if (this.isWildcard()) {
+        WildcardBinding wildcard = (WildcardBinding)this;
+        if (wildcard.bound == null) return true;
+
+    }
     return false;
 }
 /* Answer true if the receiver is final and cannot be subclassed

@@ -21,28 +21,36 @@ public class WildcardBinding extends ReferenceBinding {
 
     TypeBinding bound;
 	boolean isSuper;
+	char[] genericSignature;
 	
 	public WildcardBinding(TypeBinding bound, boolean isSuper) {
 	    this.bound = bound;
 	    this.isSuper = isSuper;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
 	}
-	
+
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
      */
-    public char[] signature() {
-        if (this.signature == null) {
+    public char[] genericTypeSignature() {
+        if (this.genericSignature == null) {
 			if (this.bound == null) {
-			    this.signature = WILDCARD_STAR;
+			    this.genericSignature = WILDCARD_STAR;
 			} else if (this.isSuper) {
-			    this.signature = CharOperation.concat(WILDCARD_MINUS, this.bound.signature());
+			    this.genericSignature = CharOperation.concat(WILDCARD_MINUS, this.bound.genericTypeSignature());
 			} else {
-				this.signature = CharOperation.concat(WILDCARD_PLUS, this.bound.signature());
+				this.genericSignature = CharOperation.concat(WILDCARD_PLUS, this.bound.genericTypeSignature());
 			}
         } 
-        return this.signature;
+        return this.genericSignature;
     }
+
+    /**
+	 * Returns true if the type is a wildcard
+	 */
+	public boolean isWildcard() {
+	    return true;
+	}
 
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
@@ -71,6 +79,23 @@ public class WildcardBinding extends ReferenceBinding {
         }
         return WILDCARD_NAME;
     }
+    
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
+     */
+    public char[] signature() {
+        // TODO (philippe) per construction, should never be called 
+        if (this.signature == null) {
+			if (this.bound == null) {
+			    this.signature = WILDCARD_STAR;
+			} else if (this.isSuper) {
+			    this.signature = CharOperation.concat(WILDCARD_MINUS, this.bound.signature());
+			} else {
+				this.signature = CharOperation.concat(WILDCARD_PLUS, this.bound.signature());
+			}
+        } 
+        return this.signature;
+    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#sourceName()
@@ -85,13 +110,6 @@ public class WildcardBinding extends ReferenceBinding {
         }
         return WILDCARD_NAME;
     }
-
-    /**
-	 * Returns true if the type is a wildcard
-	 */
-	public boolean isWildcard() {
-	    return true;
-	}
 
 	/**
 	 * @see java.lang.Object#toString()
