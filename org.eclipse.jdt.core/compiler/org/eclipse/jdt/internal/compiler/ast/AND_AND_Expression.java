@@ -53,18 +53,17 @@ public class AND_AND_Expression extends BinaryExpression {
 		rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
 
-		int mode = rightInfo.reachMode();
+		int previousMode = rightInfo.reachMode();
 		if (isLeftOptimizedFalse){
 			rightInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
-		FlowInfo trueInfo = rightInfo.initsWhenTrue().copy();
-		trueInfo.setReachMode(rightInfo.reachMode()); // so merge works fine
-		rightInfo.setReachMode(mode); // reset after trueInfo got extracted
+		FlowInfo trueMergedInfo = rightInfo.initsWhenTrue().copy();
+		rightInfo.setReachMode(previousMode); // reset after trueMergedInfo got extracted
 		
 		FlowInfo mergedInfo = 
 			FlowInfo.conditional(
-				trueInfo,
+				trueMergedInfo,
 				leftInfo.initsWhenFalse().copy().unconditionalInits().mergedWith(
 						rightInfo.initsWhenFalse().copy().unconditionalInits()));
 		mergedInitStateIndex =

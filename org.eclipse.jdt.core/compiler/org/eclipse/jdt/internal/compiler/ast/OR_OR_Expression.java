@@ -54,20 +54,19 @@ public class OR_OR_Expression extends BinaryExpression {
 		rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
 
-		int mode = rightInfo.reachMode();
+		int previousMode = rightInfo.reachMode();
 		if (isLeftOptimizedTrue){
 			rightInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
-		FlowInfo falseInfo = rightInfo.initsWhenFalse().copy();
-		falseInfo.setReachMode(rightInfo.reachMode()); // so merge works fine
-		rightInfo.setReachMode(mode); // reset after falseInfo got extracted
+		FlowInfo falseMergedInfo = rightInfo.initsWhenFalse().copy();
+		rightInfo.setReachMode(previousMode); // reset after falseMergedInfo got extracted
 
 		FlowInfo mergedInfo = FlowInfo.conditional(
 					// merging two true initInfos for such a negative case: if ((t && (b = t)) || f) r = b; // b may not have been initialized
 					leftInfo.initsWhenTrue().copy().unconditionalInits().mergedWith(
 						rightInfo.initsWhenTrue().copy().unconditionalInits()),
-					rightInfo.initsWhenFalse().copy());
+					falseMergedInfo);
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
