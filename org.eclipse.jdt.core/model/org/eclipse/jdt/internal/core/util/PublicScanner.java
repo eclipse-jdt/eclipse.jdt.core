@@ -1554,7 +1554,7 @@ public final void getNextUnicodeChar()
 public char[] getSource(){
 	return this.source;
 }
-private boolean isDigit(char c) throws InvalidInputException {
+protected boolean isDigit(char c) throws InvalidInputException {
 	if (Character.isDigit(c)) {
 		switch(c) {
 			case '0' :
