@@ -553,7 +553,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								PackageBinding packageBinding = (PackageBinding) binding;
 								requestor.acceptPackage(packageBinding.readableName());
 								acceptedAnswer = true;
-							}
+							} else
+								if(binding instanceof BaseTypeBinding) {
+									acceptedAnswer = true;
+								}
 	}
 
 	/**
