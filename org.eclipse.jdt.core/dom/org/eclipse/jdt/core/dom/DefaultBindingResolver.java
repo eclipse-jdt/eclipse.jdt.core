@@ -562,12 +562,22 @@ class DefaultBindingResolver extends BindingResolver {
 			if (importReference.onDemand) {
 				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 				if ((binding != null) && (binding.isValidBinding())) {
-					IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
-					if (packageBinding == null) {
-						return null;
+					if (binding.bindingType() == Binding.PACKAGE) {
+						IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+						if (packageBinding == null) {
+							return null;
+						}
+						this.bindingsToAstNodes.put(packageBinding, importDeclaration);
+						return packageBinding;
+					} else {
+						// if it is not a package, it has to be a type
+						ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+						if (typeBinding == null) {
+							return null;
+						}
+						this.bindingsToAstNodes.put(typeBinding, importDeclaration);
+						return typeBinding;
 					}
-					this.bindingsToAstNodes.put(packageBinding, importDeclaration);
-					return packageBinding;
 				}
 			} else {
 				Binding binding = this.scope.getTypeOrPackage(importReference.tokens);
