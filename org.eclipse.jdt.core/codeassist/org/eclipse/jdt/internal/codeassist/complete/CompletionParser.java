@@ -438,14 +438,14 @@ private void buildMoreCompletionContext(Expression expression) {
 	} else {
 		if(currentElement instanceof RecoveredField
 			&& ((RecoveredField) currentElement).fieldDeclaration.initialization == null) {
-				
-			currentElement = currentElement.add(statement, 0);
+			
 			assistNodeParent = ((RecoveredField) currentElement).fieldDeclaration;
+			currentElement = currentElement.add(statement, 0);
 		} else if(currentElement instanceof RecoveredLocalVariable
 			&& ((RecoveredLocalVariable) currentElement).localDeclaration.initialization == null) {
-				
-			currentElement = currentElement.add(statement, 0);
+			
 			assistNodeParent = ((RecoveredLocalVariable) currentElement).localDeclaration;
+			currentElement = currentElement.add(statement, 0);
 		} else {
 			currentElement = currentElement.add(expression, 0);
 		}
