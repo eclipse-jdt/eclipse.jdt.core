@@ -121,23 +121,19 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * <ul>
 	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
 	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
-	 *  <li>INVALID_CONTENTS - the number of supplied elements is different from the number of supplied position ranges if positions
-	 * ranges is not <code>null</code>.</li>
 	 * </ul>
 	 * @see IJavaModelStatus
 	 * @see JavaConventions
 	 */
 	public IJavaModelStatus verify() {
-		if (fElementsToProcess.length <= 0) {
+		if (fElementsToProcess.length != 1) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
-			if (fElementsToProcess[i] == null) {
-				return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
-			}
-			if (!(fElementsToProcess[i] instanceof IWorkingCopy) || !((IWorkingCopy) fElementsToProcess[i]).isWorkingCopy()) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, fElementsToProcess[i]);
-			}
+		if (fElementsToProcess[0] == null) {
+			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
+		}
+		if (!(fElementsToProcess[0] instanceof IWorkingCopy) || !((IWorkingCopy) fElementsToProcess[0]).isWorkingCopy()) {
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, fElementsToProcess[0]);
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}
