@@ -1078,7 +1078,7 @@ public abstract class Scope
 								foundType = memberType;
 						}
 						if (CharOperation.equals(sourceType.sourceName, name)) {
-							if (foundType != null && foundType != sourceType)
+							if (foundType != null && foundType != sourceType && foundType.problemId() != NotVisible)
 								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
 							return sourceType;
 						}
