@@ -75,8 +75,12 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 			if (parameterPackageNames[i] != null && parameterPackageNames[i].length > 0) {
 				pkg = new String(parameterPackageNames[i]) + "."; //$NON-NLS-1$
 			}
+			
+			String typeName = new String(parameterTypeNames[i]);
+			if (typeName.indexOf('.') > 0) 
+				typeName = typeName.replace('.', '$');
 			parameterTypes[i]= Signature.createTypeSignature(
-				pkg + new String(parameterTypeNames[i]), true);
+				pkg + typeName, true);
 		}
 	}
 	IMethod method= type.getMethod(new String(selector), parameterTypes);
