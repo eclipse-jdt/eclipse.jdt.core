@@ -195,9 +195,9 @@ public class GetSourceTests extends ModifyingResourceTests {
 				"  }\n" +
 				"}";
 			createFile("/P/p/Y.java", cuSource);
-			IType anoymous = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
+			IType anonymous = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
 		
-			String actualSource = getNameSource(cuSource, anoymous);
+			String actualSource = getNameSource(cuSource, anonymous);
 			String expectedSource = "Y";
 			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 		} finally {
