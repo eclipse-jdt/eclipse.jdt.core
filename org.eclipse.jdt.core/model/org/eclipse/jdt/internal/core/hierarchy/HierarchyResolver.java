@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -307,6 +308,8 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
 			if (interfaceBinding instanceof ParameterizedTypeBinding) {
 				interfaceBinding = ((ParameterizedTypeBinding)interfaceBinding).type;
+				int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, simpleName);
+				simpleName = CharOperation.subarray(simpleName, 0, genericStart);
 			}
 
 			// ensure that the binding corresponds to the interface defined by the user
