@@ -43,7 +43,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		OperatorSignatures[XOR] = get_XOR();
 	}
 
-	public static final String generateTableTestCase(){ // TODO (olivier) should be extracted into a regression test case
+	public static final String generateTableTestCase(){
 		//return a String which is a java method allowing to test
 		//the non zero entries of all tables
 	
