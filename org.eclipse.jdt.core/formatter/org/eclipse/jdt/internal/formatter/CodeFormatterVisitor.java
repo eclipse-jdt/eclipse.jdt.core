@@ -250,6 +250,23 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 	
+	private boolean commentStartsBlock(int start, int end) {
+		this.localScanner.resetTo(start, end);
+		try {
+			if (this.localScanner.getNextToken() ==  TerminalTokens.TokenNameLBRACE) {
+				switch(this.localScanner.getNextToken()) {
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						return true;
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		return false;
+	}
+	
 	private ASTNode[] computeMergedMemberDeclarations(TypeDeclaration typeDeclaration){
 		
 		int fieldIndex = 0, fieldCount = (typeDeclaration.fields == null) ? 0 : typeDeclaration.fields.length;
@@ -1220,10 +1237,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Statement[] statements = block.statements;
 		statements[0].traverse(this, scope);
-		this.scribe.space();
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, false);
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, true);
 		this.scribe.printTrailingComment();
-	}	
+	}
 
     private void formatLeftCurlyBrace(final int line, final String bracePosition) {
         /*
@@ -1684,11 +1700,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	private boolean isGuardClause(Block block) {
-		return block.statements != null 
+		return !commentStartsBlock(block.sourceStart, block.sourceEnd)
+				&& block.statements != null
 				&& block.statements.length == 1
-				&& (block.statements[0] instanceof ReturnStatement
-					|| block.statements[0] instanceof ThrowStatement);
-	}	
+				&& (block.statements[0] instanceof ReturnStatement || block.statements[0] instanceof ThrowStatement);
+	}
 
 	private boolean isMinus() {
 
