@@ -1521,6 +1521,48 @@ public void testBug60689() throws JavaModelException {
 	assertEquals("We should have one comment!", 1, testCU.getCommentList().size());
 }
 /*
+ * Ensures that a method that has a type parameter with bound can be overriden in another working copy.
+ * (regression test for bug 76780 [model] return type not recognized correctly on some generic methods)
+ */
+public void testTypeParameterWithBound() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getWorkingCopy(
+			"/Reconciler15/src/test/I.java",
+			"package test;\n"+
+			"public interface I {\n"+
+			"	<T extends I> void foo(T t);\n"+
+			"}\n",
+			owner,
+			null /*no problem requestor*/
+		);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getWorkingCopy("Reconciler15/src/test/X.java", "", owner, this.problemRequestor);
+		setWorkingCopyContents(
+			"package test;\n"+
+			"public class X implements I {\n"+
+			"	public <T extends I> void foo(T t) {\n"+
+			"	}\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+	}
+}
+/*
  * Ensures that a varargs method can be referenced from another working copy.
  */
 public void testVarargs() throws CoreException {
@@ -1529,18 +1571,18 @@ public void testVarargs() throws CoreException {
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
-		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(owner, null, null);
-		createFolder("/Reconciler15/src/test");
-		workingCopy1.getBuffer().setContents(
+		workingCopy1 = getWorkingCopy(
+			"/Reconciler15/src/test/X.java",
 			"package test;\n"+
 			"public class X {\n"+
 			"	void bar(String ... args) {}\n"+
-			"}\n"
+			"}\n",
+			owner,
+			null /*no problem requestor*/
 		);
-		workingCopy1.makeConsistent(null);
 		
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getWorkingCopy("Reconciler15/src/test/Y.java", "", owner, this.problemRequestor);
 		setWorkingCopyContents(
 			"package test;\n"+
 			"public class Y {\n"+
@@ -1561,7 +1603,6 @@ public void testVarargs() throws CoreException {
 		if (workingCopy1 != null) {
 			workingCopy1.discardWorkingCopy();
 		}
-		deleteFolder("/Reconciler15/src/test");
 	}
 }
 

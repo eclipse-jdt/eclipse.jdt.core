@@ -536,11 +536,16 @@ public class SourceTypeConverter implements CompilerModifiers {
 		parameter.sourceEnd = end;
 		if (typeParameterBounds != null) {
 			int length = typeParameterBounds.length;
-			parameter.bounds = new TypeReference[length];
-			for (int i = 0; i < length; i++) {
-				TypeReference bound = createTypeReference(typeParameterBounds[i], start, end);
-				bound.bits |= ASTNode.IsSuperType;
-				parameter.bounds[i] = bound;
+			if (length > 0) {
+				parameter.type = createTypeReference(typeParameterBounds[0], start, end);
+				if (length > 1) {
+					parameter.bounds = new TypeReference[length-1];
+					for (int i = 1; i < length; i++) {
+						TypeReference bound = createTypeReference(typeParameterBounds[i], start, end);
+						bound.bits |= ASTNode.IsSuperType;
+						parameter.bounds[i-1] = bound;
+					}
+				}
 			}
 		}
 		return parameter;

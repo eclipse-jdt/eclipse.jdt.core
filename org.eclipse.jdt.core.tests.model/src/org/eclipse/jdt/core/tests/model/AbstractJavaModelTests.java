@@ -1245,7 +1245,7 @@ protected void assertDeltas(String message, String expected) {
 		return getWorkingCopy(path, "", computeProblems);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-		return getWorkingCopy(path, source, false/*don't compute problems*/);
+		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, null/*don't compute problems*/);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source, boolean computeProblems) throws JavaModelException {
 		IProblemRequestor problemRequestor = computeProblems
@@ -1258,7 +1258,10 @@ protected void assertDeltas(String message, String expected) {
 				}
 			} 
 			: null;
-		ICompilationUnit workingCopy = getCompilationUnit(path).getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null/*no progress monitor*/);
+		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, problemRequestor);
+	}
+	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, IProblemRequestor problemRequestor) throws JavaModelException {
+		ICompilationUnit workingCopy = getCompilationUnit(path).getWorkingCopy(owner, problemRequestor, null/*no progress monitor*/);
 		workingCopy.getBuffer().setContents(source);
 		workingCopy.makeConsistent(null/*no progress monitor*/);
 		return workingCopy;
