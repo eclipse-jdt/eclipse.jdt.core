@@ -264,28 +264,24 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		}
 	}
 }
-// TODO: (kent) should rename into checkNonVisibleAbstractMethod(...) - default abstract means something else.
-private void checkDefaultAbstractMethod(MethodBinding abstractMethod) {
+private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 	ReferenceBinding superType = this.type.superclass();
 	char[] selector = abstractMethod.selector;
-	while (superType != abstractMethod.declaringClass && superType.isValidBinding()) {
+	do {
+		if (!superType.isValidBinding()) return;
+		if (!superType.isAbstract()) return; // closer non abstract super type will be flagged instead
 		MethodBinding[] methods = superType.getMethods(selector);
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
 			if (method.returnType != abstractMethod.returnType || !method.areParametersEqual(abstractMethod))
 				continue nextMethod;
-			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract() || method.isAbstract())
+			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
 				continue nextMethod;
-
 			if (superType.fPackage == abstractMethod.declaringClass.fPackage) return; // found concrete implementation of abstract method in same package
-			if (!superType.isAbstract()) return; // will report error against this type
-
-			// non visible abstract methods cannot be overridden so the type must be defined abstract
-			this.problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
-			return;
 		}
-		superType = superType.superclass();
-	}
+	} while ((superType = superType.superclass()) != abstractMethod.declaringClass);
+	// non visible abstract methods cannot be overridden so the type must be defined abstract
+	this.problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
 }
 /*
 "8.4.4"
@@ -472,21 +468,20 @@ private void computeInheritedMethods() {
 					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 					if (existingMethods != null) {
 						for (int i = 0, length = existingMethods.length; i < length; i++) {
-							if (method.returnType == existingMethods[i].returnType) {
-								if (method.areParametersEqual(existingMethods[i])) {
-									if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
-										checkDefaultAbstractMethod(method);
-									continue nextMethod;
-								}
+							if (method.returnType == existingMethods[i].returnType
+									&& method.areParametersEqual(existingMethods[i])) {
+								if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
+									checkPackagePrivateAbstractMethod(method);
+								continue nextMethod;
 							}
 						}
 					}
 					if (nonVisibleDefaultMethods != null)
 						for (int i = 0; i < nonVisibleCount; i++)
-							if (method.returnType == nonVisibleDefaultMethods[i].returnType)
-								if (CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector))
-									if (method.areParametersEqual(nonVisibleDefaultMethods[i]))
-										continue nextMethod;
+							if (method.returnType == nonVisibleDefaultMethods[i].returnType
+									&& CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
+									&& method.areParametersEqual(nonVisibleDefaultMethods[i])) 
+								continue nextMethod;
 
 					if (!(method.isDefault() && method.declaringClass.fPackage != type.fPackage)) { // ignore methods which have default visibility and are NOT defined in another package
 						if (existingMethods == null)
@@ -510,11 +505,10 @@ private void computeInheritedMethods() {
 						MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
 						if (current != null) { // non visible methods cannot be overridden so a warning is issued
 							foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-								if (method.returnType == current[i].returnType) {
-									if (method.areParametersEqual(current[i])) {
-										this.problemReporter().overridesPackageDefaultMethod(current[i], method);
-										break foundMatch;
-									}
+								if (method.returnType == current[i].returnType
+										&& method.areParametersEqual(current[i])) {
+									this.problemReporter().overridesPackageDefaultMethod(current[i], method);
+									break foundMatch;
 								}
 							}
 						}
