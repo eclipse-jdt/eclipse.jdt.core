@@ -435,8 +435,10 @@ protected void enterType(
 	SourceType handle = handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
-	if (parentInfo instanceof SourceFieldElementInfo && superclass == null && superinterfaces == null) // case of enum constant init
-		superclass =  CharOperation.NO_CHAR;
+	if (parentInfo instanceof SourceFieldElementInfo && superclass == null && superinterfaces == null) { // case of enum constant init
+		superclass =  parentHandle.getParent().getElementName().toCharArray();
+		modifiers |= Flags.AccEnum;
+	}
 	
 	SourceTypeElementInfo info = new SourceTypeElementInfo();
 	info.setHandle(handle);
@@ -553,16 +555,8 @@ public void exitInterface(int declarationEnd) {
  */
 protected void exitMember(int declarationEnd) {
 	SourceRefElementInfo info = (SourceRefElementInfo) this.infoStack.pop();
-	if (info instanceof SourceTypeElementInfo && ((SourceTypeElementInfo) info).superclassName == CharOperation.NO_CHAR) {
-		// anonymous for enum constant -> attach its members to the field itself
-		SourceRefElementInfo fieldInfo = (SourceRefElementInfo) this.infoStack.peek();
-		fieldInfo.removeChild((IJavaElement) this.handleStack.pop());
-		for (int i = 0, length = info.children.length; i < length; i++) 
-			fieldInfo.addChild(info.children[i]);
-	} else {
-		info.setSourceRangeEnd(declarationEnd);
-		this.handleStack.pop();
-	}
+	info.setSourceRangeEnd(declarationEnd);
+	this.handleStack.pop();
 }
 /**
  * @see ISourceElementRequestor
