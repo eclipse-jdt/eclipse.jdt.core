@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -255,14 +256,21 @@ private int matchLevel(ImportReference importRef, boolean resolve) {
 			return IMPOSSIBLE_MATCH;
 		}
 	} else {
-		int length = importRef.tokens.length - 1;
-		char[][] tokens = new char[length][];
-		System.arraycopy(importRef.tokens, 0, tokens, 0, length);
-		if (this.matches(tokens)) {
-			return ACCURATE_MATCH;
-		} else {
-			return IMPOSSIBLE_MATCH;
+		char[] qualifiedTypeName = CharOperation.concatWith(importRef.tokens, '.');
+		switch (this.matchMode) {
+			case EXACT_MATCH :
+			case PREFIX_MATCH :
+				if (CharOperation.prefixEquals(this.pkgName, qualifiedTypeName, this.isCaseSensitive)) {
+					return POSSIBLE_MATCH;
+				} 
+				break;
+			case PATTERN_MATCH :
+				if (CharOperation.match(this.pkgName, qualifiedTypeName, this.isCaseSensitive)) {
+					return POSSIBLE_MATCH;
+				}
+				break;
 		}
+		return IMPOSSIBLE_MATCH;
 	}
 }
 
@@ -382,7 +390,41 @@ private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
 			}
 		}
 	} else {
-		TypeBinding typeBinding = typeRef.binding;
+		return this.matchLevel(typeRef.binding);
+	}
+}
+/**
+ * @see SearchPattern#matchReportImportRef(ImportReference, Binding, IJavaElement, int, MatchLocator)
+ */
+protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	if (binding == null) {
+		this.matchReportReference(importRef, element, accuracy, locator);
+	} else {
+		if (binding instanceof ImportBinding) {
+			locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, importRef.tokens, element, accuracy);
+		} else if (binding instanceof ReferenceBinding) {
+			PackageBinding pkgBinding = ((ReferenceBinding)binding).fPackage;
+			if (pkgBinding != null) {
+				locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, pkgBinding.compoundName, element, accuracy);
+			} else {
+				locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, importRef.tokens, element, accuracy);
+			}
+		} 
+	}
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding) {
+	if (binding instanceof ImportBinding) {
+		if (this.matches(((ImportBinding)binding).compoundName)) {
+			return ACCURATE_MATCH;
+		} else {
+			return IMPOSSIBLE_MATCH;
+		}
+	} else if (binding instanceof TypeBinding) {
+		TypeBinding typeBinding = (TypeBinding)binding;
 		if (typeBinding == null || typeBinding instanceof ProblemReferenceBinding) {
 			return INACCURATE_MATCH;
 		} else {
@@ -402,7 +444,8 @@ private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
 				return IMPOSSIBLE_MATCH;
 			}
 		}
-			
+	} else {
+		return IMPOSSIBLE_MATCH;
 	}
 }
 }

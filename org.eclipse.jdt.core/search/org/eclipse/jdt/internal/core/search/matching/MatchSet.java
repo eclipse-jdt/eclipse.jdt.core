@@ -30,8 +30,10 @@ import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.Util;
 
 /**
@@ -209,9 +211,35 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 		// move the potential matching nodes that exactly match the search pattern to the matching nodes set
 		for (Iterator potentialMatches = this.potentialMatchingNodes.keySet().iterator(); potentialMatches.hasNext();) {
 			AstNode node = (AstNode) potentialMatches.next();
-			int level = this.locator.pattern.matchLevel(node, true);
-			if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {
-				this.matchingNodes.put(node, new Integer(level));
+			int level;
+			if (node instanceof ImportReference) {
+				// special case for import refs: they don't know their binding
+				ImportReference importRef = (ImportReference)node;
+				Binding binding;
+				if (importRef.onDemand) {
+					binding = unit.scope.getTypeOrPackage(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length));
+				} else {
+					binding = unit.scope.getTypeOrPackage(importRef.tokens);
+				}
+				level = this.locator.pattern.matchLevel(binding);
+
+				if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {
+					// create defining import handle
+					IJavaElement importHandle = this.locator.createImportHandle(importRef);
+					this.locator.pattern.matchReportImportRef(
+						importRef, 
+						binding, 
+						importHandle, 
+						level == SearchPattern.ACCURATE_MATCH ?
+								IJavaSearchResultCollector.EXACT_MATCH :
+								IJavaSearchResultCollector.POTENTIAL_MATCH,
+						this.locator);
+				}
+			} else {
+				level = this.locator.pattern.matchLevel(node, true);
+				if (level == SearchPattern.ACCURATE_MATCH || level == SearchPattern.INACCURATE_MATCH) {
+					this.matchingNodes.put(node, new Integer(level));
+				}
 			}
 		}
 		this.potentialMatchingNodes = new HashMap();
@@ -227,21 +255,23 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
 	}
 
 	// import declarations
-	ImportReference[] imports = unit.imports;
-	if (imports != null) {
-		for (int i = 0; i < imports.length; i++) {
-			ImportReference importRef = imports[i];
-			if ((level = (Integer)this.matchingNodes.remove(importRef)) != null) {
-				if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0) {
-					this.locator.reportImport(
-						importRef, 
-						level.intValue() == SearchPattern.ACCURATE_MATCH ?
-							IJavaSearchResultCollector.EXACT_MATCH :
-							IJavaSearchResultCollector.POTENTIAL_MATCH);
+	if (!this.cuHasBeenResolved) {
+		ImportReference[] imports = unit.imports;
+		if (imports != null) {
+			for (int i = 0; i < imports.length; i++) {
+				ImportReference importRef = imports[i];
+				if ((level = (Integer)this.matchingNodes.remove(importRef)) != null) {
+					if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0) {
+						this.locator.reportImport(
+							importRef, 
+							level.intValue() == SearchPattern.ACCURATE_MATCH ?
+								IJavaSearchResultCollector.EXACT_MATCH :
+								IJavaSearchResultCollector.POTENTIAL_MATCH);
+					}
 				}
 			}
 		}
-	}
+	} // else import declarations have already been processed above
 
 	// types
 	TypeDeclaration[] types = unit.types;

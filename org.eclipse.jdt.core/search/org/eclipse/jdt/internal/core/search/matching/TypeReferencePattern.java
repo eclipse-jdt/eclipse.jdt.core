@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -378,20 +380,28 @@ private int matchLevel(ImportReference importRef, boolean resolve) {
 	char[][] tokens = importRef.tokens;
 	int importLength = tokens.length;
 	
-	if (this.qualification != null){
-		char[][] qualificationTokens = CharOperation.splitOn('.', this.qualification);
-		int qualificationLength = qualificationTokens.length;
-		if (qualificationLength+1 > importLength) return IMPOSSIBLE_MATCH;
-		for (int i = 0; i < qualificationLength; i++){
-			if (!this.matchesName(qualificationTokens[i], tokens[i])) {
-				return IMPOSSIBLE_MATCH;
-			}
-		}
-		if (this.simpleName == null || this.matchesName(this.simpleName, tokens[qualificationLength])) {
-			return ACCURATE_MATCH;
+	if (this.qualification != null) {
+		char[] pattern;
+		if (this.simpleName == null) {
+			pattern = this.qualification;
 		} else {
-			return IMPOSSIBLE_MATCH;
+			pattern = CharOperation.concat(this.qualification, this.simpleName, '.');
 		}
+		char[] qualifiedTypeName = CharOperation.concatWith(importRef.tokens, '.');
+		switch (this.matchMode) {
+			case EXACT_MATCH :
+			case PREFIX_MATCH :
+				if (CharOperation.prefixEquals(pattern, qualifiedTypeName, this.isCaseSensitive)) {
+					return POSSIBLE_MATCH;
+				} 
+				break;
+			case PATTERN_MATCH:
+				if (CharOperation.match(pattern, qualifiedTypeName, this.isCaseSensitive)) {
+					return POSSIBLE_MATCH;
+				}
+				break;
+		}
+		return IMPOSSIBLE_MATCH;
 	} else {
 		if (this.simpleName == null) {
 			return ACCURATE_MATCH;
@@ -566,33 +576,73 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 			
 	}
 }
+/**
+ * @see SearchPattern#matchReportImportRef(ImportReference, Binding, IJavaElement, int, MatchLocator)
+ */
+protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	ReferenceBinding typeBinding = null;
+	char[][] tokens = null;
+	if (binding instanceof ReferenceBinding) {
+		typeBinding = (ReferenceBinding)binding;
+	}
+	char[][] typeTokens = importRef.tokens;
+	int lastIndex = typeTokens.length-1;
+	// try to match all enclosing types for which the token matches as well.
+	while (typeBinding != null && lastIndex >= 0){
+		if (matchesName(this.simpleName, typeTokens[lastIndex--])) {
+			int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+			if (level != IMPOSSIBLE_MATCH) {
+				tokens = new char[lastIndex+2][];
+				System.arraycopy(typeTokens, 0, tokens, 0, lastIndex+2);
+				break;
+			}
+		}
+		if (typeBinding instanceof ReferenceBinding){
+			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+		} else {
+			typeBinding = null;
+		}
+	}
+	if (tokens == null) {
+		if (typeBinding == null || typeBinding instanceof ProblemReferenceBinding) {
+			tokens = new char[][] {this.simpleName};
+		} else {
+			tokens = importRef.tokens;
+		}
+		if (!this.isCaseSensitive) {
+			int length = tokens.length;
+			char[][] lowerCaseTokens = new char[length][];
+			for (int i = 0; i < length; i++) {
+				char[] token = tokens[i];
+				lowerCaseTokens[i] = CharOperation.toLowerCase(token);
+			}
+			tokens = lowerCaseTokens;
+		}
+	}
+	locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, tokens, element, accuracy);
+}
 
 /**
  * @see SearchPattern#matchLevel(Binding)
  */
 public int matchLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof ReferenceBinding)) return IMPOSSIBLE_MATCH;
+	if (!(binding instanceof TypeBinding)) return IMPOSSIBLE_MATCH;
+	TypeBinding typeBinding = (TypeBinding)binding;
+	if (typeBinding instanceof ArrayBinding) typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+	if (typeBinding instanceof ProblemReferenceBinding) return INACCURATE_MATCH;
 
-	ReferenceBinding type = (ReferenceBinding) binding;
-	int level = this.matchLevelForType(this.simpleName, this.qualification, type.superclass());
-	if (level != IMPOSSIBLE_MATCH) {
-		return level;
-	}
-	
-	ReferenceBinding[] superInterfaces = type.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++){
-		int newLevel = this.matchLevelForType(this.simpleName, this.qualification, superInterfaces[i]);
-		switch (newLevel) {
-			case IMPOSSIBLE_MATCH:
-				return IMPOSSIBLE_MATCH;
-			case ACCURATE_MATCH: // keep previous level
-				break;
-			default: // ie. INACCURATE_MATCH
-				level = newLevel;
-				break;
+	while (typeBinding != null ) {
+		int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+		if (level != IMPOSSIBLE_MATCH) {
+			return level;
+		}
+		if (typeBinding instanceof ReferenceBinding){
+			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+		} else {
+			typeBinding = null;
 		}
 	}
-	return level;
+	return IMPOSSIBLE_MATCH;
 }
 }

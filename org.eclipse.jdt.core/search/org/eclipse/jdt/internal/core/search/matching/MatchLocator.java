@@ -806,7 +806,7 @@ public IType lookupType(TypeBinding typeBinding) {
 		IJavaElement importHandle = this.createImportHandle(reference);
 
 		// accept reference
-		this.pattern.matchReportReference(reference, importHandle, accuracy, this);
+		this.pattern.matchReportImportRef(reference, null, importHandle, accuracy, this);
 	}
 
 	/**

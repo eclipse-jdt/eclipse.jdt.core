@@ -28,8 +28,11 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ISearchPattern;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -1335,12 +1338,20 @@ protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPatt
  */
 protected abstract boolean matchIndexEntry();
 /**
+ * Report the match of the given import reference
+ */
+protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	// default is to report a match as a regular ref.
+	this.matchReportReference(importRef, element, accuracy, locator);
+}
+/**
  * Reports the match of the given reference.
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	// default is to report a match on the whole node.
 	locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
 }
+
 /**
  * Add square brackets to the given simple name
  */
