@@ -270,10 +270,13 @@ public class JavaModelManager implements ISaveParticipant {
 		
 		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
 		if (pkg == null) {
-			// fix for 1FVS7WE
 			// not on classpath - make the root its folder, and a default package
 			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
 			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			
+			if (VERBOSE){
+				System.out.println("WARNING : creating unit element outside classpath ("+ Thread.currentThread()+"): " + file.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+			}
 		}
 		return pkg.getCompilationUnit(file.getName());
 	}
