@@ -638,6 +638,14 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
+		case IProblem.SuperfluousSemicolon:
+			if ((errorThreshold & CompilerOptions.SuperfluousSemicolon) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.SuperfluousSemicolon) != 0){
+				return Warning;
+			}
+			return Ignore;		
 		default:
 			return Error;
 	}
@@ -2795,6 +2803,14 @@ public void superclassMustBeAClass(SourceTypeBinding type, TypeReference supercl
 		superclassRef.sourceStart,
 		superclassRef.sourceEnd);
 }
+public void superfluousSemicolon(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.SuperfluousSemicolon,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);	
+}
 public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclaration typeDecl, ReferenceBinding superType) {
 	this.handle(
 		IProblem.SuperInterfaceMustBeAnInterface,
@@ -3181,7 +3197,6 @@ public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);	
 }
-
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};
 	this.handle(

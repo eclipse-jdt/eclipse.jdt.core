@@ -29,6 +29,8 @@ public class WhileStatement extends Statement {
 
 		this.condition = condition;
 		this.action = action;
+		// remember useful empty statement
+		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatementMASK;
 		sourceStart = s;
 		sourceEnd = e;
 	}

@@ -293,6 +293,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportNoEffectAssignment,
 			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportSuperfluousSemicolon,
+			CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 	/*
@@ -905,6 +908,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
 					CompilerOptions.IGNORE);
 				options.put(
+					CompilerOptions.OPTION_ReportSuperfluousSemicolon,
+					CompilerOptions.IGNORE);
+				options.put(
 					CompilerOptions.OPTION_TaskTags,
 					""); //$NON-NLS-1$
 
@@ -992,6 +998,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+							CompilerOptions.WARNING);
+					} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
+						options.put(
+							CompilerOptions.OPTION_ReportSuperfluousSemicolon,
 							CompilerOptions.WARNING);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$

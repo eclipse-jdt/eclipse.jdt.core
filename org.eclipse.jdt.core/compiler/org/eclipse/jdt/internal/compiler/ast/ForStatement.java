@@ -51,6 +51,8 @@ public class ForStatement extends Statement {
 		this.condition = condition;
 		this.increments = increments;
 		this.action = action;
+		// remember useful empty statement
+		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatementMASK;
 		this.neededScope = neededScope;
 	}
 

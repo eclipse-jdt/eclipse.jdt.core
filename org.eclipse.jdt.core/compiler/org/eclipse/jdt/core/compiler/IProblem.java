@@ -32,6 +32,9 @@
  *								   UnusedPrivateField
  *								   IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod
  *								   InvalidExplicitConstructorCall
+ *     IBM Corporation - added the following constants
+ *								   PossibleAccidentalBooleanAssignment
+ *								   SuperfluousSemicolon
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -381,7 +384,9 @@ public interface IProblem {
 	int AssignmentHasNoEffect = Internal + 178;
 	/** @since 3.0 */
 	int PossibleAccidentalBooleanAssignment = Internal + 179;
-
+	/** @since 3.0 */
+	int SuperfluousSemicolon = Internal + 180;
+	
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
 	int NeedToEmulateFieldWriteAccess = FieldRelated + 191;

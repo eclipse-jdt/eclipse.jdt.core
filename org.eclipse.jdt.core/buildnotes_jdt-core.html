@@ -47,6 +47,14 @@ Eclipse SDK 3.0 Build - ?th June 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> added optional problem to signal superfluous semicolons.
+<pre>
+* COMPILER / Reporting Superfluous Semicolon
+*    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

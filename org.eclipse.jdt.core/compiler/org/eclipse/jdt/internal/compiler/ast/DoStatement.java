@@ -20,7 +20,6 @@ public class DoStatement extends Statement {
 
 	public Expression condition;
 	public Statement action;
-
 	private Label breakLabel, continueLabel;
 
 	// for local variables table attributes
@@ -32,6 +31,8 @@ public class DoStatement extends Statement {
 		this.sourceEnd = e;
 		this.condition = condition;
 		this.action = action;
+		// remember useful empty statement
+		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatementMASK;
 	}
 
 	public FlowInfo analyseCode(

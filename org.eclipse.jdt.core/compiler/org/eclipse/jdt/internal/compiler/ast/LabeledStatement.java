@@ -30,6 +30,8 @@ public class LabeledStatement extends Statement {
 	public LabeledStatement(char[] label, Statement statement, int sourceStart, int sourceEnd) {
 		
 		this.statement = statement;
+		// remember useful empty statement
+		if (statement instanceof EmptyStatement) statement.bits |= IsUsefulEmptyStatementMASK;
 		this.label = label;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;

@@ -62,7 +62,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
-
+	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -109,6 +109,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final int LocalVariableHiding = 0x10000000;
 	public static final int FieldHiding = 0x20000000;
 	public static final int AccidentalBooleanAssign = 0x40000000;
+	public static final int SuperfluousSemicolon = 0x80000000;
 	
 	// Default severity level for handlers
 	public int errorThreshold = 
@@ -485,6 +486,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				}
 				continue;
 			}
+			// Report possible accidental boolean assignment
+			if(optionID.equals(OPTION_ReportSuperfluousSemicolon)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= SuperfluousSemicolon;
+					this.warningThreshold &= ~SuperfluousSemicolon;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~SuperfluousSemicolon;
+					this.warningThreshold |= SuperfluousSemicolon;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~SuperfluousSemicolon;
+					this.warningThreshold &= ~SuperfluousSemicolon;
+				}
+				continue;
+			}
 			// Report non-externalized string literals
 			if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
 				if (optionValue.equals(ERROR)) {
@@ -816,6 +831,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				buf.append("\n-possible accidental boolean assignment: WARNING"); //$NON-NLS-1$
 			} else {
 				buf.append("\n-possible accidental boolean assignment: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & SuperfluousSemicolon) != 0){
+			buf.append("\n-superfluous semicolon: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & SuperfluousSemicolon) != 0){
+				buf.append("\n-superfluous semicolon: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-superfluous semicolon: IGNORE"); //$NON-NLS-1$
 			}
 		}
 		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$

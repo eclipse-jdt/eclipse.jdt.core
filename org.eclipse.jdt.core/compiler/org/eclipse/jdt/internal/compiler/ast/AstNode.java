@@ -22,7 +22,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static Constant NotAConstant = Constant.NotAConstant;
 
 	// storage for internal flags (32 bits)			BIT USAGE
-	public final static int Bit1 = 0x1; 			// return type (operators) | name reference kind (name ref) | add assertion (type decl)
+	public final static int Bit1 = 0x1; 			// return type (operators) | name reference kind (name ref) | add assertion (type decl) | useful empty statement
 	public final static int Bit2 = 0x2; 			// return type (operators) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 			// return type (operators) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8; 			// return type (operators) | first assignment to local (local decl)
@@ -96,6 +96,9 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 	// for references on lhs of assignment (set only for true assignments, as opposed to compound ones)
 	public static final int IsStrictlyAssignedMASK = Bit14;
+	
+	// for empty statement
+	public static final int IsUsefulEmptyStatementMASK = Bit1;
 	
 	public AstNode() {
 

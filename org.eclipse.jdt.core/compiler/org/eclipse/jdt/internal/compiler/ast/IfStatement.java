@@ -40,6 +40,8 @@ public class IfStatement extends Statement {
 
 		this.condition = condition;
 		this.thenStatement = thenStatement;
+		// remember useful empty statement
+		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
 		sourceStart = s;
 		sourceEnd = e;
 	}
@@ -53,7 +55,11 @@ public class IfStatement extends Statement {
 
 		this.condition = condition;
 		this.thenStatement = thenStatement;
+		// remember useful empty statement
+		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
 		this.elseStatement = elseStatement;
+		// remember useful empty statement
+		if (elseStatement instanceof EmptyStatement) elseStatement.bits |= IsUsefulEmptyStatementMASK;
 		sourceEnd = e;
 		sourceStart = s;
 	}
