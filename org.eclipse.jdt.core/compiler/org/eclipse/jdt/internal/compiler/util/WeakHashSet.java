@@ -112,11 +112,12 @@ public class WeakHashSet {
 			while ((currentValue = this.values[index]) != null) {
 				if (currentValue == toBeRemoved) {
 					// replace the value at index with the last value with the same hash
-					int sameHash = index + 1;
-					while (sameHash < valuesLength && (currentValue = this.values[sameHash]) != null && currentValue.hashCode == hashCode)
-						sameHash = (sameHash + 1) % valuesLength;
-					this.values[index] = this.values[sameHash-1];
-					this.values[sameHash-1] = null;
+					int sameHash = index;
+					int current;
+					while ((currentValue = this.values[current = (sameHash + 1) % valuesLength]) != null && currentValue.hashCode == hashCode)
+						sameHash = current;
+					this.values[index] = this.values[sameHash];
+					this.values[sameHash] = null;
 					this.elementSize--;
 					break;
 				}
