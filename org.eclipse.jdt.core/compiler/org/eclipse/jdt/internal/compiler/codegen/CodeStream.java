@@ -1525,7 +1525,9 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 	}
 }
 /**
- * @param implicitConversionCode int
+ * Generates the sequence of instructions which will perform the conversion of the expression
+ * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
+ * @param implicitConversionCode int encoding the compile and runtime type IDs.
  */
 public void generateImplicitConversion(int implicitConversionCode) {
 	switch (implicitConversionCode) {

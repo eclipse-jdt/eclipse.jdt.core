@@ -167,7 +167,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 
 	public static final int[] get_AND(){
 	
-		//the code is an int
+		//the code is an int, only 20 bits are used, see below.
 		// (cast)  left   Op (cast)  rigth --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       

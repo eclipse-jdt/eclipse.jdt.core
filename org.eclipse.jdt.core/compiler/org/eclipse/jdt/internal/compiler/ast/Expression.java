@@ -371,28 +371,17 @@ public abstract class Expression extends Statement {
 	}
 
 	// Base types need that the widening is explicitly done by the compiler using some bytecode like i2f
-	public void implicitWidening(
-		TypeBinding runtimeTimeType,
-		TypeBinding compileTimeType) {
+	// TODO (philippe) method should be renamed into #implicitConversion(...)
+	public void implicitWidening(TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
 
 		if (runtimeTimeType == null || compileTimeType == null)
 			return;
-
-//		if (compileTimeType.id == T_null) {
-//			// this case is possible only for constant null
-//			// The type of runtime is a reference type
-//			// The code gen use the constant id thus any value
-//			// for the runtime id (akak the <<4) could be used.
-//			// T_Object is used as some general T_reference
-//			implicitConversion = (T_Object << 4) + T_null;
-//			return;
-//		}
 
 		switch (runtimeTimeType.id) {
 			case T_byte :
 			case T_short :
 			case T_char :
-				implicitConversion = (T_int << 4) + compileTimeType.id;
+				this.implicitConversion = (T_int << 4) + compileTimeType.id;
 				break;
 			case T_String :
 			case T_float :
@@ -400,7 +389,7 @@ public abstract class Expression extends Statement {
 			case T_double :
 			case T_int : //implicitConversion may result in i2i which will result in NO code gen
 			case T_long :
-				implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
+				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
 				break;
 			default : //nothing on regular object ref
 		}
@@ -413,11 +402,9 @@ public abstract class Expression extends Statement {
 
 	//Return true if the conversion is done AUTOMATICALLY by the vm
 	//while the javaVM is an int based-machine, thus for example pushing
-	//a byte onto the stack , will automatically creates a int on the stack
+	//a byte onto the stack , will automatically create an int on the stack
 	//(this request some work d be done by the VM on signed numbers)
-	public boolean isConstantValueOfTypeAssignableToType(
-		TypeBinding constantType,
-		TypeBinding targetType) {
+	public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
 
 		if (constant == Constant.NotAConstant)
 			return false;
