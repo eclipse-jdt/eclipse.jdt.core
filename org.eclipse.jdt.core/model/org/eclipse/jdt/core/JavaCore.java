@@ -3416,7 +3416,7 @@ public final class JavaCore extends Plugin {
 							return buffer.toString();
 						}
 					}) +
-				"\n	}\ninvocation stack trace:"); //$NON-NLS-1$
+				"\n	}\n	invocation stack trace:"); //$NON-NLS-1$
 				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 		}
 
