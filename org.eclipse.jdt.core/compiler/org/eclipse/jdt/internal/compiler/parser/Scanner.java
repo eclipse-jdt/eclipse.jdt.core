@@ -500,23 +500,17 @@ public final int getNextChar() {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+			    unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			unicodeStoreAt(++this.withoutUnicodePtr);
 			return this.currentCharacter;
 
 		} //-------------end unicode traitement--------------
 		else {
 			this.unicodeAsBackSlash = false;
 			if (this.withoutUnicodePtr != 0) {
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			    unicodeStoreAt(++this.withoutUnicodePtr);
 			}
 			return this.currentCharacter;
 		}
@@ -572,16 +566,10 @@ public final boolean getNextChar(char testedChar) {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+			    unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 
 		} //-------------end unicode traitement--------------
@@ -592,7 +580,7 @@ public final boolean getNextChar(char testedChar) {
 			}
 			this.unicodeAsBackSlash = false;
 			if (this.withoutUnicodePtr != 0)
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+				unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		}
 	} catch (IndexOutOfBoundsException e) {
@@ -652,16 +640,10 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+				unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			unicodeStoreAt(++this.withoutUnicodePtr);
 			return result;
 		} //-------------end unicode traitement--------------
 		else {
@@ -676,7 +658,7 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 				}
 
 			if (this.withoutUnicodePtr != 0)
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+				unicodeStoreAt(++this.withoutUnicodePtr);
 			return result;
 		}
 	} catch (IndexOutOfBoundsException e) {
@@ -728,16 +710,10 @@ public final boolean getNextCharAsDigit() {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+				unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		} //-------------end unicode traitement--------------
 		else {
@@ -746,7 +722,7 @@ public final boolean getNextCharAsDigit() {
 				return false;
 			}
 			if (this.withoutUnicodePtr != 0)
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+				unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		}
 	} catch (IndexOutOfBoundsException e) {
@@ -798,16 +774,10 @@ public final boolean getNextCharAsDigit(int radix) {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+				unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		} //-------------end unicode traitement--------------
 		else {
@@ -816,7 +786,7 @@ public final boolean getNextCharAsDigit(int radix) {
 				return false;
 			}
 			if (this.withoutUnicodePtr != 0)
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+				unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		}
 	} catch (IndexOutOfBoundsException e) {
@@ -868,16 +838,10 @@ public boolean getNextCharAsJavaIdentifierPart() {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+				unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+		    unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		} //-------------end unicode traitement--------------
 		else {
@@ -887,7 +851,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 			}
 
 			if (this.withoutUnicodePtr != 0)
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			    unicodeStoreAt(++this.withoutUnicodePtr);
 			return true;
 		}
 	} catch (IndexOutOfBoundsException e) {
@@ -1123,7 +1087,7 @@ public int getNextToken() throws InvalidInputException {
 							getNextUnicodeChar();
 						} else {
 							if (this.withoutUnicodePtr != 0) {
-								this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								unicodeStoreAt(++this.withoutUnicodePtr);
 							}
 						}
 					}
@@ -1152,7 +1116,7 @@ public int getNextToken() throws InvalidInputException {
 							isUnicode = true;
 						} else {
 							if (this.withoutUnicodePtr != 0) {
-								this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								unicodeStoreAt(++this.withoutUnicodePtr);
 							}
 						}
 
@@ -1194,16 +1158,10 @@ public int getNextToken() throws InvalidInputException {
 								escapeSize = this.currentPosition - escapeSize;
 								if (this.withoutUnicodePtr == 0) {
 									//buffer all the entries that have been left aside....
-									this.withoutUnicodePtr = this.currentPosition - escapeSize - 1 - this.startPosition;
-									System.arraycopy(
-										this.source, 
-										this.startPosition, 
-										this.withoutUnicodeBuffer, 
-										1, 
-										this.withoutUnicodePtr); 
-									this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								    unicodeInitializeBuffer(this.currentPosition - escapeSize - 1 - this.startPosition);
+								    unicodeStoreAt(++this.withoutUnicodePtr);
 								} else { //overwrite the / in the buffer
-									this.withoutUnicodeBuffer[this.withoutUnicodePtr] = this.currentCharacter;
+								    unicodeStoreAt(this.withoutUnicodePtr);
 									if (backSlashAsUnicodeInString) { //there are TWO \ in the stream where only one is correct
 										this.withoutUnicodePtr--;
 									}
@@ -1216,7 +1174,7 @@ public int getNextToken() throws InvalidInputException {
 								getNextUnicodeChar();
 							} else {
 								if (this.withoutUnicodePtr != 0) {
-									this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+									unicodeStoreAt(++this.withoutUnicodePtr);
 								}
 							}
 
@@ -1398,7 +1356,7 @@ public int getNextToken() throws InvalidInputException {
 								} else {
 									isUnicode = false;
 									if (this.withoutUnicodePtr != 0) {
-										this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+										unicodeStoreAt(++this.withoutUnicodePtr);
 									}
 								}
 	
@@ -1540,16 +1498,10 @@ public final void getNextUnicodeChar()
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+				unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			//fill the buffer with the char
-			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			unicodeStoreAt(++this.withoutUnicodePtr);
 		}
 		this.unicodeAsBackSlash = this.currentCharacter == '\\';
 	} catch (ArrayIndexOutOfBoundsException e) {
@@ -1613,7 +1565,7 @@ public final void jumpOverMethodBody() {
 									getNextUnicodeChar();
 								} else {
 									if (this.withoutUnicodePtr != 0) {
-										this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+										unicodeStoreAt(++this.withoutUnicodePtr);
 									}
 								}
 							} catch (InvalidInputException ex) {
@@ -1632,7 +1584,7 @@ public final void jumpOverMethodBody() {
 								getNextUnicodeChar();
 							} else {
 								if (this.withoutUnicodePtr != 0) {
-									this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								    unicodeStoreAt(++this.withoutUnicodePtr);
 								}
 							}
 						} catch (InvalidInputException ex) {
@@ -1660,7 +1612,7 @@ public final void jumpOverMethodBody() {
 									getNextUnicodeChar();
 								} else {
 									if (this.withoutUnicodePtr != 0) {
-										this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+										unicodeStoreAt(++this.withoutUnicodePtr);
 									}
 								}
 							} catch (InvalidInputException ex) {
@@ -1809,7 +1761,7 @@ public final void jumpOverMethodBody() {
 								} else {
 									isUnicode = false;
 									if (this.withoutUnicodePtr != 0) {
-										this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+    								    unicodeStoreAt(++this.withoutUnicodePtr);
 									}
 								}
 	
@@ -1937,7 +1889,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 			return true;
 
 		//buffer the new char which is not a white space
-		this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+		unicodeStoreAt(++this.withoutUnicodePtr);
 		//this.withoutUnicodePtr == 1 is true here
 		return false;
 	} catch (IndexOutOfBoundsException e){
@@ -2364,7 +2316,7 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 			getNextUnicodeChar();
 		} else {
 			if (this.withoutUnicodePtr != 0) {
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+				unicodeStoreAt(++this.withoutUnicodePtr);
 			}
 		}
 	} else
@@ -3022,7 +2974,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				getNextUnicodeChar();
 			} else {
 				if (this.withoutUnicodePtr != 0) {
-					this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+					unicodeStoreAt(++this.withoutUnicodePtr);
 				}
 			}
 			if (Character.digit(this.currentCharacter, 16) == -1)
@@ -3064,7 +3016,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 						getNextUnicodeChar();
 					} else {
 						if (this.withoutUnicodePtr != 0) {
-							this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+							unicodeStoreAt(++this.withoutUnicodePtr);
 						}
 					}
 
@@ -3076,7 +3028,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 							getNextUnicodeChar();
 						} else {
 							if (this.withoutUnicodePtr != 0) {
-								this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								unicodeStoreAt(++this.withoutUnicodePtr);
 							}
 						}
 					}
@@ -3116,7 +3068,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 			getNextUnicodeChar();
 		} else {
 			if (this.withoutUnicodePtr != 0) {
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+				unicodeStoreAt(++this.withoutUnicodePtr);
 			}
 		}
 
@@ -3128,7 +3080,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				getNextUnicodeChar();
 			} else {
 				if (this.withoutUnicodePtr != 0) {
-					this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+					unicodeStoreAt(++this.withoutUnicodePtr);
 				}
 			}
 		}
@@ -3190,7 +3142,6 @@ public final void setSource(char[] sourceString){
 	this.eofPosition = sourceLength;
 	this.initialPosition = this.currentPosition = 0;
 	this.containsAssertKeyword = false;
-	this.withoutUnicodeBuffer = new char[sourceLength]; // TODO (philippe) should only allocate when needed
 }
 
 public String toString() {
@@ -3441,5 +3392,22 @@ public final String toStringAction(int act) {
 		default :
 			return "not-a-token"; //$NON-NLS-1$
 	}
+}
+public void unicodeInitializeBuffer(int length) {
+	this.withoutUnicodePtr = length;	
+    if (this.withoutUnicodeBuffer == null) this.withoutUnicodeBuffer = new char[length+(1+10)];
+    int bLength = this.withoutUnicodeBuffer.length;
+    if (1+length >= bLength) {
+        System.arraycopy(this.withoutUnicodeBuffer, 0, this.withoutUnicodeBuffer = new char[length + (1+10)], 0, bLength);
+    }
+	System.arraycopy(this.source, this.startPosition, this.withoutUnicodeBuffer, 1, length);    
+}
+public void unicodeStoreAt(int pos) {
+    if (this.withoutUnicodeBuffer == null) this.withoutUnicodeBuffer = new char[10];
+    int length = this.withoutUnicodeBuffer.length;
+    if (pos == length) {
+        System.arraycopy(this.withoutUnicodeBuffer, 0, this.withoutUnicodeBuffer = new char[length * 2], 0, length);
+    }
+	this.withoutUnicodeBuffer[pos] = this.currentCharacter;
 }
 }

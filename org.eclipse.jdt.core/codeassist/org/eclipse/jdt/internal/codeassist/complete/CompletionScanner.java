@@ -119,13 +119,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 			//need the unicode buffer
 			if (this.withoutUnicodePtr == 0) {
 				//buffer all the entries that have been left aside....
-				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-				System.arraycopy(
-					this.source, 
-					this.startPosition, 
-					this.withoutUnicodeBuffer, 
-					1, 
-					this.withoutUnicodePtr); 
+				unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
 			}
 			if (temp < this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 				throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_UNICODE);
@@ -134,7 +128,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 			// Note: this does not handle cases where the cursor is in the middle of a unicode
 			if ((this.completionIdentifier != null)
 				|| (this.startPosition <= this.cursorLocation+1 && this.cursorLocation >= this.currentPosition-1)){
-				this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+			    unicodeStoreAt(++this.withoutUnicodePtr);
 			}
 			return true;
 		} //-------------end unicode traitement--------------
@@ -148,8 +142,8 @@ public boolean getNextCharAsJavaIdentifierPart() {
 				// store the current unicode, only if we did not pass the cursor location
 				// Note: this does not handle cases where the cursor is in the middle of a unicode
 				if ((this.completionIdentifier != null)
-					|| (this.startPosition <= this.cursorLocation+1 && this.cursorLocation >= this.currentPosition-1)){
-					this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+						|| (this.startPosition <= this.cursorLocation+1 && this.cursorLocation >= this.currentPosition-1)){
+				    unicodeStoreAt(++this.withoutUnicodePtr);
 				}
 			}
 			return true;
@@ -382,7 +376,7 @@ public int getNextToken() throws InvalidInputException {
 							getNextUnicodeChar();
 						} else {
 							if (this.withoutUnicodePtr != 0) {
-								this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+							    this.unicodeStoreAt(++this.withoutUnicodePtr);
 							}
 						}
 					}
@@ -409,7 +403,7 @@ public int getNextToken() throws InvalidInputException {
 							getNextUnicodeChar();
 						} else {
 							if (this.withoutUnicodePtr != 0) {
-								this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+							    this.unicodeStoreAt(++this.withoutUnicodePtr);
 							}
 						}
 
@@ -437,16 +431,11 @@ public int getNextToken() throws InvalidInputException {
 								escapeSize = this.currentPosition - escapeSize;
 								if (this.withoutUnicodePtr == 0) {
 									//buffer all the entries that have been left aside....
-									this.withoutUnicodePtr = this.currentPosition - escapeSize - 1 - this.startPosition;
-									System.arraycopy(
-										this.source, 
-										this.startPosition, 
-										this.withoutUnicodeBuffer, 
-										1, 
-										this.withoutUnicodePtr); 
-									this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+
+									unicodeInitializeBuffer(this.currentPosition - escapeSize - 1 - this.startPosition);
+									this.unicodeStoreAt(++this.withoutUnicodePtr);
 								} else { //overwrite the / in the buffer
-									this.withoutUnicodeBuffer[this.withoutUnicodePtr] = this.currentCharacter;
+								    this.unicodeStoreAt(this.withoutUnicodePtr);
 									if (backSlashAsUnicodeInString) { //there are TWO \ in the stream where only one is correct
 										this.withoutUnicodePtr--;
 									}
@@ -459,7 +448,7 @@ public int getNextToken() throws InvalidInputException {
 								getNextUnicodeChar();
 							} else {
 								if (this.withoutUnicodePtr != 0) {
-									this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								    this.unicodeStoreAt(++this.withoutUnicodePtr);
 								}
 							}
 
@@ -581,7 +570,7 @@ public int getNextToken() throws InvalidInputException {
 								getNextUnicodeChar();
 							} else {
 								if (this.withoutUnicodePtr != 0) {
-									this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+								    this.unicodeStoreAt(++this.withoutUnicodePtr);
 								}
 							}
 
