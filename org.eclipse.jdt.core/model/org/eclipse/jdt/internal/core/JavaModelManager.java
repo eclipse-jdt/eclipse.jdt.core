@@ -1066,7 +1066,7 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/*
-	 * Returns whether the resource tree is locked or not (considered as locked during post-change notification)
+	 * Returns whether the resource tree is locked or not (considered as locked during pre-delete or post-change notification)
 	 */
 	public static synchronized boolean isResourceTreeLocked(){
 		return ResourceTreeLockStatus > 0;
@@ -1369,14 +1369,14 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
-	 * Record the fact the resource tree is locked (during post-change notification)
+	 * Record the fact the resource tree is locked (during pre-delete or post-change notification)
 	 */
 	public static synchronized void resourceTreeIsLocked(){
 		ResourceTreeLockStatus++;
 	}
 
 	/**
-	 * Record the fact the resource tree is unlocked (after post-change notification)
+	 * Record the fact the resource tree is unlocked (after pre-delete or post-change notification)
 	 */
 	public static synchronized void resourceTreeIsUnlocked(){
 		ResourceTreeLockStatus--;
