@@ -120,7 +120,7 @@ private String removeIndentAndNewLines(String code, IDocument document, ICompila
 	Map options = project.getOptions(true/*inherit JavaCore options*/);
 	int tabWidth;
 	try {
-		tabWidth = Integer.parseInt((String) options.get(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE));
+		tabWidth = Integer.parseInt((String) options.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE));
 	} catch (NumberFormatException e) {
 		tabWidth = 4;
 	}

@@ -520,23 +520,23 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 			"package x.y;\n" + 
 			"public class B {\n" + 
 			"\n" + 
-			"    public class A {\n" + 
-			"      public class Inner {\n" + 
-			"        public class InnerInner {\n" + 
-			"        }\n" + 
-			"        int innerField;\n" + 
-			"        void innerMethod() {\n" + 
-			"        }\n" + 
-			"      }\n" + 
-			"      static String FIELD;\n" + 
-			"      {\n" + 
-			"        FIELD = File.pathSeparator;\n" + 
-			"      }\n" + 
-			"      int field1;\n" + 
-			"      boolean field2;\n" + 
-			"      public void foo() {\n" + 
-			"      }\n" + 
-			"    }\n" + 
+			"	public class A {\n" + 
+			"	  public class Inner {\n" + 
+			"	    public class InnerInner {\n" + 
+			"	    }\n" + 
+			"	    int innerField;\n" + 
+			"	    void innerMethod() {\n" + 
+			"	    }\n" + 
+			"	  }\n" + 
+			"	  static String FIELD;\n" + 
+			"	  {\n" + 
+			"	    FIELD = File.pathSeparator;\n" + 
+			"	  }\n" + 
+			"	  int field1;\n" + 
+			"	  boolean field2;\n" + 
+			"	  public void foo() {\n" + 
+			"	  }\n" + 
+			"	}\n" + 
 			"}",
 			copy2.getBuffer().getContents());
 	} finally {

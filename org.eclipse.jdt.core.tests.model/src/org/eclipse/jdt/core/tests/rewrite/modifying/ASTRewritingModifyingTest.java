@@ -66,7 +66,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		Hashtable options = JavaCore.getOptions();
 		this.oldOptions = (Hashtable)options.clone();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, "4");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		JavaCore.setOptions(options);
 		
 		waitUntilIndexesReady();

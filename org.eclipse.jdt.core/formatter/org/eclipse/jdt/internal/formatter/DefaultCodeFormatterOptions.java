@@ -265,11 +265,9 @@ public class DefaultCodeFormatterOptions {
 	public boolean keep_then_statement_on_same_line;
 	public int number_of_empty_lines_to_preserve;
 	public boolean put_empty_statement_on_new_line;
-	public int tab_length;
-	public int indentation_size;
+	public int tab_size;
 	public final char filling_space = ' ';
 	public int page_width;
-	public boolean snapToTabs;
 	public boolean use_tab;
 
 	public int initial_indentation_level;
@@ -517,9 +515,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_SNAP_TO_TABS, this.snapToTabs ? DefaultCodeFormatterConstants.TRUE: DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_LENGTH, Integer.toString(this.tab_length));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.indentation_size));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
 		return options;
 	}
 
@@ -1656,27 +1652,14 @@ public class DefaultCodeFormatterOptions {
 		if (putEmptyStatementOnNewLineOption != null) {
 			this.put_empty_statement_on_new_line = DefaultCodeFormatterConstants.TRUE.equals(putEmptyStatementOnNewLineOption);
 		}
-		final Object tabSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_LENGTH);
+		final Object tabSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
 		if (tabSizeOption != null) {
 			try {
-				this.tab_length = Integer.parseInt((String) tabSizeOption);
+				this.tab_size = Integer.parseInt((String) tabSizeOption);
 			} catch (NumberFormatException e) {
-				this.tab_length = this.indentation_size;
+				this.tab_size = 4;
 			} catch(ClassCastException e) {
-				this.tab_length = this.indentation_size;
-			}
-		} else {
-			// compatibility code
-			this.tab_length = this.indentation_size;
-		}
-		final Object indentationSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE);
-		if (indentationSizeOption != null) {
-			try {
-				this.indentation_size = Integer.parseInt((String) indentationSizeOption);
-			} catch (NumberFormatException e) {
-				this.indentation_size = this.tab_length;
-			} catch(ClassCastException e) {
-				this.indentation_size = this.tab_length;
+				this.tab_size = 4;
 			}
 		}
 		final Object pageWidthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT);
@@ -1688,10 +1671,6 @@ public class DefaultCodeFormatterOptions {
 			} catch(ClassCastException e) {
 				this.page_width = 80;
 			}
-		}
-		final Object snapToTabsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_SNAP_TO_TABS);
-		if (snapToTabsOption != null) {
-			this.snapToTabs = DefaultCodeFormatterConstants.TRUE.equals(snapToTabsOption);
 		}
 		final Object useTabOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
 		if (useTabOption != null) {
@@ -1923,10 +1902,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = false;
-		this.tab_length = 4;
-		this.indentation_size = 4;
+		this.tab_size = 4;
 		this.page_width = 80;
-		this.snapToTabs = true;
 		this.use_tab = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 	}
 	
@@ -2154,10 +2131,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = true;
-		this.tab_length = 4;
-		this.indentation_size = 4;
+		this.tab_size = 4;
 		this.page_width = 80;
-		this.snapToTabs = false;
 		this.use_tab = false;
 	}
 }

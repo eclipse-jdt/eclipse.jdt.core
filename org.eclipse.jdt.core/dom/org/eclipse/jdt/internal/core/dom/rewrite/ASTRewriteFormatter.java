@@ -139,7 +139,7 @@ import org.eclipse.jdt.core.dom.Statement;
 		
 		int tabWidthVal;
 		try {
-			tabWidthVal= Integer.parseInt((String) options.get(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE));
+			tabWidthVal= Integer.parseInt((String) options.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE));
 		} catch (NumberFormatException e) {
 			tabWidthVal= 4;
 		}
