@@ -34,6 +34,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
+//		TESTS_PREFIX = "testBug83127";
 //		TESTS_NAMES = new String[] {
 //			"testBug70892conform1", "testBug70892conform2"
 //		};
@@ -1443,6 +1444,929 @@ public class JavadocTest_1_4 extends JavadocTest {
 				"	               ^\n" + 
 				"Syntax error, type parameters are only available if source level is 5.0\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 80257: [javadoc] Invalid missing reference warning on @see or @link tags
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
+	 */
+	public void testBug80257() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+				" * @see G#G(Object)\n" + 
+				" * @see G#G(Exception)\n" + 
+				" */\n" + 
+				"public class X extends G<Exception> {\n" + 
+				"	X(Exception exc) { super(exc);}\n" + 
+				"}\n" + 
+				"class G<E extends Exception> {\n" + 
+				"	G(E e) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	* @see G#G(Object)\n" + 
+			"	         ^\n" + 
+			"Javadoc: The constructor G(Object) is undefined\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	* @see G#G(Exception)\n" + 
+			"	         ^\n" + 
+			"Javadoc: The constructor G(Exception) is undefined\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	public class X extends G<Exception> {\n" + 
+			"	                       ^\n" + 
+			"The type G is not generic; it cannot be parameterized with arguments <Exception>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	public class X extends G<Exception> {\n" + 
+			"	                         ^^^^^^^^^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	X(Exception exc) { super(exc);}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"The constructor Object(Exception) is undefined\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 8)\n" + 
+			"	class G<E extends Exception> {\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 9)\n" + 
+			"	G(E e) {}\n" + 
+			"	  ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 82514: [1.5][javadoc] Problem with generics in javadoc
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82514"
+	 */
+	public void testBug82514() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class ComparableUtils {\n" + 
+				"   public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" + 
+				"    {\n" + 
+				"        return 0;\n" + 
+				"    }\n" + 
+				"    public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" + 
+				"        throws ClassCastException\n" + 
+				"    {\n" + 
+				"        return 0;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"public final class X {  \n" + 
+				"	/** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" + 
+				"	 *  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
+				"	 */\n" + 
+				"    public void testCompareTo() {}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" + 
+			"	                                                                                                                         ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 2)\n" + 
+			"	public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" + 
+			"	                                                                                                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 13)\n" + 
+			"	/** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" + 
+			"	                                           ^^^^^^^^^\n" + 
+			"Javadoc: The method compareTo(X, X) in the type ComparableUtils is not applicable for the arguments (Object, Object, Class)\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 14)\n" + 
+			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
+			"	                          ^^^^^^^^^\n" + 
+			"Javadoc: The method compareTo(X, X) in the type ComparableUtils is not applicable for the arguments (Object, Object)\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 83127: [1.5][javadoc][dom] Wrong / strange bindings for references in javadoc to methods with type variables as parameter types
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83127"
+	 */
+	public void testBug83127a() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/** \n" + 
+				" * @see Test#add(T) \n" + 
+				" * @see #add(T)\n" + 
+				" * @see Test#Test(T)\n" + 
+				" * @see #Test(T)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (T)\"\n" + 
+				" *   - method binding = Test.add(Object)\n" + 
+				" *   - parameter binding = T of A\n" + 
+				" */\n" + 
+				"public class Test<T> {\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Test#add(T) \n" + 
+			"	                ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see #add(T)\n" + 
+			"	            ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 4)\n" + 
+			"	* @see Test#Test(T)\n" + 
+			"	                 ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 5)\n" + 
+			"	* @see #Test(T)\n" + 
+			"	             ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 11)\n" + 
+			"	public class Test<T> {\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 12)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 13)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 18)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 18)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 18)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 19)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"12. ERROR in Test.java (at line 19)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"13. ERROR in Test.java (at line 20)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127b() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/** \n" + 
+				" * @see Sub#add(T)\n" + 
+				" * @see Sub#Sub(T)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (T)\"\n" + 
+				" *   - method binding = Test.add(Object)\n" + 
+				" *   - parameter binding = T of A\n" + 
+				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" + 
+				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Sub#add(T)\n" + 
+			"	               ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Sub#Sub(T)\n" + 
+			"	               ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 11)\n" + 
+			"	public class Test<T>{\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 12)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 13)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 18)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 18)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 18)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 19)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 19)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 20)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127c() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/** \n" + 
+				" * @see Sub#add(E) \n" + 
+				" * @see Sub#Sub(E)\n" + 
+				" *   - warning = \"E cannot be resolved to a type\"\n" + 
+				" *   - method binding = null\n" + 
+				" *   - parameter binding = null\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Sub#add(E) \n" + 
+			"	               ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Sub#Sub(E)\n" + 
+			"	               ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 8)\n" + 
+			"	public class Test<T>{\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 9)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 10)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 16)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 16)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 17)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127d() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(E)\n" + 
+				" * @see Unrelated1#Unrelated1(E)\n" + 
+				" *   - warning = \"E cannot be resolved to a type\"\n" + 
+				" *   - method binding = null\n" + 
+				" *   - parameter binding = null\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Unrelated1.java (at line 1)\n" + 
+			"	public class Unrelated1<E extends Number> {\n" + 
+			"	                        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Unrelated1.java (at line 2)\n" + 
+			"	public Unrelated1(E e) {}\n" + 
+			"	                  ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Unrelated1.java (at line 3)\n" + 
+			"	public boolean add(E e) { return false; }\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(E)\n" + 
+			"	                      ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(E)\n" + 
+			"	                             ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 8)\n" + 
+			"	public class Test<T>{\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 9)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 10)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 16)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 16)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 17)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127e() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(Object)\n" + 
+				" * @see Unrelated1#Unrelated1(Object)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (Object)\"\n" + 
+				" *   - method binding = Unrelated1.add(Number)\n" + 
+				" *   - parameter binding = java.lang.Object\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Unrelated1.java (at line 1)\n" + 
+			"	public class Unrelated1<E extends Number> {\n" + 
+			"	                        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Unrelated1.java (at line 2)\n" + 
+			"	public Unrelated1(E e) {}\n" + 
+			"	                  ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Unrelated1.java (at line 3)\n" + 
+			"	public boolean add(E e) { return false; }\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(Object)\n" + 
+			"	                  ^^^\n" + 
+			"Javadoc: The method add(Object) is undefined for the type Unrelated1\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(Object)\n" + 
+			"	                  ^^^^^^^^^^\n" + 
+			"Javadoc: The constructor Unrelated1(Object) is undefined\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 9)\n" + 
+			"	public class Test<T>{\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 10)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 11)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 15)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 16)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 16)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 17)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127f() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(Number)\n" + 
+				" * @see Unrelated1#Unrelated1(Number)\n" + 
+				" *   - no warning\n" + 
+				" *   - method binding = Unrelated1.add(Number)\n" + 
+				" *   - parameter binding = java.lang.Number\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Unrelated1.java (at line 1)\r\n" + 
+			"	public class Unrelated1<E extends Number> {\r\n" + 
+			"	                        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Unrelated1.java (at line 2)\r\n" + 
+			"	public Unrelated1(E e) {}\r\n" + 
+			"	                  ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Unrelated1.java (at line 3)\r\n" + 
+			"	public boolean add(E e) { return false; }\r\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\r\n" + 
+			"	* @see Unrelated1#add(Number)\r\n" + 
+			"	                  ^^^\n" + 
+			"Javadoc: The method add(Number) is undefined for the type Unrelated1\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\r\n" + 
+			"	* @see Unrelated1#Unrelated1(Number)\r\n" + 
+			"	                  ^^^^^^^^^^\n" + 
+			"Javadoc: The constructor Unrelated1(Number) is undefined\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 8)\r\n" + 
+			"	public class Test<T>{\r\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 9)\r\n" + 
+			"	Test(T t) {}\r\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 10)\r\n" + 
+			"	public boolean add(T t) {\r\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 14)\r\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\r\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 14)\r\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\r\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 14)\r\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\r\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 15)\r\n" + 
+			"	Sub (E e) {super(null);}\r\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 15)\r\n" + 
+			"	Sub (E e) {super(null);}\r\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 16)\r\n" + 
+			"	public boolean add(E e) {\r\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127g() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(Integer)\n" + 
+				" * @see Unrelated1#Unrelated1(Integer)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (Integer)\"\n" + 
+				" *   - method binding = Unrelated1.add(Number)\n" + 
+				" *   - parameter binding = java.lang.Integer\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Unrelated1.java (at line 1)\n" + 
+			"	public class Unrelated1<E extends Number> {\n" + 
+			"	                        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Unrelated1.java (at line 2)\n" + 
+			"	public Unrelated1(E e) {}\n" + 
+			"	                  ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in Unrelated1.java (at line 3)\n" + 
+			"	public boolean add(E e) { return false; }\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(Integer)\n" + 
+			"	                  ^^^\n" + 
+			"Javadoc: The method add(Integer) is undefined for the type Unrelated1\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(Integer)\n" + 
+			"	                  ^^^^^^^^^^\n" + 
+			"Javadoc: The constructor Unrelated1(Integer) is undefined\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 9)\n" + 
+			"	public class Test<T>{\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 10)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 11)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 16)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 16)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 16)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 17)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 17)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"11. ERROR in Test.java (at line 18)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127h() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated2.java",
+				"public interface Unrelated2<E> {\n" + 
+				"	boolean add(E e);\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated2#add(T)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (T)\"\n" + 
+				" *   - method binding = Unrelated2.add(Object)\n" + 
+				" *   - parameter binding = T of A\n" + 
+				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" + 
+				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Unrelated2.java (at line 1)\n" + 
+			"	public interface Unrelated2<E> {\n" + 
+			"	                            ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in Unrelated2.java (at line 2)\n" + 
+			"	boolean add(E e);\n" + 
+			"	            ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated2#add(T)\n" + 
+			"	                      ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 10)\n" + 
+			"	public class Test<T>{\n" + 
+			"	                  ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 11)\n" + 
+			"	Test(T t) {}\n" + 
+			"	     ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 12)\n" + 
+			"	public boolean add(T t) {\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 17)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	          ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"6. ERROR in Test.java (at line 17)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"7. ERROR in Test.java (at line 17)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in Test.java (at line 18)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	     ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in Test.java (at line 18)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"The constructor Object(null) is undefined\n" + 
+			"----------\n" + 
+			"10. ERROR in Test.java (at line 19)\n" + 
+			"	public boolean add(E e) {\n" + 
+			"	                   ^\n" + 
+			"E cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 }

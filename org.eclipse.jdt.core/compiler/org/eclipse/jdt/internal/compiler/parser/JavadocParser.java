@@ -159,7 +159,7 @@ public class JavadocParser extends AbstractCommentParser {
 			TypeReference typeRef = (TypeReference) receiver;
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
-				typeRef = new ImplicitDocTypeReference(name, this.memberStart);
+				typeRef = new JavadocImplicitTypeReference(name, this.memberStart);
 			}
 			// Create field
 			JavadocFieldReference field = new JavadocFieldReference(this.identifierStack[0], this.identifierPositionStack[0]);
@@ -185,7 +185,7 @@ public class JavadocParser extends AbstractCommentParser {
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
 				isConstructor = CharOperation.equals(this.identifierStack[0], name);
-				typeRef = new ImplicitDocTypeReference(name, this.memberStart);
+				typeRef = new JavadocImplicitTypeReference(name, this.memberStart);
 			} else {
 				char[] name = null;
 				if (typeRef instanceof JavadocSingleTypeReference) {

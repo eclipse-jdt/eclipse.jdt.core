@@ -34,9 +34,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-		TESTS_NAMES = new String[] {
-			"testBug82514"
-		};
+//		TESTS_PREFIX = "testBug83127";
+//		TESTS_NAMES = new String[] { "testBug82514" };
 //		TESTS_NUMBERS = new int[] { 21 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
@@ -1181,39 +1180,423 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 
 	/**
+	 * Test fix for bug 80257: [javadoc] Invalid missing reference warning on @see or @link tags
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
+	 */
+	public void testBug80257() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+				" * @see G#G(Object)\n" + 
+				" * @see G#G(Exception)\n" + 
+				" */\n" + 
+				"public class X extends G<Exception> {\n" + 
+				"	X(Exception exc) { super(exc);}\n" + 
+				"}\n" + 
+				"class G<E extends Exception> {\n" + 
+				"	G(E e) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	* @see G#G(Object)\n" + 
+			"	         ^\n" + 
+			"Javadoc: The constructor G(Object) is undefined\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
 	 * Test fix for bug 82514: [1.5][javadoc] Problem with generics in javadoc
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82514"
 	 */
 	public void testBug82514() {
 		this.runNegativeTest(
 			new String[] {
-				"src/X.java",
+				"X.java",
 				"class ComparableUtils {\n" + 
 				"   public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" + 
 				"    {\n" + 
 				"        return 0;\n" + 
 				"    }\n" + 
-				"\n" + 
-				"\n" + 
 				"    public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" + 
 				"        throws ClassCastException\n" + 
 				"    {\n" + 
 				"        return 0;\n" + 
 				"    }\n" + 
 				"}\n" + 
-				"   public final class X {  \n" + 
-				"    /** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" + 
-				"     *  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
-				"     */\n" + 
-				"    public void testCompareTo() {\n" + 
-				"    }\n" + 
+				"public final class X {  \n" + 
+				"	/** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" + 
+				"	 *  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
+				"	 */\n" + 
+				"    public void testCompareTo() {}\n" + 
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in src\\X.java (at line 16)\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
 			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
 			"	                          ^^^^^^^^^\n" + 
 			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object) since the type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 83127: [1.5][javadoc][dom] Wrong / strange bindings for references in javadoc to methods with type variables as parameter types
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83127"
+	 */
+	public void testBug83127a() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/** \n" + 
+				" * @see Test#add(T) \n" + 
+				" * @see #add(T)\n" + 
+				" * @see Test#Test(T)\n" + 
+				" * @see #Test(T)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (T)\"\n" + 
+				" *   - method binding = Test.add(Object)\n" + 
+				" *   - parameter binding = T of A\n" + 
+				" */\n" + 
+				"public class Test<T> {\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Test#add(T) \n" + 
+			"	            ^^^\n" + 
+			"Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see #add(T)\n" + 
+			"	        ^^^\n" + 
+			"Javadoc: The method add(T) in the type Test<T> is not applicable for the arguments (T)\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 4)\n" + 
+			"	* @see Test#Test(T)\n" + 
+			"	            ^^^^\n" + 
+			"Javadoc: The constructor Test(T) is undefined\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 5)\n" + 
+			"	* @see #Test(T)\n" + 
+			"	        ^^^^\n" + 
+			"Javadoc: The constructor Test(T) is undefined\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127b() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/** \n" + 
+				" * @see Sub#add(T)\n" + 
+				" * @see Sub#Sub(T)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (T)\"\n" + 
+				" *   - method binding = Test.add(Object)\n" + 
+				" *   - parameter binding = T of A\n" + 
+				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" + 
+				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Sub#add(T)\n" + 
+			"	           ^^^\n" + 
+			"Javadoc: The method add(Object) in the type Test is not applicable for the arguments (T)\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Sub#Sub(T)\n" + 
+			"	           ^^^\n" + 
+			"Javadoc: The constructor Sub(T) is undefined\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127c() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/** \n" + 
+				" * @see Sub#add(E) \n" + 
+				" * @see Sub#Sub(E)\n" + 
+				" *   - warning = \"E cannot be resolved to a type\"\n" + 
+				" *   - method binding = null\n" + 
+				" *   - parameter binding = null\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Sub#add(E) \n" + 
+			"	               ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Sub#Sub(E)\n" + 
+			"	               ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127d() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(E)\n" + 
+				" * @see Unrelated1#Unrelated1(E)\n" + 
+				" *   - warning = \"E cannot be resolved to a type\"\n" + 
+				" *   - method binding = null\n" + 
+				" *   - parameter binding = null\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(E)\n" + 
+			"	                      ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(E)\n" + 
+			"	                             ^\n" + 
+			"Javadoc: E cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127e() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(Object)\n" + 
+				" * @see Unrelated1#Unrelated1(Object)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (Object)\"\n" + 
+				" *   - method binding = Unrelated1.add(Number)\n" + 
+				" *   - parameter binding = java.lang.Object\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(Object)\n" + 
+			"	                  ^^^\n" + 
+			"Javadoc: The method add(Number) in the type Unrelated1 is not applicable for the arguments (Object)\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(Object)\n" + 
+			"	                  ^^^^^^^^^^\n" + 
+			"Javadoc: The constructor Unrelated1(Object) is undefined\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127f() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(Number)\n" + 
+				" * @see Unrelated1#Unrelated1(Number)\n" + 
+				" *   - no warning\n" + 
+				" *   - method binding = Unrelated1.add(Number)\n" + 
+				" *   - parameter binding = java.lang.Number\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug83127g() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated1.java",
+				"public class Unrelated1<E extends Number> {\n" + 
+				"	public Unrelated1(E e) {}\n" + 
+				"	public boolean add(E e) { return false; }\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated1#add(Integer)\n" + 
+				" * @see Unrelated1#Unrelated1(Integer)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (Integer)\"\n" + 
+				" *   - method binding = Unrelated1.add(Number)\n" + 
+				" *   - parameter binding = java.lang.Integer\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(Integer)\n" + 
+			"	                  ^^^\n" + 
+			"Javadoc: The method add(Number) in the type Unrelated1 is not applicable for the arguments (Integer)\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(Integer)\n" + 
+			"	                  ^^^^^^^^^^\n" + 
+			"Javadoc: The constructor Unrelated1(Integer) is undefined\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug83127h() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Unrelated2.java",
+				"public interface Unrelated2<E> {\n" + 
+				"	boolean add(E e);\n" + 
+				"}\n",
+				"Test.java",
+				"/** \n" + 
+				" * @see Unrelated2#add(T)\n" + 
+				" *   - warning = \"The method add(Object) in the type Test is not applicable for\n" + 
+				" *                the arguments (T)\"\n" + 
+				" *   - method binding = Unrelated2.add(Object)\n" + 
+				" *   - parameter binding = T of A\n" + 
+				" *     -> Do we need to change this as T natually resolved to TypeVariable?\n" + 
+				" *        As compiler raises a warning, it\'s perhaps not a problem now...\n" + 
+				" */\n" + 
+				"public class Test<T>{\n" + 
+				"	Test(T t) {}\n" + 
+				"    public boolean add(T t) {\n" + 
+				"        return true;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sub<E extends Number> extends Test<E> {\n" + 
+				"	Sub (E e) {super(null);}\n" + 
+				"    public boolean add(E e) {\n" + 
+				"        if (e.doubleValue() > 0)\n" + 
+				"            return false;\n" + 
+				"        return super.add(e);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated2#add(T)\n" + 
+			"	                  ^^^\n" + 
+			"Javadoc: The method add(Object) in the type Unrelated2 is not applicable for the arguments (T)\n" + 
 			"----------\n"
 		);
 	}

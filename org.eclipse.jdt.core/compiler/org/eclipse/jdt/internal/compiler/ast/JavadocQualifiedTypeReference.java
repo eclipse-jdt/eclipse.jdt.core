@@ -11,13 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
 public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
@@ -33,10 +27,10 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	}
 
 	protected void reportInvalidType(Scope scope) {
-		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
+		scope.problemReporter().javadocInvalidType(this, resolvedType, scope.getDeclarationModifiers());
 	}
 	protected void reportDeprecatedType(Scope scope) {
-		scope.problemReporter().javadocDeprecatedType(this.resolvedType, this, scope.getDeclarationModifiers());
+		scope.problemReporter().javadocDeprecatedType(resolvedType, this, scope.getDeclarationModifiers());
 	}
 
 	/* (non-Javadoc)
@@ -57,23 +51,26 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	 */
 	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 		// handle the error here
-		this.constant = NotAConstant;
-		if (this.resolvedType != null) // is a shared type reference which was already resolved
-			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
+		constant = NotAConstant;
+		if (resolvedType != null) // is a shared type reference which was already resolved
+			return resolvedType.isValidBinding() ? resolvedType : null; // already reported error
 
-		this.resolvedType = getTypeBinding(scope);
-		if (!this.resolvedType.isValidBinding()) {
-			Binding binding = scope.getTypeOrPackage(this.tokens);
+		resolvedType = getTypeBinding(scope);
+		if (!resolvedType.isValidBinding()) {
+			Binding binding = scope.getTypeOrPackage(tokens);
 			if (binding instanceof PackageBinding) {
-				this.packageBinding = (PackageBinding) binding;
+				packageBinding = (PackageBinding) binding;
 			} else {
 				reportInvalidType(scope);
 			}
 			return null;
 		}
-		if (isTypeUseDeprecated(this.resolvedType, scope))
+		if (isTypeUseDeprecated(resolvedType, scope))
 			reportDeprecatedType(scope);
-		return this.resolvedType = scope.convertToRawType(this.resolvedType);
+		if (resolvedType instanceof ParameterizedTypeBinding) {
+			resolvedType = ((ParameterizedTypeBinding)resolvedType).type;
+		}
+		return resolvedType;
 	}
 
 	/* (non-Javadoc)

@@ -26,11 +26,8 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		this.bits |= InsideJavadoc;
 	}
 
-	/*
-	 * Resolves type on a Block or Class scope.
-	 */
 	private TypeBinding internalResolveType(Scope scope) {
-
+	
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		this.constant = NotAConstant;
 		if (this.type == null) {
@@ -40,9 +37,10 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		} else {
 			this.resolvedType = this.type.resolveType((BlockScope)scope, true /* check bounds*/);
 		}
-
+	
 		// buffering the arguments' types
 		TypeBinding[] argumentTypes = NoParameters;
+		boolean hasTypeVarArgs = false;
 		if (this.arguments != null) {
 			boolean argHasError = false;
 			int length = this.arguments.length;
@@ -56,19 +54,22 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				}
 				if (argumentTypes[i] == null) {
 					argHasError = true;
+				} else if (!hasTypeVarArgs) {
+					hasTypeVarArgs = argumentTypes[i].isTypeVariable();
 				}
 			}
 			if (argHasError) {
 				return null;
 			}
 		}
-
+	
 		// check resolved type
 		if (this.resolvedType == null) {
 			return null;
 		}
+		this.resolvedType = scope.convertToRawType(this.type.resolvedType);
 		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.resolvedType);
-
+	
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
@@ -82,6 +83,17 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				scope.problemReporter().javadocInvalidConstructor(this, this.binding, scope.getDeclarationModifiers());
 			}
 			return this.resolvedType;
+		} else if (hasTypeVarArgs) {
+			MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+			scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
+		} else if (this.binding instanceof ParameterizedMethodBinding) {
+			if (allocationType.isGenericType() || allocationType.isRawType() || allocationType.isParameterizedType()) {
+				MethodBinding exactMethod = scope.findExactMethod(allocationType, this.binding.selector, argumentTypes, this);
+				if (exactMethod == null) {
+					MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+					scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
+				}
+			}
 		}
 		if (isMethodUseDeprecated(this.binding, scope)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());

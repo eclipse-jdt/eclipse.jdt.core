@@ -34,8 +34,8 @@ public class JavadocBugsTest extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "testBug77602";
-//		TESTS_NAMES = new String[] { "testBug80910" };
+//		TESTS_PREFIX = "testBug83127";
+//		TESTS_NAMES = new String[] { "testBug48064a" };
 //		TESTS_NUMBERS = new int[] { 31, 32, 33 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -45,7 +45,7 @@ public class JavadocBugsTest extends JavadocTest {
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
+		options.put(CompilerOptions.OPTION_DocCommentSupport, docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
 		if (reportMissingJavadocComments != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
@@ -66,7 +66,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.docCommentSupport = CompilerOptions.ENABLED;
+		docCommentSupport = CompilerOptions.ENABLED;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
@@ -1372,7 +1372,7 @@ public class JavadocBugsTest extends JavadocTest {
 		);
 	}
 	public void testBug51529b() {
-		this.docCommentSupport = CompilerOptions.DISABLED;
+		docCommentSupport = CompilerOptions.DISABLED;
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3058,7 +3058,7 @@ public class JavadocBugsTest extends JavadocTest {
 					"  * It is assumed that you have read the introductory document\n" + 
 					"  * {@link <a HREF=\"../../../../../internat/overview.htm\">\n" + 
 					"  * Internationalization</a>}\n" + 
-					"  * and are familiar with this.\n" + 
+					"  * and are familiar with \n" + 
 					" */\n" + 
 					"public class X {\n" + 
 					"\n" + 
@@ -3068,7 +3068,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 	// URL Link references
 	public void testBug76324url() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3169,7 +3169,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 	// String references
 	public void testBug76324string() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3214,7 +3214,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77510">77510</a>
 	 */
 	public void testBug77510enabled() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"A.java",
 				"public class A {\n" + 
@@ -3272,7 +3272,7 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 	public void testBug77510disabled() {
 		docCommentSupport = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"A.java",
 				"public class A {\n" + 
@@ -3333,7 +3333,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 * Test bug 77260: [Javadoc] deprecation warning should not be reported when @deprecated tag is set
 	 */
 	public void testBug77260() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/** @deprecated */\n" + 
@@ -3370,7 +3370,7 @@ public class JavadocBugsTest extends JavadocTest {
 	public void testBug77260nested() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"/** @deprecated */\n" + 
@@ -3458,7 +3458,7 @@ public class JavadocBugsTest extends JavadocTest {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.DISABLED);
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/** @deprecated */\n" + 
@@ -3506,7 +3506,7 @@ public class JavadocBugsTest extends JavadocTest {
 	public void testBug77602public() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -3527,7 +3527,7 @@ public class JavadocBugsTest extends JavadocTest {
 		);
 	}
 	public void testBug77602private() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -3559,7 +3559,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 */
 	public void testBug78091() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -3600,7 +3600,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80910"
 	 */
 	public void testBug80910() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 
@@ -3628,7 +3628,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
 	 */
 	public void testBug82088() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 

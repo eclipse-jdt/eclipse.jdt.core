@@ -16,11 +16,11 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class ImplicitDocTypeReference extends TypeReference {
+public class JavadocImplicitTypeReference extends TypeReference {
 	
 	public char[] token;
 
-	public ImplicitDocTypeReference(char[] name, int pos) {
+	public JavadocImplicitTypeReference(char[] name, int pos) {
 		super();
 		this.token = name;
 		this.sourceStart = pos;
@@ -32,6 +32,7 @@ public class ImplicitDocTypeReference extends TypeReference {
 	public TypeReference copyDims(int dim) {
 		return null;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
@@ -39,6 +40,7 @@ public class ImplicitDocTypeReference extends TypeReference {
 		this.constant = NotAConstant;
 		return this.resolvedType = scope.enclosingSourceType();
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
 	 */
@@ -52,18 +54,58 @@ public class ImplicitDocTypeReference extends TypeReference {
 	public boolean isThis() {
 		return true;
 	}
+
+	/*
+	 * Resolves type on a Block or Class scope.
+	 */
+	private TypeBinding internalResolveType(Scope scope) {
+		// handle the error here
+		this.constant = NotAConstant;
+		if (this.resolvedType != null) // is a shared type reference which was already resolved
+			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
+
+		this.resolvedType = scope.enclosingSourceType();
+		if (this.resolvedType == null)
+			return null; // detected cycle while resolving hierarchy	
+		if (!this.resolvedType.isValidBinding()) {
+			reportInvalidType(scope);
+			return null;
+		}
+		if (isTypeUseDeprecated(this.resolvedType, scope))
+			reportDeprecatedType(scope);
+		return this.resolvedType;
+	}
+
+	/* (non-Javadoc)
+	 * Override super implementation to avoid raw type creation.
+	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope, boolean)
+	 */
+	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
+		return internalResolveType(blockScope);
+	}
+
+	/* (non-Javadoc)
+	 * Override super implementation to avoid raw type creation.
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 */
+	public TypeBinding resolveType(ClassScope classScope) {
+		return internalResolveType(classScope);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(ASTVisitor visitor, BlockScope classScope) {
 		// Do nothing
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public void traverse(ASTVisitor visitor, ClassScope classScope) {
 		// Do nothing
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#printExpression(int, java.lang.StringBuffer)
 	 */

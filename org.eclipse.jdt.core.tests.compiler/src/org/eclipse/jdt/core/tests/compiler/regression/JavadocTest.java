@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 import junit.framework.Test;
@@ -17,6 +18,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class JavadocTest extends AbstractRegressionTest {
@@ -295,5 +297,82 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			System.arraycopy(testFiles, 0, completedFiles, referencedClasses.length, testFiles.length);
 		}
 		runNegativeTest(completedFiles, expected);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runConformTest(java.lang.String[], java.lang.String, java.lang.String[], boolean, java.lang.String[], java.util.Map, org.eclipse.jdt.internal.compiler.ICompilerRequestor)
+	 *
+	protected void runConformTest(String[] testFiles,
+			String expectedSuccessOutputString,
+			String[] classLib,
+			boolean shouldFlushOutputDirectory,
+			String[] vmArguments,
+			Map customOptions,
+			ICompilerRequestor clientRequestor) {
+		if (TESTS_NAMES != null || TESTS_PREFIX != null || TESTS_NUMBERS != null || TESTS_RANGE != null) {
+			writeFiles(testFiles);
+		}
+		super.runConformTest(testFiles,
+			expectedSuccessOutputString,
+			classLib,
+			shouldFlushOutputDirectory,
+			vmArguments,
+			customOptions,
+			clientRequestor);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runNegativeTest(java.lang.String[], java.lang.String, java.lang.String[], boolean, java.util.Map, boolean)
+	 *
+	protected void runNegativeTest(String[] testFiles,
+			String expectedProblemLog,
+			String[] classLib,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions,
+			boolean generateOutput) {
+		if (TESTS_NAMES != null || TESTS_PREFIX != null || TESTS_NUMBERS != null || TESTS_RANGE != null) {
+			writeFiles(testFiles);
+		}
+		super.runNegativeTest(testFiles,
+			expectedProblemLog,
+			classLib,
+			shouldFlushOutputDirectory,
+			customOptions,
+			generateOutput);
+	}
+	*/
+	void writeFiles(String[] testFiles) {
+		String classDirName = getClass().getName().substring(getClass().getName().lastIndexOf('.')+1); //.substring(11);
+		String testName = getName();
+		int idx = testName.indexOf(" - ");
+		if (idx > 0) {
+			testName = testName.substring(idx+3);
+		}
+
+		File dir = new File("d:/usr/OTI/tests/javadoc/");
+		if (!dir.exists()) return;
+		dir = new File(dir, classDirName);
+		if (!dir.exists()) dir.mkdirs();
+		dir = new File(dir, Character.toUpperCase(testName.charAt(0))+testName.substring(1));
+		if (!dir.exists()) dir.mkdirs();
+		System.out.println("Write test file to "+dir+"...");
+		for (int i=0, length=testFiles.length; i<length; i++) {
+			String contents = testFiles[i+1];
+			String fileName = testFiles[i++];
+			String dirFileName = dir.getPath();
+			if (fileName.indexOf("Visibility")>0) {
+				continue;
+			} else {
+				int index = fileName.lastIndexOf('/');
+				if (index > 0) {
+					String subdirs = fileName.substring(0, index);
+					String packName = subdirs.replace('/', '.');
+					contents = "package "+packName+";"+contents.substring(contents.indexOf(';')+1);
+					dir = new File(dirFileName, subdirs);
+					if (!dir.exists()) dir.mkdirs();
+					fileName = fileName.substring(index+1);
+				}
+			}
+			Util.writeToFile(contents, dirFileName+"/"+fileName);
+		}
 	}
 }

@@ -11,12 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
 public class JavadocSingleTypeReference extends SingleTypeReference {
@@ -71,7 +66,10 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		}
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(scope);
-		return this.resolvedType = scope.convertToRawType(this.resolvedType);
+		if (resolvedType instanceof ParameterizedTypeBinding) {
+			resolvedType = ((ParameterizedTypeBinding)resolvedType).type;
+		}
+		return resolvedType;
 	}
 
 	/* (non-Javadoc)
