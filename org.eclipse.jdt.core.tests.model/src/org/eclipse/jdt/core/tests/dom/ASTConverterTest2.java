@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0444"));			
+		suite.addTest(new ASTConverterTest2("test0447"));			
 		return suite;
 	}
 	/**
@@ -1239,6 +1239,17 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25124
+	 */
+	public void test0447() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0447", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 4, unit.getProblems().length); //$NON-NLS-1$<
 	}
 }
 

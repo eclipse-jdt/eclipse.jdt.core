@@ -2088,7 +2088,9 @@ protected void consumeFieldDeclaration() {
 	if (currentElement != null) {
 		lastCheckPoint = endPos + 1;
 		if (currentElement.parent != null && currentElement instanceof RecoveredField){
-			currentElement = currentElement.parent;
+			if (!(currentElement instanceof RecoveredInitializer)) {
+				currentElement = currentElement.parent;
+			}
 		}
 		restartRecovery = true;
 	}
