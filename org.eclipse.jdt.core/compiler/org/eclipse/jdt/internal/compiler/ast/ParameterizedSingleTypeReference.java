@@ -73,19 +73,15 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
      * No need to check for reference to raw type per construction
      */
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType) {
-	    
-	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
-	    
+
 		// handle the error here
 		this.constant = NotAConstant;
 		if (this.didResolve) { // is a shared type reference which was already resolved
-			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
+			if (this.resolvedType != null && !this.resolvedType.isValidBinding())
 				return null; // already reported error
-			}
 			return this.resolvedType;
 		} 
 	    this.didResolve = true;
-		ReferenceBinding currentType = null;
 		if (enclosingType == null) {
 			this.resolvedType = scope.getType(token);
 			if (!(this.resolvedType.isValidBinding())) {
@@ -102,13 +98,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				scope.problemReporter().deprecatedType(this.resolvedType, this);
 			}
 		}
-		currentType = (ReferenceBinding) this.resolvedType;
-		// TODO (kent) - if ((this.bits & ASTNode.IsSuperType) != 0)
-		if (isClassScope)
-			if (((ClassScope) scope).detectCycle(currentType, this))
-				return null;
-	    // check generic and arity
-		TypeVariableBinding[] typeVariables = currentType.typeVariables();
+
+		// check generic and arity
+	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+		ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
@@ -124,6 +117,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		     }
 		}
 		if (argHasError) return null;
+		// TODO (kent) - if ((this.bits & ASTNode.IsSuperType) != 0)
+		if (isClassScope)
+			if (((ClassScope) scope).detectCycle(currentType, this, argTypes))
+				return null;
+
+		TypeVariableBinding[] typeVariables = currentType.typeVariables();
 		if (typeVariables == NoTypeVariables) { // check generic
 			scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
 			return null;

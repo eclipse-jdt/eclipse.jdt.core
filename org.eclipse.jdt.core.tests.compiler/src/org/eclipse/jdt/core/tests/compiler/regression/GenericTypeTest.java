@@ -5631,8 +5631,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}			
-	// 62822 - TODO (kent) reenable when fixed
-	public void _test203() {
+	public void test203() {
 		this.runConformTest(
 			new String[] {
 				"X.java",

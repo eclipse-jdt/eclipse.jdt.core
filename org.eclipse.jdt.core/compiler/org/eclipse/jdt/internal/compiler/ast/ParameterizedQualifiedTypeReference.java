@@ -91,19 +91,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
      * No need to check for reference to raw type per construction
      */
 	private TypeBinding internalResolveType(Scope scope) {
-	    
-	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 
 		// handle the error here
 		this.constant = NotAConstant;
 		if (this.didResolve) { // is a shared type reference which was already resolved
-			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
+			if (this.resolvedType != null && !this.resolvedType.isValidBinding())
 				return null; // already reported error
-			}
 			return this.resolvedType;
 		} 
 	    this.didResolve = true;
 		ReferenceBinding qualifiedType = null;
+	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 		for (int i = 0, max = this.tokens.length; i < max; i++) {
 		    ReferenceBinding currentType;
 		    if (i == 0) {
@@ -143,11 +141,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					return null;
 				}
 		    }
-			if (isClassScope)
-				if (((ClassScope) scope).detectCycle(currentType, this))
-					return null;
 		    // check generic and arity
-			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 		    TypeReference[] args = this.typeArguments[i];
 		    if (args != null) {
 				int argLength = args.length;
@@ -165,6 +159,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}			    
 				}
 				if (argHasError) return null;
+				// TODO (kent) - if ((this.bits & ASTNode.IsSuperType) != 0)
+				if (isClassScope)
+					if (((ClassScope) scope).detectCycle(currentType, this, argTypes))
+						return null;
+
+			    TypeVariableBinding[] typeVariables = currentType.typeVariables();
 				if (typeVariables == NoTypeVariables) { // check generic
 					scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
 					return null;
@@ -181,10 +181,15 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				    }
 				}
 				qualifiedType = parameterizedType;
-		    } else if (currentType.isGenericType()) { // check raw type
-			        qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
-			} else if (qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isRawType())) {
-				    qualifiedType = scope.createParameterizedType(currentType, null, qualifiedType);
+		    } else {
+   			    if ((this.bits & ASTNode.IsSuperType) != 0)
+   			    	if (((ClassScope) scope).detectCycle(currentType, this, null))
+   			    		return null;
+   			    if (currentType.isGenericType()) { // check raw type
+   			    	qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
+   			    } else if (qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isRawType())) {
+   			    	qualifiedType = scope.createParameterizedType(currentType, null, qualifiedType);
+   			    }
 			}
 		}
 		this.resolvedType = qualifiedType;

@@ -770,7 +770,16 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
 
-	public boolean detectCycle(ReferenceBinding superType, TypeReference reference) {
+	public boolean detectCycle(ReferenceBinding superType, TypeReference reference, TypeBinding[] argTypes) {
+		if (argTypes != null) {
+			for (int i = 0, l = argTypes.length; i < l; i++) {
+				TypeBinding argType = argTypes[i].leafComponentType();
+			    if (argType instanceof SourceTypeBinding)
+			    	// ensure if this is a source superclass that it has already been checked
+			    	((SourceTypeBinding) argType).scope.connectTypeHierarchyWithoutMembers();
+			}
+		}
+
 		if (reference == this.superTypeReference) // see findSuperType()
 			return detectCycle(referenceContext.binding, superType, reference);
 
