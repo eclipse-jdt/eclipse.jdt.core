@@ -189,6 +189,8 @@ Goal ::= '&' ClassBodyDeclarations
 Goal ::= '%' Expression
 -- completion parser
 Goal ::= '~' BlockStatementsopt
+-- source type converter
+Goal ::= '||' MemberValue
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
