@@ -160,7 +160,6 @@ class AddJarFileToIndex extends IndexRequest {
 					index = manager.recreateIndex(this.indexPath);
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
-// KJ : what should happen if an index job is cancelled?
 						if (JobManager.VERBOSE)
 							JobManager.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;

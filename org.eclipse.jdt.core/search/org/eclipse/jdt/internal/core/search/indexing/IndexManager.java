@@ -304,6 +304,14 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final
 		// It will be indexed only when DeltaProcessor detects its addition
 	}
 }
+public void jobWasCancelled(IPath path) {
+	Object o = this.indexes.get(path);
+	if (o instanceof IIndex) {
+		this.monitors.remove(o);
+		this.indexes.remove(path);
+	}
+	updateIndexState(computeIndexName(path), UNKNOWN_STATE);
+}
 /**
  * Advance to the next available job, once the current one has been completed.
  * Note: clients awaiting until the job count is zero are still waiting at this point.
@@ -508,10 +516,9 @@ public void shutdown() {
 				indexesFiles[i].delete();
 			}
 		}
-		
 	}
 
-	super.shutdown();		
+	super.shutdown();
 }
 private char[] readIndexState() {
 	try {

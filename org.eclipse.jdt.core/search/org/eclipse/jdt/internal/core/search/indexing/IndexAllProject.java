@@ -73,7 +73,6 @@ public class IndexAllProject extends IndexRequest {
 			IClasspathEntry[] entries = JavaCore.create(this.project).getRawClasspath();
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
-// KJ : what should happen if an index job is cancelled? 3 other calls below...
 				if (this.isCancelled) return false;
 
 				IClasspathEntry entry = entries[i];

@@ -29,6 +29,7 @@ public abstract class IndexRequest implements IJob {
 		return projectName.equals(this.indexPath.segment(0));
 	}
 	public void cancel() {
+		this.manager.jobWasCancelled(this.indexPath);
 		this.isCancelled = true;
 	}
 	public boolean isReadyToRun() {

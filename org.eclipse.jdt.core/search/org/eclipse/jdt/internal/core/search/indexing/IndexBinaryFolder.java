@@ -73,7 +73,6 @@ public class IndexBinaryFolder extends IndexRequest {
 //								if (resource.getLocation() != null) {
 				this.folder.accept(new IResourceVisitor() {
 					public boolean visit(IResource resource) {
-// KJ : what should happen if an index job is cancelled? 2 others below...
 						if (isCancelled) return false;
 						if (resource.getType() == IResource.FILE) {
 							if (Util.isClassFileName(resource.getName()) && resource.getLocation() != null) {
