@@ -45,10 +45,11 @@ protected Openable(int type, IJavaElement parent, String name) {
 	public void bufferChanged(BufferChangedEvent event) {
 		if (event.getBuffer().isClosed()) {
 			fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
+			getBufferManager().removeBuffer(event.getBuffer());
 		} else {
 			fgJavaModelManager.getElementsOutOfSynchWithBuffers().put(this, this);
 		}
-	}
+	}	
 /**
  * Updates the info objects for this element and all of its children by
  * removing the current infos, generating new infos, and then placing
@@ -78,9 +79,8 @@ protected void closeBuffer(OpenableElementInfo info) {
 	IBuffer buffer = null;
 	buffer = getBufferManager().getBuffer(this);
 	if (buffer != null) {
-		buffer.removeBufferChangedListener(this);
 		buffer.close();
-		fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
+		buffer.removeBufferChangedListener(this);
 	}
 }
 /**

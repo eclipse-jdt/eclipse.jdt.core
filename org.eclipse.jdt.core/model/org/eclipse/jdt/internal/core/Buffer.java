@@ -129,7 +129,6 @@ public void close() throws IllegalArgumentException {
 		event = new BufferChangedEvent(this, 0, 0, null);
 		fContents = null;
 		fFlags |= F_IS_CLOSED;
-		fManager.removeBuffer(this);
 	}
 	notifyChanged(event); // notify outside of synchronized block
 	fChangeListeners = null;

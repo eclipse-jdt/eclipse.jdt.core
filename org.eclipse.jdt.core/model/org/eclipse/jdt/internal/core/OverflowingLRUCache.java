@@ -163,7 +163,7 @@ protected boolean makeSpace(int space) {
 //	printStats();
 	
 	/* Free up space by removing oldest entries */
-	int spaceNeeded = (int)(fLoadFactor * fSpaceLimit);
+	int spaceNeeded = (int)((1 - fLoadFactor) * fSpaceLimit);
 	spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
 	LRUCacheEntry entry = fEntryQueueTail;
 //	int i = 0;
@@ -268,25 +268,26 @@ public void printStats() {
  *	without checking if it can be removed.  It is assumed that the client has already closed
  *	the element it is trying to remove (or will close it promptly).
  *
- *	If <i>external</i> is false, and the entry is not closed, it is not removed and the 
+ *	If <i>external</i> is false, and the entry could not be closed, it is not removed and the 
  *	pointers are not changed.
  *
  *	@param shuffle indicates whether we are just shuffling the queue 
  *	(i.e., the entry table is left alone).
  */
 protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean external) {
+
 	if (!shuffle) {
 		if (external) {
 			fEntryTable.remove(entry._fKey);			
 			fCurrentSpace -= entry._fSpace;
 			privateNotifyDeletionFromCache(entry);
 		} else {
-			if (!close(entry)) {
-				return;
-			}
+			// close will return here with external==true when
+			// notifying buffer close() if able to do so.
+			close(entry);
+			return;
 		}
 	}
-
 	LRUCacheEntry previous = entry._fPrevious;
 	LRUCacheEntry next = entry._fNext;
 		
@@ -296,7 +297,6 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 	} else {
 		previous._fNext = next;
 	}
-
 	/* if this was the last entry */
 	if (next == null) {
 		fEntryQueueTail = previous;
