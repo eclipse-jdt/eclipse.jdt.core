@@ -18,12 +18,12 @@ public class ConditionalExpression extends OperatorExpression {
 	int thenInitStateIndex = -1;
 	int elseInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
-public ConditionalExpression(Expression condition, Expression valueIfTrue, Expression valueIfFalse) {
+public ConditionalExpression(Expression condition, Expression valueIfTrue, Expression valueIfFalse, int sourceEnd) {
 	this.condition = condition;
 	this.valueIfTrue = valueIfTrue;
 	this.valueIfFalse = valueIfFalse;
-	sourceStart = condition.sourceStart ;
-	sourceEnd = valueIfFalse.sourceEnd;
+	this.sourceStart = condition.sourceStart ;
+	this.sourceEnd = sourceEnd;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	Constant inlinedCondition = condition.constant;

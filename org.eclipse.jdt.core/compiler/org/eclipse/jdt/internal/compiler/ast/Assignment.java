@@ -13,15 +13,15 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class Assignment extends Expression {
 	public Reference lhs ;
 	public Expression expression ;
-public Assignment(Expression lhs, Expression expression) {
+public Assignment(Expression lhs, Expression expression, int sourceEnd) {
 	//lhs is always a reference by construction ,
 	//but is build as an expression ==> the checkcast cannot fail
 
 	this.lhs = (Reference) lhs;
 	this.expression = expression ;
 
-	sourceStart = lhs.sourceStart;
-	sourceEnd = expression.sourceEnd;
+	this.sourceStart = lhs.sourceStart;
+	this.sourceEnd = sourceEnd;
 
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {

@@ -20,17 +20,18 @@ public class AssertStatement extends Statement {
 	public AssertStatement(
 		Expression exceptionArgument,
 		Expression assertExpression,
-		int startPosition) {
+		int sourceStart,
+		int sourceEnd) {
 		this.assertExpression = assertExpression;
 		this.exceptionArgument = exceptionArgument;
-		sourceStart = startPosition;
-		sourceEnd = exceptionArgument.sourceEnd;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
-	public AssertStatement(Expression assertExpression, int startPosition) {
+	public AssertStatement(Expression assertExpression, int sourceStart, int sourceEnd) {
 		this.assertExpression = assertExpression;
-		sourceStart = startPosition;
-		sourceEnd = assertExpression.sourceEnd;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
 	public FlowInfo analyseCode(

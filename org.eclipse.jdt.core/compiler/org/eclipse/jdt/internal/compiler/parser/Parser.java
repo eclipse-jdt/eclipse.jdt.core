@@ -967,7 +967,6 @@ public void checkAnnotation() {
 	//since jdk1.2 look only in the last java doc comment...
 	found : {
 		if ((lastAnnotationIndex = scanner.commentPtr) >= 0) { //look for @deprecated
-			scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 			int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
 			// javadoc only (non javadoc comment have negative end positions.)
 			int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
@@ -998,7 +997,8 @@ public void checkAnnotation() {
 	}
 	// modify the modifier source start to point at the first comment
 	if (lastAnnotationIndex >= 0) {
-		modifiersSourceStart = scanner.commentStarts[0]; 
+		modifiersSourceStart = scanner.commentStarts[scanner.commentPtr]; 
+		scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
@@ -1152,7 +1152,8 @@ protected void consumeArrayInitializer() {
 protected void consumeAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ':' Expression ';'
 	expressionLengthPtr-=2;
-	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], expressionStack[expressionPtr--], intStack[intPtr--]));
+	intPtr--; // remove the position pushed for the ':'
+	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], expressionStack[expressionPtr--], intStack[intPtr--], endStatementPosition));
 }
 
 protected void consumeAssignment() {
@@ -1167,10 +1168,12 @@ protected void consumeAssignment() {
 			new CompoundAssignment(
 				expressionStack[expressionPtr] ,
 				expressionStack[expressionPtr+1], 
-				op)	:
+				op,
+				scanner.currentPosition)	:
 			new Assignment(
 				expressionStack[expressionPtr] ,
-				expressionStack[expressionPtr+1]);
+				expressionStack[expressionPtr+1],
+				scanner.currentPosition);
 }
 protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '='
@@ -1291,7 +1294,7 @@ protected void consumeBlockStatements() {
 protected void consumeCaseLabel() {
 	// SwitchLabel ::= 'case' ConstantExpression ':'
 	expressionLengthPtr--;
-	pushOnAstStack(new Case(expressionStack[expressionPtr--]));
+	pushOnAstStack(new Case(intStack[intPtr--], intStack[intPtr--], expressionStack[expressionPtr--]));
 }
 protected void consumeCastExpression() {
 	// CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression
@@ -1526,11 +1529,13 @@ protected void consumeConditionalExpression(int op) {
 
 	expressionPtr -= 2;
 	expressionLengthPtr -= 2;
+	intPtr--; // remove the position pushed for the ':'
 	expressionStack[expressionPtr] =
 		new ConditionalExpression(
 			expressionStack[expressionPtr],
 			expressionStack[expressionPtr + 1],
-			expressionStack[expressionPtr + 2]);
+			expressionStack[expressionPtr + 2],
+			endStatementPosition);
 }
 protected void consumeConstructorBlockStatements() {
 	// ConstructorBody ::= NestedMethod '{' ExplicitConstructorInvocation BlockStatements '}'
@@ -1659,7 +1664,7 @@ protected void consumeConstructorHeaderName() {
 }
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
-	pushOnAstStack(new DefaultCase(endPosition));
+	pushOnAstStack(new DefaultCase(intStack[intPtr--], intStack[intPtr--]));
 }
 protected void consumeDefaultModifiers() {
 	checkAnnotation(); // might update modifiers with AccDeprecated
@@ -1913,7 +1918,7 @@ protected void consumeExitVariableWithInitialization() {
 	variableDecl.initialization = expressionStack[expressionPtr--];
 	// we need to update the declarationSourceEnd of the local variable declaration to the
 	// source end position of the initialization expression
-	variableDecl.declarationSourceEnd = variableDecl.initialization.sourceEnd;
+	variableDecl.declarationSourceEnd = scanner.currentPosition - 1;
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
@@ -3386,7 +3391,7 @@ protected void consumeRightParen() {
 protected void consumeSimpleAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ';'
 	expressionLengthPtr--;
-	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], intStack[intPtr--]));	
+	pushOnAstStack(new AssertStatement(expressionStack[expressionPtr--], intStack[intPtr--], endStatementPosition));	
 }
 	
 protected void consumeSingleTypeImportDeclaration() {
@@ -3583,7 +3588,7 @@ protected void consumeStatementFor() {
 			action, 
 			scope, 
 			intStack[intPtr--], 
-			endPosition)); 
+			endStatementPosition)); 
 }
 protected void consumeStatementIfNoElse() {
 	// IfThenStatement ::=  'if' '(' Expression ')' Statement
@@ -3597,7 +3602,7 @@ protected void consumeStatementIfNoElse() {
 				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	} else {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
@@ -3605,7 +3610,7 @@ protected void consumeStatementIfNoElse() {
 				expressionStack[expressionPtr--], 
 				(Statement) astStack[astPtr], 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	}
 }
 protected void consumeStatementIfWithElse() {
@@ -3624,7 +3629,7 @@ protected void consumeStatementIfWithElse() {
 				(Statement) astStack[astPtr], 
 				(Statement) astStack[astPtr + 1], 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	} else {
 		astLengthPtr--; //second decrement
 		expressionLengthPtr--;
@@ -3633,7 +3638,7 @@ protected void consumeStatementIfWithElse() {
 		(lengthT == 0) ? Block.None : (Statement) astStack[astPtr--], 
 			(lengthE == 0) ? Block.None : (Statement) astStack[astPtr--], 
 			intStack[intPtr--], 
-			endPosition)); 
+			endStatementPosition)); 
 	}
 }
 protected void consumeStatementLabel() {
@@ -3645,19 +3650,20 @@ protected void consumeStatementLabel() {
 	if (astLengthStack[astLengthPtr] == 0) {
 		astLengthStack[astLengthPtr] = 1;
 		astStack[++astPtr] = 
-			new LabeledStatement(identifierStack[identifierPtr], Block.None, (int) 
-				(identifierPositionStack[identifierPtr--] >>> 32), 
-				endPosition); 
+			new LabeledStatement(
+				identifierStack[identifierPtr],
+				Block.None,
+				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
+				endStatementPosition); 
 	} else {
 		astStack[astPtr] = 
 			new LabeledStatement(
 				identifierStack[identifierPtr], 
 				(Statement) astStack[astPtr], 
-				(int)
-				(identifierPositionStack[identifierPtr--] >>> 32), 
-				endPosition); 
+				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
+				endStatementPosition); 
 	}
-
+	intPtr--; // remove the position pushed for the ':'
 	identifierLengthPtr--;
 }
 protected void consumeStatementReturn() {
@@ -3713,16 +3719,16 @@ protected void consumeStatementSynchronized() {
 			new SynchronizedStatement(
 				exp = expressionStack[expressionPtr--], 
 				Block.None, 
-				exp.sourceStart, 
-				exp.sourceEnd); 
+				intStack[intPtr--], 
+				endStatementPosition); 
 	} else {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
 			new SynchronizedStatement(
 				exp = expressionStack[expressionPtr--], 
 				(Block) astStack[astPtr], 
-				exp.sourceStart, 
-				exp.sourceEnd); 
+				intStack[intPtr--], 
+				endStatementPosition); 
 	}
 	resetModifiers();
 }
@@ -3778,7 +3784,7 @@ protected void consumeStatementWhile() {
 				expressionStack[expressionPtr--], 
 				null, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	} else {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
@@ -3786,7 +3792,7 @@ protected void consumeStatementWhile() {
 				expressionStack[expressionPtr--], 
 				(Statement) astStack[astPtr], 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
 	}
 }
 protected void consumeStaticInitializer() {
@@ -3898,6 +3904,7 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNamesynchronized :
 			checkAndSetModifiers(AccSynchronized);
+			pushOnIntStack(scanner.startPosition);
 			break;
 
 			//==============================
@@ -4021,12 +4028,13 @@ protected void consumeToken(int type) {
 		case TokenNamecontinue :
 		case TokenNameclass :
 		case TokenNamereturn :
+		case TokenNamecase :
+		case TokenNameCOLON  :
+		case TokenNamedefault :
 			pushOnIntStack(scanner.startPosition);
 			break;
-
 			//let extra semantic action decide when to push
 
-		case TokenNamedefault :
 		case TokenNameRBRACKET :
 		case TokenNamePLUS_PLUS :
 		case TokenNameMINUS_MINUS :
@@ -4051,13 +4059,11 @@ protected void consumeToken(int type) {
 			break;
 			//  case TokenNameQUESTION  :
 			//  case TokenNameCOMMA :
-			//  case TokenNameCOLON  :
 			//  case TokenNameEQUAL  :
 			//  case TokenNameLBRACKET  :
 			//  case TokenNameDOT :
 			//  case TokenNameERROR :
 			//  case TokenNameEOF  :
-			//  case TokenNamecase  :
 			//  case TokenNamecatch  :
 			//  case TokenNameelse  :
 			//  case TokenNameextends  :
@@ -4205,14 +4211,15 @@ protected void consumeUnaryExpression(int op, boolean post) {
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					endPosition + 1); 
+					scanner.currentPosition - 1); 
 		} else {
 			expressionStack[expressionPtr] = 
 				new PrefixExpression(
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					intStack[intPtr--]); 
+					intStack[intPtr--],
+					scanner.currentPosition - 1); 
 		}
 	} else {
 		//the ++ or the -- is NOT taken into account if code gen proceeds
