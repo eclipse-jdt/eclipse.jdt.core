@@ -118,7 +118,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		ReferenceBinding genericClassType = scope.getJavaLangClass();
 		method.returnType = scope.createParameterizedType(
 			genericClassType,
-			new TypeBinding[] {  scope.environment().createWildcard(genericClassType, 0, receiverType.erasure(), Wildcard.EXTENDS) },
+			new TypeBinding[] {  scope.environment().createWildcard(genericClassType, 0, receiverType.erasure(), null /*no extra bound*/, Wildcard.EXTENDS) },
 			null);
 		return method;
 	}

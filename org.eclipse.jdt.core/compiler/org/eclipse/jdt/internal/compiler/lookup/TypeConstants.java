@@ -119,6 +119,7 @@ public interface TypeConstants {
 	int MoreGeneric = 1;
 
 	// Shared binding collections
+	TypeBinding[] NoTypes = new TypeBinding[0];
 	TypeBinding[] NoParameters = new TypeBinding[0];
 	ReferenceBinding[] NoExceptions = new ReferenceBinding[0];
 	ReferenceBinding[] AnyException = new ReferenceBinding[] { null }; // special handler for all exceptions

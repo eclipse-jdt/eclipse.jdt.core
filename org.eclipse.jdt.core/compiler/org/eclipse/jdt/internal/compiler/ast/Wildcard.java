@@ -64,7 +64,7 @@ public class Wildcard extends SingleTypeReference {
 				return null;
 			}	    
 		}
-	    WildcardBinding wildcard = scope.environment().createWildcard(genericType, rank, boundType, this.kind);
+	    WildcardBinding wildcard = scope.environment().createWildcard(genericType, rank, boundType, null /*no extra bound*/, this.kind);
 	    return this.resolvedType = wildcard;
 	}
 	

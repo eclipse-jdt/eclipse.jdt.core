@@ -674,7 +674,7 @@ public class BindingKey {
 	 	}
 	 	if (kind == -1) return null; // malformed key
 	 	if (kind != Wildcard.UNBOUND && bound == null) return null; // malformed key
- 		return this.environment.createWildcard(genericType, rank, bound, kind);
+ 		return this.environment.createWildcard(genericType, rank, bound, null /*no extra bound*/, kind);
 	 }
 	 
 	 /*

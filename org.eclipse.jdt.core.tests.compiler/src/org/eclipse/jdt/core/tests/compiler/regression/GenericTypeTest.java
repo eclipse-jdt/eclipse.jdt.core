@@ -12607,4 +12607,38 @@ public class GenericTypeTest extends AbstractComparableTest {
 			false, // do not flush output
 			null);			
 	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83225
+	public void test470() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static <T> T choose(boolean b, T t1, T t2) {\n" + 
+				"		if (b)\n" + 
+				"			return t1;\n" + 
+				"		return t2;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void foo() {\n" + 
+				"		Comparable s1 = choose(true, \"string\", new Integer(1));\n" + 
+				"		Number s2 = choose(true, new Integer(1), new Float(2));\n" + 
+				"		Comparable s3 = choose(true, new Integer(1), new Float(2));\n" + 
+				"		Cloneable s4 = choose(true, new Integer(1), new Float(2));\n" + 
+				"		Cloneable s5 = choose(true, \"string\", new Integer(1));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Cloneable s4 = choose(true, new Integer(1), new Float(2));\n" + 
+			"	          ^^\n" + 
+			"Type mismatch: cannot convert from Number&Comparable<?> to Cloneable\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\n" + 
+			"	Cloneable s5 = choose(true, \"string\", new Integer(1));\n" + 
+			"	          ^^\n" + 
+			"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to Cloneable\n" + 
+			"----------\n");
+	}		
 }

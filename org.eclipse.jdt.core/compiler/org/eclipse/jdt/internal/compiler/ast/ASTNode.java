@@ -164,8 +164,11 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	private static boolean checkInvocationArgument(BlockScope scope, Expression argument, TypeBinding parameterType, TypeBinding argumentType) {
 		argument.computeConversion(scope, parameterType, argumentType);
 
-		if (argumentType != NullBinding && parameterType.isWildcard() && ((WildcardBinding) parameterType).kind != Wildcard.SUPER)
-		    return true; // unsafeWildcardInvocation
+		if (argumentType != NullBinding && parameterType.isWildcard()) {
+			WildcardBinding wildcard = (WildcardBinding) parameterType;
+			if (wildcard.kind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
+		    	return true; // unsafeWildcardInvocation
+		}
 		if (argumentType != parameterType) {
 			if (argumentType.needsUncheckedConversion(parameterType)) {
 //			if (argumentType.isRawType() && (parameterType.isBoundParameterizedType() || parameterType.isGenericType())) {
