@@ -2,14 +2,14 @@
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (Win98; I) [Netscape]">
    <title>JDT - Notes on Workspace structure</title>
 </head>
 <body>
 
 <h2>
 Notes on Workspace Structure</h2>
-Last revised&nbsp; 19:40 Wednesday September 12, 2001
+Last revised&nbsp; 10:15 Wednesday September 26, 2001
 <p>In large Java development efforts, it is not uncommon for several inter-related
 projects to be under development at the same time. For the purposes of
 this discussion, assume teams, projects, and components align. All teams
@@ -105,6 +105,9 @@ variables to switch between libraries and sources</a></li>
 
 <li>
 <a href="#Shared proxy library projects">Shared proxy library projects</a></li>
+
+<li>
+<a href="#Stub projects">Stub projects</a></li>
 
 <li>
 <a href="#Other Scenarios">Assorted Other Scenarios</a></li>
@@ -337,7 +340,7 @@ Main project is in source and is shared via the repository.</li>
 
 <li>
 All other projects in workspace are proxy library projects (same name as
-source project, but not shared via repository).</li>
+source project; contains no source code; not shared via repository).</li>
 
 <li>
 Each team members downloads latest binary build to c:\temp\build\ or some
@@ -598,6 +601,144 @@ P2
 <br>&nbsp;&nbsp;&nbsp; build classpath = source /P4/C4; project P2
 <br>&nbsp;&nbsp;&nbsp; output folder /P4/bin
 <h3>
+<a NAME="Stub projects"></a>Stub projects</h3>
+This is a variation on unshared proxy library projects that makes different
+tradeoffs. We call these <i>stub projects</i>. In particular, the ability
+to browse a prereqisite component is traded for the ability to have only
+a minimal set of extra library projects in the workspace. The only difference
+is that stub projects do not require other projects (whereas proxy library
+projects did require other projects). This allow a workspace to get by
+with a less than complete set of stub projects. Creating a stub project
+never forces you to create other stub projects.
+<ul>
+<li>
+Main project is in source and is shared via the repository.</li>
+
+<li>
+That project's required projects are represented in workspace by stub projects
+(same name as source project; not shared via repository).</li>
+
+<li>
+Stub projects are library projects (no source code).</li>
+
+<li>
+A stub project only represents a project's outward appearance to other
+projects.</li>
+
+<li>
+Stub projects never require any other projects.</li>
+
+<li>
+Each team members downloads latest binary build to c:\temp\build\ or some
+such and sets classpath variable BUILD = c:\temp\build\</li>
+
+<li>
+Build classpath exports libraries relative to BUILD classpath variable.</li>
+
+<li>
+Use of classpath variable allows each developer to choose where to install
+the build.</li>
+
+<li>
+Build classpath references individual dependent projects by name.</li>
+
+<li>
+Pro: stub projects are needed only for immediate prerequisites of main
+project.</li>
+
+<li>
+Con: unable to view code for a component that is not a prerequisite (requires
+loading an additional project).</li>
+
+<li>
+Con: unable to browse code for prerequiste components in proper content
+(code completion) because stub does not provide sufficient context.</li>
+
+<li>
+Con: patching only via switching to active development.</li>
+
+<li>
+Pro: switch to development involves loading an additional shared project
+into workspace, possibly over top of stub project; no classpaths need to
+be changed.</li>
+
+<li>
+Pro: easy to upgrade to another binary build (unzip build in place, and
+close and reopen project in workspace to force a refresh).</li>
+
+<li>
+Con: initial workspace setup involving multiple shared projects and stub
+projects; ongoing need for additional stub projects when new source projects
+are loaded (automation required).</li>
+
+<li>
+Pro: no restriction on number of jars per project.</li>
+
+<li>
+Note: the exported libraries are external to the project.</li>
+
+<li>
+Note: uses library projects (proposed for R2.0).</li>
+</ul>
+The source projects:
+<p>project P1 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P1/C1
+<br>&nbsp;&nbsp;&nbsp; output folder /P1/bin
+<br>|
+<br>project P2 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P2/C2; project P1
+<br>&nbsp;&nbsp;&nbsp; output folder /P2/bin
+<br>|
+<br>project P3 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P3/C3; project P1; project
+P2
+<br>&nbsp;&nbsp;&nbsp; output folder /P3/bin
+<br>|
+<br>project P4 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P4/C4; project P2
+<br>&nbsp;&nbsp;&nbsp; output folder /P4/bin
+<p>The corresponding stub projects (note the absence of required projects):
+<p>project P1 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c1.jar+BUILD/c1src.zip
+<p>project P2 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c2.jar+BUILD/c2src.zip
+<p>project P3 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c3.jar+BUILD/c3src.zip
+<p>project P4 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c4.jar+BUILD/c3src.zip
+<p>For example, a developer working on P3 would need stub projects for
+P1 and P2.
+<p>project P3 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P3/C3; project P1; project
+P2
+<br>&nbsp;&nbsp;&nbsp; output folder /P3/bin
+<br>&amp;
+<br>project P2 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c2.jar+BUILD/c2src.zip
+<br>&amp;
+<br>project P1 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c1.jar+BUILD/c1src.zip
+<p>If they then decided to develop P1 as well, they would replace P1 by
+the souce project. Their workspace would now look like:
+<p>project P3 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P3/C3; project P1; project
+P2
+<br>&nbsp;&nbsp;&nbsp; output folder /P3/bin
+<br>&amp;
+<br>project P2 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c2.jar+BUILD/c2src.zip
+<br>&amp;
+<br>project P1 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P1/C1
+<br>&nbsp;&nbsp;&nbsp; output folder /P1/bin
+<h3>
 <a NAME="Other Scenarios"></a>Assorted Other Scenarios</h3>
 A couple of other scenarios can be constructed using a combination of the
 techniques employed above:
@@ -694,11 +835,20 @@ it would too tedious and error prone to have each developer create a workspace
 from scratch. For shared proxy library projects, the tedium is in creating
 new versions of the projects in their repository. This task could be automated
 as part of the centralized build process.
+<p>The "Stub Projects" workspace setup allows each developer to work on
+their assigned component while providing placeholders for other components
+that it depends on. The arrangement is flexible in allowing easy switching
+from using a component to actively developing it by replacing the placeholder.
+The main drawbacks are their limited useful of the stub projects (can't
+browse the component; can't patch the component), and the ongoing need
+to create additional proxy projects to fill in for the missing prerequisites
+as real source projects get added to the workspace.
 <h3>
 Document History</h3>
-15: 45 Wednesday September 5, 2001 - first version sent for comments
+15:45 Wednesday September 5, 2001 - first version sent for comments
 <br>13:30 Thursday September 6, 2001 - revised for first round of comments
 <br>19:40 Wednesday September 12, 2001 - automation for unshared proxy
 library projects
+<br>10:15 Wednesday September 26, 2001 - added stub projects
 </body>
 </html>

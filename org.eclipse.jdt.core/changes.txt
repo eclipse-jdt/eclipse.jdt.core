@@ -132,7 +132,10 @@ STREAM: 2.0
   1GJL6V0: ITPJCORE:WINNT - JavaConventions.validateClasspath: IStatus usage
   1GKM1MU: ITPJCORE:WINNT - Classpath validation: Overlapping accepted
   1GJL7RS: ITPJCORE:WINNT - JavaConventions.validateClasspath: nested sourcefolders
-
+  1GK9NB0: ITPJCORE:WIN2000 - Another core dump - sorry
+  1GJYG33: ITPJUI:WIN2000 - Core dump in run time workbench in Search
+  1GK9S59: ITPJUI:WIN2000 - Internal error when synchronizing
+  
 **********************************************************************************
 *** BUILD ??? (2.0 STREAM, v_201_02) *********************************************
 **********************************************************************************
