@@ -291,7 +291,6 @@ public class CompletionProposal {
 	 * </li>
 	 * </ul>
 	 * </p>
-	 * TODO (jeem) - Add example of these
 	 * @see #getKind()
 	 */
 	public static final int VARIABLE_DECLARATION = 10;

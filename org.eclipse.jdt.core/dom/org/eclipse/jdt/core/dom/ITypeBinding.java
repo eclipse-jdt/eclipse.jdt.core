@@ -614,8 +614,8 @@ public interface ITypeBinding extends IBinding {
 	 * @return the list of method bindings for the methods and constructors
 	 *   declared by this class, interface, or enum type, or the empty list if
 	 * this type does not declare any methods or constructors
-	 * TODO (jeem) - should result include bindings for annotation type members?
 	 */
+	// TODO (jeem) - should result include bindings for annotation type members?
 	public IMethodBinding[] getDeclaredMethods();
 	
 	/**

@@ -774,9 +774,9 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
  *   <code>false</code> if the type name is to be considered unresolved
  *   (for example, a type name found in source code)
  * @return the encoded type signature
- * TODO (jeem) - fundamental problem with resolve types involving type variables which are syntactically indistinguishable for type in default package
  */
 public static String createTypeSignature(String typeName, boolean isResolved) {
+	// TODO (jeem) - fundamental problem with resolve types involving type variables which are syntactically indistinguishable for type in default package
 	return createTypeSignature(typeName == null ? null : typeName.toCharArray(), isResolved);
 }
 
