@@ -7,14 +7,53 @@ What's new in this drop (since 0.9)
   * Added 2 new APIs on JavaConventions for classpath validation.
          - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
- * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
- * Assertions support enabled: by default the compiler is 1.3 compliant, but it can optionally be turned into source 1.4 mode cf. JavaCore options.
- * Added new APIs on JavaCore so as to change optional settings (compiler, formatter, codeassist, ...). 
- 		- Description of available options is available in JavaCore.ini 	along with default values. 
- 		- Option settings are globally kept on JavaCore.
+  * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
+  * Assertions support enabled: by default the compiler is 1.3 compliant, but it can optionally be turned into source 1.4 mode cf. JavaCore options.
+  * More options are surfaced on JavaCore. See JavaCore.getDefaultOptions() for description.
+         - ...internal...ConfigurableOption has disappeared.
+  * Evaluation in binaries is functional
+  * Search for references now finds results in binaries. Indexes in old workspaces are recomputed when restarted 
+     which may result in longer startup times.
+
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GJIYKP: ITPJCORE:WINNT - type hierarchy - contains unrelated types
+1GITFQR: IVJIDT:WIN2000 - Wrong byte code generation, Inconsistent stack height 1 != 0 error
+1GIHUQP: ITPJCORE:WINNT - search for static field should be more accurate
+1GIT66X: ITPJCORE:WINNT - ClassCastException when calling CodeAssist
+1GJA0WG: ITPJCORE:WINNT - AbortCompilationUnit when doing a Search
+1GH49HW: ITPJUI:WINNT - Search functionality is misleading when viewing source from jar
+1GFXPE5: ITPJUI:ALL - Search for method references broken
+1GFM3X3: ITPJUI:WINNT - Wrong code formatter default for keeping else on same line
+1GHSM7B: ITPJUI:ALL - formatting of anonymous classes
+1GGPVHN: ITPJUI:WIN2000 - Not getting hover Javadoc for ISelection
+1GE2LO2: ITPJCORE:WIN2000 - SourceStart and SourceEnd of synchronized statement
+1GIUTIZ: ITPJCORE:WIN2000 - AST: case statement doesn't cover case keyword
+1GITCCY: ITPJCORE:WIN2000 - AST: strange LocalDeclaration.declarationSourceEnd 
+1GIRQFW: ITPJCORE:WIN2000 - AST: wrong source end if subnode is of type AnnonymousTypeDeclaration
+1GIRHRP: ITPJCORE:WIN2000 - AST: wrong sourceStart and sourceEnd in SynchronizedStatement
+1GHUAUO: ITPJCORE:ALL - Renaming an element in a working copy corrupts the working copy
+1GHUAM1: ITPJCORE:ALL - NPE when renaming an element in a working copy
+1GHDA2V: ITPJCORE:WINNT - ClassCastException when doing a search
+1GFY02B: ITPJUI:ALL - Delete a method and saving introduces extra lines
+1GFOFMD: ITPJUI:WIN2000 - New class should have space between package and class decls
+1GI3R1I: ITPJCORE:WIN2000 - Compilation error evaluating super expression in debugger
+1GII07V: ITPJCORE:WIN2000 - CompilationUnitDeclaration.traverse doesn't call visitor.endVisit
+1GIR345: ITPJCORE:ALL - Indexer: NegativeArraySizeException
+1GIRC23: ITPJCORE:ALL - CodeFormatter brace on new line problem
+1GIT8SA: ITPJCORE:WIN2000 - AST: wrong sourceEnd if action is Block
+1GIUQVL: ITPJCORE:WINNT - IClassPathEntry: java doc incorrect
+1GIVGMH: ITPJUI:ALL - EC: Javadoc hoverhelp incorrectly uses first of multiple comments
+1GIYKSR: ITPJCORE:WIN2000 - Ast: FieldDeclaration.traverse implemeted differently
+1GI3ND5: ITPJCORE:WINNT - Potential optimization during IB problem generation
+1GFBVZH: ITPUI:WIN2000 - ArrayIndexOutOfBoundsException: Java editor
+1GI509E: ITPJCORE:WINNT - IJavaProject.getNonJavaResources returns java and class files
+1GI2WAW: ITPJCORE:WINNT - Too many results for default package
+1GHQZ9H: ITPJUI:ALL - Walkback doing a search
+1GGYT3S: ITPJCORE:WINNT - javaconventions::validatePackageName and default package
+1GF9856: ITPJCORE:WINNT - JM - JavaConventions::validateCompilationUnitName
+1GF822P: ITPJCORE:WIN2000 - NegativeArraySizeException in Parser
 1GI6T4Y: ITPJCORE:WINNT - NPE in JavaModeManager retrieving workspace options
 1GE4ILR: ITPJCORE:ALL - Eval - Evaluation in Binary Project fails
 1GI3LLC: ITPJCORE:ALL - Incorrect formatting for the new keyword
@@ -76,6 +115,12 @@ PRs Fixed in 1.0NL stream (since 0.9)
 
 PRs Closed in this Release
 ==================================================================================
+1GIUQ92: ITPJCORE:WINNT - Empty lines added on reorg operations
+1GJ31GB: ITPJCORE:WINNT - Formatter - doesn't line up braces vertically when begin brace on new line
+1GIV9WS: ITPJCORE:WIN2000 - Unexpected compiler behavior
+1GI6VUI: ITPJCORE:WINNT - Source attachment not working anymore in 2.0 stream
+1GIF18T: ITPJCORE:WIN2000 - ArrayIndexOutOfBounds deleting text
+1GF2C3C: ITPJUI:Linux - New class wizard allows illegal character
 1GGRCGZ: ITPJUI:WIN2000 - Can't rename/copy/move/delete default package
 1GDRXHP: ITPDUI:WINNT - NPE inspecting local var
 1G7RAO5: ITPJCORE:ALL - Java Model Core Tests: JavaProjectTests>>testProjectClose() has been removed

@@ -198,8 +198,14 @@ public class Index implements IIndex {
 					input.opened = false;
 				}
 				indexFile.delete();
-				mainIndexInput = null;
-				throw e;
+				if (org.eclipse.jdt.internal.core.search.Util.bind("exception.wrongFormat").equals(e.getMessage())) { //$NON-NLS-1$
+					InMemoryIndex mainIndex= new InMemoryIndex();			
+					IndexOutput mainIndexOutput= new BlocksIndexOutput(indexFile);
+					mainIndex.save(mainIndexOutput);
+				} else {
+					mainIndexInput = null;
+					throw e;
+				}
 			}
 			mainIndexInput.close();
 		} else {

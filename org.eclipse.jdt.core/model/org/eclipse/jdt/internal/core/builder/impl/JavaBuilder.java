@@ -142,10 +142,8 @@ protected boolean classpathChanged(IState lastBuiltState) throws CoreException {
 		problemReporter.removeProblems(project);
 
 		/* create and invoke the batch builder */
-		// Pass the compiler options, needed for 1FVXS80: ITPJCORE:ALL - .class files are missing their LocalVariableTable
-		ConfigurableOption[] options = JavaModelManager.getOptions();
 		setLastBuiltState(null); // free possible existing state
-		IImageBuilder builder = dc.createState(project, null, problemReporter, options);
+		IImageBuilder builder = dc.createState(project, null, problemReporter, JavaCore.getOptions());
 		setLastBuiltState(builder.getNewState());
 	}
 /**

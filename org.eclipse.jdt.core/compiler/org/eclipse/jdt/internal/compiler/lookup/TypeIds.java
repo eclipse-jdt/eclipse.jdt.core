@@ -120,4 +120,5 @@ public interface TypeIds {
 	final int String2String = T_String + (T_String << 4);
 	final int Object2String = T_Object + (T_String << 4);
 	final int Null2String = T_null + (T_String << 4);
+	final int Object2Object = T_Object + (T_Object << 4);
 }

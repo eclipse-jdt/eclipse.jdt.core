@@ -943,7 +943,8 @@ public abstract int matchLevel(AstNode node, boolean resolve);
 /**
  * Finds out whether the given binding matches this search pattern.
  * Returns ACCURATE_MATCH if it does.
- * Returns INACCURATE_MATCH if resolve failed.
+ * Returns INACCURATE_MATCH if resolve failed but match is still possible.
+ * Retunrs IMPOSSIBLE_MATCH otherwise.
  * Default is to return INACCURATE_MATCH.
  */
 public int matchLevel(Binding binding) {

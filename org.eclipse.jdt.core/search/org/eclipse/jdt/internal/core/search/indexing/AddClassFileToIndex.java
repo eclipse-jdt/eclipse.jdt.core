@@ -41,7 +41,7 @@ public boolean execute(){
 			monitor.enterWrite(); // ask permission to write
 			byte[] contents = this.getContents();
 			if (contents == null) return FAILED;
-			index.add(new IFileDocument(resource, contents), new BinaryIndexer());
+			index.add(new IFileDocument(resource, contents), new BinaryIndexer(true));
 		} finally {
 			monitor.exitWrite(); // free write lock
 		}

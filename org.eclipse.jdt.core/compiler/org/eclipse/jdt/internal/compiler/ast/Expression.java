@@ -34,94 +34,81 @@ public Constant conditionalConstant(){
 /* Dislike this name
 */
 
-public static final boolean convertToTypeFromTypeValue(int left , int right, Constant cst){
-	//true if there is no loose of information while casting.
-	//right is constant's type.id
+public static final boolean isConstantValueRepresentable(Constant constant, int constantTypeID, int targetTypeID){
+	//true if there is no loss of precision while casting.
+	// constantTypeID == constant.typeID
 
-	//a faster solution would be to use combinaison of 
-	//some range.........????
-
-
-	/*
-	org.eclipse.jdt.internal.compiler.util.Constant cst ;
-	cst = org.eclipse.jdt.internal.compiler.util.Constant.fromValue((float)898565456.0) ;
-	org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding.convertToTypeFromTypeValue(
-	org.eclipse.jdt.internal.compiler.ast.TypeReference.T_int,
-	org.eclipse.jdt.internal.compiler.ast.TypeReference.T_float,
-	cst)
-	*/
-	
-	if (left == right) return true ;
-	switch(left){
+	if (targetTypeID == constantTypeID) return true ;
+	switch(targetTypeID){
 		case T_char 	:	
-				switch (right) {
+				switch (constantTypeID) {
 					case T_char	: return true ;
-					case T_double : return cst.doubleValue() 	== cst.charValue() ;
-					case T_float  : return cst.floatValue() 	== cst.charValue() ;
-					case T_int    : return cst.intValue() 	== cst.charValue() ;
-					case T_short  : return cst.shortValue() 	== cst.charValue() ;
-					case T_byte   : return cst.byteValue() 	== cst.charValue() ;
-					case T_long   : return cst.longValue() 	== cst.charValue() ;
+					case T_double : return constant.doubleValue() == constant.charValue() ;
+					case T_float  : return constant.floatValue() == constant.charValue() ;
+					case T_int    : return constant.intValue() == constant.charValue() ;
+					case T_short  : return constant.shortValue() == constant.charValue() ;
+					case T_byte   : return constant.byteValue() == constant.charValue() ;
+					case T_long   : return constant.longValue() == constant.charValue() ;
 					default : return false ;} //boolean
 
 		case T_float 	:	
-				switch (right) {
-					case T_char	: return cst.charValue() 	== cst.floatValue() ;
-					case T_double : return cst.doubleValue() 	== cst.floatValue() ;
+				switch (constantTypeID) {
+					case T_char	: return constant.charValue() == constant.floatValue() ;
+					case T_double : return constant.doubleValue() == constant.floatValue() ;
 					case T_float  : return true;
-					case T_int    : return cst.intValue() 	== cst.floatValue() ;
-					case T_short  : return cst.shortValue() 	== cst.floatValue() ;
-					case T_byte   : return cst.byteValue() 	== cst.floatValue() ;
-					case T_long   : return cst.longValue() 	== cst.floatValue() ;
+					case T_int    : return constant.intValue() == constant.floatValue() ;
+					case T_short  : return constant.shortValue() == constant.floatValue() ;
+					case T_byte   : return constant.byteValue() == constant.floatValue() ;
+					case T_long   : return constant.longValue() == constant.floatValue() ;
 					default : return false ;} //boolean
 	case T_double 	:	
-				switch (right) {
-					case T_char	: return cst.charValue() 	== cst.doubleValue() ;
+				switch (constantTypeID) {
+					case T_char	: return constant.charValue() == constant.doubleValue() ;
 					case T_double : return true ;
-					case T_float  : return cst.floatValue() 	== cst.doubleValue() ;
-					case T_int    : return cst.intValue() 	== cst.doubleValue() ;
-					case T_short  : return cst.shortValue() 	== cst.doubleValue() ;
-					case T_byte   : return cst.byteValue() 	== cst.doubleValue() ;
-					case T_long   : return cst.longValue() 	== cst.doubleValue() ;
+					case T_float  : return constant.floatValue()	== constant.doubleValue() ;
+					case T_int    : return constant.intValue() == constant.doubleValue() ;
+					case T_short  : return constant.shortValue() == constant.doubleValue() ;
+					case T_byte   : return constant.byteValue() == constant.doubleValue() ;
+					case T_long   : return constant.longValue() == constant.doubleValue() ;
 					default : return false ;} //boolean
 	case T_byte 	:	
-				switch (right) {
-					case T_char	: return cst.charValue() 	== cst.byteValue() ;
-					case T_double : return cst.doubleValue() 	== cst.byteValue() ;
-					case T_float  : return cst.floatValue() 	== cst.byteValue() ;
-					case T_int    : return cst.intValue() 	== cst.byteValue() ;
-					case T_short  : return cst.shortValue() 	== cst.byteValue() ;
+				switch (constantTypeID) {
+					case T_char	: return constant.charValue() == constant.byteValue() ;
+					case T_double : return constant.doubleValue() == constant.byteValue() ;
+					case T_float  : return constant.floatValue() == constant.byteValue() ;
+					case T_int    : return constant.intValue() == constant.byteValue() ;
+					case T_short  : return constant.shortValue() == constant.byteValue() ;
 					case T_byte   : return true ; 
-					case T_long   : return cst.longValue() 	== cst.byteValue() ;
+					case T_long   : return constant.longValue() == constant.byteValue() ;
 					default : return false ;} //boolean
 	case T_short 	:	
-				switch (right) {
-					case T_char	: return cst.charValue() 	== cst.shortValue() ;
-					case T_double : return cst.doubleValue() 	== cst.shortValue() ;
-					case T_float  : return cst.floatValue() 	== cst.shortValue() ;
-					case T_int    : return cst.intValue() 	== cst.shortValue() ;
+				switch (constantTypeID) {
+					case T_char	: return constant.charValue() == constant.shortValue() ;
+					case T_double : return constant.doubleValue() == constant.shortValue() ;
+					case T_float  : return constant.floatValue() == constant.shortValue() ;
+					case T_int    : return constant.intValue() == constant.shortValue() ;
 					case T_short  : return true ;
-					case T_byte   : return cst.byteValue() 	== cst.shortValue() ;
-					case T_long   : return cst.longValue() 	== cst.shortValue() ;
+					case T_byte   : return constant.byteValue() == constant.shortValue() ;
+					case T_long   : return constant.longValue() == constant.shortValue() ;
 					default : return false ;} //boolean
 	case T_int 	:	
-				switch (right) {
-					case T_char	: return cst.charValue() 	== cst.intValue() ;
-					case T_double : return cst.doubleValue() 	== cst.intValue() ;
-					case T_float  : return cst.floatValue() 	== cst.intValue() ;
+				switch (constantTypeID) {
+					case T_char	: return constant.charValue() == constant.intValue() ;
+					case T_double : return constant.doubleValue() == constant.intValue() ;
+					case T_float  : return constant.floatValue() == constant.intValue() ;
 					case T_int    : return true ; 
-					case T_short  : return cst.shortValue() 	== cst.intValue() ;
-					case T_byte   : return cst.byteValue() 	== cst.intValue() ;
-					case T_long   : return cst.longValue() 	== cst.intValue() ;
+					case T_short  : return constant.shortValue() == constant.intValue() ;
+					case T_byte   : return constant.byteValue() == constant.intValue() ;
+					case T_long   : return constant.longValue() == constant.intValue() ;
 					default : return false ;} //boolean
 	case T_long 	:	
-				switch (right) {
-					case T_char	: return cst.charValue() 	== cst.longValue() ;
-					case T_double : return cst.doubleValue() 	== cst.longValue() ;
-					case T_float  : return cst.floatValue() 	== cst.longValue() ;
-					case T_int    : return cst.intValue() 	== cst.longValue() ;
-					case T_short  : return cst.shortValue() 	== cst.longValue() ;
-					case T_byte   : return cst.byteValue() 	== cst.longValue() ;
+				switch (constantTypeID) {
+					case T_char	: return constant.charValue() == constant.longValue() ;
+					case T_double : return constant.doubleValue() == constant.longValue() ;
+					case T_float  : return constant.floatValue() == constant.longValue() ;
+					case T_int    : return constant.intValue() == constant.longValue() ;
+					case T_short  : return constant.shortValue() == constant.longValue() ;
+					case T_byte   : return constant.byteValue() == constant.longValue() ;
 					case T_long   : return true ;
 					default : return false ;} //boolean
 	default : return false ; } //boolean
@@ -306,7 +293,7 @@ public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, T
 		if ((constantType == IntBinding || BaseTypeBinding.isWidening(T_int, constantType.id))
 			&& (BaseTypeBinding.isNarrowing(targetType.id, T_int))) {
 				//use current explicit conversion in order to get some new value to compare with current one
-				return convertToTypeFromTypeValue(targetType.id, constantType.id, constant);
+				return isConstantValueRepresentable(constant, constantType.id, targetType.id);
 		}
 	}
 	return false;

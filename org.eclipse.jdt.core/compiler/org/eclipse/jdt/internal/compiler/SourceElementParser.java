@@ -70,7 +70,7 @@ public SourceElementParser(
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault())));
+		this(requestor, problemFactory, new CompilerOptions());
 }
 
 protected void classInstanceCreation(boolean alwaysQualified) {
@@ -388,9 +388,8 @@ public NameReference getUnspecifiedReference() {
 		QualifiedNameReference ref = 
 			new QualifiedNameReference(
 				tokens, 
-				(int) (identifierPositionStack[identifierPtr + 1] >> 32), 
-		// sourceStart
-		 (int) identifierPositionStack[identifierPtr + length]); // sourceEnd
+				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
+				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 		if (reportReferenceInfo) {
 			requestor.acceptUnknownReference(
 				ref.tokens, 
@@ -467,30 +466,64 @@ private boolean isLocalDeclaration() {
  */
 public void notifySourceElementRequestor() {
 
+	// collect the top level ast nodes
+	int length = 0;
+	AstNode[] nodes = null;
 	if (sourceType == null){
 		if (scanner.initialPosition == 0) {
 			requestor.enterCompilationUnit();
 		}
-		// first we notify the package declaration
 		ImportReference currentPackage = compilationUnit.currentPackage;
-		if (currentPackage != null) {
-			notifySourceElementRequestor(currentPackage, true);
-		}
-		// then the imports
 		ImportReference[] imports = compilationUnit.imports;
+		TypeDeclaration[] types = compilationUnit.types;
+		length = 
+			(currentPackage == null ? 0 : 1) 
+			+ (imports == null ? 0 : imports.length)
+			+ (types == null ? 0 : types.length);
+		nodes = new AstNode[length];
+		int index = 0;
+		if (currentPackage != null) {
+			nodes[index++] = currentPackage;
+		}
 		if (imports != null) {
 			for (int i = 0, max = imports.length; i < max; i++) {
-				notifySourceElementRequestor(imports[i], false);
+				nodes[index++] = imports[i];
+			}
+		}
+		if (types != null) {
+			for (int i = 0, max = types.length; i < max; i++) {
+				nodes[index++] = types[i];
+			}
+		}
+	} else {
+		TypeDeclaration[] types = compilationUnit.types;
+		if (types != null) {
+			length = types.length;
+			nodes = new AstNode[length];
+			for (int i = 0, max = types.length; i < max; i++) {
+				nodes[i] = types[i];
 			}
 		}
 	}
-	// then the types contained by this compilation unit
-	TypeDeclaration[] types = compilationUnit.types;
-	if (types != null) {
-		for (int i = 0, max = types.length; i < max; i++) {
-			notifySourceElementRequestor(types[i], sourceType == null);
+	
+	// notify the nodes in the syntactical order
+	if (nodes != null && length > 0) {
+		quickSort(nodes, 0, length-1);
+		for (int i=0;i<length;i++) {
+			AstNode node = nodes[i];
+			if (node instanceof ImportReference) {
+				ImportReference importRef = (ImportReference)node;
+				if (node == compilationUnit.currentPackage) {
+					notifySourceElementRequestor(importRef, true);
+				} else {
+					notifySourceElementRequestor(importRef, false);
+				}
+			} else { // instanceof TypeDeclaration
+				notifySourceElementRequestor((TypeDeclaration)node, sourceType == null);
+			}
 		}
 	}
+	
 	if (sourceType == null){
 		if (scanner.eofPosition >= compilationUnit.sourceEnd) {
 			requestor.exitCompilationUnit(compilationUnit.sourceEnd);
@@ -871,6 +904,35 @@ public void parseTypeMemberDeclarations(
 			requestor.acceptLineSeparatorPositions(scanner.lineEnds());
 		}
 		diet = old;
+	}
+}
+/**
+ * Sort the given ast nodes by their positions.
+ */
+private static void quickSort(AstNode[] sortedCollection, int left, int right) {
+	int original_left = left;
+	int original_right = right;
+	AstNode mid = sortedCollection[ (left + right) / 2];
+	do {
+		while (sortedCollection[left].sourceStart < mid.sourceStart) {
+			left++;
+		}
+		while (mid.sourceStart < sortedCollection[right].sourceStart) {
+			right--;
+		}
+		if (left <= right) {
+			AstNode tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			left++;
+			right--;
+		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSort(sortedCollection, original_left, right);
+	}
+	if (left < original_right) {
+		quickSort(sortedCollection, left, original_right);
 	}
 }
 /*

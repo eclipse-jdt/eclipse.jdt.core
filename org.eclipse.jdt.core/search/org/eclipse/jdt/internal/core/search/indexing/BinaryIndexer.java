@@ -23,6 +23,7 @@ public class BinaryIndexer extends AbstractIndexer {
 	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
 
 	private boolean needReferences;
 
@@ -354,8 +355,9 @@ private int extractArgCount(char[] signature) throws ClassFormatException {
 	return parameterTypesCounter;
 }
 private final char[] extractClassName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
-	int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 1);
-	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 1)];
+	// the entry at i has to be a field ref or a method/interface method ref.
+	int class_index = reader.u2At(constantPoolOffsets[index] + 1);
+	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[class_index] + 1)];
 	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 }
 private final char[] extractName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
@@ -376,7 +378,6 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 		 * u2 class_index
 		 * u2 name_and_type_index
 		 */
-		char[] className = null;
 		char[] name = null;
 		char[] type = null;
 		switch (tag) {
@@ -393,7 +394,14 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 				// add reference to the interface and method name and type
 				name = extractName(constantPoolOffsets, reader, i);
 				type = extractType(constantPoolOffsets, reader, i);
-				addMethodReference(name, extractArgCount(type));
+				if (CharOperation.equals(INIT, name)) {
+					// add a constructor reference
+					char[] className = replace('/', '.', extractClassName(constantPoolOffsets, reader, i)); // so that it looks like java.lang.String
+					addConstructorReference(className, extractArgCount(type));
+				} else {
+					// add a method reference
+					addMethodReference(name, extractArgCount(type));
+				}
 		}
 	}
 }

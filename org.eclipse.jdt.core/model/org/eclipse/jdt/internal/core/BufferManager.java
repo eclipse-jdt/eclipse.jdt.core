@@ -69,22 +69,29 @@ protected static char[] getInputStreamAsCharArray(InputStream stream) throws Jav
 	InputStreamReader reader= null;
 	reader= new InputStreamReader(stream);
 	char[] contents = new char[0];
-	char[] grow;
 	try {
-		int available= stream.available();	
-		int charsRead= 0;
-		int pos = 0;
-		while (available > 0) {
-			grow = new char[contents.length + available];
-			System.arraycopy(contents, 0, grow, 0, contents.length);
-			contents = grow;
-			charsRead= reader.read(contents, pos, available);
-			available= stream.available();
-		} 
-		if (charsRead < available && charsRead > 0) {
-			grow = new char[contents.length - (available - charsRead)];
-			System.arraycopy(contents, 0, grow, 0, grow.length);
-			contents= grow;
+		int contentsLength = 0;
+		int charsRead = -1;
+		do {
+			int available= stream.available();
+			
+			// resize contents if needed
+			if (contentsLength + available > contents.length) {
+				System.arraycopy(contents, 0, contents = new char[contentsLength + available], 0, contentsLength);
+			}
+
+			// read as many chars as possible
+			charsRead = reader.read(contents, contentsLength, available);
+			
+			if (charsRead > 0) {
+				// remember length of contents
+				contentsLength += charsRead;
+			}
+		} while (charsRead > 0);
+		
+		// resize contents if necessary
+		if (contentsLength < contents.length) {
+			System.arraycopy(contents, 0, contents = new char[contentsLength], 0, contentsLength);
 		}
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
@@ -120,16 +127,29 @@ public static byte[] getResourceContentsAsBytes(IFile file) throws JavaModelExce
 		throw new JavaModelException(e);
 	}
 	byte[] contents = new byte[0];
-	byte[] grow;
 	try {
-		int available = stream.available();
-		int pos = 0;
-		while (available > 0) {
-			grow = new byte[contents.length + available];
-			System.arraycopy(contents, 0, grow, 0, contents.length);
-			contents = grow;
-			stream.read(contents, pos, available);
-			available = stream.available();
+		int contentsLength = 0;
+		int bytesRead = -1;
+		do {
+			int available= stream.available();
+			
+			// resize contents if needed
+			if (contentsLength + available > contents.length) {
+				System.arraycopy(contents, 0, contents = new byte[contentsLength + available], 0, contentsLength);
+			}
+
+			// read as many bytes as possible
+			bytesRead = stream.read(contents, contentsLength, available);
+			
+			if (bytesRead > 0) {
+				// remember length of contents
+				contentsLength += bytesRead;
+			}
+		} while (bytesRead > 0);
+		
+		// resize contents if necessary
+		if (contentsLength < contents.length) {
+			System.arraycopy(contents, 0, contents = new byte[contentsLength], 0, contentsLength);
 		}
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
