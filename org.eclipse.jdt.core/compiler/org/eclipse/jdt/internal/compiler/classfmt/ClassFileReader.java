@@ -774,12 +774,14 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 					} else {
 						return true;
 					}
+				} else {
+					return true;
 				}
 			}
 		}
 		// Member types
-		InnerClassInfo[] currentMemberTypes = (InnerClassInfo[]) this.getMemberTypes();
-		InnerClassInfo[] otherMemberTypes = (InnerClassInfo[]) newClassFile.getMemberTypes();
+		IBinaryNestedType[] currentMemberTypes = (IBinaryNestedType[]) this.getMemberTypes();
+		IBinaryNestedType[] otherMemberTypes = (IBinaryNestedType[]) newClassFile.getMemberTypes();
 		int currentMemberTypeLength = currentMemberTypes == null ? 0 : currentMemberTypes.length;
 		int otherMemberTypeLength = otherMemberTypes == null ? 0 : otherMemberTypes.length;
 		if (currentMemberTypeLength != otherMemberTypeLength) {
