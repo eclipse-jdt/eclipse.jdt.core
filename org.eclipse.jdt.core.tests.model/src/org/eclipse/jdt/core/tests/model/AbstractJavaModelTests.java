@@ -104,19 +104,7 @@ protected void assertSourceEquals(String message, String expected, String actual
 		assertEquals(message, expected, null);
 		return;
 	}
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = actual.length(); i < length; i++) {
-		char car = actual.charAt(i);
-		if (car == '\r') {
-			buffer.append('\n');
-			if (i < length-1 && actual.charAt(i+1) == '\n') {
-				i++; // skip \n after \r
-			}
-		} else {
-			buffer.append(car);
-		}
-	}
-	assertEquals(message, expected, buffer.toString());
+	assertEquals(message, expected, org.eclipse.jdt.core.tests.util.Util.convertToIndependantLfs(actual));
 }
 /**
  * Ensures the elements are present after creation.
@@ -911,7 +899,7 @@ public static String displayString(String inputString, int indent) {
 			buffer.append("\\n\" + \n");
 			for (int i = 0; i < indent; i++) buffer.append("\t");
 			buffer.append("\"");
-}
+		}
 		String token = tokenizer.nextToken();
 		StringBuffer tokenBuffer = new StringBuffer();
 		for (int i = 0; i < token.length(); i++){ 
