@@ -347,11 +347,11 @@ public class SourceMapper
 			}
 		} else {
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), root.getPath(), true);
-			if (target instanceof IFolder) {
-				IResource resource = root.getResource();
-				if (resource.getType() == IResource.FOLDER) {
+			if (target instanceof IResource) {
+				IResource resource = (IResource) target;
+				if (resource instanceof IContainer) {
 					try {
-						IResource[] members = ((IFolder) resource).members();
+						IResource[] members = ((IContainer) resource).members();
 						for (int i = 0, max = members.length; i < max; i++) {
 							IResource member = members[i];
 							if (member.getType() == IResource.FOLDER) {
@@ -412,8 +412,10 @@ public class SourceMapper
 			}
 		} else {
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
-			if (target instanceof IFolder) {
-				computeRootPath((IFolder)target, firstLevelPackageNames, containsADefaultPackage);
+			if (target instanceof IResource) {
+				if (target instanceof IContainer) {
+					computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage);
+				}
 			} else if (target instanceof File) {
 				File file = (File)target;
 				if (file.isDirectory()) {
@@ -454,16 +456,16 @@ public class SourceMapper
 		}
 	}	
 
-	private void computeRootPath(IFolder directory, HashSet firstLevelPackageNames, boolean hasDefaultPackage) {
+	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage) {
 		try {
-			IResource[] resources = directory.members();
+			IResource[] resources = container.members();
 			boolean hasSubDirectories = false;
 			loop: for (int i = 0, max = resources.length; i < max; i++) {
 				IResource resource = resources[i];
 				if (resource.getType() == IResource.FOLDER) {
 					hasSubDirectories = true;
 					if (firstLevelPackageNames.contains(resource.getName())) {
-						IPath fullPath = resource.getParent().getFullPath();
+						IPath fullPath = container.getFullPath();
 						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
 						this.rootPaths.add(rootPathEntry.toString());
 						break loop;
@@ -472,12 +474,10 @@ public class SourceMapper
 					}
 				}
 				if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
-					IContainer container = resource.getParent();
 					// check if one member is a .java file
-					IResource[] members = container.members();
 					boolean hasJavaSourceFile = false;
-					for (int j = 0, max2 = members.length; j < max2; j++) {
-						if (Util.isJavaFileName(members[i].getName())) {
+					for (int j = 0; j < max; j++) {
+						if (Util.isJavaFileName(resources[i].getName())) {
 							hasJavaSourceFile = true;
 							break;
 						}
@@ -902,24 +902,27 @@ public class SourceMapper
 			}
 		} else {
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
-			if (target instanceof IFolder) {
-				IFolder folder = (IFolder)target;
-				IResource res = folder.findMember(fullName);
-				if (res instanceof IFile) {
-					try {
-						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
-					} catch (JavaModelException e) {
-						// ignore
+			if (target instanceof IResource) {
+				if (target instanceof IContainer) {
+					IResource res = ((IContainer)target).findMember(fullName);
+					if (res instanceof IFile) {
+						try {
+							source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
+						} catch (JavaModelException e) {
+							// ignore
+						}
 					}
 				}
 			} else if (target instanceof File) {
 				File file = (File)target;
 				if (file.isDirectory()) {
 					File sourceFile = new File(file, fullName);
-					try {
-						source = Util.getFileCharContent(sourceFile, this.encoding);
-					} catch (IOException e) {
-						// ignore
+					if (sourceFile.isFile()) {
+						try {
+							source = Util.getFileCharContent(sourceFile, this.encoding);
+						} catch (IOException e) {
+							// ignore
+						}
 					}
 				}
 			}
