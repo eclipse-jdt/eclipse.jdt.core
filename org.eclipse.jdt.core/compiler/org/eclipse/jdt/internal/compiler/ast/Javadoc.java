@@ -109,13 +109,15 @@ public class Javadoc extends ASTNode {
 		
 		// get method declaration
 		AbstractMethodDeclaration methDecl = methScope.referenceMethod();
+		boolean override = (methDecl.binding.modifiers & (AccImplementing+AccOverriding)) != 0;
 
 		// @see tags
 		int seeTagsNbre = references == null ? 0 : references.length;
 		boolean superRef = false;
 		for (int i = 0; i < seeTagsNbre; i++) {
 			TypeBinding binding = references[i].resolveType(methScope);
-			if (!superRef && binding != null && binding.isValidBinding()) {
+			
+			if ((methDecl.isConstructor() || override) && !superRef && binding != null && binding.isValidBinding()) {
 				// if binding is valid then look if we have a reference to an overriden method/constructor
 				if (references[i] instanceof JavadocMessageSend) {
 					JavadocMessageSend messageSend = (JavadocMessageSend) references[i];
