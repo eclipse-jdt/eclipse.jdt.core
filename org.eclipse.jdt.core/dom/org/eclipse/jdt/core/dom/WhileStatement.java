@@ -62,7 +62,7 @@ public class WhileStatement extends Statement {
 	ASTNode clone(AST target) {
 		WhileStatement result = new WhileStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setBody((Statement) getBody().clone(target));
 		return result;

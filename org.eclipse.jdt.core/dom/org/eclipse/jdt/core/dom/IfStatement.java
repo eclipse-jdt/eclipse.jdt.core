@@ -67,7 +67,7 @@ public class IfStatement extends Statement {
 	ASTNode clone(AST target) {
 		IfStatement result = new IfStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setThenStatement(
 			(Statement) getThenStatement().clone(target));

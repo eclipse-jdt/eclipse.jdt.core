@@ -56,7 +56,7 @@ public class ThrowStatement extends Statement {
 	ASTNode clone(AST target) {
 		ThrowStatement result = new ThrowStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setExpression((Expression) getExpression().clone(target));
 		return result;
 	}

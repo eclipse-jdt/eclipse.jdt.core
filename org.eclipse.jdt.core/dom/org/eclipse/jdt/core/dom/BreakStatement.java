@@ -54,7 +54,7 @@ public class BreakStatement extends Statement {
 	ASTNode clone(AST target) {
 		BreakStatement result = new BreakStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setLabel((SimpleName) ASTNode.copySubtree(target, getLabel()));
 		return result;
 	}

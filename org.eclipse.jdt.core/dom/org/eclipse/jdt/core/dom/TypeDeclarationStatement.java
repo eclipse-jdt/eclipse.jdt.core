@@ -61,7 +61,7 @@ public class TypeDeclarationStatement extends Statement {
 		TypeDeclarationStatement result = 
 			new TypeDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setTypeDeclaration(
 			(TypeDeclaration) getTypeDeclaration().clone(target));
 		return result;

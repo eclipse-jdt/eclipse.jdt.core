@@ -61,7 +61,7 @@ public class AssertStatement extends Statement {
 	ASTNode clone(AST target) {
 		AssertStatement result = new AssertStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
 		result.setMessage(

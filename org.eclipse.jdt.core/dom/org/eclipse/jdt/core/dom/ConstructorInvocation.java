@@ -55,7 +55,7 @@ public class ConstructorInvocation extends Statement {
 	ASTNode clone(AST target) {
 		ConstructorInvocation result = new ConstructorInvocation(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
 		return result;
 	}

@@ -161,6 +161,16 @@ public abstract class Statement extends ASTNode {
 		modifying();
 		this.optionalLeadingComment = comment;
 	}
+
+	/**
+	 * Copies the leading comment from the given statement.
+	 * 
+	 * @param source the statement that supplies the leading comment
+	 * @since 2.1
+	 */
+	void copyLeadingComment(Statement source) {
+		setLeadingComment(source.getLeadingComment());
+	}
 	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.

@@ -83,7 +83,7 @@ public class VariableDeclarationStatement extends Statement {
 		VariableDeclarationStatement result = 
 			new VariableDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setModifiers(getModifiers());
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(

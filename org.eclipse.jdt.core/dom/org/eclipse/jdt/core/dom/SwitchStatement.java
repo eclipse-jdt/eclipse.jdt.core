@@ -73,7 +73,7 @@ public class SwitchStatement extends Statement {
 	ASTNode clone(AST target) {
 		SwitchStatement result = new SwitchStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setLeadingComment(getLeadingComment());
+		result.copyLeadingComment(this);
 		result.setExpression((Expression) getExpression().clone(target));
 		result.statements().addAll(ASTNode.copySubtrees(target, statements()));
 		return result;
