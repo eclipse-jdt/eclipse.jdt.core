@@ -428,7 +428,7 @@ public boolean hasResourceChanged();
 boolean isWorkingCopy();
 
 /**
- * Reconciles the contents of this working copy, and send out a Java delta
+ * Reconciles the contents of this working copy, and sends out a Java delta
  * notification indicating the nature of the change of the working copy since
  * the last time it was either reconciled or made consistent 
  * (see <code>IOpenable#makeConsistent()</code>).
@@ -460,7 +460,7 @@ boolean isWorkingCopy();
  */
 void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
 /**
- * Reconciles the contents of this working copy, and send out a Java delta
+ * Reconciles the contents of this working copy, and sends out a Java delta
  * notification indicating the nature of the change of the working copy since
  * the last time it was either reconciled or made consistent 
  * (see <code>IOpenable#makeConsistent()</code>).
