@@ -52,7 +52,7 @@ public class JavaModelCache {
 	protected Map childrenCache;
 	
 public JavaModelCache() {
-	this.projectCache = new ElementCache(CACHE_RATIO); // average 38300 bytes per project -> maximum size : 38300*CACHE_RATIO bytes
+	this.projectCache = new ElementCache(CACHE_RATIO*10); // average 38300 bytes per project -> maximum size : 38300*CACHE_RATIO bytes
 	this.rootCache = new ElementCache(CACHE_RATIO*10); // average 2590 bytes per root -> maximum size : 25900*CACHE_RATIO bytes
 	this.pkgCache = new ElementCache(CACHE_RATIO*100); // average 1782 bytes per pkg -> maximum size : 178200*CACHE_RATIO bytes
 	this.openableCache = new ElementCache(CACHE_RATIO*100); // average 6629 bytes per openable (includes children) -> maximum size : 662900*CACHE_RATIO bytes
