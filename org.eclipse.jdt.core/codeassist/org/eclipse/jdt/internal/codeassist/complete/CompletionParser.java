@@ -1960,6 +1960,9 @@ public NameReference createSingleAssistNameReference(char[] name, long position)
 			&& previousKind == K_BLOCK_DELIMITER
 			&& previousInfo == TRY) {
 			return new CompletionOnKeyword3(name, position, new char[][]{Keywords.CATCH, Keywords.FINALLY});
+		} else if(kind == K_BLOCK_DELIMITER
+			&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
+			return new CompletionOnKeyword3(name, position, new char[][]{Keywords.CASE, Keywords.DEFAULT});
 		} else {
 			char[][] keywords = new char[Keywords.COUNT][];
 			int count = 0;
@@ -2006,10 +2009,10 @@ public NameReference createSingleAssistNameReference(char[] name, long position)
 				if(isInsideBreakable()) {
 					keywords[count++]= Keywords.BREAK;
 				}
-				if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
-					keywords[count++]= Keywords.CASE;
-					keywords[count++]= Keywords.DEFAULT;
-				}
+//				if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
+//					keywords[count++]= Keywords.CASE;
+//					keywords[count++]= Keywords.DEFAULT;
+//				}
 			} else {
 				keywords[count++]= Keywords.TRUE;
 				keywords[count++]= Keywords.FALSE;

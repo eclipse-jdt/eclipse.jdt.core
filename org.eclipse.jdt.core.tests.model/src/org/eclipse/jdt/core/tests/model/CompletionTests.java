@@ -3981,7 +3981,6 @@ public void testCompletionKeywordDefault1() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
 			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 			requestor.getResults());
 }
@@ -6553,7 +6552,6 @@ public void testCompletionKeywordDefault6() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:Default    completion:Default    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED)+"\n"+
 			"element:default    completion:default    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 			requestor.getResults());
 }

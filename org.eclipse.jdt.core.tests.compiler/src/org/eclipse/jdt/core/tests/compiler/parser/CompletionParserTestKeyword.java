@@ -1011,7 +1011,7 @@ public void test0026(){
 		expectedReplacedSource,
 		"diet ast");
 	
-	expectedCompletionNodeToString = "<CompleteOnName:cas>";
+	expectedCompletionNodeToString = "<CompleteOnKeyword:cas>";
 	expectedParentNodeToString = "<NONE>";
 	completionIdentifier = "cas";
 	expectedReplacedSource = "cas";
@@ -1021,7 +1021,7 @@ public void test0026(){
 		"  public X() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cas>;\n" +
+		"    <CompleteOnKeyword:cas>;\n" +
 		"  }\n" +
 		"}\n";
 	
@@ -8702,7 +8702,7 @@ public void test0220(){
 		expectedReplacedSource,
 		"diet ast");
 	
-	expectedCompletionNodeToString = "<CompleteOnName:cas>";
+	expectedCompletionNodeToString = "<CompleteOnKeyword:cas>";
 	expectedParentNodeToString = "<NONE>";
 	completionIdentifier = "cas";
 	expectedReplacedSource = "cas";
@@ -8713,7 +8713,7 @@ public void test0220(){
 		"  }\n" +
 		"  void foo() {\n" +
 		"    {\n" +
-		"      <CompleteOnName:cas>;\n" +
+		"      <CompleteOnKeyword:cas>;\n" +
 		"    }\n"+
 		"  }\n" +
 		"}\n";
