@@ -17,26 +17,34 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * A compiler that compiles code snippets. 
  */
 public class CodeSnippetCompiler extends Compiler {
-/**
- * Creates a new code snippet compiler initialized with a code snippet parser.
- */
-public CodeSnippetCompiler(
-		INameEnvironment environment, 
-		IErrorHandlingPolicy policy, 
-		Map settings, 
-		ICompilerRequestor requestor, 
+	/**
+	 * Creates a new code snippet compiler initialized with a code snippet parser.
+	 */
+	public CodeSnippetCompiler(
+		INameEnvironment environment,
+		IErrorHandlingPolicy policy,
+		Map settings,
+		ICompilerRequestor requestor,
 		IProblemFactory problemFactory,
 		EvaluationContext evaluationContext,
 		int codeSnippetStart,
 		int codeSnippetEnd) {
-	super(environment, policy, settings, requestor, problemFactory);
-	this.parser = 
-		new CodeSnippetParser(problemReporter, evaluationContext, this.options.parseLiteralExpressionsAsConstants, this.options.assertMode, codeSnippetStart, codeSnippetEnd);
-	this.parseThreshold = 1; // fully parse only the code snippet compilation unit
-}
+		super(environment, policy, settings, requestor, problemFactory);
+		this.parser =
+			new CodeSnippetParser(
+				problemReporter,
+				evaluationContext,
+				this.options.parseLiteralExpressionsAsConstants,
+				this.options.sourceLevel >= CompilerOptions.JDK1_4,
+				codeSnippetStart,
+				codeSnippetEnd);
+		this.parseThreshold = 1;
+		// fully parse only the code snippet compilation unit
+	}
 }

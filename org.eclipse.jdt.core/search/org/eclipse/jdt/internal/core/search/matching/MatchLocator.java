@@ -1149,7 +1149,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 			new LookupEnvironment(this, options, problemReporter, this.nameEnvironment);
 			
 		// create parser
-		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
+		this.parser = new MatchLocatorParser(problemReporter, options.sourceLevel >= CompilerOptions.JDK1_4);
 		
 		// reset parsed units (they could hold onto obsolete bindings: see bug 16052)
 		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(project.getPackageFragmentRoots());

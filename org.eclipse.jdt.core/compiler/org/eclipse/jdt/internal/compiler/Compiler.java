@@ -113,7 +113,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			new Parser(
 				problemReporter, 
 				this.options.parseLiteralExpressionsAsConstants, 
-				this.options.assertMode);
+				options.sourceLevel >= CompilerOptions.JDK1_4);
 	}
 	
 	/**
@@ -184,7 +184,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			new Parser(
 				problemReporter, 
 				parseLiteralExpressionsAsConstants, 
-				this.options.assertMode);
+				this.options.sourceLevel >= CompilerOptions.JDK1_4);
 	}
 	
 	/**

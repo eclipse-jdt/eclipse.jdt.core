@@ -64,7 +64,7 @@ public DocumentElementParser(
 		}
 	},
 	false,
-	options.assertMode);
+	options.sourceLevel >= CompilerOptions.JDK1_4);
 	this.requestor = requestor;
 	intArrayStack = new int[30][];
 	this.options = options;

@@ -92,7 +92,7 @@ public SourceElementParser(
 		}
 	},
 	true,
-	options.assertMode);
+	options.sourceLevel >= CompilerOptions.JDK1_4);
 	this.requestor = requestor;
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];

@@ -25,7 +25,7 @@ protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);	
 	return options;
 }
 public static Test suite() {
@@ -1219,6 +1219,55 @@ public void test32() {
 		"	                              ^^^\n" + 
 		"The field bar is not visible\n" + 
 		"----------\n");
+}
+
+/*
+ * Initialization of synthetic fields prior to super constructor call
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23075
+ */
+public void test33() {
+
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {	\n"+
+			"  public int m;	\n"+
+			"  public void pp() {	\n"+
+			"     C c = new C(4);	\n"+
+			"     System.out.println(c.get());	\n"+
+			"  }	\n"+
+			"  public static void main(String[] args) {	\n"+
+			"     A a = new A();	\n"+
+			"	  try {	\n"+
+			"       a.pp(); 	\n"+
+			"		System.out.println(\"SyntheticInit BEFORE SuperConstructorCall\");	\n"+
+			"	  } catch(NullPointerException e) {	\n"+
+			"		System.out.println(\"SyntheticInit AFTER SuperConstructorCall\"); // should no longer occur with target 1.4 \n"+
+			"	  }	\n"+
+			"  }	\n"+
+			"  class C extends B {	\n"+
+			"    public C(int x1) {	\n"+
+			"      super(x1);    	\n"+
+			"    }	\n"+
+			"    protected void init(int x1) {	\n"+
+			"       x = m * x1; // <- NULL POINTER EXCEPTION because of m	\n"+
+			"    }  	\n"+
+			"  }	\n"+
+			"}	\n"+
+			"class B {	\n"+
+			"  int x;	\n"+
+			"  public B(int x1) {	\n"+
+			"    init(x1);	\n"+
+			"  }	\n"+
+			"  protected void init(int x1) {	\n"+
+			"    x  = x1;	\n"+
+			"  }	\n"+
+			"  public int get() {	\n"+
+			"    return x;	\n"+
+			"  }	\n"+
+			"}	\n"
+		},
+		"SyntheticInit BEFORE SuperConstructorCall");
 }
 
 public static Class testClass() {

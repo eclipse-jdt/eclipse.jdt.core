@@ -153,11 +153,11 @@ public final class CompletionEngine
 					}
 				});
 		this.parser =
-			new CompletionParser(problemReporter, this.compilerOptions.assertMode);
+			new CompletionParser(problemReporter, this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
 		this.nameScanner =
-			new Scanner(false, false, false, this.compilerOptions.assertMode);
+			new Scanner(false, false, false, this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
 	}
 
 	/**

@@ -91,7 +91,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				SelectionEngine.this.requestor.acceptError(problem);
 			}
 		};
-		this.parser = new SelectionParser(problemReporter, this.compilerOptions.assertMode);
+		this.parser = new SelectionParser(problemReporter, this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
 	}

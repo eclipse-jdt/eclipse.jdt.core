@@ -112,8 +112,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
 
-	// 1.4 feature
-	public boolean assertMode = false; //1.3 behavior by default
+	// 1.4 feature (assertions are available in source 1.4 mode only)
+	public int sourceLevel = JDK1_3; //1.3 behavior by default
 	
 	// source encoding format
 	public String defaultEncoding = null; // will use the platform default encoding
@@ -404,9 +404,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 			// Set the source compatibility mode (assertions)
 			if(optionID.equals(OPTION_Source)){
 				if (optionValue.equals(VERSION_1_3)) {
-					this.assertMode = false;
+					this.sourceLevel = JDK1_3;
 				} else if (optionValue.equals(VERSION_1_4)) {
-					this.assertMode = true;
+					this.sourceLevel = JDK1_4;
 				}
 				continue;
 			}
