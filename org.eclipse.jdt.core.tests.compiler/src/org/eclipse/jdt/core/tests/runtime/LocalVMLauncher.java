@@ -17,7 +17,7 @@ public abstract class LocalVMLauncher implements RuntimeConstants {
 
 	/**
 	 * Whether the target has a file system and thus whether it supports writing
-	 * class files to disk. See com.ibm.jdt.eval.target.CodeSnippetRunner for more
+	 * class files to disk. See org.eclipse.jdt.core.tests.eval.target.CodeSnippetRunner for more
 	 * information.
 	 */
 	public static final boolean TARGET_HAS_FILE_SYSTEM = true;
@@ -170,7 +170,7 @@ public String getProgramClass() {
  * two calls to this method return VMs that are equal.
  * 
  * @return the list of running target VMs
- * @exception com.ibm.jdt.eval.launcher.TargetException if the target VMs could not be retrieved.
+ * @exception TargetException if the target VMs could not be retrieved.
  */
 public LocalVirtualMachine[] getRunningVirtualMachines() throws TargetException {
 	// Select the VMs that are actually running
@@ -338,7 +338,7 @@ protected void initTargetPath() throws TargetException {
  * Launches a new target VM with the registered arguments.
  * This operation returns once a new target VM has been launched.
  *
- * @exception com.ibm.jdt.eval.launcher.TargetException if the target VM could not be launched.
+ * @exception TargetException if the target VM could not be launched.
  */
 public LocalVirtualMachine launch() throws TargetException {
 	// evaluation mode

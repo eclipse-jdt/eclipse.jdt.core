@@ -8,7 +8,7 @@ import java.net.*;
  * This is the interface to the target VM. It connects to an IDEInterface on the target side 
  * using TCP/IO to send request for code snippet evaluation and to get the result back.
  *
- * @see com.ibm.jdt.eval.target.IDEInterface for details about the protocol.
+ * @see org.eclipse.jdt.core.tests.eval.target.IDEInterface for details about the protocol.
  */
 public class TargetInterface {
 	/**
@@ -16,7 +16,7 @@ public class TargetInterface {
 	 * NB: d:\eval should contain a batch file TestCodeSnippet.bat with the following contents:
 	 *		SET JDK=c:\jdk1.2.2
 	 *		SET EVAL=d:\eval
-	 *		%JDK%\bin\java -Xbootclasspath:%JDK%\jre\lib\rt.jar;%EVAL%\javaClasses; -classpath c:\temp;%EVAL%\snippets;%EVAL%\classes;"d:\ide\project_resources\Eclipse Java Evaluation\CodeSnippetSupport.jar" com.ibm.jdt.eval.target.CodeSnippetTester %1
+	 *		%JDK%\bin\java -Xbootclasspath:%JDK%\jre\lib\rt.jar;%EVAL%\javaClasses; -classpath c:\temp;%EVAL%\snippets;%EVAL%\classes;"d:\ide\project_resources\Eclipse Java Evaluation\CodeSnippetSupport.jar" CodeSnippetTester %1
 	 */
 	static final boolean DEBUG = false;
 	String codeSnippetClassName;

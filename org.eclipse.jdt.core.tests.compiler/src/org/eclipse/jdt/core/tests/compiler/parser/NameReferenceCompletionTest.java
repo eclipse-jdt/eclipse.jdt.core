@@ -618,26 +618,26 @@ public void testQualifiedNameReferenceShrinkAll() {
 		"class Bar {								\n" +
 		"	void foo() {							\n" +
 		"		int i = 0;							\n" +
-		"		com.ibm.tests.Xxx o = new Y(i);		\n" +
+		"		a.b.c.Xxx o = new Y(i);		\n" +
 		"	}										\n" +
 		"}											\n",
 		// completeBehind:
-		"com",
+		"		a",
 		// expectedCompletionNodeToString:
-		"<CompleteOnName:com>",
+		"<CompleteOnName:a>",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" +
 		"    int i;\n" + 
-		"    <CompleteOnName:com>;\n" +
+		"    <CompleteOnName:a>;\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
-		"com",
+		"a",
 		// expectedReplacedSource:
-		"com",
+		"a",
 		// test name
 		"<complete on qualified name reference (shrink all)>"
 	);
@@ -697,26 +697,26 @@ public void testQualifiedNameReferenceShrinkAllButOne2() {
 		"class Bar {								\n" +
 		"	void foo() {							\n" +
 		"		int i = 0;							\n" +
-		"		com.ibm.tests.X o = new Y(i);		\n" +
+		"		a.b.c.X o = new Y(i);		\n" +
 		"	}										\n" +
 		"}											\n",
 		// completeBehind:
-		"com.",
+		"		a.",
 		// expectedCompletionNodeToString:
-		"<CompleteOnName:com.>",
+		"<CompleteOnName:a.>",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" +
 		"    int i;\n" + 
-		"    <CompleteOnName:com.>;\n" +
+		"    <CompleteOnName:a.>;\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
-		"com.",
+		"a.",
 		// test name
 		"<complete on qualified name reference (shrink all but one) 2>"
 	);

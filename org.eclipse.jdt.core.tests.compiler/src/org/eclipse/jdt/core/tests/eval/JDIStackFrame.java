@@ -94,7 +94,7 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 			);
 			classes = this.jdiVM.classesByName(this.breakpointClassName);
 			if (classes.size() == 0) {
-				// workaround bug in Sun's VM
+				// workaround bug in Standard VM
 				Iterator iterator = this.jdiVM.allClasses().iterator();
 				while (iterator.hasNext()) {
 					ReferenceType type = (ReferenceType)iterator.next();
@@ -260,7 +260,7 @@ public boolean run(String codeSnippetClassName) {
 				}
 				classes = jdiVM.classesByName(codeSnippetClassName);
 				if (classes.size() == 0) {
-					// workaround bug in Sun's VM
+					// workaround bug in Standard VM
 					Iterator iterator = this.jdiVM.allClasses().iterator();
 					while (iterator.hasNext()) {
 						ReferenceType type = (ReferenceType)iterator.next();
