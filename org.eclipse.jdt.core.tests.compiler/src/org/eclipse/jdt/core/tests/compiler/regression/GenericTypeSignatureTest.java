@@ -976,4 +976,36 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+	// 59983 - incorrect signature for List<X>
+	public void test014() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"	private List<X> games = new ArrayList<X>();\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryField[] fields = classFileReader.getFields();
+			assertNotNull("No fields", fields);
+			assertEquals("Wrong size", 1, fields.length);
+			assertEquals("Wrong name", "games", new String(fields[0].getName()));
+			char[] signature = fields[0].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "Ljava/util/List<LX;>;", new String(signature));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
 }
