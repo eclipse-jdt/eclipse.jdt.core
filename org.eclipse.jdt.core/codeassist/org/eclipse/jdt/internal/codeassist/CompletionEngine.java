@@ -44,7 +44,7 @@ public final class CompletionEngine
 	
 	public static boolean DEBUG = false;
 	
-	private final static int R_DEFAULT = 5;
+	private final static int R_DEFAULT = 0;
 	private final static int R_CASE = 5;
 	private final static int R_EXPECTED_TYPE = 20;
 	private final static int R_INTERFACE = 5;
@@ -1755,7 +1755,7 @@ public final class CompletionEngine
 		if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
 			return  R_CASE;
 		} else {
-			return 0;
+			return R_DEFAULT;
 		}
 	}
 	private int computeRelevanceForClass(){
@@ -1768,7 +1768,7 @@ public final class CompletionEngine
 		if(assistNodeIsInterface) {
 			return R_INTERFACE;
 		}
-		return 0;
+		return R_DEFAULT;
 	}
 	private int computeRelevanceForException(char[] proposalName){
 		
@@ -1777,7 +1777,7 @@ public final class CompletionEngine
 			CharOperation.match(ERROR_PATTERN, proposalName, false))) { 
 			return R_EXCEPTION;
 		}
-		return 0;
+		return R_DEFAULT;
 	}
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(expectedTypes != null && proposalType != null) {
@@ -1787,7 +1787,7 @@ public final class CompletionEngine
 				}
 			}
 		} 
-		return 0;
+		return R_DEFAULT;
 	}
 	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName){
 		if(expectedTypes != null) {
@@ -1798,7 +1798,7 @@ public final class CompletionEngine
 				}
 			}
 		} 
-		return 0;
+		return R_DEFAULT;
 	}
 
 	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
