@@ -908,6 +908,39 @@ public void testRenameSourceFolder1() throws CoreException {
 	}
 }
 /*
+ * Ensure that renaming a source root keeps the same roots order,
+ * and that it triggers the right delta and that the model is up-to-date.
+ */
+public void testRenameSourceFolder2() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src1", "src2", "src3"}, "bin");
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src1");
+		this.startDeltas();
+		this.move(root, new Path("/P/src4"));
+		assertDeltas(
+			"Unexpected delta after renaming src1",
+			"P[*]: {CHILDREN}\n" + 
+			"	src1[-]: {MOVED_TO(src4 [in P])}\n" + 
+			"	src4[+]: {MOVED_FROM(src1 [in P])}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src4\n" + 
+			"		[default]\n" + 
+			"	src2\n" + 
+			"		[default]\n" + 
+			"	src3\n" + 
+			"		[default]\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
  * Ensure that a simple rename of a jar file triggers the right delta
  * and that the model is up-to-date.
  */

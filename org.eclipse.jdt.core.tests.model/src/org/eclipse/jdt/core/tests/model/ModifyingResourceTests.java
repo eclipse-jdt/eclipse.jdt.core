@@ -51,6 +51,7 @@ protected void assertDeltas(String message, String expected) {
 	IJavaElementDelta[] deltas = this.deltaListener.deltas;
 	for (int i=0, length= deltas.length; i<length; i++) {
 		IJavaElementDelta[] projects = deltas[i].getAffectedChildren();
+		this.sortDeltas(projects);
 		for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
 			buffer.append(projects[j]);
 			if (j != projectsLength-1) {
@@ -178,6 +179,16 @@ private void expandAll(IJavaElement element, int tab, StringBuffer buffer) throw
 }
 protected void renameProject(String project, String newName) throws CoreException {
 	this.getProject(project).move(new Path(newName), true, null);
+}
+protected void sortDeltas(IJavaElementDelta[] deltas) {
+	org.eclipse.jdt.internal.core.Util.Comparer comparer = new org.eclipse.jdt.internal.core.Util.Comparer() {
+		public int compare(Object a, Object b) {
+			IJavaElementDelta deltaA = (IJavaElementDelta)a;
+			IJavaElementDelta deltaB = (IJavaElementDelta)b;
+			return deltaA.getElement().getElementName().compareTo(deltaB.getElement().getElementName());
+		}
+	};
+	org.eclipse.jdt.internal.core.Util.sort(deltas, comparer);
 }
 protected ICompilationUnit getCompilationUnit(String path) {
 	return (ICompilationUnit)JavaCore.create(this.getFile(path));
