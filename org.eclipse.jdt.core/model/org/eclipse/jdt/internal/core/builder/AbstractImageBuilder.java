@@ -95,7 +95,7 @@ public void acceptResult(CompilationResult result) {
 			ClassFile classFile = classFiles[i];
 			char[][] compoundName = classFile.getCompoundName();
 			char[] typeName = compoundName[compoundName.length - 1];
-			boolean isNestedType = CharOperation.contains('$', typeName);
+			boolean isNestedType = classFile.enclosingClassFile != null;
 
 			// Look for a possible collision, if one exists, report an error but do not write the class file
 			if (isNestedType) {
