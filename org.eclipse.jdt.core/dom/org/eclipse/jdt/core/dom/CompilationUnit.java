@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001 International Business Machines Corp. and others.
+ * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.Iterator;
 import java.util.List;
+
+import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * Java compilation unit AST node type. This is the type of the root of an AST.
@@ -311,12 +313,39 @@ public class CompilationUnit extends ASTNode {
 	 * Returns the list of messages reported by the compiler during the parsing 
 	 * or the type checking of this compilation unit. This list might be a subset of 
 	 * errors detected and reported by a Java compiler.
-	 * 
+	 * <p>
+	 * This list of messages is suitable for simple clients that do little
+	 * more than log the messages or display them to the user. Clients that
+	 * need further details should call <code>getProblems</code> to get
+	 * compiler problem objects.
+	 * </p>
+	 *
 	 * @return the list of messages, possibly empty
+	 * @see #getProblems
 	 * @see AST#parseCompilationUnit
 	 */
 	public Message[] getMessages() {
 		return messages;
+	}
+
+	/**
+	 * Returns the list of detailed problem reports noted by the compiler
+	 * during the parsing or the type checking of this compilation unit. This
+	 * list might be a subset of errors detected and reported by a Java
+	 * compiler.
+	 * <p>
+	 * Simple clients that do little more than log the messages or display
+	 * them to the user should probably call <code>getMessages</code> instead.
+	 * </p>
+	 * 
+	 * @return the list of detailed problem objects, possibly empty
+	 * @see #getMessages
+	 * @see AST#parseCompilationUnit
+	 * @since 2.1
+	 */
+	public IProblem[] getProblems() {
+		// FIXME: implementation is missing
+		return null;
 	}
 
 	/**
