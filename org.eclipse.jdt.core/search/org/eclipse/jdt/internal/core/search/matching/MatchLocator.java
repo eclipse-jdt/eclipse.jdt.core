@@ -1154,10 +1154,12 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 		IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
 		int length = roots.length;
 		String[] classpathNames = new String[length];
+		int rootModes[] = new int[length];
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (int i = 0; i < length; i++) {
 			IPackageFragmentRoot root = roots[i];
 			IPath path = root.getPath();
+			rootModes[i] = (root.getKind() == IPackageFragmentRoot.K_SOURCE)  ? ClasspathDirectory.SOURCE : ClasspathDirectory.BINARY;
 			if (root.isArchive()) {
 				// pass in a relative path (for internal jar) as this is what is needed by FileNamewEnviroment.getZipFile(File)
 				classpathNames[i] = path.toOSString();
@@ -1174,7 +1176,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 		if ("".equals(encoding)) { //$NON-NLS-1$
 			encoding = null;
 		}
-		return new FileNameEnvironment(classpathNames, encoding);
+		return new FileNameEnvironment(classpathNames, encoding, rootModes);
 		
 	}
 

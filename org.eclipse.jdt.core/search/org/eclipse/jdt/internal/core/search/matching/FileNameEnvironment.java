@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class FileNameEnvironment extends FileSystem {
 	
-public FileNameEnvironment(String[] classpathNames, String encoding) {
-	super(classpathNames, new String[0], encoding);
+public FileNameEnvironment(String[] classpathNames, String encoding, int[] classpathDirectoryModes) {
+	super(classpathNames, new String[0], encoding, classpathDirectoryModes);
 }
 
 public ClasspathJar getClasspathJar(File file) throws IOException {

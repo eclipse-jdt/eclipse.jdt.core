@@ -29,6 +29,9 @@ public class FileSystem implements INameEnvironment  {
 */
 
 public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding) {
+	this(classpathNames, initialFileNames, encoding, null);
+}
+public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding, int[] classpathDirectoryModes) {
 	int classpathSize = classpathNames.length;
 	classpaths = new Classpath[classpathSize];
 	String[] pathNames = new String[classpathSize];
@@ -38,7 +41,11 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 			File file = new File(convertPathSeparators(classpathNames[i]));
 			if (file.isDirectory()) {
 				if (file.exists()) {
-					classpaths[i] = new ClasspathDirectory(file, encoding);
+					if (classpathDirectoryModes == null){
+						classpaths[i] = new ClasspathDirectory(file, encoding);
+					} else {
+						classpaths[i] = new ClasspathDirectory(file, encoding, classpathDirectoryModes[i]);
+					}
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
 				}
 			} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$

@@ -10,20 +10,30 @@ import java.util.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 
-class ClasspathDirectory implements FileSystem.Classpath {
+public class ClasspathDirectory implements FileSystem.Classpath {
 
 String path;
 Hashtable directoryCache;
 String[] missingPackageHolder = new String[1];
 String encoding;
+public int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
 
-ClasspathDirectory(File directory, String encoding) {
+public static final int SOURCE = 1;
+public static final int BINARY = 2;
+
+ClasspathDirectory(File directory, String encoding, int mode) {
+	this.mode = mode;
 	this.path = directory.getAbsolutePath();
 	if (!path.endsWith(File.separator))
 		this.path += File.separator;
 	this.directoryCache = new Hashtable(11);
 	this.encoding = encoding;
 }
+
+ClasspathDirectory(File directory, String encoding) {
+	this(directory, encoding, SOURCE | BINARY); // by default consider both sources and binaries
+}
+
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) directoryCache.get(qualifiedPackageName);
 	if (dirList == missingPackageHolder) return null; // package exists in another classpath directory or jar
@@ -68,8 +78,8 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	String fileName = new String(typeName);
-	boolean binaryExists = doesFileExist(fileName + ".class", qualifiedPackageName); //$NON-NLS-1$
-	boolean sourceExists = doesFileExist(fileName + ".java", qualifiedPackageName); //$NON-NLS-1$
+	boolean binaryExists = ((this.mode | BINARY) != 0) && doesFileExist(fileName + ".class", qualifiedPackageName); //$NON-NLS-1$
+	boolean sourceExists = ((this.mode | SOURCE) != 0) && doesFileExist(fileName + ".java", qualifiedPackageName); //$NON-NLS-1$
 	if (sourceExists) {
 		String fullSourcePath = path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + ".java"; //$NON-NLS-1$
 		if (!binaryExists)
