@@ -265,6 +265,10 @@ public final class AST {
 	 * <code>resolveBinding</code> methods return <code>null</code> from the 
 	 * outset.
 	 * </p>
+	 * <p>
+	 * If the source defined an existing binary type or source type in the same project,
+	 * the source provided will hide the existing type.
+	 * </p>
 	 * 
 	 * @param source char[] which contains the source to be parsed
 	 * @param unitName java.lang.String The name of the compilation unit to be parsed
