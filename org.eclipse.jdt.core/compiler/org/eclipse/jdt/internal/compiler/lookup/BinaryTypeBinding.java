@@ -44,15 +44,24 @@ protected TypeVariableBinding[] typeVariables;
 // For the link with the principle structure
 private LookupEnvironment environment;
 
-public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, boolean rawCheck, ParameterizedTypeBinding parameterizedType, int rank) {
+public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironment environment, boolean convertGenericToRawType) {
 	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(environment, rawCheck, parameterizedType, rank);
+		return ((UnresolvedReferenceBinding) type).resolve(environment, convertGenericToRawType);
+	if (type.isParameterizedType())
+		return ((ParameterizedTypeBinding) type).resolve();
+	if (type.isWildcard())
+		return ((WildcardBinding) type).resolve(null, 0);
+	return type;
+}
+public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
+	if (type instanceof UnresolvedReferenceBinding)
+		return ((UnresolvedReferenceBinding) type).resolve(environment, parameterizedType == null);
 	if (type.isParameterizedType())
 		return ((ParameterizedTypeBinding) type).resolve();
 	if (type.isWildcard())
 		return ((WildcardBinding) type).resolve(parameterizedType, rank);
 	if (type.isArrayType())
-		resolveType(((ArrayBinding) type).leafComponentType, environment, rawCheck, parameterizedType, rank);
+		resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
 	return type;
 }
 
@@ -433,7 +442,7 @@ public ReferenceBinding enclosingType() {
 	if ((this.tagBits & HasUnresolvedEnclosingType) == 0)
 		return this.enclosingType;
 
-	this.enclosingType = (ReferenceBinding) resolveType(this.enclosingType, this.environment, false, null, 0);
+	this.enclosingType = resolveType(this.enclosingType, this.environment, false); // no raw conversion for now
 	this.tagBits ^= HasUnresolvedEnclosingType;
 	return this.enclosingType;
 }
@@ -556,7 +565,7 @@ public ReferenceBinding[] memberTypes() {
 		return this.memberTypes;
 
 	for (int i = this.memberTypes.length; --i >= 0;)
-		this.memberTypes[i] = (ReferenceBinding) resolveType(this.memberTypes[i], this.environment, false, null, 0);
+		this.memberTypes[i] = resolveType(this.memberTypes[i], this.environment, false); // no raw conversion for now
 	this.tagBits ^= HasUnresolvedMemberTypes;
 	return this.memberTypes;
 }
@@ -575,7 +584,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & AccUnresolved) == 0)
 		return field;
 
-	field.type = resolveType(field.type, this.environment, true, null, 0);
+	field.type = resolveType(field.type, this.environment, null, 0);
 	field.modifiers ^= AccUnresolved;
 	return field;
 }
@@ -584,11 +593,11 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		return method;
 
 	if (!method.isConstructor())
-		method.returnType = resolveType(method.returnType, this.environment, true, null, 0);
+		method.returnType = resolveType(method.returnType, this.environment, null, 0);
 	for (int i = method.parameters.length; --i >= 0;)
-		method.parameters[i] = resolveType(method.parameters[i], this.environment, true, null, 0);
+		method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
 	for (int i = method.thrownExceptions.length; --i >= 0;)
-		method.thrownExceptions[i] = (ReferenceBinding)resolveType(method.thrownExceptions[i], this.environment, true, null, 0);
+		method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
 	method.modifiers ^= AccUnresolved;
 	return method;
 }
@@ -597,12 +606,12 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 		return variable;
 
 	if (variable.superclass != null)
-		variable.superclass = (ReferenceBinding)resolveType(variable.superclass, this.environment, true, null, 0);
+		variable.superclass = resolveType(variable.superclass, this.environment, true);
 	if (variable.firstBound != null)
-		variable.firstBound = (ReferenceBinding) resolveType(variable.firstBound, this.environment, true, null, 0);
+		variable.firstBound = resolveType(variable.firstBound, this.environment, true);
 	ReferenceBinding[] interfaces = variable.superInterfaces;
 	for (int i = interfaces.length; --i >= 0;)
-		interfaces[i] = (ReferenceBinding) resolveType(interfaces[i], this.environment, true, null, 0);
+		interfaces[i] = resolveType(interfaces[i], this.environment, true);
 	variable.modifiers ^= AccUnresolved;
 	return variable;
 }
@@ -615,7 +624,7 @@ public ReferenceBinding superclass() {
 	if ((this.tagBits & HasUnresolvedSuperclass) == 0)
 		return this.superclass;
 
-	this.superclass = (ReferenceBinding) resolveType(this.superclass, this.environment, true, null, 0);
+	this.superclass = resolveType(this.superclass, this.environment, true);
 	this.tagBits ^= HasUnresolvedSuperclass;
 	return this.superclass;
 }
@@ -626,7 +635,7 @@ public ReferenceBinding[] superInterfaces() {
 		return this.superInterfaces;
 
  	for (int i = this.superInterfaces.length; --i >= 0;)
-		this.superInterfaces[i] = (ReferenceBinding) resolveType(this.superInterfaces[i], this.environment, true, null, 0);
+		this.superInterfaces[i] = resolveType(this.superInterfaces[i], this.environment, true);
 	this.tagBits ^= HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;
 }

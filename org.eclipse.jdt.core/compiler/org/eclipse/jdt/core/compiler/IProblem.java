@@ -852,7 +852,9 @@ public interface IProblem {
 	int FinalBoundForTypeVariable = TypeRelated + 538;
 	/** @since 3.1 */
 	int UndefinedTypeVariable = Internal + 539;
-	
+	/** @since 3.1 */
+	int SuperInterfacesCollide = TypeRelated + 540;
+
 	/**
 	 * Foreach
 	 */

@@ -35,9 +35,9 @@ void addWrapper(TypeBinding wrapper) {
 public String debugName() {
 	return toString();
 }
-ReferenceBinding resolve(LookupEnvironment environment, boolean rawCheck, ParameterizedTypeBinding parameterizedType, int rank) {
-    ReferenceBinding targetType;
-	if ((targetType = this.resolvedType) == null) {
+ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericToRawType) {
+    ReferenceBinding targetType = this.resolvedType;
+	if (targetType == null) {
 		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
 		if (targetType == this)
 			targetType = environment.askForType(this.compoundName);
@@ -54,9 +54,8 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean rawCheck, Parame
 			return null; // will not get here since the above error aborts the compilation
 		}
 	}
-	if (rawCheck && parameterizedType == null && targetType.isGenericType()) { // raw reference to generic ?
+	if (convertGenericToRawType && targetType.isGenericType()) // raw reference to generic ?
 	    return environment.createRawType(targetType);
-	}
 	return targetType;
 }
 public String toString() {

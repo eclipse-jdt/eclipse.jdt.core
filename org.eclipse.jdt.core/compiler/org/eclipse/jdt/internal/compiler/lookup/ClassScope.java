@@ -735,6 +735,18 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
+			ReferenceBinding invalid = findAmbiguousInterface(superInterface, sourceType);
+			if (invalid != null) {
+				ReferenceBinding generic = null;
+				if (superInterface.isParameterizedType())
+					generic = ((ParameterizedTypeBinding) superInterface).type;
+				else if (invalid.isParameterizedType())
+					generic = ((ParameterizedTypeBinding) invalid).type;
+				problemReporter().superinterfacesCollide(generic, referenceContext, superInterface, invalid);
+				sourceType.tagBits |= HierarchyHasProblems;
+				noProblems = false;
+				continue nextInterface;
+			}
 
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
@@ -932,6 +944,40 @@ public class ClassScope extends Scope {
 		if ((superType.tagBits & HierarchyHasProblems) != 0)
 			sourceType.tagBits |= HierarchyHasProblems;
 		return false;
+	}
+
+	private ReferenceBinding findAmbiguousInterface(ReferenceBinding newInterface, ReferenceBinding currentType) {
+		TypeBinding newErasure = newInterface.erasure();
+		if (newInterface == newErasure) return null;
+
+		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+		int lastPosition = -1;
+		do {
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		} while ((currentType = currentType.superclass()) != null);
+
+		for (int i = 0; i <= lastPosition; i++) {
+			ReferenceBinding[] interfaces = interfacesToVisit[i];
+			for (int j = 0, length = interfaces.length; j < length; j++) {
+				currentType = interfaces[j];
+				if (currentType.erasure() == newErasure)
+					if (currentType != newInterface)
+						return currentType;
+
+				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+				if (itsInterfaces != NoSuperInterfaces) {
+					if (++lastPosition == interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+					interfacesToVisit[lastPosition] = itsInterfaces;
+				}
+			}
+		}
+		return null;
 	}
 
 	private ReferenceBinding findSupertype(TypeReference typeReference) {

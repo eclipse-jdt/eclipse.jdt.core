@@ -3158,6 +3158,14 @@ public void superfluousSemicolon(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);	
 }
+public void superinterfacesCollide(ReferenceBinding type, TypeDeclaration typeDecl, ReferenceBinding superType, ReferenceBinding inheritedSuperType) {
+	this.handle(
+		IProblem.SuperInterfacesCollide,
+		new String[] {new String(superType.readableName()), new String(inheritedSuperType.readableName()), new String(type.sourceName())},
+		new String[] {new String(superType.shortReadableName()), new String(inheritedSuperType.shortReadableName()), new String(type.sourceName())},
+		typeDecl.sourceStart,
+		typeDecl.sourceEnd);
+}
 public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclaration typeDecl, ReferenceBinding superType) {
 	this.handle(
 		IProblem.SuperInterfaceMustBeAnInterface,

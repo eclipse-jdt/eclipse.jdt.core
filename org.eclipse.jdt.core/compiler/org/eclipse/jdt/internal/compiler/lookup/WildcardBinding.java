@@ -140,7 +140,7 @@ public class WildcardBinding extends ReferenceBinding {
 	    switch(this.kind) {
 	        case Wildcard.EXTENDS :
 	        case Wildcard.SUPER :
-				BinaryTypeBinding.resolveType(this.bound, this.environment, true, null, 0);
+				BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
 				break;
 			case Wildcard.UNBOUND :
 				if (this.bound == null) {

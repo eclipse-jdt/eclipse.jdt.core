@@ -470,7 +470,7 @@ private ProblemReporter problemReporter(MethodBinding currentMethod) {
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
 }
-ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
+private ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	ReferenceBinding[] exceptions = method.thrownExceptions;
 	if ((method.modifiers & CompilerModifiers.AccUnresolved) == 0)
 		return exceptions;
@@ -479,8 +479,7 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 		return TypeConstants.NoExceptions; // safety check
 
 	for (int i = exceptions.length; --i >= 0;)
-		if (exceptions[i] instanceof UnresolvedReferenceBinding) // TODO (kent) should use more general #resolveType mechanism to address all cases
-			exceptions[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(exceptions[i], this.environment, true, null, 0);
+		exceptions[i] = BinaryTypeBinding.resolveType(exceptions[i], this.environment, true);
 	return exceptions;
 }
 private ReferenceBinding runtimeException() {

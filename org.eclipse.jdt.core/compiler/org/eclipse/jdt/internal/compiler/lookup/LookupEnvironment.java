@@ -511,15 +511,12 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
-	// TODO (kent) this will not handle names which would be part of parameterized type ref - maybe acceptable, but if so should be documented
-	if (referenceBinding instanceof UnresolvedReferenceBinding)
-		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this, true, null, 0);
+	referenceBinding = BinaryTypeBinding.resolveType(referenceBinding, this, false); // no raw conversion for now
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
 		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
-	else
-		return referenceBinding;
+	return referenceBinding;
 }
 /* Answer the type corresponding to the name from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an

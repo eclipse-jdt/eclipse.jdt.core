@@ -395,10 +395,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	ReferenceBinding resolve() {
-		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, false, null, 0); // still part of parameterized type ref
+		ReferenceBinding resolvedType = BinaryTypeBinding.resolveType(this.type, this.environment, false); // still part of parameterized type ref
 		int argLength = this.arguments.length;
 		for (int i = 0; i < argLength; i++)
-			BinaryTypeBinding.resolveType(this.arguments[i], this.environment, true, this, i);
+			BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
 		// arity check
 		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic

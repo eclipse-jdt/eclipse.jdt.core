@@ -3237,8 +3237,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		customOptions);		
 	}	
 	// parameterized interface cannot be implemented simultaneously with distinct arguments
-	// TODO (kent) hierarchy check should be able to diagnose duplicate interface erasure.
-	public void _test109() {
+	public void test109() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3247,6 +3246,43 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"interface AX<P> {}\n" + 
 				"\n",
 			},
-		"generic interface AX<P> cannot be implemented simultaneously with distinct arguments: <String> and <Thread>");		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class Y extends X implements AX<Thread> {}\n" + 
+			"	      ^\n" + 
+			"The interface AX cannot be implemented simultaneously with different arguments: AX<Thread> and AX<String>\n" + 
+			"----------\n");
+	}		
+	public void test110() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements AX {}\n" + 
+				"class Y extends X implements AX<Thread> {}\n" + 
+				"interface AX<P> {}\n" + 
+				"\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class Y extends X implements AX<Thread> {}\n" + 
+			"	      ^\n" + 
+			"The interface AX cannot be implemented simultaneously with different arguments: AX<Thread> and AX\n" + 
+			"----------\n");		
+	}		
+	public void test111() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements AX<Object> {}\n" + 
+				"class Y extends X implements AX {}\n" + 
+				"interface AX<P> {}\n" + 
+				"\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class Y extends X implements AX {}\n" + 
+			"	      ^\n" + 
+			"The interface AX cannot be implemented simultaneously with different arguments: AX and AX<Object>\n" + 
+			"----------\n");		
 	}		
 }
