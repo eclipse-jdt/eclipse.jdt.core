@@ -126,10 +126,8 @@ class AddJarFileToIndex extends IndexRequest {
 					 * If not, then we want to check that there is no missing entry, if
 					 * one entry is missing then we 
 					 */
-					for (int i = 0; i < resultLength; i++) {
-						String fileName = results[i].getPath();
-						indexedFileNames.add(fileName);
-					}
+					for (int i = 0; i < resultLength; i++)
+						indexedFileNames.add(results[i].getPath());
 					boolean needToReindex = false;
 					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 						// iterate each entry to index it
@@ -145,7 +143,7 @@ class AddJarFileToIndex extends IndexRequest {
 					if (!needToReindex && indexedFileNames.size() == 0) {
 						if (JobManager.VERBOSE)
 							JobManager.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
-							+zip.getName() + " (" //$NON-NLS-1$
+							+ zip.getName() + " (" //$NON-NLS-1$
 							+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 						return true;
 					}
@@ -154,24 +152,19 @@ class AddJarFileToIndex extends IndexRequest {
 				/*
 				 * Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
 				 */
-				if (index != null) {
-					// index already existed: recreate it so that we forget about previous entries
+				if (index != null) // index already existed: recreate it so that we forget about previous entries
 					index = manager.recreateIndex(this.indexPath);
-				}
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
-						if (JobManager.VERBOSE) {
-							JobManager.verbose("-> indexing of " //$NON-NLS-1$
-							+zip.getName() + " has been cancelled"); //$NON-NLS-1$
-						}
+						if (JobManager.VERBOSE)
+							JobManager.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
 
 					// iterate each entry to index it
 					ZipEntry ze = (ZipEntry) e.nextElement();
 					if (Util.isClassFileName(ze.getName())) {
-						byte[] classFileBytes =
-							org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+						byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 						// Add the name of the file to the index
 						index.add(
 							new JarFileEntryDocument(ze, classFileBytes, zipFilePath),
@@ -181,13 +174,12 @@ class AddJarFileToIndex extends IndexRequest {
 				index.save();
 				if (JobManager.VERBOSE)
 					JobManager.verbose("-> done indexing of " //$NON-NLS-1$
-					+zip.getName() + " (" //$NON-NLS-1$
-					+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
+						+ zip.getName() + " (" //$NON-NLS-1$
+						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
 				if (zip != null) {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + zip); //$NON-NLS-1$	//$NON-NLS-2$
-					}
 					zip.close();
 				}
 				monitor.exitWrite(); // free write lock
