@@ -509,15 +509,41 @@ public class JavaProject
 	}
 
 	/**
-	 * Record a new marker denoting a classpath problem 
+	 * Record a new marker denoting a classpath problem
 	 */
-	IMarker createClasspathProblemMarker(
-		String message,
-		int severity,
-		boolean isCycleProblem,		
-		boolean isClasspathFileFormatProblem) {
+	IMarker createClasspathProblemMarker(IJavaModelStatus status) {
 			
 		IMarker marker = null;
+		int severity;
+		String[] arguments = new String[0];
+		boolean isCycleProblem = false, isClasspathFileFormatProblem = false;
+		switch (status.getCode()) {
+
+			case  IJavaModelStatusConstants.CLASSPATH_CYCLE :
+				isCycleProblem = true;
+				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true))) {
+					severity = IMarker.SEVERITY_ERROR;
+				} else {
+					severity = IMarker.SEVERITY_WARNING;
+				}
+				break;
+
+			case  IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT :
+				isClasspathFileFormatProblem = true;
+				severity = IMarker.SEVERITY_ERROR;
+				break;
+
+			default:
+				IPath path = status.getPath();
+				if (path != null) arguments = new String[] { path.toString() };
+				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true))) {
+					severity = IMarker.SEVERITY_ERROR;
+				} else {
+					severity = IMarker.SEVERITY_WARNING;
+				}
+				break;
+		}
+		
 		try {
 			marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
@@ -526,18 +552,25 @@ public class JavaProject
 					IMarker.SEVERITY, 
 					IMarker.LOCATION, 
 					IJavaModelMarker.CYCLE_DETECTED,
-					IJavaModelMarker.CLASSPATH_FILE_FORMAT },
+					IJavaModelMarker.CLASSPATH_FILE_FORMAT,
+					IJavaModelMarker.ID,
+					IJavaModelMarker.ARGUMENTS ,
+				},
 				new Object[] {
-					message,
+					status.getMessage(),
 					new Integer(severity), 
 					Util.bind("classpath.buildPath"),//$NON-NLS-1$
 					isCycleProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
-					isClasspathFileFormatProblem ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
+					isClasspathFileFormatProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
+					new Integer(status.getCode()),
+					Util.getProblemArgumentsForMarker(arguments) ,
+				}
+			);
 		} catch (CoreException e) {
 		}
 		return marker;
 	}
-
+	
 	/**
 	 * Returns a new element info for this element.
 	 */
@@ -592,11 +625,9 @@ public class JavaProject
 		} catch (IOException e) {
 			// bad format
 			if (createMarker && this.getProject().isAccessible()) {
-				this.createClasspathProblemMarker(
-					Util.bind("classpath.xmlFormatError", this.getElementName(), e.getMessage()), //$NON-NLS-1$
-					IMarker.SEVERITY_ERROR,
-					false,	//  cycle error
-					true);	//	file format error
+					this.createClasspathProblemMarker(new JavaModelStatus(
+							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+							Util.bind("classpath.xmlFormatError", this.getElementName(), e.getMessage()))); //$NON-NLS-1$
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -607,11 +638,9 @@ public class JavaProject
 		} catch (Assert.AssertionFailedException e) { 
 			// failed creating CP entries from file
 			if (createMarker && this.getProject().isAccessible()) {
-				this.createClasspathProblemMarker(
-					Util.bind("classpath.illegalEntryInClasspathFile", this.getElementName(), e.getMessage()), //$NON-NLS-1$
-					IMarker.SEVERITY_ERROR,
-					false,	//  cycle error
-					true);	//	file format error
+				this.createClasspathProblemMarker(new JavaModelStatus(
+						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+						Util.bind("classpath.illegalEntryInClasspathFile", this.getElementName(), e.getMessage()))); //$NON-NLS-1$
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -1443,11 +1472,9 @@ public class JavaProject
 			if (perProjectInfo.classpath == null // .classpath file could not be read
 				&& generateMarkerOnError 
 				&& JavaProject.hasJavaNature(fProject)) {
-					this.createClasspathProblemMarker(
-						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
-						IMarker.SEVERITY_ERROR,
-						false,	//  cycle error
-						false);	//	file format error
+					this.createClasspathProblemMarker(new JavaModelStatus(
+						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
 				}
 
 			perProjectInfo.lastResolvedClasspath = resolvedPath;
@@ -1476,18 +1503,10 @@ public class JavaProject
 			IClasspathEntry rawEntry = classpathEntries[i];
 
 			/* validation if needed */
-			IMarker marker = null;
-			if (generateMarkerOnError) {
-				IJavaModelStatus status =
-					JavaConventions.validateClasspathEntry(this, rawEntry, false);
-				if (!status.isOK()) {
-					String incompleteCPOption = this.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true);
-					marker = createClasspathProblemMarker(
-						status.getMessage(), 
-						JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
-						false,
-						false);
-				}
+			IJavaModelStatus status = null;
+			if (generateMarkerOnError || !ignoreUnresolvedEntry) {
+				status = JavaConventions.validateClasspathEntry(this, rawEntry, false);
+				if (generateMarkerOnError && !status.isOK()) createClasspathProblemMarker(status);
 			}
 
 			switch (rawEntry.getEntryKind()){
@@ -1496,18 +1515,7 @@ public class JavaProject
 				
 					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
 					if (resolvedEntry == null) {
-						if (marker != null) {
-							try {
-								marker.setAttribute(IJavaModelMarker.UNBOUND_VARIABLE, rawEntry.getPath().segment(0));
-							} catch(CoreException e) {
-							}
-						}
-						if (!ignoreUnresolvedEntry) {
-							throw new JavaModelException(
-								new JavaModelStatus(
-									IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
-									rawEntry.getPath().toString()));
-						}
+						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
 					} else {
 						resolvedEntries.add(resolvedEntry);
 					}
@@ -1517,19 +1525,7 @@ public class JavaProject
 				
 					IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
 					if (container == null){
-						// unbound container
-						if (marker != null) {
-							try {
-								marker.setAttribute(IJavaModelMarker.UNBOUND_CONTAINER, rawEntry.getPath().makeRelative().toString());
-							} catch(CoreException e) {
-							}
-						}
-						if (!ignoreUnresolvedEntry) {
-							throw new JavaModelException(
-								new JavaModelStatus(
-									IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND,
-									rawEntry.getPath().toString()));
-						}
+						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
 						break;
 					}
 
@@ -1538,33 +1534,21 @@ public class JavaProject
 
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-						IClasspathEntry containerRawEntry = containerEntries[j];
+						IClasspathEntry cEntry = containerEntries[j];
 						
 						if (generateMarkerOnError) {
-							IJavaModelStatus status =
-								JavaConventions.validateClasspathEntry(this, containerRawEntry, false);
-							if (!status.isOK()) {
-								String incompleteCPOption = this.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true);
-								createClasspathProblemMarker(
-									status.getMessage(), 
-									JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
-									false,
-									false);
-						}
+							IJavaModelStatus containerStatus = JavaConventions.validateClasspathEntry(this, cEntry, false);
+							if (!containerStatus.isOK()) createClasspathProblemMarker(containerStatus);
 						}
 						// if container is exported, then its nested entries must in turn be exported  (21749)
 						if (rawEntry.isExported()){
-							containerRawEntry = new ClasspathEntry(
-								containerRawEntry.getContentKind(),
-								containerRawEntry.getEntryKind(), 
-								containerRawEntry.getPath(),
-								containerRawEntry.getExclusionPatterns(),
-								containerRawEntry.getSourceAttachmentPath(),
-								containerRawEntry.getSourceAttachmentRootPath(),
-								containerRawEntry.getOutputLocation(),
+							cEntry = new ClasspathEntry(cEntry.getContentKind(),
+								cEntry.getEntryKind(), cEntry.getPath(),
+								cEntry.getExclusionPatterns(), cEntry.getSourceAttachmentPath(),
+								cEntry.getSourceAttachmentRootPath(), cEntry.getOutputLocation(), 
 								true); // duplicate container entry for tagging it as exported
 						}
-						resolvedEntries.add(containerRawEntry);
+						resolvedEntries.add(cEntry);
 					}
 					break;
 										
@@ -1920,11 +1904,9 @@ public class JavaProject
 		} catch(CoreException e) {
 			// file does not exist (or not accessible)
 			if (createMarker && this.getProject().isAccessible()) {
-				this.createClasspathProblemMarker(
-					Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
-					IMarker.SEVERITY_ERROR,
-					false,	//  cycle error
-					true);	//	file format error
+					this.createClasspathProblemMarker(new JavaModelStatus(
+						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -2297,10 +2279,7 @@ public class JavaProject
 				} else {
 					// create new marker
 					project.createClasspathProblemMarker(
-						Util.bind("classpath.cycle"), //$NON-NLS-1$
-						circularCPSeverity,
-						true,
-						false); 
+						new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project)); 
 				}
 			} else {
 				project.flushClasspathProblemMarkers(true, false);

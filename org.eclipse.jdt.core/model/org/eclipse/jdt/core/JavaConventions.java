@@ -500,8 +500,17 @@ public final class JavaConventions {
 			switch(resolvedEntry.getEntryKind()){
 				case IClasspathEntry.CPE_SOURCE :
 					sourceEntryCount++;
+
+					if (resolvedEntry.getExclusionPatterns() != null && resolvedEntry.getExclusionPatterns().length > 0
+							&& JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
+						return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, resolvedEntry.getPath());
+					}
 					IPath customOutput; 
 					if ((customOutput = resolvedEntry.getOutputLocation()) != null) {
+
+						if (JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true))) {
+							return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS, resolvedEntry.getPath());
+						}
 						// ensure custom output is in project
 						if (customOutput.isAbsolute()) {
 							if (!javaProject.getPath().isPrefixOf(customOutput)) {
@@ -659,11 +668,7 @@ public final class JavaConventions {
 						IClasspathContainer container = JavaCore.getClasspathContainer(path, javaProject);
 						// container retrieval is performing validation check on container entry kinds.
 						if (container == null){
-							ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(path.segment(0));
-							String description = null;
-							if (initializer != null) description = initializer.getDescription(path, javaProject);
-							if (description == null) description = path.makeRelative().toString();
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", description)); //$NON-NLS-1$
+							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, javaProject, path);
 						}
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){
@@ -676,9 +681,7 @@ public final class JavaConventions {
 									|| kind == IClasspathEntry.CPE_CONTAINER){
 										String description = container.getDescription();
 										if (description == null) description = path.makeRelative().toString();
-										return new JavaModelStatus(
-											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
-											Util.bind("classpath.invalidContainer", description)); //$NON-NLS-1$
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY, javaProject, path);
 								}
 								IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntry, checkSourceAttachment);
 								if (!containerEntryStatus.isOK()){
@@ -699,7 +702,7 @@ public final class JavaConventions {
 				if (path != null && path.segmentCount() >= 1){
 					entry = JavaCore.getResolvedClasspathEntry(entry);
 					if (entry == null){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundVariablePath", path.makeRelative().toString())); //$NON-NLS-1$
+						return new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, javaProject, path);
 					}
 					return validateClasspathEntry(javaProject, entry, checkSourceAttachment);
 				} else {
@@ -768,6 +771,14 @@ public final class JavaConventions {
 
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
+				if (entry.getExclusionPatterns() != null 
+						&& entry.getExclusionPatterns().length > 0
+						&& JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
+					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, path);
+				}
+				if (entry.getOutputLocation() != null && JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true))) {
+					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS, path);
+				}
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= javaProject.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){

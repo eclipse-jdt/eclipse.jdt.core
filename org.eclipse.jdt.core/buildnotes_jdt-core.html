@@ -41,13 +41,22 @@ Eclipse SDK 2.1 Build - ?th February 2003
 What's new in this drop</h2>
 <ul>
 <li>Added helper method to extract problem marker arguments: <code>CorrectionEngine.getProblemArguments(IMarker problemMarker)</code>
-<li>Removed temporary 2.1 API 
-     <code>IPackageFragmentRoot.computeSourceAttachmentRootPath(IPath sourceAttachmentPath)</code>
+<li>Removed temporary 2.1 API :
+    <ul>
+     <li><code>IPackageFragmentRoot.computeSourceAttachmentRootPath(IPath sourceAttachmentPath)</code>
+     </li>
+     <li><code>IJavaModelMarker.UNBOUND_CONTAINER</code>, use classpath problem marker ID instead (IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND).
+     </li>
+     <li><code>IJavaModelMarker.UNBOUND_VARIABLE</code>, use classpath problem marker ID instead IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND).
+     </li>
+    </ul>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32040">32040</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29578">29578</a>
+Issues with migrating shared data
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32040">32040</a>
 Multiple output folders fooling Java builder
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32217">32217</a>
 Missing JavaCore in JDT/Core project index

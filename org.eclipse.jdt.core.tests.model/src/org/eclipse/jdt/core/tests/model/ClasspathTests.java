@@ -26,6 +26,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import java.io.ByteArrayInputStream;
+import java.util.Hashtable;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -1025,6 +1027,56 @@ public void testClasspathValidation19() throws CoreException {
 }
 
 /**
+ * Should not allow custom output folder if project preference disallow them
+ */
+public void testClasspathValidation20() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/S/bin"));
+		
+		Map options = new Hashtable(5);
+		options.put(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, JavaCore.DISABLED);
+		proj.setOptions(options);
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Multiple output locations are disabled, cannot associate entry: 'P/src' with a specific output.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Should not allow exclusion patterns if project preference disallow them
+ */
+public void testClasspathValidation21() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[]{new Path("**/src")}, null);
+		
+		Map options = new Hashtable(5);
+		options.put(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, JavaCore.DISABLED);
+		proj.setOptions(options);
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Exclusion patterns are disabled, cannot exclude from entry: 'P/src'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
  * Setting the classpath with two entries specifying the same path
  * should fail.
  */
@@ -1455,11 +1507,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A",
-			"A cycle was detected in the project's classpath.",
+			"A cycle was detected in the classpath of project: A",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B",
-			"A cycle was detected in the project's classpath.",
+			"A cycle was detected in the classpath of project: B",
 			projectB);
 		
 		// delete project B	
@@ -1479,11 +1531,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A after adding project B back",
-			"A cycle was detected in the project's classpath.",
+			"A cycle was detected in the classpath of project: A",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B after adding project B back",
-			"A cycle was detected in the project's classpath.",
+			"A cycle was detected in the classpath of project: B",
 			projectB);
 
 	} finally {

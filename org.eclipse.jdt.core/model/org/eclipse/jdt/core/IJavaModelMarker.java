@@ -82,14 +82,16 @@ public interface IJavaModelMarker {
 	 * Unbound classpath variable marker attribute (value <code>"unboundVariable"</code>).
 	 * Used only on buildpath problem markers which correspond to an unbound variable name.
 	 * The value of this attribute is the unbound variable name.
-	 * @since 2.1
+	 * @deprecated - must remove before 2.1, use marker ID instead (IJavaModelStatusConstants#CP_VARIABLE_PATH_UNBOUND)
+	 * TODO: (philippe) REMOVE before 2.1
 	 */
 	 public static final String UNBOUND_VARIABLE = "unboundVariable"; //$NON-NLS-1$
 	/** 
 	 * Unbound classpath container marker attribute (value <code>"unboundContainer"</code>).
 	 * Used only on buildpath problem markers which correspond to an unbound container name.
 	 * The value of this attribute is the unbound container path.
-	 * @since 2.1
+	 * @deprecated - must remove before 2.1, use marker ID instead (IJavaModelStatusConstants#CP_CONTAINER_PATH_UNBOUND)	 
+	 * TODO: (philippe) REMOVE before 2.1
 	 */
 	 public static final String UNBOUND_CONTAINER = "unboundContainer"; //$NON-NLS-1$
 	/**

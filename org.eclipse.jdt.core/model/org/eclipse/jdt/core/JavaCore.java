@@ -330,13 +330,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
 	 * @since 2.1 
-	 *///TODO: (philippe) add entry in #getDefaultOptions
+	 */
 	public static final String CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS = PLUGIN_ID + ".classpath.exclusionPatterns"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
 	 * @since 2.1
-	 *///TODO: (philippe) add entry in #getDefaultOptions
+	 */
 	public static final String CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS = PLUGIN_ID + ".classpath.multipleOutputLocations"; //$NON-NLS-1$
 	/**
 	 * Default task tag
@@ -1355,16 +1355,31 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           <platform default>
 	 * 
 	 * JAVACORE / Reporting Incomplete Classpath
-	 *    An entry on the classpath doesn't exist or is not visible (e.g. a referenced project is closed).
+	 *    Indicate the severity of the problem reported when an entry on the classpath doesn't exist 
+	 *    is not legite or is not visible (e.g. a referenced project is closed).
 	 *     - option id:         "org.eclipse.jdt.core.incompleteClasspath"
 	 *     - possible values:   { "error", "warning"}
 	 *     - default:           "error"
 	 * 
 	 * JAVACORE / Reporting Classpath Cycle
-	 *    A project is involved in a cycle.
+	 *    Indicate the severity of the problem reported when a project is involved in a cycle.
 	 *     - option id:         "org.eclipse.jdt.core.circularClasspath"
 	 *     - possible values:   { "error", "warning" }
 	 *     - default:           "error"
+	 * 
+	 * JAVACORE / Enabling Usage of Classpath Exclusion Patterns
+	 *    When set to "disabled", no entry on a project classpath can be associated with
+	 *    an exclusion pattern.
+	 *     - option id:         "org.eclipse.jdt.core.classpath.exclusionPatterns"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * JAVACORE / Enabling Usage of Classpath Multiple Output Locations
+	 *    When set to "disabled", no entry on a project classpath can be associated with
+	 *    a specific output location, preventing thus usage of multiple output locations.
+	 *     - option id:         "org.eclipse.jdt.core.classpath.multipleOutputLocations"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
@@ -1893,6 +1908,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(CORE_INCOMPLETE_CLASSPATH, ERROR); 
 		optionNames.add(CORE_INCOMPLETE_CLASSPATH);
 		
+		preferences.setDefault(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, ENABLED); 
+		optionNames.add(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS);
+
+		preferences.setDefault(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, ENABLED); 
+		optionNames.add(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS);
+
 		// encoding setting comes from resource plug-in
 		optionNames.add(CORE_ENCODING);
 		

@@ -15,11 +15,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.ClasspathContainerInitializer;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * @see IJavaModelStatus
@@ -119,8 +123,17 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 */
 	public JavaModelStatus(int code, IJavaElement element, String string) {
 		this(code, new IJavaElement[]{element});
-		fString= string;
+		fString = string;
 	}
+	
+	/**
+	 * Constructs an Java model status with the given corresponding
+	 * element and path
+	 */
+	public JavaModelStatus(int code, IJavaElement element, IPath path) {
+		this(code, new IJavaElement[]{element});
+		fPath = path;
+	}	
 	/**
 	 * Constructs an Java model status with no corresponding elements.
 	 */
@@ -154,24 +167,34 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 			switch (getCode()) {
 				case CORE_EXCEPTION :
 					return Util.bind("status.coreException"); //$NON-NLS-1$
+
 				case BUILDER_INITIALIZATION_ERROR:
 					return Util.bind("build.initializationError"); //$NON-NLS-1$
+
 				case BUILDER_SERIALIZATION_ERROR:
 					return Util.bind("build.serializationError"); //$NON-NLS-1$
+
 				case DEVICE_PATH:
 					return Util.bind("status.cannotUseDeviceOnPath", getPath().toString()); //$NON-NLS-1$
+
 				case DOM_EXCEPTION:
 					return Util.bind("status.JDOMError"); //$NON-NLS-1$
+
 				case ELEMENT_DOES_NOT_EXIST:
 					return Util.bind("element.doesNotExist",((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
+
 				case EVALUATION_ERROR:
 					return Util.bind("status.evaluationError", fString); //$NON-NLS-1$
+
 				case INDEX_OUT_OF_BOUNDS:
 					return Util.bind("status.indexOutOfBounds"); //$NON-NLS-1$
+
 				case INVALID_CONTENTS:
 					return Util.bind("status.invalidContents"); //$NON-NLS-1$
+
 				case INVALID_DESTINATION:
 					return Util.bind("status.invalidDestination", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
+
 				case INVALID_ELEMENT_TYPES:
 					StringBuffer buff= new StringBuffer(Util.bind("operation.notSupported")); //$NON-NLS-1$
 					for (int i= 0; i < fElements.length; i++) {
@@ -181,30 +204,39 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 						buff.append(((JavaElement)fElements[i]).toStringWithAncestors());
 					}
 					return buff.toString();
+
 				case INVALID_NAME:
 					return Util.bind("status.invalidName", fString); //$NON-NLS-1$
+
 				case INVALID_PACKAGE:
 					return Util.bind("status.invalidPackage", fString); //$NON-NLS-1$
+
 				case INVALID_PATH:
 					if (fString != null) {
 						return fString;
 					} else {
 						return Util.bind("status.invalidPath", getPath() == null ? "null" : getPath().toString()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
+
 				case INVALID_PROJECT:
 					return Util.bind("status.invalidProject", fString); //$NON-NLS-1$
+
 				case INVALID_RESOURCE:
 					return Util.bind("status.invalidResource", fString); //$NON-NLS-1$
+
 				case INVALID_RESOURCE_TYPE:
 					return Util.bind("status.invalidResourceType", fString); //$NON-NLS-1$
+
 				case INVALID_SIBLING:
 					if (fString != null) {
 						return Util.bind("status.invalidSibling", fString); //$NON-NLS-1$
 					} else {
 						return Util.bind("status.invalidSibling", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 					}
+
 				case IO_EXCEPTION:
 					return Util.bind("status.IOException"); //$NON-NLS-1$
+
 				case NAME_COLLISION:
 					if (fElements != null && fElements.length > 0) {
 						IJavaElement element = fElements[0];
@@ -220,14 +252,19 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					}
 				case NO_ELEMENTS_TO_PROCESS:
 					return Util.bind("operation.needElements"); //$NON-NLS-1$
+
 				case NULL_NAME:
 					return Util.bind("operation.needName"); //$NON-NLS-1$
+
 				case NULL_PATH:
 					return Util.bind("operation.needPath"); //$NON-NLS-1$
+
 				case NULL_STRING:
 					return Util.bind("operation.needString"); //$NON-NLS-1$
+
 				case PATH_OUTSIDE_PROJECT:
 					return Util.bind("operation.pathOutsideProject", fString, ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
+
 				case READ_ONLY:
 					IJavaElement element = fElements[0];
 					String name = element.getElementName();
@@ -235,14 +272,61 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 						return Util.bind("status.defaultPackageReadOnly"); //$NON-NLS-1$
 					}
 					return  Util.bind("status.readOnly", name); //$NON-NLS-1$
+
 				case RELATIVE_PATH:
 					return Util.bind("operation.needAbsolutePath", getPath().toString()); //$NON-NLS-1$
+
 				case TARGET_EXCEPTION:
 					return Util.bind("status.targetException"); //$NON-NLS-1$
+
 				case UPDATE_CONFLICT:
 					return Util.bind("status.updateConflict"); //$NON-NLS-1$
+
 				case NO_LOCAL_CONTENTS :
 					return Util.bind("status.noLocalContents", getPath().toString()); //$NON-NLS-1$
+
+				case CP_CONTAINER_PATH_UNBOUND:
+					IPath path = this.fPath;
+					IJavaProject javaProject = (IJavaProject)fElements[0];
+					ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(path.segment(0));
+					String description = null;
+					if (initializer != null) description = initializer.getDescription(path, javaProject);
+					if (description == null) description = path.makeRelative().toString();
+					return Util.bind("classpath.unboundContainerPath", description); //$NON-NLS-1$
+
+				case INVALID_CP_CONTAINER_ENTRY:
+					path = this.fPath;
+					javaProject = (IJavaProject)fElements[0];
+					IClasspathContainer container = null;
+					description = null;
+					try {
+						container = JavaCore.getClasspathContainer(path, javaProject);
+					} catch(JavaModelException e){
+					}
+					if (container == null) {
+						 initializer = JavaCore.getClasspathContainerInitializer(path.segment(0));
+						if (initializer != null) description = initializer.getDescription(path, javaProject);
+					} else {
+						description = container.getDescription();
+					}
+					if (description == null) description = path.makeRelative().toString();
+					return Util.bind("classpath.invalidContainer", description); //$NON-NLS-1$
+
+			case CP_VARIABLE_PATH_UNBOUND:
+					path = this.fPath;
+					return Util.bind("classpath.unboundVariablePath", path.makeRelative().toString()); //$NON-NLS-1$
+					
+			case CLASSPATH_CYCLE: // TODO: getMessage for CLASSPATH_CYCLE
+					javaProject = (IJavaProject)fElements[0];
+					return Util.bind("classpath.cycle", javaProject.getElementName()); //$NON-NLS-1$
+												 
+			case DISABLED_CP_EXCLUSION_PATTERNS:
+					path = this.fPath;
+					return Util.bind("classpath.disabledExclusionPatterns", path.makeRelative().toString()); //$NON-NLS-1$
+
+			case DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS:
+					path = this.fPath;
+					return Util.bind("classpath.disabledMultipleOutputLocations", path.makeRelative().toString()); //$NON-NLS-1$
 			}
 			if (fString != null) {
 				return fString;

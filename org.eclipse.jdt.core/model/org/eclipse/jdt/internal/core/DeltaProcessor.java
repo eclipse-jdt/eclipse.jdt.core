@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -39,6 +38,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -1515,17 +1515,13 @@ public class DeltaProcessor implements IResourceChangeListener {
 					if (project.getProject().isAccessible()) {
 						if (e.getJavaModelStatus().getException() instanceof CoreException) {
 							// happens if the .classpath could not be written to disk
-							project.createClasspathProblemMarker(
-									Util.bind("classpath.couldNotWriteClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
-									IMarker.SEVERITY_ERROR,
-									false,	//  cycle error
-									true);	//	file format error		
+							project.createClasspathProblemMarker(new JavaModelStatus(
+									IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+									Util.bind("classpath.couldNotWriteClasspathFile", project.getElementName(), e.getMessage()))); //$NON-NLS-1$
 						} else {
-							project.createClasspathProblemMarker(
-									Util.bind("classpath.invalidClasspathInClasspathFile", project.getElementName(), e.getMessage()), //$NON-NLS-1$
-									IMarker.SEVERITY_ERROR,
-									false,	//  cycle error
-									true);	//	file format error		
+							project.createClasspathProblemMarker(new JavaModelStatus(
+									IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+									Util.bind("classpath.invalidClasspathInClasspathFile", project.getElementName(), e.getMessage()))); //$NON-NLS-1$
 						}			
 					}
 					break;

@@ -249,4 +249,35 @@ public interface IJavaModelStatusConstants {
 	 * has been made locally available.
 	 */
 	 public static final int NO_LOCAL_CONTENTS = 999;
+	 
+	 /**
+	  * Status indicating that a .classpath file is ill-formed, and thus cannot
+	  * be read/written successfully.
+	  * @since 2.1
+	  */
+	 public static final int INVALID_CLASSPATH_FILE_FORMAT = 1000;
+
+	 /**
+	  * Status indicating that a project is involved in a build path cycle.
+	  * @since 2.1
+	  */
+	 public static final int CLASSPATH_CYCLE = 1001;
+	 
+	/**
+	 * Status constant indicating that an exclusion pattern got specified
+	 * on a classpath source entry, though it was explicitely disabled 
+	 * according to its project preference settings.
+	 * @see org.eclipse.jdt.core.IJavaProject#getOptions(boolean)
+	 * @since 2.1
+	 */
+	public static final int DISABLED_CP_EXCLUSION_PATTERNS = 1002;
+
+	/**
+	 * Status constant indicating that a specific output location got associated
+	 * with a source entry, though it was explicitely disabled according to its project
+	 * preference settings.
+	 * @see org.eclipse.jdt.core.IJavaProject#getOptions(boolean)
+	 * @since 2.1
+	 */
+	public static final int DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS = 1003;
 }
