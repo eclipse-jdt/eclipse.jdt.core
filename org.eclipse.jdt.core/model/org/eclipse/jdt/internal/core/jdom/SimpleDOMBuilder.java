@@ -145,7 +145,7 @@ protected void enterType(TypeInfo typeInfo) {
 		int[] sourceRange = {typeInfo.declarationStart, -1}; // will be fixed in the exit
 		int[] nameRange = new int[] {typeInfo.nameSourceStart, typeInfo.nameSourceEnd};
 		fNode = new DOMType(fDocument, sourceRange, new String(typeInfo.name), nameRange,
-			typeInfo.modifiers, CharOperation.charArrayToStringArray(typeInfo.superinterfaces), typeInfo.kind == IGenericType.CLASS); // TODO (jerome) should pass in kind
+			typeInfo.modifiers, CharOperation.charArrayToStringArray(typeInfo.superinterfaces), typeInfo.kind == IGenericType.CLASS_DECL); // TODO (jerome) should pass in kind
 		addChild(fNode);
 		fStack.push(fNode);
 		

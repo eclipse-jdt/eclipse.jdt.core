@@ -840,16 +840,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 * Type name
 		 */
         switch(typeDeclaration.kind()) {
-        	case IGenericType.CLASS :
+        	case IGenericType.CLASS_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameclass, true); 
         		break;
-        	case IGenericType.INTERFACE :
+        	case IGenericType.INTERFACE_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, true); 
         		break;
-        	case IGenericType.ENUM :
+        	case IGenericType.ENUM_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameenum, true); 
         		break;
-        	case IGenericType.ANNOTATION_TYPE :
+        	case IGenericType.ANNOTATION_TYPE_DECL :
 				this.scribe.printNextToken(TerminalTokens.TokenNameAT, this.preferences.insert_space_before_at_in_annotation_type_declaration);
 				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, this.preferences.insert_space_after_at_in_annotation_type_declaration); 
         		break;
@@ -912,7 +912,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (superInterfaces != null) {
 			int alignment_for_superinterfaces;
 			switch(typeDeclaration.kind()) {
-				case IGenericType.ENUM :
+				case IGenericType.ENUM_DECL :
 					alignment_for_superinterfaces = this.preferences.alignment_for_superinterfaces_in_enum_declaration;
 					break;
 				default:
@@ -930,7 +930,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			do {
 				try {
 					this.scribe.alignFragment(interfaceAlignment, 0);
-					if (typeDeclaration.kind() == IGenericType.INTERFACE) {
+					if (typeDeclaration.kind() == IGenericType.INTERFACE_DECL) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
 					} else  {
 						this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
@@ -964,11 +964,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		String class_declaration_brace;
 		boolean space_before_opening_brace;
 		switch(typeDeclaration.kind()) {
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				class_declaration_brace = this.preferences.brace_position_for_enum_declaration;
 				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_enum_declaration;
 				break;
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				class_declaration_brace = this.preferences.brace_position_for_annotation_type_declaration;
 				space_before_opening_brace =  this.preferences.insert_space_before_opening_brace_in_annotation_type_declaration;
 				break;
@@ -982,10 +982,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		boolean indent_body_declarations_compare_to_header;
 		switch(typeDeclaration.kind()) {
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_enum_declaration_header;
 				break;
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				// TODO (olivier) might want to add an option for annotation type
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
 				break;
@@ -997,7 +997,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.indent();
 		}
 		
-		if (typeDeclaration.kind() == IGenericType.ENUM) {
+		if (typeDeclaration.kind() == IGenericType.ENUM_DECL) {
 			FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
 			boolean hasConstants = false;
 			if (fieldDeclarations != null) {
@@ -1041,12 +1041,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		
 		switch(typeDeclaration.kind()) {
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				if (this.preferences.insert_new_line_in_empty_enum_declaration) {
 					this.scribe.printNewLine();
 				}
 				break;
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				// TODO (olivier) might want an option for annotation type
 				if (this.preferences.insert_new_line_in_empty_type_declaration) {
 					this.scribe.printNewLine();
@@ -1893,7 +1893,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		boolean insertNewLine = memberLength > 0;
 		
 		if (!insertNewLine) {
-			if (typeDeclaration.kind() == IGenericType.ENUM) {
+			if (typeDeclaration.kind() == IGenericType.ENUM_DECL) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_enum_declaration;
 			} else if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;

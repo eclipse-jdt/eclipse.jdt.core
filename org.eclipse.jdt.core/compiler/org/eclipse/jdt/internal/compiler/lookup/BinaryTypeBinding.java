@@ -124,7 +124,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 
 	this.modifiers = binaryType.getModifiers();
-	if (binaryType.getKind() == IGenericType.INTERFACE)
+	if (binaryType.getKind() == IGenericType.INTERFACE_DECL)
 		this.modifiers |= AccInterface;
 		
 	if (binaryType.isAnonymous()) {

@@ -653,16 +653,16 @@ protected FieldDeclaration createFieldDeclaration(char[] fieldName, int sourceSt
 protected CompilationUnitDeclaration endParse(int act) {
 	if (sourceType != null) {
 		switch (sourceType.getKind()) {
-			case IGenericType.CLASS :
+			case IGenericType.CLASS_DECL :
 				consumeClassDeclaration();
 				break;
-			case IGenericType.INTERFACE :
+			case IGenericType.INTERFACE_DECL :
 				consumeInterfaceDeclaration();
 				break;
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				consumeEnumDeclaration();
 				break;
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				consumeAnnotationTypeDeclaration();
 				break;
 		}
@@ -1302,8 +1302,8 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
       }
       int kind = typeDeclaration.kind();
       switch (kind) {
-         case IGenericType.CLASS :
-         case IGenericType.ANNOTATION_TYPE :
+         case IGenericType.CLASS_DECL :
+         case IGenericType.ANNOTATION_TYPE_DECL :
             TypeReference superclass = typeDeclaration.superclass;
             if (superclass == null) {
  				if (isInRange) {
@@ -1347,7 +1347,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
             superTypeNames[nestedTypeIndex++] = superclass == null ? TypeConstants.CharArray_JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
             break;
  
-         case IGenericType.INTERFACE :
+         case IGenericType.INTERFACE_DECL :
             if (isInRange){
                int currentModifiers = typeDeclaration.modifiers;
                boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
@@ -1371,7 +1371,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
             superTypeNames[nestedTypeIndex++] = TypeConstants.CharArray_JAVA_LANG_OBJECT;
             break;
  
-         case IGenericType.ENUM :
+         case IGenericType.ENUM_DECL :
  
             if (isInRange){
                int currentModifiers = typeDeclaration.modifiers;
@@ -1448,14 +1448,14 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
    if (notifyTypePresence){
       if (isInRange){
          switch (typeDeclaration.kind()) {
-            case IGenericType.CLASS :
-            case IGenericType.ANNOTATION_TYPE :
+            case IGenericType.CLASS_DECL :
+            case IGenericType.ANNOTATION_TYPE_DECL :
                requestor.exitClass(typeDeclaration.declarationSourceEnd);
                break;
-            case IGenericType.INTERFACE :
+            case IGenericType.INTERFACE_DECL :
                requestor.exitInterface(typeDeclaration.declarationSourceEnd);
                break;
-            case IGenericType.ENUM :
+            case IGenericType.ENUM_DECL :
                requestor.exitEnum(typeDeclaration.declarationSourceEnd);
                break;
 /*            case IGenericType.ANNOTATION_TYPE :

@@ -329,16 +329,16 @@ public class SearchBasicEngine {
 	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
 		switch(patternTypeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX :
-				if (typeKind != IGenericType.CLASS) return false;
+				if (typeKind != IGenericType.CLASS_DECL) return false;
 				break;
 			case IIndexConstants.INTERFACE_SUFFIX :
-				if (typeKind != IGenericType.INTERFACE) return false;
+				if (typeKind != IGenericType.INTERFACE_DECL) return false;
 				break;
 			case IIndexConstants.ENUM_SUFFIX :
-				if (typeKind != IGenericType.ENUM) return false;
+				if (typeKind != IGenericType.ENUM_DECL) return false;
 				break;
 			case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
-				if (typeKind != IGenericType.ANNOTATION_TYPE) return false;
+				if (typeKind != IGenericType.ANNOTATION_TYPE_DECL) return false;
 				break;
 			case IIndexConstants.TYPE_SUFFIX : // nothing
 		}
@@ -537,26 +537,26 @@ public class SearchBasicEngine {
 							char[] simpleName = type.getElementName().toCharArray();
 							int kind;
 							if (type.isClass()) {
-								kind = IGenericType.CLASS;
+								kind = IGenericType.CLASS_DECL;
 							} else if (type.isInterface()) {
-								kind = IGenericType.INTERFACE;
+								kind = IGenericType.INTERFACE_DECL;
 							} else if (type.isEnum()) {
-								kind = IGenericType.ENUM;
+								kind = IGenericType.ENUM_DECL;
 							} else /*if (type.isAnnotation())*/ {
-								kind = IGenericType.ANNOTATION_TYPE;
+								kind = IGenericType.ANNOTATION_TYPE_DECL;
 							}
 							if (match(typeSuffix, packageName, typeName, matchRule, kind, packageDeclaration, simpleName)) {
 								switch(kind) {
-									case IGenericType.CLASS:
+									case IGenericType.CLASS_DECL:
 										nameRequestor.acceptClass(packageDeclaration, simpleName, enclosingTypeNames, path, null);
 										break;
-									case IGenericType.INTERFACE:
+									case IGenericType.INTERFACE_DECL:
 										nameRequestor.acceptInterface(packageDeclaration, simpleName, enclosingTypeNames, path, null);
 										break;
-									case IGenericType.ENUM:
+									case IGenericType.ENUM_DECL:
 										// TODO need support
 										break;
-									case IGenericType.ANNOTATION_TYPE:
+									case IGenericType.ANNOTATION_TYPE_DECL:
 										// TODO need support
 										break;
 								}
@@ -590,16 +590,16 @@ public class SearchBasicEngine {
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 									if (match(typeSuffix, packageName, typeName, matchRule, typeDeclaration.kind(), packageDeclaration, typeDeclaration.name)) {
 										switch(typeDeclaration.kind()) {
-											case IGenericType.CLASS:
+											case IGenericType.CLASS_DECL:
 												nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 												break;
-											case IGenericType.INTERFACE:
+											case IGenericType.INTERFACE_DECL:
 												nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 												break;
-											case IGenericType.ENUM:
+											case IGenericType.ENUM_DECL:
 												// TODO need support
 												break;
-											case IGenericType.ANNOTATION_TYPE:
+											case IGenericType.ANNOTATION_TYPE_DECL:
 												// TODO need support
 												break;
 										}
@@ -621,16 +621,16 @@ public class SearchBasicEngine {
 										}
 										// report
 										switch(memberTypeDeclaration.kind()) {
-											case IGenericType.CLASS:
+											case IGenericType.CLASS_DECL:
 												nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 												break;
-											case IGenericType.INTERFACE:
+											case IGenericType.INTERFACE_DECL:
 												nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 												break;
-											case IGenericType.ENUM:
+											case IGenericType.ENUM_DECL:
 												// TODO need support
 												break;
-											case IGenericType.ANNOTATION_TYPE:
+											case IGenericType.ANNOTATION_TYPE_DECL:
 												// TODO need support
 												break;
 										}

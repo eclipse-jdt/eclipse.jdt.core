@@ -134,7 +134,7 @@ public boolean isBinaryType() {
  * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
  */
 public int getKind() {
-	return IGenericType.CLASS;
+	return IGenericType.CLASS_DECL;
 }
 public boolean isLocal() {
 	return false;

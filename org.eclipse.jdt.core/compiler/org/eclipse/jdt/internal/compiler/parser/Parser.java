@@ -1867,8 +1867,8 @@ protected void consumeClassDeclaration() {
 	//add the default constructor when needed (interface don't have it)
 	if (!hasConstructor) {
 		switch(typeDecl.kind()) {
-			case IGenericType.CLASS :
-			case IGenericType.ENUM :
+			case IGenericType.CLASS_DECL :
+			case IGenericType.ENUM_DECL :
 				boolean insideFieldInitializer = false;
 				if (this.diet) {
 					for (int i = this.nestedType; i > 0; i--){

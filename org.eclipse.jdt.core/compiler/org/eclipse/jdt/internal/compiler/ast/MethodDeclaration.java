@@ -134,10 +134,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		
 		// by grammatical construction, interface methods are always abstract
 		switch (scope.referenceType().kind()) {
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				if (this.selector == TypeConstants.VALUES) break;
 				if (this.selector == TypeConstants.VALUEOF) break;
-			case IGenericType.CLASS :
+			case IGenericType.CLASS_DECL :
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body 
 				if ((modifiers & AccSemicolonBody) != 0) {

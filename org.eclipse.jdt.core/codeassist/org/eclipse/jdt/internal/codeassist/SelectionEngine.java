@@ -1068,7 +1068,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				enclosingType = enclosingType.enclosingType;
 			}
 			switch (typeDeclaration.kind()) {
-				case IGenericType.CLASS :
+				case IGenericType.CLASS_DECL :
 					this.requestor.acceptClass(
 						packageName,
 						qualifiedSourceName,
@@ -1077,7 +1077,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
-				case IGenericType.INTERFACE :
+				case IGenericType.INTERFACE_DECL :
 					this.requestor.acceptInterface(
 						packageName,
 						qualifiedSourceName,
@@ -1086,7 +1086,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
-				case IGenericType.ENUM :
+				case IGenericType.ENUM_DECL :
 					this.requestor.acceptClass(
 						packageName,
 						qualifiedSourceName,
@@ -1095,7 +1095,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
-				case IGenericType.ANNOTATION_TYPE :
+				case IGenericType.ANNOTATION_TYPE_DECL :
 					this.requestor.acceptInterface(
 						packageName,
 						qualifiedSourceName,

@@ -35,16 +35,16 @@ public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName,
 	this.modifiers = modifiers;
 	switch(typeSuffix) {
 		case IIndexConstants.CLASS_SUFFIX :
-			this.kind = IGenericType.CLASS;
+			this.kind = IGenericType.CLASS_DECL;
 			break;
 		case IIndexConstants.INTERFACE_SUFFIX :
-			this.kind = IGenericType.INTERFACE;
+			this.kind = IGenericType.INTERFACE_DECL;
 			break;
 		case IIndexConstants.ENUM_SUFFIX :
-			this.kind = IGenericType.ENUM;
+			this.kind = IGenericType.ENUM_DECL;
 			break;
 		case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
-			this.kind = IGenericType.ANNOTATION_TYPE;
+			this.kind = IGenericType.ANNOTATION_TYPE_DECL;
 			break;
 	}
 	if (enclosingTypeName == null){
@@ -191,7 +191,7 @@ public void recordSuperType(char[] superTypeName, char[] superQualification, cha
 	if (superClassOrInterface == IIndexConstants.CLASS_SUFFIX){
 		// interfaces are indexed as having superclass references to Object by default,
 		// this is an artifact used for being able to query them only.
-		if (this.kind == IGenericType.INTERFACE) return; 
+		if (this.kind == IGenericType.INTERFACE_DECL) return; 
 		char[] encodedName = CharOperation.concat(superQualification, superTypeName, '/');
 		CharOperation.replace(encodedName, '.', '/'); 
 		this.superclass = encodedName;
@@ -213,13 +213,13 @@ public String toString() {
 		buffer.append("public "); //$NON-NLS-1$
 	}
 	switch (this.kind) {
-		case IGenericType.CLASS :
+		case IGenericType.CLASS_DECL :
 			buffer.append("class "); //$NON-NLS-1$
 			break;		
-		case IGenericType.INTERFACE :
+		case IGenericType.INTERFACE_DECL :
 			buffer.append("interface "); //$NON-NLS-1$
 			break;		
-		case IGenericType.ENUM :
+		case IGenericType.ENUM_DECL :
 			buffer.append("enum "); //$NON-NLS-1$
 			break;		
 	}

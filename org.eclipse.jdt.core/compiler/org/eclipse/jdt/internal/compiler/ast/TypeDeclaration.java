@@ -289,7 +289,7 @@ public class TypeDeclaration
 							methods[i] = m;
 						}
 					} else {
-						if (this.kind() == IGenericType.INTERFACE) {
+						if (this.kind() == IGenericType.INTERFACE_DECL) {
 							// report the problem and continue the parsing
 							parser.problemReporter().interfaceCannotHaveConstructors(
 								(ConstructorDeclaration) am);
@@ -707,11 +707,11 @@ public class TypeDeclaration
 	public int kind() {
 		if ((modifiers & AccInterface) != 0) {
 			if ((modifiers & AccAnnotation) != 0) 
-				return IGenericType.ANNOTATION_TYPE;
-			return IGenericType.INTERFACE;
+				return IGenericType.ANNOTATION_TYPE_DECL;
+			return IGenericType.INTERFACE_DECL;
 		} else if ((modifiers & AccEnum) != 0) 
-			return IGenericType.ENUM;
-		return IGenericType.CLASS;
+			return IGenericType.ENUM_DECL;
+		return IGenericType.CLASS_DECL;
 	}
 	
 	/* 
@@ -773,7 +773,7 @@ public class TypeDeclaration
 		if (fields == null)
 			return false;
 		
-		if (kind() == IGenericType.INTERFACE)
+		if (kind() == IGenericType.INTERFACE_DECL)
 			return true; // fields are implicitly statics
 		for (int i = fields.length; --i >= 0;) {
 			FieldDeclaration field = fields[i];
@@ -865,16 +865,16 @@ public class TypeDeclaration
 
 		printModifiers(this.modifiers, output);
 		switch (kind()) {
-			case IGenericType.CLASS :
+			case IGenericType.CLASS_DECL :
 				output.append("class "); //$NON-NLS-1$
 				break;
-			case IGenericType.INTERFACE :
+			case IGenericType.INTERFACE_DECL :
 				output.append("interface "); //$NON-NLS-1$
 				break;
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				output.append("enum "); //$NON-NLS-1$
 				break;
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				output.append("@interface "); //$NON-NLS-1$
 				break;
 		}			
@@ -893,12 +893,12 @@ public class TypeDeclaration
 		}
 		if (superInterfaces != null && superInterfaces.length > 0) {
 			switch (kind()) {
-				case IGenericType.CLASS :
-				case IGenericType.ENUM :
+				case IGenericType.CLASS_DECL :
+				case IGenericType.ENUM_DECL :
 					output.append(" implements "); //$NON-NLS-1$
 					break;
-				case IGenericType.INTERFACE :
-				case IGenericType.ANNOTATION_TYPE :
+				case IGenericType.INTERFACE_DECL :
+				case IGenericType.ANNOTATION_TYPE_DECL :
 					output.append(" extends "); //$NON-NLS-1$
 					break;
 			}			
@@ -979,7 +979,7 @@ public class TypeDeclaration
 				this.scope.problemReporter().missingSerialVersion(this);
 			}
 			// check extends/implements for annotation type
-			if (kind() == IGenericType.ANNOTATION_TYPE) {
+			if (kind() == IGenericType.ANNOTATION_TYPE_DECL) {
 				if (this.superclass != null) {
 					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperclass(this);
 				}
@@ -988,7 +988,7 @@ public class TypeDeclaration
 				}
 			}
 			// check enum abstract methods
-			if (kind() == IGenericType.ENUM && this.binding.isAbstract()) {
+			if (kind() == IGenericType.ENUM_DECL && this.binding.isAbstract()) {
 				if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
 					for (int i = 0, count = this.methods.length; i < count; i++) {
 						if (this.methods[i].isAbstract()) {

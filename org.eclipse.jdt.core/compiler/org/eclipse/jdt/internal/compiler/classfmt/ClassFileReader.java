@@ -756,9 +756,9 @@ public boolean isBinaryType() {
  */
 public int getKind() {
 	int modifiers = getModifiers();
-	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE;
-	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM;
-	return IGenericType.CLASS;
+	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE_DECL;
+	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM_DECL;
+	return IGenericType.CLASS_DECL;
 }
 
 /**

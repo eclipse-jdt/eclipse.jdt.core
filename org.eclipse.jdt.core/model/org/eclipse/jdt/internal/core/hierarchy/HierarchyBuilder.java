@@ -193,18 +193,18 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		}
 		// now do the caching
 		switch (suppliedType.getKind()) {
-			case IGenericType.CLASS :
-			case IGenericType.ENUM :
+			case IGenericType.CLASS_DECL :
+			case IGenericType.ENUM_DECL :
 				if (superHandle == null) {
 					this.hierarchy.addRootClass(typeHandle);
 				} else {
 					this.hierarchy.cacheSuperclass(typeHandle, superHandle);
 				}
 				break;
-			case IGenericType.INTERFACE :
+			case IGenericType.INTERFACE_DECL :
 				this.hierarchy.addInterface(typeHandle);
 				break;
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				break;
 		}		
 		if (interfaceHandles == null) {
@@ -261,13 +261,13 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		int flag;
 		String qualifiedName;
 		switch (typeInfo.getKind()) {
-			case IGenericType.CLASS :
+			case IGenericType.CLASS_DECL :
 				flag = NameLookup.ACCEPT_CLASSES;
 				break;
-			case IGenericType.INTERFACE :
+			case IGenericType.INTERFACE_DECL :
 				flag = NameLookup.ACCEPT_INTERFACES;
 				break;
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				flag = NameLookup.ACCEPT_ENUMS;
 				break;
 			default:

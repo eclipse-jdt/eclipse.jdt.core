@@ -187,11 +187,11 @@ public char[][] getInterfaceNames() {
 public int getKind() {
 	if ((this.flags & IConstants.AccInterface) != 0) {
 		if ((this.flags & IConstants.AccAnnotation) != 0)
-			return IGenericType.ANNOTATION_TYPE;
-		return IGenericType.INTERFACE;
+			return IGenericType.ANNOTATION_TYPE_DECL;
+		return IGenericType.INTERFACE_DECL;
 	}
-	if ((this.flags & IConstants.AccEnum) != 0) return IGenericType.ENUM;
-	return IGenericType.CLASS;
+	if ((this.flags & IConstants.AccEnum) != 0) return IGenericType.ENUM_DECL;
+	return IGenericType.CLASS_DECL;
 }
 /**
  * @see ISourceType

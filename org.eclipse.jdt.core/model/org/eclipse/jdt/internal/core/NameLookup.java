@@ -203,11 +203,11 @@ public class NameLookup implements SuffixConstants {
 					? ((SourceTypeElementInfo) ((SourceType) type).getElementInfo()).getKind() 
 					: ((IBinaryType) ((BinaryType) type).getElementInfo()).getKind();
 			switch (kind) {
-				case IGenericType.CLASS :
+				case IGenericType.CLASS_DECL :
 					return (acceptFlags & ACCEPT_CLASSES) != 0;
-				case IGenericType.INTERFACE :
+				case IGenericType.INTERFACE_DECL :
 					return (acceptFlags & ACCEPT_INTERFACES) != 0;
-				case IGenericType.ENUM :
+				case IGenericType.ENUM_DECL :
 					return (acceptFlags & ACCEPT_ENUMS) != 0;
 				default:
 					//case IGenericType.ANNOTATION_TYPE :

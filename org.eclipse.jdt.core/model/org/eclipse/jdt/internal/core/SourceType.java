@@ -525,7 +525,7 @@ public boolean isClass() throws JavaModelException {
  */
 public boolean isEnum() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	return info.getKind() == IGenericType.ENUM;
+	return info.getKind() == IGenericType.ENUM_DECL;
 }
 
 /**
@@ -533,7 +533,7 @@ public boolean isEnum() throws JavaModelException {
  */
 public boolean isInterface() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	return info.getKind() == IGenericType.INTERFACE;
+	return info.getKind() == IGenericType.INTERFACE_DECL;
 }
 
 /**
@@ -542,7 +542,7 @@ public boolean isInterface() throws JavaModelException {
  */
 public boolean isAnnotation() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	return info.getKind() == IGenericType.ANNOTATION_TYPE;
+	return info.getKind() == IGenericType.ANNOTATION_TYPE_DECL;
 }
 
 /**

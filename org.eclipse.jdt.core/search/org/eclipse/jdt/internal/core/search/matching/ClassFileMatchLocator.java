@@ -243,13 +243,13 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 
 	switch (pattern.typeSuffix) {
 		case CLASS_SUFFIX:
-			return type.getKind() == IGenericType.CLASS;
+			return type.getKind() == IGenericType.CLASS_DECL;
 		case INTERFACE_SUFFIX:
-			return type.getKind() == IGenericType.INTERFACE;
+			return type.getKind() == IGenericType.INTERFACE_DECL;
 		case ENUM_SUFFIX:
-			return type.getKind() == IGenericType.ENUM;
+			return type.getKind() == IGenericType.ENUM_DECL;
 		case ANNOTATION_TYPE_SUFFIX:
-			return type.getKind() == IGenericType.ANNOTATION_TYPE;
+			return type.getKind() == IGenericType.ANNOTATION_TYPE_DECL;
 		case TYPE_SUFFIX: // nothing
 	}
 	return true;

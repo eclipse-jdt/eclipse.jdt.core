@@ -164,7 +164,7 @@ public class Clinit extends AbstractMethodDeclaration {
 		}
 		// generate static fields/initializers/enum constants
 		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
-		if (declaringType.kind() == IGenericType.ENUM) {
+		if (declaringType.kind() == IGenericType.ENUM_DECL) {
 			int enumCount = 0;
 			int notEnumConstants = 0;
 			if (fieldDeclarations != null) {

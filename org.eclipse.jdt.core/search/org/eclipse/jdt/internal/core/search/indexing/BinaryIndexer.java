@@ -489,17 +489,17 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			char[][] superinterfaces = replace('/', '.', reader.getInterfaceNames());
 			char[][] enclosingTypeNames = enclosingTypeName == null ? null : new char[][] {enclosingTypeName};
 			switch (reader.getKind()) {
-				case IGenericType.CLASS :
+				case IGenericType.CLASS_DECL :
 					char[] superclass = replace('/', '.', reader.getSuperclassName());
 					addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures);
 					break;
-				case IGenericType.INTERFACE :
+				case IGenericType.INTERFACE_DECL :
 					addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures);
 					break;
-				case IGenericType.ENUM :
+				case IGenericType.ENUM_DECL :
 					addEnumDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
 					break;
-				case IGenericType.ANNOTATION_TYPE :
+				case IGenericType.ANNOTATION_TYPE_DECL :
 					// TODO need support
 					break;
 			}			

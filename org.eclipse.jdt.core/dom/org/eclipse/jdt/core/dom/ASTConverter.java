@@ -2349,13 +2349,13 @@ class ASTConverter {
 
 	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		switch (typeDeclaration.kind()) {
-			case IGenericType.ENUM :
+			case IGenericType.ENUM_DECL :
 				if (this.ast.apiLevel == AST.JLS2) {
 					return null;
 				} else {
 					return convertToEnumDeclaration(typeDeclaration);
 				}
-			case IGenericType.ANNOTATION_TYPE :
+			case IGenericType.ANNOTATION_TYPE_DECL :
 				if (this.ast.apiLevel == AST.JLS2) {
 					return null;
 				} else {
@@ -2371,7 +2371,7 @@ class ASTConverter {
 		if (modifiers != 0) {
 			setModifiers(typeDecl, typeDeclaration);
 		}
-		typeDecl.setInterface(typeDeclaration.kind() == IGenericType.INTERFACE);
+		typeDecl.setInterface(typeDeclaration.kind() == IGenericType.INTERFACE_DECL);
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
 		typeDecl.setName(typeName);
