@@ -430,7 +430,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						}
 						this.scribe.alignFragment(binaryExpressionAlignment, i);
 						this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
-						if (operators[i] == TerminalTokens.TokenNameMINUS && isMinus()) {
+						if (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
 							// the next character is a minus (unary operator)
 							this.scribe.space();
 						}
@@ -449,7 +449,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		} else {
 			binaryExpression.left.traverse(this, scope);
 			this.scribe.printNextToken(operator, this.preferences.insert_space_before_binary_operator);
-			if (operator == TerminalTokens.TokenNameMINUS && isMinus()) {
+			if (operator == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
 				// the next character is a minus (unary operator)
 				this.scribe.space();
 			}
@@ -1325,7 +1325,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
 						format((TypeDeclaration)member, null, isChunkStart, i == 0);
 					}
-					if (isSemiColon()) {
+					if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
@@ -1347,8 +1347,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	private void formatEmptyTypeDeclaration(boolean isFirst) {
-		boolean hasSemiColon = isSemiColon();
-		while(isSemiColon()) {
+		boolean hasSemiColon = isNextToken(TerminalTokens.TokenNameSEMICOLON);
+		while(isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 		}
@@ -1583,8 +1583,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean spaceAfterComma,
 			int methodDeclarationParametersAlignment) {
 				
-		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen); 
+		if (!isNextToken(TerminalTokens.TokenNameLPAREN)) {
+			return;
+		}
 		
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen); 
 		final Expression[] arguments = enumConstant.arguments;
 		if (arguments != null) {
 			int argumentLength = arguments.length;
@@ -1804,7 +1807,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_ENUM, i, this.scribe.scanner.currentPosition);
 						format((EnumDeclaration) member, typeDeclaration.scope, isChunkStart, i == 0);						
 					}
-					if (isSemiColon()) {
+					if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
@@ -1893,7 +1896,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 
-	private boolean isComma() {
+	private boolean isNextToken(int tokenName) {
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
 			int token = this.localScanner.getNextToken();
@@ -1908,13 +1911,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						break loop;
 				}
 			}
-			return  token == TerminalTokens.TokenNameCOMMA;
+			return  token == tokenName;
 		} catch(InvalidInputException e) {
 			// ignore
 		}
 		return false;
 	}
-	
+
 	private boolean isClosingGenericToken() {
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
@@ -1949,29 +1952,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				&& (block.statements[0] instanceof ReturnStatement || block.statements[0] instanceof ThrowStatement);
 	}
 
-	private boolean isMinus() {
-
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
-		try {
-			int token = this.localScanner.getNextToken();
-			loop: while(true) {
-				switch(token) {
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						token = this.localScanner.getNextToken();
-						continue loop;
-					default:
-						break loop;
-				}
-			}
-			return  token == TerminalTokens.TokenNameMINUS;
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return false;
-	}
-
 	private boolean isMultipleLocalDeclaration(LocalDeclaration localDeclaration) {
 
 		if (localDeclaration.declarationSourceStart == this.lastLocalDeclarationSourceStart) return true;
@@ -1995,29 +1975,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						return false;
 				}
 			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return false;
-	}
-
-	private boolean isSemiColon() {
-
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
-		try {
-			int token = this.localScanner.getNextToken();
-			loop: while(true) {
-				switch(token) {
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						token = this.localScanner.getNextToken();
-						continue loop;
-					default:
-						break loop;
-				}
-			}
-			return  token == TerminalTokens.TokenNameSEMICOLON;
 		} catch(InvalidInputException e) {
 			// ignore
 		}
@@ -2333,7 +2290,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							}
 							expressions[i].traverse(this, scope);
 							if (i == expressionsLength - 1) {
-								if (isComma()) {
+								if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
 									this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 									this.scribe.printTrailingComment();
 								}
@@ -2355,7 +2312,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.space();
 				}
 				expressions[0].traverse(this, scope);
-				if (isComma()) {
+				if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 					this.scribe.printTrailingComment();
 				}
@@ -3159,19 +3116,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
         
         this.scribe.printModifiers(enumConstant.annotations, this);
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
-
-		Expression[] arguments = enumConstant.arguments;
-		if (arguments != null) {
-			formatEnumConstantArguments(
-				enumConstant,
-				this.preferences.insert_space_before_opening_paren_in_enum_constant,
-				this.preferences.insert_space_between_empty_parens_in_enum_constant,
-				this.preferences.insert_space_before_closing_paren_in_enum_constant,
-				this.preferences.insert_space_after_opening_paren_in_enum_constant,
-				this.preferences.insert_space_before_comma_in_enum_constant_arguments,
-				this.preferences.insert_space_after_comma_in_enum_constant_arguments,
-				this.preferences.alignment_for_arguments_in_enum_constant);			
-		}
+		formatEnumConstantArguments(
+			enumConstant,
+			this.preferences.insert_space_before_opening_paren_in_enum_constant,
+			this.preferences.insert_space_between_empty_parens_in_enum_constant,
+			this.preferences.insert_space_before_closing_paren_in_enum_constant,
+			this.preferences.insert_space_after_opening_paren_in_enum_constant,
+			this.preferences.insert_space_before_comma_in_enum_constant_arguments,
+			this.preferences.insert_space_after_comma_in_enum_constant_arguments,
+			this.preferences.alignment_for_arguments_in_enum_constant);			
 		
 		int fieldsCount = enumConstant.fields == null ? 0 : enumConstant.fields.length;
 		int methodsCount = enumConstant.methods == null ? 0 : enumConstant.methods.length;
@@ -3287,7 +3240,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.space();
 					}
 					this.scribe.printTrailingComment();
-				} else if (isComma()) {
+				} else if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
 					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
 						this.scribe.space();
@@ -3398,7 +3351,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.space();
 					}
 					this.scribe.printTrailingComment();
-				} else if (isComma()) {
+				} else if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
 					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
 						this.scribe.space();
@@ -3510,7 +3463,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.space();
 					}
 					this.scribe.printTrailingComment();
-				} else if (isComma()) {
+				} else if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
 					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
 					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
 						this.scribe.space();
@@ -3518,13 +3471,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printTrailingComment();
 				}
 			}
-			if (this.isSemiColon()) {
+			if (this.isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 			}
 		} else {
 			this.scribe.printNewLine();
-			if (this.isSemiColon()) {
+			if (this.isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 			}
