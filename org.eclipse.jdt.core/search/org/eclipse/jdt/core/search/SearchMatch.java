@@ -21,6 +21,9 @@ import org.eclipse.jdt.core.IJavaElement;
  * a compile-time problem prevents the search engine from completely resolving
  * the match.
  * </p>
+ * <p>
+ * This class is intended to be instantiated and subclassed by clients.
+ * </p>
  * 
  * @see SearchEngine#search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, org.eclipse.core.runtime.IProgressMonitor)
  * @since 3.0
@@ -50,7 +53,8 @@ public class SearchMatch {
 	/**
 	 * Creates a new search match.
 	 * 
-	 * @param element the element that encloses or corresponds to the match
+	 * @param element the element that encloses or corresponds to the match,
+	 * or <code>null</code> if none
 	 * @param accuracy one of A_ACCURATE or A_INACCURATE
 	 * @param offset the offset the match starts at, or -1 if unknown
 	 * @param length the length of the match, or -1 if unknown
@@ -64,6 +68,8 @@ public class SearchMatch {
 			int length,
 			SearchParticipant participant, 
 			IResource resource) {
+		//	 TODO (jerome) - check element!=null as per spec
+		//	 TODO (jerome) - check participant!=null as per spec
 		this.element = element;
 		this.offset = offset;
 		this.length = length;
@@ -77,16 +83,16 @@ public class SearchMatch {
 	 * 
 	 * @return one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
 	 */
-	public int getAccuracy() {
+	public final int getAccuracy() {
 		return this.accuracy;
 	}
 
 	/**
-	 * Returns the element of this search match.
+	 * Returns the element of this search match
 	 * 
-	 * @return the element of the search match
+	 * @return the element of the search match, or <code>null</code> if none
 	 */
-	public Object getElement() {
+	public final Object getElement() {
 		return this.element;
 	}
 
@@ -95,7 +101,7 @@ public class SearchMatch {
 	 * 
 	 * @return the length of this search match, or -1 if unknown
 	 */
-	public int getLength() {
+	public final int getLength() {
 		return this.length;
 	}
 	
@@ -104,7 +110,7 @@ public class SearchMatch {
 	 * 
 	 * @return the offset of this search match, or -1 if unknown
 	 */
-	public int getOffset() {
+	public final int getOffset() {
 		return this.offset;
 	}
 	
@@ -113,7 +119,7 @@ public class SearchMatch {
 	 * 
 	 * @return the participant which issued this search match
 	 */
-	public SearchParticipant getParticipant() {
+	public final SearchParticipant getParticipant() {
 		return this.participant;
 	}
 	
@@ -122,7 +128,7 @@ public class SearchMatch {
 	 * 
 	 * @return the resource of the match, or <code>null</code> if none
 	 */
-	public IResource getResource() {
+	public final IResource getResource() {
 		return this.resource;
 	}
 	
@@ -134,6 +140,7 @@ public class SearchMatch {
 	 * comment, and <code>false</code> otherwise
 	 * @deprecated Use {@link #isInsideDocComment()} instead.
 	 */
+	 // TODO (jerome) - remove this method before M9
 	public boolean insideDocComment() {
 		return isInsideDocComment();
 	}
@@ -145,6 +152,7 @@ public class SearchMatch {
 	 * @return <code>true</code> if this search match is inside a Java doc
 	 * comment, and <code>false</code> otherwise
 	 */
+	//	 TODO (jerome) - it would be better to provide a private field and a public final get/set methods
 	public boolean isInsideDocComment() {
 		// default is outside a doc comment
 		return false;
@@ -155,7 +163,7 @@ public class SearchMatch {
 	 * 
 	 * @param length the length of this match, or -1 if unknown
 	 */
-	public void setLength(int length) {
+	public final void setLength(int length) {
 		this.length = length;
 	}
 	
@@ -164,7 +172,7 @@ public class SearchMatch {
 	 * 
 	 * @param offset the offset of this match, or -1 if unknown
 	 */
-	public void setOffset(int offset) {
+	public final void setOffset(int offset) {
 		this.offset = offset;
 	}
 }
