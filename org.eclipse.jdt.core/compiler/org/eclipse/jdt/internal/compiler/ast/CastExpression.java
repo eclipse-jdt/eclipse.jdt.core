@@ -165,7 +165,7 @@ public class CastExpression extends Expression {
 					this.bits |= NeedRuntimeCheckCastMASK;
 					if (castType.isParameterizedType() || castType.isGenericType()) {
 						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-						if (!match.isParameterizedType() && !match.isGenericType()) {
+						if (match != null && !match.isParameterizedType() && !match.isGenericType()) {
 							scope.problemReporter().unsafeCast(this);
 						}
 					}
@@ -185,7 +185,7 @@ public class CastExpression extends Expression {
 					this.bits |= NeedRuntimeCheckCastMASK;
 					if (castType.isParameterizedType() || castType.isGenericType()) {
 						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-						if (!match.isParameterizedType() && !match.isGenericType()) {
+						if (match != null && !match.isParameterizedType() && !match.isGenericType()) {
 							scope.problemReporter().unsafeCast(this);
 						}
 					}
@@ -231,7 +231,7 @@ public class CastExpression extends Expression {
 			if (castType.isCompatibleWith(expressionType)) {
 				if (castType.isParameterizedType() || castType.isGenericType()) {
 					ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
-					if (!match.isParameterizedType() && !match.isGenericType()) {
+					if (match != null && !match.isParameterizedType() && !match.isGenericType()) {
 						scope.problemReporter().unsafeCast(this);
 					}
 				}				
