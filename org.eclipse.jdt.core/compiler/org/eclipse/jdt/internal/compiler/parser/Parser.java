@@ -2813,7 +2813,11 @@ protected void consumeEnumConstantHeader() {
 		enumConstant.bodyStart = rParenPos;
 		enumConstant.bodyEnd = rParenPos;	
 	} else {
-		enumConstant.bodyEnd = enumConstantEnd;
+		if (enumConstantEnd <= rParenPos) {
+			enumConstant.bodyEnd = rParenPos;
+		} else {
+			enumConstant.bodyEnd = enumConstantEnd;
+		}
 	}
 
 	if (this.currentToken == TokenNameLBRACE) {
@@ -2825,7 +2829,7 @@ protected void consumeEnumConstantHeader() {
 protected void consumeEnumConstantNoClassBody() {
 	EnumConstant enumConstant = (EnumConstant) this.astStack[this.astPtr];
 	// use to set that this enumConstant has no class body
-	enumConstant.modifiers = CompilerModifiers.AccSemicolonBody;
+	enumConstant.modifiers |= CompilerModifiers.AccSemicolonBody;
 }
 protected void consumeEnumConstants() {
 	concatNodeLists();

@@ -203,7 +203,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	protected ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex, int bodyIndex, int statementIndex) {
-		BodyDeclaration bodyDeclaration = (BodyDeclaration)((TypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(unit, typeIndex, bodyIndex);
 		if (bodyDeclaration instanceof MethodDeclaration) {
 			MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
 			Block block = methodDeclaration.getBody();
@@ -220,7 +220,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	protected ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex, int bodyIndex) {
-		return (ASTNode) ((TypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
+		return (ASTNode) ((AbstractTypeDeclaration)unit.types().get(typeIndex)).bodyDeclarations().get(bodyIndex);
 	}
 
 	protected ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex) {

@@ -78,7 +78,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0047"));
+		suite.addTest(new ASTConverter15Test("test0049"));
 		return suite;
 	}
 		
@@ -1362,6 +1362,52 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=73561
+	 */
+	public void test0048() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0048", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) node;
+		checkSourceRange(enumConstantDeclaration, "GREEN(0, 1)", source);
+		checkSourceRange(enumConstantDeclaration.getName(), "GREEN", source);
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
+		enumConstantDeclaration = (EnumConstantDeclaration) node;
+		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
+		checkSourceRange(enumConstantDeclaration, "RED()", source);
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=73561
+	 */
+	public void test0049() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0049", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
+		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) node;
+		checkSourceRange(enumConstantDeclaration, "GREEN(0, 1)", source);
+		checkSourceRange(enumConstantDeclaration.getName(), "GREEN", source);
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
+		enumConstantDeclaration = (EnumConstantDeclaration) node;
+		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
+		checkSourceRange(enumConstantDeclaration, "RED", source);
 	}	
 }
 
