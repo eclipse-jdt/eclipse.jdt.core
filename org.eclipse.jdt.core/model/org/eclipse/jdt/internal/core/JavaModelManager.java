@@ -447,7 +447,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Holds the state used for delta processing.
 	 */
-	public final DeltaProcessingState deltaState = new DeltaProcessingState();
+	public DeltaProcessingState deltaState = new DeltaProcessingState();
 
 	public IndexManager indexManager = new IndexManager();
 	

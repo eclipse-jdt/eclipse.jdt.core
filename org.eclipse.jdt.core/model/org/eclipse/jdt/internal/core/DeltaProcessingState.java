@@ -62,7 +62,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	public HashMap oldOtherRoots = new HashMap();
 	
 	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
-	public HashMap sourceAttachments;
+	public HashMap sourceAttachments = new HashMap();
 
 	/* Whether the roots tables should be recomputed */
 	public boolean rootsAreStale = true;
