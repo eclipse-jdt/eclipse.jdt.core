@@ -2925,6 +2925,7 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 * @see JavaCore#TAB
 	 * @see JavaCore#SPACE
+	 * @see #FORMATTER_TAB_CHAR
 	 */
 	public static final String MIXED = "mixed"; //$NON-NLS-1$
 	/**
