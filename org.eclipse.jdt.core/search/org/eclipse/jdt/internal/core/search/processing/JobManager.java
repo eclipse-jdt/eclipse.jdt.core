@@ -240,6 +240,8 @@ public abstract class JobManager implements Runnable {
 								previousJob = currentJob;
 							}
 							try {
+								if (VERBOSE)
+									JobManager.verbose("-> GOING TO SLEEP - " + searchJob);//$NON-NLS-1$
 								Thread.sleep(50);
 							} catch (InterruptedException e) {
 								// ignore
