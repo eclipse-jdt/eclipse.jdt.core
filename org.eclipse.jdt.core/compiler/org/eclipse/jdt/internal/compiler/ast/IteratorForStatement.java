@@ -74,6 +74,8 @@ public class IteratorForStatement extends Statement {
 		this.collectionVariable.useFlag = LocalVariableBinding.USED;
 		this.indexVariable.useFlag = LocalVariableBinding.USED;
 		this.maxVariable.useFlag = LocalVariableBinding.USED;
+		
+		// the local declaration is always used
 		this.localDeclaration.binding.useFlag = LocalVariableBinding.USED;
 
 		// initialize break and continue labels
