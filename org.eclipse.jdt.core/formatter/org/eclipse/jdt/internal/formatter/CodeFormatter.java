@@ -997,8 +997,8 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	 * @param indentationLevel the initial indentation level
 	 * @return the formatted ouput.
 	 */
-	public String format(String string, int indentationLevel) {
-		return format(string, indentationLevel, (int[])null);
+	public String format(String string, int indentLevel) {
+		return format(string, indentLevel, (int[])null);
 	}	
 	
 	/** 
@@ -1010,23 +1010,22 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	 * @param positions the array of positions to map
 	 * @return the formatted ouput.
 	 */
-	public String format(String string, int indentationLevel, int[] positions) {
-		return this.format(string, indentationLevel, positions, null);
+	public String format(String string, int indentLevel, int[] positions) {
+		return this.format(string, indentLevel, positions, null);
 	}
 	
-	public String format(String string, int indentationLevel, int[] positions, String lineSeparator) {
+	public String format(String string, int indentLevel, int[] positions, String lineSeparator) {
 		if (lineSeparator != null){
 			this.options.setLineSeparator(lineSeparator);
 		}
 		if (positions != null) {
 			this.setPositionsToMap(positions);
-			this.setInitialIndentationLevel(indentationLevel);
+			this.setInitialIndentationLevel(indentLevel);
 			String formattedString = this.formatSourceString(string);
-			int[] mappedPositions = this.getMappedPositions();
-			System.arraycopy(mappedPositions, 0, positions, 0, positions.length);
+			System.arraycopy(this.mappedPositions, 0, positions, 0, positions.length);
 			return formattedString;
 		} else {
-			this.setInitialIndentationLevel(indentationLevel);
+			this.setInitialIndentationLevel(indentLevel);
 			return this.formatSourceString(string);
 		}
 	}	
@@ -1469,10 +1468,10 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 			case Scanner.TokenNameCOMMENT_BLOCK :
 			case Scanner.TokenNameCOMMENT_LINE :
 				boolean endOfLine = false;
-				int currentCommentOffset = getCurrentCommentOffset();
+				int commentOffset = getCurrentCommentOffset();
 				int beginningOfLineSpaces = 0;
 				endOfLine = false;
-				currentCommentOffset = getCurrentCommentOffset();
+				commentOffset = getCurrentCommentOffset();
 				beginningOfLineSpaces = 0;
 				boolean pendingCarriageReturn = false;
 				for (int i = startPosition, max = scanner.currentPosition; i < max; i++) {
@@ -1505,7 +1504,7 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 							if (endOfLine) {
 								// we remove a maximum of currentCommentOffset characters (tabs are converted to space numbers).
 								beginningOfLineSpaces += options.tabSize;
-								if (beginningOfLineSpaces > currentCommentOffset) {
+								if (beginningOfLineSpaces > commentOffset) {
 									currentLineBuffer.append(currentCharacter);
 								} else {
 									increaseGlobalDelta(-1);
@@ -1525,7 +1524,7 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 							if (endOfLine) {
 								// we remove a maximum of currentCommentOffset characters (tabs are converted to space numbers).
 								beginningOfLineSpaces++;
-								if (beginningOfLineSpaces > currentCommentOffset) {
+								if (beginningOfLineSpaces > commentOffset) {
 									currentLineBuffer.append(currentCharacter);
 								} else {
 									increaseGlobalDelta(-1);
