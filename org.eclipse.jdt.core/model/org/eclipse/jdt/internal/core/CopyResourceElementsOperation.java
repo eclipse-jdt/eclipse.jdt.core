@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * This operation copies/moves/renames a collection of resources from their current
@@ -397,7 +396,13 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// Process resources
 			if (shouldMoveFolder) {
 				// move underlying resource
+				if (sourceIsReadOnly) {
+					srcFolder.setReadOnly(false);
+				}
 				srcFolder.move(destPath, fForce, true /* keep history */, getSubProgressMonitor(1));
+				if (sourceIsReadOnly) {
+					srcFolder.setReadOnly(true);
+				}
 				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 			} else {
 				// process the leaf resources
@@ -563,7 +568,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		if (!seenPackageNode && !defaultPackage) {
 			//the cu was in a default package...no package declaration
 			//create the new package declaration as the first child of the cu
-			IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
+			IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
 			IDOMNode firstChild = domCU.getFirstChild();
 			if (firstChild != null) {
 				firstChild.insertSibling(pkg);
