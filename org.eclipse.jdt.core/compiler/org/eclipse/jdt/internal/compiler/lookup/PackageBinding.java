@@ -62,6 +62,13 @@ void addType(ReferenceBinding element) {
 public final int bindingType() {
 	return PACKAGE;
 }
+/*
+ * slash separated name
+ * org.eclipse.jdt.core --> org/eclipse/jdt/core
+ */
+public char[] computeUniqueKey() {
+	return CharOperation.concatWith(compoundName, '/');
+}
 private PackageBinding findPackage(char[] name) {
 	if (!environment.isPackage(this.compoundName, name))
 		return null;

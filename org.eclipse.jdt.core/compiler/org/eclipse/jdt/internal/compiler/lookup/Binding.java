@@ -36,6 +36,13 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	* more than 2 possible choices.
 	*/
 	public abstract int bindingType();
+	/*
+	 * Computes a key that uniquely identifies this binding.
+	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
+	 */
+	public char[] computeUniqueKey() {
+		return null;
+	}
 	/* API
 	* Answer true if the receiver is not a problem binding
 	*/

@@ -242,7 +242,23 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((type = type.superclass()) != null);
 	return false;
 }
-
+/*
+ * declaringUniqueKey selector genericSignature
+ * p.X { <T> void bar(X<T> t) } --> Lp/X;bar<T:Ljava/lang/Object;>(LX<TT;>;)V
+ */
+public char[] computeUniqueKey() {
+	char[] declaringKey = this.declaringClass.computeUniqueKey();
+	int declaringLength = declaringKey.length;
+	char[] sig = genericSignature();
+	if (sig == null) sig = signature();
+	int signatureLength = sig.length;
+	int selectorLength = this.selector.length;
+	char[] uniqueKey = new char[declaringLength + selectorLength + signatureLength];
+	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
+	System.arraycopy(this.selector, 0, uniqueKey, declaringLength, selectorLength);
+	System.arraycopy(sig, 0, uniqueKey, declaringLength + selectorLength, signatureLength);
+	return uniqueKey;
+}
 /* 
  * Answer the declaring class to use in the constant pool
  * may not be a reference binding (see subtypes)

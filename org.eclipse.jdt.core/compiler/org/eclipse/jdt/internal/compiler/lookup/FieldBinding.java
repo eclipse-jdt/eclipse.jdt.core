@@ -149,7 +149,25 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
-
+/*
+ * declaringUniqueKey fieldName space genericSignature
+ * p.X { X<T> x} --> Lp/X;x LX<TT;>;
+ */
+public char[] computeUniqueKey() {
+	char[] declaringKey = this.declaringClass.computeUniqueKey();
+	int declaringLength = declaringKey.length;
+	char[] signature = genericSignature();
+	int signatureLength = signature == null ? 0 : signature.length;
+	int nameLength = this.name.length;
+	char[] uniqueKey = new char[declaringLength + nameLength + (signature == null ? 0 : 1) + signatureLength];
+	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
+	System.arraycopy(this.name, 0, uniqueKey, declaringLength, nameLength);
+	if (signature != null) {
+		uniqueKey[declaringLength+nameLength] = ' ';
+		System.arraycopy(signature, 0, uniqueKey, declaringLength + nameLength + 1, signatureLength);
+	}
+	return uniqueKey;
+}
 /**
  * X<T> t   -->  LX<TT;>;
  */
