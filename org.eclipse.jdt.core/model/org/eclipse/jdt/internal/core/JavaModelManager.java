@@ -1044,9 +1044,8 @@ public void saving(ISaveContext context) throws CoreException {
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
 
 		// optional behaviour
-		String computeID = "org.eclipse.jdt.core.JavaCore.computeJavaBuildOrder"/*nonNLS*/;
 		// possible value of index 0 is Compute
-		if (!JavaCore.getOptionPossibleValues(computeID)[0].equals(JavaCore.getOptionValue(computeID))) return;
+		if (!JavaCore.getOptionPossibleValues(JavaCore.OPTION_ComputeBuildOrder)[0].equals(JavaCore.getOptionValue(JavaCore.OPTION_ComputeBuildOrder))) return;
 		
 		if (javaBuildOrder == null || javaBuildOrder.length <= 1) return;
 		

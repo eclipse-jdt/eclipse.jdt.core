@@ -22,17 +22,17 @@ import java.util.*;
 public class Main implements ConfigurableProblems, ProblemSeverities {
 	private ConfigurableOption[] options;
 	private static final String[] problemOption ={
-		"org.eclipse.jdt.internal.compiler.Compiler.problemMethodWithConstructorName"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemOverridingPackageDefaultMethod"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemHiddenCatchBlock"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemDeprecation"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemUnusedLocal"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemUnusedParameter"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemSyntheticAccessEmulation"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemNonExternalizedStringLiteral"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemInvalidImport"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemUnreachableCode"/*nonNLS*/,
-		"org.eclipse.jdt.internal.compiler.Compiler.problemAssertIdentifier"/*nonNLS*/,
+		CompilerOptions.OPTION_ReportMethodWithConstructorName,
+		CompilerOptions.OPTION_ReportHiddenCatchBlock,
+		CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+		CompilerOptions.OPTION_ReportDeprecation,
+		CompilerOptions.OPTION_ReportUnusedLocal,
+		CompilerOptions.OPTION_ReportUnusedParameter,
+		CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+		CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+		CompilerOptions.OPTION_ReportInvalidImport,
+		CompilerOptions.OPTION_ReportUnreachableCode,
+		CompilerOptions.OPTION_ReportAssertIdentifier,
 	};
 	private boolean noWarn = false;
 	
@@ -370,26 +370,26 @@ private void configure(String[] argv) throws InvalidInputException {
 			String debugOption = currentArg;
 			int length = currentArg.length();
 			if (length == 2) {
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugLocalVariable"/*nonNLS*/,0);
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugLineNumber"/*nonNLS*/,0);
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugSourceFile"/*nonNLS*/,0);
+				setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 0);
+				setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 0);
+				setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 0);
 				continue;
 			}
 			if (length > 3) {
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugLocalVariable"/*nonNLS*/,1);
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugLineNumber"/*nonNLS*/,1);
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugSourceFile"/*nonNLS*/,1);
+				setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 1);
+				setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 1);
+				setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 1);				
 				if (length == 7 && debugOption.equals("-g:none"/*nonNLS*/))
 					continue;
 				StringTokenizer tokenizer = new StringTokenizer(debugOption.substring(3, debugOption.length()), ","/*nonNLS*/);
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
 					if (token.equals("vars"/*nonNLS*/)) {
-						setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugLocalVariable"/*nonNLS*/,0);
+						setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 0);
 					} else if (token.equals("lines"/*nonNLS*/)) {
-						setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugLineNumber"/*nonNLS*/,0);
+						setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 0);
 					} else if (token.equals("source"/*nonNLS*/)) {
-						setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.debugSourceFile"/*nonNLS*/,0);
+						setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 0);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidDebugOption"/*nonNLS*/,debugOption));
 					}
@@ -422,37 +422,37 @@ private void configure(String[] argv) throws InvalidInputException {
 			StringTokenizer tokenizer = new StringTokenizer(warningOption.substring(6, warningOption.length()), ","/*nonNLS*/);
 			int tokenCounter = 0;
 
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemMethodWithConstructorName"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemOverridingPackageDefaultMethod"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemHiddenCatchBlock"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemDeprecation"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemUnusedLocal"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemUnusedParameter"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemSyntheticAccessEmulation"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemNonExternalizedStringLiteral"/*nonNLS*/,2);
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemAssertIdentifier"/*nonNLS*/,2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportMethodWithConstructorName, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportHiddenCatchBlock, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportDeprecation, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedLocal, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedParameter, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportAssertIdentifier, 2);
 			
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
 				tokenCounter++;
 				if (token.equals("constructorName"/*nonNLS*/)) {
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemMethodWithConstructorName"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportMethodWithConstructorName, 1);
 				} else if (token.equals("packageDefaultMethod"/*nonNLS*/)) {
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemOverridingPackageDefaultMethod"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, 1);
 				} else if (token.equals("maskedCatchBlocks"/*nonNLS*/)) {
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemHiddenCatchBlock"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportHiddenCatchBlock, 1);
 				} else if (token.equals("deprecation"/*nonNLS*/)) {
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemDeprecation"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportDeprecation, 1);
 				} else if (token.equals("unusedLocals"/*nonNLS*/)) {
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemUnusedLocal"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedLocal, 1);
 				} else if (token.equals("unusedArguments"/*nonNLS*/)) {
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemUnusedParameter"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedParameter, 1);
 				} else if (token.equals("syntheticAccess"/*nonNLS*/)){
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemSyntheticAccessEmulation"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, 1);
 				} else if (token.equals("nls"/*nonNLS*/)){
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemNonExternalizedStringLiteral"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, 1);
 				} else if (token.equals("assertIdentifier"/*nonNLS*/)){
-					setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemAssertIdentifier"/*nonNLS*/,1);
+					setOptionValueIndex(CompilerOptions.OPTION_ReportAssertIdentifier/*nonNLS*/, 1);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.invalidWarning"/*nonNLS*/,token));
 				}
@@ -466,14 +466,14 @@ private void configure(String[] argv) throws InvalidInputException {
 			continue;
 		}
 		if (currentArg.equals("-preserveAllLocals"/*nonNLS*/)) {
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.codegenUnusedLocal"/*nonNLS*/,0);
+			setOptionValueIndex(CompilerOptions.OPTION_PreserveUnusedLocal, 0);
 			continue;
 		}
 		if (mode == TargetSetting) {
 			if (currentArg.equals("1.1"/*nonNLS*/)) {
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.codegenTargetPlatform"/*nonNLS*/,0);
+				setOptionValueIndex(CompilerOptions.OPTION_TargetPlatform, 0);
 			} else if (currentArg.equals("1.2"/*nonNLS*/)) {
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.codegenTargetPlatform"/*nonNLS*/,1);
+				setOptionValueIndex(CompilerOptions.OPTION_TargetPlatform, 1);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.targetJDK"/*nonNLS*/,currentArg));
 			}
@@ -499,9 +499,9 @@ private void configure(String[] argv) throws InvalidInputException {
 		}
 		if (mode == InsideSource){
 			if (currentArg.equals("1.3"/*nonNLS*/)) {
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.source"/*nonNLS*/,0);
+				setOptionValueIndex(CompilerOptions.OPTION_Source, 0);
 			} else if (currentArg.equals("1.4"/*nonNLS*/)) {
-				setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.source"/*nonNLS*/,1);
+				setOptionValueIndex(CompilerOptions.OPTION_Source, 1);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.source"/*nonNLS*/,currentArg));
 			}

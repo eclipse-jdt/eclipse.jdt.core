@@ -11,6 +11,28 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, ProblemReasons, ProblemSeverities {
+	
+	/**
+	 * Option IDs
+	 */
+	public static final String OPTION_LocalVariableAttribute = Compiler.class.getName() + ".localVariableAttribute"/*nonNLS*/;
+	public static final String OPTION_LineNumberAttribute = Compiler.class.getName() + ".lineNumberAttribute"/*nonNLS*/;
+	public static final String OPTION_SourceFileAttribute = Compiler.class.getName() + ".sourceFileAttribute"/*nonNLS*/;
+	public static final String OPTION_PreserveUnusedLocal = Compiler.class.getName() + ".preserveUnusedLocal"/*nonNLS*/;
+	public static final String OPTION_ReportUnreachableCode = Compiler.class.getName() + ".reportUnreachableCode"/*nonNLS*/;
+	public static final String OPTION_ReportInvalidImport = Compiler.class.getName() + ".reportInvalidImport"/*nonNLS*/;
+	public static final String OPTION_ReportMethodWithConstructorName = Compiler.class.getName() + ".reportMethodWithConstructorName"/*nonNLS*/;
+	public static final String OPTION_ReportOverridingPackageDefaultMethod = Compiler.class.getName() + ".reportOverridingPackageDefaultMethod"/*nonNLS*/;
+	public static final String OPTION_ReportDeprecation = Compiler.class.getName() + ".reportDeprecation"/*nonNLS*/;
+	public static final String OPTION_ReportHiddenCatchBlock = Compiler.class.getName() + ".reportHiddenCatchBlock"/*nonNLS*/;
+	public static final String OPTION_ReportUnusedLocal = Compiler.class.getName() + ".reportUnusedLocal"/*nonNLS*/;
+	public static final String OPTION_ReportUnusedParameter = Compiler.class.getName() + ".reportUnusedParameter"/*nonNLS*/;
+	public static final String OPTION_ReportSyntheticAccessEmulation = Compiler.class.getName() + ".reportSyntheticAccessEmulation"/*nonNLS*/;
+	public static final String OPTION_ReportNonExternalizedStringLiteral = Compiler.class.getName() + ".reportNonExternalizedStringLiteral"/*nonNLS*/;
+	public static final String OPTION_Source = Compiler.class.getName() + ".source"/*nonNLS*/;
+	public static final String OPTION_TargetPlatform = Compiler.class.getName() + ".targetPlatform"/*nonNLS*/;
+	public static final String OPTION_ReportAssertIdentifier = Compiler.class.getName() + ".reportAssertIdentifier"/*nonNLS*/;
+
 	// class file output
 	// these are the bits used to buld a mask to know which debug 
 	// attributes should be included in the .class file
@@ -320,30 +342,30 @@ void setOption(ConfigurableOption setting) {
 	
 	String optionID = setting.getID();
 	
-	if(optionID.equals(componentName + ".debugLocalVariable"/*nonNLS*/)){
+	if(optionID.equals(OPTION_LocalVariableAttribute)){
 		if (setting.getValueIndex() == 0) {
 			// set the debug flag with Vars.
 			produceDebugAttributes |= Vars;
 		} else {
 			produceDebugAttributes &= ~Vars;
 		}
-	} else if(optionID.equals(componentName + ".debugLineNumber"/*nonNLS*/)) {
+	} else if(optionID.equals(OPTION_LineNumberAttribute)) {
 		if (setting.getValueIndex() == 0) {
 			// set the debug flag with Lines
 			produceDebugAttributes |= Lines;
 		} else {
 			produceDebugAttributes &= ~Lines;
 		}
-	}else if(optionID.equals(componentName + ".debugSourceFile"/*nonNLS*/)) {
+	}else if(optionID.equals(OPTION_SourceFileAttribute)) {
 		if (setting.getValueIndex() == 0) {
 			// set the debug flag with Source.
 			produceDebugAttributes |= Source;
 		} else {
 			produceDebugAttributes &= ~Source;
 		}
-	}else if(optionID.equals(componentName + ".codegenUnusedLocal"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_PreserveUnusedLocal)){
 		preserveAllLocalVariables(setting.getValueIndex() == 0);
-	}else if(optionID.equals(componentName + ".problemUnreachableCode"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportUnreachableCode)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setUnreachableCodeSeverity(Error);
@@ -351,11 +373,11 @@ void setOption(ConfigurableOption setting) {
 			case 1 :
 				setUnreachableCodeSeverity(Warning);
 				break;
-			case 2 :
+			case 2 : 
 				setUnreachableCodeSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemInvalidImport"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportInvalidImport)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setImportProblemSeverity(Error);
@@ -367,9 +389,9 @@ void setOption(ConfigurableOption setting) {
 				setImportProblemSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".codegenTargetPlatform"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_TargetPlatform)){
 		setTargetJDK(setting.getValueIndex() == 0 ? JDK1_1 : JDK1_2);
-	}else if(optionID.equals(componentName + ".problemMethodWithConstructorName"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setMethodWithConstructorNameSeverity(Error);
@@ -381,7 +403,7 @@ void setOption(ConfigurableOption setting) {
 				setMethodWithConstructorNameSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemOverridingPackageDefaultMethod"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setOverriddenPackageDefaultMethodSeverity(Error);
@@ -393,7 +415,7 @@ void setOption(ConfigurableOption setting) {
 				setOverriddenPackageDefaultMethodSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemDeprecation"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportDeprecation)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setDeprecationUseSeverity(Error);
@@ -405,7 +427,7 @@ void setOption(ConfigurableOption setting) {
 				setDeprecationUseSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemHiddenCatchBlock"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setMaskedCatchBlockSeverity(Error);
@@ -417,7 +439,7 @@ void setOption(ConfigurableOption setting) {
 				setMaskedCatchBlockSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemUnusedLocal"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportUnusedLocal)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setUnusedLocalVariableSeverity(Error);
@@ -429,7 +451,7 @@ void setOption(ConfigurableOption setting) {
 				setUnusedLocalVariableSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemUnusedParameter"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportUnusedParameter)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setUnusedArgumentSeverity(Error);
@@ -441,7 +463,7 @@ void setOption(ConfigurableOption setting) {
 				setUnusedArgumentSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemSyntheticAccessEmulation"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setAccessEmulationSeverity(Error);
@@ -453,7 +475,7 @@ void setOption(ConfigurableOption setting) {
 				setAccessEmulationSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemNonExternalizedStringLiteral"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setNonExternalizedStringLiteralSeverity(Error);
@@ -465,7 +487,7 @@ void setOption(ConfigurableOption setting) {
 				setNonExternalizedStringLiteralSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".problemAssertIdentifier"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_ReportAssertIdentifier)){
 		switch(setting.getValueIndex()){
 			case 0 : 
 				setAssertIdentifierSeverity(Error);
@@ -477,7 +499,7 @@ void setOption(ConfigurableOption setting) {
 				setAssertIdentifierSeverity(Ignore);
 				break;
 		}
-	}else if(optionID.equals(componentName + ".source"/*nonNLS*/)){
+	}else if(optionID.equals(OPTION_Source)){
 		setAssertMode(setting.getValueIndex() == 1);
 	}
 }
