@@ -54,10 +54,15 @@ public class JavaProject
 	extends Openable
 	implements IJavaProject, IProjectNature {
 
-/**
+	/**
 	 * An empty array of strings indicating that a project doesn't have any prerequesite projects.
 	 */
 	protected static final String[] NO_PREREQUISITES = new String[0];
+
+	/**
+	 * Whether the underlying file system is case sensitive.
+	 */
+	protected static final boolean IS_CASE_SENSITIVE = !new File("Temp").equals(new File("temp")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * The platform project this <code>IJavaProject</code> is based on
@@ -102,12 +107,19 @@ public class JavaProject
 	 * @see java.io.File for the definition of a canonicalized path
 	 */
 	public static IPath canonicalizedPath(IPath externalPath) {
-
+		
 		if (externalPath == null)
 			return null;
 
 		if (JavaModelManager.VERBOSE) {
 			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString());
+		}
+
+		if (IS_CASE_SENSITIVE) {
+			if (JavaModelManager.VERBOSE) {
+				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)");
+			}
+			return externalPath;
 		}
 
 		// if not external path, return original path

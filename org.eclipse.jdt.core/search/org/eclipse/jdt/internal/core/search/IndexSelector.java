@@ -40,9 +40,6 @@ public IndexSelector(
  * accessible throught the project's classpath
  */
 private boolean canSeeFocus(IPath projectOrJarPath) {
-	// if it is a workspace scope, focus is visible from everywhere
-	if (this.searchScope instanceof JavaWorkspaceScope) return true;
-	
 	try {
 		while (!(this.focus instanceof IJavaProject) && !(this.focus instanceof JarPackageFragmentRoot)) {
 			this.focus = this.focus.getParent();
@@ -71,7 +68,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 			// focus is part of a project
 			IJavaProject focusProject = (IJavaProject)this.focus;
 			if (project == null) {
-				// consider that a jar can see a project only if it is referenced by this project
+				// consider that a jar can see a project only if it is referenced by the focus project or one of its referencing projects
 				IClasspathEntry[] entries = ((JavaProject)focusProject).getExpandedClasspath(true);
 				for (int i = 0, length = entries.length; i < length; i++) {
 					IClasspathEntry entry = entries[i];
@@ -80,7 +77,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 							return true;
 					}
 				}
-				return false;
+				return this.referencingProjectsIncludes(focusProject, projectOrJarPath);
 			} else {
 				if (focusProject.equals(project)) {
 					return true;
@@ -179,49 +176,24 @@ private boolean haveSameParent(IPath jarPath1, IPath jarPath2, IJavaModel model)
 	}	
 	return false;
 }
-/**
- * Returns whether elements of the given project can see the focus element
- * either because the focus is part of the project, or because it is 
- * accesible throught the project's classpath
- */
-private boolean projectCanSeeFocusElement(IJavaProject project) {
-	try {
-		while (!(this.focus instanceof IJavaProject) && !(this.focus instanceof JarPackageFragmentRoot)) {
-			this.focus = this.focus.getParent();
-		}
-		if (this.focus instanceof JarPackageFragmentRoot) {
-			// this.focus is part of a jar
-			JarPackageFragmentRoot root = (JarPackageFragmentRoot)this.focus;
-			IPath rootPath = root.getPath();
-			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IClasspathEntry entry = entries[i];
-				if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
-					&& entry.getPath().equals(rootPath)) {
-						return true;
-				}
-			}
-			return false;
-		} else {
-			// this.focus is part of a project
-			IJavaProject focusProject = (IJavaProject)this.focus;
-			if (project.equals(focusProject)) {
+private boolean referencingProjectsIncludes(IJavaProject javaProject, IPath path) throws JavaModelException {
+	IJavaModel model = javaProject.getJavaModel();
+	IProject[] projects = javaProject.getProject().getReferencingProjects();
+	for (int i = 0, length = projects.length; i < length; i++) {
+		IProject project = projects[i];
+		IJavaProject referencingProject = model.getJavaProject(project.getName());
+		IClasspathEntry[] classpath = referencingProject.getResolvedClasspath(true);
+		for (int j = 0, length2 = classpath.length; j < length2; j++) {
+			IClasspathEntry entry = classpath[j];
+			if (entry.getPath().equals(path)) {
 				return true;
-			} else {
-				IPath focusPath = focusProject.getProject().getFullPath();
-				IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-				for (int i = 0, length = entries.length; i < length; i++) {
-					IClasspathEntry entry = entries[i];
-					if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
-						&& entry.getPath().equals(focusPath)) {
-							return true;
-					}
-				}
-				return false;
 			}
 		}
-	} catch (JavaModelException e) {
-		return false;
+		if (this.referencingProjectsIncludes(referencingProject, path)) {
+			return true;
+		}
 	}
+	return false;
 }
+
 }
