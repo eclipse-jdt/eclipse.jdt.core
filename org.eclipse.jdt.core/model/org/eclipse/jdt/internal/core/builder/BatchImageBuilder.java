@@ -60,12 +60,31 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 		sourceLocation.sourceFolder.accept(
+// KJ : Switch to use a proxy visitor?
+//			new IResourceProxyVisitor() {
+//				public boolean visit(IResourceProxy proxy) throws CoreException {
+//					IResource resource = null;
+//					if (exclusionPatterns != null) {
+//						resource = proxy.requestResource();
+//						if (Util.isExcluded(resource, exclusionPatterns)) return false;
+//					}
+//					if (proxy.getType() == IResource.FILE) {
+//						if (Util.isJavaFileName(proxy.getName())) {
+//							if (resource == null)
+//								resource = proxy.requestResource();
+//							sourceFiles.add(new SourceFile((IFile) resource, sourceLocation, encoding));
+//						}
+//						return false;
+//					}
+//					return true;
+//				}
+//			}
 			new IResourceVisitor() {
 				public boolean visit(IResource resource) throws CoreException {
 					if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
 						return false;
 					if (resource.getType() == IResource.FILE) {
-						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+						if (Util.isJavaFileName(resource.getName()))
 							sourceFiles.add(new SourceFile((IFile) resource, sourceLocation, encoding));
 						return false;
 					}
@@ -101,12 +120,30 @@ protected void cleanOutputFolders() throws CoreException {
 						? sourceLocation.exclusionPatterns
 						: null; // ignore exclusionPatterns if output folder == another source folder... not this one
 				sourceLocation.binaryFolder.accept(
+//					new IResourceProxyVisitor() {
+//						public boolean visit(IResourceProxy proxy) throws CoreException {
+//							IResource resource = null;
+//							if (exclusionPatterns != null) {
+//								resource = proxy.requestResource();
+//								if (Util.isExcluded(resource, exclusionPatterns)) return false;
+//							}
+//							if (proxy.getType() == IResource.FILE) {
+//								if (Util.isClassFileName(proxy.getName())) {
+//									if (resource == null)
+//										resource = proxy.requestResource();
+//									resource.delete(IResource.FORCE, null);
+//								}
+//								return false;
+//							}
+//							return true;
+//						}
+//					}
 					new IResourceVisitor() {
 						public boolean visit(IResource resource) throws CoreException {
 							if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
 								return false;
 							if (resource.getType() == IResource.FILE) {
-								if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+								if (Util.isClassFileName(resource.getName()))
 									resource.delete(IResource.FORCE, null);
 								return false;
 							}
@@ -140,13 +177,46 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
 	sourceLocation.sourceFolder.accept(
+//		new IResourceProxyVisitor() {
+//			public boolean visit(IResourceProxy proxy) throws CoreException {
+//				IResource resource = null;
+//				switch(proxy.getType()) {
+//						if (Util.isJavaFileName(proxy.getName()) || Util.isClassFileName(proxy.getName())) return false;
+//
+//						resource = proxy.requestResource();
+//						if (javaBuilder.filterExtraResource(resource)) return false;
+//						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+//							return false;
+//
+//						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
+//						IResource copiedResource = outputFolder.getFile(partialPath);
+//						if (copiedResource.exists()) {
+//							if (deletedAll) {
+//								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
+//								return false;
+//							}
+//							copiedResource.delete(IResource.FORCE, null); // last one wins
+//						}
+//						resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
+//						copiedResource.setDerived(true);
+//						return false;
+//					case IResource.FOLDER :
+//						resource = proxy.requestResource();
+//						if (resource.equals(outputFolder)) return false;
+//						if (javaBuilder.filterExtraResource(resource)) return false;
+//						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+//							return false;
+//
+//						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
+//				}
+//				return true;
+//			}
+//		}
 		new IResourceVisitor() {
 			public boolean visit(IResource resource) throws CoreException {
 				switch(resource.getType()) {
 					case IResource.FILE :
-						String extension = resource.getFileExtension();
-						if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
-						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
+						if (Util.isJavaFileName(resource.getName()) || Util.isClassFileName(resource.getName())) return false;
 						if (javaBuilder.filterExtraResource(resource)) return false;
 						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
 							return false;
@@ -182,6 +252,23 @@ protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreE
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
 	sourceLocation.sourceFolder.accept(
+//		new IResourceProxyVisitor() {
+//			public boolean visit(IResourceProxy proxy) throws CoreException {
+//				switch(proxy.getType()) {
+//					case IResource.FILE :
+//						return false;
+//					case IResource.FOLDER :
+//						IResource resource = proxy.requestResource();
+//						if (resource.equals(outputFolder)) return false;
+//						if (javaBuilder.filterExtraResource(resource)) return false;
+//						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+//							return false;
+//
+//						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
+//				}
+//				return true;
+//			}
+//		}
 		new IResourceVisitor() {
 			public boolean visit(IResource resource) throws CoreException {
 				switch(resource.getType()) {

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 class ClasspathDirectory extends ClasspathLocation {
@@ -51,7 +52,7 @@ String[] directoryList(String qualifiedPackageName) {
 			int index = 0;
 			for (int i = 0, l = members.length; i < l; i++) {
 				IResource m = members[i];
-				if (m.getType() == IResource.FILE && JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(m.getFileExtension()))
+				if (m.getType() == IResource.FILE && Util.isClassFileName(m.getName()))
 					// add exclusion pattern check here if we want to hide .class files
 					dirList[index++] = m.getName();
 			}

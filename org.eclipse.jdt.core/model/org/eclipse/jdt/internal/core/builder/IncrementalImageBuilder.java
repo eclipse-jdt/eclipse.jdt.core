@@ -268,7 +268,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 			}
 			return;
 		case IResource.FILE :
-			if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFullPath().getFileExtension())) {
+			if (Util.isClassFileName(resource.getName())) {
 				IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
 				switch (binaryDelta.getKind()) {
 					case IResourceDelta.ADDED :
@@ -356,8 +356,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 			}
 			return;
 		case IResource.FILE :
-			String extension = resource.getFullPath().getFileExtension();
-			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
+			String filename = resource.getName();
+			if (Util.isJavaFileName(resourceName)) {
 				IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
 				String typeLocator = resource.getProjectRelativePath().toString();
 				switch (sourceDelta.getKind()) {
@@ -404,7 +404,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						sourceFiles.add(new SourceFile((IFile) resource, md, encoding));
 				}
 				return;
-			} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
+			} else if (Util.isClassFileName(resourceName)) {
 				return; // skip class files
 			} else if (md.hasIndependentOutputFolder) {
 				if (javaBuilder.filterExtraResource(resource)) return;
