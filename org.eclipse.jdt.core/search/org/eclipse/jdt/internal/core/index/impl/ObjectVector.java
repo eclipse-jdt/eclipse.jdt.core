@@ -6,64 +6,107 @@ package org.eclipse.jdt.internal.core.index.impl;
 import org.eclipse.jdt.core.*;
 
 public final class ObjectVector {
-	static int INITIAL_SIZE= 10;
+	
+	static int INITIAL_SIZE = 10;
 
 	public int size;
 	int maxSize;
 	Object[] elements;
+	
 	public ObjectVector() {
-		maxSize= INITIAL_SIZE;
-		size= 0;
-		elements= new Object[maxSize];
+
+		this.maxSize = INITIAL_SIZE;
+		this.size = 0;
+		this.elements = new Object[this.maxSize];
 	}
+
 	public void add(Object newElement) {
-		if (size == maxSize) // knows that size starts <= maxSize
-			System.arraycopy(elements, 0, (elements= new Object[maxSize *= 2]), 0, size);
-		elements[size++]= newElement;
+
+		if (this.size == this.maxSize) // knows that size starts <= maxSize
+			System.arraycopy(this.elements, 0, (this.elements = new Object[this.maxSize *= 2]), 0, this.size);
+		this.elements[this.size++] = newElement;
 	}
+
 	public void addAll(Object[] newElements) {
-		if (size + newElements.length >= maxSize) {
-			maxSize= size + newElements.length; // assume no more elements will be added
-			System.arraycopy(elements, 0, (elements= new Object[maxSize]), 0, size);
+
+		if (this.size + newElements.length >= this.maxSize) {
+			maxSize = this.size + newElements.length; // assume no more elements will be added
+			System.arraycopy(this.elements, 0, (this.elements = new Object[this.maxSize]), 0, this.size);
 		}
-		System.arraycopy(newElements, 0, elements, size, newElements.length);
-		size += newElements.length;
+		System.arraycopy(newElements, 0, this.elements, size, newElements.length);
+		this.size += newElements.length;
 	}
-	public boolean contains(Object element) {
-		for (int i= size; --i >= 0;)
-			if (element == elements[i])
+
+	/**
+	 * Identity check
+	 */
+	public boolean containsIdentical(Object element) {
+
+		for (int i = this.size; --i >= 0;)
+			if (element == this.elements[i])
 				return true;
 		return false;
 	}
-	public Object elementAt(int index) {
-		return elements[index];
+
+	/**
+	 * Equality check
+	 */
+	public boolean contains(Object element) {
+
+		for (int i = this.size; --i >= 0;)
+			if (element.equals(this.elements[i]))
+				return true;
+		return false;
 	}
+
+	public void copyInto(Object[] targetArray){
+		
+		System.arraycopy(this.elements, 0, targetArray, 0, this.size);
+	}
+	
+	public Object elementAt(int index) {
+
+		return this.elements[index];
+	}
+
 	public Object find(Object element) {
-		for (int i= size; --i >= 0;)
-			if (element == elements[i])
-				return elements[i];
+
+		for (int i = this.size; --i >= 0;)
+			if (element.equals(this.elements[i]))
+				return element;
 		return null;
 	}
+
 	public Object remove(Object element) {
+
 		// assumes only one occurrence of the element exists
-		for (int i= size; --i >= 0;)
-			if (element == elements[i]) {
+		for (int i = this.size; --i >= 0;)
+			if (element.equals(this.elements[i])) {
 				// shift the remaining elements down one spot
-				System.arraycopy(elements, i + 1, elements, i, --size - i);
-				elements[size]= null;
+				System.arraycopy(this.elements, i + 1, this.elements, i, --this.size - i);
+				this.elements[this.size] = null;
 				return element;
 			}
 		return null;
 	}
+
 	public void removeAll() {
-		for (int i= size; --i >= 0;)
-			elements[i]= null;
-		size= 0;
+		
+		for (int i = this.size; --i >= 0;)
+			this.elements[i] = null;
+		this.size = 0;
 	}
+
+	public int size(){
+		
+		return this.size;
+	}
+	
 	public String toString() {
-		String s= ""; //$NON-NLS-1$
-		for (int i= 0; i < size; i++)
-			s += elements[i].toString() + "\n"; //$NON-NLS-1$
+		
+		String s = ""; //$NON-NLS-1$
+		for (int i = 0; i < this.size; i++)
+			s += this.elements[i].toString() + "\n"; //$NON-NLS-1$
 		return s;
 	}
 }

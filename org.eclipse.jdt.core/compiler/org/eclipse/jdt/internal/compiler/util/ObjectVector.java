@@ -49,7 +49,7 @@ public final class ObjectVector {
 	}
 
 	/**
-	 * Identity check
+	 * Equality check
 	 */
 	public boolean contains(Object element) {
 
