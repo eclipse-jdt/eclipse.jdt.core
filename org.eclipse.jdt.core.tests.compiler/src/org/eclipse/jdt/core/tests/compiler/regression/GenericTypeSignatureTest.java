@@ -22,7 +22,6 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
