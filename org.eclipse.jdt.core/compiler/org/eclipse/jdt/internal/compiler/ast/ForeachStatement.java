@@ -140,7 +140,7 @@ public class ForeachStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-
+		// TODO should optimize cases where nothing is to be done (action is empty statement)
 		// generate the initializations
 		switch(this.kind) {
 			case ARRAY :
