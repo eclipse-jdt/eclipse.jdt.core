@@ -106,9 +106,10 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// generate structure and compute syntax problems if needed
 	CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
-	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
+	IJavaProject project = getJavaProject();
+	boolean computeProblems = JavaProject.hasJavaNature(project.getProject()) && perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
 	IProblemFactory problemFactory = new DefaultProblemFactory();
-	Map options = getJavaProject().getOptions(true);
+	Map options = project.getOptions(true);
 	SourceElementParser parser = new SourceElementParser(
 		requestor, 
 		problemFactory, 
