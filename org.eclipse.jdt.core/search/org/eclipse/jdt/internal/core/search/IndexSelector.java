@@ -157,9 +157,14 @@ public IIndex[] getIndexes() {
 	// acquire the in-memory indexes on the fly
 	int length = this.indexKeys.length;
 	IIndex[] indexes = new IIndex[length];
+	int count = 0;
 	for (int i = 0; i < length; i++){
 		// may trigger some index recreation work
-		indexes[i] = indexManager.getIndex(indexKeys[i], true /*reuse index file*/, false /*do not create if none*/);
+		IIndex index = indexManager.getIndex(indexKeys[i], true /*reuse index file*/, false /*do not create if none*/);
+		if (index != null) indexes[count++] = index; // only consider indexes which are ready yet
+	}
+	if (count != length) {
+		System.arraycopy(indexes, 0, indexes=new IIndex[count], 0, count);
 	}
 	return indexes;
 }
