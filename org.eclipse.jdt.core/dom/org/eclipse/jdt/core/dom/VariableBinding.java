@@ -110,6 +110,15 @@ class VariableBinding implements IVariableBinding {
 	}
 
 	/*
+	 * @see IVariableBinding#getVariableDeclaration()
+	 * @since 3.1
+	 */
+	public IVariableBinding getVariableDeclaration() {
+		// TODO - missing implementation
+		throw new RuntimeException("not implemented yet"); //$NON-NLS-1$
+	}
+	
+	/*
 	 * @see IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {

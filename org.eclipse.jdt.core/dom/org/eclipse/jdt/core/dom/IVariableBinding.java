@@ -137,4 +137,18 @@ public interface IVariableBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public IMethodBinding getDeclaringMethod();
+	
+	/**
+	 * Returns the binding for the variable declaration corresponding to this
+	 * variable binding. For a binding for a field declaration in an instance
+	 * of a generic type, this method returns the binding for the corresponding
+	 * field declaration in the generic type. For other variable bindings,
+	 * including all ones for local variables and parameters, this method
+	 * returns the same binding.
+	 *
+	 * @return the variable binding for the originating declaration
+	 * @since 3.1
+	 */
+	public IVariableBinding getVariableDeclaration();
+
 }
