@@ -82,7 +82,7 @@ public class JavaSearchDocument extends SearchDocument {
 	}
 	private IFile getFile() {
 		if (this.file == null)
-			this.file = (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(getPath()));
+			this.file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(getPath()));
 		return this.file;
 	}
 	private IPath getLocation() {

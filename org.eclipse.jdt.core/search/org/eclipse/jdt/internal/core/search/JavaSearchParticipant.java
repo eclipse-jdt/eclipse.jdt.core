@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.search;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
@@ -35,6 +34,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#beginSearching()
 	 */
 	public void beginSearching() {
+		super.beginSearching();
 		this.indexSelector = null;
 	}
 
@@ -43,6 +43,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 	 */
 	public void doneSearching() {
 		this.indexSelector = null;
+		super.doneSearching();
 	}
 
 	/* (non-Javadoc)
@@ -52,13 +53,6 @@ public class JavaSearchParticipant extends SearchParticipant {
 		return "Java"; //$NON-NLS-1$
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.search.SearchParticipant#getDocument(IFile)
-	 */
-	public SearchDocument getDocument(IFile file) {
-		return new JavaSearchDocument(file, this);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#getDocument(String)
 	 */

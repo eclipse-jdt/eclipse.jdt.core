@@ -68,8 +68,6 @@ public class SearchMatch {
 			int length,
 			SearchParticipant participant, 
 			IResource resource) {
-		//	 TODO (jerome) - check element!=null as per spec
-		//	 TODO (jerome) - check participant!=null as per spec
 		this.element = element;
 		this.offset = offset;
 		this.length = length;

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -21,24 +20,34 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * mechanism, permitting combined search actions which will involve all required
  * participants.
  * <p>
- * A search participant is responsible for holding index files, and selecting
- * the appropriate ones to feed to index queries. It also can map a document
- * path to an actual document (note that documents could live outside the
- * workspace or not exist yet, and thus aren't just resources).
+ * A search participant is involved in the indexing phase and in the search phase. 
+ * The indexing phase consists in taking one or more search documents, parse them, and
+ * add index entries in an index chosen by the participant. An index is identified by a
+ * path on disk.
+ * The search phase consists in selecting the indexes corresponding to a search pattern
+ * and a search scope, from these indexes the search infrastructure extracts the document paths
+ * that match the search pattern asking the search participant for the corresponding document,
+ * finally the search participant is asked to locate the matches precisely in these search documents.
+ * </p>
+ * <p>
+ * This class is intended to be subclassed by clients. During the indexing phase, 
+ * a subclass will be called with the following requests in order:
+ * <ul>
+ * <li>{@link #scheduleDocumentIndexing(SearchDocument, IPath)}</li>
+ * <li>{@link #indexDocument(SearchDocument, IPath)}</li>
+ * </ul>
+ * During the search phase, a subclass will be called with the following requests in order:
+ * <ul>
+ * <li>{@link #selectIndexes(SearchPattern, IJavaSearchScope)}</li>
+ * <li>one or more {@link #getDocument(String)}</li>
+ * <li>{@link #locateMatches(SearchDocument[], SearchPattern, IJavaSearchScope, SearchRequestor, IProgressMonitor)}</li>
+ * </ul>
  * </p>
  * 
  * @since 3.0
  */
-//	 TODO (jerome) - needs subclass contract; describe expected sequence of requests that particpant will see
-// TODO (jerome) - need to explain how indexing (which is largely hidden) and searching work together
 public abstract class SearchParticipant {
 
-	/**
-	 * An empty list of search participants.
-	 */
-	//	 TODO (jerome) - delete - APIs should not provide conveniences like this unless there is a compeling reason to do so
-	public static final SearchParticipant[] NO_PARTICIPANT = {};
-	
 	/**
 	 * Adds the given index entry (category and key) coming from the given
 	 * document to the index. This method must be called from
@@ -49,8 +58,6 @@ public abstract class SearchParticipant {
 	 * @param document the document that is being indexed
 	 */
 	public static void addIndexEntry(char[] category, char[] key, SearchDocument document) {
-		//	 TODO (jerome) - check for category != null
-		//	 TODO (jerome) - check for key != null
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		Index index = (Index) indexManager.documentIndexes.get(document);
 		if (index != null)
@@ -79,49 +86,51 @@ public abstract class SearchParticipant {
 	
 	/**
 	 * Notification that this participant's help is needed in a search.
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to do something
+	 * when the participant is needed in a search.
+	 * </p>
 	 */
-	//	 TODO (jerome) - needs subclass contract
-	//	 TODO (jerome) - method should be non-abstract no-op so that simple clients are not forced to implement
-	public abstract void beginSearching();
+	public void beginSearching() {
+		// do nothing
+	}
 
 	/**
 	 * Notification that this participant's help is no longer needed.
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to do something
+	 * when the participant is no longer needed in a search.
+	 * </p>
 	 */
-	//	 TODO (jerome) - needs subclass contract
-	//	 TODO (jerome) - method should be non-abstract no-op so that simple clients are not forced to implement
-	public abstract void doneSearching();
+	public void doneSearching() {
+		// do nothing
+	}
 
 	/**
 	 * Returns a displayable name of this search participant.
 	 * <p>
-	 * Subclasses must implement.
+	 * This method should be re-implemented in subclasses that need to 
+	 * display a meaningfull name.
 	 * </p>
 	 * 
 	 * @return the displayable name of this search participant
 	 */
-	//	 TODO (jerome) - how important is having a nice description? method should be non-abstract no-op so that simple clients are not forced to implement
-	public abstract String getDescription();
-
-	/**
-	 * Returns a search document for the given file.
-	 * 
-	 * @param file the given file
-	 * @return a search document
-	 */
-	//	 TODO (jerome) - does this create a new document each call? if yes, the method should be renamed createDocument to make that clear
-	//	 TODO (jerome) - needs subclass contract; explain that implementor typically returns instance of own subclass of SearchDocument
-	//	 TODO (jerome) - explain relationship to other getDocument method, and how it relates to SearchDocument constructor which expects a String path
-	public abstract SearchDocument getDocument(IFile file);
+	public String getDescription() {
+		return "Search participant"; //$NON-NLS-1$
+	}
 
 	/**
 	 * Returns a search document for the given path.
+	 * The given document path is a string that uniquely identifies the document.
+	 * Most of the time it is a workspace-relative path, but it can also be a file system path, or a path inside a zip file.
+	 * <p>
+	 * Implementors of this method can either create an instance of their own subclass of 
+	 * {@link SearchDocument} or return an existing instance of such a subclass.
+	 * </p>
 	 * 
 	 * @param documentPath the path of the document.
 	 * @return a search document
 	 */
-	//	 TODO (jerome) - does this create a new document each call? if yes, the method should be renamed createDocument to make that clear
-	//	 TODO (jerome) - needs subclass contract; explain that implementor typically returns instance of own subclass of SearchDocument
-	//	 TODO (jerome) - spec should clarify whether documentPath is a workspace-relative path or a general file system path?
 	public abstract SearchDocument getDocument(String documentPath);
 
 	/**
@@ -131,13 +140,18 @@ public abstract class SearchParticipant {
 	 * needed to add index entries to the index. If delegating to another
 	 * participant, it should use the original index location (and not the
 	 * delegatee's one).
+	 * <p>
+	 * The given index location must represent a path in the file system to a file that
+	 * either already exists or is going to be created. If it exists, it must be an index file,
+	 * otherwise its data might be overwritten.
+	 * </p><p>
+	 * Clients are not expected to call this method.
+	 * </p>
 	 * 
 	 * @param document the document to index
-	 * @param indexPath the path in the file system to the index
+	 * @param indexLocation the location in the file system to the index
 	 */
-	//	 TODO (jerome) - it seems odd that strings are used for document paths and IPaths are used for index paths
-	//	 TODO (jerome) - spec should clarify whether index paths are relative or absolute, workspace or file system
-	public abstract void indexDocument(SearchDocument document, IPath indexPath);
+	public abstract void indexDocument(SearchDocument document, IPath indexLocation);
 
 	/**
 	 * Locates the matches in the given documents using the given search pattern
@@ -145,10 +159,16 @@ public abstract class SearchParticipant {
 	 * method is called by the search engine once it has search documents
 	 * matching the given pattern in the given search scope.
 	 * <p>
-	 * Note: It permits combined match locators (e.g. jsp match locator can preprocess jsp unit contents and feed them
-	 * to Java match locator asking for virtual matches by contributing document implementations which do the conversion).
-	 * It is assumed that virtual matches are rearranged by requestor for adapting line/source positions before submitting
-	 * final results so the provided searchRequestor should intercept virtual matches and do appropriate conversions.
+	 * Note that a participant (e.g. a JSP participant) can pre-process the contents of the given documents, 
+	 * create its own documents whose contents are Java compilation units and delegate the match location 
+	 * to the default participant (see {@link SearchEngine#getDefaultSearchParticipant()}). Passing its own
+	 * {@link SearchRequestor} this particpant can then map the match positions back to the original
+	 * contents, create its own matches and report them to the original requestor.
+	 * </p><p>
+	 * Implementors of this method should check the progress monitor
+	 * for cancelation when it is safe and appropriate to do so.  The cancelation
+	 * request should be propagated to the caller by throwing 
+	 * <code>OperationCanceledException</code>.
 	 * </p>
 	 * 
 	 * @param documents the documents to locate matches in
@@ -159,37 +179,39 @@ public abstract class SearchParticipant {
 	 * or <code>null</code> if no progress should be reported
 	 * @throws CoreException if the requestor had problem accepting one of the matches
 	 */
-	//	 TODO (jerome) - I could not understand the point the "Note:..." was making
-	//	 TODO (jerome) - needs subclass contract
-	//	 TODO (jerome) - verify that throwing CoreException is the right behavior; throwing any exception means that flow of results to requestor will not be seen through to completion
 	public abstract void locateMatches(SearchDocument[] documents, SearchPattern pattern, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException;
 
 	/**
 	 * Schedules the indexing of the given document.
 	 * Once the document is ready to be indexed, 
 	 * {@link #indexDocument(SearchDocument, IPath) indexDocument(document, indexPath)}
-	 * will be called.
+	 * will be called in a different thread than the caller's thread.
+	 * <p>
+	 * The given index location must represent a path in the file system to a file that
+	 * either already exists or is going to be created. If it exists, it must be an index file,
+	 * otherwise its data might be overwritten.
+	 * </p>
 	 * 
 	 * @param document the document to index
-	 * @param indexPath the path on the file system of the index
+	 * @param indexLocation the location on the file system of the index
 	 */
-	//	 TODO (jerome) - method should be final
-	//	 TODO (jerome) - since effects are not immediate, spec should say what thread indexDocument will be called on
-	//	 TODO (jerome) - spec should clarify whether index paths are relative or absolute, workspace or file system
-	public void scheduleDocumentIndexing(SearchDocument document, IPath indexPath) {
-		JavaModelManager.getJavaModelManager().getIndexManager().scheduleDocumentIndexing(document, indexPath, this);
+	public final void scheduleDocumentIndexing(SearchDocument document, IPath indexLocation) {
+		JavaModelManager.getJavaModelManager().getIndexManager().scheduleDocumentIndexing(document, indexLocation, this);
 	}
 
 	/**
-	 * Returns the collection of index paths to consider when performing the
+	 * Returns the collection of index locations to consider when performing the
 	 * given search query in the given scope. The search engine calls this
 	 * method before locating matches.
+	 * <p>
+	 * An index location represents a path in the file system to a file that holds index information. 
+	 * </p><p>
+	 * Clients are not expected to call this method.
+	 * </p>
 	 * 
 	 * @param query the search pattern to consider
 	 * @param scope the given search scope
 	 * @return the collection of index paths to consider
 	 */
-	//	 TODO (jerome) - needs subclass contract; clients should not call
-	//	 TODO (jerome) - spec should clarify whether index paths are relative or absolute, workspace or file system
 	public abstract IPath[] selectIndexes(SearchPattern query, IJavaSearchScope scope);
 }

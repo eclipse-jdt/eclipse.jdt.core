@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -112,7 +111,7 @@ public class IndexAllProject extends IndexRequest {
 													if (exclusionPatterns != null || inclusionPatterns != null)
 														if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 															return false;
-													indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
+													indexedFileNames.put(file.getFullPath().toString(), file);
 												}
 												return false;
 											case IResource.FOLDER :
@@ -141,7 +140,7 @@ public class IndexAllProject extends IndexRequest {
 													if (exclusionPatterns != null || inclusionPatterns != null)
 														if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 															return false;
-													String path = new JavaSearchDocument(file, null).getPath();
+													String path = file.getFullPath().toString();
 													indexedFileNames.put(path,
 														indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
 															? (Object) file
