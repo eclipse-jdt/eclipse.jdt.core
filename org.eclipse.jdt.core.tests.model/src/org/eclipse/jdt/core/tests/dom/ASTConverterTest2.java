@@ -1267,6 +1267,27 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Not a constructor", methodDeclaration.isConstructor());
 		ITypeBinding returnTypeBinding = methodDeclaration.getReturnType().resolveBinding();
 		assertNotNull("No return type binding", returnTypeBinding);
+		Block block = methodDeclaration.getBody();
+		assertNotNull("No method body", block);
+		assertEquals("wrong size", 0, block.statements().size()); 
 	}
+	
+	/**
+	 * Check that the implicit super constructor call is not there
+	 */
+	public void test0449() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0449", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", node.getNodeType(), ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		Block block = methodDeclaration.getBody();
+		assertNotNull("No method body", block);
+		assertEquals("wrong size", 1, block.statements().size()); 
+	}	
 }
 
