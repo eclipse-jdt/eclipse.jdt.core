@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.Iterator;
 
 /**
- * Internal AST visitor for serializing an AST in a qucik and dirty fashion.
+ * Internal AST visitor for serializing an AST in a quick and dirty fashion.
  * For various reasons the resulting string is not necessarily legal
  * Java code; and even if it is legal Java code, it is not necessarily the string
  * that corresponds to the given AST. Although useless for most purposes, it's
@@ -425,13 +425,13 @@ class NaiveASTFlattener extends ASTVisitor {
 			e.accept(this);
 		}
 		buffer.append("; ");//$NON-NLS-1$
+		if (node.getExpression() != null) {
+			node.getExpression().accept(this);
+		}
+		buffer.append("; ");//$NON-NLS-1$
 		for (Iterator it = node.updaters().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
 			e.accept(this);
-		}
-		buffer.append("; ");//$NON-NLS-1$
-		if (node.getExpression() != null) {
-			node.getExpression().accept(this);
 		}
 		buffer.append(") ");//$NON-NLS-1$
 		node.getBody().accept(this);
