@@ -120,6 +120,15 @@ public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierar
 
 public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 	BinaryTypeBinding typeBinding = lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+	
+	// fault in its hierarchy...
+	try {
+		typeBinding.superclass();
+		typeBinding.superInterfaces();
+	} catch (AbortCompilation e) {
+		return;
+	}
+	
 	remember(binaryType, typeBinding);
 }
 /**
@@ -217,7 +226,7 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 		if (bindingIndex < bindingLength) {
 			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
 
-			// ensure that the biding corresponds to the interface defined by the user
+			// ensure that the binding corresponds to the interface defined by the user
 			char[][] compoundName = interfaceBinding.compoundName;
 			if (CharOperation.equals(simpleName, compoundName[compoundName.length-1])) {
 				bindingIndex++;
@@ -236,10 +245,6 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
 	
-	if (!subOrSuperOfFocus(typeBinding)) {
-		return; // ignore types outside of hierarchy
-	}
-
 	if (++typeIndex == typeModels.length) {
 		System.arraycopy(typeModels, 0, typeModels = new IGenericType[typeIndex * 2], 0, typeIndex);
 		System.arraycopy(typeBindings, 0, typeBindings = new ReferenceBinding[typeIndex * 2], 0, typeIndex);
@@ -279,31 +284,14 @@ private void rememberWithMemberTypes(ISourceType suppliedType, ReferenceBinding 
 	}
 }
 private void reportHierarchy() {
-	// ensure each binary type knows its supertypes before reporting the hierarchy
-	int problemLength = typeIndex+1;
-	boolean[] typesWithProblem = new boolean[problemLength];
-	for (int current = 0; current <= typeIndex; current++) { // typeIndex may continue to grow
-		ReferenceBinding typeBinding = typeBindings[current];
-		if (typeBinding.isBinaryBinding()) {
-			// fault in its hierarchy...
-			try {
-				typeBinding.superclass();
-				typeBinding.superInterfaces();
-			} catch (AbortCompilation e) {
-				if (current >= problemLength) {
-					System.arraycopy(typesWithProblem, 0, typesWithProblem = new boolean[current+1], 0, problemLength);
-					problemLength = current+1;
-				}
-				typesWithProblem[current] = true;
-			}
-		}
-	}
-
 	for (int current = typeIndex; current >= 0; current--) {
-		if (current < problemLength && typesWithProblem[current]) continue;
-
 		IGenericType suppliedType = typeModels[current];
 		ReferenceBinding typeBinding = typeBindings[current];
+
+		if (!subOrSuperOfFocus(typeBinding)) {
+			continue; // ignore types outside of hierarchy
+		}
+
 		IGenericType superclass;
 		if (typeBinding.isInterface()){ // do not connect interfaces to Object
 			superclass = null;
@@ -468,20 +456,6 @@ public void resolve(IGenericType suppliedType) {
 public ReferenceBinding setFocusType(char[][] compoundName) {
 	if (compoundName == null || this.lookupEnvironment == null) return null;
 	this.focusType = this.lookupEnvironment.askForType(compoundName);
-	if (this.focusType == null) return null;
-	
-	/* All siblings of the focus type were added (since this.focusType == null).
-	   Remove the ones that are not part of the hierarchy
-	 */
-	int typeIndex = this.typeIndex;
-	this.typeIndex = -1;
-	ReferenceBinding[] typeBindings = this.typeBindings;
-	this.typeBindings = new ReferenceBinding[5];
-	IGenericType[] typeModels = this.typeModels;
-	this.typeModels = new IGenericType[5];
-	for (int i = 0; i <= typeIndex; i++) {
-		this.remember(typeModels[i], typeBindings[i]); // will skip types not part of the hierarchy
-	}
 	return this.focusType;
 }
 private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
