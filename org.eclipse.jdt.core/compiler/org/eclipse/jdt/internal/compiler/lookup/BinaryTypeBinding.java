@@ -293,7 +293,9 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 						this,
 						binaryField.getConstant());
 				field.id = i; // ordinal
-				field.tagBits |= binaryField.getTagBits();
+				if (checkGenericSignatures) {
+					field.tagBits |= binaryField.getTagBits();
+				}
 				this.fields[i] = field;
 
 			}
@@ -309,7 +311,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	TypeVariableBinding[] typeVars = NoTypeVariables;
 	TypeBinding returnType = null;
 
-	char[] methodSignature = sourceLevel >= ClassFileConstants.JDK1_5 ? method.getGenericSignature() : null;
+	final boolean is15 = sourceLevel >= ClassFileConstants.JDK1_5;
+	char[] methodSignature = is15 ? method.getGenericSignature() : null;
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
@@ -410,7 +413,9 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
-	result.tagBits |= method.getTagBits();
+	if (is15) {
+		result.tagBits |= method.getTagBits();
+	}
 	result.typeVariables = typeVars;
 	// fixup the declaring element of the type variable
 	for (int i = 0, length = typeVars.length; i < length; i++) {
