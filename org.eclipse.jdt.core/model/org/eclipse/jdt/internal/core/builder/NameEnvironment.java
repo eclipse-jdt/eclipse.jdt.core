@@ -121,7 +121,7 @@ private void computeClasspathLocations(
 				if (!JavaProject.hasJavaNature(prereqProject)) continue nextEntry; // if project doesn't have java nature or is not accessible
 
 				JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
-				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getExpandedClasspath(true, true);
+				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getExpandedClasspath(true, false);
 				ArrayList seen = new ArrayList();
 				for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
 					ClasspathEntry e = (ClasspathEntry) prereqClasspathEntries[j];
