@@ -492,4 +492,31 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"The value for annotation attribute Foo.value must be a constant expression\n" + 
 			"----------\n");
 	}		
+	// check String annotation member value must be a constant
+	public void test021() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"	String value() default X.val();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@Foo( val() )\n" + 
+				"	void foo() {}\n" + 
+				"	static String val() { return \"\"; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	String value() default X.val();\n" + 
+			"	                       ^^^^^^^\n" + 
+			"The value for annotation attribute Foo.value must be a constant expression\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	@Foo( val() )\n" + 
+			"	      ^^^^^\n" + 
+			"The value for annotation attribute Foo.value must be a constant expression\n" + 
+			"----------\n");
+	}		
 }

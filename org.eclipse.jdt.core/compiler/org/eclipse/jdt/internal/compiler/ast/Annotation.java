@@ -60,11 +60,10 @@ public abstract class Annotation extends Expression {
 				case T_float :
 				case T_double :
 				case T_boolean :
+				case T_JavaLangString :
 					if (memberValue.constant == NotAConstant) {
 						scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
 					}
-					break checkAnnotationMethodType;
-				case T_JavaLangString :
 					break checkAnnotationMethodType;
 				case T_JavaLangClass :
 					if (!(memberValue instanceof ClassLiteralAccess)) {
