@@ -1390,40 +1390,6 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 		generateBoxingConversion(typeId);
 		return;
 	}
-	
-	// FIXME (olivier) how can this ever occur ? unboxing a primitive type constant ?!?
-	if ((implicitConversionCode & UNBOXING) != 0) {
-		// need to unbox the constant
-		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
-		switch (typeId) {
-			case T_boolean :
-				generateInlinedValue(constant.booleanValue());
-				break;
-			case T_char :
-				generateInlinedValue(constant.charValue());
-				break;
-			case T_byte :
-				generateInlinedValue(constant.byteValue());
-				break;
-			case T_short :
-				generateInlinedValue(constant.shortValue());
-				break;
-			case T_int :
-				generateInlinedValue(constant.intValue());
-				break;
-			case T_long :
-				generateInlinedValue(constant.longValue());
-				break;
-			case T_float :
-				generateInlinedValue(constant.floatValue());
-				break;
-			case T_double :
-				generateInlinedValue(constant.doubleValue());
-				break;
-		}
-		// need unboxing
-		generateUnboxingConversion(typeId);
-	}
 	int targetTypeID = (implicitConversionCode & IMPLICIT_CONVERSION_MASK) >> 4;
 	if (targetTypeID != 0) {
 		switch (targetTypeID) {
