@@ -226,7 +226,7 @@ public class CastExpression extends Expression {
 		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
 		int length = argumentTypes.length;
-		
+
 		// iterate over arguments, and retrieve original argument types (before cast)
 		TypeBinding[] rawArgumentTypes = argumentTypes;
 		for (int i = 0; i < length; i++) {
@@ -249,47 +249,6 @@ public class CastExpression extends Expression {
 		if (rawArgumentTypes != argumentTypes) {
 			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
 		}
-/* alternate implementation performing 2 passes of alternate lookup, once for widening casts, once for narrowing casts
-		// first iteration, questionning widening cast
-		TypeBinding[] rawArgumentTypes = argumentTypes;
-		for (int i = 0; i < length; i++) {
-			Expression argument = arguments[i];
-			if ((argument.bits & UnnecessaryCastMask) != 0) {
-				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
-				// obvious identity cast
-				if (castedExpressionType == argumentTypes[i]) { 
-					scope.problemReporter().unnecessaryCast((CastExpression)argument);
-				// widening cast, will need to check later whether it would affect method lookup
-				} else {
-					if (rawArgumentTypes == argumentTypes) {
-						System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
-					}
-					// only retain widened argument types, since narrowing are thought to be ok
-					rawArgumentTypes[i] = castedExpressionType; 
-				}
-			}
-		}
-		// did not find any unnecessary cast candidate
-		if (rawArgumentTypes != argumentTypes) {
-			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
-		}
-		
-		// second attempt questionning narrowing cast
-		rawArgumentTypes = argumentTypes;
-		for (int i = 0; i < length; i++) {
-			Expression argument = arguments[i];
-			if (argument instanceof CastExpression && (argument.bits & UnnecessaryCastMask) == 0) {
-				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
-				if (rawArgumentTypes == argumentTypes) {
-					System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
-				}
-				rawArgumentTypes[i] = castedExpressionType; 
-			}
-		}
-		if (rawArgumentTypes != argumentTypes) {
-			checkAlternateBinding(scope, receiver, receiverType, binding, arguments, argumentTypes, rawArgumentTypes, invocationSite);
-		}
-*/
 	}
 
 	/**
@@ -300,26 +259,32 @@ public class CastExpression extends Expression {
 		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
 		// check need for left operand cast
-		int alternateLeftTypeId;
+		int alternateLeftTypeId = leftTypeId;
 		if (leftIsCast) {
-			alternateLeftTypeId = ((CastExpression)left).expression.resolvedType.id;
-			if (alternateLeftTypeId == leftTypeId) { // obvious identity cast
-				scope.problemReporter().unnecessaryCast((CastExpression)left); 
-				leftIsCast = false;
-			}	
-		} else {
-			alternateLeftTypeId = leftTypeId;
+			if ((left.bits & UnnecessaryCastMask) == 0 && left.resolvedType.isBaseType()) {
+ 				// narrowing conversion on base type may change value, thus necessary
+ 				leftIsCast = false;
+			} else  {
+				alternateLeftTypeId = ((CastExpression)left).expression.resolvedType.id;
+				if (alternateLeftTypeId == leftTypeId) { // obvious identity cast
+					scope.problemReporter().unnecessaryCast((CastExpression)left); 
+					leftIsCast = false;
+				}	
+			}
 		}
 		// check need for right operand cast
-		int alternateRightTypeId;
+		int alternateRightTypeId = rightTypeId;
 		if (rightIsCast) {
-			alternateRightTypeId = ((CastExpression)right).expression.resolvedType.id;
-			if (alternateRightTypeId == rightTypeId) { // obvious identity cast
-				scope.problemReporter().unnecessaryCast((CastExpression)right); 
-				rightIsCast = false;
+			if ((right.bits & UnnecessaryCastMask) == 0 && right.resolvedType.isBaseType()) {
+ 				// narrowing conversion on base type may change value, thus necessary
+ 				rightIsCast = false;
+			} else {
+				alternateRightTypeId = ((CastExpression)right).expression.resolvedType.id;
+				if (alternateRightTypeId == rightTypeId) { // obvious identity cast
+					scope.problemReporter().unnecessaryCast((CastExpression)right); 
+					rightIsCast = false;
+				}
 			}	
-		} else {
-			alternateRightTypeId = rightTypeId;
 		}
 		if (leftIsCast || rightIsCast) {
 			int alternateOperatorSignature = OperatorExpression.OperatorSignatures[operator][(alternateLeftTypeId << 4) + alternateRightTypeId];
