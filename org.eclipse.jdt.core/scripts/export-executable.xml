@@ -30,12 +30,11 @@
         <echo message='compiling resources   -> .o'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false' skipemptyfilesets='true'>
             <arg value='--verbose'/>
-            <arg value='-c'/>
             <targetfile/>
             <arg value="-d"/>
             <srcfile/>
-            <fileset dir='${work}' includes='**/*.properties' />
-            <mapper type='regexp' from='^(.*)\.(.*)$' to=' --resource \0 \0 -o \1.o'/>
+            <fileset dir='${work}' excludes='**/*.java,**/*.html' />
+            <mapper type='regexp' from='^(.*)\.(.*)$$' to=' -c --resource \0 \0 -o \1.o'/>
         </apply>
 	        
 	    <echo message='compiling sources      -> .o'/>
