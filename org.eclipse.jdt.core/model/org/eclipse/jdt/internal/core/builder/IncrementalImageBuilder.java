@@ -33,6 +33,7 @@ protected ArrayList previousSourceFiles;
 protected ArrayList qualifiedStrings;
 protected ArrayList simpleStrings;
 protected SimpleLookupTable secondaryTypesToRemove;
+protected boolean hasStructuralChanges;
 
 public static int MaxCompileLoop = 5; // perform a full build if it takes more than ? incremental compile loops
 
@@ -45,6 +46,7 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 	this.previousSourceFiles = null;
 	this.qualifiedStrings = new ArrayList(33);
 	this.simpleStrings = new ArrayList(33);
+	this.hasStructuralChanges = false;
 }
 
 public boolean build(SimpleLookupTable deltas) {
@@ -107,6 +109,8 @@ public boolean build(SimpleLookupTable deltas) {
 			removeSecondaryTypes();
 			addAffectedSourceFiles();
 		}
+		if (this.hasStructuralChanges && javaBuilder.javaProject.hasCycleMarker())
+			javaBuilder.mustPropagateStructuralChanges();
 	} catch (AbortIncrementalBuildException e) {
 		// abort the incremental build and let the batch builder handle the problem
 		if (JavaBuilder.DEBUG)
@@ -167,8 +171,10 @@ protected void addAffectedSourceFiles() {
 }
 
 protected void addDependentsOf(IPath path, boolean hasStructuralChanges) {
-	if (hasStructuralChanges)
+	if (hasStructuralChanges) {
 		newState.tagAsStructurallyChanged();
+		this.hasStructuralChanges = true;
+	}
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	path = path.setDevice(null);
 	String packageName = path.removeLastSegments(1).toString();
@@ -194,6 +200,7 @@ protected void cleanUp() {
 	this.qualifiedStrings = null;
 	this.simpleStrings = null;
 	this.secondaryTypesToRemove = null;
+	this.hasStructuralChanges = false;
 }
 
 protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocation[] classFoldersAndJars) {

@@ -525,6 +525,25 @@ private boolean isWorthBuilding() throws CoreException {
 	return true;
 }
 
+/*
+ * Instruct the build manager that this project is involved in a cycle and
+ * needs to propagate structural changes to the other projects in the cycle.
+ */
+void mustPropagateStructuralChanges() {
+// TODO (CYCLE FIX) Comment out this method when the 2 new methods are added to IncrementalProjectBuilder
+//	HashSet cycleParticipants = new HashSet(3);
+//	javaProject.updateCycleParticipants(null, new ArrayList(), cycleParticipants, workspaceRoot);
+//
+//	Iterator i= cycleParticipants.iterator();
+//	while (i.hasNext()) {
+//		IJavaProject p = (IJavaProject) i.next();
+//		if (p != javaProject && wasProjectAlreadyBuilt(p.getProject())) {
+//			needRebuild();
+//			return;
+//		}
+//	}
+}
+
 private void recordNewState(State state) {
 	Object[] keyTable = binaryLocationsPerProject.keyTable;
 	for (int i = 0, l = keyTable.length; i < l; i++) {

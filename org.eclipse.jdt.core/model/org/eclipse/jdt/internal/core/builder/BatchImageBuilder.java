@@ -48,6 +48,9 @@ public void build() {
 			workQueue.addAll(allSourceFiles);
 			compile(allSourceFiles);
 		}
+
+		if (javaBuilder.javaProject.hasCycleMarker())
+			javaBuilder.mustPropagateStructuralChanges();
 	} catch (CoreException e) {
 		throw internalException(e);
 	} finally {
