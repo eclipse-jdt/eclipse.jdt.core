@@ -363,6 +363,11 @@ private final char[] extractName(int[] constantPoolOffsets, ClassFileReader read
 	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[nameAndTypeIndex] + 1)];
 	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 }
+private final char[] extractClassReference(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+	// the entry at i has to be a class ref.
+	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[index] + 1)];
+	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
+}
 /**
  * Extract all type, method, field and interface method references from the constant pool
  */
@@ -381,9 +386,7 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 		switch (tag) {
 			case ClassFileStruct.FieldRefTag :
 				// add reference to the class/interface and field name and type
-//				className = extractClassName(constantPoolOffsets, reader, i);
 				name = extractName(constantPoolOffsets, reader, i);
-//				type = extractType(constantPoolOffsets, reader, i);
 				addFieldReference(name);
 				break;
 			case ClassFileStruct.MethodRefTag :
@@ -400,6 +403,10 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 					// add a method reference
 					addMethodReference(name, extractArgCount(type));
 				}
+				break;
+			case ClassFileStruct.ClassTag :
+				name = extractClassReference(constantPoolOffsets, reader, i);
+				addTypeReference(name);
 		}
 	}
 }
