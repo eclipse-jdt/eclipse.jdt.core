@@ -263,6 +263,7 @@ protected IContainer getOutputFolder(IPath packagePath) throws CoreException {
 	if (!folder.exists()) {
 		getOutputFolder(packagePath.removeLastSegments(1));
 		folder.create(true, true, null);
+		folder.setDerived(true);
 	}
 	return folder;
 }

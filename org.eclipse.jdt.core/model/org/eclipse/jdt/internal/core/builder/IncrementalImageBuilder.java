@@ -270,9 +270,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
 					IPath addedPackagePath = location.removeFirstSegments(segmentCount);
-					IFolder addedPackageFolder = outputFolder.getFolder(addedPackagePath);
-					if (!addedPackageFolder.exists())
-						addedPackageFolder.create(true, true, null);
+					getOutputFolder(addedPackagePath); // ensure package exists in the output folder
 					// add dependents even when the package thinks it exists to be on the safe side
 					if (JavaBuilder.DEBUG)
 						System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
@@ -285,18 +283,17 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 					return;
 				case IResourceDelta.REMOVED :
 					IPath removedPackagePath = location.removeFirstSegments(segmentCount);
-					IFolder removedPackageFolder = outputFolder.getFolder(removedPackagePath);
 					for (int i = 0, length = sourceFolders.length; i < length; i++) {
 						if (sourceFolders[i].findMember(removedPackagePath) != null) {
 							// only a package fragment was removed, same as removing multiple source files
-							if (!removedPackageFolder.exists())
-								removedPackageFolder.create(true, true, null);
+							getOutputFolder(removedPackagePath); // ensure package exists in the output folder
 							IResourceDelta[] removedChildren = sourceDelta.getAffectedChildren();
 							for (int j = 0, rlength = removedChildren.length; j < rlength; j++)
 								findSourceFiles(removedChildren[j], segmentCount);
 							return;
 						}
 					}
+					IFolder removedPackageFolder = outputFolder.getFolder(removedPackagePath);
 					if (removedPackageFolder.exists())
 						removedPackageFolder.delete(true, null);
 					// add dependents even when the package thinks it does not exist to be on the safe side
