@@ -1165,6 +1165,11 @@ public final class JavaCore extends Plugin {
 								return (ClasspathContainerInitializer)execExt;
 							}
 						} catch(CoreException e) {
+							// executable extension could not be created: ignore this initializer
+							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+								System.out.println("CPContainer INIT - failed to instanciate initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+								e.printStackTrace();
+							}						
 						}
 					}
 				}
@@ -1268,8 +1273,13 @@ public final class JavaCore extends Plugin {
 							}
 						}
 					} catch(CoreException e){
+						// executable extension could not be created: ignore this initializer
+						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							System.out.println("CPContainer INIT - failed to instanciate initializer: "+variable +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							e.printStackTrace();
+						}						
 					}
-					}
+				}
 			}	
 		}
 		return null;
@@ -3263,7 +3273,7 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * @see org.eclipse.core.runtime.Plugin#startup()
 	 */
-	public void startup() {
+	public void startup() throws CoreException {
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
@@ -3299,7 +3309,6 @@ public final class JavaCore extends Plugin {
 				}
 			}
 			
-		} catch (CoreException e) {
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;
