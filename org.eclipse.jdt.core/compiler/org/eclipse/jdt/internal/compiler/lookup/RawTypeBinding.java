@@ -62,14 +62,14 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    return true;
 	}	
 	
-	private static TypeBinding[] parameterErasures(ReferenceBinding type) {
-		TypeVariableBinding[] typeVariables = type.typeVariables();
+	private void initializeArguments() {
+		TypeVariableBinding[] typeVariables = this.type.typeVariables();
 		int length = typeVariables.length;
 		TypeBinding[] typeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 		    typeArguments[i] = typeVariables[i].erasure();
 		}
-		return typeArguments;
+		this.arguments = typeArguments;
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
@@ -95,70 +95,42 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 * } when used in raw fashion, then type of both foo and bar is raw type X.
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
-
-	    // substitute of a raw type if the raw type itself if denoting same type, or in parameterized way
-	    if (originalType == this.type) return this;
-	    if (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).type == this.type) {
-            return this;
-        } else if (originalType.isGenericType()) { 
+	    
+	    if (originalType.isTypeVariable()) {
+	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
+	        TypeVariableBinding[] typeVariables = this.type.typeVariables();
+	        int length = typeVariables.length;
+	        // check this variable can be substituted given parameterized type
+	        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+			    // lazy init, since cannot do so during binding creation if during supertype connection
+			    if (this.arguments == null)  initializeArguments();
+	            return this.arguments[originalVariable.rank];
+	        }		        
+	    } else if (originalType.isParameterizedType()) {
+//			// lazy init, since cannot do so during binding creation if during supertype connection
+//			if (this.arguments == null)  initializeArguments();
+//			parameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+//		    TypeBinding[] originalArguments = originalParameterizedType.arguments;
+//		    TypeBinding[] substitutedArguments = substitute(originalArguments);
+//		    if (substitutedArguments != originalArguments) {
+			return this.environment.createRawType(((ParameterizedTypeBinding)originalType).type);
+//		    }
+	    } else  if (originalType.isGenericType()) { 
             return this.environment.createRawType((ReferenceBinding)originalType);
-        }
-	    // lazy init, since cannot do so during binding creation if during supertype connection
-	    if (this.arguments == null) { 
-			this.arguments = parameterErasures(this.type);
-		}
-		return super.substitute(originalType);
+	    }
+	    return originalType;
 	}	
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
-public char[] shortReadableName() /*Object*/ {
-    char[] shortReadableName;
-	if (isMemberType()) {
-		shortReadableName = CharOperation.concat(this.type.enclosingType().shortReadableName(), sourceName, '.');
-	} else {
-		shortReadableName = this.type.sourceName;
+	public char[] shortReadableName() /*Object*/ {
+	    char[] shortReadableName;
+		if (isMemberType()) {
+			shortReadableName = CharOperation.concat(this.type.enclosingType().shortReadableName(), sourceName, '.');
+		} else {
+			shortReadableName = this.type.sourceName;
+		}
+		return shortReadableName;
 	}
-	return shortReadableName;
-}
-//	/**
-//	 * The superclass of a raw type is raw if targeting generic
-//	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superclass()
-//	 */
-//	public ReferenceBinding superclass() {
-//	    if (this.superclass == null) {
-//		    ReferenceBinding superType = this.type.superclass();
-//		    if (superType.isGenericType()) {
-//		        this.superclass = this.environment.createRawType(superType);
-//		    } else {
-//			    this.superclass = (ReferenceBinding)substitute(superType);
-//		    }
-//	    }
-//	    return this.superclass;
-//	}	
-//	/**
-//	 * The superinterfaces of a raw type are raw if targeting generic
-//	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
-//	 */
-//	public ReferenceBinding[] superInterfaces() {
-//	    if (this.superInterfaces == null) {
-//		    ReferenceBinding[] originalInterfaces = this.type.superInterfaces();
-//		    ReferenceBinding[] rawInterfaces = originalInterfaces;
-//		    for (int i = 0, length = originalInterfaces.length; i < length; i++) {
-//		        ReferenceBinding originalInterface = originalInterfaces[i];
-//		        if (originalInterface.isGenericType()) {
-//		            if (rawInterfaces == originalInterfaces) {
-//		                System.arraycopy(originalInterfaces, 0, rawInterfaces = new ReferenceBinding[length], 0, i);
-//		            }
-//		            rawInterfaces[i] = this.environment.createRawType(originalInterface);
-//		            ReferenceBinding substitutedInterface = 
-//		        } else if (rawInterfaces != originalInterfaces) {
-//		            rawInterfaces[i] = originalInterface;
-//		        }
-//		    }
-//		    this.superInterfaces = rawInterfaces;
-//	    }
-//	    return this.superInterfaces;
-//    }	
 }

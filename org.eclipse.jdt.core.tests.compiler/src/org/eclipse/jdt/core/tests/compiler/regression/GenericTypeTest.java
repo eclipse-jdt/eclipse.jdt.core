@@ -2893,6 +2893,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"        ax.p = new AX<String>();\n" + 
 				"        ax.q = new AX<String>();\n" + 
 				"        ax.r = new AX<Object>();\n" + 
+				"        ax.s = new AX<String>();\n" + 
 				"        System.out.println(ax2);\n" + 
 				"    }\n" + 
 				"}\n" + 
@@ -2901,6 +2902,10 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    AX<P> p;\n" + 
 				"    AX<Object> q;\n" + 
 				"    AX<String> r;\n" + 
+				"    BX<String> s;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> {\n" + 
 				"}\n",
 			},
 		"----------\n" + 
@@ -2918,6 +2923,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"	ax.r = new AX<Object>();\n" + 
 		"	^^^^\n" + 
 		"Unsafe type operation: Should not assign expression of type AX<Object> to the field r of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	ax.s = new AX<String>();\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from AX<String> to BX\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3169,6 +3179,35 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"SUCCESS");		
+	}			
+	// unsafe assignment thru binaries
+	public void test107() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X  {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        \n" + 
+				"        Iterable<String> is = new ArrayList();\n" + 
+				"		is.iterator();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Iterable<String> is = new ArrayList();\n" + 
+		"	                      ^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not assign expression of raw type ArrayList to type Iterable<String>. References to generic type Iterable<T> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);		
 	}			
 
 }

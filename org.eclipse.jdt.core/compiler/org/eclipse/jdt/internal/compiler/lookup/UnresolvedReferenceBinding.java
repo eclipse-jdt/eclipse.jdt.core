@@ -32,7 +32,7 @@ ReferenceBinding resolve(LookupEnvironment environment) {
 		resolvedType = environmentType;
 		environment.updateArrayCache(this, environmentType);
 		return environmentType; // when found, it replaces the unresolved type in the cache
-	}
+	} // TODO (kent) need to update the parameterized/raw & wildcard binding cache as well
 
 	environment.problemReporter.isClassPathCorrect(compoundName, null);
 	return null; // will not get here since the above error aborts the compilation

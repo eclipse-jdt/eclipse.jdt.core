@@ -31,11 +31,11 @@ public class WildcardBinding extends ReferenceBinding {
 	 * When unbound, the bound denotes the corresponding type variable (so as to retrieve its bound lazily)
 	 */
 	public WildcardBinding(TypeBinding bound, int kind, LookupEnvironment environment) {
-	    this.bound = bound;
 	    this.kind = kind;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
 		this.tagBits |= HasWildcard;
 		this.environment = environment;
+		initialize(bound);
 	}
 
 	/**
@@ -79,6 +79,11 @@ public class WildcardBinding extends ReferenceBinding {
         return this.genericSignature;
     }
     
+	void initialize(TypeBinding someBound) {
+		this.bound = someBound;
+		if (someBound != null) this.fPackage = someBound.getPackage();
+	}
+	
 	/**
 	 * Returns true if a type is identical to another one,
 	 * or for generic types, true if compared to its raw type.
@@ -123,6 +128,70 @@ public class WildcardBinding extends ReferenceBinding {
         }
     }
     
+//	ReferenceBinding resolve() {
+//	    switch(this.kind) {
+//	        case Wildcard.EXTENDS :
+//	        case Wildcard.SUPER :
+//				ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.bound, this.environment);
+//				if (resolvedType != this.bound) {
+//				    
+//				}
+//				
+//	            
+//	    }
+//		ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.bound, this.environment);
+//		boolean isDifferent = resolvedType != this.type;
+//		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
+//		int argLength = originalArguments.length;
+//		for (int i = 0; i < argLength; i++) {
+//		    TypeBinding originalArgument = originalArguments[i];
+//		    if (originalArgument instanceof ReferenceBinding) {
+//			    TypeBinding resolvedArgument = BinaryTypeBinding.resolveReferenceType((ReferenceBinding)originalArgument, this.environment);
+//			    if (resolvedArgument != originalArgument) {
+//			        if (resolvedArguments == originalArguments) {
+//			            System.arraycopy(originalArguments, 0, resolvedArguments = new TypeBinding[argLength], 0, i);
+//			        }
+//			        isDifferent = true;
+//			        resolvedArguments[i] = resolvedArgument;
+//			    } else if (resolvedArguments != originalArguments) {
+//			        resolvedArguments[i] = originalArgument;
+//			    }
+//		    } else if (resolvedArguments != originalArguments) {
+//		        resolvedArguments[i] = originalArgument;
+//		    }
+//		}
+//		// arity check
+//		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
+//		if (refTypeVariables == NoTypeVariables) { // check generic
+//			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, resolvedArguments);
+//			return type;
+//		} else if (argLength != refTypeVariables.length) { // check arity
+//			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, resolvedArguments);
+//			return type;
+//		}			
+//		// check argument type compatibility
+//		boolean argHasError = false;
+//		for (int i = 0; i < argLength; i++) {
+//		    TypeBinding resolvedArgument = resolvedArguments[i];
+//			if (!refTypeVariables[i].boundCheck(resolvedArgument)) {
+//		        argHasError = true;
+//				this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
+//		    }
+//		}
+//		if (argHasError) {
+//		    return type;
+//		}
+//		// if portion of the type got resolved, then update the type in cache
+//		if (isDifferent) {
+//		    if (this.type != resolvedType) {
+//		        // perform side-effect on the cache to recache the updated parameterized type
+//		        environment.createParameterizedType(resolvedType, resolvedArguments, this);
+//		    }
+//		    initialize(resolvedType, resolvedArguments);
+//		}
+//		return this;
+//	}
+	
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
      */

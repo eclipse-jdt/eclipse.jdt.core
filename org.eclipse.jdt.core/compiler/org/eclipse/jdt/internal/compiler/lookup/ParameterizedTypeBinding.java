@@ -28,25 +28,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public MethodBinding[] methods;
 	
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments, LookupEnvironment environment){
-		
-		this.type = type;
-		this.compoundName = type.compoundName;
-		this.fPackage = type.fPackage;
-		this.fileName = type.fileName;
-		// expect the fields & methods to be initialized correctly later
-		this.fields = null;
-		this.methods = null;		
 		this.environment = environment;
-		this.modifiers = type.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
-		if (arguments != null) {
-			this.arguments =arguments;
-			for (int i = 0, length =arguments.length; i < length; i++) {
-			    this.tagBits |= (arguments[i].tagBits & (HasTypeVariable|HasWildcard));
-			}
-		}
+		initialize(type, arguments);
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 	}
-
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#computeId()
 	 */
@@ -297,6 +283,23 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		return this.type.implementsMethod(method); // erasure
 	}
 
+	void initialize(ReferenceBinding someType, TypeBinding[] someArguments) {
+		this.type = someType;
+		this.compoundName = someType.compoundName;
+		this.fPackage = someType.fPackage;
+		this.fileName = someType.fileName;
+		// expect the fields & methods to be initialized correctly later
+		this.fields = null;
+		this.methods = null;		
+		this.modifiers = someType.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
+		if (someArguments != null) {
+			this.arguments =someArguments;
+			for (int i = 0, length =someArguments.length; i < length; i++) {
+			    this.tagBits |= (someArguments[i].tagBits & (HasTypeVariable|HasWildcard));
+			}
+		}	    
+	}
+	
 	public boolean isEquivalentTo(TypeBinding otherType) {
 		if (this == otherType) 
 		    return true;
@@ -384,6 +387,60 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	    return nameBuffer.toString().toCharArray();
 	}
 		
+	ReferenceBinding resolve() {
+		ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.type, this.environment);
+		boolean isDifferent = resolvedType != this.type;
+		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
+		int argLength = originalArguments.length;
+		for (int i = 0; i < argLength; i++) {
+		    TypeBinding originalArgument = originalArguments[i];
+		    if (originalArgument instanceof ReferenceBinding) {
+			    TypeBinding resolvedArgument = BinaryTypeBinding.resolveReferenceType((ReferenceBinding)originalArgument, this.environment);
+			    if (resolvedArgument != originalArgument) {
+			        if (resolvedArguments == originalArguments) {
+			            System.arraycopy(originalArguments, 0, resolvedArguments = new TypeBinding[argLength], 0, i);
+			        }
+			        isDifferent = true;
+			        resolvedArguments[i] = resolvedArgument;
+			    } else if (resolvedArguments != originalArguments) {
+			        resolvedArguments[i] = originalArgument;
+			    }
+		    } else if (resolvedArguments != originalArguments) {
+		        resolvedArguments[i] = originalArgument;
+		    }
+		}
+		// arity check
+		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
+		if (refTypeVariables == NoTypeVariables) { // check generic
+			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, resolvedArguments);
+			return type;
+		} else if (argLength != refTypeVariables.length) { // check arity
+			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, resolvedArguments);
+			return type;
+		}			
+		// check argument type compatibility
+		boolean argHasError = false;
+		for (int i = 0; i < argLength; i++) {
+		    TypeBinding resolvedArgument = resolvedArguments[i];
+			if (!refTypeVariables[i].boundCheck(resolvedArgument)) {
+		        argHasError = true;
+				this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
+		    }
+		}
+		if (argHasError) {
+		    return type;
+		}
+		// if portion of the type got resolved, then update the type in cache
+		if (isDifferent) {
+		    if (this.type != resolvedType) {
+		        // perform side-effect on the cache to recache the updated parameterized type
+		        environment.createParameterizedType(resolvedType, resolvedArguments, this);
+		    }
+		    initialize(resolvedType, resolvedArguments);
+		}
+		return this;
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
@@ -439,7 +496,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		        TypeBinding[] originalArguments = originalParameterizedType.arguments;
 		        TypeBinding[] substitutedArguments = substitute(originalArguments);
 		        if (substitutedArguments != originalArguments) {
-		            return this.environment.createParameterizedType(originalParameterizedType.type, substitutedArguments);
+		            return this.environment.createParameterizedType(originalParameterizedType.type, substitutedArguments, null);
 		        }
 		    }
 	    }

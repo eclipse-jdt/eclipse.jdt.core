@@ -410,7 +410,7 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 
 public ReferenceBinding enclosingType() {
 	if (this.enclosingType != null)
-		this.enclosingType = resolveReferenceType(this.enclosingType);
+		this.enclosingType = resolveReferenceType(this.enclosingType, this.environment);
 	return this.enclosingType;
 }
 // NOTE: the type of each field of a binary type is resolved when needed
@@ -529,7 +529,7 @@ public boolean isGenericType() {
 
 public ReferenceBinding[] memberTypes() {
 	for (int i = this.memberTypes.length; --i >= 0;)
-		this.memberTypes[i] = resolveReferenceType(this.memberTypes[i]);
+		this.memberTypes[i] = resolveReferenceType(this.memberTypes[i], this.environment);
 	return this.memberTypes;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
@@ -543,13 +543,12 @@ public MethodBinding[] methods() {
 	modifiers ^= AccUnresolved;
 	return methods;
 }
-ReferenceBinding resolveReferenceType(ReferenceBinding type) {
+public static ReferenceBinding resolveReferenceType(ReferenceBinding type, LookupEnvironment lookupEnvironment) {
 	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(environment);
+		return ((UnresolvedReferenceBinding) type).resolve(lookupEnvironment);
 
 	if (type instanceof ParameterizedTypeBinding) {
-		ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) type;
-		paramType.type = resolveReferenceType(paramType.type);
+	    return ((ParameterizedTypeBinding) type).resolve();
 	}
 	return type;
 }
@@ -562,7 +561,7 @@ TypeBinding resolveType(TypeBinding type) {
 		array.leafComponentType = resolveType(array.leafComponentType);
 	} else if (type instanceof ParameterizedTypeBinding) {
 		ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) type;
-		paramType.type = resolveReferenceType(paramType.type);
+		paramType.type = resolveReferenceType(paramType.type, this.environment);
 	}
 	return type;
 }
@@ -582,7 +581,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	for (int i = method.parameters.length; --i >= 0;)
 		method.parameters[i] = resolveType(method.parameters[i]);
 	for (int i = method.thrownExceptions.length; --i >= 0;)
-		method.thrownExceptions[i] = resolveReferenceType(method.thrownExceptions[i]);
+		method.thrownExceptions[i] = resolveReferenceType(method.thrownExceptions[i], this.environment);
 	method.modifiers ^= AccUnresolved;
 	return method;
 }
@@ -591,12 +590,12 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 		return variable;
 
 	if (variable.superclass != null)
-		variable.superclass = resolveReferenceType(variable.superclass);
+		variable.superclass = resolveReferenceType(variable.superclass, this.environment);
 	if (variable.firstBound != null)
-		variable.firstBound = resolveReferenceType(variable.firstBound);
+		variable.firstBound = resolveReferenceType(variable.firstBound, this.environment);
 	ReferenceBinding[] interfaces = variable.superInterfaces;
 	for (int i = interfaces.length; --i >= 0;)
-		interfaces[i] = resolveReferenceType(interfaces[i]);
+		interfaces[i] = resolveReferenceType(interfaces[i], this.environment);
 	variable.modifiers ^= AccUnresolved;
 	return variable;
 }
@@ -607,14 +606,15 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 
 public ReferenceBinding superclass() {
 	if (this.superclass != null)
-		this.superclass = resolveReferenceType(this.superclass);
+		this.superclass = resolveReferenceType(this.superclass, this.environment);
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
 
 public ReferenceBinding[] superInterfaces() {
+    // TODO (kent) should only resolve once on first access
 	for (int i = this.superInterfaces.length; --i >= 0;)
-		this.superInterfaces[i] = resolveReferenceType(this.superInterfaces[i]);
+		this.superInterfaces[i] = resolveReferenceType(this.superInterfaces[i], this.environment);
 	return this.superInterfaces;
 }
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types

@@ -36,7 +36,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
 	private ArrayBinding[][] uniqueArrayBindings;
-	private SimpleLookupTable uniqueParameterizedTypeBindings;
+	SimpleLookupTable uniqueParameterizedTypeBindings;
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
 	
@@ -350,7 +350,7 @@ PackageBinding createPackage(char[][] compoundName) {
 	return packageBinding;
 }
 
-public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments) {
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ParameterizedTypeBinding updatedParameterizedType) {
 
 	// cached info is array of already created parameterized types for this type
 	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
@@ -360,15 +360,16 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 		nextCachedType : 
 			// iterate existing parameterized for reusing one with same type arguments if any
 			for (int i = 0, max = cachedInfo.length; i < max; i++){
-				TypeBinding[] cachedArguments = cachedInfo[i].arguments;
+			    ParameterizedTypeBinding cachedType = cachedInfo[i];
+			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+				TypeBinding[] cachedArguments = cachedType.arguments;
 				int cachedArgLength = cachedArguments.length;
-				if (argLength == cachedArgLength){
-					for (int j = 0; j < cachedArgLength; j++){
-						if (typeArguments[j] != cachedArguments[j]) continue nextCachedType;
-					}
-					// all arguments match, reuse current
-					return cachedInfo[i];
+				if (argLength != cachedArgLength) continue nextCachedType;
+				for (int j = 0; j < cachedArgLength; j++){
+					if (typeArguments[j] != cachedArguments[j]) continue nextCachedType;
 				}
+				// all arguments match, reuse current
+				return cachedType;
 		}
 		needToGrow = true;
 	} else {
@@ -382,7 +383,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
 	}
 	// add new binding
-	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, this);
+	ParameterizedTypeBinding parameterizedType = updatedParameterizedType == null ? new ParameterizedTypeBinding(genericType,typeArguments, this) : updatedParameterizedType;
 	cachedInfo[cachedInfo.length-1] = parameterizedType;
 	return parameterizedType;
 }
@@ -398,17 +399,18 @@ public RawTypeBinding createRawType(ReferenceBinding genericType) {
 	return cachedInfo;
 }
 
-public WildcardBinding createWildcard(TypeBinding bound, PackageBinding itsPackage, int kind) {
+public WildcardBinding createWildcard(TypeBinding bound, int kind) {
 	// cached info is array of already created wildcard types for this type bound
-	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(bound);
+    Object key = bound == null ? (Object)TypeConstants.WILDCARD_NAME : bound; // null bound denote unresolved unbound (in binaries)
+    
+	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(key);
 	if (cachedInfo == null) {
 	    cachedInfo = new WildcardBinding[3];
-	    this.uniqueWildcardBindings.put(bound, cachedInfo);
+	    this.uniqueWildcardBindings.put(key, cachedInfo);
 	}
 	WildcardBinding wildcard = cachedInfo[kind];
 	if (wildcard == null) {
 	    cachedInfo[kind] = wildcard = new WildcardBinding(bound, kind, this);
-	    wildcard.fPackage = itsPackage;
 	}
 	return wildcard;
 }
@@ -643,20 +645,18 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
 	do {
-		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, actualType, rank++));
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, rank++));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start += 2; // skip '>' and ';'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
 	args.toArray(typeArguments);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments);
-	// TODO (kent) must perform bound check so as to avoid constructing unsound parameterized type (no protection afterwards)
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
 TypeBinding getTypeFromVariantTypeSignature(
 	SignatureWrapper wrapper,
 	TypeVariableBinding[] staticVariables,
 	ReferenceBinding enclosingType,
-	ReferenceBinding genericType,
 	int rank) {
 	// VariantTypeSignature = '-' TypeSignature
 	//   or '+' TypeSignature
@@ -667,21 +667,16 @@ TypeBinding getTypeFromVariantTypeSignature(
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, genericType.getPackage(), Wildcard.SUPER);
+			return createWildcard(bound, Wildcard.SUPER);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, genericType.getPackage(), Wildcard.EXTENDS);
+			return createWildcard(bound, Wildcard.EXTENDS);
 		case '*' :
-			// ? - when constructing the wildcard binding, record the matching type variable so as to reach its firstBound lazily later on.
+			// ?
 			wrapper.start++;
-			TypeVariableBinding[] typeVariables = genericType.typeVariables();
-			if (rank < typeVariables.length)
-				return createWildcard(typeVariables[rank], genericType.getPackage(), Wildcard.UNBOUND);
-			throw new AbortCompilation(// TODO (kent) we need a problem to log against this unit (btw it raises NPEs)
-				this.unitBeingCompleted.compilationResult,
-				new IncompatibleClassChangeError(Util.bind("error.missingBound", enclosingType.debugName(), genericType.debugName()))); //$NON-NLS-1$
+			return createWildcard(null, Wildcard.UNBOUND);
 		default :
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}

@@ -1443,6 +1443,23 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
+public void incorrectArityForParameterizedType(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes) {
+    if (location == null) {
+		this.handle(
+			IProblem.IncorrectArityForParameterizedType,
+			new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
+			new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+			AbortCompilation | Error,
+			0,
+			1);        
+    }
+	this.handle(
+		IProblem.IncorrectArityForParameterizedType,
+		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
+		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void incorrectLocationForEmptyDimension(ArrayAllocationExpression expression, int index) {
 	this.handle(
 		IProblem.IllegalDimension,
@@ -1450,6 +1467,14 @@ public void incorrectLocationForEmptyDimension(ArrayAllocationExpression express
 		NoArgument,
 		expression.dimensions[index + 1].sourceStart,
 		expression.dimensions[index + 1].sourceEnd);
+}
+public void incorrectSwitchType(Expression expression, TypeBinding testType) {
+	this.handle(
+		IProblem.IncorrectSwitchType,
+		new String[] {new String(testType.readableName())},
+		new String[] {new String(testType.shortReadableName())},
+		expression.sourceStart,
+		expression.sourceEnd);
 }
 public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 	this.handle(
@@ -1474,22 +1499,6 @@ public void indirectAccessToStaticType(ASTNode location, ReferenceBinding type) 
 		new String[] {new String(type.enclosingType().shortReadableName()), new String(type.sourceName) },
 		location.sourceStart,
 		location.sourceEnd);
-}
-public void incorrectArityForParameterizedType(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes) {
-	this.handle(
-		IProblem.IncorrectArityForParameterizedType,
-		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
-		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void incorrectSwitchType(Expression expression, TypeBinding testType) {
-	this.handle(
-		IProblem.IncorrectSwitchType,
-		new String[] {new String(testType.readableName())},
-		new String[] {new String(testType.shortReadableName())},
-		expression.sourceStart,
-		expression.sourceEnd);
 }
 public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	StringBuffer concreteSignature = new StringBuffer();
@@ -2637,7 +2646,17 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, ASTNode loc
 		location.sourceEnd);
 }
 public void nonGenericTypeCannotBeParameterized(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes) {
-	this.handle(
+	if (location == null) { // binary case
+	    this.handle(
+			IProblem.NonGenericType,
+			new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
+			new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+			AbortCompilation | Error,
+			0,
+			1);
+	    return;
+	}
+    this.handle(
 		IProblem.NonGenericType,
 		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
 		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
@@ -3208,6 +3227,16 @@ public void typeCollidesWithPackage(CompilationUnitDeclaration compUnitDecl, Typ
 		compUnitDecl.compilationResult);
 }
 public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding typeParameter, ReferenceBinding genericType, ASTNode location) {
+    if (location == null) { // binary case
+		this.handle(
+			IProblem.TypeArgumentMismatch,
+			new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },
+			new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, true) },
+			AbortCompilation | Error,
+			0,
+			1);
+        return;
+    }
 	this.handle(
 		IProblem.TypeArgumentMismatch,
 		new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },
