@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -25,6 +26,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	private static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	public static Test suite() {
+		if (false) {
+			TestSuite suite = new TestSuite();
+			suite.addTest(new ClassFileReaderTest("test068"));
+			return suite;
+		}
 		return setupSuite(testClass());
 	}
 
@@ -44,7 +50,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
 			if (!result.equals(expectedOutput)) {
-				System.out.println(Util.displayString(result, 3));
+				System.out.print(Util.displayString(result, 3));
 			}
 			assertEquals("Wrong contents", expectedOutput, result);
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
@@ -3268,5 +3274,1631 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  \n" + 
 			"}";
 		checkClassFile("A", source, expectedOutput);
-	}			
+	}
+	
+	public void test049() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo();\n" + 
+			"	}\n" + 
+			"	static void foo() {\n" + 
+			"		int i = 5;\n" + 
+			"		if ((i == 6) && false) {   	\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#foo() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_5\n" + 
+			"      1  istore_0\n" + 
+			"      2  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 2, line: 10]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 3] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+	
+	public void test050() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo();\n" + 
+			"	}\n" + 
+			"	static void foo() {\n" + 
+			"		int i = 5;\n" + 
+			"		if ((i == 6) && false) {}\n" + 
+			"		else {   	\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#foo() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  iload_0\n" + 
+			"       3  bipush 6\n" + 
+			"       5  if_icmpne 8\n" + 
+			"       8  getstatic #26 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      11  iload_0\n" + 
+			"      12  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      15  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 2, line: 7]\n" + 
+			"      [pc: 8, line: 9]\n" + 
+			"      [pc: 15, line: 11]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 16] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test051() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar();\n" + 
+			"	}\n" + 
+			"	static void bar() {\n" + 
+			"		int i = 6;\n" + 
+			"		if ((i == 6) || true) {\n" + 
+			"		} else {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#bar() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  bipush 6\n" + 
+			"      2  istore_0\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 11]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 4] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+	
+	public void test052() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar();\n" + 
+			"	}\n" + 
+			"	static void bar() {\n" + 
+			"		int i = 6;\n" + 
+			"		if ((i == 6) || true) {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#bar() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  iload_0\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 9\n" + 
+			"       9  getstatic #26 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_0\n" + 
+			"      13  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"      [pc: 9, line: 8]\n" + 
+			"      [pc: 16, line: 10]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 17] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test053() {
+		String source =
+		"public class X {\n" + 
+		"	static boolean boom() { \n" + 
+		"		throw new NullPointerException();\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		foo2();\n" + 
+		"	}\n" + 
+		"	static void foo2() {\n" + 
+		"		int i = 5;\n" + 
+		"		if ((i == 6) && (boom() && false)) {\n" + 
+		"		   	System.out.println(i);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#foo2() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo2();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  iload_0\n" + 
+			"       3  bipush 6\n" + 
+			"       5  if_icmpne 12\n" + 
+			"       8  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      11  pop\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 2, line: 10]\n" + 
+			"      [pc: 12, line: 13]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 13] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test054() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo2();\n" + 
+			"	}\n" + 
+			"	static void foo2() {\n" + 
+			"		int i = 5;\n" + 
+			"		if ((i == 6) && (boom() && false)) {\n" + 
+			"		} else {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#foo2() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo2();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  iload_0\n" + 
+			"       3  bipush 6\n" + 
+			"       5  if_icmpne 14\n" + 
+			"       8  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      11  ifeq 14\n" + 
+			"      14  getstatic #33 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      17  iload_0\n" + 
+			"      18  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      21  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 2, line: 10]\n" + 
+			"      [pc: 14, line: 12]\n" + 
+			"      [pc: 21, line: 14]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 22] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+	
+	public void test055() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar2();\n" + 
+			"	}\n" + 
+			"	static void bar2() {\n" + 
+			"		int i = 6;\n" + 
+			"		if ((i == 6) || (boom() || true)) {\n" + 
+			"		} else {\n" + 
+			"			System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#bar2() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar2();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  iload_0\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 13\n" + 
+			"       9  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      12  pop\n" + 
+			"      13  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 3, line: 10]\n" + 
+			"      [pc: 13, line: 14]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 14] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test056() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar2();\n" + 
+			"	}\n" + 
+			"	static void bar2() {\n" + 
+			"		int i = 6;\n" + 
+			"		if ((i == 6) || (boom() || true)) {\n" + 
+			"			System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#bar2() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar2();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  iload_0\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 15\n" + 
+			"       9  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      12  ifne 15\n" + 
+			"      15  getstatic #33 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      18  iload_0\n" + 
+			"      19  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      22  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 3, line: 10]\n" + 
+			"      [pc: 15, line: 11]\n" + 
+			"      [pc: 22, line: 13]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 23] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test057() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo3();\n" + 
+			"	}\n" + 
+			"	static void foo3() {\n" + 
+			"		int i = 5;\n" + 
+			"		if (false && (i == 6)) {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#foo3() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo3();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_5\n" + 
+			"      1  istore_0\n" + 
+			"      2  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 2, line: 10]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 3] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+	
+	public void test058() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo3();\n" + 
+			"	}\n" + 
+			"	static void foo3() {\n" + 
+			"		int i = 5;\n" + 
+			"		if (false && (i == 6)) {\n" + 
+			"		} else {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#foo3() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo3();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  getstatic #26 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       5  iload_0\n" + 
+			"       6  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"       9  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 2, line: 9]\n" + 
+			"      [pc: 9, line: 11]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 10] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test059() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar3();\n" + 
+			"	}\n" + 
+			"	static void bar3() {\n" + 
+			"		int i = 6;\n" + 
+			"		if (true || (i == 6)) {\n" + 
+			"		} else {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#bar3() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar3();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  bipush 6\n" + 
+			"      2  istore_0\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 11]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 4] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test060() {
+		String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar3();\n" + 
+			"	}\n" + 
+			"	static void bar3() {\n" + 
+			"		int i = 6;\n" + 
+			"		if (true || (i == 6)) {\n" + 
+			"		   System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #18 <Method X#bar3() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar3();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  getstatic #26 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       6  iload_0\n" + 
+			"       7  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      10  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 8]\n" + 
+			"      [pc: 10, line: 10]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 11] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test061() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo4();\n" + 
+			"	}\n" + 
+			"	static void foo4() {\n" + 
+			"		int i = 5;\n" + 
+			"		if ((false && boom()) && (i == 6)) {   	\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#foo4() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo4();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_5\n" + 
+			"      1  istore_0\n" + 
+			"      2  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 2, line: 13]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 3] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+	
+	public void test062() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo4();\n" + 
+			"	}\n" + 
+			"	static void foo4() {\n" + 
+			"		int i = 5;\n" + 
+			"		if ((false && boom()) && (i == 6)) {\n" + 
+			"		} else {  	\n" + 
+			"		   System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#foo4() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo4();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  getstatic #31 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       5  iload_0\n" + 
+			"       6  invokevirtual #37 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"       9  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 2, line: 12]\n" + 
+			"      [pc: 9, line: 14]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 10] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test063() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar4();\n" + 
+			"	}\n" + 
+			"	static void bar4() {\n" + 
+			"		int i = 6;\n" + 
+			"		if ((true || boom()) || (i == 6)) {\n" + 
+			"		} else {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#bar4() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar4();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  bipush 6\n" + 
+			"      2  istore_0\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 3, line: 14]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 4] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test064() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar4();\n" + 
+			"	}\n" + 
+			"	static void bar4() {\n" + 
+			"		int i = 6;\n" + 
+			"		if ((true || boom()) || (i == 6)) {\n" + 
+			"		   	System.out.println(i);\n" + 
+			"		   }\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#bar4() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar4();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  getstatic #31 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       6  iload_0\n" + 
+			"       7  invokevirtual #37 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      10  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 3, line: 11]\n" + 
+			"      [pc: 10, line: 13]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 11] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test065() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo5();\n" + 
+			"	}\n" + 
+			"	static void foo5() {\n" + 
+			"		int i = 5;\n" + 
+			"		if (((i == 6) && (boom() && false)) && false) {\n" + 
+			"			System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#foo5() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo5();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  iload_0\n" + 
+			"       3  bipush 6\n" + 
+			"       5  if_icmpne 12\n" + 
+			"       8  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      11  pop\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 2, line: 10]\n" + 
+			"      [pc: 12, line: 13]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 13] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+	
+	public void test066() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo5();\n" + 
+			"	}\n" + 
+			"	static void foo5() {\n" + 
+			"		int i = 5;\n" + 
+			"		if (((i == 6) && (boom() && false)) && false) {\n" + 
+			"		} else {\n" + 
+			"			System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#foo5() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void foo5();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_5\n" + 
+			"       1  istore_0\n" + 
+			"       2  iload_0\n" + 
+			"       3  bipush 6\n" + 
+			"       5  if_icmpne 14\n" + 
+			"       8  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      11  ifeq 14\n" + 
+			"      14  getstatic #33 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      17  iload_0\n" + 
+			"      18  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      21  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 2, line: 10]\n" + 
+			"      [pc: 14, line: 12]\n" + 
+			"      [pc: 21, line: 14]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 2, pc: 22] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test067() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar5();\n" + 
+			"	}\n" + 
+			"	static void bar5() {\n" + 
+			"		int i = 6;\n" + 
+			"		if (((i == 6) || (boom() || true)) && true) {\n" + 
+			"		} else {\n" + 
+			"			System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#bar5() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar5();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  iload_0\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 13\n" + 
+			"       9  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      12  pop\n" + 
+			"      13  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 3, line: 10]\n" + 
+			"      [pc: 13, line: 14]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 14] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
+
+	public void test068() {
+		String source =
+			"public class X {\n" + 
+			"	static boolean boom() { \n" + 
+			"		throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		bar5();\n" + 
+			"	}\n" + 
+			"	static void bar5() {\n" + 
+			"		int i = 6;\n" + 
+			"		if (((i == 6) || (boom() || true)) && true) {\n" + 
+			"			System.out.println(i);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from X.java\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public X();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()Z */\n" + 
+			"  static boolean boom();\n" + 
+			"    /* Stack: 2, Locals: 0 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  new #17 java.lang.NullPointerException\n" + 
+			"      3  dup\n" + 
+			"      4  invokespecial #18 <Constructor java.lang.NullPointerException()>\n" + 
+			"      7  athrow\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #20 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 0, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  invokestatic #23 <Method X#bar5() void>\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 3, line: 7]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  static void bar5();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_0\n" + 
+			"       3  iload_0\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 15\n" + 
+			"       9  invokestatic #27 <Method X#boom() boolean>\n" + 
+			"      12  ifne 15\n" + 
+			"      15  getstatic #33 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      18  iload_0\n" + 
+			"      19  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      22  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"      [pc: 3, line: 10]\n" + 
+			"      [pc: 15, line: 11]\n" + 
+			"      [pc: 22, line: 13]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 3, pc: 23] local: i index: 0 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("X", source, expectedOutput);
+	}
 }
