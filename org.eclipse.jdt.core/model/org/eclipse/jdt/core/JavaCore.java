@@ -3740,6 +3740,32 @@ public final class JavaCore extends Plugin {
 			// request state folder creation (workaround 19885)
 			JavaCore.getPlugin().getStateLocation();
 
+			// Listen to instance preferences node removal from parent in order to refresh stored one
+			IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
+				public void added(IEclipsePreferences.NodeChangeEvent event) {
+					// do nothing
+				}
+				public void removed(IEclipsePreferences.NodeChangeEvent event) {
+					if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
+						preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(PLUGIN_ID);
+					}
+				}
+			};
+			((IEclipsePreferences) getInstancePreferences().parent()).addNodeChangeListener(listener);
+
+			// Listen to default preferences node removal from parent in order to refresh stored one
+			listener = new IEclipsePreferences.INodeChangeListener() {
+				public void added(IEclipsePreferences.NodeChangeEvent event) {
+					// do nothing
+				}
+				public void removed(IEclipsePreferences.NodeChangeEvent event) {
+					if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
+						preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(PLUGIN_ID);
+					}
+				}
+			};
+			((IEclipsePreferences) getDefaultPreferences().parent()).addNodeChangeListener(listener);
+
 			// retrieve variable values
 			getInstancePreferences().addPreferenceChangeListener(new JavaModelManager.EclipsePreferencesListener());
 			manager.loadVariablesAndContainers();

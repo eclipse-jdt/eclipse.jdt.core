@@ -39,7 +39,8 @@ public class OptionTests extends ModifyingResourceTests {
 		if (false){
 			System.err.println("Warning: only tests subset is currently running!");
 			TestSuite suite = new Suite(OptionTests.class.getName());
-			suite.addTest(new OptionTests("testBug68993"));
+			suite.addTest(new OptionTests("testBug72214"));
+			suite.addTest(new OptionTests("testBug72214b"));
 			return suite;
 		}
 		return new Suite(OptionTests.class);	
@@ -481,24 +482,48 @@ public class OptionTests extends ModifyingResourceTests {
 
 			// Store project eclipse prefs
 			IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
-			
-	
+
 			// set all project options as custom ones: this is what happens when user select
 			// "Use project settings" in project 'Java Compiler' preferences page...
 			Hashtable options = new Hashtable(projectA.getOptions(true));
 			projectA.setOptions(options);
-	
+
 			// reset all project custom options: this is what happens when user select
 			// "Use workspace settings" in project 'Java Compiler' preferences page...
 			options = new Hashtable();
 			options.put("internal.default.compliance", JavaCore.DEFAULT);
 			projectA.setOptions(options);
-	
-			// verify that 
+
+			// verify that project preferences have been reset
 			assertFalse("projA: Preferences should have been reset", eclipsePreferences == projectA.getEclipsePreferences());
 			assertEquals("projA: We should not have any custom options!", 0, projectA.getEclipsePreferences().keys().length);
 		} finally {
 			this.deleteProject("A");
 		}
+	}
+
+	/**
+	 * Test fix for bug 72214: [Preferences] IAE when opening project preferences
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=72214">72214</a>
+	 */
+	public void testBug72214() throws CoreException, BackingStoreException {
+
+		// Remove JavaCore instance prefs
+		IEclipsePreferences javacorePreferences = JavaCore.getInstancePreferences();
+		javacorePreferences.removeNode();
+
+		// verify that JavaCore preferences have been reset
+		assertFalse("JavaCore preferences should have been reset", javacorePreferences == JavaCore.getInstancePreferences());
+		assertFalse("JavaCore preferences should be accessible!", JavaCore.getOptions().isEmpty());
+	}
+	public void testBug72214b() throws CoreException, BackingStoreException {
+
+		// Remove JavaCore default prefs
+		IEclipsePreferences defaultPreferences = JavaCore.getDefaultPreferences();
+		defaultPreferences.removeNode();
+
+		// verify that JavaCore preferences have been reset
+		assertFalse("JavaCore default preferences should have been reset", defaultPreferences == JavaCore.getDefaultPreferences());
+		assertFalse("JavaCore default preferences should be accessible!", JavaCore.getDefaultOptions().isEmpty());
 	}
 }
