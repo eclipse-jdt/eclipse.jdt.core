@@ -11,7 +11,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
-public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField {
+public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable {
 	private Constant constant;
 	private boolean isDeprecated;
 	private int[] constantPoolOffsets;
@@ -38,8 +38,8 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) throws Class
 }
 /**
  * Return the constant of the field.
- * Return org.eclipse.jdt.internal.compiler.Constant.NotAConstant if there is none.
- * @return org.eclipse.jdt.internal.compiler.Constant
+ * Return org.eclipse.jdt.internal.compiler.impl.Constant.NotAConstant if there is none.
+ * @return org.eclipse.jdt.internal.compiler.impl.Constant
  */
 public Constant getConstant() {
 	if (constant == null) {
@@ -278,5 +278,12 @@ public String toString() {
 		.append(getConstant())
 		.append("}") //$NON-NLS-1$
 		.toString(); 
+}
+
+public int compareTo(Object o) {
+	if (!(o instanceof FieldInfo)) {
+		throw new ClassCastException();
+	}
+	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
 }
 }

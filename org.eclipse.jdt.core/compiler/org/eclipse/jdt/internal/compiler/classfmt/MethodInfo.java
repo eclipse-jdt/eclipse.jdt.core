@@ -10,7 +10,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
-public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants {
+public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
 	private char[][] exceptionNames;
 	private int[] constantPoolOffsets;
 	private boolean isDeprecated;
@@ -206,5 +206,16 @@ public String toString() {
 		.append(getMethodDescriptor())
 		.append("}") //$NON-NLS-1$
 		.toString(); 
+}
+public int compareTo(Object o) {
+	if (!(o instanceof MethodInfo)) {
+		throw new ClassCastException();
+	}
+	StringBuffer currentComparisonKey = new StringBuffer();
+	currentComparisonKey.append(this.getSelector()).append(this.getMethodDescriptor());
+	StringBuffer otherComparisonKey = new StringBuffer();
+	MethodInfo otherMethodInfo = (MethodInfo) o;
+	otherComparisonKey.append(otherMethodInfo.getSelector()).append(otherMethodInfo.getMethodDescriptor());
+	return currentComparisonKey.toString().compareTo(otherComparisonKey.toString());
 }
 }
