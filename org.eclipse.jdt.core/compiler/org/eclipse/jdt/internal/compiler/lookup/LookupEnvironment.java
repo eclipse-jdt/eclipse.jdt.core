@@ -645,7 +645,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	if (wrapper.end != wrapper.bracket)
 		return dimension == 0 ? type : createArrayType(type, dimension);
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
-	ReferenceBinding actualType = (ReferenceBinding) type; // TODO (kent) what if it is actually due to bogus binaries ?
+	ReferenceBinding actualType = (ReferenceBinding) type;
 
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
