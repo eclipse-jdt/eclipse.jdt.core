@@ -42,7 +42,18 @@ Eclipse SDK 3.0M8 Build - ?th March 2004
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_413">cvs</a>).
 <h2>
 What's new in this drop</h2>
-<ul>
+<ul> Added compiler option JavaCore.COMPILER_TASK_CASE_SENSITIVE to control whether the task detection
+should be case sensitive or not. By default, it is.
+<pre>
+	 * COMPILER / Determine whether task tags are case-sensitive
+	 *    When enabled, task tags are considered in a case-sensitive way.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.taskCaseSensitive"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+</pre>
+</li>
+<li>Added 2 default task tags: "FIXME" and "XXX".
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -86,11 +97,11 @@ See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>.
 	 *     - default:           "disabled"
 	 * 
 </pre>
-Corresponding command line compiler option <code>-noJSR</code> has been changed to:
+Corresponding command line compiler option <code>-noJSR</code> has been renamed to:
 <pre>
     <code>-inlineJSR</code> : inline JSR bytecode
 </pre>
-Which means that JSR bytecode is used when this option will be specified in batch compiler command line.
+which means that when specified, the compiler will no longer generate JSR bytecodes, but instead inlining the corresponding subroutine (e.g. finally block).
 </li>
 </ul>
 

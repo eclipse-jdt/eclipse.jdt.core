@@ -551,7 +551,7 @@ public final class JavaCore extends Plugin {
 	 * Default task priority
 	 * @since 3.0
 	 */
-	public static final String DEFAULT_TASK_PRIORITIES = "NORMAL,NORMAL,NORMAL"; //$NON-NLS-1$
+	public static final String DEFAULT_TASK_PRIORITIES = "NORMAL,HIGH,NORMAL"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1780,7 +1780,7 @@ public final class JavaCore extends Plugin {
 	 *    If the default is specified, the priority of each task marker is "NORMAL".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskPriorities"
 	 *     - possible values:   { "&lt;priority&gt;[,&lt;priority&gt;]*" } where &lt;priority&gt; is one of "HIGH", "NORMAL" or "LOW"
-	 *     - default:           "normal,normal,normal"
+	 *     - default:           "NORMAL,HIGH,NORMAL"
 	 * 
 	 * COMPILER / Determine whether task tags are case-sensitive
 	 *    When enabled, task tags are considered in a case-sensitive way.
