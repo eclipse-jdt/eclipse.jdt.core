@@ -21,7 +21,7 @@ public class ReadWriteMonitor {
 	 * =0 : idle
 	 * >0 : reading (number of concurrent readers)
 	 */
-	private int status = 0;
+	public int status = 0; // TODO (jerome) temporary made public to track concurrency problem
 /**
  * Concurrent reading is allowed
  * Blocking only when already writing.

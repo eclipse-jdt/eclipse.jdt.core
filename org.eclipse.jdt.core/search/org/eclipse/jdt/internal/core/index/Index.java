@@ -172,8 +172,8 @@ public String[] queryDocumentNames(String substring) throws IOException {
 	
 	// TODO (jerome) remove once concurrency problem is solved
 	ReadWriteMonitor monitor = JavaModelManager.getJavaModelManager().getIndexManager().getMonitorFor(this);
-	if (monitor.status >= 0) {
-		System.out.println("Index doesn't have permission to write"); //$NON-NLS-1$
+	if (monitor.status == 0) {
+		System.out.println("Index doesn't have permission to read"); //$NON-NLS-1$
 		new Exception().printStackTrace();
 	}
 
