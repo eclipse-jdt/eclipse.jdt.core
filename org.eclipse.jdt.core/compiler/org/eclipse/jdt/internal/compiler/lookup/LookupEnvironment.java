@@ -64,9 +64,9 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, 
 	this.knownPackages = new HashtableOfPackage();
 	this.uniqueArrayBindings = new ArrayBinding[5][];
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
-	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
-	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
-	this.uniqueWildcardBindings = new SimpleLookupTable(10);
+	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
+	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 }
 /* Ask the oracle for a type which corresponds to the compoundName.
 * Answer null if the name cannot be found.
@@ -695,20 +695,22 @@ public void reset() {
 	this.knownPackages = new HashtableOfPackage();
 
 	this.verifier = null;
-	for (int i = this.uniqueArrayBindings.length; --i >= 0;)
-		this.uniqueArrayBindings[i] = null;
-	// TODO (kent) couldn't we simple clear the collections and keep them as is ? 
-	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
-	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
-	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
-	this.uniqueWildcardBindings = new SimpleLookupTable(10);
-	
+	for (int i = this.uniqueArrayBindings.length; --i >= 0;) {
+		ArrayBinding[] arrayBindings = this.uniqueArrayBindings[i];
+		if (arrayBindings != null)
+			for (int j = arrayBindings.length; --j >= 0;)
+				arrayBindings[j] = null;
+	}
+	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
+	this.uniqueWildcardBindings = new SimpleLookupTable(3);
+
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
 	this.lastUnitIndex = -1;
 	this.lastCompletedUnitIndex = -1;
 	this.unitBeingCompleted = null; // in case AbortException occurred
-	
+
 	// name environment has a longer life cycle, and must be reset in
 	// the code which created it.
 }
