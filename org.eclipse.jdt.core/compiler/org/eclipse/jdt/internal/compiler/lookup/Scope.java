@@ -501,8 +501,8 @@ public abstract class Scope
 					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
 					MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
 					if (interfaceMethod != null) return interfaceMethod;
+					return matchingMethod;
 				}
-				return matchingMethod;
 			} 
 			return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 		}
