@@ -2324,7 +2324,30 @@ public void test071() {
 		},
 		"SUCCESS");
 }
-
+public void test072() {
+	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        try {\n" + 
+			"            f();\n" + 
+			"        } catch(NullPointerException e) {\n" + 
+			"            System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    static void f() {\n" + 
+			"        Object x = new Object() {\n" + 
+			"            {\n" + 
+			"                    if (true) throw null;\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}",
+		},
+	"SUCCESS");
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

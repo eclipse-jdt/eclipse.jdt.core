@@ -2488,6 +2488,37 @@ public void test071() {
 		},
 		"SUCCESS");
 }
+
+public void test072() {
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        try {\n" + 
+			"            f();\n" + 
+			"        } catch(NullPointerException e) {\n" + 
+			"            System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    static void f() {\n" + 
+			"        Object x = new Object() {\n" + 
+			"            {\n" + 
+			"                    if (true) throw null;\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	if (true) throw null;\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Cannot throw null\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
