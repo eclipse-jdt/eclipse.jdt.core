@@ -14,7 +14,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -120,9 +122,11 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		}
 	} else if (reference instanceof FieldReference) {
 		long position = ((FieldReference) reference).nameSourcePosition;
-		locator.report(position, position, element, accuracy);
+		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.FIELD, element, accuracy, ((int) (position >>> 32)), ((int) position)+1, locator);
+		locator.report(match);
 	} else if (reference instanceof SingleNameReference) {
-		locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
+		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.FIELD, element, accuracy, reference.sourceStart, reference.sourceEnd+1, locator);
+		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		int length = qNameRef.tokens.length;
@@ -174,7 +178,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 				accuracies[i] = -1;
 			}
 		}
-		locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, qNameRef.tokens, element, accuracies);
+		locator.reportAccurateReference(IJavaElement.FIELD, reference.sourceStart, reference.sourceEnd, qNameRef.tokens, element, accuracies);
 	}
 }
 protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator, SimpleSet knownFields) throws CoreException {
@@ -197,7 +201,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile) type.getClassFile(), resource);
-		locator.reportBinaryMatch(resource, field, info, IJavaSearchResultCollector.EXACT_MATCH);
+		locator.reportBinaryMemberDeclaration(resource, field, info, IJavaSearchResultCollector.EXACT_MATCH);
 	} else {
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
@@ -211,17 +215,15 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 				}
 			} 
 			if (fieldDecl != null) {
-				locator.report(
-					resource, 
-					fieldDecl.sourceStart, 
-					fieldDecl.sourceEnd, 
-					field,
-					IJavaSearchResultCollector.EXACT_MATCH, 
-					locator.getParticipant());
+				SearchMatch match = new FieldDeclarationMatch(field, IJavaSearchResultCollector.EXACT_MATCH, fieldDecl.sourceStart, fieldDecl.sourceEnd+1, locator.getParticipant(), resource);
+				locator.report(match);
 
 			}
 		}
 	}
+}
+protected int referenceType() {
+	return IJavaElement.FIELD;
 }
 public int resolveLevel(ASTNode possiblelMatchingNode) {
 	if (this.pattern.findReferences) {

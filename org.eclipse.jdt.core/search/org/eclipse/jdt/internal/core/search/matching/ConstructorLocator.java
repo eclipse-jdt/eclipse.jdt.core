@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -126,6 +127,9 @@ public int resolveLevel(ASTNode node) {
 	if (node instanceof ConstructorDeclaration)
 		return resolveLevel((ConstructorDeclaration) node, true);
 	return IMPOSSIBLE_MATCH;
+}
+protected int referenceType() {
+	return IJavaElement.METHOD;
 }
 protected int resolveLevel(AllocationExpression allocation) {
 	// constructor name is simple type name

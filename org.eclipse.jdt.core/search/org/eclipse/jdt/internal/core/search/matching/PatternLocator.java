@@ -217,15 +217,20 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
  * Reports the match of the given import reference.
  */
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	// default is to report a match as a regular ref.
-	this.matchReportReference(importRef, element, accuracy, locator);
+	if (locator.encloses(element)) {
+		// default is to report a match as a regular ref.
+		this.matchReportReference(importRef, element, accuracy, locator);
+	}
 }
 /**
  * Reports the match of the given reference.
  */
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	// default is to report a match on the whole node.
-	locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
+	SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType(), element, accuracy, reference.sourceStart, reference.sourceEnd+1, locator);
+	locator.report(match);
+}
+protected int referenceType() {
+	return 0; // defaults to unknown (a generic JavaSearchMatch will be created)
 }
 /**
  * Finds out whether the given ast node matches this search pattern.

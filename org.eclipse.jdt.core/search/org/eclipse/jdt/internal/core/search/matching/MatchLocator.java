@@ -473,6 +473,9 @@ protected IType createTypeHandle(String simpleTypeName) {
 	}
 	return null;
 }
+protected boolean encloses(IJavaElement element) {
+	return element != null && this.scope.encloses(element);
+}
 protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) throws CoreException {
 	BinaryType binaryType = (BinaryType) classFile.getType();
 	if (classFile.isOpen())
@@ -776,7 +779,11 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			SearchDocument document = participant.getDocument(resource.getFullPath().toString());
 			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 			try {
-				this.report(-1, -2, searchPattern.focus, IJavaSearchResultCollector.EXACT_MATCH);
+				IJavaElement element = searchPattern.focus;
+				if (encloses(element)) {
+					SearchMatch match = JavaSearchMatch.newDeclarationMatch(element, IJavaSearchResultCollector.EXACT_MATCH, -1, -1, this);
+					report(match);
+				}
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
 					throw (JavaModelException) e;
@@ -803,7 +810,10 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 						SearchDocument document = participant.getDocument(resource.getFullPath().toString());
 						this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 						try {
-							report(-1, -2, pkg, IJavaSearchResultCollector.EXACT_MATCH);
+							if (encloses(pkg)) {
+								SearchMatch match = JavaSearchMatch.newDeclarationMatch(pkg, IJavaSearchResultCollector.EXACT_MATCH, -1, -1, this);
+								report(match);
+							}
 						} catch (JavaModelException e) {
 							throw e;
 						} catch (CoreException e) {
@@ -933,51 +943,34 @@ protected void reduceParseTree(CompilationUnitDeclaration unit) {
 	for (int i = 0, l = types.length; i < l; i++)
 		purgeMethodStatements(types[i], true); 
 }
-protected void report(int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
-	if (element != null && this.scope.encloses(element)) {
-		if (SearchEngine.VERBOSE) {
-			IResource res = this.currentPossibleMatch.resource;
-			System.out.println("Reporting match"); //$NON-NLS-1$
-			System.out.println("\tResource: " + (res == null ? " <unknown> " : res.getFullPath().toString())); //$NON-NLS-2$//$NON-NLS-1$
-			System.out.println("\tPositions: [" + sourceStart + ", " + sourceEnd + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			System.out.println("\tJava element: " + ((JavaElement)element).toStringWithAncestors()); //$NON-NLS-1$
-			System.out.println(accuracy == IJavaSearchResultCollector.EXACT_MATCH
-				? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
-				: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
-		}
-		report(
-			this.currentPossibleMatch.resource, 
-			sourceStart, 
-			sourceEnd, 
-			element, 
-			accuracy, 
-			getParticipant());
-	}
-}
 public SearchParticipant getParticipant() {
 	return this.currentPossibleMatch.document.getParticipant();
 }
 
-protected void report(IResource resource, int sourceStart, int sourceEnd, IJavaElement element, int accuracy, SearchParticipant participant) throws CoreException {
+protected void report(SearchMatch match) throws CoreException {
 	long start = -1;
-	if (SearchEngine.VERBOSE)
+	if (SearchEngine.VERBOSE) {
 		start = System.currentTimeMillis();
-	String documentPath = element.getPath().toString();
-	SearchMatch match = new JavaSearchMatch(resource, element, documentPath, accuracy, participant, sourceStart, sourceEnd+1, -1);
+		System.out.println("Reporting match"); //$NON-NLS-1$
+		System.out.println("\tDocument path: " + match.getDocumentPath()); //$NON-NLS-2$//$NON-NLS-1$
+		System.out.println("\tPositions: [" + match.getSourceStart() + ", " + match.getSourceEnd() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		System.out.println("\tJava element: " + match.getDescriptiveLocation()); //$NON-NLS-1$
+		System.out.println(match.getAccuracy() == IJavaSearchResultCollector.EXACT_MATCH
+			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
+			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
+	}
 	this.requestor.acceptSearchMatch(match);
 	if (SearchEngine.VERBOSE)
 		this.resultCollectorTime += System.currentTimeMillis()-start;
-}
-protected void report(long start, long end, IJavaElement element, int accuracy) throws CoreException {
-	report((int) (start >>> 32), (int) end, element, accuracy); // extract the start and end from the encoded long positions
 }
 /**
  * Finds the accurate positions of the sequence of tokens given by qualifiedName
  * in the source and reports a reference to this this qualified name
  * to the search requestor.
  */
-protected void reportAccurateReference(int sourceStart, int sourceEnd, char[] name, IJavaElement element, int accuracy) throws CoreException {
+protected void reportAccurateReference(int referenceType, int sourceStart, int sourceEnd, char[] name, IJavaElement element, int accuracy) throws CoreException {
 	if (accuracy == -1) return;
+	if (!encloses(element)) return;
 
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
@@ -994,18 +987,22 @@ protected void reportAccurateReference(int sourceStart, int sourceEnd, char[] na
 			// ignore
 		}
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
-			report(currentPosition, scanner.currentPosition - 1, element, accuracy);
+			SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracy, currentPosition, scanner.currentPosition, this);
+			report(match);
 			return;
 		}
 	} while (token != TerminalTokens.TokenNameEOF);
-	report(sourceStart, sourceEnd, element, accuracy);
+	SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracy, sourceStart, sourceEnd+1, this);
+	report(match);
 }
 /**
  * Finds the accurate positions of each valid token in the source and
  * reports a reference to this token to the search requestor.
  * A token is valid if it has an accuracy which is not -1.
  */
-protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] tokens, IJavaElement element, int[] accuracies) throws CoreException {
+protected void reportAccurateReference(int referenceType, int sourceStart, int sourceEnd, char[][] tokens, IJavaElement element, int[] accuracies) throws CoreException {
+	if (!encloses(element)) return;
+	
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
 	scanner.setSource(this.currentPossibleMatch.getContents());
@@ -1049,9 +1046,11 @@ protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] 
 		if (accuracies[accuracyIndex] != -1) {
 			// accept reference
 			if (refSourceStart != -1) {
-				report(refSourceStart, refSourceEnd, element, accuracies[accuracyIndex]);
+				SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracies[accuracyIndex], refSourceStart, refSourceEnd+1, this);
+				report(match);
 			} else {
-				report(sourceStart, sourceEnd, element, accuracies[accuracyIndex]);
+				SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType, element, accuracies[accuracyIndex], sourceStart, sourceEnd+1, this);
+				report(match);
 			}
 			i = 0;
 		}
@@ -1062,7 +1061,7 @@ protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] 
 	} while (token != TerminalTokens.TokenNameEOF);
 
 }
-protected void reportBinaryMatch(IResource resource, IMember binaryMember, IBinaryType info, int accuracy) throws CoreException {
+protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryMember, IBinaryType info, int accuracy) throws CoreException {
 	ISourceRange range = binaryMember.getNameRange();
 	if (range.getOffset() == -1) {
 		ClassFile classFile = (ClassFile) binaryMember.getClassFile();
@@ -1078,11 +1077,10 @@ protected void reportBinaryMatch(IResource resource, IMember binaryMember, IBina
 		}
 	}
 	int startIndex = range.getOffset();
-	int endIndex = startIndex + range.getLength() - 1;
-	if (resource == null)
-		report(startIndex, endIndex, binaryMember, accuracy);
-	else
-		report(resource, startIndex, endIndex, binaryMember, accuracy, getParticipant());
+	int endIndex = startIndex + range.getLength();
+	if (resource == null) resource =  this.currentPossibleMatch.resource;
+	SearchMatch match = JavaSearchMatch.newDeclarationMatch(binaryMember, accuracy, startIndex, endIndex, getParticipant(), resource);
+	report(match);
 }
 /**
  * Visit the given method declaration and report the nodes that match exactly the
@@ -1105,8 +1103,10 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 				// ignore
 			}
 			int nameSourceEnd = scanner.currentPosition - 1;
-
-			report(nameSourceStart, nameSourceEnd, enclosingElement, accuracy);
+			if (encloses(enclosingElement)) {
+				SearchMatch match = JavaSearchMatch.newDeclarationMatch(enclosingElement, accuracy, nameSourceStart, nameSourceEnd+1, this);
+				report(match);
+			}
 		}
 	}
 
@@ -1129,7 +1129,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 			if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0) {
 				if (enclosingElement == null)
 					enclosingElement = createHandle(method, parent);
-				if (enclosingElement != null) { // skip if unable to find method
+				if (encloses(enclosingElement)) {
 					for (int i = 0, l = nodes.length; i < l; i++) {
 						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
@@ -1210,7 +1210,10 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	IJavaElement enclosingElement = null;
 	if (accuracy > -1) {
 		enclosingElement = createHandle(field, type, parent);
-		report(field.sourceStart, field.sourceEnd, enclosingElement, accuracy);
+		if (encloses(enclosingElement)) {
+			SearchMatch match = JavaSearchMatch.newDeclarationMatch(enclosingElement, accuracy, field.sourceStart, field.sourceEnd+1, this);
+			report(match);
+		}
 	}
 
 	// handle the nodes for the local type first
@@ -1234,11 +1237,12 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 			} else {
 				if (enclosingElement == null)
 					enclosingElement = createHandle(field, type, parent);
-				for (int i = 0, l = nodes.length; i < l; i++) {
-					ASTNode node = nodes[i];
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
-				}
+				if (encloses(enclosingElement))
+					for (int i = 0, l = nodes.length; i < l; i++) {
+						ASTNode node = nodes[i];
+						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+					}
 			}
 		}
 	}
@@ -1264,8 +1268,10 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	if (enclosingElement == null) return;
 
 	// report the type declaration
-	if (accuracy > -1)
-		report(type.sourceStart, type.sourceEnd, enclosingElement, accuracy);
+	if (accuracy > -1 && encloses(enclosingElement)) {
+		SearchMatch match = JavaSearchMatch.newDeclarationMatch(enclosingElement, accuracy, type.sourceStart, type.sourceEnd+1, this);
+		report(match);
+	}
 
 	boolean matchedClassContainer = (this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0;
 
@@ -1280,7 +1286,8 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+					if (encloses(enclosingElement))
+						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
 				}
 			}
 		}

@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -116,16 +117,19 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	if (binding == null) {
 		this.matchReportReference(importRef, element, accuracy, locator);
 	} else {
-		long[] positions = importRef.sourcePositions;
-		int last = positions.length - 1;
-		if (binding instanceof ProblemReferenceBinding)
-			binding = ((ProblemReferenceBinding) binding).original;
-		if (binding instanceof ReferenceBinding) {
-			PackageBinding pkgBinding = ((ReferenceBinding) binding).fPackage;
-			if (pkgBinding != null)
-				last = pkgBinding.compoundName.length;
+		if (locator.encloses(element)) {
+			long[] positions = importRef.sourcePositions;
+			int last = positions.length - 1;
+			if (binding instanceof ProblemReferenceBinding)
+				binding = ((ProblemReferenceBinding) binding).original;
+			if (binding instanceof ReferenceBinding) {
+				PackageBinding pkgBinding = ((ReferenceBinding) binding).fPackage;
+				if (pkgBinding != null)
+					last = pkgBinding.compoundName.length;
+			}
+			SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.PACKAGE_FRAGMENT, element, accuracy, ((int) (positions[0] >>> 32)), ((int) positions[last - 1])+1, locator);
+			locator.report(match);
 		}
-		locator.report(positions[0], positions[last - 1], element, accuracy);
 	}
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
@@ -182,7 +186,13 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		last = this.pattern.segments.length;
 		if (last > positions.length) last = positions.length;
 	}
-	locator.report(positions[0], positions[last - 1], element, accuracy);
+	int sourceStart = (int) (positions[0] >>> 32);
+	int sourceEnd = ((int) positions[last - 1])+1;
+	SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.PACKAGE_FRAGMENT, element, accuracy, sourceStart, sourceEnd, locator);
+	locator.report(match);
+}
+protected int referenceType() {
+	return IJavaElement.PACKAGE_FRAGMENT;
 }
 public int resolveLevel(ASTNode node) {
 	if (node instanceof QualifiedTypeReference)
