@@ -57,17 +57,6 @@ private boolean areParameterErasuresEqual(MethodBinding one, MethodBinding two) 
 	if (length != twoArgs.length) return false;
 	for (int i = 0; i < length; i++)
 		if (!areTypesEqual(oneArgs[i].erasure(), twoArgs[i].erasure())) return false;
-//	if (two.hasSubstitutedParameters()) {
-//		for (int i = 0; i < length; i++)
-//			if (!areTypesEqual(oneArgs[i], twoArgs[i]))
-//				if (!isSameOrSubTypeOf(oneArgs[i], twoArgs[i])) return false;
-//	} else if (one instanceof ParameterizedMethodBinding && two instanceof ParameterizedMethodBinding) {
-//		for (int i = 0; i < length; i++)
-//			if (!areTypesEqual(oneArgs[i].erasure(), twoArgs[i].erasure())) return false;
-//	} else {
-//		for (int i = 0; i < length; i++)
-//			if (!areTypesEqual(oneArgs[i], twoArgs[i])) return false;
-//	}
 	return true;
 }
 private boolean areReturnTypeErasuresEqual(MethodBinding one, MethodBinding two) {
@@ -112,8 +101,7 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 
 		if (addBridgeMethod || inheritedMethod.hasSubstitutedParameters()) {
 		    MethodBinding original = inheritedMethod.original();
-		    if (!areReturnTypeErasuresEqual(original, currentMethod)
-		            || !areParameterErasuresEqual(original, currentMethod))
+		    if (!areReturnTypeErasuresEqual(original, currentMethod) || !areParameterErasuresEqual(original, currentMethod))
 				this.type.addSyntheticBridgeMethod(original, currentMethod);
 		}
 
