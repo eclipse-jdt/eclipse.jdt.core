@@ -28,7 +28,7 @@ package org.eclipse.jdt.core.dom;
  * </p>
  * @since 3.0
  */
-public abstract class Annotation extends ExtendedModifier {
+public abstract class Annotation extends Expression implements IExtendedModifier {
 	
 	/**
 	 * Returns structural property descriptor for the "typeName" property
@@ -67,6 +67,20 @@ public abstract class Annotation extends ExtendedModifier {
 		super(ast);
 	}
 	
+	/**
+	 * @see IExtendedModifier#isModifier()
+	 */ 
+	public boolean isModifier() {
+		return false;
+	}
+	
+	/**
+	 * @see IExtendedModifier#isAnnotation()
+	 */ 
+	public boolean isAnnotation() {
+		return true;
+	}
+
 	/**
 	 * Returns the annotation type name of this annotation.
 	 * 

@@ -11,7 +11,8 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Abstract base class of AST nodes that represent modifiers or annotations.
+ * Common interface for AST nodes that represent modifiers or
+ * annotations.
  * <pre>
  * ExtendedModifier:
  *   Modifier
@@ -25,39 +26,23 @@ package org.eclipse.jdt.core.dom;
  * </p>
  * @since 3.0
  */
-public abstract class ExtendedModifier extends ASTNode {
+public interface IExtendedModifier {
 	
-	/**
-	 * Creates a new unparented node for an extended modifier owned by the
-	 * given AST. By default, no bound.
-	 * <p>
-	 * N.B. This constructor is package-private.
-	 * </p>
-	 * 
-	 * @param ast the AST that is to own this node
-	 */
-	ExtendedModifier(AST ast) {
-		super(ast);
-	}
-
 	/**
 	 * Returns whether this extended modifier is a standard modifier.
 	 * 
-	 * @return <code>true</code> if this is a standard modifier,
-	 *    and <code>false</code> otherwise
+	 * @return <code>true</code> if this is a standard modifier
+	 * (instance of {@link Modifier}), and <code>false</code> otherwise
 	 */ 
-	public boolean isModifier() {
-		return (this instanceof Modifier);
-	}
+	public boolean isModifier();
 	
 	/**
 	 * Returns whether this extended modifier is an annotation.
 	 * 
-	 * @return <code>true</code> if this is an annotation,
-	 *    and <code>false</code> otherwise
+	 * @return <code>true</code> if this is an annotation
+	 * (instance of a subclass of {@link Annotation}), and 
+	 * <code>false</code> otherwise
 	 */ 
-	public boolean isAnnotation() {
-		return (this instanceof Annotation);
-	}
+	public boolean isAnnotation();
 }
 
