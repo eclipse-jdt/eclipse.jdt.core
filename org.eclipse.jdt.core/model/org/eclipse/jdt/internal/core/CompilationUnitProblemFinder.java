@@ -154,7 +154,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 
 		try {
-//			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 			
 			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;
@@ -167,7 +166,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 						unitElement.getSource().toCharArray(),
 						expectedPackageName,
 						new String(fileName),
-//						encoding),
 						unitElement),
 					true, // verify methods
 					true, // analyze code

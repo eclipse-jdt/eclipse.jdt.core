@@ -102,14 +102,12 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
-//		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 		String elementName = getElementName();
 		BasicCompilationUnit cu = 
 			new BasicCompilationUnit(
 				getSource().toCharArray(), 
 				null,
 				elementName.substring(0, elementName.length()-SUFFIX_STRING_class.length()) + SUFFIX_STRING_java,
-//				encoding); 
 				getJavaProject()); // use project to retrieve corresponding .java IFile
 		codeComplete(cu, cu, offset, requestor, owner);
 	}

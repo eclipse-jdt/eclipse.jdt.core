@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
@@ -30,12 +29,10 @@ public class ClasspathSourceDirectory extends ClasspathLocation {
 	SimpleLookupTable directoryCache;
 	String[] missingPackageHolder = new String[1];
 
-//ClasspathSourceDirectory(IContainer sourceFolder, String encoding) {
 ClasspathSourceDirectory(IContainer sourceFolder) {
 	this.sourceFolder = sourceFolder;
 	IPath location = sourceFolder.getLocation();
 	this.sourceLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
-//	this.encoding = encoding;	
 	// Store default encoding
 	try {
 		this.encoding = this.sourceFolder.getDefaultCharset();
@@ -109,7 +106,6 @@ public NameEnvironmentAnswer findClass(String sourceFileName, String qualifiedPa
 	catch (CoreException ce) {
 		// let use default encoding
 	}
-//	return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding));
 	return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding));
 }
 

@@ -259,7 +259,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (newContent != null){
 				boolean wasReadOnly = destFile.isReadOnly();
 				try {
-//					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 					String encoding = null;
 					try {
 						encoding = destFile.getCharset();
@@ -308,7 +307,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 			try {
 				if (newContent != null){
-//					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 					String encoding = null;
 					try {
 						encoding = destFile.getCharset();

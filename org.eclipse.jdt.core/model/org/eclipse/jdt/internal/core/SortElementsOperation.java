@@ -103,7 +103,6 @@ public class SortElementsOperation extends JavaModelOperation {
 					source,
 					expectedPackageName,
 					unit.getElementName(),
-//					null),
 					unit),
 				false/*diet parse*/);
 		} else {
@@ -112,7 +111,6 @@ public class SortElementsOperation extends JavaModelOperation {
 					source,
 					null,
 					"",//$NON-NLS-1$
-//					null),
 					unit.getJavaProject()),//$NON-NLS-1$
 				false/*diet parse*/);
 		}

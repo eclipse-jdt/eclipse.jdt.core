@@ -50,7 +50,6 @@ public void cleanup() {
 
 private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject javaProject) {
 
-//	String encoding = null;
 	IPackageFragmentRoot[] roots = null;
 	try {
 		roots = javaProject.getAllPackageFragmentRoots();
@@ -73,10 +72,6 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
-//					if (encoding == null) {
-//						encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
-//					}
-//					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, encoding);
 					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target);
 				} else {
 					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false);

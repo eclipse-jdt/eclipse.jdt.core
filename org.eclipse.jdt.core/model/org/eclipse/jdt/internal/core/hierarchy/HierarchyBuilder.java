@@ -270,13 +270,11 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) {
-//	String encoding = handle.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 	return 
 		new BasicCompilationUnit(
 			null,
 			null,
 			osPath,
-//			encoding);
 			handle);
 }
 	/**

@@ -316,7 +316,6 @@ class CompilationUnitResolver extends Compiler {
 						source,
 						packageName,
 						unitName,
-//						(String) options.get(JavaCore.CORE_ENCODING)),
 						javaProject),
 					nodeSearcher,
 					true, // method verification

@@ -72,7 +72,6 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	String source = getClassFile().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
 		// code complete
-//		String encoding = project.getOption(JavaCore.CORE_ENCODING, true); 
 		
 		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
 		char[] suffix =  CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
@@ -83,7 +82,6 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 				fakeSource, 
 				null,
 				getElementName(),
-//				encoding); 
 				project); // use project to retrieve corresponding .java IFile
 
 		engine.complete(cu, prefix.length + position, prefix.length);

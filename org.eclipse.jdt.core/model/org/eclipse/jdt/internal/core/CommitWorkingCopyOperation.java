@@ -115,7 +115,6 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 				}
 			} else {
 				// working copy on cu outside classpath OR resource doesn't exist yet
-//				String encoding = workingCopy.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 				String encoding = null;
 				try {
 					resource.getCharset();

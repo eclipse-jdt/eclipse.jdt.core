@@ -143,7 +143,6 @@ public class CompilationUnitVisitor extends Compiler {
 
 		CompilationUnitDeclaration unit = null;
 		try {
-//			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 
 			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;
@@ -156,7 +155,6 @@ public class CompilationUnitVisitor extends Compiler {
 						unitElement.getSource().toCharArray(),
 						expectedPackageName,
 						unitElement.getElementName(),
-//						encoding),
 						unitElement),
 					true, // method verification
 					false, // no flow analysis

@@ -108,7 +108,6 @@ protected void executeOperation() throws JavaModelException {
 			}
 		} else {
 			try {
-//				String encoding = unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 				String encoding = null;
 				try {
 					encoding = folder.getDefaultCharset(); // get folder encoding as file is not accessible

@@ -24,21 +24,16 @@ public class SourceFile implements ICompilationUnit {
 IFile resource;
 ClasspathMultiDirectory sourceLocation;
 String initialTypeName;
-//String encoding;
 boolean updateClassFile;
 
-//public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation, String encoding) {
 public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation) {
 	this.resource = resource;
 	this.sourceLocation = sourceLocation;
 	this.initialTypeName = extractTypeName();
-//	this.encoding = encoding;
 	this.updateClassFile = false;
 }
 
-//public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation, String encoding, boolean updateClassFile) {
 public SourceFile(IFile resource, ClasspathMultiDirectory sourceLocation, boolean updateClassFile) {
-//	this(resource, sourceLocation, encoding);
 	this(resource, sourceLocation);
 
 	this.updateClassFile = updateClassFile;
@@ -80,7 +75,6 @@ String extractTypeName() {
 public char[] getContents() {
 
 	try {	
-//		return Util.getResourceContentsAsCharArray(this.resource, this.encoding);
 		return Util.getResourceContentsAsCharArray(this.resource);
 	} catch (CoreException e) {
 		throw new AbortCompilation(true, new MissingSourceFileException(this.resource.getFullPath().toString()));

@@ -76,7 +76,6 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 							if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 								if (resource == null)
 									resource = proxy.requestResource();
-//								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation, encoding));
 								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
 							}
 							return false;
