@@ -803,8 +803,8 @@ class ASTConverter {
 		assertStatement.setExpression(convert(statement.assertExpression));
 		org.eclipse.jdt.internal.compiler.ast.Expression exceptionArgument = statement.exceptionArgument;
 		if (exceptionArgument != null) {
-			assertStatement.setMessage(convert(exceptionArgument));
 			end = exceptionArgument.sourceEnd + 1;
+			assertStatement.setMessage(convert(exceptionArgument));
 		}
 		int start = statement.sourceStart;
 		int sourceEnd = retrieveEndingSemiColonPosition(end, this.compilationUnitSource.length);

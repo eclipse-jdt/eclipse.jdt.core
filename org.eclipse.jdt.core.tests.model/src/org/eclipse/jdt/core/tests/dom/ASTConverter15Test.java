@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -88,7 +89,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0100"));
+		suite.addTest(new ASTConverter15Test("test0101"));
 		return suite;
 	}
 		
@@ -3152,5 +3153,37 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68823
+	 */
+	public void test0101() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X{\n" +
+				"	public void foo() {\n" +
+				"		assert (true): (\"hello\");\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not an assert statement", ASTNode.ASSERT_STATEMENT, node.getNodeType());
+			AssertStatement assertStatement = (AssertStatement) node;
+			final char[] source = contents.toCharArray();
+			checkSourceRange(assertStatement.getExpression(), "(true)", source);
+			checkSourceRange(assertStatement.getMessage(), "(\"hello\")", source);
+			checkSourceRange(assertStatement, "assert (true): (\"hello\");", source);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
