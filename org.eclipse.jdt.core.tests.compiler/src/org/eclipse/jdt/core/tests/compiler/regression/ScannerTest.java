@@ -14,9 +14,8 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
-
 public class ScannerTest extends AbstractRegressionTest {
 
 	public ScannerTest(String name) {
@@ -42,7 +41,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
 		}
-		assertEquals("Wrong token type", TerminalTokens.TokenNameSEMICOLON, token);
+		assertEquals("Wrong token type", ITerminalSymbols.TokenNameSEMICOLON, token);
 	}
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
@@ -54,10 +53,10 @@ public class ScannerTest extends AbstractRegressionTest {
 		int token = 0;
 		try {
 			token = scanner.getNextToken();
-			assertEquals("Wrong token type", TerminalTokens.TokenNameWHITESPACE, token);
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameWHITESPACE, token);
 			assertEquals("Wrong size", 2, scanner.getCurrentTokenSource().length);
 			token = scanner.getNextToken();
-			assertEquals("Wrong token type", TerminalTokens.TokenNameEOF, token);
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
 		}
 	}
@@ -71,12 +70,12 @@ public class ScannerTest extends AbstractRegressionTest {
 		int token = 0;
 		try {
 			token = scanner.getNextToken();
-			assertEquals("Wrong token type", TerminalTokens.TokenNameCOMMENT_LINE, token);
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameCOMMENT_LINE, token);
 			token = scanner.getNextToken();
-			assertEquals("Wrong token type", TerminalTokens.TokenNameWHITESPACE, token);
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameWHITESPACE, token);
 			assertEquals("Wrong size", 2, scanner.getCurrentTokenSource().length);
 			token = scanner.getNextToken();
-			assertEquals("Wrong token type", TerminalTokens.TokenNameEOF, token);
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
 		}
 	}						
