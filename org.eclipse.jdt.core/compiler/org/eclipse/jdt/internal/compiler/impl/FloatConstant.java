@@ -47,8 +47,7 @@ public class FloatConstant extends Constant {
 	}
 	
 	public String stringValue() {
-		//spec 15.17.11
-		String s = new Float(value).toString();
+		String s = Float.toString(value);
 		if (s == null)
 			return "null"; //$NON-NLS-1$
 		else
