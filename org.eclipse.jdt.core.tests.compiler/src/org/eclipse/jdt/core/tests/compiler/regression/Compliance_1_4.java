@@ -1556,6 +1556,55 @@ public void test42() {
 		"SUCCESS");
 }
 
+// binary compatibility
+//public void test43() {
+//	this.runConformTest(
+//		new String[] {
+//			"p1/Y.java",
+//			"package p1;	\n" +
+//			"public class Y extends A implements I { \n" +
+//			"	public static void main(String[] args) {	\n" +
+//			"		Y.printValues();	\n" +
+//			"	}	\n" +
+//			"	public static void printValues() {	\n" +
+//			"		System.out.println(\"i=\"+i+\",j=\"+j+\",Y.i=\"+Y.i+\",Y.j=\"+Y.j);	\n" +
+//			"	}	\n" +
+//			"}	\n",
+//			"p1/A.java",
+//			"package p1;	\n" +
+//			"public class A {	\n" +
+//			"	static int i = 1;	\n" +
+//			"}	\n",
+//			"p1/I.java",
+//			"package p1;	\n" +
+//			"interface I {	\n" +
+//			"	int j = \"aa\".length();	\n" +
+//			"}	\n",
+//		},
+//		"i=1,j=2,Y.i=1,Y.j=2");
+//
+//	this.runConformTest(
+//		new String[] {
+//			"p1/A.java",
+//			"package p1;	\n" +
+//			"public class A {	\n" +
+//			"	static int j = 3;	\n" +
+//			"	public static void main(String[] args) {	\n" +
+//			"		Y.printValues();	\n" +
+//			"	}	\n" +
+//			"}	\n",
+//			"p1/I.java",
+//			"package p1;	\n" +
+//			"interface I {	\n" +
+//			"	int j = \"aaaa\".length();	\n" +
+//			"}	\n",
+//		},
+//		"i=4,j=3,Y.i=4,Y.j=3",
+//		null, // use default class-path
+//		false, // do not flush previous output dir content
+//		null); // no special vm args		
+//}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
