@@ -134,7 +134,56 @@ public class SimpleName extends Name {
 		modifying();
 		this.identifier = identifier;
 	}
-	
+
+	/**
+	 * Returns whether this simple name represents a name that is being defined,
+	 * as opposed to one being referenced. The following positions are considered
+	 * ones where a name is defined:
+	 * <ul>
+	 * <li>The type name in a <code>TypeDeclaration</code> node.</li>
+	 * <li>The method name in a <code>MethodDeclaration</code> node
+	 * providing <code>isConstructor</code> is <code>false</code>.</li>
+	 * </ul>
+	 * <li>The variable name in any type of <code>VariableDeclaration</code>
+	 * node.</li>
+	 * </ul>
+	 * <p>
+	 * Note that this is a convenience method that simply checks whether
+	 * this node appears in the declaration position relative to its parent.
+	 * It always returns <code>false</code> if this node is unparented.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this node declares a name, and 
+	 *    <code>false</code> otherwise
+	 */ 
+	public boolean isDeclaration() {
+		ASTNode parent = getParent();
+		if (parent == null) {
+			// unparented node
+			return false;
+		}
+		if (parent instanceof TypeDeclaration) {
+			// could only be the name of the type
+			return true;
+		}
+		if (parent instanceof MethodDeclaration) {
+			// could be the name of the method or constructor
+			MethodDeclaration p = (MethodDeclaration) parent;
+			return !p.isConstructor();
+		}
+		if (parent instanceof SingleVariableDeclaration) {
+			SingleVariableDeclaration p = (SingleVariableDeclaration) parent;
+			// make sure its the name of the variable (not the initializer)
+			return (p.getName() == this);
+		}
+		if (parent instanceof VariableDeclarationFragment) {
+			VariableDeclarationFragment p = (VariableDeclarationFragment) parent;
+			// make sure its the name of the variable (not the initializer)
+			return (p.getName() == this);
+		}
+		return false;
+	}
+		
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
