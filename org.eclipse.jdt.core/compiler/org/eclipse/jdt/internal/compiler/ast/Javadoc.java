@@ -284,10 +284,9 @@ public class Javadoc extends ASTNode {
 					ReferenceBinding exceptionBinding = md.binding.thrownExceptions[i];
 					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
 						int j=i;
-						boolean diff=true;
-						while (j<thrownExceptionLength && (diff=exceptionBinding != md.thrownExceptions[j++].resolvedType));
-						if (!diff) {
-							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[j-1], md.binding.modifiers);
+						while (j<thrownExceptionLength && exceptionBinding != md.thrownExceptions[j].resolvedType) j++;
+						if (j<thrownExceptionLength) {
+							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[j], md.binding.modifiers);
 						}
 					}
 				}
@@ -323,10 +322,9 @@ public class Javadoc extends ASTNode {
 				if (!found && reportMissing) {
 					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
 						int k=i;
-						boolean diff=true;
-						while (k<thrownExceptionLength && (diff=exceptionBinding != md.thrownExceptions[k++].resolvedType));
-						if (!diff) {
-							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[k-1], md.binding.modifiers);
+						while (k<thrownExceptionLength && exceptionBinding != md.thrownExceptions[k].resolvedType) k++;
+						if (k<thrownExceptionLength) {
+							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[k], md.binding.modifiers);
 						}
 					}
 				}
