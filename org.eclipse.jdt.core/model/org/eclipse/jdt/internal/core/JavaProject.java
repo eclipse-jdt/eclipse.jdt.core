@@ -496,6 +496,7 @@ public class JavaProject
 	protected IClasspathEntry[] decodeClasspath(String xmlClasspath, boolean createMarker, boolean logProblems) {
 
 		ArrayList paths = new ArrayList();
+		IClasspathEntry defaultOutput = null;
 		try {
 			if (xmlClasspath == null) return null;
 			StringReader reader = new StringReader(xmlClasspath);
@@ -523,7 +524,13 @@ public class JavaProject
 				Node node = list.item(i);
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
 					IClasspathEntry entry = ClasspathEntry.elementDecode((Element)node, this);
-					if (entry != null) paths.add(entry);
+					if (entry != null){
+						if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) { 
+							defaultOutput = entry; // separate output
+						} else {
+							paths.add(entry);
+						}
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -557,10 +564,12 @@ public class JavaProject
 			}
 			return INVALID_CLASSPATH;
 		}
-		if (paths.size() > 0) {
-			IClasspathEntry[] ips = new IClasspathEntry[paths.size()];
-			paths.toArray(ips);
-			return ips;
+		int pathSize = paths.size();
+		if (pathSize > 0 || defaultOutput != null) {
+			IClasspathEntry[] entries = new IClasspathEntry[pathSize + (defaultOutput == null ? 0 : 1)];
+			paths.toArray(entries);
+			if (defaultOutput != null) entries[pathSize] = defaultOutput; // ensure output is last item
+			return entries;
 		} else {
 			return null;
 		}
