@@ -126,23 +126,32 @@ public class SwitchStatement extends Statement {
 		// generate expression testes
 		testExpression.generateCode(currentScope, codeStream, needSwitch);
 
-		// generate the appropriate switch table
+		// generate the appropriate switch table/lookup bytecode
 		if (needSwitch) {
 			int max = localKeysCopy[caseCount - 1];
 			int min = localKeysCopy[0];
 			if ((long) (caseCount * 2.5) > ((long) max - (long) min)) {
-				codeStream.tableswitch(
-					defaultLabel,
-					min,
-					max,
-					constants,
-					sortedIndexes,
-					caseLabels);
+				
+				// work-around 1.3 VM bug, if max>0x7FFF0000, must use lookup bytecode
+				// see http://dev.eclipse.org/bugs/show_bug.cgi?id=21557
+				if (max > 0x7FFF0000 && currentScope.environment().options.complianceLevel < CompilerOptions.JDK1_4) {
+					codeStream.lookupswitch(defaultLabel, constants, sortedIndexes, caseLabels);
+
+				} else {
+					codeStream.tableswitch(
+						defaultLabel,
+						min,
+						max,
+						constants,
+						sortedIndexes,
+						caseLabels);
+				}
 			} else {
 				codeStream.lookupswitch(defaultLabel, constants, sortedIndexes, caseLabels);
 			}
 			codeStream.updateLastRecordedEndPC(codeStream.position);
 		}
+		
 		// generate the switch block statements
 		int caseIndex = 0;
 		if (statements != null) {
