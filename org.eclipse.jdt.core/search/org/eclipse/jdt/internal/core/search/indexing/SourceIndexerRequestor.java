@@ -239,7 +239,11 @@ public void exitMethod(int declarationEnd) {
 	this.methodDepth--;
 }
 public void popTypeName(){
+	try {
 	enclosingTypeNames[depth--] = null;
+	} catch (ArrayIndexOutOfBoundsException e) {
+		e.printStackTrace();
+	}
 }
 public void pushTypeName(char[] typeName){
 	if (depth == enclosingTypeNames.length){

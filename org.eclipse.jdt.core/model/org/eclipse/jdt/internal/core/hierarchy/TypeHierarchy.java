@@ -301,7 +301,7 @@ protected void destroy() {
  */
 public void elementChanged(ElementChangedEvent event) {
 	// fix for 1FW67PA
-	if (fExists) {
+	if (fExists && this.isActivated()) {
 		if (exists()) {
 			if (isAffected(event.getDelta())) {
 				fireChange();
