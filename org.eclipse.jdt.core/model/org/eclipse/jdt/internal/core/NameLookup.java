@@ -68,6 +68,8 @@ public class NameLookup implements SuffixConstants {
 	 */
 	public static final int ACCEPT_INTERFACES = 0x00000004;
 
+	public static boolean VERBOSE = false;
+
 	/**
 	 * The <code>IPackageFragmentRoot</code>'s associated
 	 * with the classpath of this NameLookup facility's
@@ -97,6 +99,12 @@ public class NameLookup implements SuffixConstants {
 	protected HashMap unitsToLookInside;
 
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
+		if (VERBOSE) {
+			System.out.println(Thread.currentThread() + " BUILDING NameLoopkup");  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> pkg roots size: " + packageFragmentRoots.length);  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> pkgs size: " + packageFragments.size());  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> working copy size: " + workingCopies.length);  //$NON-NLS-1$
+		}
 		this.packageFragmentRoots = packageFragmentRoots;
 		this.packageFragments = packageFragments;
 		if (workingCopies != null) {
@@ -572,7 +580,12 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
-		if (partialMatch) {
+/*		if (VERBOSE) {
+			System.out.println(Thread.currentThread() + " SEEKING PACKAGE FRAGMENTS");  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> name: " + name);  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> partial match:" + partialMatch);  //$NON-NLS-1$
+		}
+*/		if (partialMatch) {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
 			Object[][] keys = this.packageFragments.keyTable;
 			for (int i = 0, length = keys.length; i < length; i++) {
@@ -622,7 +635,13 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_INTERFACES
 	 */
 	public void seekTypes(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
-
+/*		if (VERBOSE) {
+			System.out.println(Thread.currentThread() + " SEEKING TYPES");  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> name: " + name);  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> pkg: " + ((JavaElement) pkg).toStringWithAncestors());  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> partial match:" + partialMatch);  //$NON-NLS-1$
+		}
+*/
 		String matchName= partialMatch ? name.toLowerCase() : name;
 		if (pkg == null) {
 			findAllTypes(matchName, partialMatch, acceptFlags, requestor);
