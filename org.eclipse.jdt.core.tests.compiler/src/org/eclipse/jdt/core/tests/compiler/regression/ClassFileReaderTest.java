@@ -156,7 +156,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"};";
 		String expectedOutput = 
-			"  // Method descriptor  #19 ()I\n" + 
+			"  // Method descriptor #19 ()I\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public int foo();\n" + 
 			"     0  new A001$1$A [21]\n" + 
@@ -184,7 +184,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
@@ -217,7 +217,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput = 
-			"  // Method descriptor  #15 ()I\n" + 
+			"  // Method descriptor #15 ()I\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public int bar();\n" + 
 			"    0  iconst_0\n" + 
@@ -227,7 +227,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 2] local: this index: 0 type: LA003;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [22]\n" + 
@@ -259,7 +259,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -304,7 +304,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -342,7 +342,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  bipush 6\n" + 
@@ -372,7 +372,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput = 
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -408,7 +408,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput = 
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
@@ -439,7 +439,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -484,7 +484,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -522,7 +522,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -560,7 +560,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
@@ -593,7 +593,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -630,7 +630,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -682,7 +682,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -720,7 +720,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -758,7 +758,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -794,7 +794,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -832,7 +832,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -880,7 +880,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -919,7 +919,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -956,7 +956,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -993,7 +993,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1030,7 +1030,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1067,7 +1067,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1107,7 +1107,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1145,7 +1145,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1182,7 +1182,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1221,7 +1221,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1259,7 +1259,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1296,7 +1296,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1335,7 +1335,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1375,7 +1375,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1428,7 +1428,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1466,7 +1466,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  bipush 6\n" + 
@@ -1496,7 +1496,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1532,7 +1532,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
@@ -1563,7 +1563,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1616,7 +1616,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1650,7 +1650,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1688,7 +1688,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"    0  iconst_0\n" + 
@@ -1721,7 +1721,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1758,7 +1758,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 3\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1811,7 +1811,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1849,7 +1849,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  bipush 6\n" + 
@@ -1887,7 +1887,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1923,7 +1923,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 
@@ -1964,7 +1964,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #15 (Z)I\n" + 
+			"  // Method descriptor #15 (Z)I\n" + 
 			"  // Stack: 1, Locals: 4\n" + 
 			"  static int foo(boolean bool);\n" + 
 			"     0  iload_0 [bool]\n" + 
@@ -2020,7 +2020,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void foo();\n" + 
 			"    0  iconst_5\n" + 
@@ -2049,7 +2049,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo();\n" + 
 			"     0  iconst_5\n" + 
@@ -2086,7 +2086,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void bar();\n" + 
 			"    0  bipush 6\n" + 
@@ -2114,7 +2114,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar();\n" + 
 			"     0  bipush 6\n" + 
@@ -2153,7 +2153,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		"	}\n" + 
 		"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo2();\n" + 
 			"     0  iconst_5\n" + 
@@ -2191,7 +2191,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo2();\n" + 
 			"     0  iconst_5\n" + 
@@ -2233,7 +2233,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar2();\n" + 
 			"     0  bipush 6\n" + 
@@ -2270,7 +2270,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar2();\n" + 
 			"     0  bipush 6\n" + 
@@ -2308,7 +2308,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void foo3();\n" + 
 			"    0  iconst_5\n" + 
@@ -2337,7 +2337,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo3();\n" + 
 			"     0  iconst_5\n" + 
@@ -2370,7 +2370,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void bar3();\n" + 
 			"    0  bipush 6\n" + 
@@ -2398,7 +2398,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar3();\n" + 
 			"     0  bipush 6\n" + 
@@ -2433,7 +2433,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void foo4();\n" + 
 			"    0  iconst_5\n" + 
@@ -2465,7 +2465,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo4();\n" + 
 			"     0  iconst_5\n" + 
@@ -2501,7 +2501,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  static void bar4();\n" + 
 			"    0  bipush 6\n" + 
@@ -2532,7 +2532,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar4();\n" + 
 			"     0  bipush 6\n" + 
@@ -2567,7 +2567,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo5();\n" + 
 			"     0  iconst_5\n" + 
@@ -2605,7 +2605,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void foo5();\n" + 
 			"     0  iconst_5\n" + 
@@ -2647,7 +2647,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar5();\n" + 
 			"     0  bipush 6\n" + 
@@ -2684,7 +2684,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  static void bar5();\n" + 
 			"     0  bipush 6\n" + 
@@ -2741,7 +2741,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" +
 			"}";
 		String expectedOutput =
-			"  // Method descriptor  #18 (IJ[[[Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
 			"  // Stack: 0, Locals: 5\n" + 
 			"  public void foo(int i, long l, String[][]... arg);\n" + 
 			"    0  return\n" + 
@@ -2811,7 +2811,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    constant #37 utf8: SourceFile\n" + 
 			"    constant #38 utf8: X.java\n" + 
 			"  \n" + 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
@@ -2822,7 +2822,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  iconst_0\n" + 

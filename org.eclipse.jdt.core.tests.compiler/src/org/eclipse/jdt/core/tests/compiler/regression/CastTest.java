@@ -73,7 +73,7 @@ public void test001() {
 	}
 
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 3\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
@@ -1298,7 +1298,7 @@ public void test034() {
 	}
 
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  new java/util/ArrayList [17]\n" + 

@@ -355,7 +355,7 @@ public void test009() {
 	}
 	
 	String expectedOutput = 
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
@@ -420,7 +420,7 @@ public void test009() {
 		"        [pc: 86, pc: 95] local: s2 index: 3 type: Ljava/lang/String;\n";
 	
 	String expectedOutput15 =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
@@ -533,7 +533,7 @@ public void test010() {
 	}
 	
 	String expectedOutput = 
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 1\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 

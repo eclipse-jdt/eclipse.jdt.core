@@ -1109,7 +1109,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(val={false})\n" + 
 			"  void foo();\n" + 
@@ -1216,7 +1216,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value={\"Hello\"})\n" + 
 			"  void foo();\n" + 
@@ -1264,7 +1264,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=\"Hi\")\n" + 
 			"  void foo();\n" + 
@@ -1311,7 +1311,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(int) 2)\n" + 
 			"  void foo();\n" + 
@@ -1358,7 +1358,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(byte) 2)\n" + 
 			"  void foo();\n" + 
@@ -1405,7 +1405,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(short) 2)\n" + 
 			"  void foo();\n" + 
@@ -1452,7 +1452,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=\'@\')\n" + 
 			"  void foo();\n" + 
@@ -1499,7 +1499,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=9223372036854775807L)\n" + 
 			"  void foo();\n" + 
@@ -1546,7 +1546,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=-0.0f)\n" + 
 			"  void foo();\n" + 
@@ -1594,7 +1594,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=-0.0)\n" + 
 			"  void foo();\n" + 
@@ -1645,7 +1645,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=@Foo(id=(int) 5))\n" + 
 			"  void foo();\n" + 
@@ -1695,7 +1695,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=Color.RED)\n" + 
 			"  void foo();\n" + 
@@ -1745,7 +1745,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value={Color.RED})\n" + 
 			"  void foo();\n" + 
@@ -1817,7 +1817,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums={Color.RED},\n" + 
 			"      annotations={@Foo()},\n" + 
@@ -1898,7 +1898,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums=Color.RED,\n" + 
 			"      annotations=@Foo(),\n" + 
@@ -1955,7 +1955,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(names={\"Hello\"})\n" + 
 			"  void foo();\n" + 
@@ -2003,7 +2003,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #6 ()V\n" +
+			"  // Method descriptor #6 ()V\n" +
 			"  // Stack: 0, Locals: 1\n" +
 			"  @I(classes={X,I})\n" +
 			"  public void foo();\n" +
@@ -2255,37 +2255,37 @@ public class AnnotationTest extends AbstractComparableTest {
 			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
 			"abstract @interface I extends java.lang.Object implements java.lang.annotation.Annotation {\n" + 
 			"  \n" + 
-			"  // Method descriptor  #8 ()[LColor;\n" + 
+			"  // Method descriptor #8 ()[LColor;\n" + 
 			"  public abstract Color[] enums() default {Color.GREEN};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #13 ()[LFoo;\n" + 
+			"  // Method descriptor #13 ()[LFoo;\n" + 
 			"  public abstract Foo[] annotations() default {@Foo()};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #16 ()[I\n" + 
+			"  // Method descriptor #16 ()[I\n" + 
 			"  public abstract int[] ints() default {(int) 0};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #19 ()[B\n" + 
+			"  // Method descriptor #19 ()[B\n" + 
 			"  public abstract byte[] bytes() default {(byte) 1};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #22 ()[S\n" + 
+			"  // Method descriptor #22 ()[S\n" + 
 			"  public abstract short[] shorts() default {(short) 3};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #25 ()[J\n" + 
+			"  // Method descriptor #25 ()[J\n" + 
 			"  public abstract long[] longs() default {-9223372036854775808L};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #29 ()[Ljava/lang/String;\n" + 
+			"  // Method descriptor #29 ()[Ljava/lang/String;\n" + 
 			"  public abstract String[] strings() default {\"\"};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #32 ()[Z\n" + 
+			"  // Method descriptor #32 ()[Z\n" + 
 			"  public abstract boolean[] booleans() default {true};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #34 ()[F\n" + 
+			"  // Method descriptor #34 ()[F\n" + 
 			"  public abstract float[] floats() default {3.4028235E38f};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #37 ()[D\n" + 
+			"  // Method descriptor #37 ()[D\n" + 
 			"  public abstract double[] doubles() default {1.7976931348623157E308};\n" + 
 			"  \n" + 
-			"  // Method descriptor  #41 ()[Ljava/lang/Class;\n" + 
+			"  // Method descriptor #41 ()[Ljava/lang/Class;\n" + 
 			"  public abstract Class[] classes() default {I};\n" + 
 			"}"; 
 			
@@ -2357,37 +2357,37 @@ public class AnnotationTest extends AbstractComparableTest {
 			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
 			"abstract @interface I extends java.lang.Object implements java.lang.annotation.Annotation {\n" + 
 			"  \n" + 
-			"  // Method descriptor  #8 ()LColor;\n" + 
+			"  // Method descriptor #8 ()LColor;\n" + 
 			"  public abstract Color _enum() default Color.GREEN;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #13 ()LFoo;\n" + 
+			"  // Method descriptor #13 ()LFoo;\n" + 
 			"  public abstract Foo _annotation() default @Foo();\n" + 
 			"  \n" + 
-			"  // Method descriptor  #16 ()I\n" + 
+			"  // Method descriptor #16 ()I\n" + 
 			"  public abstract int _int() default (int) 0;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #19 ()B\n" + 
+			"  // Method descriptor #19 ()B\n" + 
 			"  public abstract byte _byte() default (byte) 1;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #22 ()S\n" + 
+			"  // Method descriptor #22 ()S\n" + 
 			"  public abstract short _short() default (short) 3;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #25 ()J\n" + 
+			"  // Method descriptor #25 ()J\n" + 
 			"  public abstract long _long() default -9223372036854775808L;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #29 ()Ljava/lang/String;\n" + 
+			"  // Method descriptor #29 ()Ljava/lang/String;\n" + 
 			"  public abstract String _string() default \"\";\n" + 
 			"  \n" + 
-			"  // Method descriptor  #32 ()Z\n" + 
+			"  // Method descriptor #32 ()Z\n" + 
 			"  public abstract boolean _boolean() default true;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #34 ()F\n" + 
+			"  // Method descriptor #34 ()F\n" + 
 			"  public abstract float _float() default 3.4028235E38f;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #37 ()D\n" + 
+			"  // Method descriptor #37 ()D\n" + 
 			"  public abstract double _double() default 1.7976931348623157E308;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #41 ()Ljava/lang/Class;\n" + 
+			"  // Method descriptor #41 ()Ljava/lang/Class;\n" + 
 			"  public abstract Class _class() default I;\n" + 
 			"}"; 
 			

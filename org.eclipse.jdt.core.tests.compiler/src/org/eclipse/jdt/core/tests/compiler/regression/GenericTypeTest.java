@@ -2804,7 +2804,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");		
 		String expectedOutput =
-			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  new X [2]\n" + 
@@ -5709,7 +5709,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 			
 		String expectedOutput =
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  aload_0 [args]\n" + 
@@ -13649,7 +13649,7 @@ public void test500(){
 			},
 			"nullnull");		
 		String expectedOutput =
-			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  new X [2]\n" + 
@@ -13731,7 +13731,7 @@ public void test500(){
 			},
 			"nullnull");		
 		String expectedOutput =
-			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  new X [2]\n" + 
@@ -13817,7 +13817,7 @@ public void test500(){
 			"  // Signature: TE;\n" + 
 			"  XA e;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #10 ()V\n" + 
+			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
@@ -13830,7 +13830,7 @@ public void test500(){
 			"      Local variable type table:\n" + 
 			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #21 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
@@ -13853,7 +13853,7 @@ public void test500(){
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 31] local: args index: 0 type: [Ljava/lang/String;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #10 ()V\n" + 
+			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
@@ -13918,7 +13918,7 @@ public void test500(){
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
 			"public class X extends java.lang.Object {\n" + 
 			"  \n" + 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
@@ -13931,7 +13931,7 @@ public void test500(){
 			"      Local variable type table:\n" + 
 			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #17 ()LXA;\n" + 
+			"  // Method descriptor #17 ()LXA;\n" + 
 			"  // Signature: ()TE;\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  XA e();\n" + 
@@ -13944,7 +13944,7 @@ public void test500(){
 			"      Local variable type table:\n" + 
 			"        [pc: 0, pc: 2] local: this index: 0 type: LX<TE;>;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #21 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
@@ -13967,7 +13967,7 @@ public void test500(){
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 31] local: args index: 0 type: [Ljava/lang/String;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #6 ()V\n" + 
+			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
@@ -14040,7 +14040,7 @@ public void test500(){
 			"  // Signature: TE;\n" + 
 			"  XA e;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #10 ()V\n" + 
+			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
@@ -14053,7 +14053,7 @@ public void test500(){
 			"      Local variable type table:\n" + 
 			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #21 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  new X [2]\n" + 
@@ -14067,7 +14067,7 @@ public void test500(){
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 11] local: args index: 0 type: [Ljava/lang/String;\n" + 
 			"  \n" + 
-			"  // Method descriptor  #10 ()V\n" + 
+			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public void foo();\n" + 
 			"     0  new X$1 [29]\n" + 

@@ -1054,7 +1054,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		}
 		
 		String expectedOutput = 
-			"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 1\n" + 
 			"  public static void main(String[] s);\n" + 
 			"     0  new java/lang/Integer [17]\n" + 

@@ -216,7 +216,7 @@ public void test007() {
 		null/*no custom requestor*/);
 	
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 7\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  bipush 9\n" + 
@@ -463,7 +463,7 @@ public void test014() {
 		"SUCCESS");
 
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 2\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
@@ -522,7 +522,7 @@ public void test015() {
 		"SUCCESS");
 
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 2\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
@@ -582,7 +582,7 @@ public void test016() {
 		"SUCCESS");
 
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
@@ -674,7 +674,7 @@ public void test018() {
 		},
 		"1");
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 6\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
@@ -757,7 +757,7 @@ public void test019() {
 		"SUCCESS");
 	
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
@@ -839,7 +839,7 @@ public void test020() {
 		"SUCCESS");
 	
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
@@ -926,7 +926,7 @@ public void test021() {
 		"31");
 		
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 8\n" + 
 		"  public static void main(String[] args);\n" + 
 		"      0  bipush 9\n" + 
@@ -1069,7 +1069,7 @@ public void test022() {
 		"45");
 		
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  new java/util/ArrayList [17]\n" + 
@@ -1204,7 +1204,7 @@ public void test024() {
 		"SUCCESS");
 		
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 7\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_1\n" + 
@@ -1357,7 +1357,7 @@ public void test027() {
 		"SUCCESS");
 		
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  iconst_0\n" + 
@@ -1450,7 +1450,7 @@ public void test028() {
 		"SUCCESS");
 		
 	String expectedOutput =
-		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 5\n" + 
 		"  public static void main(String[] args);\n" + 
 		"      0  new java/util/ArrayList [17]\n" + 
