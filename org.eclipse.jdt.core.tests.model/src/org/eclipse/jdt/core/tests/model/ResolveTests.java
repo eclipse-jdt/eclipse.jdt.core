@@ -19,9 +19,9 @@ public class ResolveTests extends AbstractJavaModelTests {
 
 
 public static Test suite() {
-	if (true) {
+	if (false) {
 		TestSuite suite = new Suite(ResolveTests.class.getName());
-		suite.addTest(new ResolveTests("testConstructor"));
+		suite.addTest(new ResolveTests("testLocalNameForClassFile"));
 		return suite;
 	}
 	return new Suite(ResolveTests.class);
