@@ -23,137 +23,80 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public interface ITypeBinding extends IBinding {
-	
-	/**
-	 * Returns whether this type binding represents a primitive type.
-	 * <p>
-	 * There are nine predefined type bindings to represent the eight primitive
-	 * types and <code>void</code>. These have the same names as the primitive
-	 * types that they represent, namely boolean, byte, char, short, int,
-	 * long, float, and double, and void.
-	 * </p>
-	 * <p>
-	 * The set of primitive types is mutually exclusive with the sets of
-	 * array types, with the sets of class and interface types, and with the null type.
-	 * </p>
-	 * 
-	 * @return <code>true</code> if this type binding is for a primitive type,
-	 *   and <code>false</code> otherwise
-	 *
-	 * @see #isArray()
-	 * @see #isClass()
-	 * @see #isInterface()
-	 */
-	public boolean isPrimitive();
 
 	/**
-	 * Returns whether this type binding represents the null type.
-	 * <p>
-	 * The null type is the type of a <code>NullLiteral</code> node.
-	 * </p>
-	 * <p>
-	 * The null type is mutually exclusive with the sets of
-	 * array types, with the sets of class and interface types, and 
-	 * with the set of primitive types .
-	 * </p>
+	 * Returns the binary name (as defined in the Java Language 
+	 * Specification Chapter 13 Section 1) of this type binding.
+	 * It is however slash ('/') separated instead of dot ('.') serarated as in
+	 * says in the specification.
+	 * Returns <code>null</code> if the type is defined in code that is unreachable.
+	 *
+	 * @return the binary name of this type or <code>null</code> if this type is unreachable
+	 */
+	public String getBinaryName();
+	
+	/**
+	 * Returns a list of bindings representing all the fields declared
+	 * as members of this class or interface. These include public, 
+	 * protected, default (package-private) access, and private fields declared
+	 * by the class, but excludes inherited fields. Synthetic fields may or
+	 * may not be included.
+	 * Returns an empty list if the class or interface declares no fields,
+	 * or if this type binding represents a primitive type or an array type 
+	 * (the implicit <code>length</code> field of array types is not considered
+	 * to be a declared field). The resulting bindings are in no particular 
+	 * order.
 	 * 
-	 * @return <code>true</code> if this type binding is for the null type,
-	 *   and <code>false</code> otherwise
+	 * @return the list of bindings for the field members of this type,
+	 *   or the empty list if this type does not have field members or is an
+	 *   array type, primitive type, or the null type
 	 */
-	public boolean isNullType();
+	public IVariableBinding[] getDeclaredFields();
 	
 	/**
-	 * Returns whether this type binding represents an array type.
-	 * <p>
-	 * The set of array types is mutually exclusive with the sets of
-	 * primitive types and with the sets of class and interface types.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this type binding is for an array type,
-	 *   and <code>false</code> otherwise
-	 * @see #isClass()
-	 * @see #isInterface()
-	 * @see #isPrimitive()
-	 */
-	public boolean isArray();
-	
-	/**
-	 * Returns the binding representing the element type of this array type,
-	 * or <code>null</code> if this is not an array type binding. The element
-	 * type of an array is never itself an array type.
-	 *
-	 * @return the element type binding, or <code>null</code> if this is
-	 *   not an array type
-	 */
-	public ITypeBinding getElementType();
-	
-	/**
-	 * Returns the dimensionality of this array type, or <code>0</code> if this
-	 * is not an array type binding.
-	 *
-	 * @return the number of dimension of this array type binding, or 
-	 *   <code>0</code> if this is not an array type
-	 */
-	public int getDimensions();
-	
-	/**
-	 * Returns whether this type binding represents a class type.
-	 * <p>
-	 * The set of class types is mutually exclusive with the sets of
-	 * primive types, array types, interface types, and the null type.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this object represents a class,
-	 *    and <code>false</code> otherwise
-	 *
-	 * @see #isArray()
-	 * @see #isInterface()
-	 * @see #isPrimitive()
-	 */
-	public boolean isClass();
-	
-	/**
-	 * Returns whether this type binding represents an interface type.
-	 * <p>
-	 * The set of interface types is mutually exclusive with the sets of
-	 * primive types, array types, class types, and the null type.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this object represents an interface,
-	 *    and <code>false</code> otherwise
-	 *
-	 * @see #isArray()
-	 * @see #isClass()
-	 * @see #isPrimitive()
-	 */
-	public boolean isInterface();
-	
-	/**
-	 * Returns the unqualified name of the type represented by this binding.
-	 * <p>
-	 * For named classes and interfaces, this is the simple name of the type. 
-	 * For primitive types, the name is the keyword for the primitive type. For array
-	 * types, the name is the unqualified name of the component type followed by "[]".
-	 * If this represents an anonymous class, it returns an empty string (note that
-	 * it is impossible to have an array type with an anonymous class as element type).
-	 * For the null type, it returns "null".
-	 * </p>
+	 * Returns a list of method bindings representing all the methods and 
+	 * constructors declared for this class or interface. These include public,
+	 * protected, default (package-private) access, and private methods. 
+	 * Synthetic methods and constructors may or may not be included. Returns
+	 * an empty list if the class or interface declares no methods or 
+	 * constructors, or if this type binding represents an array type or a
+	 * primitive type. The resulting bindings are in no particular order.
 	 * 
-	 * @return the unqualified name of the type represented by this binding, an
-	 *    empty string this is an anonymous type, or "null" for the null type
-	 * @see #getQualifiedName
+	 * @return the list of method bindings for the methods and constructors
+	 *   declared by this class or interface, or the empty list if this type does
+	 *   not declare any methods or constructors
 	 */
-	public String getName();
-			
+	public IMethodBinding[] getDeclaredMethods();
+	
 	/**
-	 * Returns the binding for the package in which this class or interface is 
-	 * declared.
-	 * 
-	 * @return the binding for the package in which this class or interface is
-	 *   declared, or <code>null</code> if this type binding represents a 
-	 *   primitive type, an array type, or the null type.
+	 * Returns the declared modifiers for this class or interface binding
+	 * as specified in the original source declaration of the class or 
+	 * interface. The result may not correspond to the modifiers in the compiled
+	 * binary, since the compiler may change them (in particular, for inner 
+	 * class emulation). The <code>getModifiers</code> method should be used if
+	 * the compiled modifiers are needed. Returns -1 if this type does not 
+	 * represent a class or interface.
+	 *
+	 * @return the bit-wise or of <code>Modifier</code> constants
+	 * @see #getModifiers
+	 * @see Modifier
 	 */
-	public IPackageBinding getPackage();
+	public int getDeclaredModifiers();
+
+	/**
+	 * Returns a list of type bindings representing all the classes
+	 * and interfaces declared as members of this class or interface type. 
+	 * These include public, protected, default (package-private) access,
+	 * and private classes and interfaces declared by the class, but excludes
+	 * inherited classes and interfaces. Returns an empty list if the
+	 * class declares no classes or interfaces as members, or if this type
+	 * binding represents an array type, a primitive type, or the null type.
+	 * The resulting bindings are in no particular order.
+	 * 
+	 * @return the list of type bindings for the member types of this type,
+	 *   or the empty list if this type does not have member types
+	 */
+	public ITypeBinding[] getDeclaredTypes();
 	
 	/**
 	 * Returns the type binding representing the class or interface
@@ -173,31 +116,23 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding getDeclaringClass();
 	
 	/**
-	 * Returns the type binding for the superclass of the type represented
-	 * by this class binding.
-	 * <p>
-	 * If this type binding represents any class other than the class
-	 * <code>java.lang.Object</code>, then the type binding for the direct
-	 * superclass of this class is returned. If this type binding represents
-	 * the class <code>java.lang.Object</code>, then <code>null</code> is
-	 * returned.
-	 * <p>
-	 * Loops that ascend the class hierarchy need a suitable termination test.
-	 * Rather than test the superclass for <code>null</code>, it is more 
-	 * transparent to check whether the class is <code>Object</code>, by 
-	 * comparing whether the class binding is identical to 
-	 * <code>ast.resolveWellKnownType("java.lang.Object")</code>.
-	 * </p>
-	 * <p>
-	 * If this type binding represents an interface, an array type, a
-	 * primitive type, or the null type, then <code>null</code> is returned. 
-	 * </p>
+	 * Returns the dimensionality of this array type, or <code>0</code> if this
+	 * is not an array type binding.
 	 *
-	 * @return the superclass of the class represented by this type binding,
-	 *    or <code>null</code> if none
-	 * @see AST#resolveWellKnownType
+	 * @return the number of dimension of this array type binding, or 
+	 *   <code>0</code> if this is not an array type
 	 */
-	public ITypeBinding getSuperclass();
+	public int getDimensions();
+	
+	/**
+	 * Returns the binding representing the element type of this array type,
+	 * or <code>null</code> if this is not an array type binding. The element
+	 * type of an array is never itself an array type.
+	 *
+	 * @return the element type binding, or <code>null</code> if this is
+	 *   not an array type
+	 */
+	public ITypeBinding getElementType();
 	
 	/**
 	 * Returns a list of type bindings representing the direct superinterfaces
@@ -241,160 +176,31 @@ public interface ITypeBinding extends IBinding {
 	public int getModifiers();
 	
 	/**
-	 * Returns the declared modifiers for this class or interface binding
-	 * as specified in the original source declaration of the class or 
-	 * interface. The result may not correspond to the modifiers in the compiled
-	 * binary, since the compiler may change them (in particular, for inner 
-	 * class emulation). The <code>getModifiers</code> method should be used if
-	 * the compiled modifiers are needed. Returns -1 if this type does not 
-	 * represent a class or interface.
-	 *
-	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see #getModifiers
-	 * @see Modifier
-	 */
-	public int getDeclaredModifiers();
-	
-	/**
-	 * Returns whether this type binding represents a top-level class or
-	 * interface.
+	 * Returns the unqualified name of the type represented by this binding.
 	 * <p>
-	 * A top-level type is any class or interface whose declaration does not
-	 * occur within the body of another class or interface. The set of top
-	 * level types is disjoint from the set of nested types.
+	 * For named classes and interfaces, this is the simple name of the type. 
+	 * For primitive types, the name is the keyword for the primitive type. For array
+	 * types, the name is the unqualified name of the component type followed by "[]".
+	 * If this represents an anonymous class, it returns an empty string (note that
+	 * it is impossible to have an array type with an anonymous class as element type).
+	 * For the null type, it returns "null".
 	 * </p>
-	 *
-	 * @return <code>true</code> if this type binding is for a top-level class
-	 *   or interface, and <code>false</code> otherwise
-	 */
-	public boolean isTopLevel();
-
-	/**
-	 * Returns whether this type binding represents a nested class or
-	 * interface.
-	 * <p>
-	 * A nested type is any class or interface whose declaration occurs within
-	 * the body of another class or interface. The set of nested types is 
-	 * disjoint from the set of top-level types. Nested types further subdivide
-	 * into member types, local types, and anonymous types.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this type binding is for a nested class
-	 *   or interface, and <code>false</code> otherwise
-	 */
-	public boolean isNested();
-
-	/**
-	 * Returns whether this type binding represents a member class or
-	 * interface.
-	 * <p>
-	 * A member type is any class or interface declared as a member of
-	 * another class or interface. A member type is a subspecies of nested
-	 * type, and mutually exclusive with local types.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this type binding is for a member class
-	 *   or interface, and <code>false</code> otherwise
-	 */
-	public boolean isMember();
-	
-	/**
-	 * Returns whether this type binding represents a local class or
-	 * interface.
-	 * <p>
-	 * A local type is any nested class or interface not declared as a member of
-	 * another class or interface. A local type is a subspecies of nested
-	 * type, and mutually exclusive with member types. Note that anonymous
-	 * classes are a subspecies of local types.
-	 * </p>
-	 *
-	 * @return <code>true</code> if this type binding is for a local class
-	 *   or interface, and <code>false</code> otherwise
-	 */
-	public boolean isLocal();
-	
-	/**
-	 * Returns whether this type binding represents an anonymous class.
-	 * <p>
-	 * An anonymous class is a subspecies of local class, and therefore mutually
-	 * exclusive with member types. Note that anonymous classes have no name 
-	 * (<code>getName</code> returns the empty string).
-	 * </p>
-	 *
-	 * @return <code>true</code> if this type binding is for an anonymous class,
-	 *   and <code>false</code> otherwise
-	 */
-	public boolean isAnonymous();
-
-	/**
-	 * Returns the binary name (as defined in the Java Language 
-	 * Specification Chapter 13 Section 1) of this type binding.
-	 * It is however slash ('/') separated instead of dot ('.') serarated as in
-	 * says in the specification.
-	 * Returns <code>null</code> if the type is defined in code that is unreachable.
-	 *
-	 * @return the binary name of this type or <code>null</code> if this type is unreachable
-	 */
-	public String getBinaryName();
-
-	/**
-	 * Returns a list of type bindings representing all the classes
-	 * and interfaces declared as members of this class or interface type. 
-	 * These include public, protected, default (package-private) access,
-	 * and private classes and interfaces declared by the class, but excludes
-	 * inherited classes and interfaces. Returns an empty list if the
-	 * class declares no classes or interfaces as members, or if this type
-	 * binding represents an array type, a primitive type, or the null type.
-	 * The resulting bindings are in no particular order.
 	 * 
-	 * @return the list of type bindings for the member types of this type,
-	 *   or the empty list if this type does not have member types
+	 * @return the unqualified name of the type represented by this binding, an
+	 *    empty string this is an anonymous type, or "null" for the null type
+	 * @see #getQualifiedName
 	 */
-	public ITypeBinding[] getDeclaredTypes();
-	
+	public String getName();
+			
 	/**
-	 * Returns a list of bindings representing all the fields declared
-	 * as members of this class or interface. These include public, 
-	 * protected, default (package-private) access, and private fields declared
-	 * by the class, but excludes inherited fields. Synthetic fields may or
-	 * may not be included.
-	 * Returns an empty list if the class or interface declares no fields,
-	 * or if this type binding represents a primitive type or an array type 
-	 * (the implicit <code>length</code> field of array types is not considered
-	 * to be a declared field). The resulting bindings are in no particular 
-	 * order.
+	 * Returns the binding for the package in which this class or interface is 
+	 * declared.
 	 * 
-	 * @return the list of bindings for the field members of this type,
-	 *   or the empty list if this type does not have field members or is an
-	 *   array type, primitive type, or the null type
+	 * @return the binding for the package in which this class or interface is
+	 *   declared, or <code>null</code> if this type binding represents a 
+	 *   primitive type, an array type, or the null type.
 	 */
-	public IVariableBinding[] getDeclaredFields();
-	
-	/**
-	 * Returns a list of method bindings representing all the methods and 
-	 * constructors declared for this class or interface. These include public,
-	 * protected, default (package-private) access, and private methods. 
-	 * Synthetic methods and constructors may or may not be included. Returns
-	 * an empty list if the class or interface declares no methods or 
-	 * constructors, or if this type binding represents an array type or a
-	 * primitive type. The resulting bindings are in no particular order.
-	 * 
-	 * @return the list of method bindings for the methods and constructors
-	 *   declared by this class or interface, or the empty list if this type does
-	 *   not declare any methods or constructors
-	 */
-	public IMethodBinding[] getDeclaredMethods();
-	
-	/**
-	 * Returns whether this type binding originated in source code.
-	 * Returns <code>false</code> for primitive types, the null type, array types,
-	 * and classes and interfaces whose information came from a pre-compiled binary
-	 * class file.
-	 * 
-	 * @return <code>true</code> if the type is in source code,
-	 *    and <code>false</code> otherwise
-	 */
-	public boolean isFromSource();
+	public IPackageBinding getPackage();
 	
 	/**
 	 * Returns the fully qualified name of the type represented by this 
@@ -429,4 +235,198 @@ public interface ITypeBinding extends IBinding {
 	 * @since 2.1
 	 */
 	public String getQualifiedName();
+	
+	/**
+	 * Returns the type binding for the superclass of the type represented
+	 * by this class binding.
+	 * <p>
+	 * If this type binding represents any class other than the class
+	 * <code>java.lang.Object</code>, then the type binding for the direct
+	 * superclass of this class is returned. If this type binding represents
+	 * the class <code>java.lang.Object</code>, then <code>null</code> is
+	 * returned.
+	 * <p>
+	 * Loops that ascend the class hierarchy need a suitable termination test.
+	 * Rather than test the superclass for <code>null</code>, it is more 
+	 * transparent to check whether the class is <code>Object</code>, by 
+	 * comparing whether the class binding is identical to 
+	 * <code>ast.resolveWellKnownType("java.lang.Object")</code>.
+	 * </p>
+	 * <p>
+	 * If this type binding represents an interface, an array type, a
+	 * primitive type, or the null type, then <code>null</code> is returned. 
+	 * </p>
+	 *
+	 * @return the superclass of the class represented by this type binding,
+	 *    or <code>null</code> if none
+	 * @see AST#resolveWellKnownType
+	 */
+	public ITypeBinding getSuperclass();
+	
+	/**
+	 * Returns whether this type binding represents an anonymous class.
+	 * <p>
+	 * An anonymous class is a subspecies of local class, and therefore mutually
+	 * exclusive with member types. Note that anonymous classes have no name 
+	 * (<code>getName</code> returns the empty string).
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding is for an anonymous class,
+	 *   and <code>false</code> otherwise
+	 */
+	public boolean isAnonymous();
+	
+	/**
+	 * Returns whether this type binding represents an array type.
+	 * <p>
+	 * The set of array types is mutually exclusive with the sets of
+	 * primitive types and with the sets of class and interface types.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding is for an array type,
+	 *   and <code>false</code> otherwise
+	 * @see #isClass()
+	 * @see #isInterface()
+	 * @see #isPrimitive()
+	 */
+	public boolean isArray();
+	
+	/**
+	 * Returns whether this type binding represents a class type.
+	 * <p>
+	 * The set of class types is mutually exclusive with the sets of
+	 * primive types, array types, interface types, and the null type.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this object represents a class,
+	 *    and <code>false</code> otherwise
+	 *
+	 * @see #isArray()
+	 * @see #isInterface()
+	 * @see #isPrimitive()
+	 */
+	public boolean isClass();
+	
+	/**
+	 * Returns whether this type binding originated in source code.
+	 * Returns <code>false</code> for primitive types, the null type, array types,
+	 * and classes and interfaces whose information came from a pre-compiled binary
+	 * class file.
+	 * 
+	 * @return <code>true</code> if the type is in source code,
+	 *    and <code>false</code> otherwise
+	 */
+	public boolean isFromSource();
+	
+	/**
+	 * Returns whether this type binding represents an interface type.
+	 * <p>
+	 * The set of interface types is mutually exclusive with the sets of
+	 * primive types, array types, class types, and the null type.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this object represents an interface,
+	 *    and <code>false</code> otherwise
+	 *
+	 * @see #isArray()
+	 * @see #isClass()
+	 * @see #isPrimitive()
+	 */
+	public boolean isInterface();
+	
+	/**
+	 * Returns whether this type binding represents a local class or
+	 * interface.
+	 * <p>
+	 * A local type is any nested class or interface not declared as a member of
+	 * another class or interface. A local type is a subspecies of nested
+	 * type, and mutually exclusive with member types. Note that anonymous
+	 * classes are a subspecies of local types.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding is for a local class
+	 *   or interface, and <code>false</code> otherwise
+	 */
+	public boolean isLocal();
+
+	/**
+	 * Returns whether this type binding represents a member class or
+	 * interface.
+	 * <p>
+	 * A member type is any class or interface declared as a member of
+	 * another class or interface. A member type is a subspecies of nested
+	 * type, and mutually exclusive with local types.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding is for a member class
+	 *   or interface, and <code>false</code> otherwise
+	 */
+	public boolean isMember();
+
+	/**
+	 * Returns whether this type binding represents a nested class or
+	 * interface.
+	 * <p>
+	 * A nested type is any class or interface whose declaration occurs within
+	 * the body of another class or interface. The set of nested types is 
+	 * disjoint from the set of top-level types. Nested types further subdivide
+	 * into member types, local types, and anonymous types.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding is for a nested class
+	 *   or interface, and <code>false</code> otherwise
+	 */
+	public boolean isNested();
+
+	/**
+	 * Returns whether this type binding represents the null type.
+	 * <p>
+	 * The null type is the type of a <code>NullLiteral</code> node.
+	 * </p>
+	 * <p>
+	 * The null type is mutually exclusive with the sets of
+	 * array types, with the sets of class and interface types, and 
+	 * with the set of primitive types .
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this type binding is for the null type,
+	 *   and <code>false</code> otherwise
+	 */
+	public boolean isNullType();
+	
+	/**
+	 * Returns whether this type binding represents a primitive type.
+	 * <p>
+	 * There are nine predefined type bindings to represent the eight primitive
+	 * types and <code>void</code>. These have the same names as the primitive
+	 * types that they represent, namely boolean, byte, char, short, int,
+	 * long, float, and double, and void.
+	 * </p>
+	 * <p>
+	 * The set of primitive types is mutually exclusive with the sets of
+	 * array types, with the sets of class and interface types, and with the null type.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this type binding is for a primitive type,
+	 *   and <code>false</code> otherwise
+	 *
+	 * @see #isArray()
+	 * @see #isClass()
+	 * @see #isInterface()
+	 */
+	public boolean isPrimitive();
+	
+	/**
+	 * Returns whether this type binding represents a top-level class or
+	 * interface.
+	 * <p>
+	 * A top-level type is any class or interface whose declaration does not
+	 * occur within the body of another class or interface. The set of top
+	 * level types is disjoint from the set of nested types.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding is for a top-level class
+	 *   or interface, and <code>false</code> otherwise
+	 */
+	public boolean isTopLevel();
 }
