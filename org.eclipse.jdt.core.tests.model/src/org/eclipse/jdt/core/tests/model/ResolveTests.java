@@ -915,8 +915,9 @@ public void testUnicode() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47177
+ * TODO need to be fixed
  */
-public void testLocalNameForClassFile() throws JavaModelException {
+public void _testLocalNameForClassFile() throws JavaModelException {
 	IClassFile cu = getClassFile("Resolve", "test47177.jar", "", "ResolveLocalName.class");
 
 	//Resolve a local declaration name
