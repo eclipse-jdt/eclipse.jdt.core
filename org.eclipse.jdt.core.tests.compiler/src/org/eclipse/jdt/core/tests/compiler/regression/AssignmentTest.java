@@ -1063,6 +1063,44 @@ public void test032() {
 		customOptions,
 		null);
 }
+public void test033() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		String a,b;\n" + 
+			"		do{\n" + 
+			"		   a=\"Hello \";\n" + 
+			"		}while(a!=null);\n" + 
+			"				\n" + 
+			"		if(a!=null)\n" + 
+			"		{\n" + 
+			"		   b=\"World!\";\n" + 
+			"		}\n" + 
+			"		System.out.println(a+b);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	if(a!=null)\n" + 
+		"	   ^\n" + 
+		"The variable a cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(a+b);\n" + 
+		"	                     ^\n" + 
+		"The local variable b may not have been initialized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
 public static Class testClass() {
 	return AssignmentTest.class;
 }
