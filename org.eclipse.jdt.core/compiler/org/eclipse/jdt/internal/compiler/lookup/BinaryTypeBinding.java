@@ -188,6 +188,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				variable.fPackage = this.fPackage;
 				System.arraycopy(this.typeVariables, 0, this.typeVariables = new TypeVariableBinding[rank + 1], 0, rank);
 				this.typeVariables[rank++] = variable;
+				initializeTypeVariable(variable, this.typeVariables, wrapper);
 			} while (wrapper.signature[wrapper.start] != '>');
 			wrapper.start++; // skip '>'
 			this.tagBits |=  HasUnresolvedTypeVariables;
@@ -318,6 +319,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 				TypeVariableBinding variable = createTypeVariable(wrapper, rank);
 				System.arraycopy(typeVars, 0, typeVars = new TypeVariableBinding[rank + 1], 0, rank);
 				typeVars[rank++] = variable;
+				initializeTypeVariable(variable,typeVars, wrapper);
 			} while (wrapper.signature[wrapper.start] != '>');
 			wrapper.start++; // skip '>'
 		}
@@ -418,40 +420,10 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 	// InterfaceBound = ':' TypeSignature
 	int colon = CharOperation.indexOf(':', wrapper.signature, wrapper.start);
 	char[] variableName = CharOperation.subarray(wrapper.signature, wrapper.start, colon);
-	wrapper.start = colon + 1; // skip name + ':'
-	ReferenceBinding type, firstBound = null;
-	if (wrapper.signature[wrapper.start] == ':') {
-		type = environment.getType(JAVA_LANG_OBJECT);
-	} else {
-		type = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this);
-		firstBound = type;
-	}
-
-	// variable is visible to its bounds
 	TypeVariableBinding variable = new TypeVariableBinding(variableName, this, rank);
-	variable.modifiers |= AccUnresolved;
-	variable.superclass = type;
-
-	ReferenceBinding[] bounds = null;
-	if (wrapper.signature[wrapper.start] == ':') {
-		java.util.ArrayList types = new java.util.ArrayList(2);
-		do {
-			wrapper.start++; // skip ':'
-			types.add(environment.getTypeFromTypeSignature(wrapper, new TypeVariableBinding[] {variable}, this));
-		} while (wrapper.signature[wrapper.start] == ':');
-		bounds = new ReferenceBinding[types.size()];
-		types.toArray(bounds);
-	}
-
-	variable.superInterfaces = bounds == null ? NoSuperInterfaces : bounds;
-	if (firstBound == null) {
-		firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
-		variable.modifiers |= AccInterface;
-//		variable.superclass = null;
-	}
-	variable.firstBound = firstBound;
 	return variable;
 }
+
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
 *
 * NOTE: enclosingType of a binary type is resolved when needed
@@ -588,6 +560,42 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 	resolveTypesFor(variable);
 	return variable;
 }
+private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBinding[] existingVariables, SignatureWrapper wrapper) {
+	// ParameterSignature = Identifier ':' TypeSignature
+	//   or Identifier ':' TypeSignature(optional) InterfaceBound(s)
+	// InterfaceBound = ':' TypeSignature
+	int colon = CharOperation.indexOf(':', wrapper.signature, wrapper.start);
+	wrapper.start = colon + 1; // skip name + ':'
+	ReferenceBinding type, firstBound = null;
+	if (wrapper.signature[wrapper.start] == ':') {
+		type = environment.getType(JAVA_LANG_OBJECT);
+	} else {
+		type = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, existingVariables, this);
+		firstBound = type;
+	}
+
+	// variable is visible to its bounds
+	variable.modifiers |= AccUnresolved;
+	variable.superclass = type;
+
+	ReferenceBinding[] bounds = null;
+	if (wrapper.signature[wrapper.start] == ':') {
+		java.util.ArrayList types = new java.util.ArrayList(2);
+		do {
+			wrapper.start++; // skip ':'
+			types.add(environment.getTypeFromTypeSignature(wrapper, existingVariables, this));
+		} while (wrapper.signature[wrapper.start] == ':');
+		bounds = new ReferenceBinding[types.size()];
+		types.toArray(bounds);
+	}
+
+	variable.superInterfaces = bounds == null ? NoSuperInterfaces : bounds;
+	if (firstBound == null) {
+		firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
+		variable.modifiers |= AccInterface;
+	}
+	variable.firstBound = firstBound;
+}
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.
@@ -654,6 +662,7 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	if ((variable.modifiers & AccUnresolved) == 0)
 		return variable;
 
+	variable.modifiers ^= AccUnresolved;
 	if (variable.superclass != null)
 		variable.superclass = resolveType(variable.superclass, this.environment, true);
 	if (variable.firstBound != null)
@@ -661,7 +670,6 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	ReferenceBinding[] interfaces = variable.superInterfaces;
 	for (int i = interfaces.length; --i >= 0;)
 		interfaces[i] = resolveType(interfaces[i], this.environment, true);
-	variable.modifiers ^= AccUnresolved;
 	return variable;
 }
 /* Answer the receiver's superclass... null if the receiver is Object or an interface.
