@@ -21,7 +21,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	ImportBinding[] defaultImports;
 	HashtableOfPackage knownPackages;
 	static final ProblemPackageBinding theNotFoundPackage = new ProblemPackageBinding(new char[0], NotFound);
-	static final ProblemReferenceBinding theNotFoundType = new ProblemReferenceBinding(new char[0], NotFound);
+	static final ProblemReferenceBinding theNotFoundType = new ProblemReferenceBinding(new char[0], null, NotFound);
 
 	private INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
@@ -426,7 +426,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	// compoundName refers to a nested type incorrectly (i.e. package1.A$B)
 	if (referenceBinding.isNestedType())
-		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
+		return new ProblemReferenceBinding(compoundName, referenceBinding, InternalNameProvided);
 	else
 		return referenceBinding;
 }

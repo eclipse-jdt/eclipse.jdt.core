@@ -117,7 +117,7 @@ ReferenceBinding getType(char[] name) {
 	if (binding instanceof UnresolvedReferenceBinding)
 		binding = ((UnresolvedReferenceBinding) binding).resolve(environment);
 	if (binding.isNestedType())
-		return new ProblemReferenceBinding(name, InternalNameProvided);
+		return new ProblemReferenceBinding(name, binding, InternalNameProvided);
 	return binding;
 }
 /* Answer the type named name if it exists in the cache.
@@ -153,7 +153,7 @@ public Binding getTypeOrPackage(char[] name) {
 		if (typeBinding instanceof UnresolvedReferenceBinding)
 			typeBinding = ((UnresolvedReferenceBinding) typeBinding).resolve(environment);
 		if (typeBinding.isNestedType())
-			return new ProblemReferenceBinding(name, InternalNameProvided);
+			return new ProblemReferenceBinding(name, typeBinding, InternalNameProvided);
 		return typeBinding;
 	}
 
@@ -165,7 +165,7 @@ public Binding getTypeOrPackage(char[] name) {
 		// if no package was found, find the type named name relative to the receiver
 		if ((typeBinding = environment.askForType(this, name)) != null) {
 			if (typeBinding.isNestedType())
-				return new ProblemReferenceBinding(name, InternalNameProvided);
+				return new ProblemReferenceBinding(name, typeBinding, InternalNameProvided);
 			return typeBinding;
 		}
 

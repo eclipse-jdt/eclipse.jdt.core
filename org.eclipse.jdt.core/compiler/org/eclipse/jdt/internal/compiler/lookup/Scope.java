@@ -136,7 +136,7 @@ public abstract class Scope
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 				return memberType;
 			else
-				return new ProblemReferenceBinding(typeName, NotVisible);
+				return new ProblemReferenceBinding(typeName, memberType, NotVisible);
 		}
 		return null;
 	}
@@ -307,7 +307,7 @@ public abstract class Scope
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 				return memberType;
 			else
-				return new ProblemReferenceBinding(typeName, NotVisible);
+				return new ProblemReferenceBinding(typeName, memberType, NotVisible);
 		}
 
 		// collect all superinterfaces of receiverType until the memberType is found in a supertype
@@ -316,7 +316,7 @@ public abstract class Scope
 		int lastPosition = -1;
 		ReferenceBinding visibleMemberType = null;
 		boolean keepLooking = true;
-		boolean notVisible = false;
+		ReferenceBinding notVisible = null;
 		// we could hold onto the not visible field for extra error reporting
 		while (keepLooking) {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -349,9 +349,9 @@ public abstract class Scope
 						if (visibleMemberType == null)
 							visibleMemberType = memberType;
 						else
-							return new ProblemReferenceBinding(typeName, Ambiguous);
+							return new ProblemReferenceBinding(typeName, memberType, Ambiguous);
 				} else {
-					notVisible = true;
+					notVisible = memberType;
 				}
 			}
 		}
@@ -375,7 +375,7 @@ public abstract class Scope
 							if (visibleMemberType == null) {
 								visibleMemberType = memberType;
 							} else {
-								ambiguous = new ProblemReferenceBinding(typeName, Ambiguous);
+								ambiguous = new ProblemReferenceBinding(typeName, memberType, Ambiguous);
 								break done;
 							}
 						} else {
@@ -406,8 +406,8 @@ public abstract class Scope
 		}
 		if (visibleMemberType != null)
 			return visibleMemberType;
-		if (notVisible)
-			return new ProblemReferenceBinding(typeName, NotVisible);
+		if (notVisible != null)
+			return new ProblemReferenceBinding(typeName, notVisible, NotVisible);
 		return null;
 	}
 
@@ -618,7 +618,7 @@ public abstract class Scope
 //			compilationUnitScope().recordTypeReference(typeBinding); // to record supertypes
 			compilationUnitScope().addTypeReference(typeBinding);
 			if (declarationPackage != invocationPackage && !typeBinding.canBeSeenBy(invocationPackage))
-				return new ProblemReferenceBinding(typeName, NotVisible);
+				return new ProblemReferenceBinding(typeName, typeBinding, NotVisible);
 		}
 		return typeBinding;
 	}
@@ -777,7 +777,7 @@ public abstract class Scope
 	public final ReferenceBinding getMemberType(char[] typeName, ReferenceBinding enclosingType) {
 		ReferenceBinding memberType = findMemberType(typeName, enclosingType);
 		if (memberType != null) return memberType;
-		return new ProblemReferenceBinding(typeName, NotFound);
+		return new ProblemReferenceBinding(typeName, memberType, NotFound);
 	}
 
 	/* Answer the type binding corresponding to the compoundName.
@@ -798,7 +798,7 @@ public abstract class Scope
 		Binding binding =
 			getTypeOrPackage(compoundName[0], typeNameLength == 1 ? TYPE : TYPE | PACKAGE);
 		if (binding == null)
-			return new ProblemReferenceBinding(compoundName[0], NotFound);
+			return new ProblemReferenceBinding(compoundName[0], binding, NotFound);
 		if (!binding.isValidBinding()) {
 			compilationUnitScope().addNamespaceReference(
 				new ProblemPackageBinding(compoundName[0], NotFound)); // record extra reference to pkg
@@ -815,10 +815,12 @@ public abstract class Scope
 				if (binding == null)
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
+						binding,
 						NotFound);
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
+						binding,
 						binding.problemId());
 				if (!(binding instanceof PackageBinding))
 					break;
@@ -828,6 +830,7 @@ public abstract class Scope
 			if (binding instanceof PackageBinding)
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
+					binding, 
 					NotFound);
 			checkVisibility = true;
 		}
@@ -841,6 +844,7 @@ public abstract class Scope
 			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
+					typeBinding,
 					NotVisible);
 
 		while (currentIndex < typeNameLength) {
@@ -848,6 +852,7 @@ public abstract class Scope
 			if (!typeBinding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
+					typeBinding,
 					typeBinding.problemId());
 		}
 		return typeBinding;
@@ -886,10 +891,12 @@ public abstract class Scope
 				if (binding == null)
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
+						binding,
 						NotFound);
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
+						binding,
 						binding.problemId());
 				if (!(binding instanceof PackageBinding))
 					break;
@@ -904,6 +911,7 @@ public abstract class Scope
 			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
+					typeBinding,
 					NotVisible);
 
 		while (currentIndex < nameLength) {
@@ -912,6 +920,7 @@ public abstract class Scope
 			if (!typeBinding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
+					typeBinding,
 					typeBinding.problemId());
 		}
 		return typeBinding;
@@ -934,7 +943,7 @@ public abstract class Scope
 						ReferenceBinding localType = ((BlockScope) scope).findLocalType(name); // looks in this scope only
 						if (localType != null) {
 							if (foundType != null && foundType != localType)
-								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+								return new ProblemReferenceBinding(name, localType, InheritedNameHidesEnclosingName);
 							return localType;
 						}
 						break;
@@ -942,7 +951,7 @@ public abstract class Scope
 						SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
 						if (CharOperation.equals(sourceType.sourceName, name)) {
 							if (foundType != null && foundType != sourceType)
-								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+								return new ProblemReferenceBinding(name, sourceType, InheritedNameHidesEnclosingName);
 							return sourceType;
 						}
 
@@ -954,7 +963,7 @@ public abstract class Scope
 									return memberType;
 								else
 									// make the user qualify the type, likely wants the first inherited type
-									return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+									return new ProblemReferenceBinding(name, memberType, InheritedNameHidesEnclosingName);
 							}
 							if (memberType.isValidBinding()) {
 								if (sourceType == memberType.enclosingType()
@@ -966,7 +975,7 @@ public abstract class Scope
 									if (foundType.isValidBinding())
 										// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
 										if (foundType != memberType)
-											return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+											return new ProblemReferenceBinding(name, memberType, InheritedNameHidesEnclosingName);
 								}
 							}
 							if (foundType == null || (foundType.problemId() == NotVisible && memberType.problemId() != NotVisible))
@@ -1013,7 +1022,7 @@ public abstract class Scope
 					if (temp != null && temp.isValidBinding()) {
 						if (foundInImport)
 							// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-							return new ProblemReferenceBinding(name, Ambiguous);
+							return new ProblemReferenceBinding(name, temp, Ambiguous);
 						type = temp;
 						foundInImport = true;
 					}
@@ -1035,7 +1044,7 @@ public abstract class Scope
 		compilationUnitScope().addNamespaceReference(
 			new ProblemPackageBinding(name, NotFound));
 		// Answer error binding -- could not find name
-		return new ProblemReferenceBinding(name, NotFound);
+		return new ProblemReferenceBinding(name, null, NotFound);
 	}
 
 	/* Answer whether the type is defined in the same compilation unit as the receiver

@@ -279,7 +279,7 @@ public class ClassScope extends Scope {
 		sourceType.memberTypes = memberTypeBindings;
 		return sourceType;
 	}
-
+	
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		int modifiers = sourceType.modifiers;
@@ -780,6 +780,7 @@ public class ClassScope extends Scope {
 				// record package ref
 				return new ProblemReferenceBinding(
 					compoundName[0],
+					typeOrPackage,
 					typeOrPackage == null ? NotFound : typeOrPackage.problemId());
 			}
 			boolean checkVisibility = false;
@@ -793,13 +794,14 @@ public class ClassScope extends Scope {
 				if (typeOrPackage == null || !typeOrPackage.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, n + 1),
+						typeOrPackage, 
 						typeOrPackage == null ? NotFound : typeOrPackage.problemId());
 				checkVisibility = true;
 			}
 
 			// convert to a ReferenceBinding
 			if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
+				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), typeOrPackage, NotFound);
 			superType = (ReferenceBinding) typeOrPackage;
 			compilationUnitScope().recordTypeReference(superType); // to record supertypes
 			compilationUnitScope().addTypeReference(superType);
@@ -808,7 +810,7 @@ public class ClassScope extends Scope {
 				&& n == size) { // if we're finished and know the final supertype then check visibility
 				if (!superType.canBeSeenBy(sourceType.fPackage))
 					// its a toplevel type so just check package access
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotVisible);
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), superType, NotVisible);
 			}
 		}
 		// at this point we know we have a type but we have to look for cycles
@@ -825,7 +827,7 @@ public class ClassScope extends Scope {
 			char[] typeName = compoundName[n++];
 			superType = findMemberType(typeName, superType);
 			if (superType == null)
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
+				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), superType, NotFound);
 			if (!superType.isValidBinding()) {
 				superType.compoundName = CharOperation.subarray(compoundName, 0, n);
 				return superType;

@@ -328,16 +328,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				&& !CharOperation.equals(qualifiedSelection, typeBinding.readableName())) {
 				return;
 			}
-			if (typeBinding.isInterface())
+			if (typeBinding.isInterface()) {
 				requestor.acceptInterface(
 					typeBinding.qualifiedPackageName(),
 					typeBinding.qualifiedSourceName(),
 					false);
-			else
+			} else if(typeBinding instanceof ProblemReferenceBinding){
+				ProblemReferenceBinding problemBinding = (ProblemReferenceBinding)typeBinding;
+				if(problemBinding.original == null
+					|| !(problemBinding.original instanceof ReferenceBinding)) {
+					return;
+				}
+				ReferenceBinding original = (ReferenceBinding) problemBinding.original;
+
+				requestor.acceptClass(
+					original.qualifiedPackageName(),
+					original.qualifiedSourceName(),
+					false);
+			} else {
 				requestor.acceptClass(
 					typeBinding.qualifiedPackageName(),
 					typeBinding.qualifiedSourceName(),
 					false);
+			}
 			acceptedAnswer = true;
 		} else
 			if (binding instanceof MethodBinding) {
@@ -402,6 +415,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void selectType(ISourceType sourceType, char[] typeName) {
 		try {
 			acceptedAnswer = false;
+			qualifiedSelection = typeName;
 
 			// find the outer most type
 			ISourceType outerType = sourceType;
@@ -489,6 +503,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 		} finally {
+			qualifiedSelection = null;
 			reset();
 		}
 	}
