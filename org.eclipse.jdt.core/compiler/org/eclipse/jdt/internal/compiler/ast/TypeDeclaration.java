@@ -47,7 +47,7 @@ public class TypeDeclaration
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
-	private MethodDeclaration[] missingAbstractMethods;
+	public MethodDeclaration[] missingAbstractMethods;
 	public Javadoc javadoc;	
 
 	public QualifiedAllocationExpression allocation; // for anonymous only
@@ -555,10 +555,7 @@ public class TypeDeclaration
 					methods[i].generateCode(scope, classFile);
 				}
 			}
-			
-			classFile.generateMissingAbstractMethods(this.missingAbstractMethods, scope.referenceCompilationUnit().compilationResult);
-
-			// generate all methods
+			// generate all synthetic and abstract methods
 			classFile.addSpecialMethods();
 
 			if (ignoreFurtherInvestigation) { // trigger problem type generation for code gen errors

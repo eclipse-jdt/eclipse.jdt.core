@@ -894,12 +894,13 @@ public class ClassFile
 	 * - default abstract methods
 	 */
 	public void addSpecialMethods() {
+	    
 		// add all methods (default abstract methods and synthetic)
 
 		// default abstract methods
-		SourceTypeBinding currentBinding = referenceBinding;
-		MethodBinding[] defaultAbstractMethods =
-			currentBinding.getDefaultAbstractMethods();
+		generateMissingAbstractMethods(referenceBinding.scope.referenceType().missingAbstractMethods, referenceBinding.scope.referenceCompilationUnit().compilationResult);
+
+		MethodBinding[] defaultAbstractMethods = this.referenceBinding.getDefaultAbstractMethods();
 		for (int i = 0, max = defaultAbstractMethods.length; i < max; i++) {
 			generateMethodInfoHeader(defaultAbstractMethods[i]);
 			int methodAttributeOffset = contentsOffset;
@@ -907,8 +908,7 @@ public class ClassFile
 			completeMethodInfo(methodAttributeOffset, attributeNumber);
 		}
 		// add synthetic methods infos
-		SyntheticAccessMethodBinding[] syntheticAccessMethods =
-			currentBinding.syntheticAccessMethods();
+		SyntheticAccessMethodBinding[] syntheticAccessMethods = this.referenceBinding.syntheticAccessMethods();
 		if (syntheticAccessMethods != null) {
 			for (int i = 0, max = syntheticAccessMethods.length; i < max; i++) {
 				SyntheticAccessMethodBinding accessMethodBinding = syntheticAccessMethods[i];
@@ -916,21 +916,23 @@ public class ClassFile
 					case SyntheticAccessMethodBinding.FieldReadAccess :
 						// generate a method info to emulate an reading access to
 						// a non-accessible field
-						addSyntheticFieldReadAccessMethod(syntheticAccessMethods[i]);
+						addSyntheticFieldReadAccessMethod(accessMethodBinding);
 						break;
 					case SyntheticAccessMethodBinding.FieldWriteAccess :
 						// generate a method info to emulate an writing access to
 						// a non-accessible field
-						addSyntheticFieldWriteAccessMethod(syntheticAccessMethods[i]);
+						addSyntheticFieldWriteAccessMethod(accessMethodBinding);
 						break;
 					case SyntheticAccessMethodBinding.MethodAccess :
 					case SyntheticAccessMethodBinding.SuperMethodAccess :
-						// generate a method info to emulate an access to a non-accessible method / super-method
-						addSyntheticMethodAccessMethod(syntheticAccessMethods[i]);
+					case SyntheticAccessMethodBinding.BridgeMethodAccess :
+						// generate a method info to emulate an access to a non-accessible method / super-method or bridge method
+						addSyntheticMethodAccessMethod(accessMethodBinding);
 						break;
 					case SyntheticAccessMethodBinding.ConstructorAccess :
 						// generate a method info to emulate an access to a non-accessible constructor
-						addSyntheticConstructorAccessMethod(syntheticAccessMethods[i]);
+						addSyntheticConstructorAccessMethod(accessMethodBinding);
+						break;
 				}
 			}
 		}

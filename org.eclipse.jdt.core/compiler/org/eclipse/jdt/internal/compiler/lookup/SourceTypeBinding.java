@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -37,14 +38,12 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	public ClassScope scope;
 
-	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and changed declaring type bindings
+	// Synthetics are separated into 5 categories: methods, super methods, fields, class literals, changed declaring type bindings and bridge methods
 	public final static int METHOD_EMUL = 0;
 	public final static int FIELD_EMUL = 1;
 	public final static int CLASS_LITERAL_EMUL = 2;
 	public final static int RECEIVER_TYPE_EMUL = 3;
-	
-	Hashtable[] synthetics;
-	Hashtable bridgeMethods;
+	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
 	
 	
@@ -61,14 +60,6 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.methods = NoMethods;
 
 	computeId();
-}
-public void addBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-	if (this.bridgeMethods == null)
-		this.bridgeMethods = new Hashtable(3);
-	this.bridgeMethods.put(currentMethod, inheritedMethod);
-	// TODO (philippe) need to gen bridge methods
-//	System.out.println("need bridge method for " + new String(currentMethod.shortReadableName())
-//		+ " -> " + new String(inheritedMethod.shortReadableName()));
 }
 private void addDefaultAbstractMethod(MethodBinding abstractMethod) {
 	MethodBinding defaultAbstract = new MethodBinding(
@@ -125,10 +116,10 @@ public void addDefaultAbstractMethods() {
 
 public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[FIELD_EMUL] == null) {
-		synthetics[FIELD_EMUL] = new Hashtable(5);
+		synthetics[FIELD_EMUL] = new HashMap(5);
 	}
 	
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
@@ -173,10 +164,10 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[FIELD_EMUL] == null) {
-		synthetics[FIELD_EMUL] = new Hashtable(5);
+		synthetics[FIELD_EMUL] = new HashMap(5);
 	}
 
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(enclosingType);
@@ -213,10 +204,10 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockScope) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[CLASS_LITERAL_EMUL] == null) {
-		synthetics[CLASS_LITERAL_EMUL] = new Hashtable(5);
+		synthetics[CLASS_LITERAL_EMUL] = new HashMap(5);
 	}
 
 	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
@@ -252,10 +243,10 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScope blockScope) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[FIELD_EMUL] == null) {
-		synthetics[FIELD_EMUL] = new Hashtable(5);
+		synthetics[FIELD_EMUL] = new HashMap(5);
 	}
 
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get("assertionEmulation"); //$NON-NLS-1$
@@ -300,10 +291,10 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[METHOD_EMUL] == null) {
-		synthetics[METHOD_EMUL] = new Hashtable(5);
+		synthetics[METHOD_EMUL] = new HashMap(5);
 	}
 
 	SyntheticAccessMethodBinding accessMethod = null;
@@ -328,10 +319,10 @@ public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField,
 public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[METHOD_EMUL] == null) {
-		synthetics[METHOD_EMUL] = new Hashtable(5);
+		synthetics[METHOD_EMUL] = new HashMap(5);
 	}
 
 	SyntheticAccessMethodBinding accessMethod = null;
@@ -348,7 +339,32 @@ public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMetho
 	}
 	return accessMethod;
 }
+/* 
+ * Record the fact that bridge methods need to be generated to override certain inherited methods
+ */
+public SyntheticAccessMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
+    
+	if (synthetics == null) {
+		synthetics = new HashMap[4];
+	}
+	if (synthetics[METHOD_EMUL] == null) {
+		synthetics[METHOD_EMUL] = new HashMap(5);
+	}
 
+	SyntheticAccessMethodBinding accessMethod = null;
+	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
+	if (accessors == null) {
+		accessMethod = new SyntheticAccessMethodBinding(inheritedMethodToBridge, localTargetMethod);
+		synthetics[METHOD_EMUL].put(inheritedMethodToBridge, accessors = new SyntheticAccessMethodBinding[2]);
+		accessors[1] = accessMethod;		
+	} else {
+		if ((accessMethod = accessors[1]) == null) {
+			accessMethod = new SyntheticAccessMethodBinding(inheritedMethodToBridge, localTargetMethod);
+			accessors[1] = accessMethod;
+		}
+	}
+	return accessMethod;
+}
 void faultInTypesForFieldsAndMethods() {
 	fields();
 	methods();
@@ -356,8 +372,8 @@ void faultInTypesForFieldsAndMethods() {
 	for (int i = 0, length = memberTypes.length; i < length; i++)
 		((SourceTypeBinding) memberTypes[i]).faultInTypesForFieldsAndMethods();
 }
-// NOTE: the type of each field of a source type is resolved when needed
 
+// NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
 	int failed = 0;
 	try {
@@ -623,10 +639,10 @@ public ReferenceBinding[] memberTypes() {
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[RECEIVER_TYPE_EMUL] == null) {
-		synthetics[RECEIVER_TYPE_EMUL] = new Hashtable(5);
+		synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
 	}
 
 	Hashtable fieldMap = (Hashtable) synthetics[RECEIVER_TYPE_EMUL].get(targetField);
@@ -645,10 +661,10 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
 
 	if (synthetics == null) {
-		synthetics = new Hashtable[4];
+		synthetics = new HashMap[4];
 	}
 	if (synthetics[RECEIVER_TYPE_EMUL] == null) {
-		synthetics[RECEIVER_TYPE_EMUL] = new Hashtable(5);
+		synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
 	}
 
 
@@ -878,6 +894,7 @@ public ReferenceBinding superclass() {
 public ReferenceBinding[] superInterfaces() {
 	return superInterfaces;
 }
+// TODO (philippe) could be a performance issue since some senders are building the list just to count them
 public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 	
 	if (synthetics == null || synthetics[METHOD_EMUL] == null || synthetics[METHOD_EMUL].size() == 0) return null;
@@ -885,10 +902,10 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 	// difficult to compute size up front because of the embedded arrays so assume there is only 1
 	int index = 0;
 	SyntheticAccessMethodBinding[] bindings = new SyntheticAccessMethodBinding[1];
-	Enumeration fieldsOrMethods = synthetics[METHOD_EMUL].keys();
-	while (fieldsOrMethods.hasMoreElements()) {
+	Iterator fieldsOrMethods = synthetics[METHOD_EMUL].keySet().iterator();
+	while (fieldsOrMethods.hasNext()) {
 
-		Object fieldOrMethod = fieldsOrMethods.nextElement();
+		Object fieldOrMethod = fieldsOrMethods.next();
 
 		if (fieldOrMethod instanceof MethodBinding) {
 
@@ -901,7 +918,7 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 			if (methodAccessors[0] != null) 
 				bindings[index++] = methodAccessors[0]; // super access 
 			if (methodAccessors[1] != null) 
-				bindings[index++] = methodAccessors[1]; // normal access
+				bindings[index++] = methodAccessors[1]; // normal access or bridge
 
 		} else {
 
@@ -942,17 +959,17 @@ public FieldBinding[] syntheticFields() {
 
 	// add innerclass synthetics
 	if (synthetics[FIELD_EMUL] != null){
-		Enumeration elements = synthetics[FIELD_EMUL].elements();
+		Iterator elements = synthetics[FIELD_EMUL].values().iterator();
 		for (int i = 0; i < fieldSize; i++) {
-			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
+			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
 			bindings[synthBinding.index] = synthBinding;
 		}
 	}
 	// add class literal synthetics
 	if (synthetics[CLASS_LITERAL_EMUL] != null){
-		Enumeration elements = synthetics[CLASS_LITERAL_EMUL].elements();
+		Iterator elements = synthetics[CLASS_LITERAL_EMUL].values().iterator();
 		for (int i = 0; i < literalSize; i++) {
-			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.nextElement();
+			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
 			bindings[fieldSize+synthBinding.index] = synthBinding;
 		}
 	}
@@ -1066,9 +1083,9 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 	// class T { class M{}}
 	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
 	if (!onlyExactMatch){
-		Enumeration accessFields = synthetics[FIELD_EMUL].elements();
-		while (accessFields.hasMoreElements()) {
-			field = (FieldBinding) accessFields.nextElement();
+		Iterator accessFields = synthetics[FIELD_EMUL].values().iterator();
+		while (accessFields.hasNext()) {
+			field = (FieldBinding) accessFields.next();
 			if (CharOperation.prefixEquals(SyntheticArgumentBinding.EnclosingInstancePrefix, field.name)
 				&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
 					return field;

@@ -3747,14 +3747,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Return type for the method is missing\n" + 
 			"----------\n");
 	}
-	// TODO (philippe) enable once bridge methods are gen'ed
-	public void _test133() {
+	// bridge method
+	public void test133() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n" + 
 				"    public static void main(String[] args) {\n" + 
-				"        X x = new X();\n" + 
+				"        X x = new Y();\n" + 
 				"        System.out.println(x.foo());\n" + 
 				"    }\n" + 
 				"   T foo() {return null;}\n" + 
@@ -4167,4 +4167,30 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}	
+	// bridge method
+	public void test148() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends AX<String>{\n" + 
+				"    \n" + 
+				"    String foo(String s) {\n" + 
+				"        System.out.println(s);\n" + 
+				"        return s;\n" + 
+				"    }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	   new X().bar(\"SUCCESS\");\n" + 
+				"    }    	\n" + 
+				"}\n" + 
+				"class AX<T> {\n" + 
+				"    T foo(T t) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    void bar(T t) {\n" + 
+				"        foo(t);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
 }

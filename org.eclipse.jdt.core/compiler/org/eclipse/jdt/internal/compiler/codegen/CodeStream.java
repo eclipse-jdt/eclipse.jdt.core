@@ -2045,6 +2045,9 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 	MethodBinding methodBinding = accessBinding.targetMethod;
 	TypeBinding[] parameters = methodBinding.parameters;
 	int length = parameters.length;
+	TypeBinding[] arguments = accessBinding.accessType == SyntheticAccessMethodBinding.BridgeMethodAccess 
+													? accessBinding.parameters
+													: null;
 	int resolvedPosition;
 	if (methodBinding.isStatic())
 		resolvedPosition = 0;
@@ -2053,8 +2056,16 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 		resolvedPosition = 1;
 	}
 	for (int i = 0; i < length; i++) {
-		load(parameters[i], resolvedPosition);
-		if ((parameters[i] == DoubleBinding) || (parameters[i] == LongBinding))
+	    TypeBinding parameter = parameters[i];
+	    if (arguments != null) { // for bridge methods
+		    TypeBinding argument = arguments[i];
+			load(argument, resolvedPosition);
+			if (argument != parameter) 
+			    checkcast(parameter);
+	    } else {
+			load(parameter, resolvedPosition);
+		}
+		if ((parameter == DoubleBinding) || (parameter == LongBinding))
 			resolvedPosition += 2;
 		else
 			resolvedPosition++;
