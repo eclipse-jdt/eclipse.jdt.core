@@ -1234,11 +1234,11 @@ public class AnnotationTest extends AbstractComparisonTest {
 			new String[] {
 				"X.java",
 				"@interface I {\n" + 
-				"    String value() default ;\n" + 
+				"    String value() default \"Hello\";\n" + 
 				"}\n" + 
 				"\n" + 
 				"public class X {\n" + 
-				"    @I(\"Hello\") void foo() {\n" + 
+				"    @I(\"Hi\") void foo() {\n" + 
 				"    }\n" + 
 				"}\n"
 			},
@@ -1262,7 +1262,703 @@ public class AnnotationTest extends AbstractComparisonTest {
 		String expectedOutput = 
 			"  // Method descriptor  #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
-			"  @I(value={\"Hello\"})\n" + 
+			"  @I(value=\"Hi\")\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test052() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    int value() default 0;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=(int) 2)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
+	public void test053() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    byte value() default (byte) 0;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I((byte)2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=(byte) 2)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
+	public void test054() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    short value() default (short) 0;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I((short)2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=(short) 2)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test055() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    char value() default ' ';\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I('@') void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=\'@\')\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test056() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    long value() default 6;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(Long.MAX_VALUE) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=9223372036854775807L)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test057() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    float value();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(-0.0f) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=-0.0f)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	
+	public void test058() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    double value();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(-0.0) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=-0.0)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test059() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"    double value() default 0.0;\n" + 
+				"    int id();\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Foo value();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(@Foo(id=5)) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=@Foo(id=(int) 5))\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test060() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"enum Color {" +
+				"	BLUE, RED, GREEN\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Color value() default Color.GREEN;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(Color.RED) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value=Color.RED)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	public void test061() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"enum Color {" +
+				"	BLUE, RED, GREEN\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Color[] value() default { Color.GREEN };\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(Color.RED) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(value={Color.RED})\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
+	public void test062() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"    double value() default 0.0;\n" + 
+				"    int id() default 0;\n" + 
+				"}\n" + 
+				"enum Color {" +
+				"	BLUE, RED, GREEN\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Color[] enums() default { Color.GREEN };\n" + 
+				"    Foo[] annotations() default { @Foo() };\n" + 
+				"    int[] ints() default { 0, 1, 2, 3 };\n" + 
+				"    byte[] bytes() default { (byte) 0 };\n" + 
+				"    short[] shorts() default { (short) 0 };\n" + 
+				"    long[] longs() default { Long.MIN_VALUE, Long.MAX_VALUE };\n" + 
+				"    String[] strings() default { \"\" };\n" + 
+				"    boolean[] booleans() default { true, false };\n" + 
+				"    float[] floats() default { Float.MAX_VALUE };\n" + 
+				"    double[] doubles() default { Double.MAX_VALUE };\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(enums=Color.RED,\n" + 
+				"		annotations=@Foo(),\n" + 
+				"		ints=2,\n" + 
+				"		bytes=(byte) 1,\n" + 
+				"		shorts=(short) 5,\n" + 
+				"		longs=Long.MIN_VALUE,\n" + 
+				"		strings=\"Hi\",\n" + 
+				"		booleans=true,\n" +
+				"		floats=0.0f,\n" +
+				"		doubles=-0.0) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(enums={Color.RED},\n" + 
+			"      annotations={@Foo()},\n" + 
+			"      ints={(int) 2},\n" + 
+			"      bytes={(byte) 1},\n" + 
+			"      shorts={(short) 5},\n" + 
+			"      longs={-9223372036854775808L},\n" + 
+			"      strings={\"Hi\"},\n" + 
+			"      booleans={true},\n" + 
+			"      floats={0.0f},\n" + 
+			"      doubles={-0.0})\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 31]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	
+	// TODO (olivier) update once https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798 is fixed
+	public void test063() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Foo {\n" + 
+				"    double value() default 0.0;\n" + 
+				"    int id() default 0;\n" + 
+				"}\n" + 
+				"enum Color {" +
+				"	BLUE, RED, GREEN\n" + 
+				"}\n" + 
+				"@interface I {\n" + 
+				"    Color enums() default Color.GREEN;\n" + 
+				"    Foo annotations() default @Foo();\n" + 
+				"    int ints() default 0;\n" + 
+				"    byte bytes() default (byte) 0;\n" + 
+				"    short shorts() default (short) 0;\n" + 
+				"    long longs() default Long.MIN_VALUE;\n" + 
+				"    String strings() default \"\";\n" + 
+				"    boolean booleans() default true;\n" + 
+				"    float floats() default Float.MAX_VALUE;\n" + 
+				"    double doubles() default Double.MAX_VALUE;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(enums=Color.RED,\n" + 
+				"		annotations=@Foo(),\n" + 
+				"		ints=2,\n" + 
+				"		bytes=(byte) 1,\n" + 
+				"		shorts=(short) 5,\n" + 
+				"		longs=Long.MIN_VALUE,\n" + 
+				"		strings=\"Hi\",\n" + 
+				"		booleans=true,\n" +
+				"		floats=0.0f,\n" +
+				"		doubles=-0.0) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(enums=Color.RED,\n" + 
+			"      annotations=@Foo(),\n" + 
+			"      ints=(int) 2,\n" + 
+			"      bytes=(byte) 1,\n" + 
+			"      shorts=(short) 5,\n" + 
+			"      longs=-9223372036854775808L,\n" + 
+			"      strings=\"Hi\",\n" + 
+			"      booleans=true,\n" + 
+			"      floats=0.0f,\n" + 
+			"      doubles=-0.0)\n" + 
+			"  void foo();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 31]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
+			"}"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	
+	public void test064() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    String[] names();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(names={\"Hello\"}) void foo() {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
+			"  @I(names={\"Hello\"})\n" + 
 			"  void foo();\n" + 
 			"    0  return\n" + 
 			"      Line numbers:\n" + 
