@@ -102,6 +102,7 @@ void buildTypeBindings() {
 			problemReporter().packageCollidesWithType(referenceContext);
 			return;
 		}
+		recordQualifiedReference(currentPackageName); // always dependent on your own package
 	}
 
 	// Skip typeDeclarations which know of previously reported errors
@@ -300,7 +301,7 @@ public void faultInTypes() {
 }
 private Binding findOnDemandImport(char[][] compoundName) {
 	// replaces the 3 calls to addNamespaceReference & 2 to addTypeReference
-	compilationUnitScope().recordQualifiedReference(compoundName);
+	recordQualifiedReference(compoundName);
 
 	Binding binding = environment.getPackage0(compoundName[0]);
 	if (binding == null) {
