@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -835,30 +836,35 @@ public String toString(){
  */
 protected char[][][] collectSuperTypeNames(char[] declaringQualification, char[] declaringSimpleName, int matchMode, LookupEnvironment env) {
 
-	char[][] declaringTypeName = null;
-	if (declaringQualification != null 
-			&& declaringSimpleName != null
-			&& matchMode == EXACT_MATCH) {
-		char[][] qualification = CharOperation.splitOn('.', declaringQualification);
-		declaringTypeName = CharOperation.arrayConcat(qualification, declaringSimpleName);
-	}
-	if (declaringTypeName != null) {
-		for (int i = 0, max = declaringTypeName.length; i < max; i++) {
-			ReferenceBinding matchingDeclaringType = env.askForType(declaringTypeName);
-			if (matchingDeclaringType != null 
-				&& (matchingDeclaringType.isValidBinding()
-					|| matchingDeclaringType.problemId() != ProblemReasons.NotFound)) {
-				return this.collectSuperTypeNames(matchingDeclaringType);
-			}
-			// if nothing is in the cache, it could have been a member type (A.B.C.D --> A.B.C$D)
-			int last = declaringTypeName.length - 1;
-			if (last == 0) break; 
-			declaringTypeName[last-1] = CharOperation.concat(declaringTypeName[last-1], declaringTypeName[last], '$'); // try nested type
-			declaringTypeName = CharOperation.subarray(declaringTypeName, 0, last);
+	try {
+		char[][] declaringTypeName = null;
+		if (declaringQualification != null 
+				&& declaringSimpleName != null
+				&& matchMode == EXACT_MATCH) {
+			char[][] qualification = CharOperation.splitOn('.', declaringQualification);
+			declaringTypeName = CharOperation.arrayConcat(qualification, declaringSimpleName);
 		}
-		return NOT_FOUND_DECLARING_TYPE; // the declaring type was not found 
-	} else {
-		// non exact match: use the null value so that matches is more tolerant
+		if (declaringTypeName != null) {
+			for (int i = 0, max = declaringTypeName.length; i < max; i++) {
+				ReferenceBinding matchingDeclaringType = env.askForType(declaringTypeName);
+				if (matchingDeclaringType != null 
+					&& (matchingDeclaringType.isValidBinding()
+						|| matchingDeclaringType.problemId() != ProblemReasons.NotFound)) {
+					return this.collectSuperTypeNames(matchingDeclaringType);
+				}
+				// if nothing is in the cache, it could have been a member type (A.B.C.D --> A.B.C$D)
+				int last = declaringTypeName.length - 1;
+				if (last == 0) break; 
+				declaringTypeName[last-1] = CharOperation.concat(declaringTypeName[last-1], declaringTypeName[last], '$'); // try nested type
+				declaringTypeName = CharOperation.subarray(declaringTypeName, 0, last);
+			}
+			return NOT_FOUND_DECLARING_TYPE; // the declaring type was not found 
+		} else {
+			// non exact match: use the null value so that matches is more tolerant
+			return null;
+		}
+	} catch (AbortCompilation e) {
+		// classpath problem: default to null value so that matches is more tolerant
 		return null;
 	}
 }
