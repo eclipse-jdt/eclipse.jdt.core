@@ -18,12 +18,8 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -58,6 +54,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
+import org.eclipse.jdt.internal.core.util.DOMFinder;
 
 class CompilationUnitResolver extends Compiler {
 	
@@ -545,74 +542,13 @@ class CompilationUnitResolver extends Compiler {
 				for (int i = 0; i < intList.length; i++) {
 					final int index = intList.list[i];
 					SourceRefElement element = (SourceRefElement) elements[index];
-					ISourceRange range = null;
+					DOMFinder finder = new DOMFinder(ast, element, true/*resolve binding*/);
 					try {
-						if (element instanceof IField || (element instanceof IType && ((IType) element).isAnonymous()))
-							range = ((IMember) element).getNameRange();
-						else
-							range = element.getSourceRange();
+						finder.search();
 					} catch (JavaModelException e) {
 						throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$
 					}
-					final int rangeStart = range.getOffset();
-					final int rangeLength = range.getLength();
-					class DeclarationVisitor extends ASTVisitor {
-						public boolean visit(AnnotationTypeDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(AnnotationTypeMemberDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(AnonymousClassDeclaration node) {
-							ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node.getParent();
-							if (found(classInstanceCreation.getType()))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(EnumConstantDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveVariable();
-							return true;
-						}
-						public boolean visit(EnumDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(ImportDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(MethodDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(TypeDeclaration node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(TypeParameter node) {
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						public boolean visit(VariableDeclarationFragment node) {						
-							if (found(node))
-								bindings[index] = node.resolveBinding();
-							return true;
-						}
-						protected boolean found(ASTNode node) {
-							return node.getStartPosition() == rangeStart && node.getLength() == rangeLength;
-						}
-					}
-					ast.accept(new DeclarationVisitor());
+					this.bindings[index] = finder.foundBinding;
 				}
 			}
 			public void acceptBinding(String bindingKey, IBinding binding) {
