@@ -144,6 +144,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 	if (fieldBinding.declaringClass != this.actualReceiverType
+		&& !this.actualReceiverType.isArrayType()	
 		&& fieldBinding.declaringClass != null
 		&& fieldBinding.constant == NotAConstant
 		&& (/*scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4

@@ -252,6 +252,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from 1.4 on, method's declaring class is touched if any different from receiver type
 	if (binding.declaringClass != this.actualReceiverType
+		&& !this.actualReceiverType.isArrayType()	
 		&& ((receiver != ThisReference.ThisImplicit // comply to jck lang/BINC/binc02301 (seems a bug)
 				&& scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4)
 			|| !binding.declaringClass.canBeSeenBy(scope))) {

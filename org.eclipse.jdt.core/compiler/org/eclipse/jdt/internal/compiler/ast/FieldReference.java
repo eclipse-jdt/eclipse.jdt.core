@@ -395,6 +395,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 	if (binding.declaringClass != this.receiverType
+		&& !this.receiverType.isArrayType()
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
 		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4

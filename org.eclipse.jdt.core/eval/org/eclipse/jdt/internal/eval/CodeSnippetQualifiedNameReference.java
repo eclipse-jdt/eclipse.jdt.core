@@ -385,6 +385,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		} else {
 			CodeSnippetScope localScope = new CodeSnippetScope(scope);
 			if (fieldBinding.declaringClass != delegateThis.type
+				&& !delegateThis.type.isArrayType()			
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
 				&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4				
@@ -448,6 +449,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type			
 			if (delegateThis == null) {
 				if (field.declaringClass != type
+					&& !type.isArrayType()				
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
 					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4					
@@ -457,6 +459,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			} else {
 				CodeSnippetScope localScope = new CodeSnippetScope(scope);
 				if (field.declaringClass != type
+					&& !type.isArrayType()
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
 					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4

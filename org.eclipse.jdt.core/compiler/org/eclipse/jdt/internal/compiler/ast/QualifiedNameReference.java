@@ -514,6 +514,7 @@ public class QualifiedNameReference extends NameReference {
 			// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 			FieldBinding fieldBinding = (FieldBinding) binding;
 			if (fieldBinding.declaringClass != this.actualReceiverType
+				&& !this.actualReceiverType.isArrayType()			
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
 				&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
@@ -567,6 +568,7 @@ public class QualifiedNameReference extends NameReference {
 				// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 				// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 				if (field.declaringClass != type
+					&& !this.actualReceiverType.isArrayType()				
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
 					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
