@@ -42,7 +42,8 @@ Eclipse SDK 3.0M8 Build - ?th March 2004
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_413">cvs</a>).
 <h2>
 What's new in this drop</h2>
-<ul> Added compiler option JavaCore.COMPILER_TASK_CASE_SENSITIVE to control whether the task detection
+<ul> 
+<li> Added compiler option JavaCore.COMPILER_TASK_CASE_SENSITIVE to control whether the task detection
 should be case sensitive or not. By default, it is.
 <pre>
 	 * COMPILER / Determine whether task tags are case-sensitive
@@ -52,7 +53,7 @@ should be case sensitive or not. By default, it is.
 	 *     - default:           "enabled"
 </pre>
 </li>
-<li>Added 2 default task tags: "FIXME" and "XXX".
+<li> Added 2 default task tags: "FIXME" and "XXX".
 </li>
 </ul>
 
@@ -73,7 +74,7 @@ Eclipse SDK 3.0M8 Build - 8th March 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added new global JavaCore.COMPILER_DOC_COMMENT_SUPPORT option for doc comment (Javadoc) support. By default, this option is enabled for backward compatibility.
+<li> Added new global JavaCore.COMPILER_DOC_COMMENT_SUPPORT option for doc comment (Javadoc) support. By default, this option is enabled for backward compatibility.
 <pre>
 	 * COMPILER / Javadoc Comment Support
 	 *    When this support is disabled, the compiler will ignore all javadoc problems options settings
@@ -85,7 +86,7 @@ What's new in this drop</h2>
 </pre>
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>.
 </li>
-<li>Added new JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE option to allow user to inline subroutine code instead of generating JSR instructions. By default, this option is disabled.
+<li> Added new JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE option to allow user to inline subroutine code instead of generating JSR instructions. By default, this option is disabled.
 <pre>
 	 * COMPILER / Inline JSR Bytecode Instruction
 	 *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding

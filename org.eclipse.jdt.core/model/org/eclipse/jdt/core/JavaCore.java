@@ -464,7 +464,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
-	public static final String COMPILER_TASK_CASE_SENSISITIVE = PLUGIN_ID + ".compiler.taskCaseSensitive"; //$NON-NLS-1$	
+	public static final String COMPILER_TASK_CASE_SENSITIVE = PLUGIN_ID + ".compiler.taskCaseSensitive"; //$NON-NLS-1$	
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2331,6 +2331,7 @@ public final class JavaCore extends Plugin {
 		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAGS);
 		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITIES);
+		preferences.setDefault(COMPILER_TASK_CASE_SENSITIVE, ENABLED);
 		preferences.setDefault(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
 
 		// Builder settings
