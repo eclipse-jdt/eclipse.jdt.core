@@ -4979,7 +4979,6 @@ public void test71() {
 	String expectedUnitToString = 
 		"public interface X {\n"
 		+ "\tint[] i;\n"
-		+ "\tjava.lang.Object(0)\n"
 		+ "\tint foo() {}\n"
 		+ "\tint x() {}\n"
 		+ "}";

@@ -1117,8 +1117,6 @@ public void testInterfaceBody() {
 		"<CompleteOnType:X>",
 		// expectedUnitDisplayString:
 		"interface Bar {\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
 		"  <CompleteOnType:X>\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1146,8 +1144,6 @@ public void testInterfaceMemberDeclarations() {
 		// expectedUnitDisplayString:
 		"interface Bar {\n" +
 		"  int CONSTANT;\n" + 
-		"  Bar() {\n" + 
-		"  }\n" + 
 		"  <clinit>() {\n" + 
 		"  }\n" + 
 		"  <CompleteOnType:X>\n" + 
