@@ -250,6 +250,8 @@ void write(DataOutputStream out) throws IOException {
  * Class path locations[]
  * int				id
  * String		path(s)
+ * 
+ * NOTE: Cannot have portable build states while classpath directories are full filesystem paths
 */
 	out.writeInt(length = classpathLocations.length);
 	for (int i = 0; i < length; ++i) {
