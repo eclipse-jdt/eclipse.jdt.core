@@ -57,6 +57,9 @@ public class SearchEngine {
 			this.pattern = pattern;
 		}
 	}
+	/**
+	 * @deprecated marking deprecated as it uses deprecated IJavaSearchResultCollector
+	 */
 	class ResultCollectorAdapter extends SearchRequestor {
 		IJavaSearchResultCollector resultCollector;
 		ResultCollectorAdapter(IJavaSearchResultCollector resultCollector) {
