@@ -7,6 +7,8 @@ What's new in this drop
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
+1GJPBON: ITPUI:WIN2000 - Java search won't detect DBCS 
+1GJPCA9: ITPUI:WIN2000 - incorrect reversed text for search hit in Java search
 1GJLGAK: ITPUI:WIN2000 - Progress message incorrect
 1GJUN99: ITPJCORE:ALL - NL problems in PLUGINUPDATE.XML, BUILD.XML, PLUGIN.XML 
 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute

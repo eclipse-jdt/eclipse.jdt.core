@@ -170,34 +170,6 @@ private IType createTypeHandle(char[][] simpleTypeNames) {
 	}
 	return type;
 }
-private char[] getContents(IFile file) {
-	BufferedInputStream input = null;
-	try {
-		input = new BufferedInputStream(file.getContents(true));
-		StringBuffer buffer= new StringBuffer();
-		int nextChar = input.read();
-		while (nextChar != -1) {
-			buffer.append( (char)nextChar );
-			nextChar = input.read();
-		}
-		int length = buffer.length();
-		char[] result = new char[length];
-		buffer.getChars(0, length, result, 0);
-		return result;
-	} catch (IOException e) {
-		return null;
-	} catch (CoreException e) {
-		return null;
-	} finally {
-		if (input != null) {
-			try {
-				input.close();
-			} catch (IOException e) {
-				// nothing can be done if the file cannot be closed
-			}
-		}
-	}
-}
 protected IResource getCurrentResource() {
 	return this.currentResource;
 }
@@ -408,8 +380,7 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 }
 private void locateMatchesInCompilationUnit() throws CoreException {
 	// get source
-	final char[] source = getContents((IFile)this.currentResource);
-
+	final char[] source = BufferManager.getResourceContentsAsCharArray((IFile)this.currentResource);
 	// get main type name
 	String pathString = this.currentResource.toString();
 	int lastDot = pathString.lastIndexOf('/');
