@@ -74,7 +74,7 @@ boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
 	Object o = structuralBuildNumbers.get(prereqProject.getName());
 	if (prereqState != null) {
 		int previous = o == null ? 0 : ((Integer) o).intValue();
-		if (previous == prereqState.lastStructuralBuildNumber) return false;
+		if (previous == prereqState.lastStructuralBuildNumber && prereqState.buildNumber > 0) return false;
 	}
 	return true;
 }

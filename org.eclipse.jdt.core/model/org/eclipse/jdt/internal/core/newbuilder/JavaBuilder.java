@@ -79,7 +79,6 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		ok = true;
 	} catch (CoreException e) {
 		try {
-			// add another problem to the compilation unit that its class file is inconsistent
 			IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject"));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
@@ -88,13 +87,16 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (ImageBuilderInternalException e) {
 		try {
-			// add another problem to the compilation unit that its class file is inconsistent
 			IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject"));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		} catch (CoreException ignore) {
 			throw e.getThrowable();
 		}
+	} catch (IncompleteClassPathException e) {
+		IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
+		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath"));
+		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} finally {
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.

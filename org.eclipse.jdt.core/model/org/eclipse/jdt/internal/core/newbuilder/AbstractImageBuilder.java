@@ -265,10 +265,16 @@ protected void removeProblemsFor(IResource resource) {
  */
 protected void storeProblemsFor(IResource resource, IProblem[] problems) throws CoreException {
 	if (problems == null || problems.length == 0) return;
+
+	boolean classPathIsIncorrect = false;
 	for (int i = 0, length = problems.length; i < length; i++) {
 		IProblem problem = problems[i];
 		int id = problem.getID();
 		switch (id) {
+			case ProblemIrritants.IsClassPathCorrect :
+				removeProblemsFor(javaBuilder.currentProject); // make this the only problem for this project
+				classPathIsIncorrect = true;
+				break;
 			case ProblemIrritants.SuperclassMustBeAClass :
 			case ProblemIrritants.SuperInterfaceMustBeAnInterface :
 			case ProblemIrritants.HierarchyCircularitySelfReference :
@@ -317,6 +323,8 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 		if (location != null)
 			marker.setAttribute(IMarker.LOCATION, location);
 	}
+	if (classPathIsIncorrect)
+		throw new IncompleteClassPathException();
 }
 
 protected void updateProblemsFor(CompilationResult result) throws CoreException {
