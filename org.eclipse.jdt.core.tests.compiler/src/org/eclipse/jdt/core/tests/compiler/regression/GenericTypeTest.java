@@ -15917,4 +15917,38 @@ public void test500(){
 			"Type safety: The method getT() belongs to the raw type Cell. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n");
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85924
+	public void test560() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IController<U extends IView<?>>  {\n" + 
+				"    public U getView() ;\n" + 
+				"}\n" + 
+				"interface IView<U>  {\n" + 
+				"}\n" + 
+				"class MatGroup   {\n" + 
+				"	public abstract static class View implements IView<String> {\n" + 
+				"		public void setTempAppearance() {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public abstract static class Ctrl<U extends View> implements IController<U>  {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	public static void main(String []args) {\n" + 
+				"		MatGroup.Ctrl<?>children[] = { \n" + 
+				"				new MatGroup.Ctrl<MatGroup.View>(){\n" + 
+				"					public MatGroup.View getView() { return new MatGroup.View(){}; }	\n" + 
+				"				}} ;\n" + 
+				"	    for(MatGroup.Ctrl<?> glmat: children) {\n" + 
+				"			glmat.getView().setTempAppearance() ;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
 }

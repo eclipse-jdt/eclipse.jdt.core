@@ -111,7 +111,6 @@ public TypeBinding erasure() {
  */
 public TypeBinding genericCast(TypeBinding otherType) {
     if (this == otherType) return null;
-	if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
 	TypeBinding otherErasure = otherType.erasure();
 	if (otherErasure == this.erasure()) return null;
 	return otherErasure;
