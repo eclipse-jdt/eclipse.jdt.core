@@ -490,25 +490,20 @@ public class NameLookup implements SuffixConstants {
 	 */
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
 		if (partialMatch) {
-			int count= this.packageFragmentRoots.length;
-			String matchName= name.toLowerCase();
-			for (int i= 0; i < count; i++) {
+			String[] splittedName = Util.splitOn('.', name, 0, name.length());
+			Object[][] keys = this.packageFragments.keyTable;
+			for (int i = 0, length = keys.length; i < length; i++) {
 				if (requestor.isCanceled())
 					return;
-				IPackageFragmentRoot root= this.packageFragmentRoots[i];
-				IJavaElement[] list= null;
-				try {
-					list= root.getChildren();
-				} catch (JavaModelException npe) {
-					continue; // this root package fragment is not present
-				}
-				int elementCount= list.length;
-				for (int j= 0; j < elementCount; j++) {
-					if (requestor.isCanceled())
-						return;
-					IPackageFragment packageFragment= (IPackageFragment) list[j];
-					if (packageFragment.getElementName().toLowerCase().startsWith(matchName))
-						requestor.acceptPackageFragment(packageFragment);
+				String[] pkgName = (String[]) keys[i];
+				if (pkgName != null && Util.startsWithIgnoreCase(pkgName, splittedName)) {
+					IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.valueTable[i];
+					for (int j = 0, length2 = roots.length; j < length2; j++) {
+						if (requestor.isCanceled())
+							return;
+						PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
+						requestor.acceptPackageFragment(root.getPackageFragment(pkgName));					
+					}
 				}
 			}
 		} else {
@@ -516,6 +511,8 @@ public class NameLookup implements SuffixConstants {
 			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.get(splittedName);
 			if (roots != null) {
 				for (int i = 0, length = roots.length; i < length; i++) {
+					if (requestor.isCanceled())
+						return;
 					PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
 					requestor.acceptPackageFragment(root.getPackageFragment(splittedName));
 				}
