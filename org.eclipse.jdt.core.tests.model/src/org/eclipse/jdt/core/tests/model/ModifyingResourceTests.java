@@ -193,7 +193,11 @@ protected IPackageFragment getPackage(String path) {
 }
 protected IPackageFragmentRoot getPackageFragmentRoot(String path) {
 	if (path.indexOf('/', 1) != -1) { // if path as more than one segment
-		return (IPackageFragmentRoot)JavaCore.create(this.getFolder(path));
+		if (path.endsWith(".jar")) {
+			return  (IPackageFragmentRoot)JavaCore.create(this.getFile(path));
+		} else {
+			return (IPackageFragmentRoot)JavaCore.create(this.getFolder(path));
+		}
 	} else {
 		IProject project = this.getProject(path);
 		return JavaCore.create(project).getPackageFragmentRoot(project);
@@ -230,6 +234,9 @@ protected String getSortedByProjectDeltas() {
 }
 protected void moveFile(String sourcePath, String destPath) throws CoreException {
 	this.getFile(sourcePath).move(this.getFile(destPath).getFullPath(), false, null);
+}
+protected void moveFolder(String sourcePath, String destPath) throws CoreException {
+	this.getFolder(sourcePath).move(this.getFolder(destPath).getFullPath(), false, null);
 }
 protected void swapFiles(String firstPath, String secondPath) throws CoreException {
 	final IFile first = this.getFile(firstPath);
