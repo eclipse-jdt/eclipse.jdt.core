@@ -86,6 +86,7 @@ public final class CompletionEngine
 	boolean assistNodeIsClass;
 	boolean assistNodeIsException;
 	boolean assistNodeIsInterface;
+	boolean assistNodeIsAnnotation;
 	
 	IJavaProject javaProject;
 	CompletionParser parser;
@@ -240,6 +241,69 @@ public final class CompletionEngine
 	}
 
 	/**
+	 * One result of the search consists of a new annotation.
+	 *
+	 * NOTE - All package and type names are presented in their readable form:
+	 *    Package names are in the form "a.b.c".
+	 *    Nested type names are in the qualified form "A.I".
+	 *    The default package is represented by an empty array.
+	 */
+	public void acceptAnnotation(
+		char[] packageName,
+		char[] annotationName,
+		int modifiers,
+		AccessRestriction accessRestriction) {
+
+		char[] fullyQualifiedName = CharOperation.concat(packageName, annotationName, '.');
+		char[] completionName = fullyQualifiedName;
+
+		if (this.knownTypes.containsKey(completionName)) return;
+
+		this.knownTypes.put(completionName, this);
+
+		if(this.options.checkRestrictions && accessRestriction != null) return;
+		
+		boolean isQualified = true;
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForRestrictions(accessRestriction != null);
+		if (this.resolvingImports) {
+			completionName = CharOperation.concat(completionName, new char[] { ';' });
+			relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
+		} else {
+			if (mustQualifyType(packageName, annotationName)) {
+				if (packageName == null || packageName.length == 0)
+					if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+						return; // ignore types from the default package from outside it
+			} else {
+				completionName = annotationName;
+				isQualified = false;
+			}
+			relevance += computeRelevanceForCaseMatching(this.completionToken, annotationName);
+			relevance += computeRelevanceForExpectingType(packageName, annotationName);
+			relevance += computeRelevanceForAnnotation();
+			relevance += computeRelevanceForQualification(isQualified);
+		}
+		
+		this.noProposal = false;
+		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			proposal.setDeclarationSignature(packageName);
+			proposal.setSignature(createNonGenericTypeSignature(packageName, annotationName));
+			proposal.setPackageName(packageName);
+			proposal.setTypeName(annotationName);
+			proposal.setCompletion(completionName);
+			proposal.setFlags(modifiers | Flags.AccInterface | Flags.AccAnnotation);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
+	}
+	
+	/**
 	 * One result of the search consists of a new class.
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
@@ -290,6 +354,66 @@ public final class CompletionEngine
 			proposal.setTypeName(className);
 			proposal.setCompletion(completionName);
 			proposal.setFlags(modifiers);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
+	}
+	
+	/**
+	 * One result of the search consists of a new enum.
+	 *
+	 * NOTE - All package and type names are presented in their readable form:
+	 *    Package names are in the form "a.b.c".
+	 *    Nested type names are in the qualified form "A.M".
+	 *    The default package is represented by an empty array.
+	 */
+	public void acceptEnum(char[] packageName, char[] enumName, int modifiers, AccessRestriction accessRestriction) {
+
+		char[] fullyQualifiedName = CharOperation.concat(packageName, enumName, '.');
+		char[] completionName = fullyQualifiedName;
+		
+		if (this.knownTypes.containsKey(completionName)) return;
+
+		this.knownTypes.put(completionName, this);
+		
+		if(this.options.checkRestrictions && accessRestriction != null) return;
+		
+		boolean isQualified = true;
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForRestrictions(accessRestriction != null);
+		if (this.resolvingImports) {
+			completionName = CharOperation.concat(completionName, SEMICOLON);
+			relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
+		} else {
+			if (mustQualifyType(packageName, enumName)) {
+				if (packageName == null || packageName.length == 0)
+					if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+						return; // ignore types from the default package from outside it
+			} else {
+				completionName = enumName;
+				isQualified = false;
+			}
+			relevance += computeRelevanceForCaseMatching(this.completionToken, enumName);
+			relevance += computeRelevanceForExpectingType(packageName, enumName);
+			relevance += computeRelevanceForClass();
+			relevance += computeRelevanceForException(enumName);
+			relevance += computeRelevanceForQualification(isQualified);
+		}
+
+		this.noProposal = false;
+		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			proposal.setDeclarationSignature(packageName);
+			proposal.setSignature(createNonGenericTypeSignature(packageName, enumName));
+			proposal.setPackageName(packageName);
+			proposal.setTypeName(enumName);
+			proposal.setCompletion(completionName);
+			proposal.setFlags(modifiers | Flags.AccEnum);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
@@ -789,6 +913,23 @@ public final class CompletionEngine
 																		scope.enclosingSourceType(),
 																		false,
 																		new ObjectVector());
+																} else if(astNode instanceof CompletionOnMarkerAnnotationName) {
+																	CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
+																	
+																	this.assistNodeIsAnnotation = true;
+																	if(annot.type instanceof CompletionOnSingleTypeReference) {
+																		CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) annot.type;
+																		this.completionToken = type.token;
+																		setSourceRange(type.sourceStart, type.sourceEnd);
+																		
+																		findTypesAndPackages(this.completionToken, scope);
+																	} else if(annot.type instanceof CompletionOnQualifiedTypeReference) {
+																		CompletionOnQualifiedTypeReference type = (CompletionOnQualifiedTypeReference) annot.type;
+																		this.completionToken = type.completionIdentifier;
+																		setSourceRange(type.sourceStart, type.sourceEnd);
+																		
+																		findTypesAndPackages(this.completionToken, scope);
+																	}
 																}
 															}
 														}
@@ -2690,6 +2831,12 @@ public final class CompletionEngine
 			}
 			return 0;
 		}
+	}
+	private int computeRelevanceForAnnotation(){
+		if(this.assistNodeIsAnnotation) {
+			return R_ANNOTATION;
+		}
+		return 0;
 	}
 	private int computeRelevanceForClass(){
 		if(this.assistNodeIsClass) {

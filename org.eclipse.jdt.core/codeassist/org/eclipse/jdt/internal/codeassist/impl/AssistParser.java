@@ -245,6 +245,10 @@ public RecoveredElement buildInitialRecoveryState(){
 	
 	return element;
 }
+protected void consumeAnnotationTypeDeclarationHeader() {
+	super.consumeAnnotationTypeDeclarationHeader();
+	pushOnElementStack(K_TYPE_DELIMITER);
+}
 protected void consumeClassBodyDeclaration() {
 	popElement(K_METHOD_DELIMITER);
 	super.consumeClassBodyDeclaration();
@@ -273,6 +277,10 @@ protected void consumeEnterAnonymousClassBody() {
 protected void consumeEnterAnonymousClassBodySimpleName() {
 	super.consumeEnterAnonymousClassBodySimpleName();
 	popElement(K_SELECTOR);
+	pushOnElementStack(K_TYPE_DELIMITER);
+}
+protected void consumeEnumHeader() {
+	super.consumeEnumHeader();
 	pushOnElementStack(K_TYPE_DELIMITER);
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {

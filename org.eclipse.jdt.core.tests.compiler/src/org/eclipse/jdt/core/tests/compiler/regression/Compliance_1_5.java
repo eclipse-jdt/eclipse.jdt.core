@@ -3218,6 +3218,30 @@ public void test093() {
 		"----------\n"
 	);
 }
+/*
+ * Test unused import warning in presence of syntax errors
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21022
+ */
+public void test094(){
+
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;	\n" +
+			"public class X {	\n" +
+			"	void foo(){\n" +
+			"		()\n" +
+			"		IOException e;\n" +
+			"	} \n" +
+			"}		\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	()\n" + 
+		"	^\n" + 
+		"Syntax error on token \"(\", AnnotationName expected before this token\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

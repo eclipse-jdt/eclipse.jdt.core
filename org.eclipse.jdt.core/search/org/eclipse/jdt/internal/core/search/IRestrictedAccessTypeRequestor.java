@@ -18,8 +18,12 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
  * @see org.eclipse.jdt.core.search.ITypeNameRequestor
  */
 public interface IRestrictedAccessTypeRequestor {
+	
+	public void acceptAnnotation(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
 
 	public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
+
+	public void acceptEnum(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
 
 	public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
 

@@ -122,6 +122,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		this.parser = new SelectionParser(problemReporter);
 	}
 
+	public void acceptAnnotation(char[] packageName, char[] typeName, int modifiers, AccessRestriction accessRestriction) {
+		this.acceptInterface(packageName, typeName, modifiers, accessRestriction);
+	}
+	
 	/**
 	 * One result of the search consists of a new class.
 	 * @param packageName char[]
@@ -164,6 +168,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
+	public void acceptEnum(char[] packageName, char[] typeName, int modifiers, AccessRestriction accessRestriction) {
+		this.acceptClass(packageName, typeName, modifiers, accessRestriction);
+	}
 	/**
 	 * One result of the search consists of a new interface.
 	 *

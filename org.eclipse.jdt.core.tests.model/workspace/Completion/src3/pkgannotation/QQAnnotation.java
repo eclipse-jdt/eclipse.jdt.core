@@ -1,0 +1,4 @@
+package pkgannotations;
+@interface QQAnnotation {
+	
+}

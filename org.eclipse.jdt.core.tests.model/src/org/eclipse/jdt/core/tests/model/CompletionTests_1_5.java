@@ -21,18 +21,16 @@ import junit.framework.*;
 
 public class CompletionTests_1_5 extends AbstractJavaModelTests implements RelevanceConstants {
 	Hashtable oldOptions;
+	ICompilationUnit wc = null;
 public CompletionTests_1_5(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	setUpJavaProject("Completion");
+	setUpJavaProject("Completion", "1.5");
 	
 	this.oldOptions = JavaCore.getOptions();
-	Hashtable options = new Hashtable(this.oldOptions);
-	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	JavaCore.setOptions(options);
 	
 	waitUntilIndexesReady();
 }
@@ -43,7 +41,12 @@ public void tearDownSuite() throws Exception {
 	
 	super.tearDownSuite();
 }
-
+protected void tearDown() throws Exception {
+	if(this.wc != null) {
+		this.wc.discardWorkingCopy();
+	}
+	super.tearDown();
+}
 protected static void assertResults(String expected, String actual) {
 	try {
 		assertEquals(expected, actual);
@@ -66,7 +69,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0058"));			
+	suite.addTest(new CompletionTests_1_5("test0075"));			
 	return suite;
 }
 
@@ -1302,6 +1305,175 @@ public void test0074() throws JavaModelException {
 			"ZZZ1[FIELD_REF]{test0074.p.ImportedClass.Inner.ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0075() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0075/Test.java",
+			"package test0075;\n" +
+			"public @QQAnnot class Test {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0076() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0076/Test.java",
+			"package test0076;\n" +
+			"public @QQAnnot class Test\n" +
+			"");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0077() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0077/Test.java",
+			"package test0077;\n" +
+			"public @QQAnnot\n" +
+			"");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0078() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0078/Test.java",
+			"package test0078;\n" +
+			"public class Test {\n" +
+			"  public @QQAnnot void foo() {\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0079() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0078/Test.java",
+			"package test0078;\n" +
+			"public class Test {\n" +
+			"  public @QQAnnot void foo(\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0080() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0078/Test.java",
+			"package test0078;\n" +
+			"public class Test {\n" +
+			"  public @QQAnnot int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0081() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0078/Test.java",
+			"package test0078;\n" +
+			"public class Test {\n" +
+			"  public @QQAnnot int var\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0082() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0078/Test.java",
+			"package test0078;\n" +
+			"public class Test {\n" +
+			"  void foo(@QQAnnot int i) {}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+public void test0083() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0078/Test.java",
+			"package test0078;\n" +
+			"public class Test {\n" +
+			"  void foo() {@QQAnnot int i}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "@QQAnnot";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }

@@ -188,6 +188,14 @@ protected void attachOrphanCompletionNode(){
 			}
 		}
 
+		if(orphan instanceof Annotation) {
+				TypeDeclaration fakeType =
+					new CompletionOnAnnotationOfType(
+							this.compilationUnit.compilationResult(),
+							(Annotation)orphan);
+				currentElement.add(fakeType, 0);
+				return;
+		}
 		// add the completion node to the method declaration or constructor declaration
 		if (orphan instanceof Statement) {
 			/* check for completion at the beginning of method body
@@ -1910,7 +1918,63 @@ protected void consumeMethodHeaderExtendedDims() {
 		}
 	}
 }
+protected void consumeAnnotationName() {
+	int index;
+	
+	if ((index = this.indexOfAssistIdentifier()) < 0) {
+		super.consumeAnnotationName();
+		return;
+	} 
+	
+	MarkerAnnotation markerAnnotation = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	TypeReference typeReference;
 
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	
+	char[][] subset = identifierSubSet(index);
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist on type reference */
+	
+	if (index == 0) {
+		/* assist inside first identifier */
+		typeReference = this.createSingleAssistTypeReference(
+						assistIdentifier(), 
+						positions[0]);
+	} else {
+		/* assist inside subsequent identifier */
+		typeReference =	this.createQualifiedAssistTypeReference(
+						subset,  
+						assistIdentifier(), 
+						positions);
+	}
+
+	markerAnnotation = new CompletionOnMarkerAnnotationName(typeReference, typeReference.sourceStart);
+	int sourceStart = this.intStack[this.intPtr--];
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
+	pushOnExpressionStack(markerAnnotation);
+	
+	assistNode = markerAnnotation;
+	this.isOrphanCompletionNode = true;
+	this.restartRecovery = true;
+	
+	this.lastCheckPoint = markerAnnotation.sourceEnd + 1;
+}
 protected void consumeMethodBody() {
 	popElement(K_BLOCK_DELIMITER);
 	super.consumeMethodBody();

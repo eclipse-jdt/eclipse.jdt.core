@@ -46,6 +46,7 @@ public class TestAll extends TestCase {
 		testClasses.add(CompletionParserTest2.class);
 		testClasses.add(CompletionParserTestKeyword.class);
 		testClasses.add(GenericsCompletionParserTest.class);
+		testClasses.add(AnnotationCompletionParserTest.class);
 
 		/* selection tests */
 		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);

@@ -25,9 +25,29 @@ public class TypeNameRequestorWrapper implements IRestrictedAccessTypeRequestor 
 		this.requestor = requestor;
 	}
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptAnnotation(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
+	 */
+	public void acceptAnnotation (	char[] packageName,
+									char[] simpleTypeName,
+									char[][] enclosingTypeNames,
+									String path,
+									AccessRestriction access) {
+		this.requestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, path);
+	}
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptClass(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
 	 */
 	public void acceptClass (	char[] packageName,
+								char[] simpleTypeName,
+								char[][] enclosingTypeNames,
+								String path,
+								AccessRestriction access) {
+		this.requestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, path);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.search.IAccessedTypeNameRequestor#acceptEnum(char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
+	 */
+	public void acceptEnum (	char[] packageName,
 								char[] simpleTypeName,
 								char[][] enclosingTypeNames,
 								String path,

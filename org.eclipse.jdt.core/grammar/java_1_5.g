@@ -2111,7 +2111,12 @@ Annotation -> SingleMemberAnnotation
 /:$readableName Annotation:/
 /:$compliance 1.5:/
 
-NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
+AnnotationName ::= '@' Name
+/.$putCase consumeAnnotationName() ; $break ./
+/:$readableName AnnotationName:/
+/:$compliance 1.5:/
+
+NormalAnnotation ::= AnnotationName '(' MemberValuePairsopt ')'
 /.$putCase consumeNormalAnnotation() ; $break ./
 /:$readableName NormalAnnotation:/
 /:$compliance 1.5:/
@@ -2167,12 +2172,12 @@ MemberValues ::= MemberValues ',' MemberValue
 /:$readableName MemberValues:/
 /:$compliance 1.5:/
 
-MarkerAnnotation ::= '@' Name
+MarkerAnnotation ::= AnnotationName
 /.$putCase consumeMarkerAnnotation() ; $break ./
 /:$readableName MarkerAnnotation:/
 /:$compliance 1.5:/
 
-SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
+SingleMemberAnnotation ::= AnnotationName '(' MemberValue ')'
 /.$putCase consumeSingleMemberAnnotation() ; $break ./
 /:$readableName SingleMemberAnnotation:/
 /:$compliance 1.5:/
