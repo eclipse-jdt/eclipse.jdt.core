@@ -2416,28 +2416,6 @@ class ASTConverter {
 	}
 	
 	/**
-	 * This method is used to set the right end position for switch and 
-	 * try statements. They don't include the close }. 
-	 */
-	private void retrieveRightBracePosition(ASTNode node) {
-		int start = node.getStartPosition();
-		int length = node.getLength();
-		int end = start + length;
-		scanner.resetTo(end, this.compilationUnitSource.length);
-		try {
-			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameRBRACE:
-						node.setSourceRange(start, scanner.currentPosition - start);
-						return;
-				}
-			}
-		} catch(InvalidInputException e) {
-		}
-	}
-
-	/**
 	 * This method is used to retrieve the array dimension declared after the
 	 * name of a local or a field declaration.
 	 * For example:
@@ -3074,54 +3052,10 @@ class ASTConverter {
 		unit.setProblems(resizeProblems);
 	}
 	
-	private boolean checkAndTagAsMalformed(ASTNode node, int position) {
-		int start = node.getStartPosition();
-		int end = start + node.getLength();
-		if ((start <= position) && (position <= end)) {
-			node.setFlags(ASTNode.MALFORMED);
-			return true;
-		}
-		return false;
-	}
-	
 	private void recordNodes(ASTNode node, org.eclipse.jdt.internal.compiler.ast.AstNode oldASTNode) {
 		this.ast.getBindingResolver().store(node, oldASTNode);
 	}
 	
-	private boolean checkForParenthesis(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
-		/*
-		 * We need to handle multiple parenthesis
-		 */
-		int start = expression.sourceStart;
-		int end = expression.sourceEnd;
-		scanner.resetTo(start, end);
-		int dangling = 0, token;
-		boolean first = true;
-		try {
-			while (true) {
-				token = scanner.getNextToken();
-				switch (token) {
-					case TerminalTokens.TokenNameLPAREN :
-						dangling ++;
-						break;
-					case TerminalTokens.TokenNameRPAREN :
-						if (first) return false;
-						dangling --;
-						break;
-					case TerminalTokens.TokenNameEOF :
-						if (first) return false;
-						return dangling == 0;
-					default :
-						if (first) return false;
-						if (dangling == 0) return false;
-				}
-				first = false;
-			}
-		} catch (InvalidInputException e){
-		}
-		return false;
-	}
-
 	/**
 	 * Remove whitespaces before and after the expression.
 	 */	
