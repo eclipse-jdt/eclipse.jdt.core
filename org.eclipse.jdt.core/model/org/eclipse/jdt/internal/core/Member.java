@@ -200,7 +200,7 @@ public Member getInnerMostDeclaringMember() {
 			return null;
 		case TYPE:
 			Member declaringMember = ((Member)fParent).getInnerMostDeclaringMember();
-			if (declaringMember == null) {
+			if (declaringMember == null && getElementType() != TYPE) {
 				return this;
 			} else {
 				return declaringMember;
