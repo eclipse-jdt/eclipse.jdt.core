@@ -189,8 +189,8 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	D:/eclipse/jclMin.jar[*]: {REORDERED}\n" + 
-			"	D:/eclipse/jclMinsrc.zip[*]: {REORDERED}\n" + 
+			"	" + getExternalJCLPath().toString() + "[*]: {REORDERED}\n" + 
+			"	" + getExternalJCLSourcePath().toString() + "[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
