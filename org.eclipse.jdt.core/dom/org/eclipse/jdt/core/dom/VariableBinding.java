@@ -111,7 +111,9 @@ class VariableBinding implements IVariableBinding {
 	public String getKey() {
 		if (isField()) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(this.getDeclaringClass().getKey());
+			if (this.getDeclaringClass() != null) {
+				buffer.append(this.getDeclaringClass().getKey());
+			}
 			buffer.append(this.getName());
 			return buffer.toString();
 		}			

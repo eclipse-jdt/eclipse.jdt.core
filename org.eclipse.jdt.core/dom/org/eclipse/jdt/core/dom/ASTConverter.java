@@ -1263,11 +1263,18 @@ class ASTConverter {
 			int nameSourceStart =  (int) (expression.nameSourcePosition >>> 32);
 			int nameSourceLength = (int)(expression.nameSourcePosition & 0xFFFFFFFF) - nameSourceStart + 1;
 			name.setSourceRange(nameSourceStart, nameSourceLength);
+			if (this.resolveBindings) {
+				recordNodes(name, expression);
+			}
 			superMethodInvocation.setName(name);
 			// expression.receiver is either a QualifiedSuperReference or a SuperReference
 			// so the casting cannot fail
 			if (expression.receiver instanceof QualifiedSuperReference) {
-				superMethodInvocation.setQualifier(convert((QualifiedSuperReference) expression.receiver));
+				Name qualifier = convert((QualifiedSuperReference) expression.receiver);
+				superMethodInvocation.setQualifier(qualifier);
+				if (this.resolveBindings) {
+					recordNodes(qualifier, expression);
+				}
 			}
 			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = expression.arguments;
 			if (arguments != null) {
@@ -1292,6 +1299,9 @@ class ASTConverter {
 			int nameSourceLength = (int)(expression.nameSourcePosition & 0xFFFFFFFF) - nameSourceStart + 1;
 			name.setSourceRange(nameSourceStart, nameSourceLength);
 			methodInvocation.setName(name);
+			if (this.resolveBindings) {
+				recordNodes(name, expression);
+			}
 			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = expression.arguments;
 			if (arguments != null) {
 				int argumentsLength = arguments.length;
@@ -1303,7 +1313,14 @@ class ASTConverter {
 					methodInvocation.arguments().add(expri);
 				}
 			}
-			methodInvocation.setExpression(convert(expression.receiver));
+			if (this.resolveBindings) {
+				recordNodes(name, expression);
+			}
+			Expression qualifier = convert(expression.receiver);
+			if (qualifier instanceof Name && this.resolveBindings) {
+				recordNodes(qualifier, expression);
+			}
+			methodInvocation.setExpression(qualifier);
 			expr = methodInvocation;
 		}
 		expr.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);	
