@@ -1039,7 +1039,7 @@ PrimaryNoNewArray ::= Name Dims '.' 'class'
 /.$putCase consumePrimaryNoNewArrayArrayType(); $break ./
 
 PrimaryNoNewArray ::= PrimitiveType Dims '.' 'class'
-/.$putCase consumePrimaryNoNewArrayArrayType(); $break ./
+/.$putCase consumePrimaryNoNewArrayPrimitiveArrayType(); $break ./
 
 PrimaryNoNewArray ::= PrimitiveType '.' 'class'
 /.$putCase consumePrimaryNoNewArrayPrimitiveType(); $break ./
@@ -1064,18 +1064,18 @@ ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' Clas
 /.$putCase consumeClassInstanceCreationExpression(); $break ./
 --1.1 feature
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments SimpleName '(' ArgumentListopt ')' ClassBodySimpleNameopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 
-ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodySimpleNameopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 
 --1.1 feature
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodySimpleNameopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments SimpleName '(' ArgumentListopt ')' ClassBodySimpleNameopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
@@ -1087,6 +1087,15 @@ ClassBodyopt ::= $empty --test made using null as contents
 /.$putCase consumeClassBodyopt(); $break ./
 ClassBodyopt ::= EnterAnonymousClassBody ClassBody
 /:$readableName ClassBody:/
+
+ClassBodySimpleNameopt ::= $empty --test made using null as contents
+/.$putCase consumeClassBodyopt(); $break ./
+ClassBodySimpleNameopt ::= EnterAnonymousClassBodySimpleName ClassBody
+/:$readableName ClassBody:/
+
+EnterAnonymousClassBodySimpleName ::= $empty
+/.$putCase consumeEnterAnonymousClassBodySimpleName(); $break ./
+/:$readableName EnterAnonymousClassBodySimpleName:/
 
 EnterAnonymousClassBody ::= $empty
 /.$putCase consumeEnterAnonymousClassBody(); $break ./
@@ -1105,18 +1114,18 @@ ArrayCreationHeader ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 /:$readableName ArrayCreationHeader:/
 
 ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
-/.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
+/.$putCase consumePrimitiveTypeArrayCreationExpressionWithoutInitializer(); $break ./
 /:$readableName ArrayCreationWithoutArrayInitializer:/
 
 ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
-/.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
+/.$putCase consumePrimitiveTypeArrayCreationExpressionWithInitializer(); $break ./
 /:$readableName ArrayCreationWithArrayInitializer:/
 
 ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
-/.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
+/.$putCase consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer(); $break ./
 
 ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
-/.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
+/.$putCase consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer(); $break ./
 
 DimWithOrWithOutExprs ::= DimWithOrWithOutExpr
 DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
@@ -1219,7 +1228,7 @@ UnaryExpressionNotPlusMinus -> CastExpression
 /:$readableName Expression:/
 
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
-/.$putCase consumeCastExpression(); $break ./
+/.$putCase consumeCastExpressionWithPrimitiveType(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
