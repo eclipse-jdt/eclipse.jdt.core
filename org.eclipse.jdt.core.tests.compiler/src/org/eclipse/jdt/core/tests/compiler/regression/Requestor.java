@@ -16,11 +16,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import junit.framework.Assert;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 public class Requestor extends Assert implements ICompilerRequestor {
 	public boolean hasErrors = false;
@@ -28,90 +30,39 @@ public class Requestor extends Assert implements ICompilerRequestor {
 	public String outputPath;
 	private boolean generateOutput;
 	public Hashtable expectedProblems = new Hashtable();
+	public String problemLog = "";
 public Requestor(IProblemFactory problemFactory, String outputPath, boolean generateOutput) {
 	this.problemFactory = problemFactory;
 	this.outputPath = outputPath;
 	this.generateOutput = generateOutput;
 }
-	public void acceptResult(CompilationResult cr) {
-		if (cr.hasProblems() || cr.hasTasks()) {
-			if (cr.hasErrors()) {
-				this.hasErrors = true;
-			}
-			
-			IProblem[] actualProblems = cr.getAllProblems();
-			int actualProblemsCount = actualProblems == null ? 0 : actualProblems.length;
-			ExpectedProblem[] problems = (ExpectedProblem[])this.expectedProblems.get(new String(cr.getFileName()));
-			int expectedProblemsCount = problems == null ? 0 : problems.length;
-
-			if (actualProblemsCount > 0 || expectedProblemsCount > 0) {
-				boolean areMessagesDifferent = false;
-				String message = new String(cr.getFileName()) + " does not have the correct errors.\nFound :\n";
-				for (int i = 0; i < actualProblemsCount; i++) {
-					message += "\t" + actualProblems[i].getMessage() + "\n";
-					/* START PRINT */
-/*					
-					System.out.print(actualProblems[i].getID()+":");
-					String[] pbArgs =  actualProblems[i].getArguments();
-					for (int j = 0; j < pbArgs.length; j++){
-						if (j > 0) System.out.print(", ");
-						System.out.print(pbArgs[j]);
-					}
-					System.out.println();
-*/					
-					/* END PRINT */
-					if (i < expectedProblemsCount 
-						&& !actualProblems[i].getMessage().equals(problemFactory.getLocalizedMessage(problems[i].id, problems[i].arguments))) {
-						areMessagesDifferent = true;
-					System.out.print(actualProblems[i].getID()+":");
-					String[] pbArgs =  actualProblems[i].getArguments();
-					for (int j = 0; j < pbArgs.length; j++){
-						if (j > 0) System.out.print(", ");
-						System.out.print(pbArgs[j]);
-					}
-					System.out.println();
-					}
+public void acceptResult(CompilationResult compilationResult) {
+	StringBuffer buffer = new StringBuffer(100);
+	hasErrors |= compilationResult.hasErrors();
+	if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
+		IProblem[] problems = compilationResult.getAllProblems();
+		int count = problems.length;
+		int problemCount = 0;
+		for (int i = 0; i < count; i++) { 
+			if (problems[i] != null) {
+				if (problemCount == 0)
+					buffer.append("----------\n");
+				problemCount++;
+				buffer.append(problemCount + (problems[i].isError() ? ". ERROR" : ". WARNING"));
+				buffer.append(" in " + new String(problems[i].getOriginatingFileName()));
+				try {
+					buffer.append(((DefaultProblem)problems[i]).errorReportSource(compilationResult.compilationUnit));
+					buffer.append("\n");
+					buffer.append(problems[i].getMessage());
+					buffer.append("\n");
+				} catch (Exception e) {
 				}
-				if (expectedProblemsCount == 0) {
-					message += "Expecting no problems.";
-				} else {
-					message += "Expecting :\n";
-					for (int i = 0; i < expectedProblemsCount; i++) {
-						ExpectedProblem expectedProblem = problems[i];
-						message += "\t" + problemFactory.getLocalizedMessage(expectedProblem.id, expectedProblem.arguments) + "\n";
-					}
-				}
-				assertTrue(message, (actualProblemsCount == expectedProblemsCount) && !areMessagesDifferent);
+				buffer.append("----------\n");
 			}
 		}
-		outputClassFiles(cr);
+		problemLog += buffer.toString();
 	}
-public void expectedProblems(ExpectedProblem[] problems) {
-	for (int i = 0; i < problems.length; i++){
-		ExpectedProblem problem = problems[i];
-		String fileName = problem.fileName;
-		if (File.separator.equals("/")) {
-			if (fileName.indexOf("\\") != -1) {
-				fileName = fileName.replace('\\', File.separatorChar);
-			}
-		} else {
-			// the file separator is \
-			if (fileName.indexOf('/') != -1) {
-				fileName = fileName.replace('/', File.separatorChar);
-			}
-		}
-		
-		ExpectedProblem[] existingProblems = (ExpectedProblem[])this.expectedProblems.get(fileName);
-		if (existingProblems == null) {
-			this.expectedProblems.put(fileName, new ExpectedProblem[] {problem});
-		} else {
-			int length = existingProblems.length;
-			ExpectedProblem[] newProblems = new ExpectedProblem[length + 1];
-			System.arraycopy(existingProblems, 0, newProblems, 0, length);
-			newProblems[length] = problem;
-			this.expectedProblems.put(fileName, newProblems);
-		}
-	}
+	outputClassFiles(compilationResult);	
 }
 protected void outputClassFiles(CompilationResult unitResult) {
 

@@ -16,7 +16,6 @@ import java.util.Enumeration;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -72,9 +71,16 @@ public void test001() {
 			"}	\n" +
 			"}"
 		},
-		new ExpectedProblem[] {
-			new ExpectedProblem("prs/Test1.java", IProblem.TypeMismatch, new String[] {"int", "String"})
-		}
+		"----------\n" + 
+		"1. ERROR in prs\\Test1.java (at line 4)\n" + 
+		"	String s = 3;	\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from int to String\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true
 		);
 
 	this.runNegativeTest(
@@ -94,7 +100,7 @@ public void test001() {
 			"}	\n" +
 			"}"
 		},
-		new ExpectedProblem[] {},
+		"",
 		null,
 		false);
 }

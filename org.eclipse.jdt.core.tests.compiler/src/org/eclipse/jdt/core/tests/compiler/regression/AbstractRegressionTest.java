@@ -129,14 +129,6 @@ protected INameEnvironment getNameEnvironment(final String[] testFiles, String[]
 protected IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(Locale.getDefault());
 }
-protected Requestor getRequestor(IProblemFactory problemFactory) {
-	return new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, false);
-}
-
-protected Requestor getRequestor(IProblemFactory problemFactory, boolean generateOutPut) {
-	return new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, generateOutPut);
-}
-
 protected void runConformTest(String[] testFiles) {
 	this.runConformTest(testFiles, null, null, true, null);
 }
@@ -160,7 +152,7 @@ protected void runConformTest(String[] testFiles, String expectedSuccessOutputSt
 	if (shouldFlushOutputDirectory) Util.flushDirectoryContent(new File(OUTPUT_DIR));
 	
 	IProblemFactory problemFactory = getProblemFactory();
-	LogRequestor requestor = new LogRequestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator);
+	Requestor requestor = new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, false);
 	
 	Map options = getCompilerOptions();
 	if (customOptions != null){
@@ -209,7 +201,7 @@ protected void runConformTestThrowingError(String[] testFiles, String expectedSu
 	if (shouldFlushOutputDirectory) Util.flushDirectoryContent(new File(OUTPUT_DIR));
 	
 	IProblemFactory problemFactory = getProblemFactory();
-	LogRequestor requestor = new LogRequestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator);
+	Requestor requestor = new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, false);
 	Compiler batchCompiler =
 		new Compiler(
 			getNameEnvironment(new String[] {}, classLib),
@@ -233,67 +225,6 @@ protected void runConformTestThrowingError(String[] testFiles, String expectedSu
 		assertTrue("Unexpected problems: " + requestor.problemLog, false);
 	}
 }
-
-protected void runNegativeTest(String[] testFiles, ExpectedProblem[] expectedProblems) {
-	this.runNegativeTest(testFiles, expectedProblems, null, true);
-}
-protected void runNegativeTest(String[] testFiles, ExpectedProblem[] expectedProblems, String[] classLib, boolean shouldFlushOutputDirectory) {
-
-	if (shouldFlushOutputDirectory) Util.flushDirectoryContent(new File(OUTPUT_DIR));
-
-	IProblemFactory problemFactory = getProblemFactory();
-	Requestor requestor = getRequestor(problemFactory);
-	requestor.expectedProblems(expectedProblems);
-	Compiler batchCompiler =
-		new Compiler(
-			getNameEnvironment(new String[] {}, classLib),
-			getErrorHandlingPolicy(),
-			getCompilerOptions(),
-			requestor,
-			problemFactory);
-	batchCompiler.compile(compilationUnits(testFiles)); // compile all files together
-	if (!requestor.hasErrors) {
-		String sourceFile = testFiles[0];
-		
-		// Compute class name by removing ".java" and replacing slashes with dots
-		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
-		
-		assertTrue(
-			this.verifier.failureReason,
-			this.verifier.verifyClassFiles(sourceFile, className, null, this.classpaths)
-		);
-	}
-}
-protected void runNegativeTest(String[] testFiles, ExpectedProblem[] expectedProblems, String[] classLib, boolean shouldFlushOutputDirectory, boolean generateOutput) {
-
-
-	if (shouldFlushOutputDirectory) Util.flushDirectoryContent(new File(OUTPUT_DIR));
-
-
-	IProblemFactory problemFactory = getProblemFactory();
-	Requestor requestor = getRequestor(problemFactory, generateOutput);
-	requestor.expectedProblems(expectedProblems);
-	Compiler batchCompiler =
-		new Compiler(
-			getNameEnvironment(new String[] {}, classLib),
-			getErrorHandlingPolicy(),
-			getCompilerOptions(),
-			requestor,
-			problemFactory);
-	batchCompiler.compile(compilationUnits(testFiles)); // compile all files together
-	if (!requestor.hasErrors) {
-		String sourceFile = testFiles[0];
-		
-		// Compute class name by removing ".java" and replacing slashes with dots
-		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
-		
-		assertTrue(
-			this.verifier.failureReason,
-			this.verifier.verifyClassFiles(sourceFile, className, null, this.classpaths)
-		);
-	}
-}
-
 /**
  * Log contains all problems (warnings+errors)
  */
@@ -310,12 +241,18 @@ protected void runNegativeTest(String[] testFiles, String expectedProblemLog, St
 /**
  * Log contains all problems (warnings+errors)
  */
-protected void runNegativeTest(String[] testFiles, String expectedProblemLog, String[] classLib, boolean shouldFlushOutputDirectory, Map customOptions) {
+protected void runNegativeTest(String[] testFiles, String expectedProblemLog, String[] classLib, boolean shouldFlushOutputDirectory, Map customOptions){
+	this.runNegativeTest(testFiles, expectedProblemLog, classLib, shouldFlushOutputDirectory, customOptions, false);
+}
+/**
+ * Log contains all problems (warnings+errors)
+ */
+protected void runNegativeTest(String[] testFiles, String expectedProblemLog, String[] classLib, boolean shouldFlushOutputDirectory, Map customOptions, boolean generateOutput) {
 
 	if (shouldFlushOutputDirectory) Util.flushDirectoryContent(new File(OUTPUT_DIR));
 
 	IProblemFactory problemFactory = getProblemFactory();
-	LogRequestor requestor = new LogRequestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator);
+	Requestor requestor = new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, generateOutput);
 	Map options = getCompilerOptions();
 	if (customOptions != null){
 		options.putAll(customOptions);
