@@ -121,17 +121,6 @@ public interface IJavaSearchConstants {
 	 */
 	int WRITE_ACCESSES = 5;
 	
-	/** 
-	 * @deprecated - use READ_ACCESSES instead (will be discarded before 2.0)
-	 * @since 2.0
-	 */
-	int READ_REFERENCES = READ_ACCESSES;
-	/** 
-	 * @deprecated - use WRITE_ACCESSES instead (will be discarded before 2.0)
-	 * @since 2.0
-	 */
-	int WRITE_REFERENCES = WRITE_ACCESSES;
-
 	/* Syntactic match modes */
 	
 	/**
