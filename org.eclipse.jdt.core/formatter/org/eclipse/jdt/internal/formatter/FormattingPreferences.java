@@ -305,7 +305,7 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = true;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = true;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK = true;
-	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 1;
+	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 0;
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
 	public static final int DEFAULT_MULTIPLE_FIELDS_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;//$NON-NLS-1$
