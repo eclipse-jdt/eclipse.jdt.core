@@ -323,7 +323,7 @@ public boolean isLocal() throws JavaModelException {
  * @see IType#isMember()
  */
 public boolean isMember() throws JavaModelException {
-	return getDeclaringType() == null;
+	return getDeclaringType() != null;
 }
 
 /**
