@@ -329,8 +329,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		} catch (InvalidInputException e) {
 			this.err.println(e.getMessage());
-			this.err.println("------------------------"); //$NON-NLS-1$
-			printUsage();
 			if (this.systemExitWhenFinished) {
 				System.exit(-1);
 			}
@@ -1611,7 +1609,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 	}
 	public void printUsage() {
-		this.out.println(Main.bind("misc.usage"));  //$NON-NLS-1$
+		this.out.println(Main.bind("misc.usage", System.getProperty("path.separator"))); //$NON-NLS-1$//$NON-NLS-2$
 		this.out.flush();
 		this.err.flush();
 	}
