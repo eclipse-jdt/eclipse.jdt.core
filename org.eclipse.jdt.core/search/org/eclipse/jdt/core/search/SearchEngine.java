@@ -592,8 +592,8 @@ public class SearchEngine {
 	}
 
 	/**
-	 * Searches for all top-level types and member types in the given scope using  a case sensitive exact match
-	 * with the given qualified names and type names.
+	 * Searches for all top-level types and member types in the given scope matching any of the given qualifications
+	 * and type names in a case sensitive way.
 	 * 
 	 * @param qualifications the qualified name of the package/enclosing type of the searched types
 	 * @param typeNames the simple names of the searched types
