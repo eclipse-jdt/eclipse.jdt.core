@@ -6623,4 +6623,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}	
+	// 69713 NPE due to length pseudo field
+	public void test240() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+			"public class X {\n" + 
+			"    String[] elements = null;\n" + 
+			"	\n" + 
+			"    public X() {\n" + 
+			"        String s = \"a, b, c, d\";\n" + 
+			"        elements = s.split(\",\");\n" + 
+			"        if(elements.length = 3) {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	if(elements.length = 3) {\n" + 
+			"	   ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from int to boolean\n" + 
+			"----------\n");
+	}	
 }
