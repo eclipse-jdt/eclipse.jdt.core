@@ -379,6 +379,10 @@ public void testToQualifiedName() {
  */
 public void testToString1() {
 	assertEquals(
+			"Signature#toString is not correct 1", 
+			"java/lang/String",
+			Signature.toString("Ljava/lang/String;"));
+	assertEquals(
 		"Signature#toString is not correct 1", 
 		"java.lang.String",
 		Signature.toString("Ljava.lang.String;"));
