@@ -1160,14 +1160,17 @@ protected void assertDeltas(String message, String expected) {
 		IProject project = getProject(name);
 		return JavaCore.create(project);
 	}
-	protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
-		ISourceReference cu = getCompilationUnit(cuPath);
+	protected ILocalVariable getLocalVariable(ISourceReference cu, String selectAt, String selection) throws JavaModelException {
 		IJavaElement[] elements = codeSelect(cu, selectAt, selection);
 		if (elements.length == 0) return null;
 		if (elements[0] instanceof ILocalVariable) {
 			return (ILocalVariable)elements[0];
 		}
 		return null;
+	}
+	protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
+		ISourceReference cu = getCompilationUnit(cuPath);
+		return getLocalVariable(cu, selectAt, selection);
 	}
 	/**
 	 * Returns the specified package fragment in the given project and root, or

@@ -240,6 +240,52 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a local variable is correct.
+	 * (regression test for bug 79610 IVariableBinding#getJavaElement() returns null for local variables)
+	 */
+	public void testLocalVariable1() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    int /*start*/local/*end*/;\n" +
+			"  }\n" +
+			"}"
+		);
+		IBinding binding = ((VariableDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		IJavaElement expected = getLocalVariable(this.workingCopy, "local", "local");
+		assertEquals(
+			"Unexpected Java element",
+			expected,
+			element
+		);
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a local variable is correct.
+	 * (regression test for bug 79610 IVariableBinding#getJavaElement() returns null for local variables)
+	 */
+	public void testLocalVariable2() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object first, /*start*/second/*end*/, third;\n" +
+			"  }\n" +
+			"}"
+		);
+		IBinding binding = ((VariableDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		IJavaElement expected = getLocalVariable(this.workingCopy, "second", "second");
+		assertEquals(
+			"Unexpected Java element",
+			expected,
+			element
+		);
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a member type is correct.
 	 */
 	public void testMemberType() throws JavaModelException {

@@ -17,6 +17,8 @@ import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LocalVariable;
 
 /**
  * Internal implementation of variable bindings.
@@ -111,11 +113,25 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public IJavaElement getJavaElement() {
 		if (isField()) {
+			// field
 			IType declaringType = (IType) getDeclaringClass().getJavaElement();
 			if (declaringType == null) return null;
 			return declaringType.getField(getName());
 		}
-		return null;
+		// local variable
+		IMethodBinding declaringMethod = getDeclaringMethod();
+		if (declaringMethod == null) return null;
+		JavaElement method = (JavaElement) declaringMethod.getJavaElement();
+		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
+		VariableDeclaration localVar = (VariableDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
+		if (localVar == null) return null;
+		int nameStart =  localVar.getStartPosition();
+		int nameLength = localVar.getLength();
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) localVar.getParent();
+		int sourceStart = statement.getStartPosition();
+		int sourceLength = statement.getLength();
+		char[] typeSig = this.binding.type.genericTypeSignature();
+		return new LocalVariable(method, localVar.getName().getIdentifier(), sourceStart, sourceStart+sourceLength-1, nameStart, nameStart+nameLength-1, new String(typeSig));
 	}
 	
 	/*
