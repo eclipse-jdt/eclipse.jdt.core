@@ -108,21 +108,11 @@ public class ClassFile
 		constantPoolOffset = headerOffset;
 		headerOffset += 2;
 		constantPool = new ConstantPool(this);
-		int accessFlags = aType.getAccessFlags() | AccSuper;
-		if (aType.isNestedType()) {
-			if (aType.isStatic()) {
-				// clear Acc_Static
-				accessFlags &= ~AccStatic;
-			}
-			if (aType.isPrivate()) {
-				// clear Acc_Private and Acc_Public
-				accessFlags &= ~(AccPrivate | AccPublic);
-			}
-			if (aType.isProtected()) {
-				// clear Acc_Protected and set Acc_Public
-				accessFlags &= ~AccProtected;
-				accessFlags |= AccPublic;
-			}
+		
+		// Modifier manipulations for classfile
+		int accessFlags = aType.getAccessFlags();
+		if (aType.isProtected()) { // rewrite protected into public
+			accessFlags |= AccPublic;
 		}
 		// clear all bits that are illegal for a class or an interface
 		accessFlags
@@ -133,7 +123,10 @@ public class ClassFile
 					| AccStatic
 					| AccSynchronized
 					| AccNative);
-
+					
+		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
+		accessFlags |= AccSuper;
+		
 		this.enclosingClassFile = enclosingClassFile;
 		// innerclasses get their names computed at code gen time
 		if (aType.isLocalType()) {
