@@ -9182,4 +9182,46 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Type safety: The return type T of the method bar(T) of type new X<R>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
 			"----------\n");
 	}	
+	// test wildcard compatibilities
+	public void test349() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T element;\n" + 
+				"	static void foo(X<? super Exception> out, X1<? extends Exception> in) {\n" + 
+				"		out.element = in.element;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 				
+				"}\n" + 
+				"class X1<U>{\n" + 
+				"	U element;\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}
+	// test wildcard compatibilities
+	public void test350() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T element;\n" + 
+				"	static void foo(X<?> out, X1<?> in) {\n" + 
+				"		out.element = in.element;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class X1<U>{\n" + 
+				"	U element;\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	out.element = in.element;\n" + 
+			"	              ^^^^^^^^^^\n" + 
+			"Bound mismatch: Cannot assign expression of type ? to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
+			"----------\n");
+	}
 }
