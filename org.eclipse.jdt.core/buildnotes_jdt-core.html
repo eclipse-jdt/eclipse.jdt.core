@@ -11,14 +11,13 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK Build 200205? - ?th May 2002 
+Eclipse SDK Build 20020503 - 3rd May 2002 
 <br>Project org.eclipse.jdt.core v_244
 <h2>
 What's new in this drop</h2>
 <ul>
 	<li>JavaCore now persists its options (<code>JavaCore#getOptions</code>) using its plugin property store. Clients no longer need to save them. </li>
 	<li>JavaCore now provides constants for all supported option IDs and values.</li>
-	<li>Leveraged new encoding support from Platform/Core. The JavaCore option "org.eclipse.jdt.core.encoding" is now equivalent to <code>ResourcesPlugin.getEncoding()</code>.
 	<li> JavaCore option added, to allow build to abort in presence of invalid classpath. 
 	<pre>
 	 * BUILDER / Abort if Invalid Classpath
