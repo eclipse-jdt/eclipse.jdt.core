@@ -916,12 +916,12 @@ public class Util {
 			case IJavaElement.PACKAGE_FRAGMENT:
 				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				IResource resource = element.getResource();
-				return resource != null && Util.isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars());
+				return resource != null && isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars());
 				
 			case IJavaElement.COMPILATION_UNIT:
 				root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				resource = element.getResource();
-				if (resource != null && Util.isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars()))
+				if (resource != null && isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars()))
 					return true;
 				return isExcluded(element.getParent());
 				
@@ -947,9 +947,11 @@ public class Util {
 				char[] folderPattern = pattern;
 				if (isFolderPath) {
 					int lastSlash = CharOperation.lastIndexOf('/', pattern);
-					if (lastSlash != -1) {
+					if (lastSlash != -1 && lastSlash != pattern.length-1){ // trailing slash -> adds '**' for free (see http://ant.apache.org/manual/dirtasks.html)
 						int star = CharOperation.indexOf('*', pattern, lastSlash);
-						if (star == -1 || star >= pattern.length-1 || pattern[star+1] != '*') {
+						if ((star == -1
+								|| star >= pattern.length-1 
+								|| pattern[star+1] != '*')) {
 							folderPattern = CharOperation.subarray(pattern, 0, lastSlash);
 						}
 					}

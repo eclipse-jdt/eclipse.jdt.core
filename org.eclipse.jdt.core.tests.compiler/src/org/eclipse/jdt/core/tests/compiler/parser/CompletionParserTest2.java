@@ -7988,4 +7988,74 @@ public void test0141(){
 			expectedReplacedSource,
 	"diet ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=39499
+ */
+public void test0142(){
+	String str =
+		"public class X{\n" + 
+		"  public void foo() {\n" + 
+		"    bar(new Object(){\n" + 
+		"      public void toto() {\n" + 
+		"        if(a instanceof Object) {}\n" + 
+		"      }\n" + 
+    	"    });\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "instanceof";
+	int cursorLocation = str.indexOf("instanceof") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnKeyword:instanceof>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "instanceof";
+	expectedReplacedSource = "instanceof";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    new Object() {\n" + 
+		"      () {\n" + 
+		"      }\n" + 
+		"      public void toto() {\n" + 
+		"        <CompleteOnKeyword:instanceof>;\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

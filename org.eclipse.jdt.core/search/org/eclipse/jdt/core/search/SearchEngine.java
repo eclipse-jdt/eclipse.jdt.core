@@ -801,6 +801,7 @@ public class SearchEngine {
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @since 3.0
 	 */
 	public void searchAllTypeNames(
 		final char[] packageName, 

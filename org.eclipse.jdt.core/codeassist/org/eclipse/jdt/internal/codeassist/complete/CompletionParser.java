@@ -769,25 +769,27 @@ private boolean checkKeyword() {
 		RecoveredUnit unit = (RecoveredUnit) currentElement;
 		int index = -1;
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
-			char[] ident = identifierStack[index];
-			long pos = identifierPositionStack[index];
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
+			
+			char[] ident = identifierStack[ptr];
+			long pos = identifierPositionStack[ptr];
 			
 			char[][] keywords = new char[Keywords.COUNT][];
 			int count = 0;
 			if(unit.typeCount == 0
 				&& lastModifiers == AccDefault
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.IMPORT)) {
+				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.IMPORT)) {
 				keywords[count++] = Keywords.IMPORT;
 			}
 			if(unit.typeCount == 0
 				&& unit.importCount == 0
 				&& lastModifiers == AccDefault
 				&& compilationUnit.currentPackage == null
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.PACKAGE)) {
+				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.PACKAGE)) {
 				keywords[count++] = Keywords.PACKAGE;
 			}
 			if((lastModifiers & AccPublic) == 0
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.PUBLIC)) {
+				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.PUBLIC)) {
 				boolean hasNoPublicType = true;
 				for (int i = 0; i < unit.typeCount; i++) {
 					if((unit.types[i].typeDeclaration.modifiers & AccPublic) != 0) {
@@ -800,19 +802,19 @@ private boolean checkKeyword() {
 			}
 			if((lastModifiers & AccAbstract) == 0
 				&& (lastModifiers & AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.ABSTRACT)) {
+				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.ABSTRACT)) {
 				keywords[count++] = Keywords.ABSTRACT;
 			}
 			if((lastModifiers & AccAbstract) == 0
 				&& (lastModifiers & AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.FINAL)) {
+				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.FINAL)) {
 				keywords[count++] = Keywords.FINAL;
 			}
-			if(CharOperation.prefixEquals(identifierStack[index], Keywords.CLASS)) {
+			if(CharOperation.prefixEquals(identifierStack[ptr], Keywords.CLASS)) {
 				keywords[count++] = Keywords.CLASS;
 			}
 			if((lastModifiers & AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.INTERFACE)) {
+				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.INTERFACE)) {
 				keywords[count++] = Keywords.INTERFACE;
 			}
 			if(count != 0) {
@@ -834,15 +836,18 @@ private boolean checkInstanceofKeyword() {
 		if(kind != K_BLOCK_DELIMITER
 			&& (index = indexOfAssistIdentifier()) > -1
 			&& expressionPtr > -1
-			&& expressionLengthStack[expressionPtr] == 1
-			&& CharOperation.prefixEquals(identifierStack[index], Keywords.INSTANCEOF)) {
-			this.assistNode = new CompletionOnKeyword3(
-					identifierStack[index],
-					identifierPositionStack[index],
-					Keywords.INSTANCEOF);
-			this.lastCheckPoint = assistNode.sourceEnd + 1;
-			this.isOrphanCompletionNode = true;
-			return true;
+			&& expressionLengthStack[expressionPtr] == 1) {
+			
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
+			if(identifierStack[ptr].length > 0 && CharOperation.prefixEquals(identifierStack[ptr], Keywords.INSTANCEOF)) {
+				this.assistNode = new CompletionOnKeyword3(
+						identifierStack[ptr],
+						identifierPositionStack[ptr],
+						Keywords.INSTANCEOF);
+				this.lastCheckPoint = assistNode.sourceEnd + 1;
+				this.isOrphanCompletionNode = true;
+				return true;
+			}
 		}
 	}
 	return false;
@@ -1285,7 +1290,7 @@ protected void consumeClassHeaderName1() {
 		int index = -1;
 		/* check if current awaiting identifier is the completion identifier */
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
-
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
 			RecoveredType recoveredType = (RecoveredType)currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredType.foundOpeningBrace) {
@@ -1304,8 +1309,8 @@ protected void consumeClassHeaderName1() {
 				
 				if(count > 0) {
 					type.superclass = new CompletionOnKeyword1(
-						identifierStack[index],
-						identifierPositionStack[index],
+						identifierStack[ptr],
+						identifierPositionStack[ptr],
 						keywords);
 					this.assistNode = type.superclass;
 					this.lastCheckPoint = type.superclass.sourceEnd + 1;
@@ -1329,15 +1334,15 @@ protected void consumeClassHeaderExtends() {
 		int index = -1;
 		/* check if current awaiting identifier is the completion identifier */
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
-
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
 			RecoveredType recoveredType = (RecoveredType)currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredType.foundOpeningBrace) {
 				TypeDeclaration type = recoveredType.typeDeclaration;
 				if(type.superInterfaces == null) {
 					type.superclass = new CompletionOnKeyword1(
-						identifierStack[index],
-						identifierPositionStack[index],
+						identifierStack[ptr],
+						identifierPositionStack[ptr],
 						Keywords.IMPLEMENTS);
 					this.assistNode = type.superclass;
 					this.lastCheckPoint = type.superclass.sourceEnd + 1;
@@ -1631,15 +1636,15 @@ protected void consumeInterfaceHeaderName1() {
 		int index = -1;
 		/* check if current awaiting identifier is the completion identifier */
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
-
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
 			RecoveredType recoveredType = (RecoveredType)currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredType.foundOpeningBrace) {
 				TypeDeclaration type = recoveredType.typeDeclaration;
 				if(type.superInterfaces == null) {
 					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-						identifierStack[index],
-						identifierPositionStack[index],
+						identifierStack[ptr],
+						identifierPositionStack[ptr],
 						Keywords.EXTENDS);
 					type.superInterfaces = new TypeReference[]{completionOnKeyword};
 					this.assistNode = completionOnKeyword;
@@ -1807,17 +1812,17 @@ protected void consumeMethodHeaderRightParen() {
 		int index = -1;
 		/* check if current awaiting identifier is the completion identifier */
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
-
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
 			if (currentElement instanceof RecoveredMethod){
 				RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
 				/* filter out cases where scanner is still inside type header */
 				if (!recoveredMethod.foundOpeningBrace) {
 					AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
 					if(method.thrownExceptions == null
-						&& CharOperation.prefixEquals(identifierStack[index], Keywords.THROWS)) {
+						&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.THROWS)) {
 						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-							identifierStack[index],
-							identifierPositionStack[index],
+							identifierStack[ptr],
+							identifierPositionStack[ptr],
 							Keywords.THROWS);
 						method.thrownExceptions = new TypeReference[]{completionOnKeyword};
 						recoveredMethod.foundOpeningBrace = true;
@@ -1841,15 +1846,15 @@ protected void consumeMethodHeaderExtendedDims() {
 		int index = -1;
 		/* check if current awaiting identifier is the completion identifier */
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
-
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
 			RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredMethod.foundOpeningBrace) {
 				AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
 				if(method.thrownExceptions == null) {
 					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-						identifierStack[index],
-						identifierPositionStack[index],
+						identifierStack[ptr],
+						identifierPositionStack[ptr],
 						Keywords.THROWS);
 					method.thrownExceptions = new TypeReference[]{completionOnKeyword};
 					recoveredMethod.foundOpeningBrace = true;
