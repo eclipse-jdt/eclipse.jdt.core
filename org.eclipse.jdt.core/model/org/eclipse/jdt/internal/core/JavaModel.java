@@ -54,6 +54,10 @@ private void cleanupCycleMarkers() {
  * Remove the Java Model from the cache
  */
 protected void closing(Object info) throws JavaModelException {
+	if (JavaModelManager.VERBOSE){
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
+	}
+
 	JavaModelManager.fgManager.fModelInfo.close();
 	JavaModelManager.fgManager.fModelInfo= null;
 }

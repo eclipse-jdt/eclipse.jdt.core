@@ -1,3 +1,4 @@
 org.eclipse.jdt.core/debug=true
 org.eclipse.jdt.core/debug/indexmanager=true
 org.eclipse.jdt.core/debug/compiler=true
+org.eclipse.jdt.core/debug/javamodel=true

@@ -87,6 +87,7 @@ protected JavaElement(int type, IJavaElement parent, String name) throws Illegal
  * @see IOpenable
  */
 public void close() throws JavaModelException {
+
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		if (this instanceof IParent) {
@@ -104,6 +105,9 @@ public void close() throws JavaModelException {
  * This element is being closed.  Do any necessary cleanup.
  */
 protected void closing(Object info) throws JavaModelException {
+	if (JavaModelManager.VERBOSE){
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
+	}
 }
 /**
  * Returns true if this handle represents the same Java element

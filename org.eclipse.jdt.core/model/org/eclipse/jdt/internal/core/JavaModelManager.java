@@ -104,7 +104,8 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * Table from IProject to PerProjectInfo.
 	 */
 	protected Hashtable perProjectInfo = new Hashtable(5);
-
+
+
 	static class PerProjectInfo {
 		IProject project;
 		Object savedState;
@@ -125,7 +126,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 			developmentContext.setCurrentState(state);
 		}
 	};
-	public final static boolean VERBOSE = false;
+	public static boolean VERBOSE = true;
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation

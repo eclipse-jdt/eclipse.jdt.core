@@ -33,6 +33,7 @@ protected BinaryType(IJavaElement parent, String name) {
  * @see IOpenable
  */
 public void close() throws JavaModelException {
+	
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		ClassFileInfo cfi = getClassFileInfo();
@@ -54,6 +55,9 @@ public void close() throws JavaModelException {
  * Remove my cached children from the Java Model
  */
 protected void closing(Object info) throws JavaModelException {
+	if (JavaModelManager.VERBOSE){
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
+	}
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 }
