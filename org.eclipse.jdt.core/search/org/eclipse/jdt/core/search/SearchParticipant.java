@@ -36,9 +36,8 @@ public abstract class SearchParticipant {
 	}
 	// A service provided for participants. Its called from indexDocument(SearchDocument document, IPath indexPath)
 	public static void removeAllIndexEntries(SearchDocument document) {
-// is no-op until new index implementation
-//		if (document.index != null)
-//			document.index.remove(document.getPath());
+		if (document.index != null)
+			document.index.remove(document.getPath());
 	}
 
 	/**
@@ -69,6 +68,7 @@ public abstract class SearchParticipant {
 	/**
 	 * Index the given document.
 	 * Implementation should call addIndexEntry(...)
+	 * If delegating to another participant, it should use the original index location (and not the delegatee's one)
 	 * TODO (jerome) improve spec
 	 */
 	public abstract void indexDocument(SearchDocument document, IPath indexPath);

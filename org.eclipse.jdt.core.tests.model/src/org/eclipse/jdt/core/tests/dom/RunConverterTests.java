@@ -21,8 +21,9 @@ public RunConverterTests(String name) {
 }
 public static Class[] getAllTestClasses() {
 	return new Class[] {
-		org.eclipse.jdt.core.tests.dom.ASTConverterTest.class,		
-		org.eclipse.jdt.core.tests.dom.ASTConverterTest2.class
+		ASTConverterTest.class,		
+		ASTConverterTest2.class,
+		ASTConverterJavadocTest.class
 	};
 }
 public static Test suite() {

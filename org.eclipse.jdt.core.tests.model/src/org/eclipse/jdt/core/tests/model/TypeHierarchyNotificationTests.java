@@ -633,7 +633,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 			newSuper +
 			source.substring(superIndex);
 		copy.getBuffer().setContents(newSource);
-		copy.reconcile(false, null);
+		copy.reconcile(false, false, null, null);
 		copy.commitWorkingCopy(true, null);
 
 		this.assertOneChange(h);

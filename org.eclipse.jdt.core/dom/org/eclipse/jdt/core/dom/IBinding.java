@@ -173,6 +173,8 @@ public interface IBinding {
 	 * via their binding keys (<code>getKey</code>) if available.
 	 * 
 	 * @see #getKey()
+	 * @param obj the given object
+	 * @return true if the receiver is equals to the given object, false otherwise
 	 */
 	public boolean equals(Object obj);
 	

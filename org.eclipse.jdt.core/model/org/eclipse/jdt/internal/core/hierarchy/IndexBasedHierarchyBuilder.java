@@ -387,7 +387,7 @@ public static void searchAllPossibleSubTypes(
 	IProgressMonitor progressMonitor) {
 
 	/* embed constructs inside arrays so as to pass them to (inner) collector */
-	final Queue awaitings = new Queue();
+	final Queue queue = new Queue();
 	final HashtableOfObject foundSuperNames = new HashtableOfObject(5);
 
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
@@ -418,12 +418,12 @@ public static void searchAllPossibleSubTypes(
 			}
 			if (!foundSuperNames.containsKey(typeName)){
 				foundSuperNames.put(typeName, typeName);
-				awaitings.add(typeName);
+				queue.add(typeName);
 			}
 			return true;
 		}		
 	};
-	
+
 	SuperTypeReferencePattern pattern =
 		new SuperTypeReferencePattern(null, null, false, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	pattern.focus = type;
@@ -432,36 +432,29 @@ public static void searchAllPossibleSubTypes(
 		new JavaSearchParticipant(null), // java search only
 		scope, 
 		searchRequestor);
-	
-	/* initialize entry result cache */
-	pattern.entryResults = new HashMap();
-	/* iterate all queued names */
+
 	int ticks = 0;
-	awaitings.add(type.getElementName().toCharArray());
-	while (awaitings.start <= awaitings.end){
-		if (progressMonitor != null && progressMonitor.isCanceled()) return;
+	queue.add(type.getElementName().toCharArray());
+	try {
+		while (queue.start <= queue.end) {
+			if (progressMonitor != null && progressMonitor.isCanceled()) return;
 
-		char[] currentTypeName = awaitings.retrieve();
+			// all subclasses of OBJECT are actually all types
+			char[] currentTypeName = queue.retrieve();
+			if (CharOperation.equals(currentTypeName, IIndexConstants.OBJECT))
+				currentTypeName = null;
 
-		/* all subclasses of OBJECT are actually all types */
-		if (CharOperation.equals(currentTypeName, IIndexConstants.OBJECT)){
-			currentTypeName = null;
-		}			
-		/* search all index references to a given supertype */
-		pattern.superSimpleName = currentTypeName;
-		indexManager.performConcurrentJob(
-			job, 
-			waitingPolicy, 
-			null); // don't pass a sub progress monitor as this is too costly for deep hierarchies
-		if (progressMonitor != null && ++ticks <= MAXTICKS) {
-			progressMonitor.worked(1);
+			// search all index references to a given supertype
+			pattern.superSimpleName = currentTypeName;
+			indexManager.performConcurrentJob(job, waitingPolicy, null); // no sub progress monitor since its too costly for deep hierarchies
+			if (progressMonitor != null && ++ticks <= MAXTICKS)
+				progressMonitor.worked(1);
+
+			// in case, we search all subtypes, no need to search further
+			if (currentTypeName == null) break;
 		}
-		/* in case, we search all subtypes, no need to search further */
-		if (currentTypeName == null) break;
+	} finally {
+		job.finished();
 	}
-	/* close all cached index inputs */
-	job.closeAll();
-	/* flush entry result cache */
-	pattern.entryResults = null;
 }
 }

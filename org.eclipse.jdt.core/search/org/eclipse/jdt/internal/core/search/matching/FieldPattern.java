@@ -28,7 +28,7 @@ protected static char[][] REF_AND_DECL_CATEGORIES = { FIELD_REF, REF, FIELD_DECL
 protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
 
 public static char[] createIndexKey(char[] fieldName) {
-	return fieldName != null ? fieldName : CharOperation.NO_CHAR;
+	return encodeIndexKey(fieldName, R_EXACT_MATCH);
 }
 
 public FieldPattern(
@@ -54,24 +54,22 @@ public FieldPattern(
 public void decodeIndexKey(char[] key) {
 	this.name = key;
 }
-public char[] encodeIndexKey() {
-	return encodeIndexKey(this.name);
-}
 public SearchPattern getBlankPattern() {
 	return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
+public char[] getIndexKey() {
+	return encodeIndexKey(this.name, this.matchMode);
+}
 public char[][] getMatchCategories() {
-	return this.findReferences
-			? (this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES)
-			: DECL_CATEGORIES;
+	if (this.findReferences)
+		return this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
+	if (this.findDeclarations)
+		return DECL_CATEGORIES;
+	return CharOperation.NO_CHAR_CHAR;
 }
-public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
-	return matchesName(this.name, ((FieldPattern) decodedPattern).name);
+public boolean matchesDecodedKey(SearchPattern decodedPattern) {
+	return true; // index key is not encoded so query results all match
 }
-/**
- * Returns whether a method declaration or message send will need to be resolved to 
- * find out if this method pattern matches it.
- */
 protected boolean mustResolve() {
 	if (this.declaringSimpleName != null || this.declaringQualification != null) return true;
 	if (this.typeSimpleName != null || this.typeQualification != null) return true;
@@ -104,13 +102,13 @@ public String toString() {
 	else if (typeQualification != null) buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
 	switch(this.matchMode) {
-		case EXACT_MATCH : 
+		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
-		case PREFIX_MATCH :
+		case R_PREFIX_MATCH :
 			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
-		case PATTERN_MATCH :
+		case R_PATTERN_MATCH :
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}

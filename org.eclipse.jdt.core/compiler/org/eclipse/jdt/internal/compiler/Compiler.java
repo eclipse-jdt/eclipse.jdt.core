@@ -438,8 +438,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 		// Exception may tell which compilation result it is related, and which problem caused it
 		CompilationResult result = abortException.compilationResult;
-		if ((result == null) && (unit != null))
+		if ((result == null) && (unit != null)) {
 			result = unit.compilationResult; // current unit being processed ?
+		}
+		// Lookup environment may be in middle of connecting types
+		if ((result == null) && lookupEnvironment.unitBeingCompleted != null) {
+		    result = lookupEnvironment.unitBeingCompleted.compilationResult;
+		}
 		if ((result == null) && (unitsToProcess != null) && (totalUnits > 0))
 			result = unitsToProcess[totalUnits - 1].compilationResult;
 		// last unit in beginToCompile ?

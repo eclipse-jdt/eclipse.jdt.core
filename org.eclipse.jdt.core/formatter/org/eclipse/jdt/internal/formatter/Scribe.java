@@ -18,7 +18,10 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
-import org.eclipse.jdt.internal.formatter.align.*;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
+//import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
+import org.eclipse.jdt.internal.formatter.align.Alignment;
+import org.eclipse.jdt.internal.formatter.align.AlignmentException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -60,8 +63,11 @@ public class Scribe {
 	private int textRegionEnd;
 	private int textRegionStart;
 	public boolean useTab;
+	
+//	private int[] lineEnds;
+//	private int[][] commentPositions;
 
-	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length) {
+	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
 			if (assertModeSetting == null) {
@@ -79,7 +85,15 @@ public class Scribe {
 		this.fillingSpace = formatter.preferences.filling_space;
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
-		this.textRegionEnd = offset + length - 1; 
+		this.textRegionEnd = offset + length - 1;
+// TODO (olivier) lineEnds and commentPositions are not used, thus codeSnippetParsingUtil is unused
+//		if (codeSnippetParsingUtil != null) {
+//			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
+//			if (information != null) {
+//				this.lineEnds = information.lineEnds;
+//				this.commentPositions = information.commentPositions;
+//			}
+//		}
 		reset();
 	}
 	
@@ -207,7 +221,7 @@ public class Scribe {
 			while (current.enclosing != null) {
 				current = current.enclosing;
 			}
-			if (current.mode != Alignment.M_NO_ALIGNMENT) {
+			if ((current.mode & Alignment.M_MULTICOLUMN) != 0) {
 				final int indentSize = this.useTab ? 1 : this.tabSize;
 				switch(current.chunkKind) {
 					case Alignment.CHUNK_METHOD :
@@ -226,6 +240,35 @@ public class Scribe {
 							alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
 						}
 						alignment.update();
+						break;
+				}
+			} else {
+				switch(current.mode & Alignment.SPLIT_MASK) {
+					case Alignment.M_COMPACT_SPLIT :
+					case Alignment.M_COMPACT_FIRST_BREAK_SPLIT :
+					case Alignment.M_NEXT_PER_LINE_SPLIT :
+					case Alignment.M_NEXT_SHIFTED_SPLIT :
+					case Alignment.M_ONE_PER_LINE_SPLIT :
+						final int indentSize = this.useTab ? 1 : this.tabSize;
+						switch(current.chunkKind) {
+							case Alignment.CHUNK_METHOD :
+							case Alignment.CHUNK_TYPE :
+								if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+									alignment.breakIndentationLevel = this.indentationLevel + indentSize;
+								} else {
+									alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * indentSize;
+								}
+								alignment.update();
+								break;
+							case Alignment.CHUNK_FIELD :
+								if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+									alignment.breakIndentationLevel = current.originalIndentationLevel + indentSize;
+								} else {
+									alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
+								}
+								alignment.update();
+								break;
+						}
 						break;
 				}
 			}
@@ -485,13 +528,12 @@ public class Scribe {
 			} else if (editOffset + editLength == this.textRegionStart) {
 				int i = editOffset;
 				for (int max = editOffset + editLength; i < max; i++) {
-					if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
+					int replacementStringIndex = i - editOffset;
+					if (replacementStringIndex >= editReplacementLength || scanner.source[i] != edit.replacement.charAt(replacementStringIndex)) {
 						break;
 					}
 				}
-				if (i == editOffset + editLength - 1) {
-					return false;
-				} else {
+				if (i - editOffset != editReplacementLength && i != editOffset + editLength - 1) {
 					edit.offset = textRegionStart;
 					edit.length = 0;
 					edit.replacement = edit.replacement.substring(i - editOffset);

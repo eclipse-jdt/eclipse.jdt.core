@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 /**
  * A source element parser extracts structural and reference information
@@ -36,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
  *
  * Any (parsing) problem encountered is also provided.
  */
-public class SourceElementParser extends Parser {
+public class SourceElementParser extends CommentRecorderParser {
 	
 	ISourceElementRequestor requestor;
 	int fieldCount;
@@ -101,7 +102,32 @@ public SourceElementParser(
 }
 
 public void checkComment() {
-	super.checkComment();
+	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
+		flushCommentsDefinedPriorTo(this.endStatementPosition); // discard obsolete comments during recovery
+	}
+	
+	int lastComment = this.scanner.commentPtr;
+	
+	if (this.modifiersSourceStart >= 0) {
+		// eliminate comments located after modifierSourceStart if positionned
+		while (lastComment >= 0 && Math.abs(this.scanner.commentStarts[lastComment]) > this.modifiersSourceStart) lastComment--;
+	}
+	if (lastComment >= 0) {
+		// consider all remaining leading comments to be part of current declaration
+		this.modifiersSourceStart = Math.abs(this.scanner.commentStarts[0]); 
+	
+		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
+		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
+		if (lastComment >= 0 && this.javadocParser != null) {
+			if (this.javadocParser.checkDeprecation(
+					this.scanner.commentStarts[lastComment],
+					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
+				checkAndSetModifiers(AccDeprecated);
+			}
+			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated 
+		}
+	}
+
 	if (this.reportReferenceInfo && this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Report reference info in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
@@ -126,18 +152,26 @@ public void checkComment() {
 			if (reference instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 				this.requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
-				acceptJavadocTypeReference(fieldRef.receiver);
+				if (fieldRef.receiver != null && !fieldRef.receiver.isThis()) {
+					acceptJavadocTypeReference(fieldRef.receiver);
+				}
 			} else if (reference instanceof JavadocMessageSend) {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
 				this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
-				acceptJavadocTypeReference(messageSend.receiver);
+				if (messageSend.receiver != null && !messageSend.receiver.isThis()) {
+					acceptJavadocTypeReference(messageSend.receiver);
+				}
 			} else if (reference instanceof JavadocAllocationExpression) {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
-				char[][] compoundName = constructor.type.getTypeName();
-				this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
-				acceptJavadocTypeReference(constructor.type);
+				if (constructor.type != null) {
+					char[][] compoundName = constructor.type.getTypeName();
+					this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
+					if (!constructor.type.isThis()) {
+						acceptJavadocTypeReference(constructor.type);
+					}
+				}
 			}
 		}
 	}
@@ -1050,7 +1084,6 @@ private int sourceEnd(TypeDeclaration typeDeclaration) {
 		return typeDeclaration.sourceEnd;
 	}
 }
-
 public void parseCompilationUnit(
 	ICompilationUnit unit, 
 	int start, 

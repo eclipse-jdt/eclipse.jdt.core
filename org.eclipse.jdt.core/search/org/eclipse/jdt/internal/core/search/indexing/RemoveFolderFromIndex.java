@@ -38,7 +38,7 @@ class RemoveFolderFromIndex extends IndexRequest {
 		/* ensure no concurrent write access to index */
 		Index index = manager.getIndex(this.containerPath, true, /*reuse index file*/ false /*create if none*/);
 		if (index == null) return true;
-		ReadWriteMonitor monitor = manager.getMonitorFor(index);
+		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) return true; // index got deleted since acquired
 
 		try {

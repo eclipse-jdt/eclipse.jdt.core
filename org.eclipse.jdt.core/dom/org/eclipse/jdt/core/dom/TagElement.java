@@ -15,6 +15,8 @@ import java.util.List;
 
 /**
  * AST node for a tag within a doc comment.
+ * Tag elements nested within another tag element are called
+ * inline doc tags.
  * <pre>
  * TagElement:
  *     [ <b>@</b> Identifier ] { DocElement }
@@ -30,6 +32,91 @@ import java.util.List;
  * @since 3.0
  */
 public final class TagElement extends ASTNode implements IDocElement {
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_AUTHOR = "@author"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_DOCROOT = "@docRoot"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_EXCEPTION = "@exception"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_INHERITDOC = "@inheritDoc"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_LINK = "@link"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_LINKPLAIN = "@linkplain"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_PARAM = "@param"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_RETURN = "@return"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SEE = "@see"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SERIAL = "@serial"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SERIALDATA= "@serialData"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SERIALFIELD= "@serialField"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SINCE = "@since"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_THROWS = "@throws"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_VALUE= "@value"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_VERSION = "@version"; //$NON-NLS-1$
 
 	/**
 	 * The tag name, or null if none; defaults to null.

@@ -31,7 +31,7 @@ public interface IDOMMethod extends IDOMMember {
  *
  * @param exceptionType the exception type
  * @exception IllegalArgumentException if <code>null</code> is specified
- * @see #setExceptions
+ * @see #setExceptions(String[])
  */
 public void addException(String exceptionType) throws IllegalArgumentException;
 /**
@@ -47,7 +47,7 @@ public void addException(String exceptionType) throws IllegalArgumentException;
  * @param name the parameter name
  * @exception IllegalArgumentException if <code>null</code> is specified for
  *   either the type or the name
- * @see #setParameters
+ * @see #setParameters(String[], String[])
  */
 public void addParameter(String type, String name) throws IllegalArgumentException;
 /**
@@ -74,6 +74,8 @@ public String[] getExceptions();
  * method returns the name of this method. Returns <code>null</code> for
  * constructors. The syntax for a method  name is defined by Identifier
  * of MethodDeclarator (JLS2 8.4).
+ * 
+ * @return the name of this method or <code>null</code> for constructors
  */
 public String getName();
 /**
@@ -119,7 +121,7 @@ public boolean isConstructor();
  * the method declaration, including the enclosing braces. No formatting or
  * syntax checking is performed on the body.
  *
- * @return the body, or <code>null</code> indicating the method has no body (for
+ * @param body the body, or <code>null</code> indicating the method has no body (for
  *   example, for an abstract or native method)
  */
 public void setBody(String body);
@@ -149,6 +151,7 @@ public void setExceptions(String[] exceptionTypes);
  * must not be set.
  * </p>
  *
+ * @param name the given name
  * @exception IllegalArgumentException if <code>null</code> is specified
  */
 public void setName(String name) throws IllegalArgumentException;

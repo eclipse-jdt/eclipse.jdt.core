@@ -26,24 +26,23 @@ public interface IConstants {
 	int AccFinal = 0x0010;
 	int AccSynchronized = 0x0020;
 	int AccVolatile = 0x0040;
+	int AccBridge = 0x0040;
 	int AccTransient = 0x0080;
+	int AccVarargs = 0x0080;
 	int AccNative = 0x0100;
+	int AccEnum = 0x0100;
 	int AccInterface = 0x0200;
 	int AccAbstract = 0x0400;
 	int AccStrictfp = 0x0800;
-	
-	// 1.5 new values
-	int AccSynthetic = 0x01000;
-	int AccEnum = 0x0100;
-	int AccBridge = 0x0040;
-	int AccVarArgs = 0x0080;
-	
-	/*
+	int AccSynthetic = 0x1000;
+
+	/**
 	 * Other VM flags.
 	 */
 	int AccSuper = 0x0020;
 	/**
-	 * Extra flags for types and members.
+	 * Extra flags for types and members attributes.
 	 */
 	int AccDeprecated = 0x100000;
+	
 }

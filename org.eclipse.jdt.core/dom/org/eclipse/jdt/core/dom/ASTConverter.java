@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
@@ -78,7 +79,8 @@ class ASTConverter {
 				initializer.setModifiers(oldInitializer.modifiers);
 				initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
 //				setJavaDocComment(initializer);
-				initializer.setJavadoc(convert(oldInitializer.javadoc));
+//				initializer.setJavadoc(convert(oldInitializer.javadoc));
+				convert(oldInitializer.javadoc, initializer);
 				typeDecl.bodyDeclarations().add(initializer);
 			} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
@@ -130,23 +132,7 @@ class ASTConverter {
 		// Parse comments
 		int[][] comments = unit.comments;
 		if (comments != null && this.insideComments) {
-			// Build comment table
-			this.commentsTable = new Comment[comments.length];
-			int nbr = 0;
-			for (int i = 0; i < comments.length; i++) {
-				Comment comment = createComment(comments[i]);
-				if (comment != null) {
-					comment.setAlternateRoot(compilationUnit);
-					this.commentsTable[nbr++] = comment;
-				}
-			}
-			// Resize table if  necessary
-			if (nbr<comments.length) {
-				Comment[] newCommentsTable = new Comment[nbr];
-				System.arraycopy(this.commentsTable, 0, newCommentsTable, 0, nbr);
-				this.commentsTable = newCommentsTable;
-			}
-			compilationUnit.setCommentTable(this.commentsTable);
+			buildCommentsTable(compilationUnit, comments);
 		}
 
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
@@ -176,6 +162,30 @@ class ASTConverter {
 		return compilationUnit;
 	}
 	
+	/**
+	 * @param compilationUnit
+	 * @param comments
+	 */
+	void buildCommentsTable(CompilationUnit compilationUnit, int[][] comments) {
+		// Build comment table
+		this.commentsTable = new Comment[comments.length];
+		int nbr = 0;
+		for (int i = 0; i < comments.length; i++) {
+			Comment comment = createComment(comments[i]);
+			if (comment != null) {
+				comment.setAlternateRoot(compilationUnit);
+				this.commentsTable[nbr++] = comment;
+			}
+		}
+		// Resize table if  necessary
+		if (nbr<comments.length) {
+			Comment[] newCommentsTable = new Comment[nbr];
+			System.arraycopy(this.commentsTable, 0, newCommentsTable, 0, nbr);
+			this.commentsTable = newCommentsTable;
+		}
+		compilationUnit.setCommentTable(this.commentsTable);
+	}
+
 	public PackageDeclaration convertPackage(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration) {
 		org.eclipse.jdt.internal.compiler.ast.ImportReference importReference = compilationUnitDeclaration.currentPackage;
 		PackageDeclaration packageDeclaration = this.ast.newPackageDeclaration();
@@ -336,7 +346,8 @@ class ASTConverter {
 			}
 		}
 		// Convert javadoc
-		typeDecl.setJavadoc(convert(typeDeclaration.javadoc));
+//		typeDecl.setJavadoc(convert(typeDeclaration.javadoc));
+		convert(typeDeclaration.javadoc, typeDecl);
 	}
 	
 	private void checkAndAddMultipleFieldDeclaration(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields, int index, List bodyDeclarations) {
@@ -348,7 +359,8 @@ class ASTConverter {
 			initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
 			// The javadoc comment is now got from list store in compilation unit declaration
 //			setJavaDocComment(initializer);
-			initializer.setJavadoc(convert(oldInitializer.javadoc));
+//			initializer.setJavadoc(convert(oldInitializer.javadoc));
+			convert(oldInitializer.javadoc, initializer);
 			bodyDeclarations.add(initializer);
 			return;
 		}
@@ -815,7 +827,8 @@ class ASTConverter {
 		
 		// The javadoc comment is now got from list store in compilation unit declaration
 //		setJavaDocComment(methodDecl);
-		methodDecl.setJavadoc(convert(methodDeclaration.javadoc));
+//		methodDecl.setJavadoc(convert(methodDeclaration.javadoc));
+		convert(methodDeclaration.javadoc, methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
 			recordNodes(methodName, methodDeclaration);
@@ -2768,7 +2781,8 @@ class ASTConverter {
 		}
 		// The javadoc comment is now got from list store in compilation unit declaration
 //		setJavaDocComment(fieldDeclaration);
-		fieldDeclaration.setJavadoc(convert(fieldDecl.javadoc));
+//		fieldDeclaration.setJavadoc(convert(fieldDecl.javadoc));
+		convert(fieldDecl.javadoc, fieldDeclaration);
 		return fieldDeclaration;
 	}
 
@@ -3017,63 +3031,27 @@ class ASTConverter {
 		}
 	}
 
-	/*
-	private void setJavaDocComment(BodyDeclaration bodyDeclaration) {
-		CompilationUnit cu = bodyDeclaration.getCompilationUnit();
-		if (cu == null || !this.insideComments) {
-			this.scanner.resetTo(bodyDeclaration.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength());
-			try {
-				int token;
-				while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-					switch(token) {
-						case TerminalTokens.TokenNameCOMMENT_JAVADOC: //1003
-//							Javadoc docComment = this.ast.newJavadoc();
-//							int start = this.scanner.startPosition;
-//							int length = this.scanner.currentPosition - start;
-//							char[] contents = new char[length];
-//							System.arraycopy(this.compilationUnitSource, start, contents, 0, length);
-							DocCommentParser docParser = new DocCommentParser(this.ast, this.scanner);
-							Javadoc docComment = docParser.parse(this.scanner.startPosition, this.scanner.currentPosition-1);
-//							docComment.setSourceRange(start, length);
-							docComment.setAlternateRoot(bodyDeclaration);
-							bodyDeclaration.setJavadoc(docComment);
-							return;
-						default :
-							return;
+	public void convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, BodyDeclaration bodyDeclaration) {
+		if (bodyDeclaration.getJavadoc() == null) {
+			if (javadoc != null) {
+				DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
+				Comment comment = mapper.getComment(javadoc.sourceStart);
+				if (comment != null && comment.isDocComment() && comment.getParent() == null) {
+					Javadoc docComment = (Javadoc) comment;
+					if (this.resolveBindings) {
+						recordNodes(docComment, javadoc);
+						// resolve member and method references binding
+						Iterator tags = docComment.tags().listIterator();
+						while (tags.hasNext()) {
+							recordNodes(javadoc, (TagElement) tags.next());
+						}
 					}
+//					return docComment;
+					bodyDeclaration.setJavadoc(docComment);
 				}
-			} catch(InvalidInputException e) {
-				// ignore
-			}
-		} else {
-			DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
-			Comment comment = mapper.getComment(bodyDeclaration.getStartPosition());
-			if (comment.isDocComment()) {
-				comment.setAlternateRoot(bodyDeclaration);
-				bodyDeclaration.setJavadoc((Javadoc)comment);
 			}
 		}
-	}
-	*/
-
-	public Javadoc convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc) {
-		if (javadoc != null) {
-			DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
-			Comment comment = mapper.getComment(javadoc.sourceStart);
-			if (comment != null && comment.isDocComment()) {
-				Javadoc docComment = (Javadoc) comment;
-				if (this.resolveBindings) {
-					recordNodes(docComment, javadoc);
-					// resolve member and method references binding
-					Iterator tags = docComment.tags().listIterator();
-					while (tags.hasNext()) {
-						recordNodes(javadoc, (TagElement) tags.next());
-					}
-				}
-				return docComment;
-			}
-		}
-		return null;
+//		return null;
 	}
 	
 	private void recordNodes(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, TagElement tagElement) {
@@ -3081,22 +3059,97 @@ class ASTConverter {
 		while (fragments.hasNext()) {
 			ASTNode node = (ASTNode) fragments.next();
 			if (node.getNodeType() == ASTNode.MEMBER_REF) {
-				Name name = ((MemberRef)node).getName();
+				MemberRef memberRef = (MemberRef) node;
+				Name name = memberRef.getName();
+				// get compiler node and record nodes
 				int start = name.getStartPosition();
+				org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference fieldRef = (org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference) javadoc.getNodeStartingAt(start);
+				if (fieldRef != null) {
+					recordNodes(name, fieldRef);
+					recordNodes(node, fieldRef);
+				}
+				// Replace qualifier to have all nodes recorded
+				if (memberRef.getQualifier() != null) {
+					recordName(memberRef.getQualifier(), fieldRef.receiver);
+				}
+			} else if (node.getNodeType() == ASTNode.METHOD_REF) {
+				MethodRef methodRef = (MethodRef) node;
+				Name name = methodRef.getName();
+				// get compiler node and record nodes
+				int start = name.getStartPosition();
+				// get compiler node and record nodes
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
 				if (compilerNode != null) {
-					recordNodes(node, compilerNode);
+					recordNodes(name, compilerNode);
+					recordNodes(methodRef, compilerNode);
 				}
-			} else if (node.getNodeType() == ASTNode.METHOD_REF ||
-					node.getNodeType() == ASTNode.SIMPLE_NAME ||
+				// Replace qualifier to have all nodes recorded
+				if (methodRef.getQualifier() != null) {
+					org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = null;
+					if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression) {
+						typeRef = ((org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression)compilerNode).type;
+					} 
+					else if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend) {
+						org.eclipse.jdt.internal.compiler.ast.Expression expression = ((org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend)compilerNode).receiver;
+						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
+						}
+					}
+					if (typeRef != null) {
+						recordName(methodRef.getQualifier(), typeRef);
+					}
+				}
+				// Resolve parameters
+				Iterator parameters = methodRef.parameters().listIterator();
+				while (parameters.hasNext()) {
+					MethodRefParameter param = (MethodRefParameter) parameters.next();
+					org.eclipse.jdt.internal.compiler.ast.Expression expression = (org.eclipse.jdt.internal.compiler.ast.Expression) javadoc.getNodeStartingAt(param.getStartPosition());
+					if (expression != null) {
+						recordNodes(param, expression);
+						if (expression instanceof JavadocArgumentExpression) {
+							JavadocArgumentExpression argExpr = (JavadocArgumentExpression) expression;
+							org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = argExpr.argument.type;
+							recordNodes(param.getType(), typeRef);
+							if (param.getType().isSimpleType()) {
+								SimpleType type = (SimpleType)param.getType();
+								recordName(type.getName(), typeRef);
+							} else if (param.getType().isArrayType()) {
+								Type type = ((ArrayType) param.getType()).getElementType();
+								if (type.isSimpleType()) {
+									recordName(((SimpleType)type).getName(), typeRef);
+								}
+							}
+						}
+					}
+				}
+			} else if (node.getNodeType() == ASTNode.SIMPLE_NAME ||
 					node.getNodeType() == ASTNode.QUALIFIED_NAME) {
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
-				if (compilerNode != null) {
-					recordNodes(node, compilerNode);
-				}
+				recordName((Name) node, compilerNode);
 			} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
 				// resolve member and method references binding
 				recordNodes(javadoc, (TagElement) node);
+			}
+		}
+	}
+	
+	private void recordName(Name name, org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode) {
+		if (compilerNode != null) {
+			recordNodes(name, compilerNode);
+			if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+				org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) compilerNode;
+				if (name.isQualifiedName()) {
+					int count = 0;
+					SimpleName simpleName = null;
+					while (name.isQualifiedName()) {
+						simpleName = ((QualifiedName) name).getName();
+						recordNodes(simpleName, typeRef);
+						simpleName.index = count++;
+						name = ((QualifiedName) name).getQualifier();
+						name.index = count;
+						recordNodes(name, typeRef);
+					}
+				}
 			}
 		}
 	}
@@ -3111,8 +3164,6 @@ class ASTConverter {
 			this.ast.newJavadoc();
 			DocCommentParser docParser = new DocCommentParser(this.ast, this.scanner);
 			Javadoc docComment = docParser.parse(positions);
-//			String contents = new String(this.compilationUnitSource, start, end - start + 1);
-//			javadoc.parseComment(contents);
 			if (docComment == null) return null;
 			comment = docComment;
 		} else {

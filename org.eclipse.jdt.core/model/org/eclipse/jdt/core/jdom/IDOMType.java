@@ -44,6 +44,8 @@ public void addSuperInterface(String interfaceName) throws IllegalArgumentExcept
  * method returns the name of this type. The name of a class is defined by 
  * ClassDeclaration (JLS2 8.1); the name of an interface is defined by
  * InterfaceDeclaration (JLS2 9.1).
+ * 
+ * @return the name of this type
  */
 public String getName();
 /**
@@ -94,6 +96,7 @@ public void setClass(boolean b);
  * ClassDeclaration (JLS2 8.1); the name of an interface is defined by
  * InterfaceDeclaration (JLS2 9.1).
  *
+ * @param name the given name
  * @exception IllegalArgumentException if <code>null</code> is specified
  */
 public void setName(String name) throws IllegalArgumentException;

@@ -131,7 +131,7 @@ public void testReconcileNonExistingProject() throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IFile file = root.getProject("NonExisting").getFile("A.java");
 		wc = JavaCore.createCompilationUnitFrom(file).getWorkingCopy(null);
-		wc.reconcile(false, null);
+		wc.reconcile(false, false, null, null);
 	} finally {
 		if (wc != null) {
 			wc.discardWorkingCopy();
@@ -236,7 +236,7 @@ public void testReconcileAndCommit1() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
-		copy.reconcile(true, null);
+		copy.reconcile(false, true, null, null);
 		copy.commitWorkingCopy(true, null);
 		
 		IFile originalFile = (IFile)cu.getResource();
@@ -274,7 +274,7 @@ public void testReconcileAndCommit2() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
-		copy.reconcile(true, null);
+		copy.reconcile(false, true, null, null);
 		copy.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
@@ -312,7 +312,7 @@ public void testReconcileAndCommit3() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
-		primary.reconcile(true, null);
+		primary.reconcile(false, true, null, null);
 		primary.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)primary.getResource();
 		assertSourceEquals(
@@ -350,7 +350,7 @@ public void testReconcileAndCommit4() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
-		primary.reconcile(true, null);
+		primary.reconcile(false, true, null, null);
 		primary.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)primary.getResource();
 		assertSourceEquals(
@@ -390,7 +390,7 @@ public void testReconcileAndCommit5() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
-		copy.reconcile(true, null);
+		copy.reconcile(false, true, null, null);
 		copy.commitWorkingCopy(true, null);
 		
 		IFile originalFile = (IFile)cu.getResource();

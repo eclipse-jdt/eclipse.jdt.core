@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 
 public class OrPattern extends SearchPattern {
@@ -40,18 +40,16 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	else
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 }
-/**
- * Query a given index for matching entries. 
- *
- */
-public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
+public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 	// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
-	for (int i = 0, length = this.patterns.length; i < length; i++)
-		this.patterns[i].findIndexMatches(input, requestor, participant, scope, progressMonitor);
+	try {
+		index.startQuery();
+		for (int i = 0, length = this.patterns.length; i < length; i++)
+			this.patterns[i].findIndexMatches(index, requestor, participant, scope, progressMonitor);
+	} finally {
+		index.stopQuery();
+	}
 }
-/**
- * see SearchPattern.isPolymorphicSearch
- */
 public boolean isPolymorphicSearch() {
 	for (int i = 0, length = this.patterns.length; i < length; i++)
 		if (this.patterns[i].isPolymorphicSearch()) return true;

@@ -125,7 +125,7 @@ public final class Flags {
 	 * See The Java Virtual Machine Specification for more details.
 	 * @since 3.0
 	 */
-	public static final int AccVarArgs = IConstants.AccVarArgs;
+	public static final int AccVarargs = IConstants.AccVarargs;
 
 	/**
 	 * Not instantiable.

@@ -85,7 +85,7 @@ import org.eclipse.jdt.core.JavaModelException;
  * instance.
  * </p>
  *
- * @see IJavaProject#newEvaluationContext
+ * @see IJavaProject#newEvaluationContext()
  */
 public interface IEvaluationContext {
 	/**
@@ -342,6 +342,7 @@ public interface IEvaluationContext {
 	 * @param name the name of the global variable
 	 * @param initializer the initializer expression, or <code>null</code> if the
 	 *   variable is not initialized
+	 * @return a new global variable with the given name, type, and initializer
 	 */
 	public IGlobalVariable newVariable(
 		String typeName,

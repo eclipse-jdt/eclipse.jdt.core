@@ -1298,10 +1298,18 @@ public abstract class Scope
 
 		while (currentIndex < typeNameLength) {
 			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
-			if (!typeBinding.isValidBinding())
+			if (!typeBinding.isValidBinding()) {
+				if (typeBinding instanceof ProblemReferenceBinding) {
+					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) typeBinding;
+					return new ProblemReferenceBinding(
+						CharOperation.subarray(compoundName, 0, currentIndex),
+						problemBinding.original,
+						typeBinding.problemId());
+				}
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					typeBinding.problemId());
+			}
 		}
 		return typeBinding;
 	}
@@ -1737,5 +1745,18 @@ public abstract class Scope
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return 0;
+	}
+	
+	/**
+	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
+	 */
+	public CaseStatement switchCase() {
+		Scope scope = this;
+		do {
+			if (scope instanceof BlockScope)
+				return ((BlockScope) scope).switchCase;
+			scope = scope.parent;
+		} while (scope != null);
+		return null;
 	}
 }

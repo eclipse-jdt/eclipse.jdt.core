@@ -32,6 +32,8 @@ public int getFlags();
  * method returns the name of this import. The syntax for an import name 
  * corresponds to a fully qualified type name, or to an on-demand package name
  * as defined by ImportDeclaration (JLS2 7.5).
+ * 
+ * @return  the name of this import
  */
 public String getName();
 /**
@@ -46,6 +48,7 @@ public boolean isOnDemand();
  * corresponds to a fully qualified type name, or to an on-demand package name
  * as defined by ImportDeclaration (JLS2 7.5).
  *
+ * @param name the given name
  * @exception IllegalArgumentException if <code>null</code> is specified
  */
 public void setName(String name);

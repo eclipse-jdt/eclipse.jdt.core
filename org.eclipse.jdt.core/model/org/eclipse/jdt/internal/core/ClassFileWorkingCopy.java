@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
  * A working copy on an <code>IClassFile</code>.
@@ -503,6 +504,18 @@ public IType findPrimaryType() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
+	/**
+	 * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
+	 */
+	public CompilationUnit reconcile(
+		boolean createAST,
+		boolean forceProblemDetection,
+		WorkingCopyOwner owner,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+	}
+	
 	/**
 	 * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
 	 */

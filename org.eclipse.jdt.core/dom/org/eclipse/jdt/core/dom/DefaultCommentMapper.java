@@ -18,7 +18,7 @@ package org.eclipse.jdt.core.dom;
 class DefaultCommentMapper {
 	private Comment[] comments;
 	/**
-	 * 
+	 * @param table the given table of comments
 	 */
 	public DefaultCommentMapper(Comment[] table) {
 		this.comments = table;

@@ -10,9 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -20,11 +24,14 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		
+	boolean createAST;
 	boolean forceProblemDetection;
 	WorkingCopyOwner workingCopyOwner;
+	org.eclipse.jdt.core.dom.CompilationUnit ast;
 	
-	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
+	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, boolean creatAST, boolean forceProblemDetection, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
+		this.createAST = creatAST;
 		this.forceProblemDetection = forceProblemDetection;
 		this.workingCopyOwner = workingCopyOwner;
 	}
@@ -33,44 +40,44 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	 * 	of the original compilation unit fails
 	 */
 	protected void executeOperation() throws JavaModelException {
-		if (progressMonitor != null){
-			if (progressMonitor.isCanceled()) return;
-			progressMonitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
+		if (this.progressMonitor != null){
+			if (this.progressMonitor.isCanceled()) return;
+			this.progressMonitor.beginTask(Util.bind("element.reconciling"), 2); //$NON-NLS-1$
 		}
 	
 		CompilationUnit workingCopy = getWorkingCopy();
 		boolean wasConsistent = workingCopy.isConsistent();
-		JavaElementDeltaBuilder deltaBuilder = null;
-	
 		try {
-			// create the delta builder (this remembers the current content of the cu)
-			if (!wasConsistent){
-				deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+			if (!wasConsistent) {
+				// create the delta builder (this remembers the current content of the cu)
+				JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				
 				// update the element infos with the content of the working copy
-				workingCopy.makeConsistent(progressMonitor);
+				this.ast = workingCopy.makeConsistent(this.createAST, this.progressMonitor);
 				deltaBuilder.buildDeltas();
-		
-			}
-	
-			if (progressMonitor != null) progressMonitor.worked(2);
+
+				if (progressMonitor != null) progressMonitor.worked(2);
 			
-			// force problem detection? - if structure was consistent
-			if (forceProblemDetection && wasConsistent){
-				if (progressMonitor != null && progressMonitor.isCanceled()) return;
-		
-				IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-				if (problemRequestor != null && problemRequestor.isActive()){
-					problemRequestor.beginReporting();
-					CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, progressMonitor);
-					problemRequestor.endReporting();
-				}
-			}
-			
-			// register the deltas
-			if (deltaBuilder != null){
+				// register the deltas
 				if (deltaBuilder.delta != null) {
 					addReconcileDelta(workingCopy, deltaBuilder.delta);
+				}
+			} else {
+				// force problem detection? - if structure was consistent
+				if (forceProblemDetection) {
+					IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
+					if (problemRequestor != null && problemRequestor.isActive()){
+						problemRequestor.beginReporting();
+						CompilationUnitDeclaration unit = CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, this.progressMonitor);
+						problemRequestor.endReporting();
+						if (progressMonitor != null) progressMonitor.worked(1);
+						if (this.createAST && unit != null) {
+							char[] contents = workingCopy.getContents();
+							Map options = workingCopy.getJavaProject().getOptions(true);
+							this.ast = AST.convertCompilationUnit(unit, contents, options, this.progressMonitor);
+							if (progressMonitor != null) progressMonitor.worked(1);
+						}
+					}
 				}
 			}
 		} finally {

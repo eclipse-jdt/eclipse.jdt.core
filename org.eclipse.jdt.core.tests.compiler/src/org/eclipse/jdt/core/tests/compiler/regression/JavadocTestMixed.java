@@ -52,8 +52,9 @@ public class JavadocTestMixed extends JavadocTest {
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug47339b"));
-			ts.addTest(new JavadocTestMixed("testBug48064a"));
+			ts.addTest(new JavadocTestMixed("testBug52216"));
+			ts.addTest(new JavadocTestMixed("testBug52216a"));
+			ts.addTest(new JavadocTestMixed("testBug52216b"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -69,6 +70,7 @@ public class JavadocTestMixed extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 		return options;
 	}
 	/* (non-Javadoc)
@@ -84,7 +86,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 * Test missing javadoc
 	 */
 	public void test001() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -100,7 +102,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test002() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -116,7 +118,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test003() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -132,7 +134,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test004() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -149,7 +151,7 @@ public class JavadocTestMixed extends JavadocTest {
 	
 	public void test005() {
 		reportInvalidJavadoc = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -164,7 +166,7 @@ public class JavadocTestMixed extends JavadocTest {
 	
 	public void test006() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -183,7 +185,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test010() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -207,7 +209,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test011() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -231,7 +233,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test012() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -255,7 +257,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test013() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -282,7 +284,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 * Test mixing javadoc comments
 	 */
 	public void test021() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -324,7 +326,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test022() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -373,7 +375,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test023() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -422,7 +424,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test024() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -475,7 +477,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test025() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -528,7 +530,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test026() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -593,7 +595,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 * Javadoc on invalid syntax
 	 */
 	public void test030() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -641,7 +643,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test031() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -689,7 +691,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test032() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -737,7 +739,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	
 	public void test033() {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -801,7 +803,7 @@ public class JavadocTestMixed extends JavadocTest {
 	
 	public void test040() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -822,7 +824,7 @@ public class JavadocTestMixed extends JavadocTest {
 	
 	public void test041() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -851,7 +853,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45596() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n"
@@ -876,7 +878,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45596a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -939,7 +941,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45596b() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 		"X.java",
 		"public class X {\n" + 
@@ -1002,7 +1004,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45592() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 		"a/Y.java",
 		"package a;\n" + 
@@ -1052,7 +1054,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45737() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"Y.java",
 				"class Y {\n" + 
@@ -1084,7 +1086,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45669() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1113,7 +1115,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45669a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1154,7 +1156,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45958() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1173,7 +1175,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug45958a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 			   "X.java",
 		   		"public class X {\n" + 
@@ -1198,7 +1200,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug45958b() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 			   "X.java",
 		   		"public class X {\n" + 
@@ -1234,7 +1236,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug45958c() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1259,7 +1261,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug46901() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"A.java",
 				"public abstract class A {\n" + 
@@ -1282,7 +1284,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug47215() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"	/**\n" + 
@@ -1330,7 +1332,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug47341() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"p1/X.java",
 				"package p1;\n" + 
@@ -1369,7 +1371,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47132">47132</a>
 	 */
 	public void testBug47132() {
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/** */\n" + 
@@ -1392,7 +1394,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug47339() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/** */\n" + 
@@ -1413,7 +1415,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug47339a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/** */\n" + 
@@ -1431,7 +1433,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug47339b() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"/** */\n" + 
@@ -1466,7 +1468,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug47339c() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"/** */\n" + 
@@ -1493,7 +1495,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug48064() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1522,7 +1524,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug48064a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1556,7 +1558,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug48523() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"import java.io.IOException;\n" + 
@@ -1582,7 +1584,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug48711() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"import java.io.*;\n" + 
@@ -1606,7 +1608,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug45782() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X implements Comparable {\n" + 
@@ -1637,7 +1639,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug45782a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1674,7 +1676,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug49260() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"import java.util.Vector;\n" + 
@@ -1698,7 +1700,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug48385() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.Vector;\n" + 
@@ -1745,7 +1747,7 @@ public class JavadocTestMixed extends JavadocTest {
 
 	public void testBug48385And49620() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.Vector;\n" + 
@@ -1808,7 +1810,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug48385a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1861,7 +1863,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug49491() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public final class X {\n" + 
@@ -1876,7 +1878,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug49491a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public final class X {\n" + 
@@ -1910,7 +1912,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	public void testBug48376() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/**\n" + 
@@ -1936,7 +1938,7 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public void testBug48376a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"/**\n" + 
@@ -2002,7 +2004,7 @@ public class JavadocTestMixed extends JavadocTest {
 	public void testBug50644() {
 		reportInvalidJavadoc = CompilerOptions.IGNORE;
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		this.runConformTest(
+		runConformTest(
 			new String[] {
 				"p1/X.java",
 				"package p1;\n" + 
@@ -2022,5 +2024,129 @@ public class JavadocTestMixed extends JavadocTest {
 					"	}\n" + 
 					"}\n"
 		 });
+	}
+
+	/**
+	 * Test fix for bug 50695.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50695">50695</a>
+	 */
+	public void testBug50695() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see java\n" + 
+					"	 * @see java.util\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug50695b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see java.unknown\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			 },
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @see java.unknown\n" + 
+				"	       ^^^^^^^^^^^^\n" + 
+				"Javadoc: java.unknown cannot be resolved or is not a type\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 51626.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51626">51626</a>
+	 */
+	public void testBug51626() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" + 
+					"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see String\n" + 
+					"	 * toto @deprecated\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"p2/Y.java",
+				"package p2;\n" + 
+					"import p1.*;\n" + 
+					"public class Y {\n" + 
+					"	void foo() {\n" + 
+					"		X x = new X(); \n" + 
+					"		x.foo();\n" + 
+					"	}\n" + 
+					"}\n"
+		 });
+	}
+
+	/**
+	 * Test fix for bug 52216.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52216">52216</a>
+	 */
+	public void testBug52216() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					" * Valid ref with white spaces at the end\n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>		   \n" + 
+					"*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug52216a() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"* @see \"Valid ref with white spaces at the end\"	   \n" + 
+					"*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug52216b() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>		   \n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>\n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>			,\n" + 
+					"* @see \"Valid ref with white spaces at the end\"\n" + 
+					"* @see \"Valid ref with white spaces at the end\"	   \n" + 
+					"* @see \"Invalid ref\"	   .\n" + 
+					"*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+			 },
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>			,\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	* @see \"Invalid ref\"	   .\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+		);
 	}
 }

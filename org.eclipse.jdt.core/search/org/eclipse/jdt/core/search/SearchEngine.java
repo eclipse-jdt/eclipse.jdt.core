@@ -281,20 +281,8 @@ public class SearchEngine {
 	public static SearchPattern createAndSearchPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
 		return new AndPattern(0/*no kind*/, 0/*no rule*/) {
 			SearchPattern current = leftPattern;
-			public void decodeIndexKey(char[] key) {
-				current.decodeIndexKey(key);
-			}
-			public char[] encodeIndexKey() {
-				return current.encodeIndexKey();
-			}
-			public SearchPattern getBlankPattern() {
-				return current.getBlankPattern();
-			}
-			public char[][] getMatchCategories() {
-				return current.getMatchCategories();
-			}
-			public int getMatchRule() {
-				return current.getMatchRule();
+			public SearchPattern currentPattern() {
+				return current;
 			}
 			protected boolean hasNextQuery() {
 				if (current == leftPattern) {
@@ -302,9 +290,6 @@ public class SearchEngine {
 					return true;
 				}
 				return false; 
-			}
-			public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
-				return current.matchesDecodedPattern(decodedPattern);
 			}
 			protected void resetQuery() {
 				current = leftPattern;

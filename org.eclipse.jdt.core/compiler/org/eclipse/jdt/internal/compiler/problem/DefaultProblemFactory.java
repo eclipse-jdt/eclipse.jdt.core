@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblemFactory implements IProblemFactory {
 
-	public static final int MAX_MESSAGES = 500;
+	public static final int MAX_MESSAGES = 520;
 	
 	public String[] messageTemplates;
 	private Locale locale;

@@ -11,30 +11,97 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
-import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-
-import java.util.*;
+import org.eclipse.jdt.internal.core.BasicCompilationUnit;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 class CompilationUnitResolver extends Compiler {
 	
+	static class CancelableNameEnvironment extends SearchableEnvironment {
+		IProgressMonitor monitor;
+
+		CancelableNameEnvironment(JavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+			super(project, owner);
+			this.monitor = monitor;
+		}
+
+		private void checkCanceled() {
+			if (monitor != null && monitor.isCanceled()) 
+				throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
+		}
+
+		public void findPackages(char[] prefix, ISearchRequestor requestor) {
+			checkCanceled();
+			super.findPackages(prefix, requestor);
+		}
+
+		public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
+			checkCanceled();
+			return super.findType(name, packageName);
+		}
+
+		public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
+			checkCanceled();
+			return super.findType(compoundTypeName);
+		}
+
+		public void findTypes(char[] prefix, ISearchRequestor storage) {
+			checkCanceled();
+			super.findTypes(prefix, storage);
+		}
+	}
+
+	static class CancelableProblemFactory extends DefaultProblemFactory {
+		IProgressMonitor monitor;
+
+		CancelableProblemFactory(IProgressMonitor monitor) {
+			super();
+			this.monitor = monitor;
+		}
+
+		public IProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments, String[] messageArguments, int severity, int startPosition, int endPosition, int lineNumber) {
+			if (monitor != null && monitor.isCanceled()) 
+				throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
+			return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber);
+		}
+	}
+
 	/**
 	 * Answer a new CompilationUnitVisitor using the given name environment and compiler options.
 	 * The environment and options will be in effect for the lifetime of the compiler.
@@ -80,7 +147,7 @@ class CompilationUnitResolver extends Compiler {
 		super(environment, policy, settings, requestor, problemFactory, false);
 	}
 	
-	/**
+	/*
 	 * Add additional source types
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
@@ -133,7 +200,7 @@ class CompilationUnitResolver extends Compiler {
 	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
 	 */
 	public void initializeParser() {
-		this.parser = new DOMParser(this.problemReporter, false);
+		this.parser = new CommentRecorderParser(this.problemReporter, false);
 	}
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
@@ -167,75 +234,22 @@ class CompilationUnitResolver extends Compiler {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		char[] fileName = unitElement.getElementName().toCharArray();
-		JavaProject project = (JavaProject) unitElement.getJavaProject();
-		CompilationUnitResolver compilationUnitVisitor =
-			new CompilationUnitResolver(
-				getNameEnvironment(project, owner, monitor),
-				getHandlingPolicy(),
-				project.getOptions(true),
-				getRequestor(),
-				getProblemFactory(monitor));
-
-		CompilationUnitDeclaration unit = null;
-		try {
-			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
-
-			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-			char[][] expectedPackageName = null;
-			if (packageFragment != null){
-				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
-			}
-			
-			unit =
-				compilationUnitVisitor.resolve(
-					new BasicCompilationUnit(
-						source,
-						expectedPackageName,
-						new String(fileName),
-						encoding),
-					true, // method verification
-					true, // analyze code
-					true); // generate code
-			return unit;
-		} finally {
-			if (cleanUp && unit != null) {
-				unit.cleanUp();
-			}
+		IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+		char[][] packageName = null;
+		if (packageFragment != null){
+			packageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
 		}
+		String fileName = unitElement.getElementName();
+		IJavaProject project = unitElement.getJavaProject();
+		return resolve(source, packageName, fileName, project, null/*no node searcher*/, cleanUp, owner, monitor);
 	}
 	
-	private static ISearchableNameEnvironment getNameEnvironment(JavaProject project, WorkingCopyOwner owner, final IProgressMonitor monitor) throws JavaModelException {
-		return new SearchableEnvironment(project, owner) {
-			private void checkCanceled() {
-				if (monitor != null && monitor.isCanceled()) 
-					throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
-			}
-			public void findPackages(char[] prefix, ISearchRequestor requestor) {
-				checkCanceled();
-				super.findPackages(prefix, requestor);
-			}
-			public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
-				checkCanceled();
-				return super.findType(name, packageName);
-			}
-			public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
-				checkCanceled();
-				return super.findType(compoundTypeName);
-			}
-			public void findTypes(char[] prefix, ISearchRequestor storage) {
-				checkCanceled();
-				super.findTypes(prefix, storage);
-			}
-		};
-	}
-
 	public static CompilationUnitDeclaration parse(char[] source, Map settings) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser = new DOMParser(
+		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
@@ -270,7 +284,7 @@ class CompilationUnitResolver extends Compiler {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser = new DOMParser(
+		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
@@ -325,34 +339,16 @@ class CompilationUnitResolver extends Compiler {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 	
-		CompilationUnitResolver compilationUnitVisitor =
-			new CompilationUnitResolver(
-				getNameEnvironment((JavaProject)javaProject, owner, monitor),
-				getHandlingPolicy(),
-				javaProject.getOptions(true),
-				getRequestor(),
-				getProblemFactory(monitor));
-	
-		CompilationUnitDeclaration unit = null;
-		try {
-			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
-
-			unit =
-				compilationUnitVisitor.resolve(
-					new BasicCompilationUnit(
-						source,
-						null,
-						unitName,
-						encoding),
-					true, // method verification
-					true, // analyze code
-					true); // generate code
-			return unit;
-		} finally {
-			if (cleanUp && unit != null) {
-				unit.cleanUp();
-			}
-		}
+		return 
+			resolve(
+				source, 
+				null/*no package name*/, 
+				unitName, 
+				javaProject, 
+				null/*no node searcher*/, 
+				cleanUp, 
+				owner, 
+				monitor);
 	}
 
 	public static CompilationUnitDeclaration resolve(
@@ -363,44 +359,14 @@ class CompilationUnitResolver extends Compiler {
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
 		throws JavaModelException {
-
-		CompilationUnitDeclaration unit = null;
-		try {
-			
-			StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
-			
-			String classFileName = classFile.getElementName(); // this includes the trailing .class
-			buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
-			char[] fileName = String.valueOf(buffer).toCharArray();
-			JavaProject project = (JavaProject) classFile.getJavaProject();
-			CompilationUnitResolver compilationUnitVisitor =
-				new CompilationUnitResolver(
-					getNameEnvironment(project, owner, monitor),
-					getHandlingPolicy(),
-					project.getOptions(true),
-					getRequestor(),
-					getProblemFactory(monitor));
-	
-			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
-	
-			char[][] expectedPackageName = CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray());
 		
-			unit = compilationUnitVisitor.resolve(
-				new BasicCompilationUnit(
-					source,
-					expectedPackageName,
-					new String(fileName),
-					encoding),
-				nodeSearcher,
-				true, // method verification
-				true, // analyze code
-				true); // generate code
-			return unit;
-		} finally {
-			if (cleanUp && unit != null) {
-				unit.cleanUp();
-			}
-		}
+		char[][] packageName = CharOperation.splitOn('.', classFile.getType().getPackageFragment().getElementName().toCharArray());
+		StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
+		String classFileName = classFile.getElementName(); // this includes the trailing .class
+		buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));
+		String fileName = String.valueOf(buffer);
+		IJavaProject project = classFile.getJavaProject();
+		return resolve(source, packageName, fileName, project, nodeSearcher, cleanUp, owner, monitor);
 	}
 	
 	public static CompilationUnitDeclaration resolve(
@@ -411,43 +377,15 @@ class CompilationUnitResolver extends Compiler {
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
 		throws JavaModelException {
-
-		CompilationUnitDeclaration unit = null;
-		try {
-			char[] fileName = unitElement.getElementName().toCharArray();
-			JavaProject project = (JavaProject) unitElement.getJavaProject();
-			CompilationUnitResolver compilationUnitVisitor =
-				new CompilationUnitResolver(
-					getNameEnvironment(project, owner, monitor),
-					getHandlingPolicy(),
-					project.getOptions(true),
-					getRequestor(),
-					getProblemFactory(monitor));
-	
-			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
-	
-			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-			char[][] expectedPackageName = null;
-			if (packageFragment != null){
-				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
-			}
 		
-			unit = compilationUnitVisitor.resolve(
-				new BasicCompilationUnit(
-					source,
-					expectedPackageName,
-					new String(fileName),
-					encoding),
-				nodeSearcher,
-				true, // method verification
-				true, // analyze code
-				true); // generate code
-			return unit;
-		} finally {
-			if (cleanUp && unit != null) {
-				unit.cleanUp();
-			}
+		IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+		char[][] packageName = null;
+		if (packageFragment != null){
+			packageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
 		}
+		String fileName = unitElement.getElementName();
+		IJavaProject project = unitElement.getJavaProject();
+		return resolve(source, packageName, fileName, project, nodeSearcher, cleanUp, owner, monitor);
 	}
 
 	public static CompilationUnitDeclaration resolve(
@@ -455,50 +393,53 @@ class CompilationUnitResolver extends Compiler {
 		char[][] packageName,
 		String unitName,
 		IJavaProject javaProject,
+		NodeSearcher nodeSearcher,
 		boolean cleanUp,
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 	
-		CompilationUnitResolver compilationUnitVisitor =
-			new CompilationUnitResolver(
-				getNameEnvironment((JavaProject)javaProject, owner, monitor),
-				getHandlingPolicy(),
-				javaProject.getOptions(true),
-				getRequestor(),
-				getProblemFactory(monitor));
-	
 		CompilationUnitDeclaration unit = null;
+		CancelableNameEnvironment environment = null;
+		CancelableProblemFactory problemFactory = null;
 		try {
+			environment = new CancelableNameEnvironment(((JavaProject)javaProject), owner, monitor);
+			problemFactory = new CancelableProblemFactory(monitor);
+			CompilationUnitResolver resolver =
+				new CompilationUnitResolver(
+					environment,
+					getHandlingPolicy(),
+					javaProject.getOptions(true),
+					getRequestor(),
+					problemFactory);
+
 			String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 
-			unit =
-				compilationUnitVisitor.resolve(
+			unit = 
+				resolver.resolve(
+					null, // no existing compilation unit declaration
 					new BasicCompilationUnit(
 						source,
 						packageName,
 						unitName,
 						encoding),
+					nodeSearcher,
 					true, // method verification
 					true, // analyze code
 					true); // generate code					
 			return unit;
 		} finally {
+			if (environment != null) {
+				environment.monitor = null; // don't hold a reference to this external object
+			}
+			if (problemFactory != null) {
+				problemFactory.monitor = null; // don't hold a reference to this external object
+			}
 			if (cleanUp && unit != null) {
 				unit.cleanUp();
 			}
 		}
 	}
-	private static DefaultProblemFactory getProblemFactory(final IProgressMonitor monitor) {
-		return new DefaultProblemFactory() {
-			public IProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments, String[] messageArguments, int severity, int startPosition, int endPosition, int lineNumber) {
-				if (monitor != null && monitor.isCanceled()) 
-					throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
-				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber);
-			}
-		};
-	}
-
 	/*
 	 * When unit result is about to be accepted, removed back pointers
 	 * to unresolved bindings
@@ -541,110 +482,16 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
-	/**
-	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
-	 */
-	public CompilationUnitDeclaration resolve(
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilationUnit,
+	private CompilationUnitDeclaration resolve(
+			CompilationUnitDeclaration unit,
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			NodeSearcher nodeSearcher,
 			boolean verifyMethods,
 			boolean analyzeCode,
 			boolean generateCode) {
 
-		CompilationUnitDeclaration unit = null;
 		try {
 
-			this.parseThreshold = 0; // will request a diet parse
-			beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilationUnit});
-			// process all units (some more could be injected in the loop by the lookup environment)
-			unit = this.unitsToProcess[0];
-
-			int searchPosition = nodeSearcher.position;
-			if (searchPosition >= 0 && searchPosition <= compilationUnit.getContents().length) {
-				unit.traverse(nodeSearcher, unit.scope);
-				
-				org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
-				
-	 			if (node != null) {
-					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
-	  				if (node instanceof AbstractMethodDeclaration) {
-						((AbstractMethodDeclaration)node).parseStatements(this.parser, unit);
-	 				} else if (enclosingTypeDeclaration != null) {
-						if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-		 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
-	 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
-							((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
-						} 				
-	 				}
-	 			}
-			}
-			if (unit.scope != null) {
-				// fault in fields & methods
-				unit.scope.faultInTypes();
-				if (unit.scope != null && verifyMethods) {
-					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
- 					// verify inherited methods
-					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
-				}
-				// type checking
-				unit.resolve();		
-
-				// flow analysis
-				if (analyzeCode) unit.analyseCode();
-		
-				// code generation
-				if (generateCode) unit.generateCode();
-			}
-			if (this.unitsToProcess != null) this.unitsToProcess[0] = null; // release reference to processed unit declaration
-			this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
-			return unit;
-		} catch (AbortCompilation e) {
-			this.handleInternalException(e, unit);
-			return null;
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} finally {
-			// No reset is performed there anymore since,
-			// within the CodeAssist (or related tools),
-			// the compiler may be called *after* a call
-			// to this resolve(...) method. And such a call
-			// needs to have a compiler with a non-empty
-			// environment.
-			// this.reset();
-		}
-	}
-	/**
-	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
-	 */
-	public CompilationUnitDeclaration resolve(
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
-			boolean verifyMethods,
-			boolean analyzeCode,
-			boolean generateCode) {
-				
-		return resolve(
-			null,
-			sourceUnit,
-			verifyMethods,
-			analyzeCode,
-			generateCode);
-	}
-
-	/**
-	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
-	 */
-	public CompilationUnitDeclaration resolve(
-			CompilationUnitDeclaration unit, 
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
-			boolean verifyMethods,
-			boolean analyzeCode,
-			boolean generateCode) {
-				
-		try {
 			if (unit == null) {
 				// build and record parsed units
 				this.parseThreshold = 0; // will request a full parse
@@ -658,7 +505,31 @@ class CompilationUnitResolver extends Compiler {
 				// binding resolution
 				this.lookupEnvironment.completeTypeBindings();
 			}
-			this.parser.getMethodBodies(unit);
+
+			if (nodeSearcher == null) {
+				this.parser.getMethodBodies(unit); // no-op if method bodies have already been parsed
+			} else {
+				int searchPosition = nodeSearcher.position;
+				if (searchPosition >= 0 && searchPosition <= sourceUnit.getContents().length) {
+					unit.traverse(nodeSearcher, unit.scope);
+					
+					org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
+					
+		 			if (node != null) {
+						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
+		  				if (node instanceof AbstractMethodDeclaration) {
+							((AbstractMethodDeclaration)node).parseStatements(this.parser, unit);
+		 				} else if (enclosingTypeDeclaration != null) {
+							if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+			 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
+		 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
+								((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
+							} 				
+		 				}
+		 			}
+				}
+			}
+			
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
@@ -697,5 +568,41 @@ class CompilationUnitResolver extends Compiler {
 			// environment.
 			// this.reset();
 		}
+	}
+	/*
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+				
+		return resolve(
+			null, /* no existing compilation unit declaration*/
+			sourceUnit,
+			null/*no node searcher*/, 
+			verifyMethods,
+			analyzeCode,
+			generateCode);
+	}
+
+	/*
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			CompilationUnitDeclaration unit, 
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+		
+		return resolve(
+			unit, 
+			sourceUnit, 
+			null/*no node searcher*/, 
+			verifyMethods, 
+			analyzeCode, 
+			generateCode);
 	}
 }

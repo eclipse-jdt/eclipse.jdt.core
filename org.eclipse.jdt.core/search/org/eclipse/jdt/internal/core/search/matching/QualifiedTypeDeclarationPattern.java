@@ -24,45 +24,41 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 
-	this.mustResolve = qualification != null;
+	this.mustResolve = this.qualification != null;
 }
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);
 }
 public void decodeIndexKey(char[] key) {
-	int size = key.length;
+	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
+	this.simpleName = CharOperation.subarray(key, 0, slash);
 
-	this.classOrInterface = key[0];
-	int oldSlash = 1;
-	int slash = CharOperation.indexOf(SEPARATOR, key, oldSlash + 1);
-	char[] pkgName = slash == oldSlash + 1
-		? CharOperation.NO_CHAR
-		: CharOperation.subarray(key, oldSlash+1, slash);
-	this.simpleName = CharOperation.subarray(key, slash + 1, slash = CharOperation.indexOf(SEPARATOR, key, slash + 1));
-
-	char[][] decodedEnclosingTypeNames;
-	if (slash + 1 < size) {
-		decodedEnclosingTypeNames = (slash + 3 == size && key[slash + 1] == ONE_ZERO[0])
-			? ONE_ZERO_CHAR
-			: CharOperation.splitOn('/', CharOperation.subarray(key, slash + 1, size - 1));
+	int start = slash + 1;
+	slash = CharOperation.indexOf(SEPARATOR, key, start);
+	int secondSlash = CharOperation.indexOf(SEPARATOR, key, slash + 1);
+	if (start + 1 == secondSlash) {
+		this.qualification = CharOperation.NO_CHAR; // no package name or enclosingTypeNames
+	} else if (slash + 1 == secondSlash) {
+		this.qualification = CharOperation.subarray(key, start, slash); // only a package name
 	} else {
-		decodedEnclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+		this.qualification = CharOperation.subarray(key, start, secondSlash);
+		this.qualification[slash - start] = '.';
 	}
-	this.qualification = CharOperation.concatWith(pkgName, decodedEnclosingTypeNames, '.');
+
+	this.classOrInterface = key[key.length - 1];
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
-public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
 	switch(this.classOrInterface) {
 		case CLASS_SUFFIX :
 		case INTERFACE_SUFFIX :
 			if (this.classOrInterface != pattern.classOrInterface) return false;
-		case TYPE_SUFFIX : // nothing
 	}
 
-	return matchesName(this.simpleName, pattern.simpleName) && matchesName(this.pkg, pattern.qualification);
+	return matchesName(this.simpleName, pattern.simpleName) && matchesName(this.qualification, pattern.qualification);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -88,13 +84,13 @@ public String toString() {
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(this.matchMode) {
-		case EXACT_MATCH : 
+		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
-		case PREFIX_MATCH :
+		case R_PREFIX_MATCH :
 			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
-		case PATTERN_MATCH :
+		case R_PATTERN_MATCH :
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}

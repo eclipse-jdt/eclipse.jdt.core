@@ -30,8 +30,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
-import org.eclipse.jdt.internal.core.index.impl.WordEntry;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -488,12 +486,15 @@ public class Util {
 		} else if (DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS.equals(key)) {
 			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS, value);
 		} else if ("org.eclipse.jdt.core.formatter.insert_space_after_comma__in_superinterfaces".equals(key)) { //$NON-NLS-1$
-			// TODO remove after M7
+			// TODO (olivier) remove after M7
 			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, value);
 		} else if ("org.eclipse.jdt.core.formatter.insert_space_before_comma__in_superinterfaces".equals(key)) { //$NON-NLS-1$
 			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, value);
 		} else if ("org.eclipse.jdt.core.formatter.insert_space_between_empty_arguments_in_method_invocation".equals(key)) { //$NON-NLS-1$
 			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION, value);
+		} else if (DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS.equals(key)) {
+			options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY, value);
+			options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK, value);
 		}
 	}
 	
@@ -929,6 +930,8 @@ public class Util {
 			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES);
 		} else if ("org.eclipse.jdt.core.formatter.insert_space_between_empty_arguments_in_method_invocation".equals(key)) { //$NON-NLS-1$
 			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION);
+		} else if (DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS.equals(key)) {
+			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY);
 		}
 		if (value != null) {
 			return value.trim();
@@ -1512,32 +1515,6 @@ public class Util {
 			quickSort(sortedCollection, left, original_right);
 		}
 	}
-	private static void quickSort(IndexedFile[] list, int left, int right) {
-		int original_left= left;
-		int original_right= right;
-		String mid= list[(left + right) / 2].path;
-		do {
-			while (list[left].path.compareTo(mid) < 0) {
-				left++;
-			}
-			while (mid.compareTo(list[right].path) < 0) {
-				right--;
-			}
-			if (left <= right) {
-				IndexedFile tmp= list[left];
-				list[left]= list[right];
-				list[right]= tmp;
-				left++;
-				right--;
-			}
-		} while (left <= right);
-		if (original_left < right) {
-			quickSort(list, original_left, right);
-		}
-		if (left < original_right) {
-			quickSort(list, left, original_right);
-		}
-	}
 	private static void quickSort(int[] list, int left, int right) {
 		int original_left= left;
 		int original_right= right;
@@ -1655,32 +1632,6 @@ public class Util {
 		}
 		if (left < original_right) {
 			quickSort(sortedCollection, left, original_right);
-		}
-	}
-	private static void quickSort(WordEntry[] list, int left, int right) {
-		int original_left= left;
-		int original_right= right;
-		char[] mid= list[(left + right) / 2].fWord;
-		do {
-			while (compare(list[left].fWord, mid) < 0) {
-				left++;
-			}
-			while (compare(mid, list[right].fWord) < 0) {
-				right--;
-			}
-			if (left <= right) {
-				WordEntry tmp= list[left];
-				list[left]= list[right];
-				list[right]= tmp;
-				left++;
-				right--;
-			}
-		} while (left <= right);
-		if (original_left < right) {
-			quickSort(list, original_left, right);
-		}
-		if (left < original_right) {
-			quickSort(list, left, original_right);
 		}
 	}
 
@@ -1813,10 +1764,6 @@ public class Util {
 		if (objects.length > 1)
 			quickSort(objects, 0, objects.length - 1);
 	}
-	public static void sort(IndexedFile[] list) {
-		if (list.length > 1)
-			quickSort(list, 0, list.length - 1);
-	}
 	public static void sort(int[] list) {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
@@ -1845,10 +1792,6 @@ public class Util {
 	public static void sort(String[] strings) {
 		if (strings.length > 1)
 			quickSort(strings, 0, strings.length - 1);
-	}
-	public static void sort(WordEntry[] list) {
-		if (list.length > 1)
-			quickSort(list, 0, list.length - 1);
 	}
 
 	/**
@@ -2033,10 +1976,11 @@ public class Util {
 	 * for the character. 
 	 *
 	 * @param      str   a string to be written.
+	 * @return     the number of bytes written to the stream.
 	 * @exception  IOException  if an I/O error occurs.
 	 * @since      JDK1.0
 	 */
-	public static void writeUTF(OutputStream out, char[] str) throws IOException {
+	public static int writeUTF(OutputStream out, char[] str) throws IOException {
 		int strlen= str.length;
 		int utflen= 0;
 		for (int i= 0; i < strlen; i++) {
@@ -2066,5 +2010,6 @@ public class Util {
 				out.write(0x80 | ((c >> 0) & 0x3F));
 			}
 		}
+		return utflen + 2; // the number of bytes written to the stream
 	}	
 }

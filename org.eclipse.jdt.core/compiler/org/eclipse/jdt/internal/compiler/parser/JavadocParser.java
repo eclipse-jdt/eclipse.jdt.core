@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.ImplicitDocTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Javadoc;
 import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
@@ -129,11 +130,11 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
-	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long dimPos, long argNamePos) throws InvalidInputException {
+	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		try {
 			TypeReference argTypeRef = (TypeReference) typeRef;
 			if (dim > 0) {
-				long pos = ((long) argTypeRef.sourceStart) << 32 + argTypeRef.sourceEnd;
+				long pos = (((long) argTypeRef.sourceStart) << 32) + argTypeRef.sourceEnd;
 				if (typeRef instanceof JavadocSingleTypeReference) {
 					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
 					argTypeRef = new JavadocArraySingleTypeReference(singleRef.token, dim, pos);
@@ -143,7 +144,7 @@ public class JavadocParser extends AbstractCommentParser {
 				}
 			}
 			int argEnd = argTypeRef.sourceEnd;
-			if (dimPos >= 0) argEnd = (int) dimPos;
+			if (dim > 0) argEnd = (int) dimPositions[dim-1];
 			if (argNamePos >= 0) argEnd = (int) argNamePos;
 			return new JavadocArgumentExpression(name, argTypeRef.sourceStart, argEnd, argTypeRef);
 		}
@@ -160,10 +161,7 @@ public class JavadocParser extends AbstractCommentParser {
 			TypeReference typeRef = (TypeReference) receiver;
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.compilationResult.compilationUnit.getMainTypeName();
-				if (name == null) {
-					throw new InvalidInputException();
-				}
-				typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
+				typeRef = new ImplicitDocTypeReference(name, this.memberStart);
 			}
 			// Create field
 			JavadocFieldReference field = new JavadocFieldReference(this.identifierStack[0], this.identifierPositionStack[0]);
@@ -183,17 +181,24 @@ public class JavadocParser extends AbstractCommentParser {
 		try {
 			// Get receiver type
 			TypeReference typeRef = (TypeReference) receiver;
+			// Decide whether we have a constructor or not
+			boolean isConstructor = false;
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.compilationResult.compilationUnit.getMainTypeName();
-				if (name == null) {
+				isConstructor = CharOperation.equals(this.identifierStack[0], name);
+				typeRef = new ImplicitDocTypeReference(name, this.memberStart);
+			} else {
+				char[] name = null;
+				if (typeRef instanceof JavadocSingleTypeReference) {
+					name = ((JavadocSingleTypeReference)typeRef).token;
+				} else if (typeRef instanceof JavadocQualifiedTypeReference) {
+					char[][] tokens = ((JavadocQualifiedTypeReference)typeRef).tokens;
+					name = tokens[tokens.length-1];
+				} else {
 					throw new InvalidInputException();
 				}
-				typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
+				isConstructor = CharOperation.equals(this.identifierStack[0], name);
 			}
-			// Decide whether we have a constructor or not
-			char[][] receiverTokens = typeRef.getTypeName();
-			char[] memberName = this.identifierStack[0];
-			boolean isConstructor = CharOperation.equals(memberName, receiverTokens[receiverTokens.length-1]);
 			// Create node
 			if (arguments == null) {
 				if (isConstructor) {

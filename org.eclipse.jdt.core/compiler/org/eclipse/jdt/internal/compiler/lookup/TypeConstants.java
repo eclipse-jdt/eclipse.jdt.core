@@ -21,12 +21,15 @@ public interface TypeConstants {
 	final char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
 	final char[] MAIN = "main".toCharArray(); //$NON-NLS-1$
 	final char[] SERIALVERSIONUID = "serialVersionUID".toCharArray(); //$NON-NLS-1$
+	final char[] SERIALPERSISTENTFIELDS = "serialPersistentFields".toCharArray(); //$NON-NLS-1$ 
 	final char[] READRESOLVE = "readResolve".toCharArray(); //$NON-NLS-1$
 	final char[] WRITEREPLACE = "writeReplace".toCharArray(); //$NON-NLS-1$
 	final char[] READOBJECT = "readObject".toCharArray(); //$NON-NLS-1$
 	final char[] WRITEOBJECT = "writeObject".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$
+	final char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
+	
 	
 	// Constant compound names
 	final char[][] JAVA_LANG = {JAVA, LANG};

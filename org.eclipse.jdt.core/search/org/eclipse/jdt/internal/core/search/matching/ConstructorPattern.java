@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.io.IOException;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.index.*;
 
 public class ConstructorPattern extends SearchPattern {
 
@@ -25,11 +28,19 @@ public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
 
+protected static char[][] REF_CATEGORIES = { CONSTRUCTOR_REF };
+protected static char[][] REF_AND_DECL_CATEGORIES = { CONSTRUCTOR_REF, CONSTRUCTOR_DECL };
+protected static char[][] DECL_CATEGORIES = { CONSTRUCTOR_DECL };
+
+/**
+ * Constructor entries are encoded as TypeName '/' Arity:
+ * e.g. 'X/0'
+ */
 public static char[] createIndexKey(char[] typeName, int argCount) {
-	ConstructorPattern pattern = new ConstructorPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
-	pattern.declaringSimpleName = typeName;
-	pattern.parameterCount = argCount;
-	return pattern.encodeIndexKey();
+	char[] countChars = argCount < 10
+		? COUNTS[argCount]
+		: ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+	return CharOperation.concat(typeName, countChars);
 }
 
 public ConstructorPattern(
@@ -72,58 +83,21 @@ public void decodeIndexKey(char[] key) {
 	this.parameterCount = Integer.parseInt(new String(key, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
 	this.declaringSimpleName = CharOperation.subarray(key, 0, lastSeparatorIndex);
 }
-/**
- * Constructor declaration entries are encoded as 'constructorDecl/' TypeName '/' Arity:
- * e.g. 'constructorDecl/X/0'
- *
- * Constructor reference entries are encoded as 'constructorRef/' TypeName '/' Arity:
- * e.g. 'constructorRef/X/0'
- */
-public char[] encodeIndexKey() {
-	// will have a common pattern in the new story
-	if (this.isCaseSensitive && this.declaringSimpleName != null) {
-		switch(this.matchMode) {
-			case EXACT_MATCH :
-				int arity = this.parameterCount;
-				if (arity >= 0) {
-					char[] countChars = arity < 10 ? COUNTS[arity] : ("/" + String.valueOf(arity)).toCharArray(); //$NON-NLS-1$
-					return CharOperation.concat(this.declaringSimpleName, countChars);
-				}
-			case PREFIX_MATCH :
-				return this.declaringSimpleName;
-			case PATTERN_MATCH :
-				int starPos = CharOperation.indexOf('*', this.declaringSimpleName);
-				switch(starPos) {
-					case -1 :
-						return this.declaringSimpleName;
-					default : 
-						char[] result = new char[starPos];
-						System.arraycopy(this.declaringSimpleName, 0, result, 0, starPos);
-						return result;
-					case 0 : // fall through
-				}
-		}
-	}
-	return CharOperation.NO_CHAR; // find them all
-}
 public SearchPattern getBlankPattern() {
 	return new ConstructorPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	if (this.findReferences)
-		if (this.findDeclarations) 
-			return new char[][] {CONSTRUCTOR_REF, CONSTRUCTOR_DECL};
-		else
-			return new char[][] {CONSTRUCTOR_REF};
-	else if (this.findDeclarations)
-		return new char[][] {CONSTRUCTOR_DECL};
+		return this.findDeclarations ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
+	if (this.findDeclarations)
+		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
 }
-public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
-	if (this.parameterCount != -1 && this.parameterCount != pattern.parameterCount) return false;
 
-	return matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1)
+		&& matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
 }
 protected boolean mustResolve() {
 	if (this.declaringQualification != null) return true;
@@ -133,6 +107,31 @@ protected boolean mustResolve() {
 		for (int i = 0, max = this.parameterSimpleNames.length; i < max; i++)
 			if (this.parameterQualifications[i] != null) return true;
 	return this.findReferences; // need to check resolved default constructors and explicit constructor calls
+}
+public EntryResult[] queryIn(Index index) throws IOException {
+	char[] key = this.declaringSimpleName; // can be null
+	int matchRule = getMatchRule();
+
+	switch(this.matchMode) {
+		case R_EXACT_MATCH :
+			if (this.declaringSimpleName != null && this.parameterCount >= 0)
+				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
+			else // do a prefix query with the declaringSimpleName
+				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+			break;
+		case R_PREFIX_MATCH :
+			// do a prefix query with the declaringSimpleName
+			break;
+		case R_PATTERN_MATCH :
+			if (this.parameterCount >= 0)
+				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
+			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
+				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
+			// else do a pattern query with just the declaringSimpleName
+			break;
+	}
+
+	return index.query(getMatchCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -163,13 +162,13 @@ public String toString() {
 	buffer.append(')');
 	buffer.append(", "); //$NON-NLS-1$
 	switch(this.matchMode) {
-		case EXACT_MATCH : 
+		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
-		case PREFIX_MATCH :
+		case R_PREFIX_MATCH :
 			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
-		case PATTERN_MATCH :
+		case R_PATTERN_MATCH :
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}

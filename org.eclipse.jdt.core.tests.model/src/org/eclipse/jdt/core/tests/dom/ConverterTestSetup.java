@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
@@ -22,7 +20,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
-import org.eclipse.jdt.core.tests.util.Util;
 
 abstract class ConverterTestSetup extends AbstractJavaModelTests {
 
@@ -169,47 +166,9 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		char[] actualContents = new char[length];
 		System.arraycopy(source, start, actualContents, 0, length);
 		String actualContentsString = new String(actualContents);
-		if (containsLineSeparator(actualContentsString)) {
-			assertArraysEquals(actualContentsString, expectedContents);
-		} else {		
-			if (!actualContentsString.equals(expectedContents)) {
-				System.out.println(Util.displayString(actualContentsString, 2));
-			}
-			assertTrue("The two strings are not equals\n---\nactualContents = >" + actualContentsString + "<\nexpectedContents = >" + expectedContents + "<\n----", expectedContents.equals(actualContentsString)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
+		assertSourceEquals("Unexpected source", expectedContents, actualContentsString);
 	}
-	
-	private boolean containsLineSeparator(String s) {
-		return s.indexOf("\n") != -1 ||  s.indexOf("\r") != -1; //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	private void assertArraysEquals(String actualContents, String expectedContents) {
-		String[] actualContentsArray = createArrayOfString(actualContents);
-		String[] expectedContentsArray = createArrayOfString(expectedContents);
-		if (actualContentsArray.length !=expectedContentsArray.length) {
-			System.out.println(Util.displayString(actualContents, 2));
-		}
-		assertEquals("Different size", expectedContentsArray.length, actualContentsArray.length); //$NON-NLS-1$
-		for (int i = 0, max = expectedContentsArray.length; i < max; i++) {
-			if (!expectedContentsArray[i].equals(actualContentsArray[i])){
-				System.out.println(Util.displayString(actualContentsArray[i], 2));
-			}
-			assertEquals("Different array parts", expectedContentsArray[i], actualContentsArray[i]); //$NON-NLS-1$
-		}
-	}
-	
-	private String[] createArrayOfString(String s) {
-		StringTokenizer tokenizer = new StringTokenizer(s, "\r\n"); //$NON-NLS-1$
-		ArrayList arrayList = new ArrayList();
-		while (tokenizer.hasMoreElements()) {
-			String nextToken = tokenizer.nextToken();
-			if (nextToken.length() != 0) {
-				arrayList.add(nextToken);
-			}
-		}
-		return (String[]) arrayList.toArray(new String[arrayList.size()]);
-	}
-	
+		
 	protected boolean isMalformed(ASTNode node) {
 		return (node.getFlags() & ASTNode.MALFORMED) != 0;
 	}

@@ -203,7 +203,7 @@ public class TryStatement extends SubRoutineStatement {
 		} else {
 			if (this.isSubRoutineEscaping) {
 				finallyMode = FINALLY_DOES_NOT_COMPLETE;
-			} else if (scope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
+			} else if (scope.environment().options.targetJDK < ClassFileConstants.JDK_DEFERRED) {
 				finallyMode = FINALLY_SUBROUTINE;
 			} else {
 				finallyMode = FINALLY_MUST_BE_INLINED;
@@ -419,7 +419,7 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.isSubRoutineEscaping) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			if (currentScope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
+			if (currentScope.environment().options.targetJDK < ClassFileConstants.JDK_DEFERRED) { 
 				// classic subroutine invocation, distinguish case of non-returning subroutine
 				codeStream.jsr(this.subRoutineStartLabel);
 			} else {

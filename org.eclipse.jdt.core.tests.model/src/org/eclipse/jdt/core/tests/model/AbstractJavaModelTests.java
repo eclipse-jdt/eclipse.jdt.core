@@ -106,26 +106,16 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	} else {
 		buffer.append("<null>");
 	}
-	if (!expected.equals(buffer.toString())) {
-		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
-		System.out.println(",");
+	String actual = buffer.toString();
+	if (!expected.equals(actual)) {
+		printDisplayString(actual, 2);
 	}
-	assertEquals(
-		message,
-		expected,
-		buffer.toString()
-	);
+	assertEquals(message, expected, actual);
 }
 protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
 	String actual = hierarchy.toString();
 	if (!expected.equals(actual)) {
-		String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2);
-		char[] toDisplay = 
-			CharOperation.replace(
-				displayString.toCharArray(), 
-				getExternalJCLPath().toString().toCharArray(), 
-				("\"+  getExternalJCLPath() +\"").toCharArray());
-		System.out.println(new String(toDisplay) + ",");
+		printDisplayString(actual, 2);
 	}
 	assertEquals("Unexpected type hierarchy", expected, actual);
 }
@@ -187,15 +177,11 @@ protected void assertTypesEqual(String message, String expected, IType[] types) 
 		buffer.append(types[i].getFullyQualifiedName());
 		buffer.append("\n");
 	}
-	if (!expected.equals(buffer.toString())) {
-		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
-		System.out.println(",");
+	String actual = buffer.toString();
+	if (!expected.equals(actual)) {
+		printDisplayString(actual, 2);
 	}
-	assertEquals(
-		message,
-		expected,
-		buffer.toString()
-	);
+	assertEquals(message, expected, actual);
 }
 /**
  * Attaches a source zip to the given jar package fragment root.
@@ -607,6 +593,18 @@ public ICompilationUnit getCompilationUnit(String projectName, String rootPath, 
 		return pkg.getCompilationUnit(cuName);
 	}
 }
+/**
+ * Returns the specified compilation unit in the given project, root, and
+ * package fragment or <code>null</code> if it does not exist.
+ */
+public ICompilationUnit[] getCompilationUnits(String projectName, String rootPath, String packageName) throws JavaModelException {
+	IPackageFragment pkg= getPackageFragment(projectName, rootPath, packageName);
+	if (pkg == null) {
+		return null;
+	} else {
+		return pkg.getCompilationUnits();
+	}
+}
 protected ICompilationUnit getCompilationUnitFor(IJavaElement element) {
 
 	if (element instanceof ICompilationUnit) {
@@ -791,7 +789,15 @@ public IWorkspace getWorkspace() {
 public IWorkspaceRoot getWorkspaceRoot() {
 	return getWorkspace().getRoot();
 }
-
+private void printDisplayString(String toPrint, int indent) {
+	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(toPrint, indent);
+	char[] toDisplay = 
+		CharOperation.replace(
+			displayString.toCharArray(), 
+			getExternalJCLPath().toString().toCharArray(), 
+			("\"+  getExternalJCLPath() +\"").toCharArray());
+	System.out.println(new String(toDisplay) + ",");
+}
 public byte[] read(java.io.File file) throws java.io.IOException {
 	int fileLength;
 	byte[] fileBytes = new byte[fileLength = (int) file.length()];

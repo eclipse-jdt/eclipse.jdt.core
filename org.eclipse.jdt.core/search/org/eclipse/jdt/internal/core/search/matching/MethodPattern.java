@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.io.IOException;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.index.*;
 
 public class MethodPattern extends SearchPattern {
 
@@ -34,11 +37,19 @@ public int parameterCount;
 // extra reference info
 protected IType declaringType;
 
+protected static char[][] REF_CATEGORIES = { METHOD_REF };
+protected static char[][] REF_AND_DECL_CATEGORIES = { METHOD_REF, METHOD_DECL };
+protected static char[][] DECL_CATEGORIES = { METHOD_DECL };
+
+/**
+ * Method entries are encoded as selector '/' Arity:
+ * e.g. 'foo/0'
+ */
 public static char[] createIndexKey(char[] selector, int argCount) {
-	MethodPattern pattern = new MethodPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
-	pattern.selector = selector;
-	pattern.parameterCount = argCount;
-	return pattern.encodeIndexKey();
+	char[] countChars = argCount < 10
+		? COUNTS[argCount]
+		: ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+	return CharOperation.concat(selector, countChars);
 }
 
 public MethodPattern(
@@ -89,75 +100,36 @@ public void decodeIndexKey(char[] key) {
 	this.parameterCount = Integer.parseInt(new String(key, lastSeparatorIndex + 1, size - lastSeparatorIndex - 1));
 	this.selector = CharOperation.subarray(key, 0, lastSeparatorIndex);
 }
-/**
- * Method declaration entries are encoded as 'methodDecl/' selector '/' Arity
- * e.g. 'methodDecl/X/0'
- *
- * Method reference entries are encoded as 'methodRef/' selector '/' Arity
- * e.g. 'methodRef/X/0'
- */
-public char[] encodeIndexKey() {
-	// will have a common pattern in the new story
-	if (this.isCaseSensitive && this.selector != null) {
-		switch(this.matchMode) {
-			case EXACT_MATCH :
-				int arity = this.parameterCount;
-				if (arity >= 0) {
-					char[] countChars = arity < 10 ? COUNTS[arity] : ("/" + String.valueOf(arity)).toCharArray(); //$NON-NLS-1$
-					return CharOperation.concat(this.selector, countChars);
-				}
-			case PREFIX_MATCH :
-				return this.selector;
-			case PATTERN_MATCH :
-				int starPos = CharOperation.indexOf('*', this.selector);
-				switch(starPos) {
-					case -1 :
-						return this.selector;
-					default : 
-						char[] result = new char[starPos];
-						System.arraycopy(this.selector, 0, result, 0, starPos);
-						return result;
-					case 0 : // fall through
-				}
-		}
-	}
-	return CharOperation.NO_CHAR; // find them all
-}
 public SearchPattern getBlankPattern() {
 	return new MethodPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	if (this.findReferences)
-		if (this.findDeclarations) 
-			return new char[][] {METHOD_REF, METHOD_DECL};
-		else
-			return new char[][] {METHOD_REF};
-	else if (this.findDeclarations)
-		return new char[][] {METHOD_DECL};
+		return this.findDeclarations ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
+	if (this.findDeclarations)
+		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
 }
 public boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
-public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	MethodPattern pattern = (MethodPattern) decodedPattern;
-	if (this.parameterCount != -1 && this.parameterCount != pattern.parameterCount) return false;
 
-	return matchesName(this.selector, pattern.selector);
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1)
+		&& matchesName(this.selector, pattern.selector);
 }
 /**
  * Returns whether a method declaration or message send must be resolved to 
  * find out if this method pattern matches it.
  */
 protected boolean mustResolve() {
-	// declaring type 
-	// If declaring type is specified - even with simple name - always resolves 
-	// (see MethodPattern.matchLevel)
+	// declaring type
+	// If declaring type is specified - even with simple name - always resolves
 	if (declaringSimpleName != null || declaringQualification != null) return true;
 
 	// return type
-	// If return type is specified - even with simple name - always resolves 
-	// (see MethodPattern.matchLevel)
+	// If return type is specified - even with simple name - always resolves
 	if (returnSimpleName != null || returnQualification != null) return true;
 
 	// parameter types
@@ -165,6 +137,31 @@ protected boolean mustResolve() {
 		for (int i = 0, max = parameterSimpleNames.length; i < max; i++)
 			if (parameterQualifications[i] != null) return true;
 	return false;
+}
+public EntryResult[] queryIn(Index index) throws IOException {
+	char[] key = this.selector; // can be null
+	int matchRule = getMatchRule();
+
+	switch(this.matchMode) {
+		case R_EXACT_MATCH :
+			if (this.selector != null && this.parameterCount >= 0)
+				key = createIndexKey(this.selector, this.parameterCount);
+			else // do a prefix query with the selector
+				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+			break;
+		case R_PREFIX_MATCH :
+			// do a prefix query with the selector
+			break;
+		case R_PATTERN_MATCH :
+			if (this.parameterCount >= 0)
+				key = createIndexKey(this.selector == null ? ONE_STAR : this.selector, this.parameterCount);
+			else if (this.selector != null && this.selector[this.selector.length - 1] != '*')
+				key = CharOperation.concat(this.selector, ONE_STAR, SEPARATOR);
+			// else do a pattern query with just the selector
+			break;
+	}
+
+	return index.query(getMatchCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -207,13 +204,13 @@ public String toString() {
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
 	switch(this.matchMode) {
-		case EXACT_MATCH : 
+		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
-		case PREFIX_MATCH :
+		case R_PREFIX_MATCH :
 			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
-		case PATTERN_MATCH :
+		case R_PATTERN_MATCH :
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}

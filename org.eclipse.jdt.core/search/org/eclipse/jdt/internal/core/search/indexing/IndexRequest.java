@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 public abstract class IndexRequest implements IJob {
@@ -38,21 +35,6 @@ public abstract class IndexRequest implements IJob {
 	public void ensureReadyToRun() {
 		// tag the index as inconsistent
 		this.manager.aboutToUpdateIndex(this.containerPath, updatedIndexState());
-	}
-	/*
-	 * This code is assumed to be invoked while monitor has read lock
-	 */
-	protected void saveIfNecessary(Index index, ReadWriteMonitor monitor) throws IOException {
-		/* if index has changed, commit these before querying */
-		if (index.hasChanged()) {
-			try {
-				monitor.exitRead(); // free read lock
-				monitor.enterWrite(); // ask permission to write
-				this.manager.saveIndex(index);
-			} finally {
-				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
-			}
-		}
 	}
 	protected Integer updatedIndexState() {
 		return IndexManager.UPDATING_STATE;

@@ -59,7 +59,7 @@ public final class CompilationUnitSorter {
 	 * </pre>
 	 * </p>
 	 * 
-	 * @see #sort
+	 * @see #sort(ICompilationUnit, int[], Comparator, int, IProgressMonitor)
 	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
 	 */
 	public static final String RELATIVE_ORDER = "relativeOrder"; //$NON-NLS-1$

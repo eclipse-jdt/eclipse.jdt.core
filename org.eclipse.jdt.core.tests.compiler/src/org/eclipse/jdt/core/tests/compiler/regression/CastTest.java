@@ -963,6 +963,145 @@ public void test028() {
 		null,
 		true);
 }
+
+/*
+ * verify error when assigning null to array
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
+ */
+public void test029() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"    public static void main(String[] args) {	\n" +
+			"		try {	\n" +
+			"		    char[][] qName;	\n" +
+			"			qName = null;	\n" +
+			"			qName[0] = new char[1];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"		    char[][] qName;	\n" +
+			"			qName = (char[][])null;	\n" +
+			"			qName[0] = new char[1];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"		    char[][] qName;	\n" +
+			"			qName = (char[][])(char[][])(char[][])null;	\n" +
+			"			qName[0] = new char[2];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"		    char[][] qName;	\n" +
+			"			qName = args.length > 1 ? new char[1][2] : null;	\n" +
+			"			qName[0] = new char[3];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		System.out.println(\"SUCCESS\");	\n"+
+			"	}	\n" +
+			"}	\n",
+		},
+	"SUCCESS");
+}
+
+/*
+ * verify error when assigning null to array
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
+ */
+public void test030() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"    public static void main(String[] args) {	\n" +
+			"		try {	\n" +
+			"			char[][] qName = null;	\n" +
+			"			qName[0] = new char[1];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"			char[][] qName = (char[][])null;	\n" +
+			"			qName[0] = new char[1];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"			char[][] qName = (char[][])(char[][])(char[][])null;	\n" +
+			"			qName[0] = new char[2];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"			char[][] qName = args.length > 1 ? new char[1][2] : null;	\n" +
+			"			qName[0] = new char[3];	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		System.out.println(\"SUCCESS\");	\n"+
+			"	}	\n" +
+			"}	\n",
+		},
+	"SUCCESS");
+}
+
+/*
+ * verify error when assigning null to array
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
+ */
+public void test031() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"    public static void main(String[] args) {	\n" +
+			"		try {	\n" +
+			"			char[][] qName = null;	\n" +
+			"			setName(qName[0]);	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"			char[][] qName = (char[][])null;	\n" +
+			"			setName(qName[0]);	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"			char[][] qName = (char[][])(char[][])(char[][])null;	\n" +
+			"			setName(qName[0]);	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		try {	\n" +
+			"			char[][] qName = args.length > 1 ? new char[1][2] : null;	\n" +
+			"			setName(qName[0]);	\n" +
+			"		} catch(Exception e){	\n" +
+			"		}	\n" +
+			"		System.out.println(\"SUCCESS\");	\n"+
+			"	}	\n" +
+			"	static void setName(char[] name) {	\n"+
+			"	}	\n" +
+			"}	\n",
+		},
+	"SUCCESS");
+}
+/*
+ * verify error when assigning null to array
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26903
+ */
+public void test032() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"			try {\n" +
+			"				((int[]) null)[0] = 0;\n" +
+			"				((int[]) null)[0] += 1;\n" +
+			"				((int[]) null)[0] ++;\n" +
+			"			} catch (NullPointerException e) {\n" +
+			"				System.out.print(\"SUCCESS\");\n" +
+			"			}\n" +
+			"	}\n" +
+			"}\n",
+		},
+	"SUCCESS");
+}
 public static Class testClass() {
 	return CastTest.class;
 }
