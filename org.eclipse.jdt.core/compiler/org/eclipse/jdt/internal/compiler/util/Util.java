@@ -40,7 +40,8 @@ public class Util {
 		
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
-
+	private static final int DEFAULT_READING_SIZE = 8192;
+	
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
 	private final static String bundleName =
@@ -188,28 +189,28 @@ public class Util {
 		if (length == -1) {
 			contents = new byte[0];
 			int contentsLength = 0;
-			int bytesRead = -1;
+			int amountRead = -1;
 			do {
-				int available = stream.available();
-
+				int amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
+				
 				// resize contents if needed
-				if (contentsLength + available > contents.length) {
+				if (contentsLength + amountRequested > contents.length) {
 					System.arraycopy(
 						contents,
 						0,
-						contents = new byte[contentsLength + available],
+						contents = new byte[contentsLength + amountRequested],
 						0,
 						contentsLength);
 				}
 
 				// read as many bytes as possible
-				bytesRead = stream.read(contents, contentsLength, available);
+				amountRead = stream.read(contents, contentsLength, amountRequested);
 
-				if (bytesRead > 0) {
+				if (amountRead > 0) {
 					// remember length of contents
-					contentsLength += bytesRead;
+					contentsLength += amountRead;
 				}
-			} while (bytesRead > 0);
+			} while (amountRead != -1); 
 
 			// resize contents if necessary
 			if (contentsLength < contents.length) {
@@ -251,28 +252,28 @@ public class Util {
 		if (length == -1) {
 			contents = CharOperation.NO_CHAR;
 			int contentsLength = 0;
-			int charsRead = -1;
+			int amountRead = -1;
 			do {
-				int available = stream.available();
+				int amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
 
 				// resize contents if needed
-				if (contentsLength + available > contents.length) {
+				if (contentsLength + amountRequested > contents.length) {
 					System.arraycopy(
 						contents,
 						0,
-						contents = new char[contentsLength + available],
+						contents = new char[contentsLength + amountRequested],
 						0,
 						contentsLength);
 				}
 
 				// read as many chars as possible
-				charsRead = reader.read(contents, contentsLength, available);
+				amountRead = reader.read(contents, contentsLength, amountRequested);
 
-				if (charsRead > 0) {
+				if (amountRead > 0) {
 					// remember length of contents
-					contentsLength += charsRead;
+					contentsLength += amountRead;
 				}
-			} while (charsRead > 0);
+			} while (amountRead != -1);
 
 			// resize contents if necessary
 			if (contentsLength < contents.length) {
