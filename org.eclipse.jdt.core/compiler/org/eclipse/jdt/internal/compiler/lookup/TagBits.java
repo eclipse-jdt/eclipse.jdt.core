@@ -47,6 +47,7 @@ public interface TagBits {
 	final int HierarchyHasProblems = ASTNode.Bit16;
 
 	// used by BinaryTypeBinding
+	final int HasUnresolvedTypeVariables = ASTNode.Bit25;
 	final int HasUnresolvedSuperclass = ASTNode.Bit26;
 	final int HasUnresolvedSuperinterfaces = ASTNode.Bit27;
 	final int HasUnresolvedEnclosingType = ASTNode.Bit28;

@@ -47,13 +47,15 @@ private LookupEnvironment environment;
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
 	if (type instanceof UnresolvedReferenceBinding)
 		return ((UnresolvedReferenceBinding) type).resolve(environment, parameterizedType, rank);
-
 	if (type.isParameterizedType())
 		return ((ParameterizedTypeBinding) type).resolve();
 	if (type.isWildcard())
 		return ((WildcardBinding) type).resolve(parameterizedType, rank);
 	if (type.isArrayType())
 		resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
+	if (type.isTypeVariable()) {
+		return ((TypeVariableBinding) type).resolve(environment);
+	}
 	return type;
 }
 
@@ -177,6 +179,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.typeVariables[rank++] = variable;
 			} while (wrapper.signature[wrapper.start] != '>');
 			wrapper.start++; // skip '>'
+			this.tagBits |= 	HasUnresolvedTypeVariables;
 		}
 
 		// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
@@ -631,6 +634,11 @@ public ReferenceBinding[] superInterfaces() {
 	return this.superInterfaces;
 }
 public TypeVariableBinding[] typeVariables() {
+ 	if ((this.tagBits & HasUnresolvedTypeVariables) == 0)
+		return this.typeVariables;
+ 	for (int i = this.typeVariables.length; --i >= 0;)
+		resolveType(this.typeVariables[i], this.environment, null, 0);
+	this.tagBits ^= HasUnresolvedTypeVariables;
 	return this.typeVariables;
 }
 public String toString() {
