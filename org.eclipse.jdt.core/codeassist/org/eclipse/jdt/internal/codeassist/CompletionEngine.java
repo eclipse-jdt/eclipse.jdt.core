@@ -937,6 +937,13 @@ public final class CompletionEngine
 																		
 																		findTypesAndPackages(this.completionToken, scope);
 																	}
+																} else if (astNode instanceof CompletionOnMemberValueName) {
+																	CompletionOnMemberValueName memberValuePair = (CompletionOnMemberValueName) astNode;
+																	Annotation annotation = (Annotation) astNodeParent;
+																	
+																	this.completionToken = memberValuePair.name;
+																	
+																	this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
 																}
 															}
 														}
@@ -1268,6 +1275,41 @@ public final class CompletionEngine
 		return argTypes;
 	}
 	
+	private void findAnnotationAttributes(char[] token, MemberValuePair[] attributesFound, ReferenceBinding annotation) {
+		MethodBinding[] methods = annotation.availableMethods();
+		nextAttribute: for (int i = 0; i < methods.length; i++) {
+			MethodBinding method = methods[i];
+			
+			if(!CharOperation.prefixEquals(token, method.selector, false)) continue nextAttribute;
+			
+			int length = attributesFound == null ? 0 : attributesFound.length;
+			for (int j = 0; j < length; j++) {
+				if(CharOperation.equals(method.selector, attributesFound[j].name, false)) continue nextAttribute;
+			}
+			
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal(method);
+			relevance += computeRelevanceForCaseMatching(token, method.selector);
+			relevance += computeRelevanceForQualification(false);
+			relevance += computeRelevanceForRestrictions(false);
+			
+			this.noProposal = false;
+			if(!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.ANNOTATION_ATTRIBUTE_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(method.declaringClass));
+				proposal.setSignature(getSignature(method.returnType));
+				proposal.setName(method.selector);
+				proposal.setCompletion(method.selector);
+				proposal.setFlags(method.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
+		}
+	}
 	private void findAnonymousType(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,

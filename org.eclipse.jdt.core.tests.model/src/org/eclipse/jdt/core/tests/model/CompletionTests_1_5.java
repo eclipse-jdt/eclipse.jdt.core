@@ -1592,9 +1592,1150 @@ public void test0087() throws JavaModelException {
 			"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
+public void test0088() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0088/TestAnnotation.java",
+			"package test0088;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"@TestAnnotation(foo)\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
 
-//TODO (david) tests test0088 - test0135 are not currently released
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0088.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0089() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0089/TestAnnotation.java",
+			"package test0089;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo)\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
 
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0089.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0090() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0090/TestAnnotation.java",
+			"package test0090;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo)\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0090.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0091() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0091/TestAnnotation.java",
+			"package test0091;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo)\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0091.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0092() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0092/TestAnnotation.java",
+			"package test0092;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo) int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0092.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0093() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0093/TestAnnotation.java",
+			"package test0093;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo)\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0093.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0094() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0094/TestAnnotation.java",
+			"package test0094;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"@TestAnnotation(foo\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0094.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0095() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0095/TestAnnotation.java",
+			"package test0095;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0095.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0096() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0096/TestAnnotation.java",
+			"package test0096;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0096.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0097() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0097/TestAnnotation.java",
+			"package test0097;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0097.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0098() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0098/TestAnnotation.java",
+			"package test0098;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0098.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0099() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0099/TestAnnotation.java",
+			"package test0099;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0099.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0100() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0100/TestAnnotation.java",
+			"package test0100;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"@TestAnnotation(foo=\"\")\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0100.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0101() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0101/TestAnnotation.java",
+			"package test00101;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo=\"\")\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0101.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0102() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0102/TestAnnotation.java",
+			"package test0102;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo=\"\")\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0102.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0103() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0103/TestAnnotation.java",
+			"package test00103;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo=\"\")\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0103.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0104() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0104/TestAnnotation.java",
+			"package test0104;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo=\"\") int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0104.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0105() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0105/TestAnnotation.java",
+			"package test0105;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo=\"\")\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0105.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0106() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0106/TestAnnotation.java",
+			"package test0106;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"@TestAnnotation(foo=\"\"\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0106.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0107() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0107/TestAnnotation.java",
+			"package test0107;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo=\"\"\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0107.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0108() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0108/TestAnnotation.java",
+			"package test0108;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo=\"\"\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0108.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0109() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0109/TestAnnotation.java",
+			"package test0109;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo=\"\"\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0109.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0110() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0110/TestAnnotation.java",
+			"package test0110;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo=\"\" int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0110.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0111() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0111/TestAnnotation.java",
+			"package test0111;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo=\"\"\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0111.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0112() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0112/TestAnnotation.java",
+			"package test0112;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"@TestAnnotation(foo1=\"\", foo)\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0112.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0113() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0113/TestAnnotation.java",
+			"package test0113;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo)\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0113.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0114() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0114/TestAnnotation.java",
+			"package test0114;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo)\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0114.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0115() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0115/TestAnnotation.java",
+			"package test0115;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo1=\"\", foo)\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0115.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0116() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0116/TestAnnotation.java",
+			"package test0116;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo) int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0116.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0117() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0117/TestAnnotation.java",
+			"package test0117;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo)\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0117.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0118() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0118/TestAnnotation.java",
+			"package test0118;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"@TestAnnotation(foo1=\"\", foo\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0118.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0119() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0119/TestAnnotation.java",
+			"package test0119;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0119.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0120() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0120/TestAnnotation.java",
+			"package test0120;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0120.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0121() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0121/TestAnnotation.java",
+			"package test0121;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo1=\"\", foo\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0121.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0122() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0122/TestAnnotation.java",
+			"package test0122;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0122.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0123() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0123/TestAnnotation.java",
+			"package test0123;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0123.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0124() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0124/TestAnnotation.java",
+			"package test0124;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"@TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0124.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0125() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0125/TestAnnotation.java",
+			"package test0125;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0125.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0126() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0126/TestAnnotation.java",
+			"package test0126;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0126.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0127() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0127/TestAnnotation.java",
+			"package test0127;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0127.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0128() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0128/TestAnnotation.java",
+			"package test0128;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo=\"\") int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0128.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0129() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0129/TestAnnotation.java",
+			"package test0129;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0129.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0130() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0130/TestAnnotation.java",
+			"package test0130;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"@TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			"class Test2 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0130.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0131() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0131/TestAnnotation.java",
+			"package test0131;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			"  void bar(){}\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0131.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0132() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0132/TestAnnotation.java",
+			"package test0132;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			"  int var;\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0132.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0133() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0133/TestAnnotation.java",
+			"package test0133;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(){\n" +
+			"    @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			"    int var;\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0133.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0134() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0134/TestAnnotation.java",
+			"package test0134;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo=\"\" int var2){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0134.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
+public void test0135() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src3/test0135/TestAnnotation.java",
+			"package test0135;\n" +
+			"public @interface TestAnnotation {\n" +
+			"  String foo1();\n" +
+			"  String foo2();\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			"  Test2(){\n" +
+			"  }\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0135.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			requestor.getResults());
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
 public void test0136() throws JavaModelException {
 	ICompilationUnit enumeration = null;

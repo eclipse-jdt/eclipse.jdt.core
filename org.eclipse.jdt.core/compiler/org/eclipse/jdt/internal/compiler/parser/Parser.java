@@ -3558,25 +3558,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 protected void consumeMarkerAnnotation() {
 	// MarkerAnnotation ::= '@' Name
 	MarkerAnnotation markerAnnotation = null;
-	int length = this.identifierLengthStack[this.identifierLengthPtr--];
-	TypeReference typeReference;
-	if (length == 1) {
-		typeReference = new SingleTypeReference(
-				this.identifierStack[this.identifierPtr], 
-				this.identifierPositionStack[this.identifierPtr--]);
-	} else {
-		char[][] tokens = new char[length][];
-		this.identifierPtr -= length;
-		long[] positions = new long[length];
-		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-		System.arraycopy(
-			this.identifierPositionStack, 
-			this.identifierPtr + 1, 
-			positions, 
-			0, 
-			length);
-		typeReference = new QualifiedTypeReference(tokens, positions);
-	}
+	TypeReference typeReference = this.getAnnotationType();
 	markerAnnotation = new MarkerAnnotation(typeReference, this.intStack[this.intPtr--]);
 	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
 	pushOnExpressionStack(markerAnnotation);
@@ -4070,26 +4052,9 @@ protected void consumeNestedType() {
 protected void consumeNormalAnnotation() {
 	// NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
 	NormalAnnotation normalAnnotation = null;
-	int length = this.identifierLengthStack[this.identifierLengthPtr--];
-	TypeReference typeReference;
-	if (length == 1) {
-		typeReference = new SingleTypeReference(
-				this.identifierStack[this.identifierPtr], 
-				this.identifierPositionStack[this.identifierPtr--]);
-	} else {
-		char[][] tokens = new char[length][];
-		this.identifierPtr -= length;
-		long[] positions = new long[length];
-		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-		System.arraycopy(
-			this.identifierPositionStack, 
-			this.identifierPtr + 1, 
-			positions, 
-			0, 
-			length);
-		typeReference = new QualifiedTypeReference(tokens, positions);
-	}
+	TypeReference typeReference = this.getAnnotationType();
 	normalAnnotation = new NormalAnnotation(typeReference, this.intStack[this.intPtr--]);
+	int length;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		System.arraycopy(
 			this.astStack, 
@@ -6052,25 +6017,7 @@ protected void consumeSimpleAssertStatement() {
 protected void consumeSingleMemberAnnotation() {
 	// SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 	SingleMemberAnnotation singleMemberAnnotation = null;
-	int length = this.identifierLengthStack[this.identifierLengthPtr--];
-	TypeReference typeReference;
-	if (length == 1) {
-		typeReference = new SingleTypeReference(
-				this.identifierStack[this.identifierPtr], 
-				this.identifierPositionStack[this.identifierPtr--]);
-	} else {
-		char[][] tokens = new char[length][];
-		this.identifierPtr -= length;
-		long[] positions = new long[length];
-		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-		System.arraycopy(
-			this.identifierPositionStack, 
-			this.identifierPtr + 1, 
-			positions, 
-			0, 
-			length);
-		typeReference = new QualifiedTypeReference(tokens, positions);
-	}
+	TypeReference typeReference = this.getAnnotationType();
 	singleMemberAnnotation = new SingleMemberAnnotation(typeReference, this.intStack[this.intPtr--]);
 	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
@@ -7545,6 +7492,26 @@ public int flushCommentsDefinedPriorTo(int position) {
 	}
 	this.scanner.commentPtr = validCount - 1;
 	return position;
+}
+protected TypeReference getAnnotationType() {
+	int length = this.identifierLengthStack[this.identifierLengthPtr--];
+	if (length == 1) {
+		return new SingleTypeReference(
+				this.identifierStack[this.identifierPtr], 
+				this.identifierPositionStack[this.identifierPtr--]);
+	} else {
+		char[][] tokens = new char[length][];
+		this.identifierPtr -= length;
+		long[] positions = new long[length];
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+		System.arraycopy(
+			this.identifierPositionStack, 
+			this.identifierPtr + 1, 
+			positions, 
+			0, 
+			length);
+		return new QualifiedTypeReference(tokens, positions);
+	}
 }
 public int getFirstToken() {
 	// the first token is a virtual token that

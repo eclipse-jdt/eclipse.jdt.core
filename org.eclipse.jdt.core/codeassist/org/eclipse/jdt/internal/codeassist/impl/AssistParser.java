@@ -1333,6 +1333,12 @@ protected void prepareForHeaders() {
 	realBlockStack[realBlockPtr = 0] = 0;
 	
 	popUntilElement(K_TYPE_DELIMITER);
+
+	if(this.topKnownElementKind(ASSIST_PARSER) != K_TYPE_DELIMITER) {
+		// is outside a type and inside a compilation unit.
+		// remove all elements.
+		this.flushElementStack();
+	}
 }
 protected void pushOnElementStack(int kind){
 	this.pushOnElementStack(kind, 0);

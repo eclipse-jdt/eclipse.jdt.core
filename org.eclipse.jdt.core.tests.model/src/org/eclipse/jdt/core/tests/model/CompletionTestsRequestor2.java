@@ -102,7 +102,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
 				break;
 			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF :
-				buffer.append("ANNOTATION_ATTRIBUT_REF"); //$NON-NLS-1$
+				buffer.append("ANNOTATION_ATTRIBUTE_REF"); //$NON-NLS-1$
 				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$

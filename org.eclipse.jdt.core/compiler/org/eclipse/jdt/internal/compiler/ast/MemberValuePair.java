@@ -41,7 +41,7 @@ public class MemberValuePair extends ASTNode {
 		output
 			.append(name)
 			.append(" = "); //$NON-NLS-1$
-		value.print(indent, output);
+		value.print(0, output);
 		return output;
 	}
 	

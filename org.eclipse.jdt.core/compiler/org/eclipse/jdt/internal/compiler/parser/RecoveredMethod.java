@@ -361,7 +361,9 @@ public void updateFromParserState(){
 				boolean needUpdateRParenPos = parser.rParenPos < parser.lParenPos; // 12387 : rParenPos will be used
 				
 				// remove unfinished annotation nodes
+				MemberValuePair[] memberValuePairs = null;
 				if (argLength > 0 && parser.astStack[parser.astPtr] instanceof MemberValuePair) {
+					System.arraycopy(parser.astStack, argStart, memberValuePairs = new MemberValuePair[argLength], 0, argLength);
 					parser.astLengthPtr--;
 					parser.astPtr -= argLength;
 					
@@ -412,6 +414,12 @@ public void updateFromParserState(){
 							parser.lastCheckPoint = methodDeclaration.bodyStart;
 						}
 					}
+				}
+				
+				if(memberValuePairs != null) {
+					System.arraycopy(memberValuePairs, 0, parser.astStack, parser.astPtr + 1, memberValuePairs.length);
+					parser.astPtr += memberValuePairs.length;
+					parser.astLengthStack[++parser.astLengthPtr] = memberValuePairs.length;
 				}
 			}
 		}
