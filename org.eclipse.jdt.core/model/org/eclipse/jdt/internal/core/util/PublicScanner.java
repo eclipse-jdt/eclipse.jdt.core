@@ -141,7 +141,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 
 	static final char[] initCharArray = 
 		new char[] {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'}; 
-	static final int TableSize = 30, InternalTableSize = 6; //40*7 =280 entries
+	static final int TableSize = 30, InternalTableSize = 6; //30*6 =210 entries
 	
 	public final static int MAX_OBVIOUS = 128;
 	static final int[] ObviousIdentCharNatures = new int[MAX_OBVIOUS];
