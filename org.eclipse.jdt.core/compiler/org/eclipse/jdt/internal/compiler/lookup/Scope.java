@@ -425,14 +425,13 @@ public abstract class Scope
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
 		if (exactMethod != null) {
 			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
-			// special treatment for Object.getClass() in 1.5 mode (substitute return type)
+			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 			    if (exactMethod.declaringClass.id == T_Object 
 			            && receiverType.id != T_Object
-			            && selector.length == 8
-			            && environment().options.sourceLevel >= JDK1_5
+			            && argumentTypes == NoParameters
 			            && CharOperation.equals(selector, GETCLASS)
-			            && argumentTypes == NoParameters) {
+			            && exactMethod.returnType.isParameterizedType()/*1.5*/) {
 			        return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
 			    }
 				return exactMethod;
@@ -918,7 +917,7 @@ public abstract class Scope
 								object);
 			            break;
 			        case 'g': 
-			            if (CharOperation.equals(selector, GETCLASS) && environment().options.sourceLevel >= JDK1_5) {
+			            if (CharOperation.equals(selector, GETCLASS) && methodBinding.returnType.isParameterizedType()/*1.5*/) {
 							return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
 			            }
 			            break;
