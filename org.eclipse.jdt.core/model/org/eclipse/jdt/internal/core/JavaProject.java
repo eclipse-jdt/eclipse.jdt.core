@@ -900,7 +900,7 @@ public class JavaProject
 
 	/**
 	 * Returns the package fragment roots identified by the given entry.
-	 * @deprecated
+	 * @deprecated - use findPackageFragmentRoot(IPath)
 	 */
 	public IPackageFragmentRoot[] getPackageFragmentRoots(IClasspathEntry entry) {
 
