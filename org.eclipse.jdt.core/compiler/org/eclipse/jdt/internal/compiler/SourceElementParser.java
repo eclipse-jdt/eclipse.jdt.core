@@ -85,7 +85,7 @@ public SourceElementParser(
 			requestor.acceptProblem(problem);
 		}
 	},
-	false,
+	true,
 	options.assertMode);
 	this.requestor = requestor;
 	typeNames = new char[4][];
@@ -1070,8 +1070,7 @@ public void parseTypeMemberDeclarations(
 		// the compilationUnitDeclaration should contain exactly one type
 		/* run automaton */
 		parse();
-	} catch (Exception e) {
-		e.printStackTrace();
+	} catch (AbortCompilation e) {
 	} finally {
 		diet = old;
 	}
