@@ -2020,9 +2020,7 @@ public abstract class ASTNode {
 				this.ast.postAddChildEvent(this, newChild, property);
 			}
 		} else {
-			if(newChild != null) {
-				this.ast.postRemoveChildEvent(this, oldChild, property);
-			}
+			this.ast.postRemoveChildEvent(this, oldChild, property);
 		}
 	}
 	
@@ -2407,9 +2405,37 @@ public abstract class ASTNode {
 	 * from the AST of this node. Even if this node has a parent, the 
 	 * result node will be unparented.
 	 * <p>
+	 * This method reports pre- and post-clone events, and dispatches
+	 * to <code>clone0(AST)</code> which is reimplemented in node subclasses.
+	 * </p>
+	 * 
+	 * @param target the AST that is to own the nodes in the result
+	 * @return the root node of the copies subtree
+	 */
+	final ASTNode clone(AST target) {
+		this.ast.preCloneNodeEvent(this);
+		ASTNode c = this.clone0(target);
+		this.ast.postCloneNodeEvent(this, c);
+		return c;
+	}
+
+	/**
+	 * Returns a deep copy of the subtree of AST nodes rooted at this node.
+	 * The resulting nodes are owned by the given AST, which may be different
+	 * from the AST of this node. Even if this node has a parent, the 
+	 * result node will be unparented.
+	 * <p>
+	 * This method must be implemented in subclasses.
+	 * </p>
+	 * <p>
+	 * This method does not report pre- and post-clone events.
+	 * All callers should instead call <code>clone(AST)</code>
+	 * to ensure that pre- and post-clone events are reported.
+	 * </p>
+	 * <p>
 	 * N.B. This method is package-private, so that the implementations
 	 * of this method in each of the concrete AST node types do not
-	 * clutter up the API doc.
+	 * clutter up the API doc. 
 	 * </p>
 	 * 
 	 * @param target the AST that is to own the nodes in the result
@@ -2417,13 +2443,6 @@ public abstract class ASTNode {
 	 */
 	abstract ASTNode clone0(AST target);
 	
-	ASTNode clone(AST target) {
-		this.ast.preCloneNodeEvent(this);
-		ASTNode c = this.clone0(target);
-		this.ast.postCloneNodeEvent(this, c);
-		return c;
-	}
-
 	/**
 	 * Accepts the given visitor on a visit of the current node.
 	 * 
