@@ -1,5 +1,5 @@
 package org.eclipse.jdt.internal.core.builder.impl;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
@@ -7,12 +7,12 @@ package org.eclipse.jdt.internal.core.builder.impl;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
+
 import org.eclipse.jdt.internal.core.builder.*;
 import org.eclipse.jdt.core.*;
-
+
 import java.util.*;
-
+
 
 /**
  * An <code>IProblemReporter</code> that reports problems using the <code>IMarker</code> API.
@@ -120,21 +120,22 @@ public boolean hasProblems(Object sourceID) {
 protected void markerFromProblemDetail(IResource resource, IProblemDetail problem) throws CoreException {
 	
 	IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-	
-	marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
-
-	int sev = problem.getSeverity();
-	marker.setAttribute(IMarker.SEVERITY , ((sev & IProblemDetail.S_ERROR) != 0 ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING));
-	if ((sev & ProblemDetailImpl.S_SYNTAX_ERROR) != 0) {
-		setFlags(marker, ProblemDetailImpl.S_SYNTAX_ERROR);
-	}
-	marker.setAttribute("ID"/*nonNLS*/, new Integer(problem.getID()));
-
 	int start = problem.getStartPos();
-	marker.setAttribute(IMarker.CHAR_START, new Integer(start));
-	marker.setAttribute(IMarker.CHAR_END, new Integer(problem.getEndPos() + 1));
-	marker.setAttribute(IMarker.LINE_NUMBER, new Integer(problem.getLineNumber()));
-
+	int sev = problem.getSeverity();
+	marker.setAttributes(
+		new String[]{ IMarker.MESSAGE, IMarker.SEVERITY, "ID"/*nonNLS*/, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER},
+		new Object[]{ 
+			problem.getMessage(),
+			new Integer((sev & IProblemDetail.S_ERROR) != 0 ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
+			new Integer(problem.getID()),
+			new Integer(start),
+			new Integer(problem.getEndPos() + 1),
+			new Integer(problem.getLineNumber())
+		});
+		
+	if ((sev & ProblemDetailImpl.S_SYNTAX_ERROR) != 0) {
+		marker.setAttribute(IJavaModelMarker.FLAGS, ProblemDetailImpl.S_SYNTAX_ERROR == 0 ? null : new Integer(ProblemDetailImpl.S_SYNTAX_ERROR));
+	}
 	// compute a user-friendly location
 	IJavaElement element = JavaCore.create(resource);
 	if (element instanceof ICompilationUnit){ // try to find a finer grain element
@@ -154,7 +155,7 @@ protected void markerFromProblemDetail(IResource resource, IProblemDetail proble
 public void putProblem(Object sourceID, IProblemDetail problem) {
 	/* Delegate first to the backing problem table. */
 	fProblemTable.putProblem(sourceID, problem);
-
+
 	/* Now update the markers. */
 	IResource resource = getResource(sourceID);
 	if (resource != null) {
@@ -211,7 +212,7 @@ public void removeNonSyntaxErrors(Object sourceID) {
 public void removeProblems(Object sourceID) {
 	/* Delegate first to the backing problem table. */
 	fProblemTable.removeProblems(sourceID);
-
+
 	/* Now update the markers. */
 	IResource resource = getResource(sourceID);
 	if (resource != null) {
@@ -236,21 +237,13 @@ public void removeSyntaxErrors(Object sourceID) {
 	removeMarkers(sourceID, true);
 }
 /**
- * Sets the extra flags for the given marker.
- */
-protected void setFlags(IMarker marker, int flags) throws CoreException {
-	// Don't take space if no extra flags.
-	marker.setAttribute(IJavaModelMarker.FLAGS, flags == 0 ? null : new Integer(flags));
-}
-
-/**
  * Creates a new MarkerProblemReporter that reports problems as markers 
  * against the given project.
  */
 public MarkerProblemReporter(IProject project, IDevelopmentContext dc) {
 	initialize(project, dc);
 }
-
+
 /**
  * @see org.eclipse.jdt.internal.core.builder.IProblemReporter
  */

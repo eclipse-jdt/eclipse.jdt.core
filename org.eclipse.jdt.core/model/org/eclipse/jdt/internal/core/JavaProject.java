@@ -1426,9 +1426,9 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 	private void createClasspathProblemMarker(IClasspathEntry entry, String message){
 		try {
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, message);
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-			marker.setAttribute(IMarker.LOCATION, Util.bind("classpath.buildPath"/*nonNLS*/));
+			marker.setAttributes(
+				new String[]{ IMarker.MESSAGE, IMarker.SEVERITY, IMarker.LOCATION},
+				new Object[]{message, new Integer(IMarker.SEVERITY_WARNING), Util.bind("classpath.buildPath"/*nonNLS*/)});
 		} catch (CoreException e) {
 		}		
 	}

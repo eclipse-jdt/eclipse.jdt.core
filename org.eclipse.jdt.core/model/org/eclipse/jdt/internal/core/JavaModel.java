@@ -102,10 +102,9 @@ protected int computeDepth(String projectName, StringHashtableOfInt depthTable, 
 			if (generateMarkerOnError) {
 				try {
 					IMarker marker = this.workspace.getRoot().getProject(dependentProjectName).createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttribute(IMarker.MESSAGE, Util.bind("classpath.cycle"/*nonNLS*/));
-					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-					marker.setAttribute(IMarker.LOCATION, dependentProjectName);
-					marker.setAttribute(IJavaModelMarker.CYCLE_DETECTED, dependentProjectName);
+					marker.setAttributes(
+						new String[]{ IMarker.MESSAGE, IMarker.PRIORITY, IMarker.LOCATION, IJavaModelMarker.CYCLE_DETECTED},
+						new Object[]{ Util.bind("classpath.cycle"/*nonNLS*/), new Integer(IMarker.PRIORITY_HIGH), dependentProjectName, dependentProjectName});
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
