@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public abstract class Binding implements CompilerModifiers, ProblemReasons {
-	
+
 	// binding kinds
 	public static final int FIELD = 1;
 	public static final int LOCAL = 2;
@@ -20,7 +20,7 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public static final int METHOD = 8;
 	public static final int PACKAGE = 16;
 	public static final int IMPORT = 32;
-	
+
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
 	*
@@ -31,7 +31,6 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	/* API
 	* Answer true if the receiver is not a problem binding
 	*/
-	
 	public final boolean isValidBinding() {
 		return problemId() == NoError;
 	}
@@ -46,7 +45,6 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	/* Answer a printable representation of the receiver.
 	*/
 	public abstract char[] readableName();
-
 	/* Shorter printable representation of the receiver (no qualified type)
 	 */	
 	public char[] shortReadableName(){

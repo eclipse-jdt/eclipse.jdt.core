@@ -45,7 +45,7 @@ public MethodBinding[] availableMethods() {
 */
 
 public boolean canBeInstantiated() {
-	return (this.modifiers & (AccAbstract|AccInterface|AccEnum|AccAnnotation)) == 0;
+	return (this.modifiers & (AccAbstract | AccInterface | AccEnum | AccAnnotation)) == 0;
 }
 /* Answer true if the receiver is visible to the invocationPackage.
 */
@@ -541,7 +541,7 @@ public final boolean isBinaryBinding() {
 	return (tagBits & IsBinaryBinding) != 0;
 }
 public boolean isClass() {
-	return (modifiers & (AccInterface|AccAnnotation|AccEnum)) == 0;
+	return (modifiers & (AccInterface | AccAnnotation | AccEnum)) == 0;
 }
 /*
  * Returns true if the type hierarchy is being connected

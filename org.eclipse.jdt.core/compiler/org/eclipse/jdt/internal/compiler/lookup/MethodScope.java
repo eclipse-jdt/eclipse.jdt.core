@@ -136,7 +136,7 @@ public class MethodScope extends BlockScope {
 		int realModifiers = modifiers & AccJustFlag;
 
 		// set the requested modifiers for a method in an interface/annotation
-		if (methodBinding.declaringClass.isInterface() || methodBinding.declaringClass.isAnnotationType()) {
+		if ((methodBinding.declaringClass.modifiers & AccInterface) != 0) {
 			if ((realModifiers & ~(AccPublic | AccAbstract)) != 0)
 				problemReporter().illegalModifierForInterfaceMethod(
 					methodBinding.declaringClass,
