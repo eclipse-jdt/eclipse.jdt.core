@@ -142,15 +142,16 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			if (JavaBuilder.DEBUG)
 				System.out.println("About to compile " + filename); //$NON-NLS-1$
 			String typeName = initialTypeNames[i];
-			toCompile[i] = new SourceFile(filename,
-				CharOperation.splitOn('/', typeName.toCharArray(), 0, typeName.lastIndexOf('/') - 1));
+			char[] typeNameChars = typeName.toCharArray();
+		toCompile[i] = new SourceFile(filename,
+				CharOperation.splitOn('/', typeNameChars, typeNameChars[0] == '/' ? 1 : 0, typeName.lastIndexOf('/') - 1));
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
 		int i = 0;
 		boolean compilingFirstGroup = true;
 		while (i < toDo) {
-			int doNow = Math.min(toDo, MAX_AT_ONCE);
+			int doNow = toDo < MAX_AT_ONCE ? toDo : MAX_AT_ONCE;
 			int index = 0;
 			SourceFile[] toCompile = new SourceFile[doNow];
 			String[] initialNamesInLoop = new String[doNow];
