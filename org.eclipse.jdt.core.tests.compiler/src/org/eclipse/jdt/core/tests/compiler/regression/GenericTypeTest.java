@@ -13496,4 +13496,26 @@ public void test498(){
 		true,
 		customOptions);
 }	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85157
+public void test499(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"		 public static void main(String argv[]) {\n" + 
+			"		 		 String[] tab1 = new String[0];\n" + 
+			"		 		 Integer[] tab2 = new Integer[0];\n" + 
+			"		 		 boolean cond = true;\n" + 
+			"		 		 Integer[] var = cond ? tab1 : tab2;\n" + 
+			"		 		 System.out.println(var);\n" + 
+			"		 }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Integer[] var = cond ? tab1 : tab2;\n" + 
+		"	          ^^^\n" + 
+		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Integer[]\n" + 
+		"----------\n");
+}	
 }

@@ -2610,6 +2610,7 @@ public abstract class Scope
 		return false;
 	}
 	private TypeBinding leastContainingInvocation(TypeBinding mec, Set invocations, List lubStack) {
+		if (invocations == null) return mec; // no alternate invocation
 		int length = invocations.size();
 		Iterator iter = invocations.iterator();
 		if (length == 1) return (TypeBinding) iter.next();
