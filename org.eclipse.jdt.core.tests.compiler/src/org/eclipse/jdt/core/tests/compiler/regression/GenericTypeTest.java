@@ -15788,6 +15788,7 @@ public void test500(){
 				"\n" + 
 				"class MyListImpl<G> implements MyList<G> {\n" + 
 				"	public G get() {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
 				"}\n" + 
@@ -15801,7 +15802,7 @@ public void test500(){
 				"public class X {\n" + 
 				"	public static void main(String[] args) {\n" + 
 				"		Foo f = new StringListImpl();\n" + 
-				"		System.out.println(\"SUCCESS\");\n" + 
+				"		f.get();\n" +
 				"	}\n" + 
 				"}\n",
 			},

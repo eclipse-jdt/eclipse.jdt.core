@@ -116,7 +116,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 			}
 		}
 
-		this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod);
+		this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 	}
 }
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] otherInheritedMethods) {
@@ -140,7 +140,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 		}
 	}
 
-	if (this.type.addSyntheticBridgeMethod(originalInherited, currentMethod) != null) {
+	if (this.type.addSyntheticBridgeMethod(originalInherited, currentMethod.original()) != null) {
 		for (int i = 0, l = otherInheritedMethods.length; i < l; i++) {
 			if (otherInheritedMethods[i] != null) {
 				MethodBinding otherOriginal = otherInheritedMethods[i].original();
