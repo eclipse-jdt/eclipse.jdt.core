@@ -1080,7 +1080,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	
 	private final void dumpTab(int tabNumber, StringBuffer buffer) {
 		for (int i = 0; i < tabNumber; i++) {
-			buffer.append(Util.bind("disassembler.identation")); //$NON-NLS-1$
+			buffer.append(Util.bind("disassembler.indentation")); //$NON-NLS-1$
 		}
 	} 
 	

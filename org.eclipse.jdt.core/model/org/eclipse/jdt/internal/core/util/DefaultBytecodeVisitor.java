@@ -59,7 +59,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			buffer.append(' ');
 		}
 		buffer.append(pc);
-		buffer.append(Util.bind("disassembler.identation")); //$NON-NLS-1$
+		buffer.append(Util.bind("disassembler.indentation")); //$NON-NLS-1$		
 	}
 
 	/**
@@ -2272,13 +2272,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 	private void writeTabs() {
 		for (int i = 0, max = this.tabNumber; i < max; i++) {
-			this.buffer.append(Util.bind("disassembler.identation")); //$NON-NLS-1$
+			this.buffer.append(Util.bind("disassembler.indentation")); //$NON-NLS-1$
 		}
 	}	
 
 	private void writeExtraTabs(int extraTabs) {
 		for (int i = 0, max = this.tabNumber + extraTabs; i < max; i++) {
-			this.buffer.append(Util.bind("disassembler.identation")); //$NON-NLS-1$
+			this.buffer.append(Util.bind("disassembler.indentation")); //$NON-NLS-1$
 		}
 	}	
 
