@@ -26,6 +26,9 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -88,6 +91,18 @@ protected void assertMarkers(String message, String expectedMarkers, IJavaProjec
 	 	System.out.println(Util.displayString(actual, 2));
 	}
 	assertEquals(message, expectedMarkers, actual);
+}
+protected File createFile(File parent, String name, String content) throws IOException {
+	File file = new File(parent, name);
+	FileOutputStream out = new FileOutputStream(file);
+	out.write(content.getBytes());
+	out.close();
+	return file;
+}
+protected File createFolder(File parent, String name) throws IOException {
+	File file = new File(parent, name);
+	file.mkdirs();
+	return file;
 }
 protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreException {
 	IMarker[] markers = javaProject.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
@@ -2193,5 +2208,115 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		}
 	}
 }
+/*
+ * test for bug 32690
+ */
+public void testNestedSourceFolders() throws CoreException {
+	try {
+		final IProject project = getProject("P");
+		
+		project.create(null);
+		project.open(null);
+		
+		try {
+			File pro = project.getLocation().toFile();
+			File src = ClasspathTests.this.createFolder(pro, "src");
+			ClasspathTests.this.createFolder(src, "src2");
+			
+			ClasspathTests.this.createFile(pro, ".project", 
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<projectDescription>\n" +
+				"	<name>org.eclipse.jdt.core</name>\n" +
+				"	<comment></comment>\n" +
+				"	<projects>\n" +
+				"	</projects>\n" +
+				"	<buildSpec>\n" +
+				"		<buildCommand>\n" +
+				"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+				"			<arguments>\n" +
+				"			</arguments>\n" +
+				"		</buildCommand>\n" +
+				"	</buildSpec>\n" +
+				"	<natures>\n" +
+				"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+				"	</natures>\n" +
+				"</projectDescription>");
 
+
+			ClasspathTests.this.createFile(pro, ".classpath",
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<classpath>\n" +
+				"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+				"    <classpathentry kind=\"src\" path=\"src/src2\"/>\n" +
+				"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+				"</classpath>"
+			);
+		} catch (IOException e) {
+			assertTrue(e.getMessage(), false);
+		}
+		project.refreshLocal(IResource.DEPTH_INFINITE,null);
+		this.assertMarkers(
+		"Unexpected markers",
+		"Cannot nest \'P/src/src2\' inside \'P/src\'. To enable the nesting exclude \'src2/\' from \'P/src\'.",
+		JavaCore.create(project));
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * test for bug 32974
+ */
+public void testOutputFolder1() throws CoreException {
+	try {
+		final IProject project = getProject("P");
+		
+		project.create(null);
+		project.open(null);
+		
+		try {
+			File pro = project.getLocation().toFile();
+			File src = ClasspathTests.this.createFolder(pro, "src");
+			ClasspathTests.this.createFolder(src, "src2");
+			
+			ClasspathTests.this.createFile(pro, ".project", 
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<projectDescription>\n" +
+				"	<name>org.eclipse.jdt.core</name>\n" +
+				"	<comment></comment>\n" +
+				"	<projects>\n" +
+				"	</projects>\n" +
+				"	<buildSpec>\n" +
+				"		<buildCommand>\n" +
+				"			<name>org.eclipse.jdt.core.javabuilder</name>\n" +
+				"			<arguments>\n" +
+				"			</arguments>\n" +
+				"		</buildCommand>\n" +
+				"	</buildSpec>\n" +
+				"	<natures>\n" +
+				"		<nature>org.eclipse.jdt.core.javanature</nature>\n" +
+				"	</natures>\n" +
+				"</projectDescription>");
+
+
+			ClasspathTests.this.createFile(pro, ".classpath",
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<classpath>\n" +
+				"    <classpathentry kind=\"src\" output=\"bin2\" path=\"src1\"/>\n" +
+				"    <classpathentry kind=\"src\" path=\"src2\"/>\n" +
+				"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+				"</classpath>"
+			);
+		} catch (IOException e) {
+			assertTrue(e.getMessage(), false);
+		}
+		project.refreshLocal(IResource.DEPTH_INFINITE,null);
+		this.assertMarkers(
+		"Unexpected markers",
+		"Missing required source folder: \'P/src1\'.\n" + 
+		"Missing required source folder: \'P/src2\'.",
+		JavaCore.create(project));
+	} finally {
+		this.deleteProject("P");
+	}
+}
 }
