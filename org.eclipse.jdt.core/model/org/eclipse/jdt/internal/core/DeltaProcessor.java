@@ -1703,8 +1703,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 				// is childRes in the output folder and is it filtered out ?
 				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(outputsInfo, childRes, childType);
 
+				boolean isNestedRoot = rootInfo != null && childRootInfo != null;
 				if (!isResFilteredFromOutput 
-						&& childRootInfo == null) { // do not treat as non-java rsc in rootInfo if nested root (childRootInfo)
+						&& !isNestedRoot) { // do not treat as non-java rsc if nested root
 					if (childType == -1
 							|| !this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
 						
