@@ -18,31 +18,36 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * Creates a new shared working copy and signal its addition through a delta.
+ * Creates a new working copy and signal its addition through a delta.
  */
-public class CreateSharedWorkingCopyOperation extends JavaModelOperation {
+public class CreateWorkingCopyOperation extends JavaModelOperation {
 	
 	Map perFactoryWorkingCopies;
 	IBufferFactory factory;
 	IProblemRequestor problemRequestor;
 	
-	public CreateSharedWorkingCopyOperation(ICompilationUnit originalElement, Map perFactoryWorkingCopies, IBufferFactory factory, IProblemRequestor problemRequestor) {
+	/*
+	 * Creates a working copy from the given original cu and the given buffer factory.
+	 * perFactoryWorkingCopies map is not null if the working copy is a shared working copy.
+	 */
+	public CreateWorkingCopyOperation(ICompilationUnit originalElement, Map perFactoryWorkingCopies, IBufferFactory factory, IProblemRequestor problemRequestor) {
 		super(new IJavaElement[] {originalElement});
 		this.perFactoryWorkingCopies = perFactoryWorkingCopies;
 		this.factory = factory;
 		this.problemRequestor = problemRequestor;
 	}
-	/**
-	 * @exception JavaModelException if setting the source
-	 * 	of the original compilation unit fails
-	 */
 	protected void executeOperation() throws JavaModelException {
 		ICompilationUnit cu = getCompilationUnit();
-		WorkingCopy workingCopy = (WorkingCopy)cu.getWorkingCopy(fMonitor, this.factory, this.problemRequestor);
-		this.perFactoryWorkingCopies.put(cu, workingCopy);
 
-		if (CompilationUnit.SHARED_WC_VERBOSE) {
-			System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
+		WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)cu.getParent(), cu.getElementName(), this.factory, this.problemRequestor);
+		// open the working copy now to ensure contents are that of the current state of this element
+		workingCopy.open(fMonitor);
+
+		if (this.perFactoryWorkingCopies != null) {
+			this.perFactoryWorkingCopies.put(cu, workingCopy);
+			if (CompilationUnit.SHARED_WC_VERBOSE) {
+				System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
+			}
 		}
 
 		// report added java delta

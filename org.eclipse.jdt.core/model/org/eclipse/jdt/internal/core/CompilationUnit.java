@@ -561,7 +561,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 
 		return workingCopy;
 	} else {
-		CreateSharedWorkingCopyOperation op = new CreateSharedWorkingCopyOperation(this, perFactoryWorkingCopies, factory, problemRequestor);
+		CreateWorkingCopyOperation op = new CreateWorkingCopyOperation(this, perFactoryWorkingCopies, factory, problemRequestor);
 		runOperation(op, pm);
 		return op.getResultElements()[0];
 	}
@@ -577,10 +577,9 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  */
 public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
-	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory, problemRequestor);
-	// open the working copy now to ensure contents are that of the current state of this element
-	workingCopy.open(pm);
-	return workingCopy;
+	CreateWorkingCopyOperation op = new CreateWorkingCopyOperation(this, null, factory, problemRequestor);
+	runOperation(op, pm);
+	return op.getResultElements()[0];
 }
 
 /**

@@ -13,8 +13,6 @@ package org.eclipse.jdt.internal.core;
 import java.io.*;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -121,27 +119,8 @@ public void destroy() {
 		return;
 	}
 	try {
-		close();
-		
-		// if original element is not on classpath flush it from the cache 
-		IJavaElement originalElement = this.getOriginalElement();
-		if (!this.getParent().exists()) {
-			((CompilationUnit)originalElement).close();
-		}
-		
-		// remove working copy from the cache
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		
-		// In order to be shared, working copies have to denote the same compilation unit 
-		// AND use the same buffer factory.
-		// Assuming there is a little set of buffer factories, then use a 2 level Map cache.
-		Map sharedWorkingCopies = manager.sharedWorkingCopies;
-		
-		Map perFactoryWorkingCopies = (Map) sharedWorkingCopies.get(this.bufferFactory);
-		if (perFactoryWorkingCopies != null){
-			RemoveSharedWorkingCopyOperation op = new RemoveSharedWorkingCopyOperation(originalElement, perFactoryWorkingCopies);
-			runOperation(op, null);
-		}		
+		DestroyWorkingCopyOperation op = new DestroyWorkingCopyOperation(this);
+		runOperation(op, null);
 	} catch (JavaModelException e) {
 		// do nothing
 	}

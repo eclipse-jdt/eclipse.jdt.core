@@ -95,7 +95,10 @@ public interface IWorkingCopy {
 	 * If this working copy is shared, it is destroyed only when the number of calls to
 	 * <code>destroy()</code> is the same as the number of calls to <code>
 	 * getSharedWorkingCopy(IProgressMonitor, IBufferFactory)</code>. 
-	 * A REMOVED IJavaElementDelta is then reported on this working copy.
+	 * </p><p>
+	 * When it is destroyed, a REMOVED IJavaElementDelta is reported on this 
+	 * working copy.
+	 * </p>
 	 */
 	void destroy();
 	
@@ -214,6 +217,9 @@ public interface IWorkingCopy {
 	 * Note: if intending to share a working copy amongst several clients, then 
 	 * <code>#getSharedWorkingCopy</code> should be used instead.
 	 * </p><p>
+	 * When the working copy instance is created, an ADDED IJavaElementDelta is 
+	 * reported on this working copy.
+	 * </p><p>
 	 * Since 2.1, a working copy can be created on a not-yet existing compilation
 	 * unit. In particular, such a working copy can then be committed in order to create
 	 * the corresponding compilation unit.
@@ -235,6 +241,9 @@ public interface IWorkingCopy {
 	 * <p>
 	 * Note: if intending to share a working copy amongst several clients, then 
 	 * <code>#getSharedWorkingCopy</code> should be used instead.
+	 * </p><p>
+	 * When the working copy instance is created, an ADDED IJavaElementDelta is 
+	 * reported on this working copy.
 	 * </p><p>
 	 * Since 2.1, a working copy can be created on a not-yet existing compilation
 	 * unit. In particular, such a working copy can then be committed in order to create

@@ -39,9 +39,23 @@ Eclipse SDK 2.1 Build - ?th March 2003
 <br>Project org.eclipse.jdt.core v_302
 <h2>
 What's new in this drop</h2>
+<ul>
+<li>The creation and destruction of of regular working copy (as opposed to a shared working copy) now fires an
+      <code>ElementChangedEvent</code> as well indicating that the working copy has been <code>ADDED</code>
+      or <code>REMOVED</code>.
+      <br>See: 
+      <ul>
+      <li><code>IWorkingCopy.getWorkingCopy()</code></li>
+      <li><code>IWorkingCopy.getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</code></li>
+      <li><code>IWorkingCopy.destroy()</code></li>
+      </ul>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=33692">33692</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32981">32981</a>
+Cancel Extract Interface refactoring does not cleanup working copies 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=33692">33692</a>
 Cleanup in the batch compiler default options
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=33653">33653</a>
 Relevance - should privilege type not needing qualification

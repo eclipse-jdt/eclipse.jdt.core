@@ -141,6 +141,8 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testAddCommentAndCommit"));
 	
 	// managed working copies
+	suite.addTest(new JavaElementDeltaTests("testCreateWorkingCopy"));
+	suite.addTest(new JavaElementDeltaTests("testDestroyWorkingCopy"));
 	suite.addTest(new JavaElementDeltaTests("testCreateSharedWorkingCopy"));
 	suite.addTest(new JavaElementDeltaTests("testDestroySharedWorkingCopy"));
 	
@@ -641,6 +643,29 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+public void testCreateWorkingCopy() throws CoreException {
+	IWorkingCopy copy = null;
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFile("P/X.java",
+			"public class X {\n" +
+			"}");
+		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
+		this.startDeltas();
+		copy = (IWorkingCopy)unit.getWorkingCopy();
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" +
+			"	[project root][*]: {CHILDREN}\n" +
+			"		[default][*]: {CHILDREN}\n" +
+			"			[Working copy] X.java[+]: {}"
+		);
+	} finally {
+		this.stopDeltas();
+		if (copy != null) copy.destroy();
+		this.deleteProject("P");
+	}
+}
 /*
  * Ensure that deleting a jar that is in a folder and that is on the classpath reports
  * a removed  pkg fragment root delta.
@@ -798,6 +823,29 @@ public void testDestroySharedWorkingCopy() throws CoreException {
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
 		copy = (IWorkingCopy)unit.getSharedWorkingCopy(null, null, null);
+		this.startDeltas();
+		copy.destroy();
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" +
+			"	[project root][*]: {CHILDREN}\n" +
+			"		[default][*]: {CHILDREN}\n" +
+			"			[Working copy] X.java[-]: {}"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+public void testDestroyWorkingCopy() throws CoreException {
+	IWorkingCopy copy = null;
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFile("P/X.java",
+			"public class X {\n" +
+			"}");
+		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
+		copy = (IWorkingCopy)unit.getWorkingCopy();
 		this.startDeltas();
 		copy.destroy();
 		assertDeltas(
