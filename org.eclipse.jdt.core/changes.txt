@@ -18,6 +18,9 @@ What's new in this drop (since 0.9)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GJU3YV: ITPJCORE:ALL - ArrayIndexOutOfBoundsException in scanner
+1GJL1R5: ITPJCORE:ALL - NPE in ClassFile.getSourceRange
+1GH49XR: ITPJUI:WIN2000 - Organize Imports inserts bogus import
 1GJU3O8: ITPJCORE:WINNT - type hierarchy: NPE
 1GJIYKP: ITPJCORE:WINNT - type hierarchy - contains unrelated types
 1GITFQR: IVJIDT:WIN2000 - Wrong byte code generation, Inconsistent stack height 1 != 0 error
