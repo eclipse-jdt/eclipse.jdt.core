@@ -11,15 +11,9 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 public class ConstructorPattern extends SearchPattern {
-
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new ConstructorPattern(false, false, null,null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
 
 protected boolean findDeclarations;
 protected boolean findReferences;
@@ -32,14 +26,12 @@ public char[][] parameterSimpleNames;
 public int parameterCount;
 
 public static char[] createIndexKey(char[] typeName, int argCount) {
-	ConstructorPattern record = getConstructorRecord();
-	record.declaringSimpleName = typeName;
-	record.parameterCount = argCount;
-	return record.encodeIndexKey();
+	ConstructorPattern pattern = new ConstructorPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
+	pattern.declaringSimpleName = typeName;
+	pattern.parameterCount = argCount;
+	return pattern.encodeIndexKey();
 }
-public static ConstructorPattern getConstructorRecord() {
-	return (ConstructorPattern)indexRecord.get();
-}
+
 public ConstructorPattern(
 	boolean findDeclarations,
 	boolean findReferences,
@@ -49,27 +41,29 @@ public ConstructorPattern(
 	char[][] parameterSimpleNames,
 	int matchRule) {
 
-	super(CONSTRUCTOR_PATTERN, matchRule);
+	this(matchRule);
 
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
 
-	boolean isCaseSensitive = isCaseSensitive();
-	this.declaringQualification = isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
 		this.parameterQualifications = new char[this.parameterCount][];
 		this.parameterSimpleNames = new char[this.parameterCount][];
 		for (int i = 0; i < this.parameterCount; i++) {
-			this.parameterQualifications[i] = isCaseSensitive ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
-			this.parameterSimpleNames[i] = isCaseSensitive ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
+			this.parameterQualifications[i] = this.isCaseSensitive ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
+			this.parameterSimpleNames[i] = this.isCaseSensitive ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
 		}
 	} else {
 		this.parameterCount = -1;
 	}
 
 	this.mustResolve = mustResolve();
+}
+ConstructorPattern(int matchRule) {
+	super(CONSTRUCTOR_PATTERN, matchRule);
 }
 public void decodeIndexKey(char[] key) {
 	int size = key.length;
@@ -87,8 +81,8 @@ public void decodeIndexKey(char[] key) {
  */
 public char[] encodeIndexKey() {
 	// will have a common pattern in the new story
-	if (isCaseSensitive() && this.declaringSimpleName != null) {
-		switch(matchMode()) {
+	if (this.isCaseSensitive && this.declaringSimpleName != null) {
+		switch(this.matchMode) {
 			case EXACT_MATCH :
 				int arity = this.parameterCount;
 				if (arity >= 0) {
@@ -112,8 +106,8 @@ public char[] encodeIndexKey() {
 	}
 	return CharOperation.NO_CHAR; // find them all
 }
-public SearchPattern getIndexRecord() {
-	return getConstructorRecord();
+public SearchPattern getBlankPattern() {
+	return new ConstructorPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	if (this.findReferences)
@@ -121,17 +115,15 @@ public char[][] getMatchCategories() {
 			return new char[][] {CONSTRUCTOR_REF, CONSTRUCTOR_DECL};
 		else
 			return new char[][] {CONSTRUCTOR_REF};
-	else
-		if (this.findDeclarations)
-			return new char[][] {CONSTRUCTOR_DECL};
-		else
-			return CharOperation.NO_CHAR_CHAR;
+	else if (this.findDeclarations)
+		return new char[][] {CONSTRUCTOR_DECL};
+	return CharOperation.NO_CHAR_CHAR;
 }
-public boolean isMatchingIndexRecord() {
-	ConstructorPattern record = getConstructorRecord();
-	if (this.parameterCount != -1 && this.parameterCount != record.parameterCount) return false;
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
+	if (this.parameterCount != -1 && this.parameterCount != pattern.parameterCount) return false;
 
-	return matchesName(this.declaringSimpleName, record.declaringSimpleName);
+	return matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
 }
 protected boolean mustResolve() {
 	if (this.declaringQualification != null) return true;
@@ -170,7 +162,7 @@ public String toString() {
 	}
 	buffer.append(')');
 	buffer.append(", "); //$NON-NLS-1$
-	switch(matchMode()) {
+	switch(this.matchMode) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -181,7 +173,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(this.isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -174,6 +174,19 @@ public void testClassFileGetElementAt() throws JavaModelException {
 		elt != null &&
 		elt.getElementType() == IJavaElement.METHOD &&
 		elt.getElementName().equals("foo"));
+}
+/*
+ * Ensures that the source of a .class file is implicetely attached when prj=src=bin
+ * (regression test for bug 41444 [navigation] error dialog on opening class file)
+ */
+public void testClassFileInOutput() throws CoreException {
+	IClassFile classFile = getClassFile("AttachSourceTests/src/A.class");
+	String source = classFile.getSource();
+	assertSourceEquals(
+		"Unexpected source",
+		"public class A {\n" + 
+		"}",
+		source);
 }
 /**
  * Retrieves the source code for "A.class", which is

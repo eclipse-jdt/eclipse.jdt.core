@@ -154,7 +154,7 @@ public interface IProblem {
 	 * Set the start position of the problem (inclusive), or -1 if unknown.
 	 * Used for shifting problem positions.
 	 * 
-	 * @param the given start position
+	 * @param sourceStart the given start position
 	 */
 	void setSourceStart(int sourceStart);
 	

@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -41,7 +41,7 @@ class AddFolderToIndex extends IndexRequest {
 		if (folder == null || folder.getType() == IResource.FILE) return true; // nothing to do, source folder was removed
 
 		/* ensure no concurrent write access to index */
-		IIndex index = manager.getIndex(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+		Index index = manager.getIndex(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired

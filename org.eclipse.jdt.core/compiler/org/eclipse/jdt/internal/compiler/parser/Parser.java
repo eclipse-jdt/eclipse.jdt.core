@@ -169,7 +169,8 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private int synchronizedBlockSourceStart;
 	protected int[] variablesCounter;
 
-	public Javadoc javadoc;	// javadoc
+	public Javadoc javadoc;
+	// javadoc
 	public JavadocParser javadocParser;	static {
 		try{
 			initTables();
@@ -7344,6 +7345,10 @@ public void initialize() {
 	lastIgnoredToken = -1;
 	lastErrorEndPosition = -1;
 	listLength = 0;
+	
+	rBraceStart = 0;
+	rBraceEnd = 0;
+	rBraceSuccessorStart = 0;
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(

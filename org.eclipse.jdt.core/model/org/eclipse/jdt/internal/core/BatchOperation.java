@@ -31,7 +31,7 @@ public class BatchOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 		try {
-			this.runnable.run(progressMonitor);
+			this.runnable.run(this.progressMonitor);
 		} catch (CoreException ce) {
 			if (ce instanceof JavaModelException) {
 				throw (JavaModelException)ce;

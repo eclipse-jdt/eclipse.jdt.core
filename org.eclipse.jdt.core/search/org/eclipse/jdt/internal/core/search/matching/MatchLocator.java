@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
@@ -32,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
@@ -85,32 +85,31 @@ public long resultCollectorTime = 0;
 public class LocalDeclarationVisitor extends ASTVisitor {
 	IJavaElement enclosingElement;
 	MatchingNodeSet nodeSet;
-	// TODO (jerome) Use an HashtableOfIntValues instead
-	HashMap occurrencesCounts = new HashMap(); // key = class name (String), value = occurrenceCount (Integer)
+	HashtableOfIntValues occurrencesCounts = new HashtableOfIntValues(); // key = class name (char[]), value = occurrenceCount (int)
 	public LocalDeclarationVisitor(IJavaElement enclosingElement, MatchingNodeSet nodeSet) {
 		this.enclosingElement = enclosingElement;
 		this.nodeSet = nodeSet;
 	}
 	public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
 		try {
-			String simpleName;
+			char[] simpleName;
 			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
-				simpleName = ""; //$NON-NLS-1$
+				simpleName = CharOperation.NO_CHAR;
 			} else {
-				simpleName = new String(typeDeclaration.name);
+				simpleName = typeDeclaration.name;
 			}
-			Integer occurrenceCount = (Integer)occurrencesCounts.get(simpleName);
-			if (occurrenceCount == null) {
-				occurrenceCount = new Integer(1);
+			int occurrenceCount = occurrencesCounts.get(simpleName);
+			if (occurrenceCount == HashtableOfIntValues.NO_VALUE) {
+				occurrenceCount = 1;
 			} else {
-				occurrenceCount = new Integer(occurrenceCount.intValue()+1);
+				occurrenceCount = occurrenceCount + 1;
 			}
 			occurrencesCounts.put(simpleName, occurrenceCount);
 			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
-				reportMatching(typeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount.intValue());
+				reportMatching(typeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount);
 			} else {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-				reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount.intValue());
+				reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
 			}
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
@@ -338,7 +337,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 			if (methods != null) {
 				boolean firstIsSynthetic = false;
 				try {
-					if (type.isMember() && method.isConstructor() && !method.isStatic()) {
+					if (type.isMember() && method.isConstructor() && !Flags.isStatic(type.getFlags())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
 						firstIsSynthetic = true;
 						argCount++;
 					}
@@ -1260,7 +1259,11 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	} else if (enclosingElement instanceof IType) {
 		enclosingElement = ((IType) parent).getType(new String(type.name));
 	} else if (enclosingElement instanceof IMember) {
-		enclosingElement = ((IMember) parent).getType(new String(type.name), occurrenceCount);
+	    IMember member = (IMember) parent;
+	    if (member.isBinary()) 
+	        enclosingElement = parent;
+	    else
+			enclosingElement = member.getType(new String(type.name), occurrenceCount);
 	}
 	if (enclosingElement == null) return;
 

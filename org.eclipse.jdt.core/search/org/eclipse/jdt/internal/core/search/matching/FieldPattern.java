@@ -11,15 +11,9 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 public class FieldPattern extends VariablePattern {
-
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
 
 // declaring type
 protected char[] declaringQualification;
@@ -34,12 +28,7 @@ protected static char[][] REF_AND_DECL_CATEGORIES = { FIELD_REF, REF, FIELD_DECL
 protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
 
 public static char[] createIndexKey(char[] fieldName) {
-	FieldPattern record = getFieldRecord();
-	record.name = fieldName;
-	return record.encodeIndexKey();
-}
-public static FieldPattern getFieldRecord() {
-	return (FieldPattern)indexRecord.get();
+	return fieldName != null ? fieldName : CharOperation.NO_CHAR;
 }
 
 public FieldPattern(
@@ -55,11 +44,10 @@ public FieldPattern(
 
 	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchRule);
 
-	boolean isCaseSensitive = isCaseSensitive();
-	this.declaringQualification = isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
-	this.typeQualification = isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
-	this.typeSimpleName = isCaseSensitive ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
+	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.typeQualification = this.isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
+	this.typeSimpleName = this.isCaseSensitive ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
 
 	this.mustResolve = mustResolve();
 }
@@ -69,16 +57,16 @@ public void decodeIndexKey(char[] key) {
 public char[] encodeIndexKey() {
 	return encodeIndexKey(this.name);
 }
-public SearchPattern getIndexRecord() {
-	return getFieldRecord();
+public SearchPattern getBlankPattern() {
+	return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	return this.findReferences
 			? (this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES)
 			: DECL_CATEGORIES;
 }
-public boolean isMatchingIndexRecord() {
-	return matchesName(this.name, getFieldRecord().name);
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	return matchesName(this.name, ((FieldPattern) decodedPattern).name);
 }
 /**
  * Returns whether a method declaration or message send will need to be resolved to 
@@ -115,7 +103,7 @@ public String toString() {
 		buffer.append(typeSimpleName);
 	else if (typeQualification != null) buffer.append("*"); //$NON-NLS-1$
 	buffer.append(", "); //$NON-NLS-1$
-	switch(matchMode()){
+	switch(this.matchMode) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -126,7 +114,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(this.isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

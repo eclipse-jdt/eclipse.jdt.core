@@ -51,6 +51,10 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.sourceName = scope.referenceContext.name;
 	this.scope = scope;
 
+	// expect the fields & methods to be initialized correctly later
+	this.fields = NoFields;
+	this.methods = NoMethods;
+
 	computeId();
 }
 private void addDefaultAbstractMethod(MethodBinding abstractMethod) {

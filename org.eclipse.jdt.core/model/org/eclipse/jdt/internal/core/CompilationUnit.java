@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,8 +32,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
-	
-	public static final boolean USE_LOCAL_ELEMENTS = true;
 	
 	public WorkingCopyOwner owner;
 
@@ -77,7 +75,7 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 		close();
 
 		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(this, path, problemRequestor);
-		runOperation(operation, null);
+		operation.runOperation(monitor);
 	}
 }
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
@@ -114,7 +112,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		requestor, 
 		problemFactory, 
 		new CompilerOptions(getJavaProject().getOptions(true)),
-		USE_LOCAL_ELEMENTS/*report local declarations*/);
+		true/*report local declarations*/);
 	requestor.parser = parser;
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
@@ -129,7 +127,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			public char[] getFileName() {
 				return CompilationUnit.this.getFileName();
 			}
-		}, USE_LOCAL_ELEMENTS /*full parse if use local elements only*/);
+		}, true /*full parse to find local elements*/);
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
@@ -281,7 +279,7 @@ public void commit(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 /**
  * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
@@ -312,7 +310,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return getImport(importName);
 }
 /**
@@ -321,7 +319,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 public IPackageDeclaration createPackageDeclaration(String pkg, IProgressMonitor monitor) throws JavaModelException {
 	
 	CreatePackageDeclarationOperation op= new CreatePackageDeclarationOperation(pkg, this);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return getPackageDeclaration(pkg);
 }
 /**
@@ -337,13 +335,13 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, this.name, source, force);
-		runOperation(op, monitor);
+		op.runOperation(monitor);
 	}
 	CreateTypeOperation op = new CreateTypeOperation(this, content, force);
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return (IType) op.getResultElements()[0];
 }
 /**
@@ -370,7 +368,7 @@ public void destroy() {
 public void discardWorkingCopy() throws JavaModelException {
 	// discard working copy and its children
 	DiscardWorkingCopyOperation op = new DiscardWorkingCopyOperation(this);
-	runOperation(op, null);
+	op.runOperation(null);
 }
 /**
  * Returns true if this handle represents the same Java element
@@ -832,7 +830,7 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 		return perWorkingCopyInfo.getWorkingCopy(); // return existing handle instead of the one created above
 	}
 	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, path, problemRequestor);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return workingCopy;
 }
 /**
@@ -1049,7 +1047,7 @@ public void reconcile(
 		}			
 		// reconcile
 		ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
-		runOperation(op, monitor);
+		op.runOperation(monitor);
 	} finally {
 		if (lookup != null) {
 			lookup.setUnitsToLookInside(null);

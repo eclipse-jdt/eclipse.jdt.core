@@ -33,16 +33,16 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	 * Match rule: The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
 	 */
-	public static final int R_EXACT_MATCH = 0;
+	public static final int R_EXACT_MATCH = EXACT_MATCH;
 	/**
 	 * Match rule: The search pattern is a prefix of the search result.
 	 */
-	public static final int R_PREFIX_MATCH = 1;
+	public static final int R_PREFIX_MATCH = PREFIX_MATCH;
 	/**
 	 * Match rule: The search pattern contains one or more wild cards ('*') where a 
 	 * wild-card can replace 0 or more characters in the search result.
 	 */
-	public static final int R_PATTERN_MATCH = 2;
+	public static final int R_PATTERN_MATCH = PATTERN_MATCH;
 	/**
 	 * Match rule: The search pattern contains a regular expression.
 	 */
@@ -746,7 +746,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 				if (lastDot == -1) return null; // invalid import declaration
 				IImportDeclaration importDecl = (IImportDeclaration)element;
 				if (importDecl.isOnDemand()) {
-					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, EXACT_MATCH, CASE_SENSITIVE);
+					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, R_EXACT_MATCH, true);
 				} else {
 					searchPattern = 
 						createTypePattern(
@@ -950,7 +950,7 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
 			case IJavaElement.PACKAGE_FRAGMENT :
-				searchPattern = createPackagePattern(element.getElementName(), limitTo, EXACT_MATCH, CASE_SENSITIVE);
+				searchPattern = createPackagePattern(element.getElementName(), limitTo, R_EXACT_MATCH, true);
 				break;
 		}
 		if (searchPattern != null)
@@ -1096,7 +1096,9 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	/**
 	 * Decoded the given index key into the given record.
 	 */
-	public abstract void decodeIndexKey(char[] key);
+	public void decodeIndexKey(char[] key) {
+		// override as necessary
+	}
 
 	/**
 	 * Returns a key to find in relevant index categories. The key will be matched according to some match rule.
@@ -1104,46 +1106,57 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 	 * match locating can be expensive, and index query should be as accurate as possible
 	 * so as to eliminate obvious false hits.
 	 */
-	public abstract char[] encodeIndexKey();
-	
-	public abstract SearchPattern getIndexRecord();
-	
+	public char[] encodeIndexKey() {
+		return null; // override as necessary
+	}
+
+	/**
+	 * TODO (jerome) spec
+	 */
+	public SearchPattern getBlankPattern() {
+		return null; // override as necessary
+	}
+
 	/**
 	 * Returns an array of index categories to consider for this index query.
 	 * These potential matches will be further narrowed by the match locator, but precise
 	 * match locating can be expensive, and index query should be as accurate as possible
 	 * so as to eliminate obvious false hits.
 	 */
-	public abstract char[][] getMatchCategories();
+	public char[][] getMatchCategories() {
+		return CharOperation.NO_CHAR_CHAR; // override as necessary
+	}
 	
 	/**
 	 * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
 	 * Rule can also be combined with a case sensitivity flag.
 	 */	
 	public int getMatchRule() {
-		return this.matchRule;
+		return this.matchMode + (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
 	}
 	
 	/**
 	 * TODO (jerome) spec
 	 */
-	public abstract boolean isMatchingIndexRecord();
-		
+	public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+		return false; // override as necessary
+	}
+
 	/**
 	 * Returns whether the given name matches the given pattern.
 	 */
 	public boolean matchesName(char[] pattern, char[] name) {
 		if (pattern == null) return true; // null is as if it was "*"
 		if (name != null) {
-			switch (matchMode()) {
+			switch (this.matchMode) {
 				case R_EXACT_MATCH :
-					return CharOperation.equals(pattern, name, isCaseSensitive());
+					return CharOperation.equals(pattern, name, this.isCaseSensitive);
 				case R_PREFIX_MATCH :
-					return CharOperation.prefixEquals(pattern, name, isCaseSensitive());
+					return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
 				case R_PATTERN_MATCH :
-					if (!isCaseSensitive())
+					if (!this.isCaseSensitive)
 						pattern = CharOperation.toLowerCase(pattern);
-					return CharOperation.match(pattern, name, isCaseSensitive());
+					return CharOperation.match(pattern, name, this.isCaseSensitive);
 				case R_REGEXP_MATCH :
 					// TODO (jerome) implement regular expression match
 					return true;
@@ -1151,8 +1164,8 @@ public abstract class SearchPattern extends InternalSearchPattern implements ISe
 		}
 		return false;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return "SearchPattern"; //$NON-NLS-1$
 	}
 }

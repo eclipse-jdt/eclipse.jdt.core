@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -222,7 +222,14 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	protected IType getHandle(IGenericType genericType) {
 		if (genericType == null)
 			return null;
-		if (genericType.isBinaryType()) {
+		if (genericType instanceof HierarchyType) {
+			IType handle = (IType)this.infoToHandle.get(genericType);
+			if (handle == null) {
+				handle = ((HierarchyType)genericType).typeHandle;
+				this.infoToHandle.put(genericType, handle);
+			}
+			return handle;
+		} else if (genericType.isBinaryType()) {
 			IClassFile classFile = (IClassFile) this.infoToHandle.get(genericType);
 			// if it's null, it's from outside the region, so do lookup
 			if (classFile == null) {

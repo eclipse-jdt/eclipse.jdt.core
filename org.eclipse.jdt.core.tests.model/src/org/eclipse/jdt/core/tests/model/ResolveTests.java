@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.internal.core.CompilationUnit;
 
 import junit.framework.*;
 
@@ -410,7 +409,6 @@ public void testInvalidResolve() throws JavaModelException {
  * Resolve the local class 'Y' (field type).
  */
 public void testLocalClass1() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass1.java");
 	IJavaElement[] elements = codeSelect(cu, "Y[]", "Y");
 	assertElementsEqual(
@@ -423,7 +421,6 @@ public void testLocalClass1() throws JavaModelException {
  * Resolve the local class 'Y' (local variable type).
  */
 public void testLocalClass2() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass2.java");
 	IJavaElement[] elements = codeSelect(cu, "Y y", "Y");
 	assertElementsEqual(
@@ -436,7 +433,6 @@ public void testLocalClass2() throws JavaModelException {
  * Resolve the local class 'Y'(array initializer type).
  */
 public void testLocalClass3() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass3.java");
 	IJavaElement[] elements = codeSelect(cu, "Y[]{", "Y");
 	assertElementsEqual(
@@ -449,7 +445,6 @@ public void testLocalClass3() throws JavaModelException {
  * Resolve the local class 'Y' (return type).
  */
 public void testLocalClass4() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass4.java");
 	IJavaElement[] elements = codeSelect(cu, "Y bar()", "Y");
 	assertElementsEqual(
@@ -462,7 +457,6 @@ public void testLocalClass4() throws JavaModelException {
  * Resolve the local class 'Y' (method argument).
  */
 public void testLocalClass5() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass5.java");
 	IJavaElement[] elements = codeSelect(cu, "Y y", "Y");
 	assertElementsEqual(
@@ -475,7 +469,6 @@ public void testLocalClass5() throws JavaModelException {
  * Resolve the local class 'SuperClass' (super class).
  */
 public void testLocalClass6() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass6.java");
 	IJavaElement[] elements = codeSelect(cu, "Y { // superclass", "Y");
 	assertElementsEqual(
@@ -488,7 +481,6 @@ public void testLocalClass6() throws JavaModelException {
  * Resolve a local constructor
  */
 public void testLocalConstructor() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalConstructor.java");
 	IJavaElement[] elements = codeSelect(cu, "Y(\"", "Y");
 	assertElementsEqual(
@@ -501,7 +493,6 @@ public void testLocalConstructor() throws JavaModelException {
  * Resolve local constructor declaration
  */
 public void testLocalConstructorDeclaration() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalConstructorDeclaration.java");
 	IJavaElement[] elements = codeSelect(cu, "Y(i", "Y");
 	assertElementsEqual(
@@ -514,7 +505,6 @@ public void testLocalConstructorDeclaration() throws JavaModelException {
  * Resolve the local field "fred"
  */
 public void testLocalField() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalField.java");
 	IJavaElement[] elements = codeSelect(cu, "fred =", "fred");
 	assertElementsEqual(
@@ -527,7 +517,6 @@ public void testLocalField() throws JavaModelException {
  * Resolve local field declaration
  */
 public void testLocalFieldDeclaration() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalFieldDeclaration.java");
 	IJavaElement[] elements = codeSelect(cu, "fred", "fred");
 	assertElementsEqual(
@@ -540,7 +529,6 @@ public void testLocalFieldDeclaration() throws JavaModelException {
  * Resolve local member type declaration
  */
 public void testLocalMemberTypeDeclaration() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMemberTypeDeclaration1.java");
 	IJavaElement[] elements = codeSelect(cu, "Member {", "Member");
 	assertElementsEqual(
@@ -553,7 +541,6 @@ public void testLocalMemberTypeDeclaration() throws JavaModelException {
  * Resolve member type declaration
  */
 public void testLocalMemberTypeDeclaration2() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMemberTypeDeclaration2.java");
 	IJavaElement[] elements = codeSelect(cu, "MemberOfMember", "MemberOfMember");
 	assertElementsEqual(
@@ -566,7 +553,6 @@ public void testLocalMemberTypeDeclaration2() throws JavaModelException {
  * Resolve the method "foo"
  */
 public void testLocalMethod() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMethod.java");
 	IJavaElement[] elements = codeSelect(cu, "foo(\"", "foo");
 	assertElementsEqual(
@@ -579,7 +565,6 @@ public void testLocalMethod() throws JavaModelException {
  * Resolve method declaration
  */
 public void testLocalMethodDeclaration() throws JavaModelException {
-	if (!CompilationUnit.USE_LOCAL_ELEMENTS) return;
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMethodDeclaration.java");
 	IJavaElement[] elements = codeSelect(cu, "foo(i", "foo");
 	assertElementsEqual(
@@ -671,6 +656,14 @@ public void testLocalName7() throws JavaModelException {
 		"var4 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
+}
+/*
+ * Resolve a local reference and ensure it returns true when asked isStructureKnown().
+ * (regression test for bug 48422 Calling isStructureKnown() on ILocalVaraible throws JavaModelExceptions)
+ */
+public void testLocalVarIsStructureKnown() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/Resolve/src/ResolveLocalName.java", "var1 = new Object();", "var1");
+	assertTrue(localVar.isStructureKnown());
 }
 /*
  * Resolve a local reference and ensure its type signature is correct.
@@ -775,6 +768,32 @@ public void testMethodDeclarationInAnonymous2() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in <anonymous #1> [in field [in ResolveMethodDeclarationInAnonymous2 [in ResolveMethodDeclarationInAnonymous2.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve method declaration in anonymous
+ * (regression test for bug 47795 NPE selecting method in anonymous 2 level deep)
+ */
+public void testMethodDeclarationInAnonymous3() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInAnonymous3.java");
+	IJavaElement[] elements = codeSelect(cu, "selectMe(", "selectMe");
+	assertElementsEqual(
+		"Unexpected elements",
+		"selectMe() [in <anonymous #1> [in bar() [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous3 [in ResolveMethodDeclarationInAnonymous3.java [in <default> [in src [in Resolve]]]]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve method declaration in anonymous
+ * (regression test for bug 47214 Cannot open declaration on a selected method of an anonymous class)
+ */
+public void testMethodDeclarationInAnonymous4() throws JavaModelException {
+	IClassFile classFile = getClassFile("Resolve", "test47214.jar", "p", "X.class");
+	IJavaElement[] elements = codeSelect(classFile, "bar(", "bar");
+	assertElementsEqual(
+		"Unexpected elements",
+		"bar() [in X$1 [in X$1.class [in p [in test47214.jar [in Resolve]]]]]",
 		elements
 	);
 }
@@ -977,6 +996,18 @@ public void testLocalNameForClassFile() throws JavaModelException {
 	assertElementsEqual(
 			"Unexpected elements",
 			"var4 [in foo() [in ResolveLocalName [in ResolveLocalName.class [in <default> [in test47177.jar [in Resolve]]]]]]",
+			elements
+	);
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42365
+ */
+public void testMethodDeclarationInInterface() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInInterface.java");
+	IJavaElement[] elements = codeSelect(cu, "foo", "foo");
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo() [in QI [in QI.class [in <default> [in jj.jar [in Resolve]]]]]",
 			elements
 	);
 }

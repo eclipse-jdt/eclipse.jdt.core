@@ -204,7 +204,7 @@ public void evaluate(
 			public void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind) {
 				requestor.acceptProblem(problem, fragmentSource, fragmentKind);
 				if (problem.isError()) {
-					hasErrors = true;
+					this.hasErrors = true;
 				}
 			}
 		}
@@ -452,7 +452,7 @@ public char[] getPackageName() {
  * Return the binary for the root code snippet class (ie. org.eclipse.jdt.internal.eval.target.CodeSnippet).
  */
 IBinaryType getRootCodeSnippetBinary() {
-	if (codeSnippetBinary == null) {
+	if (this.codeSnippetBinary == null) {
 		this.codeSnippetBinary = new CodeSnippetSkeleton();
 	}
 	return this.codeSnippetBinary;

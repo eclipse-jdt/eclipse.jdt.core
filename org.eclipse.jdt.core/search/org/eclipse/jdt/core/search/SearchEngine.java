@@ -10,34 +10,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import java.util.*;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.*;
-import org.eclipse.jdt.internal.core.search.HierarchyScope;
-import org.eclipse.jdt.internal.core.search.JavaSearchScope;
-import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
-import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import java.util.*;
 
 /**
  * A <code>SearchEngine</code> searches for java elements following a search pattern.
@@ -288,17 +279,16 @@ public class SearchEngine {
      * @since 3.0
 	 */
 	public static SearchPattern createAndSearchPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
-		return new AndPattern(0/*no kind*/, 0/*no rule*/){
+		return new AndPattern(0/*no kind*/, 0/*no rule*/) {
 			SearchPattern current = leftPattern;
 			public void decodeIndexKey(char[] key) {
 				current.decodeIndexKey(key);
-
 			}
 			public char[] encodeIndexKey() {
 				return current.encodeIndexKey();
 			}
-			public SearchPattern getIndexRecord() {
-				return current.getIndexRecord();
+			public SearchPattern getBlankPattern() {
+				return current.getBlankPattern();
 			}
 			public char[][] getMatchCategories() {
 				return current.getMatchCategories();
@@ -313,8 +303,8 @@ public class SearchEngine {
 				}
 				return false; 
 			}
-			public boolean isMatchingIndexRecord() {
-				return current.isMatchingIndexRecord();
+			public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+				return current.matchesDecodedPattern(decodedPattern);
 			}
 			protected void resetQuery() {
 				current = leftPattern;
@@ -377,12 +367,9 @@ public class SearchEngine {
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
 	 */
 	public static ISearchPattern createSearchPattern(String stringPattern, int searchFor, int limitTo, boolean isCaseSensitive) {
-		int matchMode;
-		if (stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1) {
-			matchMode = IJavaSearchConstants.PATTERN_MATCH;
-		} else {
-			matchMode = IJavaSearchConstants.EXACT_MATCH;
-		}
+		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
+			? SearchPattern.R_PATTERN_MATCH
+			: SearchPattern.R_EXACT_MATCH;
 		return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive);
 	}
 	
@@ -601,11 +588,11 @@ public class SearchEngine {
 	
 		if (patternTypeName != null) {
 			switch(matchMode) {
-				case IJavaSearchConstants.EXACT_MATCH :
+				case SearchPattern.R_EXACT_MATCH :
 					return CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
-				case IJavaSearchConstants.PREFIX_MATCH :
+				case SearchPattern.R_PREFIX_MATCH :
 					return CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
-				case IJavaSearchConstants.PATTERN_MATCH :
+				case SearchPattern.R_PATTERN_MATCH :
 					return CharOperation.match(patternTypeName, typeName, isCaseSensitive);
 			}
 		}

@@ -14,32 +14,51 @@ package org.eclipse.jdt.core.search;
  * TODO (jerome) spec
  * @since 3.0
  */
-public abstract class SearchDocument {
+public class SearchDocument {
+	protected String documentPath;
+	protected SearchParticipant participant;
+	public org.eclipse.jdt.internal.core.index.Index index;
+	public org.eclipse.jdt.internal.core.index.impl.IndexedFile indexedFile; // temporary placeholder for the index during indexing
 	
-	/**
-	 * Contents may be different from actual resource at corresponding document path,
-	 * in case of preprocessing.
-	 */
-	public abstract byte[] getByteContents();
+	public SearchDocument(String documentPath, SearchParticipant participant) {
+		this.documentPath = documentPath;
+		this.participant = participant;
+	}
 
 	/**
 	 * Contents may be different from actual resource at corresponding document path,
 	 * in case of preprocessing.
 	 */
-	public abstract char[] getCharContents();
+	public byte[] getByteContents() {
+		return null;
+	}
+
+	/**
+	 * Contents may be different from actual resource at corresponding document path,
+	 * in case of preprocessing.
+	 */
+	public char[] getCharContents() {
+		return null;
+	}
 
 	/**
 	 * Returns the encoding for this document
 	 */
-	public abstract String getEncoding();
-	
+	public String getEncoding() {
+		return null;
+	}
+
 	/**
 	 * Returns the participant that created this document
 	 */
-	public abstract SearchParticipant getParticipant();
+	public SearchParticipant getParticipant() {
+		return this.participant;
+	}
 	
 	/**
 	 * Path to the original document to publicly mention in index or search results.
 	 */	
-	public abstract String getPath();
+	public String getPath() {
+		return this.documentPath;
+	}
 }

@@ -38,6 +38,17 @@ class MethodBinding implements IMethodBinding {
 	public boolean isConstructor() {
 		return this.binding.isConstructor();
 	}
+	
+	/*
+	 * @see IMethodBinding#isDefaultConstructor()
+	 * @since 3.0
+	 */
+	public boolean isDefaultConstructor() {
+		if (this.binding.declaringClass.isBinaryBinding()) {
+			return false;
+		}
+		return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
+	}	
 
 	/*
 	 * @see IMethodBinding#isDefaultConstructor()
@@ -167,12 +178,17 @@ class MethodBinding implements IMethodBinding {
 		ITypeBinding[] parameters = getParameterTypes();
 		buffer.append('(');
 		for (int i = 0, max = parameters.length; i < max; i++) {
-			buffer.append(parameters[i].getKey());
+			ITypeBinding parameter = parameters[i];
+			if (parameter != null) {
+				buffer.append(parameter.getKey());
+			}
 		}
 		buffer.append(')');
 		ITypeBinding[] thrownExceptions = getExceptionTypes();
 		for (int i = 0, max = thrownExceptions.length; i < max; i++) {
-			buffer.append(thrownExceptions[i].getKey());
+			if (thrownExceptions[i] != null) {
+				buffer.append(thrownExceptions[i].getKey());
+			}
 		}
 		return buffer.toString();
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -97,7 +98,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 						IBuffer workingCopyBuffer = workingCopy.getBuffer();
 						if (workingCopyBuffer == null) return;
 						primaryBuffer.setContents(workingCopyBuffer.getCharacters());
-						primaryBuffer.save(progressMonitor, force);
+						primaryBuffer.save(this.progressMonitor, this.force);
 						primary.makeConsistent(this);
 						hasSaved = true;
 					} finally {
@@ -108,7 +109,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 					}
 				} else {
 					// for a primary working copy no need to set the content of the buffer again
-					primaryBuffer.save(progressMonitor, force);
+					primaryBuffer.save(this.progressMonitor, this.force);
 					primary.makeConsistent(this);
 				}
 			} else {
@@ -124,13 +125,13 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 					if (resource.exists()) {
 						resource.setContents(
 							stream, 
-							force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+							this.force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 							null);
 					} else {
 						resource.create(
 							stream,
-							force,
-							progressMonitor);
+							this.force,
+							this.progressMonitor);
 					}
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
@@ -167,6 +168,10 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	protected CompilationUnit getCompilationUnit() {
 		return (CompilationUnit)getElementToProcess();
 	}
+	protected ISchedulingRule getSchedulingRule() {
+		// returns the folder corresponding to the package of the cu to commit
+		return getElementToProcess().getParent().getSchedulingRule();
+	}
 	/**
 	 * Possible failures: <ul>
 	 *	<li>INVALID_ELEMENT_TYPES - the compilation unit supplied to this
@@ -183,7 +188,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 		if (!cu.isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, cu);
 		}
-		if (cu.hasResourceChanged() && !force) {
+		if (cu.hasResourceChanged() && !this.force) {
 			return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 		}
 		// no read-only check, since some repository adapters can change the flag on save

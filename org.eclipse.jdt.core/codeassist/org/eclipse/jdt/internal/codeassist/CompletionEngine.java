@@ -81,6 +81,7 @@ public final class CompletionEngine
 	ProblemReporter problemReporter;
 	char[] source;
 	char[] completionToken;
+	char[] qualifiedCompletionToken;
 	boolean resolvingImports = false;
 	boolean insideQualifiedReference = false;
 	boolean noProposal = true;
@@ -247,15 +248,13 @@ public final class CompletionEngine
 			completionName = CharOperation.concat(completionName, SEMICOLON);
 			relevance += computeRelevanceForCaseMatching(completionToken, fullyQualifiedName);
 		} else {
-			if (!insideQualifiedReference) {
-				if (mustQualifyType(packageName, className)) {
-					if (packageName == null || packageName.length == 0)
-						if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
-							return; // ignore types from the default package from outside it
-				} else {
-					completionName = className;
-					isQualified = false;
-				}
+			if (mustQualifyType(packageName, className)) {
+				if (packageName == null || packageName.length == 0)
+					if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+						return; // ignore types from the default package from outside it
+			} else {
+				completionName = className;
+				isQualified = false;
 			}
 			relevance += computeRelevanceForCaseMatching(completionToken, className);
 			relevance += computeRelevanceForExpectingType(packageName, className);
@@ -302,15 +301,13 @@ public final class CompletionEngine
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 			relevance += computeRelevanceForCaseMatching(completionToken, fullyQualifiedName);
 		} else {
-			if (!insideQualifiedReference) {
-				if (mustQualifyType(packageName, interfaceName)) {
-					if (packageName == null || packageName.length == 0)
-						if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
-							return; // ignore types from the default package from outside it
-				} else {
-					completionName = interfaceName;
-					isQualified = false;
-				}
+			if (mustQualifyType(packageName, interfaceName)) {
+				if (packageName == null || packageName.length == 0)
+					if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+						return; // ignore types from the default package from outside it
+			} else {
+				completionName = interfaceName;
+				isQualified = false;
 			}
 			relevance += computeRelevanceForCaseMatching(completionToken, interfaceName);
 			relevance += computeRelevanceForExpectingType(packageName, interfaceName);
@@ -344,8 +341,9 @@ public final class CompletionEngine
 		
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForCaseMatching(completionToken, packageName);
-
+		relevance += computeRelevanceForCaseMatching(qualifiedCompletionToken == null ? completionToken : qualifiedCompletionToken, packageName);
+		relevance += computeRelevanceForQualification(true);
+		
 		noProposal = false;
 		requestor.acceptPackage(
 			packageName,
@@ -381,15 +379,13 @@ public final class CompletionEngine
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 			relevance += computeRelevanceForCaseMatching(completionToken, fullyQualifiedName);
 		} else {
-			if (!insideQualifiedReference) {
-				if (mustQualifyType(packageName, typeName)) {
-					if (packageName == null || packageName.length == 0)
-						if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
-							return; // ignore types from the default package from outside it
-				} else {
-					completionName = typeName;
-					isQualified = false;
-				}
+			if (mustQualifyType(packageName, typeName)) {
+				if (packageName == null || packageName.length == 0)
+					if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+						return; // ignore types from the default package from outside it
+			} else {
+				completionName = typeName;
+				isQualified = false;
 			}
 			relevance += computeRelevanceForCaseMatching(completionToken, typeName);
 			relevance += computeRelevanceForExpectingType(packageName, typeName);
@@ -2182,8 +2178,12 @@ public final class CompletionEngine
 		return 0;
 	}
 	private int computeRelevanceForQualification(boolean prefixRequired) {
-		if(!prefixRequired) {
+		if(!prefixRequired && !insideQualifiedReference) {
 			return R_UNQUALIFIED;
+		}
+		
+		if(prefixRequired && insideQualifiedReference) {
+			return R_QUALIFIED;
 		}
 		return 0;
 	}
@@ -2838,6 +2838,8 @@ public final class CompletionEngine
 			qualifiedName[length] = '.';
 		}
 		
+		this.qualifiedCompletionToken = qualifiedName;
+		
 		if (unitScope != null) {
 			int typeLength = qualifiedName.length;
 			SourceTypeBinding[] types = unitScope.topLevelTypes;
@@ -2847,7 +2849,8 @@ public final class CompletionEngine
 	
 				char[] qualifiedSourceTypeName = CharOperation.concatWith(sourceType.compoundName, '.');
 				
-				if (typeLength > qualifiedSourceTypeName.length)	continue;
+				if (typeLength > qualifiedSourceTypeName.length) continue;
+				if (!(packageBinding == sourceType.getPackage())) continue;
 				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false))	continue;
 
 				int relevance = computeBaseRelevance();

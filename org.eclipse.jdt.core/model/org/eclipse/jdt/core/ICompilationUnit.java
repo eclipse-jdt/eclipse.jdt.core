@@ -428,7 +428,11 @@ public boolean hasResourceChanged();
 boolean isWorkingCopy();
 
 /**
- * Reconciles the contents of this working copy.
+ * Reconciles the contents of this working copy, and sends out a Java delta
+ * notification indicating the nature of the change of the working copy since
+ * the last time it was either reconciled or made consistent 
+ * (see <code>IOpenable#makeConsistent()</code>).
+ * .<p>
  * It performs the reconciliation by locally caching the contents of 
  * the working copy, updating the contents, then creating a delta 
  * over the cached contents and the new contents, and finally firing
@@ -443,7 +447,7 @@ boolean isWorkingCopy();
  * nothing.</p>
  * <p>
  * Note: Since 3.0 added/removed/changed inner types generate change deltas.</p>
- *
+ * <p>
  * @param forceProblemDetection boolean indicating whether problem should be recomputed
  *   even if the source hasn't changed.
  * @param monitor a progress monitor
@@ -456,7 +460,11 @@ boolean isWorkingCopy();
  */
 void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
 /**
- * Reconciles the contents of this working copy.
+ * Reconciles the contents of this working copy, and sends out a Java delta
+ * notification indicating the nature of the change of the working copy since
+ * the last time it was either reconciled or made consistent 
+ * (see <code>IOpenable#makeConsistent()</code>).
+ * .<p>.
  * It performs the reconciliation by locally caching the contents of 
  * the working copy, updating the contents, then creating a delta 
  * over the cached contents and the new contents, and finally firing
@@ -465,8 +473,9 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  * The boolean argument allows to force problem detection even if the
  * working copy is already consistent.
  * </p><p>
- * When problem are computed, the contents of the working copies owned by the given
- * owner take precedence over their original compilation units. 
+ * This functionality allows to specify a working copy owner which is used during problem detection.
+ * All references contained in the working copy are resolved against other units; for which corresponding 
+ * owned working copies are going to take precedence over their original compilation units. 
  * </p><p>
  * Compilation problems found in the new contents are notified through the
  * <code>IProblemRequestor</code> interface which was passed at

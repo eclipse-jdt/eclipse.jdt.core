@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -116,6 +116,19 @@ public void testResolveTypeInInner() throws JavaModelException {
 		"Unexpected result", 
 		"p1.X",
 		this.resultToString(types));	
+}
+/**
+ * Resolve the type "Object" within a local class.
+ * (regression test for bug 48350 IType#resolveType(String) fails on local types)
+ */
+public void testResolveTypeInInner2() throws JavaModelException {
+	IType type = this.getCompilationUnit("/TypeResolve/src/p5/A.java").getType("A").getMethod("foo", new String[] {}).getType("Local", 1);
+	
+	String[][] types = type.resolveType("Object");
+	assertEquals(
+		"Unexpected result", 
+		"java.lang.Object",
+		this.resultToString(types));		
 }
 /**
  * Resolve the type "String".

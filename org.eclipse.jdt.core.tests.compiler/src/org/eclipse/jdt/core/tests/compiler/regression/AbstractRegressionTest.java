@@ -57,7 +57,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		final SearchParticipant participant = new JavaSearchParticipant(null) {
 			final SearchParticipant searchParticipant = this;
 			public SearchDocument getDocument(final String documentPath) {
-				return new SearchDocument() {
+				return new SearchDocument(documentPath, searchParticipant) {
 					public byte[] getByteContents() {
 						try {
 							return  org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(documentPath));
@@ -66,23 +66,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 							return null;
 						}
 					}
-					public char[] getCharContents() {
-						return null;
-					}
-					public String getEncoding() {
-						return null;
-					}
-					public SearchParticipant getParticipant() {
-						return searchParticipant;
-					}
-					public String getPath() {
-						return documentPath;
-					}
 				};
 			}
 		};
 		SearchDocument document = participant.getDocument(new File(classFilePath).getPath());
-		BinaryIndexer indexer = new BinaryIndexer(document, null) {
+		BinaryIndexer indexer = new BinaryIndexer(document) {
 			protected void addIndexEntry(char[] category, char[] key) {
 				references.append(category);
 				references.append(key);

@@ -148,9 +148,12 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.superInterfaces[i] = environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1);
 		}
 	}
-	if (needFieldsAndMethods){
+	if (needFieldsAndMethods) {
 		createFields(binaryType.getFields());
 		createMethods(binaryType.getMethods());
+	} else { // protect against incorrect use of the needFieldsAndMethods flag, see 48459
+		this.fields = NoFields;
+		this.methods = NoMethods;
 	}
 }
 private void createFields(IBinaryField[] iFields) {

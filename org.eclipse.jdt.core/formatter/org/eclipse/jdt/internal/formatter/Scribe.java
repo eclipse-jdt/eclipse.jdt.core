@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2004 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -179,6 +179,15 @@ public class Scribe {
 		alignment.performFragmentEffect();
 	}
 	
+	public void consumeNextToken() {
+		printComment();
+		try {
+			this.currentToken = this.scanner.getNextToken();
+			addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+		} catch (InvalidInputException e) {
+			throw new AbortFormatting(e);
+		}
+	}
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
 	}
@@ -740,7 +749,6 @@ public class Scribe {
 	}
 
 	public void printModifiers() {
-		this.printComment();
 		try {
 			boolean isFirstModifier = true;
 			int currentTokenStartPosition = this.scanner.currentPosition;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -540,7 +540,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				// contains a potential subtype as a local or anonymous type?
 				boolean containsLocalType = false;
 				if (localTypes == null) { // case of hierarchy on region
-					containsLocalType = false;
+					containsLocalType = true;
 				} else {
 					IPath path = cu.getPath();
 					containsLocalType = localTypes.contains(path.toString());
@@ -627,7 +627,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				}
 				if (binaryType != null) {
 					try {
-						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType, false);
+						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType);
 						remember(binaryType, binaryTypeBinding);
 						if (openable.equals(focusOpenable)) {
 							focusBinaryBinding = binaryTypeBinding;

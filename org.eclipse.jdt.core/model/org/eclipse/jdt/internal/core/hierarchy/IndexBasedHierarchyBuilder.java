@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -377,20 +376,6 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
 	return result;
 }
 /**
- * Returns a handle for the given generic type or null if not found.
- */
-protected IType getHandle(IGenericType genericType) {
-	if (genericType instanceof HierarchyType) {
-		IType type = (IType)this.infoToHandle.get(genericType);
-		if (type == null) {
-			type = ((HierarchyType)genericType).typeHandle;
-			this.infoToHandle.put(genericType, type);
-		}
-		return type;
-	} else
-		return super.getHandle(genericType);
-}
-/**
  * Find the set of candidate subtypes of a given type.
  *
  * The requestor is notified of super type references (with actual path of
@@ -446,7 +431,8 @@ public static void searchAllPossibleSubTypes(
 		}		
 	};
 	
-	SuperTypeReferencePattern pattern = new SuperTypeReferencePattern(null, null, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	SuperTypeReferencePattern pattern =
+		new SuperTypeReferencePattern(null, null, false, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	pattern.focus = type;
 	SubTypeSearchJob job = new SubTypeSearchJob(
 		pattern, 

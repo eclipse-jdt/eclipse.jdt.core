@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,7 +106,7 @@ public IField createField(String contents, IJavaElement sibling, boolean force, 
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return (IField) op.getResultElements()[0];
 }
 /**
@@ -117,7 +117,7 @@ public IInitializer createInitializer(String contents, IJavaElement sibling, IPr
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return (IInitializer) op.getResultElements()[0];
 }
 /**
@@ -128,7 +128,7 @@ public IMethod createMethod(String contents, IJavaElement sibling, boolean force
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return (IMethod) op.getResultElements()[0];
 }
 /**
@@ -139,7 +139,7 @@ public IType createType(String contents, IJavaElement sibling, boolean force, IP
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return (IType) op.getResultElements()[0];
 }
 public boolean equals(Object o) {
@@ -404,13 +404,15 @@ public String getTypeQualifiedName(char enclosingTypeSeparator) {
 		case IJavaElement.COMPILATION_UNIT:
 			return this.name;
 		case IJavaElement.TYPE:
-			return ((IType) this.parent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + this.name;
+			String simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
+			return ((IType) this.parent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + simpleName;
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
+			simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
 			return 
 				((IMember) this.parent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
-				+ enclosingTypeSeparator + this.name;
+				+ enclosingTypeSeparator + simpleName;
 	}
 	return null;
 }
@@ -510,7 +512,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 	throws JavaModelException {
 
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -547,7 +549,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -584,7 +586,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
 		projectWCs,
 		project, 
 		true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -592,7 +594,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, null, SearchEngine.createWorkspaceScope(), true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /*
@@ -604,7 +606,7 @@ public ITypeHierarchy newTypeHierarchy(
 	throws JavaModelException {
 		
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -635,7 +637,7 @@ public ITypeHierarchy newTypeHierarchy(
 		
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();	
 }
 /**
@@ -701,9 +703,9 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 			
 	 	IType[] topLevelTypes = this.getCompilationUnit().getTypes();
 	 	int length = topLevelTypes.length;
-	 	ISourceType[] topLevelInfos = new ISourceType[length];
+	 	SourceTypeElementInfo[] topLevelInfos = new SourceTypeElementInfo[length];
 	 	for (int i = 0; i < length; i++) {
-			topLevelInfos[i] = (ISourceType)((SourceType)topLevelTypes[i]).getElementInfo();
+			topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
 		}
 			
 		engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);

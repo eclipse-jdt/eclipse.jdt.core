@@ -92,7 +92,7 @@ public class CompilationUnitVisitor extends Compiler {
 				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
 				| SourceTypeConverter.MEMBER_TYPE, // need member types
 				// no need for field initialization
-				lookupEnvironment.problemReporter,
+				this.lookupEnvironment.problemReporter,
 				result);
 
 		if (unit != null) {

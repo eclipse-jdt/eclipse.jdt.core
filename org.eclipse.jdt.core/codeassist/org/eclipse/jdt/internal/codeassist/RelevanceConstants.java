@@ -24,6 +24,7 @@ public interface RelevanceConstants {
 	int R_ABSTRACT_METHOD = 20;
 	int R_NON_STATIC = 10;
 	int R_UNQUALIFIED = 3;
+	int R_QUALIFIED = 2;
 	int R_NAME_FIRST_PREFIX = 6;
 	int R_NAME_PREFIX = 5;
 	int R_NAME_FIRST_SUFFIX = 4;

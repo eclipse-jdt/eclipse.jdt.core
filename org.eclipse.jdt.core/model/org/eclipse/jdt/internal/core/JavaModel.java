@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -122,9 +122,9 @@ protected Object createElementInfo() {
  */
 public void delete(IJavaElement[] elements, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
-		runOperation(new DeleteResourceElementsOperation(elements, force), monitor);
+		new DeleteResourceElementsOperation(elements, force).runOperation(monitor);
 	} else {
-		runOperation(new DeleteElementsOperation(elements, force), monitor);
+		new DeleteElementsOperation(elements, force).runOperation(monitor);
 	}
 }
 public boolean equals(Object o) {
@@ -301,7 +301,7 @@ public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[
 		op = new RenameElementsOperation(elements, destinations, renamings, force);
 	}
 	
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 /**
  * Configures and runs the <code>MultiOperation</code>.
@@ -313,7 +313,7 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
 			op.setInsertBefore(elements[i], siblings[i]);
 		}
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 /**
  * @private Debugging purposes

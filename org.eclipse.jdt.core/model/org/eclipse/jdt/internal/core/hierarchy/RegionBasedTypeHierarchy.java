@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,29 +91,23 @@ public IJavaProject javaProject() {
 	return this.project;
 }
 public void pruneDeadBranches() {
-	this.pruneDeadBranches(this.getRootClasses(), false);
+	pruneDeadBranches(getRootClasses());
 }
-private void pruneDeadBranches(IType[] types, boolean superInRegion) {
+/*
+ * Returns whether all subtypes of the given type have been pruned.
+ */
+private boolean pruneDeadBranches(IType type) {
+	TypeVector subtypes = (TypeVector)this.typeToSubtypes.get(type);
+	if (subtypes == null) return true;
+	pruneDeadBranches(subtypes.copy().elements());
+	subtypes = (TypeVector)this.typeToSubtypes.get(type);
+	return (subtypes == null || subtypes.size == 0);
+}
+private void pruneDeadBranches(IType[] types) {
 	for (int i = 0, length = types.length; i < length; i++) {
 		IType type = types[i];
-		if (this.region.contains(type)) {
-			TypeVector subtypes = (TypeVector)this.typeToSubtypes.get(type);
-			if (subtypes != null) {
-				this.pruneDeadBranches(subtypes.copy().elements(), true);
-			}
-		} else {
-			if (superInRegion) {
-				this.removeType(type);
-			} else {
-				TypeVector subtypes = (TypeVector)this.typeToSubtypes.get(type);
-				if (subtypes != null) {
-					this.pruneDeadBranches(subtypes.copy().elements(), false);
-				}
-				subtypes = (TypeVector)this.typeToSubtypes.get(type);
-				if (subtypes == null || subtypes.size == 0) {
-					this.removeType(type);
-				} 
-			}
+		if (pruneDeadBranches(type) && !this.region.contains(type)) {
+			removeType(type);
 		}
 	}
 }

@@ -160,7 +160,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (this.fullCharExclusionPatterns == UNINIT_PATTERNS) {
 			int length = this.exclusionPatterns.length;
 			this.fullCharExclusionPatterns = new char[length][];
-			IPath prefixPath = path.removeTrailingSeparator();
+			IPath prefixPath = this.path.removeTrailingSeparator();
 			for (int i = 0; i < length; i++) {
 				this.fullCharExclusionPatterns[i] = 
 					prefixPath.append(this.exclusionPatterns[i]).toString().toCharArray();

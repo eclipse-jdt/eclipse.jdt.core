@@ -18,18 +18,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
-import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
-import org.eclipse.jdt.internal.core.search.PathCollector;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -39,29 +31,25 @@ import org.eclipse.jdt.internal.core.util.Util;
 public abstract class InternalSearchPattern {
 
 	public final int kind;
-	public final int matchRule;
-	
+	public final boolean isCaseSensitive;
+	public final int matchMode;
+
 	/* focus element (used for reference patterns*/
 	public IJavaElement focus;
 
 	public InternalSearchPattern(int patternKind, int matchRule) {
 		this.kind = patternKind;
-		this.matchRule = matchRule;
+		this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
+		this.matchMode = matchRule - (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
 	}
-	
-	/*
-	 * @see SearchPattern
-	 */
-	public abstract void decodeIndexKey(char[] key);
 
-	/*
-	 * @see SearchPattern
-	 */
 	public abstract char[] encodeIndexKey();
 
 	protected char[] encodeIndexKey(char[] key) {
-		if (isCaseSensitive() && key != null) {
-			switch(matchMode()) {
+		// TODO (kent) with new index, need to encode key for case insensitive queries too
+		// also want to pass along the entire pattern
+		if (this.isCaseSensitive && key != null) {
+			switch(this.matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
 				case  SearchPattern.R_PREFIX_MATCH :
 					return key;
@@ -88,8 +76,7 @@ public abstract class InternalSearchPattern {
 	/**
 	 * Query a given index for matching entries. 
 	 */
-	public void findIndexMatches(IIndex index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
-	
+	public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		IndexInput input = new BlocksIndexInput(index.getIndexFile());
 		try {
@@ -99,23 +86,21 @@ public abstract class InternalSearchPattern {
 			input.close();
 		}
 	}
-	
+
 	/**
 	 * Query a given index for matching entries. 
 	 *
 	 */
 	public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
-	
 		char[][] categories = getMatchCategories();
 		char[] queryKey = encodeIndexKey();
-		for (int iCategory = 0, categoriesLength = categories.length; iCategory < categoriesLength; iCategory++) {
+		for (int i = 0, l = categories.length; i < l; i++) {
 			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-			char[] category = categories[iCategory];
-			findIndexMatches(input, requestor, participant, scope, progressMonitor, queryKey, category);
+			findIndexMatches(input, requestor, participant, scope, progressMonitor, queryKey, categories[i]);
 		}
 	}
-	
+
 	protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor, char[] queryKey, char[] category) throws IOException {
 		/* narrow down a set of entries using prefix criteria */
 		// TODO per construction the queryKey will always be the most specific prefix. This should evolve to be the search pattern directly, using proper match rule
@@ -132,14 +117,14 @@ public abstract class InternalSearchPattern {
 			EntryResult entry = entries[iMatch];
 			char[] word = entry.getWord();
 			char[] indexKey = CharOperation.subarray(word, category.length, word.length);
-			SearchPattern indexRecord = getIndexRecord();
-			indexRecord.decodeIndexKey(indexKey);
-			if (isMatchingIndexRecord()) {
+			SearchPattern decodedPattern = getBlankPattern();
+			decodedPattern.decodeIndexKey(indexKey);
+			if (matchesDecodedPattern(decodedPattern)) {
 				int[] references = entry.getFileReferences();
 				for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
 					String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
 					if (scope.encloses(documentPath)) {
-						if (!requestor.acceptIndexMatch(documentPath, indexRecord, participant)) 
+						if (!requestor.acceptIndexMatch(documentPath, decodedPattern, participant)) 
 							throw new OperationCanceledException();
 					}
 				}
@@ -216,15 +201,11 @@ public abstract class InternalSearchPattern {
 		}
 	}			
 
-	public abstract SearchPattern getIndexRecord();
-	
+	public abstract SearchPattern getBlankPattern();
+
 	public abstract char[][] getMatchCategories();
 
-	public boolean isCaseSensitive() {
-		return (this.matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
-	}
-	
-	public abstract boolean isMatchingIndexRecord();
+	public abstract boolean matchesDecodedPattern(SearchPattern decodedPattern);
 
 	/*
 	 * Returns whether this pattern is a polymorphic search pattern.
@@ -232,12 +213,4 @@ public abstract class InternalSearchPattern {
 	public boolean isPolymorphicSearch() {
 		return false;
 	}
-
-	/*
-	 * One of R_EXACT_MATCH, R_PATTERN_MATCH, R_PREFIX_MATCH or R_REGEDP_MATCH
-	 */
-	public int matchMode() {
-		return this.matchRule & ~SearchPattern.R_CASE_SENSITIVE;
-	}
-
 }

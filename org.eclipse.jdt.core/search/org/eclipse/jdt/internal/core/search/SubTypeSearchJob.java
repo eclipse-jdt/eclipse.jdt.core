@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.impl.BlocksIndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -58,7 +58,7 @@ public void closeAll(){
 /**
  * execute method comment.
  */
-public boolean search(IIndex index, IProgressMonitor progressMonitor) {
+public boolean search(Index index, IProgressMonitor progressMonitor) {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 

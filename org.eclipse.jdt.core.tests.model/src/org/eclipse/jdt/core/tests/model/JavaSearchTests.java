@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -284,7 +284,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testSimplePackageReference"));
+		suite.addTest(new JavaSearchTests("testMethodReference5"));
 		return suite;
 	}
 	
@@ -320,6 +320,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReference2"));
 	suite.addTest(new JavaSearchTests("testTypeReference3"));
 	suite.addTest(new JavaSearchTests("testTypeReference4"));
+	suite.addTest(new JavaSearchTests("testTypeReference5"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInInitializer"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceAsSingleNameReference"));
 	suite.addTest(new JavaSearchTests("testMemberTypeReference"));
@@ -388,6 +389,8 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodReference2"));
 	suite.addTest(new JavaSearchTests("testMethodReference3"));
 	suite.addTest(new JavaSearchTests("testMethodReference4"));
+	suite.addTest(new JavaSearchTests("testMethodReference5"));
+	suite.addTest(new JavaSearchTests("testMethodReference6"));
 	
 	// constructor reference
 	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
@@ -432,6 +435,7 @@ public static Test suite() {
 	// local variable reference
 	suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
 	suite.addTest(new JavaSearchTests("testLocalVariableReference2"));
+	suite.addTest(new JavaSearchTests("testLocalVariableReference3"));
 	
 	// local variable occurrences
 	suite.addTest(new JavaSearchTests("testLocalVariableOccurrences1"));
@@ -453,6 +457,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes5"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes6"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes7"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes8"));
 	
 	// declarations of sent messages
 	suite.addTest(new JavaSearchTests("testSimpleDeclarationsOfSentMessages"));
@@ -858,6 +863,31 @@ public void testDeclarationOfReferencedTypes7() throws CoreException {
 	);
 	assertSearchResults(
 		"", 
+		resultCollector);
+}
+
+/**
+ * Declaration of referenced types test.
+ * (Regression test for bug 47787 IJavaSearchResultCollector.aboutToStart() and done() not called)
+ */
+public void testDeclarationOfReferencedTypes8() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
+	    public void aboutToStart() {
+	        results.append("Starting search...\n");
+        }
+	    public void done() {
+	        results.append("Done searching.");
+        }
+	};
+	new SearchEngine().searchDeclarationsOfReferencedTypes(
+		getWorkspace(), 
+		pkg,
+		resultCollector
+	);
+	assertSearchResults(
+		"Starting search...\n"+
+		"Done searching.", 
 		resultCollector);
 }
 
@@ -1555,6 +1585,24 @@ public void testLocalVariableReference2() throws JavaModelException {
 		"src/f1/X.java void f1.X.foo2() [var2]",
 		resultCollector);
 }
+/*
+ * Local variable reference test.
+ * (regression test for bug 48725 Cannot search for local vars in jars.)
+ */
+public void testLocalVariableReference3() throws JavaModelException {
+    IClassFile classFile = getClassFile("JavaSearch", "test48725.jar", "p", "X.class");
+	ILocalVariable localVar = (ILocalVariable) codeSelect(classFile, "local = 1;", "local")[0];
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		REFERENCES, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"test48725.jar void p.X.foo()",
+		resultCollector);
+}
 /**
  * Long declaration (>255) test.
  * (regression test for bug 25859 Error doing Java Search)
@@ -1933,6 +1981,41 @@ public void testMethodReference4() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/b2/Z.java void b2.Z.bar() [foo(inner)]",
+		resultCollector);
+}
+/**
+ * Method reference test.
+ * (regression test for bug 49120 search doesn't find references to anonymous inner methods)
+ */
+public void testMethodReference5() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch/src/e9/A.java").getType("A").getMethod("foo", new String[] {}).getType("", 1);
+	IMethod method = type.getMethod("bar", new String[] {});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		method, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/e9/A.java void e9.A.foo() [bar()]",
+		resultCollector);
+}
+/*
+ * Method reference in second anonymous and second local type of a method test.
+ */
+public void testMethodReference6() throws CoreException {
+	IMethod method= getCompilationUnit("JavaSearch/src/f3/X.java").getType("X").getMethod("bar", new String[] {});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		method, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/f3/X.java void void f3.X.foo():<anonymous>#2.foobar() [bar()]\n" + 
+		"src/f3/X.java void void f3.X.foo():Y#2.foobar() [bar()]",
 		resultCollector);
 }
 /**
@@ -2690,7 +2773,7 @@ public void testTypeDeclarationInJar2() throws CoreException {
 		scope, 
 		resultCollector);
 	assertSearchResults(
-		"test20631.jar void X.foo():Y#1",
+		"test20631.jar void X.foo()",
 		resultCollector);
 }
 /**
@@ -2842,6 +2925,24 @@ public void testTypeReference4() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"otherSrc()/Y31997.java Y31997 [X31997]",
+		resultCollector);
+}
+/**
+ * Type reference test.
+ * (Regression test for bug 48261 Search does not show results)
+ */
+public void testTypeReference5() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "test48261.jar", "p", "X.java").getType("X");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment().getParent()});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"test48261.jar p.X$Y(java.lang.String)",
 		resultCollector);
 }
 /**

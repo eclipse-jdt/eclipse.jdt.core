@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -21,6 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.DeltaProcessingState;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -73,7 +76,12 @@ public static class DefaultContainerInitializer implements ContainerInitializer.
 						int length = libPaths.length;
 						IClasspathEntry[] entries = new IClasspathEntry[length];
 						for (int j = 0; j < length; j++) {
-							entries[j] = JavaCore.newLibraryEntry(new Path(new String(libPaths[j])), null, null);
+						    IPath path = new Path(new String(libPaths[j]));
+						    if (path.segmentCount() == 1) {
+						        entries[j] = JavaCore.newProjectEntry(path);
+						    } else {
+								entries[j] = JavaCore.newLibraryEntry(path, null, null);
+						    }
 						}
 						return entries;
 					}
@@ -121,7 +129,21 @@ public class NullContainerInitializer implements ContainerInitializer.ITestIniti
 public ClasspathInitializerTests(String name) {
 	super(name);
 }
+public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
+		suite.addTest(new ClasspathInitializerTests("testContainerInitializer6"));
+		return suite;
+	}
+	return new Suite(ClasspathInitializerTests.class);
+}
+protected void tearDown() throws Exception {
+	// Cleanup caches
+	JavaModelManager.Containers = new HashMap(5);
+	JavaModelManager.Variables = new HashMap(5);
 
+	super.tearDown();
+}
 public void testContainerInitializer1() throws CoreException {
 	try {
 		this.createProject("P1");
@@ -309,22 +331,62 @@ public void testContainerInitializer5() throws CoreException {
 		this.deleteProject("P1");
 	}
 }
-public static Test suite() {
-	if (true) {
-		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testContainerInitializer4"));
-		return suite;
+/*
+ * Ensures that running the initializer during a reconcile operation just after workspace startup
+ * doesn't throw a NPE
+ * (regression test for bug 48818 NPE in delta processor)
+  */
+public void testContainerInitializer6() throws CoreException {
+    ICompilationUnit workingCopy = null;
+	try {
+		this.createProject("P1");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", ""}));
+		IJavaProject p2 = this.createJavaProject(
+				"P2", 
+				new String[] {"src"}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"bin");
+		createFile(
+			"/P2/src/X,java",
+			"public class X {\n" +
+			"}"
+		);
+		workingCopy = getCompilationUnit("/P2/src/X.java");
+				
+		// change value of TEST_CONTAINER
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+
+		// simulate state on startup (flush containers, and preserve their previous values)
+		waitUntilIndexesReady();
+		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
+		JavaModelManager.Containers = new HashMap(5);
+		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		p2.close();
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaState);
+		JavaModelManager.getJavaModelManager().deltaState = new DeltaProcessingState();
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+			JavaModelManager.getJavaModelManager().deltaState,
+			IResourceChangeEvent.PRE_AUTO_BUILD
+					| IResourceChangeEvent.POST_AUTO_BUILD
+					| IResourceChangeEvent.POST_CHANGE
+					| IResourceChangeEvent.PRE_DELETE
+					| IResourceChangeEvent.PRE_CLOSE);
+		
+		startDeltas();
+		workingCopy.becomeWorkingCopy(null, null);
+		
+		assertDeltas(
+			"Unexpected delta on startup", 
+			"P2[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/P2/.project)[*]"
+		);
+	} finally {
+		stopDeltas();
+		if (workingCopy != null) workingCopy.discardWorkingCopy();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
-	return new Suite(ClasspathInitializerTests.class);
 }
-protected void tearDown() throws Exception {
-	// Cleanup caches
-	JavaModelManager.Containers = new HashMap(5);
-	JavaModelManager.Variables = new HashMap(5);
-
-	super.tearDown();
-}
-
 public void testVariableInitializer1() throws CoreException {
 	try {
 		this.createProject("P1");

@@ -11,15 +11,9 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 public class TypeReferencePattern extends AndPattern {
-
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new TypeReferencePattern(null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
 
 protected char[] qualification;
 protected char[] simpleName;
@@ -34,52 +28,47 @@ protected static char[][] CATEGORIES = { TYPE_REF, SUPER_REF, REF, CONSTRUCTOR_R
 protected static char[][] REF_CATEGORIES = { REF };
 
 public static char[] createIndexKey(char[] typeName) {
-	TypeReferencePattern record = getTypeReferenceRecord();
-	record.simpleName = typeName;
-	return record.encodeIndexKey();
+	return typeName != null ? typeName : CharOperation.NO_CHAR;
 }
-public static TypeReferencePattern getTypeReferenceRecord() {
-	return (TypeReferencePattern)indexRecord.get();
-}
-public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
-	super(TYPE_REF_PATTERN, matchRule);
 
-	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
-	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
+public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
+	this(matchRule);
+
+	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
+	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 
 	if (simpleName == null)
 		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
+	else
+		this.segments = null;
 	
 	this.mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
+}
+TypeReferencePattern(int matchRule) {
+	super(TYPE_REF_PATTERN, matchRule);
 }
 public void decodeIndexKey(char[] key) {
 	int nameLength = CharOperation.indexOf(SEPARATOR, key);
 	if (nameLength != -1)
 		key = CharOperation.subarray(key, 0, nameLength);
 	
-	this.simpleName = key;
-
-	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-	this.segments[0] = key;
+	this.simpleName = key; // decode into the simple name, see matchesDecodedPattern()
 }
 public char[] encodeIndexKey() {
-	if (this.simpleName == null) // Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-		if (this.currentSegment < 0) 
-			return null;
-		else
-			return encodeIndexKey(this.segments[this.currentSegment]);
-	else
+	if (this.simpleName != null)
 		return encodeIndexKey(this.simpleName);
+
+	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+	if (this.currentSegment >= 0) 
+		return encodeIndexKey(this.segments[this.currentSegment]);
+	return null;
 }
-public SearchPattern getIndexRecord() {
-	return getTypeReferenceRecord();
+public SearchPattern getBlankPattern() {
+	return new TypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	return this.simpleName == null ? REF_CATEGORIES : CATEGORIES;
 }
-/**
- * @see AndPattern#hasNextQuery
- */
 protected boolean hasNextQuery() {
 	if (this.simpleName != null) return false;
 
@@ -88,17 +77,13 @@ protected boolean hasNextQuery() {
 	// redundant (eg. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
-public boolean isMatchingIndexRecord() {
-	if (this.simpleName == null) {
-		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-		return matchesName(this.segments[this.currentSegment], getTypeReferenceRecord().segments[0]);
-	} else {
-		return matchesName(this.simpleName, getTypeReferenceRecord().simpleName);
-	}
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	if (this.simpleName != null)
+		return matchesName(this.simpleName, ((TypeReferencePattern) decodedPattern).simpleName);
+
+	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+	return matchesName(this.segments[this.currentSegment], ((TypeReferencePattern) decodedPattern).simpleName);
 }
-/**
- * @see AndPattern#resetQuery
- */
 protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
 	if (this.simpleName == null)
@@ -117,7 +102,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode()){
+	switch(this.matchMode) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -128,7 +113,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive())
+	if (this.isCaseSensitive)
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

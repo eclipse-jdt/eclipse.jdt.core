@@ -1,7 +1,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForConstructor extends JavadocTest {
 	public static Test suite() {
@@ -29,6 +33,15 @@ public class JavadocTestForConstructor extends JavadocTest {
 	}
 	public static Class testClass() {
 		return JavadocTestForConstructor.class;
+	}
+
+	protected Map getCompilerOptions() {
+		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		return options;
 	}
 
 	/* (non-Javadoc)

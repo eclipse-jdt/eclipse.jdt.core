@@ -24,12 +24,18 @@ public class JavadocSingleNameReference extends SingleNameReference {
 
 	public void resolve(BlockScope scope) {
 		
-		LocalVariableBinding variableBinding = scope.findVariable(token);
+		LocalVariableBinding variableBinding = scope.findVariable(this.token);
 		if (variableBinding != null && variableBinding.isValidBinding() && variableBinding.isArgument) {
 			this.binding = variableBinding;
 			return;
 		}
-		scope.problemReporter().javadocInvalidParamName(this, false);
+		try {
+			MethodScope methScope = (MethodScope) scope;
+			scope.problemReporter().javadocInvalidParamName(this, methScope.referenceMethod().modifiers);
+		}
+		catch (Exception e) {
+			scope.problemReporter().javadocInvalidParamName(this, -1);
+		}
 	}
 
 	/* (non-Javadoc)

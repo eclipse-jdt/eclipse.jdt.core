@@ -101,7 +101,7 @@ ClassFile[] getClasses() {
 				}
 			}
 			if (result.hasErrors()) {
-				hasErrors = true;
+				this.hasErrors = true;
 			} else {
 				ClassFile[] classFiles = result.getClassFiles();
 				for (int i = 0; i < classFiles.length; i++) {

@@ -38,7 +38,7 @@ public class JavadocParser {
 	
 	// Public fields
 	public Javadoc javadoc;
-	public boolean checkJavadoc;
+	public boolean checkJavadoc = false;
 	public Scanner scanner;
 	
 	// Private fields
@@ -62,7 +62,8 @@ public class JavadocParser {
 
 	JavadocParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
-		this.checkJavadoc = this.sourceParser.options.getSeverity(CompilerOptions.InvalidJavadoc) != ProblemSeverities.Ignore;
+		this.checkJavadoc = (this.sourceParser.options.getSeverity(CompilerOptions.InvalidJavadoc) != ProblemSeverities.Ignore) ||
+			(this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore);
 		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null);
 		this.identifierStack = new char[10][];
 		this.identifierPositionStack = new long[10];
@@ -87,6 +88,8 @@ public class JavadocParser {
 				this.astLengthPtr = -1;
 				this.astPtr = -1;
 				this.currentTokenType = -1;
+			} else if (this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore) {
+				this.javadoc = new Javadoc(javadocStart, javadocEnd);
 			} else {
 				this.javadoc = null;
 			}
@@ -196,14 +199,14 @@ public class JavadocParser {
 		int modulo = 0; // should be 2 for (Type,Type,...) or 3 for (Type arg,Type arg,...)
 		int iToken = 0;
 		char[] argName = null;
-		int ptr = astPtr;
-		int lptr = astLengthPtr;
+		int ptr = this.astPtr;
+		int lptr = this.astLengthPtr;
 		
 		// Decide whether we have a constructor or not
 		boolean isConstructor = true;
 		if (receiver != null) {
 			char[][] receiverTokens = receiver.getTypeName();
-			char[] memberName = identifierStack[0];
+			char[] memberName = this.identifierStack[0];
 			isConstructor = CharOperation.equals(memberName, receiverTokens[receiverTokens.length-1]);
 		}
 
@@ -227,11 +230,11 @@ public class JavadocParser {
 			if (typeRef == null) {
 				if (firstArg && this.currentTokenType == TerminalTokens.TokenNameRPAREN) {
 					if (isConstructor) {
-						JavadocAllocationExpression expr = new JavadocAllocationExpression(identifierPositionStack[0]);
+						JavadocAllocationExpression expr = new JavadocAllocationExpression(this.identifierPositionStack[0]);
 						expr.type = receiver;
 						return expr;
 					} else {
-						JavadocMessageSend msg = new JavadocMessageSend(identifierStack[0], identifierPositionStack[0]);
+						JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[0], this.identifierPositionStack[0]);
 						msg.receiver = receiver;
 						return msg;
 					}
@@ -306,20 +309,20 @@ public class JavadocParser {
 				// Create new argument
 				JavadocArgumentExpression expr = new JavadocArgumentExpression(name, argStart, argEnd, typeRef);
 				pushOnAstStack(expr, firstArg);
-				int size = astLengthStack[astLengthPtr--];
+				int size = this.astLengthStack[this.astLengthPtr--];
 				// Build arguments array
 				JavadocArgumentExpression[] arguments = new JavadocArgumentExpression[size];
 				for (int i = (size - 1); i >= 0; i--) {
-					arguments[i] = (JavadocArgumentExpression) astStack[astPtr--];
+					arguments[i] = (JavadocArgumentExpression) this.astStack[this.astPtr--];
 				}
 				// Create message send
 				if (isConstructor) {
-					JavadocAllocationExpression alloc = new JavadocAllocationExpression(identifierPositionStack[0]);
+					JavadocAllocationExpression alloc = new JavadocAllocationExpression(this.identifierPositionStack[0]);
 					alloc.arguments = arguments;
 					alloc.type = receiver;
 					return alloc;
 				} else {
-					JavadocMessageSend msg = new JavadocMessageSend(identifierStack[0], identifierPositionStack[0], arguments);
+					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[0], this.identifierPositionStack[0], arguments);
 					msg.receiver = receiver;
 					return msg;
 				}
@@ -402,7 +405,7 @@ public class JavadocParser {
 		if (readTokenAndConsume() == TerminalTokens.TokenNameIdentifier) {
 			pushIdentifier(true);
 			if (readTokenAndConsume() == TerminalTokens.TokenNameLPAREN) {
-				start = this.scanner.currentPosition;
+				start = this.scanner.getCurrentTokenStartPosition();
 				try {
 					return parseArguments(typeRef);
 				} catch (InvalidInputException e) {
@@ -414,7 +417,7 @@ public class JavadocParser {
 				}
 				return null;
 			}
-			JavadocFieldReference field = new JavadocFieldReference(identifierStack[0], identifierPositionStack[0]);
+			JavadocFieldReference field = new JavadocFieldReference(this.identifierStack[0], this.identifierPositionStack[0]);
 			field.receiver = typeRef;
 			field.tagSourceStart = this.tagSourceStart;
 			field.tagSourceEnd = this.tagSourceEnd;
@@ -449,8 +452,8 @@ public class JavadocParser {
 					//end = scanner.eofPosition-2;
 					break;
 				default :
-					start = scanner.getCurrentTokenStartPosition();
-					end = scanner.getCurrentTokenEndPosition();
+					start = this.scanner.getCurrentTokenStartPosition();
+					end = this.scanner.getCurrentTokenEndPosition();
 					break;
 			}
 		} catch (InvalidInputException e) {
@@ -524,8 +527,8 @@ public class JavadocParser {
 		int size = this.identifierLengthStack[this.identifierLengthPtr--];
 		if (size == 1) { // Single Type ref
 			typeRef = new JavadocSingleTypeReference(
-						identifierStack[this.identifierPtr],
-						identifierPositionStack[this.identifierPtr],
+						this.identifierStack[this.identifierPtr],
+						this.identifierPositionStack[this.identifierPtr],
 						this.tagSourceStart,
 						this.tagSourceEnd);
 		} else if (size > 1) { // Qualified Type ref
@@ -627,13 +630,13 @@ public class JavadocParser {
 	 */
 	private void parseReturn() {
 		if (this.javadoc.returnStatement == null) {
-			this.javadoc.returnStatement = new JavadocReturnStatement(scanner.getCurrentTokenStartPosition(),
-					scanner.getCurrentTokenEndPosition(),
-					scanner.getRawTokenSourceEnd());
+			this.javadoc.returnStatement = new JavadocReturnStatement(this.scanner.getCurrentTokenStartPosition(),
+					this.scanner.getCurrentTokenEndPosition(),
+					this.scanner.getRawTokenSourceEnd());
 		} else {
-			this.sourceParser.problemReporter().javadocDuplicateReturnTag(
-					scanner.getCurrentTokenStartPosition(),
-					scanner.getCurrentTokenEndPosition());
+			this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
+					this.scanner.getCurrentTokenStartPosition(),
+					this.scanner.getCurrentTokenEndPosition());
 		}
 	}
 
@@ -891,7 +894,7 @@ public class JavadocParser {
 			if (ptr == SEE_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				for (int i=0; i<size; i++) {
-					this.javadoc.references[--sizes[ptr]] = (Expression) this.astStack[astPtr--];
+					this.javadoc.references[--sizes[ptr]] = (Expression) this.astStack[this.astPtr--];
 				}
 			}
 
@@ -899,7 +902,7 @@ public class JavadocParser {
 			else if (ptr == THROWS_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				for (int i=0; i<size; i++) {
-					this.javadoc.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[astPtr--];
+					this.javadoc.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[this.astPtr--];
 				}
 			}
 
@@ -907,7 +910,7 @@ public class JavadocParser {
 			else if (ptr == PARAM_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				for (int i=0; i<size; i++) {
-					this.javadoc.parameters[--sizes[ptr]] = (JavadocSingleNameReference) this.astStack[astPtr--];
+					this.javadoc.parameters[--sizes[ptr]] = (JavadocSingleNameReference) this.astStack[this.astPtr--];
 				}
 			}
 		}

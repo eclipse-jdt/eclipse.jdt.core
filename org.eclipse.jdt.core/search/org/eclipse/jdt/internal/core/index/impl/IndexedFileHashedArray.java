@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core.index.impl;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
 
 public final class IndexedFileHashedArray {
 
@@ -31,7 +31,7 @@ public IndexedFileHashedArray(int size) {
 	this.replacedElements = null;
 }
 
-public IndexedFile add(IDocument document) {
+public IndexedFile add(SearchDocument document) {
 	return add(new IndexedFile(document, ++lastId));
 }
 

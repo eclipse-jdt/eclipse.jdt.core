@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -227,6 +227,22 @@ public void testBinaryTypeGetSuperInterfaces2() throws JavaModelException {
 		"rich.I3\n", 
 		superInterfaces);
 }
+/*
+ * Ensures that a hierarchy with a binary subclass that is also referenced can be computed
+ * (regression test for bug 48459 NPE in Type hierarchy)
+ */
+public  void testBinarySubclass() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy/src/p48459/p1/X48459.java").getType("X48459");
+	ITypeHierarchy h = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: X48459 [in X48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in foo [in Z48459 [in Z48459.java [in p48459.p1 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  Y48459 [in Y48459.class [in p48459.p2 [in lib48459 [in TypeHierarchy]]]]\n",
+		h);
+}
 /**
  * Ensures that contains(...) returns true for a type that is part of the
  * hierarchy and false otherwise.
@@ -422,6 +438,60 @@ public void testPotentialSubtypeNotInClasspath() throws JavaModelException {
 		types
 	);
 }
+/*
+ * Ensures that a type hierarchy on a region contains all subtypes
+ * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
+ */
+public void testRegion1() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q1");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q1.X\n" +
+		"q1.Z\n" +
+		"q2.Y\n",
+		h.getAllTypes()
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains all subtypes
+ * (regression test for bug 47743 Open type hiearchy problems [type hierarchy])
+ */
+public void testRegion2() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "q2");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q1.X\n" +
+		"q2.Y\n",
+		h.getAllTypes()
+	);
+}
+public void testRegion3() throws JavaModelException {
+	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "p9");
+	IRegion region = JavaCore.newRegion();
+	region.add(pkg);
+	ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"p9.X\n" + 
+		"p9.X$1\n" + 
+		"p9.X$Y\n",
+		h.getAllTypes()
+	);
+}
+/*
+ * Ensures that a type hierarchy on a region contains anonymous/local types in this region
+ * (regression test for bug 48395 Hierarchy on region misses local classes)
+ */
+
 /**
  * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
  */

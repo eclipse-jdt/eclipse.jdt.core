@@ -212,7 +212,7 @@ protected char[] getSource() {
 	buffer.append(ROOT_CLASS_NAME);
 	buffer.append(" {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 	lineNumberOffset++;
-	startPosOffset = buffer.length();
+	this.startPosOffset = buffer.length();
 
 	// field declarations
 	GlobalVariable[] vars = this.context.variables;

@@ -20,8 +20,8 @@ import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
+import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
@@ -47,7 +47,7 @@ public class IndexBinaryFolder extends IndexRequest {
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!this.folder.isAccessible()) return true; // nothing to do
 
-		IIndex index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+		Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = this.manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -56,7 +56,7 @@ public class IndexBinaryFolder extends IndexRequest {
 			monitor.enterRead(); // ask permission to read
 			saveIfNecessary(index, monitor);
 
-			String[] paths = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+			String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
 			int max = paths == null ? 0 : paths.length;
 			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 			final String OK = "OK"; //$NON-NLS-1$
@@ -67,11 +67,9 @@ public class IndexBinaryFolder extends IndexRequest {
 						if (isCancelled) return false;
 						if (proxy.getType() == IResource.FILE) {
 							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
-								IResource resource = proxy.requestResource();
-								if (resource.getLocation() != null) {
-									String name = new IFileDocument((IFile) resource).getName();
-									indexedFileNames.put(name, resource);
-								}
+								IFile file = (IFile) proxy.requestResource();
+								if (file.getLocation() != null)
+									indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
 							}
 							return false;
 						}
@@ -89,13 +87,13 @@ public class IndexBinaryFolder extends IndexRequest {
 							if (isCancelled) return false;
 							if (proxy.getType() == IResource.FILE) {
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
-									IResource resource = proxy.requestResource();
-									IPath path = resource.getLocation();
-									if (path != null) {
-										String name = new IFileDocument((IFile) resource).getName();
-										indexedFileNames.put(name,
-											indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
-												? (Object) resource
+									IFile file = (IFile) proxy.requestResource();
+									IPath location = file.getLocation();
+									if (location != null) {
+										String path = new JavaSearchDocument(file, null).getPath();
+										indexedFileNames.put(path,
+											indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
+												? (Object) file
 												: (Object) OK);
 									}
 								}

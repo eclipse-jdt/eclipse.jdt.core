@@ -102,7 +102,7 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 }
 public void checkComment() {
 	super.checkComment();
-	if (this.javadoc != null) {
+	if (this.javadocParser.checkJavadoc && this.javadoc != null) {
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
@@ -188,13 +188,6 @@ protected void consumeMethodInvocationSuper() {
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
-	intPtr--;
-	intPtr--;
-}
-protected void consumePrimaryNoNewArrayWithName() {
-	// pop parenthesis positions (and don't update expression positions
-	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
-	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 	intPtr--;
 	intPtr--;
 }

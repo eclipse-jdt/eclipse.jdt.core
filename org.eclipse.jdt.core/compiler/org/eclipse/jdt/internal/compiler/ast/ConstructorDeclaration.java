@@ -395,8 +395,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		
 		if (this.binding == null || this.javadoc != null) {
 			super.resolveJavadoc();
-		} else if (!isDefaultConstructor && this.binding.isPublic()) {
-			this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
+		} else if (!isDefaultConstructor) {
+			this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
 		}
 	}
 

@@ -47,9 +47,7 @@ public void addBufferChangedListener(IBufferChangedListener listener);
  * Any client can append to the contents of the buffer, not just the owner of the buffer.
  * Reports a buffer changed event.
  * <p>
- * Has no effect if this buffer is read-only.
- * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param text the given character array to append to contents of the buffer
  */
@@ -60,9 +58,7 @@ public void append(char[] text);
  * Any client can append to the contents of the buffer, not just the owner of the buffer.
  * Reports a buffer changed event.
  * <p>
- * Has no effect if this buffer is read-only.
- * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param text the <code>String</code> to append to the contents of the buffer
  */
@@ -79,7 +75,7 @@ public void close();
 /**
  * Returns the character at the given position in this buffer.
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * The returned value is undefined if the buffer is closed.
  *
  * @param position a zero-based source offset in this buffer
  * @return the character at the given position in this buffer
@@ -94,9 +90,8 @@ public char getChar(int position);
  * wishes to change this array, they should make a copy. Likewise, if the
  * client wishes to hang on to the array in its current state, they should
  * make a copy.
- * </p>
- * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * </p><p>
+ * The returned value is undefined if the buffer is closed.
  *
  * @return the characters contained in this buffer
  */
@@ -106,7 +101,7 @@ public char[] getCharacters();
  * the result is an immutable value object., It can also answer <code>null</code> if
  * the buffer has not been initialized.
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * The returned value is undefined if the buffer is closed.
  *
  * @return the contents of this buffer as a <code>String</code>
  */
@@ -114,7 +109,7 @@ public String getContents();
 /**
  * Returns number of characters stored in this buffer.
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * The returned value is undefined if the buffer is closed.
  *
  * @return the number of characters in this buffer
  */
@@ -128,7 +123,7 @@ public IOpenable getOwner();
 /**
  * Returns the given range of text in this buffer.
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * The returned value is undefined if the buffer is closed.
  *
  * @param offset the  zero-based starting offset
  * @param length the number of characters to retrieve
@@ -181,7 +176,7 @@ public void removeBufferChangedListener(IBufferChangedListener listener);
  * <code>position</code> and <code>position + length</code> must be in the range [0, getLength()].
  * <code>length</code> must not be negative.
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param position the zero-based starting position of the affected text range in this buffer
  * @param length the length of the affected text range in this buffer
@@ -193,7 +188,7 @@ public void replace(int position, int length, char[] text);
  * <code>position</code> and <code>position + length</code> must be in the range [0, getLength()].
  * <code>length</code> must not be negative.
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param position the zero-based starting position of the affected text range in this buffer
  * @param length the length of the affected text range in this buffer
@@ -220,7 +215,7 @@ public void replace(int position, int length, String text);
  * In either case, if this method succeeds, the resource will be marked 
  * as being local (even if it wasn't before).
  * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param progress the progress monitor to notify
  * @param force a <code> boolean </code> flag indicating how to deal with resource
@@ -239,11 +234,8 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
  * Reports a buffer changed event.
  * <p>
  * Equivalent to <code>replace(0,getLength(),contents)</code>.
- * </p>
- * <p>
- * Has no effect if this buffer is read-only.
- * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * </p><p>
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param contents the new contents of this buffer as a character array
  */
@@ -255,11 +247,8 @@ public void setContents(char[] contents);
  * Reports a buffer changed event.
  * <p>
  * Equivalent to <code>replace(0,getLength(),contents)</code>.
- * </p>
- * <p>
- * Has no effect if this buffer is read-only.
- * <p>
- * A <code>RuntimeException</code> might be thrown if the buffer is closed.
+ * </p><p>
+ * Has no effect if this buffer is read-only or if the buffer is closed.
  *
  * @param contents the new contents of this buffer as a <code>String</code>
  */

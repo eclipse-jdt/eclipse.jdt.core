@@ -102,7 +102,7 @@ public SourceElementParser(
 
 public void checkComment() {
 	super.checkComment();
-	if (reportReferenceInfo && this.javadoc != null) {
+	if (this.reportReferenceInfo && this.javadocParser.checkJavadoc && this.javadoc != null) {
 		// Report reference info in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
@@ -110,10 +110,10 @@ public void checkComment() {
 			TypeReference typeRef = thrownExceptions[i];
 			if (typeRef instanceof JavadocSingleTypeReference) {
 				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
-				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+				this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
 			} else if (typeRef instanceof JavadocQualifiedTypeReference) {
 				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) typeRef;
-				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+				this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
 			}
 		}
 
@@ -122,26 +122,33 @@ public void checkComment() {
 		int seeTagsNbre = references == null ? 0 : references.length;
 		for (int i = 0; i < seeTagsNbre; i++) {
 			Expression reference = references[i];
-			if (reference instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) reference;
-				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (reference instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) reference;
-				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
-			} else if (reference instanceof JavadocFieldReference) {
+			acceptJavadocTypeReference(reference);
+			if (reference instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
-				requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
+				this.requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
+				acceptJavadocTypeReference(fieldRef.receiver);
 			} else if (reference instanceof JavadocMessageSend) {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
-				requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
+				this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
+				acceptJavadocTypeReference(messageSend.receiver);
 			} else if (reference instanceof JavadocAllocationExpression) {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
 				char[][] compoundName = constructor.type.getTypeName();
-				requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
+				this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
+				acceptJavadocTypeReference(constructor.type);
 			}
 		}
+	}
+}
+private void acceptJavadocTypeReference(Expression expression) {
+	if (expression instanceof JavadocSingleTypeReference) {
+		JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) expression;
+		this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+	} else if (expression instanceof JavadocQualifiedTypeReference) {
+		JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) expression;
+		this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
@@ -388,61 +395,49 @@ protected CompilationUnitDeclaration endParse(int act) {
 		return null;
 	}		
 }
-protected TypeReference getTypeReference(int dim) {
+public TypeReference getTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
 	 */
-
-	/* build a Reference on a variable that may be qualified or not
-	 This variable is a type reference and dim will be its dimensions*/
-
-	int length = identifierLengthStack[identifierLengthPtr--];
-	if (length < 0) { //flag for precompiled type reference on base types
-		TypeReference ref = TypeReference.baseTypeReference(-length, dim);
-		ref.sourceStart = intStack[intPtr--];
+	int length;
+	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
+		// single variable reference
 		if (dim == 0) {
-			ref.sourceEnd = intStack[intPtr--];
-		} else {
-			intPtr--; // no need to use this position as it is an array
-			ref.sourceEnd = endPosition;
-		}
-		if (reportReferenceInfo){
-				requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
-		}
-		return ref;
-	} else {
-		int numberOfIdentifiers = genericsIdentifiersLengthStack[genericsIdentifiersLengthPtr--];
-		if (length != numberOfIdentifiers || genericsLengthStack[genericsLengthPtr] != 0) {
-			// generic type
-			// TODO handle accept of generic types
-			return getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
-		} else if (length == 1) {
-			// single variable reference
-			genericsLengthPtr--; // pop the 0
-			if (dim == 0) {
-				SingleTypeReference ref = 
-						new SingleTypeReference(
-							identifierStack[identifierPtr], 
-							identifierPositionStack[identifierPtr--]); 
-				if (reportReferenceInfo) {
-					requestor.acceptTypeReference(ref.token, ref.sourceStart);
-				}
-				return ref;
-			} else {
-				ArrayTypeReference ref = 
-					new ArrayTypeReference(
-						identifierStack[identifierPtr], 
-						dim, 
-						identifierPositionStack[identifierPtr--]); 
-				ref.sourceEnd = endPosition;			
-				if (reportReferenceInfo) {
-					requestor.acceptTypeReference(ref.token, ref.sourceStart);
-				}
-				return ref;
+			SingleTypeReference ref = 
+				new SingleTypeReference(
+					identifierStack[identifierPtr], 
+					identifierPositionStack[identifierPtr--]);
+			if (reportReferenceInfo) {
+				requestor.acceptTypeReference(ref.token, ref.sourceStart);
 			}
+			return ref;
 		} else {
-			genericsLengthPtr--;
-			//Qualified variable reference
+			ArrayTypeReference ref = 
+				new ArrayTypeReference(
+					identifierStack[identifierPtr], 
+					dim, 
+					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;
+			if (reportReferenceInfo) {
+				requestor.acceptTypeReference(ref.token, ref.sourceStart);
+			}
+			return ref;
+		}
+	} else {
+		if (length < 0) { //flag for precompiled type reference on base types
+			TypeReference ref = TypeReference.baseTypeReference(-length, dim);
+			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--; // no need to use this position as it is an array
+				ref.sourceEnd = endPosition;
+			}
+			if (reportReferenceInfo){
+					requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+			}
+			return ref;
+		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
 			long[] positions = new long[length];
@@ -471,7 +466,7 @@ protected TypeReference getTypeReference(int dim) {
 		}
 	}
 }
-protected NameReference getUnspecifiedReference() {
+public NameReference getUnspecifiedReference() {
 	/* build a (unspecified) NameReference which may be qualified*/
 
 	int length;

@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class BufferTests extends ModifyingResourceTests implements IBufferChangedListener {
 	protected BufferChangedEvent event= null;
@@ -67,28 +66,7 @@ public void tearDownSuite() throws Exception {
 
 
 public static Test suite() {
-	TestSuite suite = new Suite(BufferTests.class.getName());
-
-	suite.addTest(new BufferTests("testAppend"));
-	suite.addTest(new BufferTests("testAppendReadOnly"));
-	suite.addTest(new BufferTests("testClose"));
-	suite.addTest(new BufferTests("testGetChar"));
-	suite.addTest(new BufferTests("testGetLength"));
-	suite.addTest(new BufferTests("testGetText"));
-	suite.addTest(new BufferTests("testGetUnderlyingResource"));
-	suite.addTest(new BufferTests("testInsertBeginning"));
-	suite.addTest(new BufferTests("testInsertMiddle"));
-	suite.addTest(new BufferTests("testInsertEnd"));
-	suite.addTest(new BufferTests("testReplaceBeginning"));
-	suite.addTest(new BufferTests("testReplaceMiddle"));
-	suite.addTest(new BufferTests("testReplaceEnd"));
-	suite.addTest(new BufferTests("testDeleteBeginning"));
-	suite.addTest(new BufferTests("testDeleteMiddle"));
-	suite.addTest(new BufferTests("testDeleteEnd"));
-
-	suite.addTest(new BufferTests("testCreateImport"));
-	
-	return suite;
+	return new Suite(BufferTests.class);
 }
 /**
  * Tests appending to a buffer.
@@ -272,6 +250,24 @@ public void testGetChar() throws CoreException {
 	);
 	try {
 		assertEquals("Unexpected char at position 17", 'i', buffer.getChar(17));
+	} finally {
+		this.deleteBuffer(buffer);
+	}
+}
+/**
+ * Tests the buffer char retrieval via source position doesn't throw an exception if the buffer is closed.
+ * (regression test for bug 46040 NPE in Eclipse console)
+ */
+public void testGetChar2() throws CoreException {
+	IBuffer buffer = this.createBuffer(
+		"P/x/y/A.java",
+		"package x.y;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	buffer.close();
+	try {
+		assertEquals("Unexpected char at position 17", Character.MIN_VALUE, buffer.getChar(17));
 	} finally {
 		this.deleteBuffer(buffer);
 	}

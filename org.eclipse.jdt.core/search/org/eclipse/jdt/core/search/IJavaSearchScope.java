@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 
 /**
  * An <code>IJavaSearchScope</code> defines where search result should be found by a
@@ -23,12 +22,12 @@ import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
  * clients may choose to implement this interface.
  */
 public interface IJavaSearchScope {
-	/**
-	 * This constant defines the separator of the resourcePath string of the <code>encloses(String)</code>
-	 * method. If present in the string, it separates the path to the jar file from the path
-	 * to the .class file in the jar.
-	 */
-	String JAR_FILE_ENTRY_SEPARATOR = JarFileEntryDocument.JAR_FILE_ENTRY_SEPARATOR;
+/**
+ * This constant defines the separator of the resourcePath string of the <code>encloses(String)</code>
+ * method. If present in the string, it separates the path to the jar file from the path
+ * to the .class file in the jar.
+ */
+String JAR_FILE_ENTRY_SEPARATOR = "|"; //$NON-NLS-1$
 /**
  * Checks whether the resource at the given path is enclosed by this scope.
  *

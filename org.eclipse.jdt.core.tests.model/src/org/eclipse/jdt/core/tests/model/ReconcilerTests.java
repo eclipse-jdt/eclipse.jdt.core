@@ -930,4 +930,16 @@ public void testUnhandledException() throws JavaModelException {
 		"----------\n"
 	);
 }
+/**
+ * Check that forcing a make consistent action is leading the next reconcile to not notice changes.
+ */
+public void testMakeConsistentFoolingReconciler() throws JavaModelException {
+	this.workingCopy.getBuffer().setContents("");
+	this.workingCopy.makeConsistent(null);
+	this.workingCopy.reconcile(false, null);
+	assertDeltas(
+		"Should have got NO delta", 
+		""
+	);
+}
 }

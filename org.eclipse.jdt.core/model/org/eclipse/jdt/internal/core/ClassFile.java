@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
  */
 protected ClassFile(PackageFragment parent, String name) {
 	super(parent, name);
-	checkAutomaticSourceMapping = false;
+	this.checkAutomaticSourceMapping = false;
 }
 
 /**
@@ -126,12 +126,8 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 	IBuffer buffer = getBuffer();
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
-		IType current = this.getType();
-		IType parentType;
-		while ((parentType = current.getDeclaringType()) != null){
-			current = parentType;
-		}
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + SUFFIX_STRING_java, null);
+	    String topLevelTypeName = getTopLevelTypeName();
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, topLevelTypeName + SUFFIX_STRING_java, null);
 		return super.codeSelect(cu, offset, length, owner);
 	} else {
 		//has no associated souce
@@ -191,7 +187,7 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
  * @exception JavaModelException when the IFile resource or JAR is not available
  * or when this class file is not present in the JAR
  */
-private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
+public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	JavaElement le = (JavaElement) getParent();
 	if (le instanceof JarPackageFragment) {
 		try {
@@ -235,6 +231,14 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 			//the structure remains unknown
 			return null;
 		}
+	}
+}
+public IBuffer getBuffer() throws JavaModelException {
+	if (isValidClassFile()) {
+		return super.getBuffer();
+	} else {
+		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
+		return openBuffer(null, null);
 	}
 }
 /**
@@ -348,6 +352,19 @@ public ISourceRange getSourceRange() throws JavaModelException {
 		return null;
 	}
 }
+/*
+ * Returns the name of the toplevel type of this class file.
+ */
+public String getTopLevelTypeName() {
+    String topLevelTypeName = getElementName();
+    int firstDollar = topLevelTypeName.indexOf('$');
+    if (firstDollar != -1) {
+        topLevelTypeName = topLevelTypeName.substring(0, firstDollar);
+    } else {
+        topLevelTypeName = topLevelTypeName.substring(0, topLevelTypeName.length()-SUFFIX_CLASS.length);
+    }
+    return topLevelTypeName;
+}
 /**
  * @see IClassFile
  */
@@ -456,7 +473,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	SourceMapper mapper = getSourceMapper();
 	if (mapper != null) {
 		return mapSource(mapper);
-	} else if (!checkAutomaticSourceMapping) {
+	} else if (!this.checkAutomaticSourceMapping) {
 		/*
 		 * We try to see if we can automatically attach a source
 		 * source files located inside the same folder than its .class file
@@ -481,7 +498,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 				}
 				if (zipEntry != null) {
 					// found a source file
-					checkAutomaticSourceMapping = true;
+					this.checkAutomaticSourceMapping = true;
 					root.attachSource(root.getPath(), null, null);
 					SourceMapper sourceMapper = getSourceMapper();
 					if (sourceMapper != null) {
@@ -506,7 +523,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension(EXTENSION_java);
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				if (workspace == null) {
-					checkAutomaticSourceMapping = true; // we don't want to check again
+					this.checkAutomaticSourceMapping = true; // we don't want to check again
 					return null; // workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=34069
 				}
 				if (JavaModel.getTarget(
@@ -516,7 +533,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 							
 					// found a source file
 					 // we don't need to check again. The source will be attached.
-					checkAutomaticSourceMapping = true;
+					this.checkAutomaticSourceMapping = true;
 					root.attachSource(root.getPath(), null, null);
 					SourceMapper sourceMapper = getSourceMapper();
 					if (sourceMapper != null) {

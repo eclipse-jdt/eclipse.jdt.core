@@ -33,11 +33,306 @@
   </tr>
 </table>
 
+<a name="v_397"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M7 Build - ? January 2004
+<br>Project org.eclipse.jdt.core v_397
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_397">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API to get the scheduling rule for a Java element:
+<pre>
+	/**
+	 * Returns the scheduling rule associated with this Java element.
+	 * This is a handle-only method.
+	 * 
+	 * @return the scheduling rule associated with this Java element
+	 * @since 3.0
+	 */
+	ISchedulingRule getSchedulingRule();
+</pre>
+</li>
+<li>Code formatter: If you did change the value of the setting controlling the insertion of a white space between empty arguments of a method declaration,
+then you have to change it again. Indeed, a spelling mistake has been fixed in the constant name. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49530">49530</a>.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49760">49760</a>
+Splitting up FORMATTER_INSERT_SPACE_WITHIN_MESSAGE_SEND
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49763">49763</a>
+New formatter: Problem with empty statement in while
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48701">48701</a>
+NPE evaluating watch expression 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49290">49290</a>
+NullpointerException in TypeBinding.getInterfaces(). 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49660">49660</a>
+Code formatter line wrapping indentation ignores whitespace settings
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48293">48293</a>
+[DCR] IJavaElement should implement ISchedulingRule 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48459">48459</a>
+NPE in Type hierarchy 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49653">49653</a>
+Unnecessary white space is added after last semicolon in for statement without increments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49351">49351</a>
+New code formatter: left curly brace placement
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49530">49530</a>
+Spelling mistake in the FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS string constant
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49298">49298</a>
+Code formatter does not correctly space closing bracket on method calls
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48395">48395</a>
+Hierarchy on region misses local classes 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47743">47743</a>
+Open type hiearchy problems [type hierarchy] 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49571">49571</a>
+White space options for method and constructor declarations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49577">49577</a>
+Add an option to specify the number of blank lines between two type declarations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49551">49551</a>
+formatter fails on empty statement between package and imports
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39943">39943</a>
+[navigation] outliner auto-changes selection (multi-fields) 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49490">49490</a>
+New Code Formatter; Java Coding Conventions; Blank Lines; Before first declaration
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49561">49561</a>
+Commit should only lock parent's folder 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47699">47699</a>
+Make org.eclipse.core.runtime.compatibility non optional 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=41444">41444</a>
+[navigation] error dialog on opening class file 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48350">48350</a>
+IType#resolveType(String) fails on local types 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49120">49120</a>
+search doesn't find references to anonymous inner methods 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49482">49482</a>
+New Code Formatter; if/else without curly braces; guardian clause (2)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49481">49481</a>
+New Code Formatter; if/else without curly braces; guardian clause (1)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49361">49361</a>
+FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49243">49243</a>
+New code formatter: missing feature
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49429">49429</a>
+error during build
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48404">48404</a>
+formatter: no edit returned
+
+<a name="v_396"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M6 Build - 18th December 2003 - 3.0 MILESTONE-6
+<br>Project org.eclipse.jdt.core v_396
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_396">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49081">49081</a>
+JDT is no more using the tab character by default for indentation 
+
+<a name="v_395"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M6 Build - 17th December 2003
+<br>Project org.eclipse.jdt.core v_395
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_395">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48706">48706</a>
+NPE in move refactoring 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48965">48965</a>
+Javadoc problem preference settings: Use 'include' instead of 'ignore'
+
+<a name="v_394"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M6 Build - 16th December 2003
+<br>Project org.eclipse.jdt.core v_394
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_394">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47209">47209</a>
+Javadoc: Type references are not found in @see tag inside a method reference
+
+<a name="v_393"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M6 Build - 16th December 2003
+<br>Project org.eclipse.jdt.core v_393
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_393">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48818">48818</a>
+NPE in delta processor 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48711">48711</a>
+javadoc-warning if derived exception in @throws clause
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46040">46040</a>
+NPE in Eclipse console 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48725">48725</a>
+Cannot search for local vars in jars. 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48749">48749</a>
+[Compiler] deprecation check in initializer fooled by trailing deprecated field decl
+
+
+<a name="v_392"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M6 Build - 15th December 2003
+<br>Project org.eclipse.jdt.core v_392
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_392">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> Added option to avoid reporting a warning when overriding a deprecated method. By default, such
+warnings are no longer reported.
+<pre>
+ * COMPILER / Reporting Deprecation When Overriding Deprecated Method
+ *    When enabled, the compiler will signal the declaration of a method overriding a deprecated one.
+ *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
+ *     - option id:        "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "disabled"
+</pre>	 
+<li>Compiler options to signal problems with javadoc comments have been improved. User can now decide to report
+independently problems on invalid tags (syntax and references), missing tags and missing comments.
+Invalid references, missing tags or missing comments problem can be now ignored below a specific visibility level.
+Finally, user will also have the possibility to ignore missing tags and missing comments on overriding methods
+(assuming that complete Javadoc comments is done in superclass or interface declaration).
+<br>
+Here's the complete list of these options:
+<pre>
+	 * COMPILER / Reporting Invalid Javadoc Comment
+	 *    This is the generic control for the severity of Javadoc problems.
+	 *    When enabled, the compiler will issue an error or a warning for a problem in Javadoc.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Visibility Level For Invalid Javadoc Tags
+	 *    Set the minimum visibility level for Javadoc tag problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "private"
+	 * 
+	 * COMPILER / Reporting Invalid Javadoc Tags
+	 *    When enabled, the compiler will signal unbound or unexpected reference tags in Javadoc.
+	 *    A 'throws' tag referencing an undeclared exception would be considered as unexpected.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *    <br>
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
+	 *     - possible values:   { "disabled", "enabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Tags
+	 *    This is the generic control for the severity of Javadoc missing tag problems.
+	 *    When enabled, the compiler will issue an error or a warning when tags are missing in Javadoc comments.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility".
+	 *    <br>
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTags"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Visibility Level For Missing Javadoc Tags
+	 *    Set the minimum visibility level for Javadoc missing tag problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "private"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Tags on Overriding Methods
+	 *    Specify whether the compiler will verify overriding methods in order to report Javadoc missing tag problems.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comments
+	 *    This is the generic control for the severity of missing Javadoc comment problems.
+	 *    When enabled, the compiler will issue an error or a warning when Javadoc comments are missing.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the expected Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility".
+	 *    <br>
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocComments"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Visibility Level For Missing Javadoc Comments
+	 *    Set the minimum visibility level for missing Javadoc problems. Below this level problems will be ignored.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility"
+	 *     - possible values:   { "public", "protected", "default", "private" }
+	 *     - default:           "public"
+	 * 
+	 * COMPILER / Reporting Missing Javadoc Comments on Overriding Methods
+	 *    Specify whether the compiler will verify overriding methods in order to report missing Javadoc comment problems.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+</pre>
+Note that backward compatibility with previous options IDs: <code>"org.eclipse.jdt.core.compiler.problem.missingJavadoc"</code>
+will be supported until 3.0M7 build and removed after.
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47214">47214</a>
+Cannot open declaration on a selected method of an anonymous class 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47795">47795</a>
+NPE selecting method in anonymous 2 level deep 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48335">48335</a>
+[Compiler] Need option to not report deprecation in override scenarii
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48523">48523</a>
+@throws reference incorrectly warned as not declared
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47940">47940</a>
+Unable to control level  of JavaDoc errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47319">47319</a>
+Compiler warns on missing Javadoc tags for private methods.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46976">46976</a>
+Do not warn about 'Missing Javadoc'  for overriding methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46854">46854</a>
+[DCR] Javadoc configuration setting needs more flexibility
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48617">48617</a>
+Error range for unresolved names in qualified references
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48333">48333</a>
+[Compiler] Implicit deprecation isn't propagated to anonymous type
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46084">46084</a>
+ArrayIndexOutOfBoundsException in compiler after feeding with non-real java code 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=43354">43354</a>
+CodeAssist relevance should privilege package completion over type name 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48422">48422</a>
+Calling isStructureKnown() on ILocalVaraible throws JavaModelExceptions 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48261">48261</a>
+Search does not show results 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47213">47213</a>
+Inefficient recursion while initializing classpath container 
+
 <a name="v_391"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M6 Build - ?th December 2003
+Eclipse SDK 3.0M6 Build - 10th December 2003
 <br>Project org.eclipse.jdt.core v_391
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_391">cvs</a>).
 <h2>
@@ -88,9 +383,7 @@ Indentation/line wrapping problems with array initializers
 Indirect static proposal: Wrong compiler positions
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48141">48141</a>
 Formatter: Java Conventions/WS/Expressions/Operators 
-<br><!-- a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48143">48143</a>
-Formatter: Line Wrapping/Conditionals
-<br --><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45157">45157</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45157">45157</a>
 Source Formatter: Clear all Blank lines needs to have the ability to set a number of lines to keep.
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44673">44673</a>
 Formatting
@@ -202,8 +495,6 @@ Improve formatting of throws clauses
 New formatter not properly formatting long method invocation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44653">44653</a>
 // $NON-NLS-1$ comments not kept on same line of the string while formatting
-<!-- br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44642">44642</a>
-New formatter should better handle cascaded message -->
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46699">46699</a>
 IBinding.isSynthetic() returns false for compiler-generated constructor
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47415">47415</a>

@@ -303,26 +303,37 @@ public class ClassScope extends Scope {
 			// checks for member types before local types to catch local members
 			if (enclosingType.isStrictfp())
 				modifiers |= AccStrictfp;
-			if (enclosingType.isDeprecated())
+			if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
 				modifiers |= AccDeprecatedImplicitly;
 			if (enclosingType.isInterface())
 				modifiers |= AccPublic;
 		} else if (sourceType.isLocalType()) {
-			if (sourceType.isAnonymousType())
-				modifiers |= AccFinal;
-			ReferenceContext refContext = methodScope().referenceContext;
+			if (sourceType.isAnonymousType()) 
+			    modifiers |= AccFinal;
+			MethodScope methodScope = methodScope();
+			ReferenceContext refContext = methodScope.referenceContext;
 			if (refContext instanceof TypeDeclaration) {
-				ReferenceBinding type = ((TypeDeclaration) refContext).binding;
-				if (type.isStrictfp())
-					modifiers |= AccStrictfp;
-				if (type.isDeprecated())
-					modifiers |= AccDeprecatedImplicitly;
+			    
+				SourceTypeBinding type = ((TypeDeclaration) refContext).binding;
+
+				// inside field declaration ? check field modifier to see if deprecated
+				if (methodScope.initializedField != null) {
+						// currently inside this field initialization
+					if (methodScope.initializedField.isViewedAsDeprecated() && !sourceType.isDeprecated()){
+						modifiers |= AccDeprecatedImplicitly;
+					}
+				} else {
+					if (type.isStrictfp())
+						modifiers |= AccStrictfp;
+					if (type.isViewedAsDeprecated() && !sourceType.isDeprecated()) 
+						modifiers |= AccDeprecatedImplicitly;
+				}					
 			} else {
 				MethodBinding method = ((AbstractMethodDeclaration) refContext).binding;
 				if (method != null){
 					if (method.isStrictfp())
 						modifiers |= AccStrictfp;
-					if (method.isDeprecated())
+					if (method.isViewedAsDeprecated() && !sourceType.isDeprecated())
 						modifiers |= AccDeprecatedImplicitly;
 				}
 			}

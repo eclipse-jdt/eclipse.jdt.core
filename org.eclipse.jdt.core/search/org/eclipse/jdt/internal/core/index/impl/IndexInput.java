@@ -12,7 +12,8 @@ package org.eclipse.jdt.internal.core.index.impl;
 
 import java.io.IOException;
 
-import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 
 
 /**
@@ -71,7 +72,7 @@ public abstract class IndexInput {
 	 * reads in (e.g. the indexedFile with the same path in this index), or null if such 
 	 * indexedFile does not exist.
 	 */
-	public abstract IndexedFile getIndexedFile(IDocument document) throws IOException;
+	public abstract IndexedFile getIndexedFile(SearchDocument document) throws IOException;
 	/**
 	 * Returns the number of files in the index.
 	 */

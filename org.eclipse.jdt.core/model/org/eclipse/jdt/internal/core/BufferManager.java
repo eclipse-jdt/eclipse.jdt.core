@@ -38,6 +38,9 @@ public class BufferManager {
 	 * @deprecated
 	 */
 	protected org.eclipse.jdt.core.IBufferFactory defaultBufferFactory = new org.eclipse.jdt.core.IBufferFactory() {
+	    /**
+	     * @deprecated
+	     */
 		public IBuffer createBuffer(IOpenable owner) {
 			return BufferManager.this.createBuffer(owner);
 		}
@@ -51,9 +54,9 @@ protected void addBuffer(IBuffer buffer) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
 		System.out.println("Adding buffer for " + owner); //$NON-NLS-1$
 	}
-	openBuffers.put(buffer.getOwner(), buffer);
+	this.openBuffers.put(buffer.getOwner(), buffer);
 	if (VERBOSE) {
-		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 public IBuffer createBuffer(IOpenable owner) {
@@ -71,7 +74,7 @@ public IBuffer createBuffer(IOpenable owner) {
  * buffer associated with it.
  */
 public IBuffer getBuffer(IOpenable owner) {
-	return (IBuffer)openBuffers.get(owner);
+	return (IBuffer)this.openBuffers.get(owner);
 }
 /**
  * Returns the default buffer manager.
@@ -98,9 +101,9 @@ public org.eclipse.jdt.core.IBufferFactory getDefaultBufferFactory() {
  * @return Enumeration of IBuffer
  */
 public Enumeration getOpenBuffers() {
-	synchronized (openBuffers) {
-		openBuffers.shrink();
-		return openBuffers.elements();
+	synchronized (this.openBuffers) {
+		this.openBuffers.shrink();
+		return this.openBuffers.elements();
 	}
 }
 
@@ -112,9 +115,9 @@ protected void removeBuffer(IBuffer buffer) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
 		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
 	}
-	openBuffers.remove(buffer.getOwner());
+	this.openBuffers.remove(buffer.getOwner());
 	if (VERBOSE) {
-		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 }

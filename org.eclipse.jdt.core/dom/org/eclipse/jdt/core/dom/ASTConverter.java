@@ -990,8 +990,6 @@ class ASTConverter {
 			variableDecl.setModifiers(argument.modifiers & legalModifiers);
 			variableDecl.setFlags(ASTNode.MALFORMED);
 		}
-		
-		variableDecl.setModifiers(argument.modifiers);
 		SimpleName name = this.ast.newSimpleName(new String(argument.name));
 		int start = argument.sourceStart;
 		int nameEnd = argument.sourceEnd;

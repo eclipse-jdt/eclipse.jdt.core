@@ -18,16 +18,11 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 
 public class SuperTypeReferencePattern extends SearchPattern {
-
-private static ThreadLocal indexRecord = new ThreadLocal() {
-	protected Object initialValue() {
-		return new SuperTypeReferencePattern(null, null, false, R_EXACT_MATCH | R_CASE_SENSITIVE);
-	}
-};
 
 public char[] superQualification;
 public char[] superSimpleName;
@@ -57,60 +52,57 @@ public static char[] createIndexKey(
 	char[] superTypeName,
 	char superClassOrInterface) {
 
-	SuperTypeReferencePattern record = getSuperTypeReferenceRecord();
-	record.modifiers = modifiers;
-	record.pkgName = packageName;
-	record.classOrInterface = classOrInterface;
-	record.superClassOrInterface = superClassOrInterface;
+	SuperTypeReferencePattern pattern = new SuperTypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
+	pattern.modifiers = modifiers;
+	pattern.pkgName = packageName;
+	pattern.classOrInterface = classOrInterface;
+	pattern.superClassOrInterface = superClassOrInterface;
 	if (superTypeName == null)
 		superTypeName = OBJECT;
-	record.enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
-	record.simpleName = CharOperation.lastSegment(typeName, '.');
-	record.superSimpleName = CharOperation.lastSegment(superTypeName, '.');
-	record.superQualification = null;
-	if (record.superSimpleName != superTypeName) {
-		int length = superTypeName.length - record.superSimpleName.length - 1;
-		record.superQualification = new char[length];
-		System.arraycopy(superTypeName, 0, record.superQualification, 0, length);
+	pattern.enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
+	pattern.simpleName = CharOperation.lastSegment(typeName, '.');
+	pattern.superSimpleName = CharOperation.lastSegment(superTypeName, '.');
+	pattern.superQualification = null;
+	if (pattern.superSimpleName != superTypeName) {
+		int length = superTypeName.length - pattern.superSimpleName.length - 1;
+		pattern.superQualification = new char[length];
+		System.arraycopy(superTypeName, 0, pattern.superQualification, 0, length);
 	}
 
 	// if the supertype name contains a $, then split it into: source name and append the $ prefix to the qualification
 	//	e.g. p.A$B ---> p.A$ + B
-	char[] superTypeSourceName = CharOperation.lastSegment(record.superSimpleName, '$');
-	if (superTypeSourceName != record.superSimpleName) {
-		int start = record.superQualification == null ? 0 : record.superQualification.length + 1;
-		int prefixLength = record.superSimpleName.length - superTypeSourceName.length;
+	char[] superTypeSourceName = CharOperation.lastSegment(pattern.superSimpleName, '$');
+	if (superTypeSourceName != pattern.superSimpleName) {
+		int start = pattern.superQualification == null ? 0 : pattern.superQualification.length + 1;
+		int prefixLength = pattern.superSimpleName.length - superTypeSourceName.length;
 		char[] mangledQualification = new char[start + prefixLength];
-		if (record.superQualification != null) {
-			System.arraycopy(record.superQualification, 0, mangledQualification, 0, start-1);
+		if (pattern.superQualification != null) {
+			System.arraycopy(pattern.superQualification, 0, mangledQualification, 0, start-1);
 			mangledQualification[start-1] = '.';
 		}
-		System.arraycopy(record.superSimpleName, 0, mangledQualification, start, prefixLength);
-		record.superQualification = mangledQualification;
-		record.superSimpleName = superTypeSourceName;
+		System.arraycopy(pattern.superSimpleName, 0, mangledQualification, start, prefixLength);
+		pattern.superQualification = mangledQualification;
+		pattern.superSimpleName = superTypeSourceName;
 	} 
 	
-	return record.encodeIndexKey();
+	return pattern.encodeIndexKey();
 }
-public static SuperTypeReferencePattern getSuperTypeReferenceRecord() {
-	return (SuperTypeReferencePattern)indexRecord.get();
-}
-public SuperTypeReferencePattern(char[] superQualification, char[] superSimpleName, int matchRule) {
-	this(superQualification, superSimpleName, false, matchRule);
-}
+
 public SuperTypeReferencePattern(
 	char[] superQualification,
 	char[] superSimpleName,
 	boolean checkOnlySuperinterfaces,
 	int matchRule) {
 
-	super(SUPER_REF_PATTERN, matchRule);
+	this(matchRule);
 
-	boolean isCaseSensitive = isCaseSensitive();
-	this.superQualification = isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
-	this.superSimpleName = isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
+	this.superQualification = this.isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
+	this.superSimpleName = this.isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	this.mustResolve = superQualification != null;
 	this.checkOnlySuperinterfaces = checkOnlySuperinterfaces; // ie. skip the superclass
+}
+SuperTypeReferencePattern(int matchRule) {
+	super(SUPER_REF_PATTERN, matchRule);
 }
 /*
  * superSimpleName / superQualification / superClassOrInterface /  simpleName / enclosingTypeName / pkgName / classOrInterface modifiers
@@ -237,31 +229,31 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 		/* retrieve and decode entry */	
 		char[] word = entry.getWord();
 		char[] indexKey = CharOperation.subarray(word, SUPER_REF.length, word.length);
-		SearchPattern record = getIndexRecord();
-		record.decodeIndexKey(indexKey);
+		SearchPattern decodedPattern = getBlankPattern();
+		decodedPattern.decodeIndexKey(indexKey);
 
 		int[] references = entry.getFileReferences();
 		for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
 			String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
 			if (scope.encloses(documentPath)) {
-				if (!requestor.acceptIndexMatch(documentPath, record, participant)) 
+				if (!requestor.acceptIndexMatch(documentPath, decodedPattern, participant)) 
 					throw new OperationCanceledException();
 			}
 		}
 	}
 }
-public SearchPattern getIndexRecord() {
-	return getSuperTypeReferenceRecord();
+public SearchPattern getBlankPattern() {
+	return new SuperTypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[][] getMatchCategories() {
 	return new char[][] {SUPER_REF};
 }
-public boolean isMatchingIndexRecord() {
-	SuperTypeReferencePattern record = getSuperTypeReferenceRecord();
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	SuperTypeReferencePattern pattern = (SuperTypeReferencePattern) decodedPattern;
 	if (this.checkOnlySuperinterfaces)
-		if (record.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
+		if (pattern.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
 
-	return matchesName(this.superSimpleName, record.superSimpleName);
+	return matchesName(this.superSimpleName, pattern.superSimpleName);
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
@@ -274,7 +266,7 @@ public String toString(){
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode()){
+	switch(this.matchMode) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -285,7 +277,7 @@ public String toString(){
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive())
+	if (this.isCaseSensitive)
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

@@ -42,10 +42,9 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 	
 	protected DefaultProblemFactory problemFactory= new DefaultProblemFactory(Locale.getDefault());
 	
-	public SourceIndexer(SearchDocument document, String indexPath)	{
-		super(document, indexPath);
+	public SourceIndexer(SearchDocument document) {
+		super(document);
 	}
-	
 	public void indexDocument() {
 		// Create a new Parser
 		SourceIndexerRequestor requestor = new SourceIndexerRequestor(this);

@@ -32,14 +32,14 @@ public class Buffer implements IBuffer {
 	protected char[] contents;
 	protected ArrayList changeListeners;
 	protected IOpenable owner;
-	protected int gapStart= -1;
-	protected int gapEnd= -1;
+	protected int gapStart = -1;
+	protected int gapEnd = -1;
 
-	protected Object lock= new Object();
+	protected Object lock = new Object();
 
-	protected static final int F_HAS_UNSAVED_CHANGES= 1;
-	protected static final int F_IS_READ_ONLY= 2;
-	protected static final int F_IS_CLOSED= 4;
+	protected static final int F_HAS_UNSAVED_CHANGES = 1;
+	protected static final int F_IS_READ_ONLY = 2;
+	protected static final int F_IS_CLOSED = 4;
 
 /**
  * Creates a new buffer on an underlying resource.
@@ -72,10 +72,13 @@ public void append(char[] text) {
 			return;
 		}
 		int length = getLength();
-		moveAndResizeGap(length, text.length);
-		System.arraycopy(text, 0, this.contents, length, text.length);
-		this.gapStart += text.length;
-		this.flags |= F_HAS_UNSAVED_CHANGES;
+		synchronized(this.lock) {
+		    if (this.contents == null) return;
+			moveAndResizeGap(length, text.length);
+			System.arraycopy(text, 0, this.contents, length, text.length);
+			this.gapStart += text.length;
+			this.flags |= F_HAS_UNSAVED_CHANGES;
+		}
 		notifyChanged(new BufferChangedEvent(this, length, 0, new String(text)));
 	}
 }
@@ -109,6 +112,7 @@ public void close() {
  */
 public char getChar(int position) {
 	synchronized (this.lock) {
+	    if (this.contents == null) return Character.MIN_VALUE;
 		if (position < this.gapStart) {
 			return this.contents[position];
 		}
@@ -120,8 +124,8 @@ public char getChar(int position) {
  * @see IBuffer
  */
 public char[] getCharacters() {
-	if (this.contents == null) return null;
 	synchronized (this.lock) {
+		if (this.contents == null) return null;
 		if (this.gapStart < 0) {
 			return this.contents;
 		}
@@ -145,6 +149,7 @@ public String getContents() {
  */
 public int getLength() {
 	synchronized (this.lock) {
+		if (this.contents == null) return -1;
 		int length = this.gapEnd - this.gapStart;
 		return (this.contents.length - length);
 	}
@@ -159,9 +164,8 @@ public IOpenable getOwner() {
  * @see IBuffer
  */
 public String getText(int offset, int length) {
-	if (this.contents == null)
-		return ""; //$NON-NLS-1$
 	synchronized (this.lock) {
+		if (this.contents == null) return ""; //$NON-NLS-1$
 		if (offset + length < this.gapStart)
 			return new String(this.contents, offset, length);
 		if (this.gapStart < offset) {
@@ -280,6 +284,8 @@ public void replace(int position, int length, char[] text) {
 	if (!isReadOnly()) {
 		int textLength = text == null ? 0 : text.length;
 		synchronized (this.lock) {
+		    if (this.contents == null) return;
+		    
 			// move gap
 			moveAndResizeGap(position + length, textLength - length);
 
@@ -296,8 +302,8 @@ public void replace(int position, int length, char[] text) {
 				this.gapStart += textLength - length;
 				System.arraycopy(text, 0, this.contents, position, textLength);
 			}
+			this.flags |= F_HAS_UNSAVED_CHANGES;
 		}
-		this.flags |= F_HAS_UNSAVED_CHANGES;
 		String string = null;
 		if (textLength > 0) {
 			string = new String(text);
@@ -359,8 +365,10 @@ public void setContents(char[] newContents) {
 	// allow special case for first initialization 
 	// after creation by buffer factory
 	if (this.contents == null) {
-		this.contents = newContents;
-		this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+		synchronized (this.lock) {
+			this.contents = newContents;
+			this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+		}
 		return;
 	}
 	
@@ -369,13 +377,14 @@ public void setContents(char[] newContents) {
 		if (newContents != null) {
 			string = new String(newContents);
 		}
-		BufferChangedEvent event = new BufferChangedEvent(this, 0, this.getLength(), string);
 		synchronized (this.lock) {
+		    if (this.contents == null) return; // ignore if buffer is closed (as per spec)
 			this.contents = newContents;
 			this.flags |= F_HAS_UNSAVED_CHANGES;
 			this.gapStart = -1;
 			this.gapEnd = -1;
 		}
+		BufferChangedEvent event = new BufferChangedEvent(this, 0, this.getLength(), string);
 		notifyChanged(event);
 	}
 }

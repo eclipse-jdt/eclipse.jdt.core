@@ -10,16 +10,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 public class JavadocTestForInterface extends JavadocTest {
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			TestSuite ts;
 			//some of the tests depend on the order of this suite.
 			ts = new TestSuite();
-			for (int i = 7; i <= 9; i++) {
+			for (int i = 74; i <= 74; i++) {
 				String meth = "test";
 				if (i < 10) {
 					meth += "0";
@@ -39,6 +43,15 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 	public static Class testClass() {
 		return JavadocTestForInterface.class;
+	}
+
+	protected Map getCompilerOptions() {
+		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		return options;
 	}
 
 	/*

@@ -105,7 +105,7 @@ public class ElementChangedEvent extends EventObject {
 	 * @return the delta describing the change
 	 */
 	public IJavaElementDelta getDelta() {
-		return (IJavaElementDelta) source;
+		return (IJavaElementDelta) this.source;
 	}
 	
 	/**

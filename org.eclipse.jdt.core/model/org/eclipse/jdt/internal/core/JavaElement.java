@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
@@ -399,14 +399,31 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected IJavaElement getSourceElementAt(int position) throws JavaModelException {
 		if (this instanceof ISourceReference) {
 			IJavaElement[] children = getChildren();
-			int i;
-			for (i = 0; i < children.length; i++) {
+			for (int i = children.length-1; i >= 0; i--) {
 				IJavaElement aChild = children[i];
 				if (aChild instanceof SourceRefElement) {
 					SourceRefElement child = (SourceRefElement) children[i];
 					ISourceRange range = child.getSourceRange();
-					if (position < range.getOffset() + range.getLength() && position >= range.getOffset()) {
-						if (child instanceof IParent) {
+					int start = range.getOffset();
+					int end = start + range.getLength();
+					if (start <= position && position <= end) {
+						if (child instanceof IField) {
+							// check muti-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=39943)
+							int declarationStart = start;
+							SourceRefElement candidate = null;
+							do {
+								// check name range
+								range = ((IField)child).getNameRange();
+								if (position <= range.getOffset() + range.getLength()) {
+									candidate = child;
+								} else {
+									return candidate == null ? child.getSourceElementAt(position) : candidate.getSourceElementAt(position);
+								}
+								child = --i>=0 ? (SourceRefElement) children[i] : null;
+							} while (child != null && child.getSourceRange().getOffset() == declarationStart);
+							// position in field's type: use first field
+							return candidate.getSourceElementAt(position);
+						} else if (child instanceof IParent) {
 							return child.getSourceElementAt(position);
 						} else {
 							return child;
@@ -428,7 +445,38 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public SourceMapper getSourceMapper() {
 		return ((JavaElement)getParent()).getSourceMapper();
 	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.IJavaElement#getSchedulingRule()
+	 */
+	public ISchedulingRule getSchedulingRule() {
+		IResource resource = getResource();
+		if (resource == null) {
+			class NoResourceSchedulingRule implements ISchedulingRule {
+				public IPath path;
+				public NoResourceSchedulingRule(IPath path) {
+					this.path = path;
+				}
+				public boolean contains(ISchedulingRule rule) {
+					if (rule instanceof NoResourceSchedulingRule) {
+						return this.path.isPrefixOf(((NoResourceSchedulingRule)rule).path);
+					} else {
+						return false;
+					}
+				}
+				public boolean isConflicting(ISchedulingRule rule) {
+					if (rule instanceof NoResourceSchedulingRule) {
+						IPath otherPath = ((NoResourceSchedulingRule)rule).path;
+						return this.path.isPrefixOf(otherPath) || otherPath.isPrefixOf(this.path);
+					} else {
+						return false;
+					}
+				}
+			}
+			return new NoResourceSchedulingRule(getPath());
+		} else {
+			return resource;
+		}
+	}
 	/**
 	 * @see IParent 
 	 */
@@ -514,33 +562,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public String readableName() {
 		return this.getElementName();
-	}
-	/**
-	 * Runs a Java Model Operation
-	 */
-	public static void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-		try {
-			if (operation.isReadOnly()) {
-				operation.run(monitor);
-			} else {
-				// Use IWorkspace.run(...) to ensure that a build will be done in autobuild mode.
-				// Note that if the tree is locked, this will throw a CoreException, but this is ok
-				// as this operation is modifying the tree (not read-only) and a CoreException will be thrown anyway.
-				ResourcesPlugin.getWorkspace().run(operation, monitor);
-			}
-		} catch (CoreException ce) {
-			if (ce instanceof JavaModelException) {
-				throw (JavaModelException)ce;
-			} else {
-				if (ce.getStatus().getCode() == IResourceStatus.OPERATION_FAILED) {
-					Throwable e= ce.getStatus().getException();
-					if (e instanceof JavaModelException) {
-						throw (JavaModelException) e;
-					}
-				}
-				throw new JavaModelException(ce);
-			}
-		}
 	}
 	protected String tabString(int tab) {
 		StringBuffer buffer = new StringBuffer();

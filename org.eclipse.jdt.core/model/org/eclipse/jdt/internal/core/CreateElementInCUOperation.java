@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -222,6 +223,10 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 */
 	public abstract String getMainTaskName();
 
+	protected ISchedulingRule getSchedulingRule() {
+		// returns the folder corresponding to the package of the cu
+		return getParentElement().getSchedulingRule();
+	}
 	/**
 	 * Sets the default position in which to create the new type
 	 * member. 

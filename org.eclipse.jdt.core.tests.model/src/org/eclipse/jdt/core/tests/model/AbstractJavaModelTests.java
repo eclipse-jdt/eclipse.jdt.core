@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,7 +140,8 @@ protected void assertSourceEquals(String message, String expected, String actual
 	}
 	actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 	if (!actual.equals(expected)) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
+		System.out.println(",");
 	}
 	assertEquals(message, expected, actual);
 }
@@ -186,7 +187,8 @@ protected void assertTypesEqual(String message, String expected, IType[] types) 
 		buffer.append("\n");
 	}
 	if (!expected.equals(buffer.toString())) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+		System.out.println(",");
 	}
 	assertEquals(
 		message,

@@ -38,37 +38,37 @@ public CodeSnippetCodeStream(org.eclipse.jdt.internal.compiler.ClassFile classFi
 	super(classFile);
 }
 protected void checkcast(int baseId) {
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_checkcast;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_checkcast;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_checkcast);
 	}
 	switch (baseId) {
 		case T_byte :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangByte());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangByte());
 			break;
 		case T_short :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangShort());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangShort());
 			break;
 		case T_char :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangCharacter());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangCharacter());
 			break;
 		case T_int :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangInteger());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangInteger());
 			break;
 		case T_long :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangLong());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangLong());
 			break;
 		case T_float :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangFloat());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangFloat());
 			break;
 		case T_double :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangDouble());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangDouble());
 			break;
 		case T_boolean :
-			writeUnsignedShort(constantPool.literalIndexForJavaLangBoolean());
+			writeUnsignedShort(this.constantPool.literalIndexForJavaLangBoolean());
 	}
 }
 public void generateEmulatedAccessForMethod(Scope scope, MethodBinding methodBinding) {
@@ -222,7 +222,7 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 	}
-	TypeBinding wrapperType = methodDeclaration.scope.getType(wrapperTypeCompoundName);
+	TypeBinding wrapperType = this.methodDeclaration.scope.getType(wrapperTypeCompoundName);
 	new_(wrapperType);
 	if (valueType.id == T_long || valueType.id == T_double) {
 		dup_x2();
@@ -232,7 +232,7 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 		dup_x1();
 		swap();
 	}
-	MethodBinding methodBinding = methodDeclaration.scope.getMethod(
+	MethodBinding methodBinding = this.methodDeclaration.scope.getMethod(
 				wrapperType, 
 				QualifiedNamesConstants.Init, 
 				new TypeBinding[] {valueType}, 
@@ -240,127 +240,127 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 	invokespecial(methodBinding);
 }
 public void getBaseTypeValue(int baseTypeID) {
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
 	switch (baseTypeID) {
 		case T_byte :
 			// invokevirtual: byteValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangByteByteValue());
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangByteByteValue());
 			break;
 		case T_short :
 			// invokevirtual: shortValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangShortShortValue());
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangShortShortValue());
 			break;
 		case T_char :
 			// invokevirtual: charValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangCharacterCharValue());
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangCharacterCharValue());
 			break;
 		case T_int :
 			// invokevirtual: intValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangIntegerIntValue());
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangIntegerIntValue());
 			break;
 		case T_long :
 			// invokevirtual: longValue()
-			stackDepth++;
-			if (stackDepth > stackMax)
-				stackMax = stackDepth;
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangLongLongValue());
+			this.stackDepth++;
+			if (this.stackDepth > this.stackMax)
+				this.stackMax = this.stackDepth;
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangLongLongValue());
 			break;
 		case T_float :
 			// invokevirtual: floatValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangFloatFloatValue());
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangFloatFloatValue());
 			break;
 		case T_double :
 			// invokevirtual: doubleValue()
-			stackDepth++;
-			if (stackDepth > stackMax)
-				stackMax = stackDepth;
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangDoubleDoubleValue());
+			this.stackDepth++;
+			if (this.stackDepth > this.stackMax)
+				this.stackMax = this.stackDepth;
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangDoubleDoubleValue());
 			break;
 		case T_boolean :
 			// invokevirtual: booleanValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangBooleanBooleanValue());
+			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangBooleanBooleanValue());
 	}
 }
 protected void invokeAccessibleObjectSetAccessible() {
 	// invokevirtual: java.lang.reflect.AccessibleObject.setAccessible(Z)V;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangReflectAccessibleObjectSetAccessible());
-	stackDepth-=2;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectAccessibleObjectSetAccessible());
+	this.stackDepth-=2;
 }
 protected void invokeArrayNewInstance() {
 	// invokestatic: java.lang.reflect.Array.newInstance(Ljava.lang.Class;int[])Ljava.lang.reflect.Array;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokestatic;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokestatic;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokestatic);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangReflectArrayNewInstance());
-	stackDepth--;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectArrayNewInstance());
+	this.stackDepth--;
 }
 protected void invokeClassGetDeclaredConstructor() {
 	// invokevirtual: java.lang.Class getDeclaredConstructor([Ljava.lang.Class)Ljava.lang.reflect.Constructor;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangClassGetDeclaredConstructor());
-	stackDepth--;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangClassGetDeclaredConstructor());
+	this.stackDepth--;
 }
 protected void invokeClassGetDeclaredField() {
 	// invokevirtual: java.lang.Class.getDeclaredField(Ljava.lang.String)Ljava.lang.reflect.Field;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangClassGetDeclaredField());
-	stackDepth--;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangClassGetDeclaredField());
+	this.stackDepth--;
 }
 protected void invokeClassGetDeclaredMethod() {
 	// invokevirtual: java.lang.Class getDeclaredMethod(Ljava.lang.String, [Ljava.lang.Class)Ljava.lang.reflect.Method;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangClassGetDeclaredMethod());
-	stackDepth-=2;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangClassGetDeclaredMethod());
+	this.stackDepth-=2;
 }
 protected void invokeJavaLangReflectConstructorNewInstance() {
 	// invokevirtual: java.lang.reflect.Constructor.newInstance([Ljava.lang.Object;)Ljava.lang.Object;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangReflectConstructorNewInstance());
-	stackDepth--;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectConstructorNewInstance());
+	this.stackDepth--;
 }
 protected void invokeJavaLangReflectFieldGetter(int typeID) {
-	countLabels = 0;
+	this.countLabels = 0;
 	int usedTypeID;
 	if (typeID == T_null)
 		usedTypeID = T_Object;
@@ -368,18 +368,18 @@ protected void invokeJavaLangReflectFieldGetter(int typeID) {
 		usedTypeID = typeID;
 	// invokevirtual
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexJavaLangReflectFieldGetter(typeID));
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexJavaLangReflectFieldGetter(typeID));
 	if ((usedTypeID != T_long) && (usedTypeID != T_double)) {
-		stackDepth--;
+		this.stackDepth--;
 	}
 }
 protected void invokeJavaLangReflectFieldSetter(int typeID) {
-	countLabels = 0;
+	this.countLabels = 0;
 	int usedTypeID;
 	if (typeID == T_null)
 		usedTypeID = T_Object;
@@ -387,28 +387,28 @@ protected void invokeJavaLangReflectFieldSetter(int typeID) {
 		usedTypeID = typeID;
 	// invokevirtual
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexJavaLangReflectFieldSetter(typeID));
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexJavaLangReflectFieldSetter(typeID));
 	if ((usedTypeID != T_long) && (usedTypeID != T_double)) {
-		stackDepth-=3;
+		this.stackDepth-=3;
 	} else {
-		stackDepth-=4;
+		this.stackDepth-=4;
 	}
 }
 protected void invokeJavaLangReflectMethodInvoke() {
 	// invokevirtual: java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;
-	countLabels = 0;
+	this.countLabels = 0;
 	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+		this.position++;
+		this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangReflectMethodInvoke());
-	stackDepth-=2;
+	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectMethodInvoke());
+	this.stackDepth-=2;
 }
 }

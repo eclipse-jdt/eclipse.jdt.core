@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.*;
 
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
@@ -24,8 +23,10 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
+import org.eclipse.jdt.internal.core.util.ElementInfoConverter;
 
 /**
  * The selection engine is intended to infer the nature of a selected name in some
@@ -749,13 +750,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *      a type name which is to be resolved in the context of a compilation unit.
 	 *		NOTE: the type name is supposed to be correctly reduced (no whitespaces, no unicodes left)
 	 * 
-	 * @param topLevelTypes org.eclipse.jdt.internal.compiler.env.ISourceType[]
+	 * @param topLevelTypes SourceTypeElementInfo[]
 	 *      a source form of the top level types of the compilation unit in which code assist is invoked.
 
 	 *  @param searchInEnvironment
 	 * 	if <code>true</code> and no selection could be found in context then search type in environment.
 	 */
-	public void selectType(ISourceType sourceType, char[] typeName, ISourceType[] topLevelTypes, boolean searchInEnvironment) {
+	public void selectType(ISourceType sourceType, char[] typeName, SourceTypeElementInfo[] topLevelTypes, boolean searchInEnvironment) {
 		try {
 			this.acceptedAnswer = false;
 
@@ -768,12 +769,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			// compute parse tree for this most outer type
 			CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+			if (!(sourceType instanceof SourceTypeElementInfo)) return;
+			SourceType typeHandle = (SourceType) ((SourceTypeElementInfo)sourceType).getHandle();
 			CompilationUnitDeclaration parsedUnit =
-				SourceTypeConverter.buildCompilationUnit(
+				ElementInfoConverter.buildCompilationUnit(
 						topLevelTypes,
-						// no need for field and methods
-						SourceTypeConverter.MEMBER_TYPE, // need member types
-						// no need for field initialization
+						typeHandle.isAnonymous() || typeHandle.isLocal(),
 						this.parser.problemReporter(), 
 						result);
 
@@ -783,8 +784,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					System.out.println(parsedUnit.toString());
 				}
 				// find the type declaration that corresponds to the original source type
-				if (!(sourceType instanceof SourceTypeElementInfo)) return;
-				IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
 				TypeDeclaration typeDecl = new ASTNodeFinder(parsedUnit).findType(typeHandle);
 
 				if (typeDecl != null) {

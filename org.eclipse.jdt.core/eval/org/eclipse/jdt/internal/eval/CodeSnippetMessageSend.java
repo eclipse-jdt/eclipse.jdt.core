@@ -49,13 +49,13 @@ public void generateCode(
 
 	int pc = codeStream.position;
 
-	if (binding.canBeSeenBy(receiverType, this, currentScope)) {
+	if (this.binding.canBeSeenBy(this.receiverType, this, currentScope)) {
 		// generate receiver/enclosing instance access
-		boolean isStatic = binding.isStatic();
+		boolean isStatic = this.binding.isStatic();
 		// outer access ?
-		if (!isStatic && ((bits & DepthMASK) != 0)) {
+		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// outer method can be reached through emulation
-			ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+			ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & DepthMASK) >> DepthSHIFT);
 			Object[] path = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
 			if (path == null) {
 				// emulation was not possible (should not happen per construction)
@@ -64,55 +64,55 @@ public void generateCode(
 				codeStream.generateOuterAccess(path, this, targetType, currentScope);
 			}
 		} else {
-			receiver.generateCode(currentScope, codeStream, !isStatic);
+			this.receiver.generateCode(currentScope, codeStream, !isStatic);
 		}
 		// generate arguments
-		if (arguments != null) {
-			for (int i = 0, max = arguments.length; i < max; i++) {
-				arguments[i].generateCode(currentScope, codeStream, true);
+		if (this.arguments != null) {
+			for (int i = 0, max = this.arguments.length; i < max; i++) {
+				this.arguments[i].generateCode(currentScope, codeStream, true);
 			}
 		}
 		// actual message invocation
 		if (isStatic) {
-			codeStream.invokestatic(binding);
+			codeStream.invokestatic(this.binding);
 		} else {
-			if (receiver.isSuper()) {
-				codeStream.invokespecial(binding);
+			if (this.receiver.isSuper()) {
+				codeStream.invokespecial(this.binding);
 			} else {
-				if (binding.declaringClass.isInterface()) {
-					codeStream.invokeinterface(binding);
+				if (this.binding.declaringClass.isInterface()) {
+					codeStream.invokeinterface(this.binding);
 				} else {
-					codeStream.invokevirtual(binding);
+					codeStream.invokevirtual(this.binding);
 				}
 			}
 		}
 	} else {
-		((CodeSnippetCodeStream) codeStream).generateEmulationForMethod(currentScope, binding);
+		((CodeSnippetCodeStream) codeStream).generateEmulationForMethod(currentScope, this.binding);
 		// generate receiver/enclosing instance access
-		boolean isStatic = binding.isStatic();
+		boolean isStatic = this.binding.isStatic();
 		// outer access ?
-		if (!isStatic && ((bits & DepthMASK) != 0)) {
+		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// not supported yet
 			currentScope.problemReporter().needImplementation();
 		} else {
-			receiver.generateCode(currentScope, codeStream, !isStatic);
+			this.receiver.generateCode(currentScope, codeStream, !isStatic);
 		}
 		if (isStatic) {
 			// we need an object on the stack which is ignored for the method invocation
 			codeStream.aconst_null();
 		}
 		// generate arguments
-		if (arguments != null) {
-			int argsLength = arguments.length;
+		if (this.arguments != null) {
+			int argsLength = this.arguments.length;
 			codeStream.generateInlinedValue(argsLength);
 			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT), 1));
 			codeStream.dup();
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
-				arguments[i].generateCode(currentScope, codeStream, true);
-				TypeBinding parameterBinding = binding.parameters[i];
+				this.arguments[i].generateCode(currentScope, codeStream, true);
+				TypeBinding parameterBinding = this.binding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != NullBinding) {
-					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(binding.parameters[i]);
+					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.binding.parameters[i]);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -126,8 +126,8 @@ public void generateCode(
 		((CodeSnippetCodeStream) codeStream).invokeJavaLangReflectMethodInvoke();
 
 		// convert the return value to the appropriate type for primitive types
-		if (binding.returnType.isBaseType()) {
-			int typeID = binding.returnType.id;
+		if (this.binding.returnType.isBaseType()) {
+			int typeID = this.binding.returnType.id;
 			if (typeID == T_void) {
 				// remove the null from the stack
 				codeStream.pop();
@@ -135,16 +135,16 @@ public void generateCode(
 			((CodeSnippetCodeStream) codeStream).checkcast(typeID);
 			((CodeSnippetCodeStream) codeStream).getBaseTypeValue(typeID);
 		} else {
-			codeStream.checkcast(binding.returnType);
+			codeStream.checkcast(this.binding.returnType);
 		}
 	}
 	// operation on the returned value
 	if (valueRequired) {
 		// implicit conversion if necessary
-		codeStream.generateImplicitConversion(implicitConversion);
+		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else {
 		// pop return value if any
-		switch (binding.returnType.id) {
+		switch (this.binding.returnType.id) {
 			case T_long :
 			case T_double :
 				codeStream.pop2();
@@ -165,117 +165,117 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	if (binding.declaringClass != this.qualifyingType
+	if (this.binding.declaringClass != this.qualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (!receiver.isImplicitThis() || !binding.isStatic())
-				&& binding.declaringClass.id != T_Object) // no change for Object methods
-			|| !binding.declaringClass.canBeSeenBy(currentScope))) {
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(binding, (ReferenceBinding) this.qualifyingType);
+				&& (!this.receiver.isImplicitThis() || !this.binding.isStatic())
+				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
+			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
+		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.binding, (ReferenceBinding) this.qualifyingType);
 	}	
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion
 
-	constant = NotAConstant;
-	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
+	this.constant = NotAConstant;
+	this.qualifyingType = this.receiverType = this.receiver.resolveType(scope); 
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
-	if (arguments != null) {
+	if (this.arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments 
-		int length = arguments.length;
+		int length = this.arguments.length;
 		argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++)
-			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
+			if ((argumentTypes[i] = this.arguments[i].resolveType(scope)) == null)
 				argHasError = true;
 		if (argHasError)
 			return null;
 	}
-	if (receiverType == null) 
+	if (this.receiverType == null) 
 		return null;
 
 	// base type cannot receive any message
-	if (receiverType.isBaseType()) {
-		scope.problemReporter().errorNoMethodFor(this, receiverType, argumentTypes);
+	if (this.receiverType.isBaseType()) {
+		scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
 		return null;
 	}
 
-	binding = 
-		receiver.isImplicitThis()
-			? scope.getImplicitMethod(selector, argumentTypes, this)
-			: scope.getMethod(receiverType, selector, argumentTypes, this); 
-	if (!binding.isValidBinding()) {
-		if (binding instanceof ProblemMethodBinding
-			&& ((ProblemMethodBinding) binding).problemId() == NotVisible) {
+	this.binding = 
+		this.receiver.isImplicitThis()
+			? scope.getImplicitMethod(this.selector, argumentTypes, this)
+			: scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
+	if (!this.binding.isValidBinding()) {
+		if (this.binding instanceof ProblemMethodBinding
+			&& ((ProblemMethodBinding) this.binding).problemId() == NotVisible) {
 			if (this.evaluationContext.declaringTypeName != null) {
-				delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-				if (delegateThis == null){ // if not found then internal error, field should have been found
-					constant = NotAConstant;
-					scope.problemReporter().invalidMethod(this, binding);
+				this.delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
+				if (this.delegateThis == null){ // if not found then internal error, field should have been found
+					this.constant = NotAConstant;
+					scope.problemReporter().invalidMethod(this, this.binding);
 					return null;
 				}
 			} else {
-				constant = NotAConstant;
-				scope.problemReporter().invalidMethod(this, binding);
+				this.constant = NotAConstant;
+				scope.problemReporter().invalidMethod(this, this.binding);
 				return null;
 			}
 			CodeSnippetScope localScope = new CodeSnippetScope(scope);			
 			MethodBinding privateBinding = 
-				receiver instanceof CodeSnippetThisReference && ((CodeSnippetThisReference) receiver).isImplicit
-					? localScope.getImplicitMethod((ReferenceBinding)delegateThis.type, selector, argumentTypes, this)
-					: localScope.getMethod(delegateThis.type, selector, argumentTypes, this); 
+				this.receiver instanceof CodeSnippetThisReference && ((CodeSnippetThisReference) this.receiver).isImplicit
+					? localScope.getImplicitMethod((ReferenceBinding)this.delegateThis.type, this.selector, argumentTypes, this)
+					: localScope.getMethod(this.delegateThis.type, this.selector, argumentTypes, this); 
 			if (!privateBinding.isValidBinding()) {
-				if (binding.declaringClass == null) {
-					if (receiverType instanceof ReferenceBinding) {
-						binding.declaringClass = (ReferenceBinding) receiverType;
+				if (this.binding.declaringClass == null) {
+					if (this.receiverType instanceof ReferenceBinding) {
+						this.binding.declaringClass = (ReferenceBinding) this.receiverType;
 					} else { // really bad error ....
-						scope.problemReporter().errorNoMethodFor(this, receiverType, argumentTypes);
+						scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
 						return null;
 					}
 				}
-				scope.problemReporter().invalidMethod(this, binding);
+				scope.problemReporter().invalidMethod(this, this.binding);
 				return null;
 			} else {
-				binding = privateBinding;
+				this.binding = privateBinding;
 			}
 		} else {
-			if (binding.declaringClass == null) {
-				if (receiverType instanceof ReferenceBinding) {
-					binding.declaringClass = (ReferenceBinding) receiverType;
+			if (this.binding.declaringClass == null) {
+				if (this.receiverType instanceof ReferenceBinding) {
+					this.binding.declaringClass = (ReferenceBinding) this.receiverType;
 				} else { // really bad error ....
-					scope.problemReporter().errorNoMethodFor(this, receiverType, argumentTypes);
+					scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
 					return null;
 				}
 			}
-			scope.problemReporter().invalidMethod(this, binding);
+			scope.problemReporter().invalidMethod(this, this.binding);
 			return null;
 		}
 	}
-	if (!binding.isStatic()) {
+	if (!this.binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
-		if (receiver instanceof NameReference) {
-			if ((((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
-				scope.problemReporter().mustUseAStaticMethod(this, binding);
+		if (this.receiver instanceof NameReference) {
+			if ((((NameReference) this.receiver).bits & BindingIds.TYPE) != 0) {
+				scope.problemReporter().mustUseAStaticMethod(this, this.binding);
 				return null;
 			}
 		}
 	}
-	if (arguments != null)
-		for (int i = 0; i < arguments.length; i++)
-			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
+	if (this.arguments != null)
+		for (int i = 0; i < this.arguments.length; i++)
+			this.arguments[i].implicitWidening(this.binding.parameters[i], argumentTypes[i]);
 
 	//-------message send that are known to fail at compile time-----------
-	if (binding.isAbstract()) {
-		if (receiver.isSuper()) {
-			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, binding);
+	if (this.binding.isAbstract()) {
+		if (this.receiver.isSuper()) {
+			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
 			return null;
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	if (isMethodUseDeprecated(binding, scope))
-		scope.problemReporter().deprecatedMethod(binding, this);
+	if (isMethodUseDeprecated(this.binding, scope))
+		scope.problemReporter().deprecatedMethod(this.binding, this);
 
-	return this.resolvedType = binding.returnType;
+	return this.resolvedType = this.binding.returnType;
 }
 }

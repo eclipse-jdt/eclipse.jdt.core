@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -129,6 +130,10 @@ protected void executeOperation() throws JavaModelException {
  */
 protected ICompilationUnit getCompilationUnit() {
 	return ((IPackageFragment)getParentElement()).getCompilationUnit(fName);
+}
+protected ISchedulingRule getSchedulingRule() {
+	// returns the folder corresponding to the package of the cu to create
+	return getParentElement().getSchedulingRule();
 }
 /**
  * Possible failures: <ul>
