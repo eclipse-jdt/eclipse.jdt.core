@@ -114,17 +114,12 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						break;
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (typeName == null) {
 							typeName = new String(scanner.getCurrentTokenSource());
 						} else {
 							typeName += new String(scanner.getCurrentTokenSource());
 						}
-						break;
-					default:
-						return null;
 				}
 				break;
 			// read parameter types
@@ -149,29 +144,12 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 							parameterTypes[parameterCount++] = parameterType;
 						}
 						break;
-					case ITerminalSymbols.TokenNameDOT:
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
-					case ITerminalSymbols.TokenNameLBRACKET:
-					case ITerminalSymbols.TokenNameRBRACKET:
-					case ITerminalSymbols.TokenNameboolean:
-					case ITerminalSymbols.TokenNamebyte:
-					case ITerminalSymbols.TokenNamechar:
-					case ITerminalSymbols.TokenNamedouble:
-					case ITerminalSymbols.TokenNamefloat:
-					case ITerminalSymbols.TokenNameint:
-					case ITerminalSymbols.TokenNamelong:
-					case ITerminalSymbols.TokenNameshort:
-					case ITerminalSymbols.TokenNamevoid:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (parameterType == null){
 							parameterType = new String(scanner.getCurrentTokenSource());
 						} else {
 							parameterType += new String(scanner.getCurrentTokenSource());
 						}
-						break;
-					default:
-						return null;
 				}
 				break;
 		}
@@ -305,17 +283,12 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 							mode = InsideType;
 						}
 						break;
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (fieldName == null) {
 							fieldName = new String(scanner.getCurrentTokenSource());
 						} else {
 							fieldName += new String(scanner.getCurrentTokenSource());
 						}
-						break;
-					default:
-						return null;
 				}
 				break;
 			// read type 
@@ -323,29 +296,12 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case ITerminalSymbols.TokenNameDOT:
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
-					case ITerminalSymbols.TokenNameLBRACKET:
-					case ITerminalSymbols.TokenNameRBRACKET:
-					case ITerminalSymbols.TokenNameboolean:
-					case ITerminalSymbols.TokenNamebyte:
-					case ITerminalSymbols.TokenNamechar:
-					case ITerminalSymbols.TokenNamedouble:
-					case ITerminalSymbols.TokenNamefloat:
-					case ITerminalSymbols.TokenNameint:
-					case ITerminalSymbols.TokenNamelong:
-					case ITerminalSymbols.TokenNameshort:
-					case ITerminalSymbols.TokenNamevoid:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (type == null){
 							type = new String(scanner.getCurrentTokenSource());
 						} else {
 							type += new String(scanner.getCurrentTokenSource());
 						}
-						break;
-					default:
-						return null;
 				}
 				break;
 		}
@@ -528,17 +484,13 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 							mode = InsideReturnType;
 						}
 						break;
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (selector == null) {
 							selector = new String(scanner.getCurrentTokenSource());
 						} else {
 							selector += new String(scanner.getCurrentTokenSource());
 						}
 						break;
-					default:
-						return null;
 				}
 				break;
 			// read parameter types
@@ -564,29 +516,12 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						}
 						mode = InsideReturnType;
 						break;
-					case ITerminalSymbols.TokenNameDOT:
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
-					case ITerminalSymbols.TokenNameLBRACKET:
-					case ITerminalSymbols.TokenNameRBRACKET:
-					case ITerminalSymbols.TokenNameboolean:
-					case ITerminalSymbols.TokenNamebyte:
-					case ITerminalSymbols.TokenNamechar:
-					case ITerminalSymbols.TokenNamedouble:
-					case ITerminalSymbols.TokenNamefloat:
-					case ITerminalSymbols.TokenNameint:
-					case ITerminalSymbols.TokenNamelong:
-					case ITerminalSymbols.TokenNameshort:
-					case ITerminalSymbols.TokenNamevoid:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (parameterType == null){
 							parameterType = new String(scanner.getCurrentTokenSource());
 						} else {
 							parameterType += new String(scanner.getCurrentTokenSource());
 						}
-						break;
-					default:
-						return null;
 				}
 				break;
 			// read return type
@@ -594,29 +529,12 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 				switch (token) {
 					case Scanner.TokenNameWHITESPACE:
 						break;
-					case ITerminalSymbols.TokenNameDOT:
-					case ITerminalSymbols.TokenNameIdentifier:
-					case ITerminalSymbols.TokenNameMULTIPLY:
-					case ITerminalSymbols.TokenNameQUESTION:
-					case ITerminalSymbols.TokenNameLBRACKET:
-					case ITerminalSymbols.TokenNameRBRACKET:
-					case ITerminalSymbols.TokenNameboolean:
-					case ITerminalSymbols.TokenNamebyte:
-					case ITerminalSymbols.TokenNamechar:
-					case ITerminalSymbols.TokenNamedouble:
-					case ITerminalSymbols.TokenNamefloat:
-					case ITerminalSymbols.TokenNameint:
-					case ITerminalSymbols.TokenNamelong:
-					case ITerminalSymbols.TokenNameshort:
-					case ITerminalSymbols.TokenNamevoid:
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (returnType == null){
 							returnType = new String(scanner.getCurrentTokenSource());
 						} else {
 							returnType += new String(scanner.getCurrentTokenSource());
 						}
-						break;
-					default:
-						return null;
 				}
 				break;
 		}
@@ -1135,29 +1053,12 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 		switch (token) {
 			case Scanner.TokenNameWHITESPACE:
 				break;
-			case ITerminalSymbols.TokenNameDOT:
-			case ITerminalSymbols.TokenNameIdentifier:
-			case ITerminalSymbols.TokenNameMULTIPLY:
-			case ITerminalSymbols.TokenNameQUESTION:
-			case ITerminalSymbols.TokenNameLBRACKET:
-			case ITerminalSymbols.TokenNameRBRACKET:
-			case ITerminalSymbols.TokenNameboolean:
-			case ITerminalSymbols.TokenNamebyte:
-			case ITerminalSymbols.TokenNamechar:
-			case ITerminalSymbols.TokenNamedouble:
-			case ITerminalSymbols.TokenNamefloat:
-			case ITerminalSymbols.TokenNameint:
-			case ITerminalSymbols.TokenNamelong:
-			case ITerminalSymbols.TokenNameshort:
-			case ITerminalSymbols.TokenNamevoid:
+			default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 				if (type == null){
 					type = new String(scanner.getCurrentTokenSource());
 				} else {
 					type += new String(scanner.getCurrentTokenSource());
 				}
-				break;
-			default:
-				return null;
 		}
 		try {
 			token = scanner.getNextToken();

@@ -269,6 +269,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testSimpleFieldDeclaration"));
 	suite.addTest(new JavaSearchTests("testFieldDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testFieldDeclarationArrayType"));
+	suite.addTest(new JavaSearchTests("testFieldDeclarationWithWildCard"));
 
 	// field reference
 	suite.addTest(new JavaSearchTests("testSimpleFieldReference"));
@@ -656,6 +657,7 @@ public void testExternalJarScope() throws CoreException, IOException {
 	
 }
 
+
 /**
  * Field declaration with array type test.
  * (regression test for PR 1GKEG73: ITPJCORE:WIN2000 - search (136): missing field declaration)
@@ -689,6 +691,23 @@ public void testFieldDeclarationInJar() throws JavaModelException, CoreException
 		resultCollector);
 	assertEquals(
 		"MyJar.jar p1.A.field [No source]", 
+		resultCollector.toString());
+}
+/**
+ * Field declaration with wild card test.
+ * (regression test for bug 21763 Problem in Java search [search]  )
+ */
+public void testFieldDeclarationWithWildCard() throws JavaModelException, CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"class*path",
+		FIELD,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/c5/Test.java c5.Test.class_path [class_path]", 
 		resultCollector.toString());
 }
 /**
