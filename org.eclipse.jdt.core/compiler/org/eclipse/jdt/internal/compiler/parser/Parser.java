@@ -967,7 +967,6 @@ public void checkAnnotation() {
 	//since jdk1.2 look only in the last java doc comment...
 	found : {
 		if ((lastAnnotationIndex = scanner.commentPtr) >= 0) { //look for @deprecated
-			scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 			int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
 			// javadoc only (non javadoc comment have negative end positions.)
 			int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
@@ -998,7 +997,8 @@ public void checkAnnotation() {
 	}
 	// modify the modifier source start to point at the first comment
 	if (lastAnnotationIndex >= 0) {
-		modifiersSourceStart = scanner.commentStarts[0]; 
+		modifiersSourceStart = scanner.commentStarts[scanner.commentPtr]; 
+		scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
