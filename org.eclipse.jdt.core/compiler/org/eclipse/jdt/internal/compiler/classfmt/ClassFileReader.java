@@ -528,6 +528,7 @@ public String toString() {
  * - changes for field constants
  * - changes for thrown exceptions
  * - change for the super class or any super interfaces.
+ * - changes for member types name or modifiers
  * If any of these changes occurs, the method returns true. false otherwise.
  */
 public boolean hasStructuralChanges(byte[] newBytes) {
@@ -550,17 +551,10 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 			return true;
 		}
 		if (this.interfacesCount != 0) {
-			int matchCounter = 0;
 			for (int i = 0, max = this.interfacesCount; i < max; i++) {
-				for (int j = 0; j < newInterfacesLength; j++) {
-					if (CharOperation.equals(this.interfaceNames[i], newInterfacesNames[j])) {
-						matchCounter++;
-						break;
-					}
+				if (!CharOperation.equals(this.interfaceNames[i], newInterfacesNames[i])) {
+					return true;
 				}
-			}
-			if (matchCounter != this.interfacesCount) {
-				return true;
 			}
 		}
 		// fields
@@ -569,9 +563,9 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 		if (this.fieldsCount != otherFieldInfosLength) {
 			return true;
 		}
-		if (otherFieldInfos != null) {
-			Arrays.sort(this.fields);
-			Arrays.sort(otherFieldInfos);
+		if (otherFieldInfosLength != 0) {
+//			Arrays.sort(this.fields);
+//			Arrays.sort(otherFieldInfos);
 			for (int i = 0; i < otherFieldInfosLength; i++) {
 				FieldInfo currentFieldInfo = this.fields[i];
 				FieldInfo otherFieldInfo = otherFieldInfos[i];
@@ -582,6 +576,9 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 					return true;
 				}
 				if (currentFieldInfo.hasConstant()) {
+					if (!otherFieldInfo.hasConstant()) {
+						return true;
+					}
 					Constant currentConstant = currentFieldInfo.getConstant();
 					Constant otherConstant = otherFieldInfo.getConstant();
 					if (!currentConstant.getClass().equals(otherConstant.getClass())) {
@@ -671,9 +668,9 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 		if (this.methodsCount != otherMethodInfosLength) {
 			return true;
 		}
-		if (otherMethodInfos != null) {
-			Arrays.sort(this.methods);
-			Arrays.sort(otherMethodInfos);
+		if (otherMethodInfosLength != 0) {
+//			Arrays.sort(this.methods);
+//			Arrays.sort(otherMethodInfos);
 			for (int i = 0; i < otherMethodInfosLength; i++) {
 				MethodInfo otherMethodInfo = otherMethodInfos[i];
 				MethodInfo currentMethodInfo = this.methods[i];
@@ -694,20 +691,29 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 					return true;
 				}
 				if (currentThrownExceptionsLength != 0) {
-					int matchCounter = 0;
 					for (int k = 0; k < currentThrownExceptionsLength; k++) {
-						for (int j = 0; j < otherThrownExceptionsLength; j++) {
-							if (CharOperation.equals(currentThrownExceptions[k], otherThrownExceptions[j])) {
-								matchCounter++;
-								break;
-							}
+						if (!CharOperation.equals(currentThrownExceptions[k], otherThrownExceptions[k])) {
+							return true;
 						}
-					}
-					if (matchCounter != currentThrownExceptionsLength) {
-						return true;
 					}
 				}
 			}
+		}
+		// Member types
+		InnerClassInfo[] currentMemberTypes = (InnerClassInfo[]) this.getMemberTypes();
+		InnerClassInfo[] otherMemberTypes = (InnerClassInfo[]) newClassFile.getMemberTypes();
+		int currentMemberTypeLength = currentMemberTypes == null ? 0 : currentMemberTypes.length;
+		int otherMemberTypeLength = otherMemberTypes == null ? 0 : otherMemberTypes.length;
+		if (currentMemberTypeLength != otherMemberTypeLength) {
+			return true;
+		}
+		if (currentMemberTypeLength != 0) {
+			for (int i = 0; i < currentMemberTypeLength; i++) {
+				if (!CharOperation.equals(currentMemberTypes[i].getName(), otherMemberTypes[i].getName())
+					|| currentMemberTypes[i].getModifiers() != otherMemberTypes[i].getModifiers()) {
+						return true;
+				}
+			}			
 		}
 		return false;
 	} catch (ClassFormatException e) {
