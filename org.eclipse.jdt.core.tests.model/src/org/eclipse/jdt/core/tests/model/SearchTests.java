@@ -97,21 +97,27 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 		public synchronized void suspend() {
 			long start = System.currentTimeMillis();
-			while ((start - System.currentTimeMillis()) < MAX_WAIT) {
+			while (true) {
 				if (this.isResumed) return;
 				try {
-					wait(1000);
+					long timeToWait = MAX_WAIT - (System.currentTimeMillis() - start);
+					if (timeToWait <= 0) break;
+					wait(timeToWait);
 				} catch (InterruptedException e) {
+					continue;
 				}
 			}
 		}
 		public synchronized void waitForJobToStart() {
 			long start = System.currentTimeMillis();
-			while ((start - System.currentTimeMillis()) < MAX_WAIT) {
+			while (true) {
 				if (this.isRunning) return;
 				try {
-					wait(1000);
+					long timeToWait = MAX_WAIT - (System.currentTimeMillis() - start);
+					if (timeToWait <= 0) break;
+					wait(timeToWait);
 				} catch (InterruptedException e) {
+					continue;
 				}
 			}
 		}
