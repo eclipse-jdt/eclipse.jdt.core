@@ -392,14 +392,14 @@ public String toString() {
 /**
  * Trims deletion deltas to only report the highest level of deletion
  */
-private void trimDelta(JavaElementDelta delta) {
-	if (delta.getKind() == IJavaElementDelta.REMOVED) {
-		IJavaElementDelta[] children = delta.getAffectedChildren();
+private void trimDelta(JavaElementDelta elementDelta) {
+	if (elementDelta.getKind() == IJavaElementDelta.REMOVED) {
+		IJavaElementDelta[] children = elementDelta.getAffectedChildren();
 		for(int i = 0, length = children.length; i < length; i++) {
-			delta.removeAffectedChild((JavaElementDelta)children[i]);
+			elementDelta.removeAffectedChild((JavaElementDelta)children[i]);
 		}
 	} else {
-		IJavaElementDelta[] children = delta.getAffectedChildren();
+		IJavaElementDelta[] children = elementDelta.getAffectedChildren();
 		for(int i = 0, length = children.length; i < length; i++) {
 			trimDelta((JavaElementDelta)children[i]);
 		}

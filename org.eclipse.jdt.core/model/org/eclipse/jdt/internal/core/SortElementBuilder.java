@@ -112,10 +112,10 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			return count;
 		}
 		
-		protected Type newType(String type) {
+		protected Type newType(String typeSource) {
 			// check if type is a primitive type
-			scanner.setSource(type.toCharArray());
-			scanner.resetTo(0, type.length());
+			scanner.setSource(typeSource.toCharArray());
+			scanner.resetTo(0, typeSource.length());
 			int token = 0;
 			try {
 				token = scanner.getNextToken();
@@ -123,7 +123,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				return null;
 			}
 			if (token == TerminalTokens.TokenNameIdentifier) {
-				return ast.newSimpleType(ast.newSimpleName(new String(type)));
+				return ast.newSimpleType(ast.newSimpleName(new String(typeSource)));
 			} else {
 				switch(token) {
 					case TerminalTokens.TokenNameint :
