@@ -621,9 +621,13 @@ public class ASTParser {
      * units being processed. When bindings are being resolved,
      * the keys and corresponding bindings (or <code>null</code> if none) are
      * passed to <code>ASTRequestor.acceptBinding</code>. Note that binding keys
-     * are looked up after all <code>ASTRequestor.acceptAST</code> callbacks
-     * have been made. No <code>ASTRequestor.acceptBinding</code> callbacks are
-     * made unless bindings are being resolved.
+     * for elements outside the set of compilation units being processed are looked up 
+     * after all <code>ASTRequestor.acceptAST</code> callbacks have been made. 
+     * Binding keys for elements inside the set of compilation units being processed
+     * are looked up and reported right after the corresponding 
+     * <code>ASTRequestor.acceptAST</code> callback has been made.
+     * No <code>ASTRequestor.acceptBinding</code> callbacks are made unless 
+     * bindings are being resolved.
      * </p>
      * <p>
      * A successful call to this method returns all settings to their
