@@ -19,7 +19,8 @@ package org.eclipse.jdt.core;
  * Clients should subclass this class to implement a specific classpath
  * variable initializer. The subclass must have a public 0-argument
  * constructor and a concrete implementation of <code>initialize</code>.
- * </p>
+ * 
+ * @see IClasspathEntry
  * @since 2.0
  */
 public abstract class ClasspathVariableInitializer {
@@ -32,11 +33,19 @@ public abstract class ClasspathVariableInitializer {
 
     /**
      * Binds a value to the workspace classpath variable with the given name,
-     * or fails silently if this cannot be done.
-     *
+     * or fails silently if this cannot be done. 
+     * <p>
+     * A variable initializer is automatically activated whenever a variable value
+     * is needed and none has been recorded so far. The implementation of
+     * the initializer can set the corresponding variable using 
+     * <code>JavaCore#setClasspathVariable</code>.
+     * 
      * @param variable the name of the workspace classpath variable
      *    that requires a binding
-     * @see JavaCore#setClasspathVariable     
+     * 
+     * @see JavaCore#getClasspathVariable(String)
+     * @see JavaCore#setClasspathVariable(String, IPath, IProgressMonitor)
+     * @see JavaCore#setClasspathVariables(String[], IPath[], IProgressMonitor)
      */
     public abstract void initialize(String variable);
 }

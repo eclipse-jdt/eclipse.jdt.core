@@ -745,8 +745,8 @@ public class JavaProject
 	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
 		return 
 			this.getNameLookup().findType(
-				packageName,
 				typeQualifiedName, 
+				packageName,
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 	}	

@@ -14,7 +14,7 @@ package org.eclipse.jdt.core;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
-/**TOFIX
+/**
  * Abstract base implementation of all classpath container initializer.
  * Classpath variable containers are used in conjunction with the
  * "org.eclipse.jdt.core.classpathContainerInitializer" extension point.
@@ -30,10 +30,9 @@ import org.eclipse.core.runtime.IPath;
  * <p>
  * In case multiple container initializers collide on the same container ID, the first
  * registered one will be invoked.
- * </p>
- * @see IClasspathEntry
- * @seeIClasspathContainer
  * 
+ * @see IClasspathEntry
+ * @see IClasspathContainer
  * @since 2.0
  */
 
@@ -46,20 +45,24 @@ public abstract class ClasspathContainerInitializer {
     }
 
     /**
-     * Binds a classpath container to a <code>IClasspathContainer</code> for a given project.
-     * The resolved container can be queried for the set of classpath entries the container maps to.
-     * It may returns <code>null</code> if this resolver was unable to resolve the container ID.
+     * Binds a classpath container to a <code>IClasspathContainer</code> for a given project,
+     * or silently fails if unable to do so.
      * <p>
      * A container is identified by a container path, which must be formed of two segments.
      * The first segment is used as a unique identifier (which this initializer did register onto), and
      * the second segment is a clue that can be used by the initializer to perform.
+     * <p>
+     * The initializer is invoked if a container path needs to be resolved for a given project, and no
+     * value for it was recorded so far. The implementation of the initializer can set the corresponding 
+     * container using <code>JavaCore#setClasspathContainer</code>.
      * <p>
      * @param containerPath - a two-segment path (ID/clue) identifying the container that needs 
      * 	to be resolved
      * @param project - the Java project in which context the container is to be resolved.
      *    This allows generic containers to be bound with project specific values.
      * 
-     * @see JavaCore#setClasspathContainer
+     * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
+     * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
      * @see IClasspathContainer
      */
     public abstract void initialize(IPath containerPath, IJavaProject project) throws CoreException;
