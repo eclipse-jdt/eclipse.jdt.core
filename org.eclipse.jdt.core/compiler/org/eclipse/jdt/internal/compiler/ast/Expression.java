@@ -276,10 +276,11 @@ public abstract class Expression extends Statement {
 	
 			if (castType.isArrayType()) {
 				//------- (castType.isArray) expressionType.isArray -----------
+				TypeBinding castElementType = ((ArrayBinding) castType).elementsType();
 				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType();
-				if (exprElementType.isBaseType()) {
+				if (exprElementType.isBaseType() || castElementType.isBaseType()) {
 					// <---stop the recursion------- 
-					if (((ArrayBinding) castType).elementsType() == exprElementType) {
+					if (castElementType == exprElementType) {
 						tagAsNeedCheckCast();
 						return true;
 					} else {

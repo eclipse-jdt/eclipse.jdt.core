@@ -2894,4 +2894,30 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"SUCCESS + SUCCESS"
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87267
+	public void test100() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer[] integers = {};\n" + 
+				"		int[] ints = (int[]) integers;\n" + 
+				"		float[] floats = {};\n" + 
+				"		Float[] fs = (Float[]) floats;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
+			"	int[] ints = (int[]) integers;\r\n" + 
+			"	             ^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Integer[] to int[]\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\r\n" + 
+			"	Float[] fs = (Float[]) floats;\r\n" + 
+			"	             ^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from float[] to Float[]\n" + 
+			"----------\n");
+	}		
 }
