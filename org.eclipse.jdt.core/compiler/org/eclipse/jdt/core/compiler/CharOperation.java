@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.compiler;
 
 /**
- * This class is a collection of helper methods.
+ * This class is a collection of helper methods to manipulate char arrays.
  */
 public final class CharOperation {
 
@@ -438,6 +438,8 @@ public final class CharOperation {
 		result[length + 1] = suffix;
 		return result;
 	}
+	
+	// TODO:
 	public static final char[] concatWith(
 		char[] name,
 		char[][] array,
@@ -530,6 +532,34 @@ public final class CharOperation {
 		}
 		return result;
 	}
+	
+	/**
+	 * Returns true if the array contains an occurrence of character, false otherwise.
+	 * 
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    character = 'c'
+	 *    array = { { ' a' }, { ' b' } }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    character = 'a'
+	 *    array = { { ' a' }, { ' b' } }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param character the character to search
+	 * @param array the array in which the search is done
+	 * @exception NullPointerException if array is null.
+	 * 
+	 * @return true if the array contains an occurrence of character, false otherwise.
+	 */
 	public static final boolean contains(char character, char[][] array) {
 		for (int i = array.length; --i >= 0;) {
 			char[] subarray = array[i];
@@ -539,12 +569,47 @@ public final class CharOperation {
 		}
 		return false;
 	}
+
+	/**
+	 * Returns true if the array contains an occurrence of character, false otherwise.
+	 * 
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    character = 'c'
+	 *    array = { ' b'  }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    character = 'a'
+	 *    array = { ' a' , ' b' }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param character the character to search
+	 * @param array the array in which the search is done
+	 * @exception NullPointerException if array is null.
+	 * 
+	 * @return true if the array contains an occurrence of character, false otherwise.
+	 */
 	public static final boolean contains(char character, char[] array) {
 		for (int i = array.length; --i >= 0;)
 			if (array[i] == character)
 				return true;
 		return false;
 	}
+	
+	/**
+	 * Returns a deep copy of the toCopy array.
+	 * 
+	 * @param toCopy the array to copy
+	 * @return a deep copy of the toCopy array.
+	 */
 	public static final char[][] deepCopy(char[][] toCopy) {
 		int toCopyLength = toCopy.length;
 		char[][] result = new char[toCopyLength][];
@@ -558,6 +623,33 @@ public final class CharOperation {
 		return result;
 	}
 
+	/**
+	 * Return true if array ends with the sequence of characters contained in toBeFound, 
+	 * otherwise false.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a', 'b', 'c', 'd' }
+	 *    toBeFound = { 'b', 'c' }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a', 'b', 'c' }
+	 *    toBeFound = { 'b', 'c' }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the array to check
+	 * @param toBeFound the array to find
+	 * @exception NullPointerException if array is null or toBeFound is null
+	 * @return true if array ends with the sequence of characters contained in toBeFound, 
+	 * otherwise false.
+	 */
 	public static final boolean endsWith(char[] array, char[] toBeFound) {
 		int i = toBeFound.length;
 		int j = array.length - i;
@@ -570,6 +662,42 @@ public final class CharOperation {
 		return true;
 	}
 
+	/**
+	 * Answers true if the two arrays are identical character by character, otherwise false.
+	 * The equality is case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = null
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { } }
+	 *    second = null
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { 'a' } }
+	 *    second = { { 'a' } }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { 'A' } }
+	 *    second = { { 'a' } }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * @param first the first array
+	 * @param second the second array
+	 * @return true if the two arrays are identical character by character, otherwise false
+	 */
 	public static final boolean equals(char[][] first, char[][] second) {
 		if (first == second)
 			return true;
@@ -583,6 +711,52 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+
+	/**
+	 * If isCaseSensite is true, answers true if the two arrays are identical character
+	 * by character, otherwise false.
+	 * If it is false, answers true if the two arrays are identical character by 
+	 * character without checking the case, otherwise false.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = null
+	 *    isCaseSensitive = true
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { } }
+	 *    second = null
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { 'A' } }
+	 *    second = { { 'a' } }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { 'A' } }
+	 *    second = { { 'a' } }
+	 *    isCaseSensitive = false
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param first the first array
+	 * @param second the second array
+	 * @param isCaseSensitive check whether or not the equality should be case sensitive
+	 * @return true if the two arrays are identical character by character according to the value
+	 * of isCaseSensitive, otherwise false
+	 */
 	public static final boolean equals(
 		char[][] first,
 		char[][] second,
@@ -603,6 +777,43 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+
+	/**
+	 * Answers true if the two arrays are identical character by character, otherwise false.
+	 * The equality is case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = null
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { }
+	 *    second = null
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
+	 *    second = { 'a' }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
+	 *    second = { 'A' }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * @param first the first array
+	 * @param second the second array
+	 * @return true if the two arrays are identical character by character, otherwise false
+	 */
 	public static final boolean equals(char[] first, char[] second) {
 		if (first == second)
 			return true;
@@ -616,6 +827,52 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+
+	/**
+	 * If isCaseSensite is true, answers true if the two arrays are identical character
+	 * by character, otherwise false.
+	 * If it is false, answers true if the two arrays are identical character by 
+	 * character without checking the case, otherwise false.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = null
+	 *    isCaseSensitive = true
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { }
+	 *    second = null
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'A' }
+	 *    second = { 'a' }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'A' }
+	 *    second = { 'a' }
+	 *    isCaseSensitive = false
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param first the first array
+	 * @param second the second array
+	 * @param isCaseSensitive check whether or not the equality should be case sensitive
+	 * @return true if the two arrays are identical character by character according to the value
+	 * of isCaseSensitive, otherwise false
+	 */
 	public static final boolean equals(
 		char[] first,
 		char[] second,
@@ -637,6 +894,56 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+	/**
+	 * If isCaseSensite is true, the equality is case sensitive, otherwise it is case insensitive.
+	 * 
+	 * Answers true if the name contains the fragment at the starting index startIndex, otherwise false.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    fragment = { 'b', 'c' , 'd' }
+	 *    name = { 'a', 'b', 'c' , 'd' }
+	 *    startIndex = 1
+	 *    isCaseSensitive = true
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    fragment = { 'b', 'c' , 'd' }
+	 *    name = { 'a', 'b', 'C' , 'd' }
+	 *    startIndex = 1
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    fragment = { 'b', 'c' , 'd' }
+	 *    name = { 'a', 'b', 'C' , 'd' }
+	 *    startIndex = 0
+	 *    isCaseSensitive = false
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    fragment = { 'b', 'c' , 'd' }
+	 *    name = { 'a', 'b'}
+	 *    startIndex = 0
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param fragment the fragment to check
+	 * @param second the array to check
+	 * @param startIndex the starting index
+	 * @param isCaseSensitive check whether or not the equality should be case sensitive
+	 * @return true if the name contains the fragment at the starting index startIndex according to the 
+	 * value of isCaseSensitive, otherwise false.
+	 * @exception NullPointerException if fragment or name is null.
+	 */
 	public static final boolean fragmentEquals(
 		char[] fragment,
 		char[] name,
@@ -662,6 +969,14 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+
+	/**
+	 * Returns a hashcode for the array
+	 * 
+	 * @param array the array for which a hashcode is required
+	 * @return the hashcode
+	 * @exception NullPointerException if array is null
+	 */
 	public static final int hashCode(char[] array) {
 		int hash = 0;
 		int offset = 0;
@@ -678,16 +993,25 @@ public final class CharOperation {
 		return hash & 0x7FFFFFFF;
 	}
 	/**
-	 * This method is used to filter out "invalid" white spaces.
-	 * See http://bugs.eclipse.org/bugs/show_bug.cgi?id=13939.
+	 * Returns true if c is a whitespace according to the JLS (&#92;u000a, &#92;u000c, &#92;u000d, &#92;u0009), otherwise false.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    c = ' '
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    c = '&#92;u3000'
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
 	 * 
-	 * Those values are:
-	 * Character.isWhitespace(c) - { all invalid white spaces }
-	 * 
-	 * There are twenty invalid white spaces.
-	 * 
-	 * @param c
-	 * @return boolean
+	 * @param c the character to check
+	 * @return true if c is a whitespace according to the JLS, otherwise false.
 	 */
 	public static boolean isWhitespace(char c) {
 		switch (c) {
@@ -701,6 +1025,15 @@ public final class CharOperation {
 				return false;
 		}
 	}
+	
+	/**
+	 * Returns the first index in the array.
+	 * TODO: to complete
+	 * 
+	 * @param toBeFound
+	 * @param array
+	 * @return int
+	 */
 	public static final int indexOf(char toBeFound, char[] array) {
 		for (int i = 0; i < array.length; i++)
 			if (toBeFound == array[i])
