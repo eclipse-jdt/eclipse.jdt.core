@@ -71,6 +71,13 @@ public interface TypeIds {
 	final int T_JavaLangEnum = 41;
 	final int T_JavaLangIllegalArgumentException = 42;
 	final int T_JavaLangAnnotationAnnotation = 43;
+	final int T_JavaLangDeprecated = 44;
+	final int T_JavaLangAnnotationDocumented = 45;
+	final int T_JavaLangAnnotationInherited = 46;
+	final int T_JavaLangOverride = 46;
+	final int T_JavaLangAnnotationRetention = 47;
+	final int T_JavaLangSuppressWarnings = 48;
+	final int T_JavaLangAnnotationTarget = 49;
 	
 	final int NoId = Integer.MAX_VALUE;
 

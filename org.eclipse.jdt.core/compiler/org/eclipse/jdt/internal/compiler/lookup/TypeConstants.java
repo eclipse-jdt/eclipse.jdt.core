@@ -88,6 +88,13 @@ public interface TypeConstants {
 	final char[][] JAVA_LANG_BOOLEAN = {JAVA, LANG, "Boolean".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_VOID = {JAVA, LANG, "Void".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_UTIL_ITERATOR = {JAVA, "util".toCharArray(), "Iterator".toCharArray()}; //$NON-NLS-1$//$NON-NLS-2$
+	final char[][] JAVA_LANG_DEPRECATED = {JAVA, LANG, "Deprecated".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ANNOTATION_DOCUMENTED = {JAVA, LANG, ANNOTATION, "Documented".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ANNOTATION_INHERITED = {JAVA, LANG, ANNOTATION, "Inherited".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_OVERRIDE = {JAVA, LANG, "Override".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ANNOTATION_RETENTION = {JAVA, LANG, ANNOTATION, "Retention".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_SUPPRESSWARNINGS = {JAVA, LANG, "SuppressWarnings".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ANNOTATION_TARGET = {JAVA, LANG, ANNOTATION, "Target".toCharArray()}; //$NON-NLS-1$
 
 	// Constants used by the flow analysis
 	final int EqualOrMoreSpecific = -1;

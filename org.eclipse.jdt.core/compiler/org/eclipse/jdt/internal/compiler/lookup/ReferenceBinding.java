@@ -238,6 +238,8 @@ public void computeId() {
 				case 'D' :
 					if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
 						id = T_JavaLangDouble;
+					else if (CharOperation.equals(typeName, JAVA_LANG_DEPRECATED[2]))
+						id = T_JavaLangDeprecated;
 					return;
 				case 'E' :
 					if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
@@ -270,6 +272,8 @@ public void computeId() {
 				case 'O' :
 					if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
 						id = T_JavaLangObject;
+					else if (CharOperation.equals(typeName, JAVA_LANG_OVERRIDE[2]))
+						id = T_JavaLangOverride;
 					return;
 				case 'S' :
 					if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
@@ -282,6 +286,8 @@ public void computeId() {
 						id = T_JavaLangSystem;
 					else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
 						id = T_JavaLangShort;
+					else if (CharOperation.equals(typeName, JAVA_LANG_SUPPRESSWARNINGS[2]))
+						id = T_JavaLangSuppressWarnings;
 					return;
 				case 'T' :
 					if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
@@ -308,9 +314,28 @@ public void computeId() {
 					id = T_JavaLangReflectConstructor;
 				return;
 			} else if (CharOperation.equals(packageName, ANNOTATION)) {
-				if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_ANNOTATION[3]))
-					id = T_JavaLangAnnotationAnnotation;
-				return;
+				switch (typeName[0]) {
+					case 'A' :			
+						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_ANNOTATION[3]))
+							id = T_JavaLangAnnotationAnnotation;
+						return;
+					case 'D' :
+						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_DOCUMENTED[3]))
+							id = T_JavaLangAnnotationDocumented;
+						return;
+					case 'I' :
+						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_INHERITED[3]))
+							id = T_JavaLangAnnotationInherited;
+						return;
+					case 'R' :
+						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_RETENTION[3]))
+							id = T_JavaLangAnnotationRetention;
+						return;
+					case 'T' :
+						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_TARGET[3]))
+							id = T_JavaLangAnnotationTarget;
+						return;
+				}				
 			}
 			break;
 	}
