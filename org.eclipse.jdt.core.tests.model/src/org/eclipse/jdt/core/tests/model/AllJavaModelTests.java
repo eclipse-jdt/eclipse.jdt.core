@@ -102,7 +102,6 @@ public static Test suite() {
 	
 	// Type hierarchy tests
 	suite.addTest(TypeHierarchyTests.suite());
-	suite.addTest(TypeHierarchyTests2.suite());
 	suite.addTest(TypeHierarchyNotificationTests.suite());
 	suite.addTest(TypeHierarchySerializationTests.suite());
 	
