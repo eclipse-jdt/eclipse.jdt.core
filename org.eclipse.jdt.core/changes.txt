@@ -23,7 +23,6 @@ STREAM: 2.0
   OT
   ================================================================================
   1GF7GIF: ITPJCORE:WINNT - Outliner works strange on duplicate methods
-  1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown
   1GDGIUP: ITPJCORE:WINNT - SearchableEnvironment - converts char[] to String, which affects performance
 
   * JCK1.4 compliance diagnosing
@@ -122,6 +121,7 @@ STREAM: 2.0
   PRs Fixed in this Release
   ================================================================================
   1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath: Compares against variable name
+  1GDQEAS: ITPJUI:ALL - Indexer - delete unused indexes on Java core plug-in shutdown  
 
   PRs Closed in this Release
   ===============================================================================
