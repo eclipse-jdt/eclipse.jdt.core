@@ -105,7 +105,8 @@ public class PotentialMatch implements ICompilationUnit {
 		}
 	}
 	public char[] getMainTypeName() {
-		return this.compoundName[this.compoundName.length-1];
+		return null; // cannot know the main type name without opening .java or .class file
+		                  // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32182
 	}
 	public char[][] getPackageName() {
 		int length;
