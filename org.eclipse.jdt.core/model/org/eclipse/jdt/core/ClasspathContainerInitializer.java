@@ -41,7 +41,6 @@ import org.eclipse.core.runtime.IPath;
  * @see IClasspathContainer
  * @since 2.0
  */
-
 public abstract class ClasspathContainerInitializer {
 	
    /**
@@ -75,7 +74,29 @@ public abstract class ClasspathContainerInitializer {
      * it will not see the new assigned classpath until the operation has completed. Note that once the Java 
      * change notification occurs (at the end of the operation), the model has been updated, and the project 
      * classpath can be queried normally.
-     * <p>
+	 * <p>
+	 * This method is called by the Java model to give the party that defined
+	 * this particular kind of classpath container the chance to install
+	 * classpath container objects that will be used to convert classpath
+	 * container entries into simpler classpath entries. The method is typically
+	 * called exactly once for a given Java project and classpath container
+	 * entry. This method must not be called by other clients.
+	 * <p>
+	 * There are a wide variety of conditions under which this method may be
+	 * invoked. To ensure that the implementation does not interfere with
+	 * correct functioning of the Java model, the implementation should use
+	 * only the following Java model APIs:
+	 * <ul>
+	 * <li>{@link JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)}</li>
+	 * <li>{@link JavaCore#getClasspathContainer(IPath, IJavaProject)}</li>
+	 * <li>{@link JavaCore#create(IWorkspaceRoot)</li>
+	 * <li>{@link JavaCore#create(IProject)</li>
+	 * <li>{@link IJavaModel#getJavaProjects()</li>
+	 * <li>Java element operations marked as "handle-only"</li>
+	 * </ul>
+	 * The effects of using other Java model APIs are unspecified.
+	 * </p>
+	 * 
      * @param containerPath a two-segment path (ID/hint) identifying the container that needs 
      * 	to be resolved
      * @param project the Java project in which context the container is to be resolved.

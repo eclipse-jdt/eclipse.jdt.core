@@ -61,7 +61,34 @@ public interface IClasspathContainer {
 	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
 	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
 	 * </ul>
-	 * A classpath container can neither reference further classpath containers or classpath variables.
+	 * A classpath container can neither reference further classpath containers
+	 * or classpath variables.
+	 * </p>
+	 * <p>
+	 * This method is called by the Java model when it needs to resolve this
+	 * classpath container entry into a list of library and project entries.
+	 * The method is typically called exactly once for a given Java project,
+	 * and the resulting list of entries cached internally by the Java model.
+	 * This method must not be called by other clients.
+	 * <p>
+	 * There are a wide variety of conditions under which this method may be
+	 * invoked. To ensure that the implementation does not interfere with
+	 * correct functioning of the Java model, the implementation should use
+	 * only the following Java model APIs:
+	 * <ul>
+	 * <li>{@link JavaCore#newLibraryEntry(IPath, IPath, IPath, boolean)} and variants</li>
+	 * <li>{@link JavaCore#newProjectEntry(IPath, boolean)} and variants</li>
+	 * <li>{@link JavaCore#create(IWorkspaceRoot)</li>
+	 * <li>{@link JavaCore#create(IProject)</li>
+	 * <li>{@link IJavaModel#getJavaProjects()</li>
+	 * <li>{@link IJavaProject#getRawClasspath()</li>
+	 * <li>{@link IJavaProject#readRawClasspath()</li>
+	 * <li>{@link IJavaProject#getOutputLocation()</li>
+	 * <li>{@link IJavaProject#readOutputLocation()</li>
+	 * <li>Java element operations marked as "handle-only"</li>
+	 * </ul>
+	 * The effects of using other Java model APIs are unspecified.
+	 * </p>
 	 * 
 	 * @return IClasspathEntry[] - the classpath entries this container represents
 	 * @see IClasspathEntry
