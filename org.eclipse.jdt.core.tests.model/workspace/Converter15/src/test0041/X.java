@@ -1,10 +1,15 @@
-package main;
+package test0041;
 
+class PageFlowController {}
+
+class T {
+	T(String s) {}
+}
 /**
  * This is the default controller for a blank web application.
  */
-@Jpf.Controller
-@Jpf.ViewProperties(
+@test0041.Controller
+@test0041.ViewProperties(
         val = { 
             "<!-- This data is auto-generated. Hand-editing this section is not recommended. -->", 
             "<view-properties>", 
@@ -33,13 +38,13 @@ package main;
 public class X 
     extends PageFlowController
 {
-    @Jpf.Action(
+    @test0041.Action(
         forwards={
-           @Jpf.Forward(name="success", path="index.jsp")
+           @test0041.Forward(name="success", path="index.jsp")
         }
     )
-    protected Forward begin()
+    protected T begin()
     {
-        return new Forward("success");
+        return new T("success");
     }
 }

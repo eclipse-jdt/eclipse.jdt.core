@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0090"));
+		suite.addTest(new ASTConverter15Test("test0091"));
 		return suite;
 	}
 		
@@ -1321,7 +1321,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0041() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0041", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runJLS3Conversion(sourceUnit, false, true); // TODO (olivier) active binding when annotations are supported
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -2743,6 +2743,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 					return false;
 				}
 			});
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Check bindings for annotation type declaration
+	 */
+	public void test0091() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"@interface X {\n" +
+				"	int id() default 0;\n" +
+				"}",
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 0);
+			assertEquals("Not an annotation type declaration", ASTNode.ANNOTATION_TYPE_DECLARATION, node.getNodeType());
+			AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
+			ITypeBinding binding = annotationTypeDeclaration.resolveBinding();
+			assertNotNull("No binding", binding);
+			assertTrue("Not an annotation", binding.isAnnotation());
+			assertEquals("Wrong name", "X", binding.getName());
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not an annotation type member declaration", ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION, node.getNodeType());
+			AnnotationTypeMemberDeclaration memberDeclaration = (AnnotationTypeMemberDeclaration) node;
+			IMethodBinding methodBinding = memberDeclaration.resolveBinding();
+			assertNotNull("No binding", methodBinding);
+			assertEquals("Wrong name", "id", methodBinding.getName());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

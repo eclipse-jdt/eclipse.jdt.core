@@ -712,8 +712,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isAnnotation()
 	 */
 	public boolean isAnnotation() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isAnnotationType();
 	}
 
 	/*

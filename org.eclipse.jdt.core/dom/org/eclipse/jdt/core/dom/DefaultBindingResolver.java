@@ -976,8 +976,23 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveType(org.eclipse.jdt.core.dom.AnnotationTypeDeclaration)
 	 */
 	ITypeBinding resolveType(AnnotationTypeDeclaration type) {
-		// TODO (olivier) - missing implementation
-		return super.resolveType(type);
+		final Object node = this.newAstToOldAst.get(type);
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+			if (typeDeclaration != null) {
+				ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
+				if (typeBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(typeBinding, type);
+				String key = typeBinding.getKey();
+				if (key != null) {
+					this.bindingTables.bindingKeysToBindings.put(key, typeBinding);
+				}
+				return typeBinding;
+			}
+		}
+		return null;
 	}
 	/*
 	 * @see BindingResolver#resolveType(AnonymousClassDeclaration)

@@ -1,0 +1,3 @@
+@interface Action {
+	Forward[] forwards();
+}
