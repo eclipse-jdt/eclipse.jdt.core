@@ -81,6 +81,11 @@ public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);
 	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
+public void setUpSuite() throws Exception {
+	super.setUpSuite();
+	
+	setupExternalJCL("jclMin");
+}
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();
 	StringBuffer expected = new StringBuffer("{");
