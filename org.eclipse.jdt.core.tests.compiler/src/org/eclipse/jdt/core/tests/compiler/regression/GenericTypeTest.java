@@ -14945,8 +14945,12 @@ public void test500(){
 				"	}\n" + 
 				"}\n",
 			},
-			""
-		);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	T t = new ArrayList(); // BUG!!!\n" + 
+			"	  ^\n" + 
+			"Type mismatch: cannot convert from ArrayList to T\n" + 
+			"----------\n");
 	}	
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86463
@@ -14974,7 +14978,16 @@ public void test500(){
 				"  }\n" + 
 				"}\n",
 			},
-			""
-		);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	foo(l); // BUG!!!\n" + 
+			"	^^^\n" + 
+			"The method foo(T) in the type Foo<T> is not applicable for the arguments (List)\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	void foo(ArrayList l)\n" + 
+			"	     ^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(ArrayList) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n");
 	}		
 }
