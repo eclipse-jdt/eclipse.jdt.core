@@ -92,13 +92,13 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 		try {
 			if (root.isArchive()) {
 				ZipFile zipFile = manager.getZipFile(path);
-				cpLocations[index++] = new ClasspathJar(zipFile);
+				cpLocations[index++] = new ClasspathJar(zipFile, javaProject.getProjectImportRestriction());
 			} else {
 				Object target = JavaModel.getTarget(workspaceRoot, path, false);
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target);
 				} else {
-					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false);
+					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, javaProject.getProjectImportRestriction());
 				}
 			}
 		} catch (CoreException e1) {
@@ -132,7 +132,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			}
 			ICompilationUnit workingCopy = (ICompilationUnit) this.workingCopies.get(qualifiedTypeName);
 			if (workingCopy != null) {
-				answer = new NameEnvironmentAnswer(workingCopy);
+				answer = new NameEnvironmentAnswer(workingCopy, null /*no access restriction*/);
 			} else {
 				answer = location.findClass(
 					sourceFileName, // doesn't include the file extension

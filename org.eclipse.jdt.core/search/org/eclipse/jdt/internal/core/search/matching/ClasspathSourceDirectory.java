@@ -112,7 +112,7 @@ public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String
 		catch (CoreException ce) {
 			// let use default encoding
 		}
-		return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding));
+		return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, fileEncoding), null /* no access restriction */);
 	}
 	return null;
 }

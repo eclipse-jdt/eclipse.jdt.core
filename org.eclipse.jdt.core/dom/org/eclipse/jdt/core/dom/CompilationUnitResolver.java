@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -143,7 +144,7 @@ class CompilationUnitResolver extends Compiler {
 	/*
 	 * Add additional source types
 	 */
-	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		CompilationResult result =
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 		// need to hold onto this
@@ -157,7 +158,7 @@ class CompilationUnitResolver extends Compiler {
 				result);
 
 		if (unit != null) {
-			this.lookupEnvironment.buildTypeBindings(unit);
+			this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
 			this.lookupEnvironment.completeTypeBindings(unit, true);
 		}
 	}
@@ -509,7 +510,7 @@ class CompilationUnitResolver extends Compiler {
 					if (workingCopies != null) {
 						for (int j = 0, workingCopyLength = workingCopies.length; j < workingCopyLength; j++) {
 							ICompilationUnit workingCopy = workingCopies[j];
-							accept((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy);
+							accept((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy, null /* no access restriction*/);
 						}
 					}
 				}
@@ -551,7 +552,7 @@ class CompilationUnitResolver extends Compiler {
 				unit = this.unitsToProcess[0];
 			} else {
 				// initial type binding creation
-				this.lookupEnvironment.buildTypeBindings(unit);
+				this.lookupEnvironment.buildTypeBindings(unit, null /*no access restriction*/);
 
 				// binding resolution
 				this.lookupEnvironment.completeTypeBindings();

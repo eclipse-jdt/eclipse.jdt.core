@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -26,11 +25,13 @@ import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -42,8 +43,10 @@ public class SearchableEnvironment
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
 
-	protected IJavaProject project;
+	protected JavaProject project;
 	protected IJavaSearchScope searchScope;
+	
+	protected SimpleLookupTable accessRestrictions = new SimpleLookupTable(3);
 
 	/**
 	 * Creates a SearchableEnvironment on the given project
@@ -81,10 +84,43 @@ public class SearchableEnvironment
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 		if (type != null) {
-			if (type instanceof BinaryType) {
+			boolean isBinary = type instanceof BinaryType;
+			
+			// determine associated access restriction
+			AccessRestriction accessRestriction;
+			if (isBinary) {
+				accessRestriction = (AccessRestriction)this.accessRestrictions.get(this.project);
+				if (accessRestriction == null) {
+					accessRestriction = this.project.getProjectImportRestriction();
+					if (accessRestriction != null) {
+						this.accessRestrictions.put(this.project, accessRestriction);
+					}
+				}
+			} else {
+				JavaProject definingProject = (JavaProject) type.getJavaProject();
+				if (!definingProject.equals(this.project)) {
+					accessRestriction = (AccessRestriction)this.accessRestrictions.get(definingProject);
+					if (accessRestriction == null) {
+						accessRestriction = this.project.getProjectDependencyRestriction(definingProject);
+						if (accessRestriction != null) {
+							this.accessRestrictions.put(definingProject, accessRestriction);
+						}
+					}
+				} else {
+					accessRestriction = null;
+				}
+			}
+			if (accessRestriction != null) {
+				// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
+				char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
+				char[] typeChars = typeName.toCharArray();
+				accessRestriction = accessRestriction.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'), null);
+			}
+			
+			// construct name env answer
+			if (isBinary) { // BinaryType
 				try {
-					return new NameEnvironmentAnswer(
-						(IBinaryType) ((BinaryType) type).getElementInfo());
+					return new NameEnvironmentAnswer((IBinaryType) ((BinaryType) type).getElementInfo(), accessRestriction);
 				} catch (JavaModelException npe) {
 					return null;
 				}
@@ -109,7 +145,7 @@ public class SearchableEnvironment
 						if (!otherType.equals(topLevelType) && index < length) // check that the index is in bounds (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62861)
 							sourceTypes[index++] = otherType;
 					}
-					return new NameEnvironmentAnswer(sourceTypes);
+					return new NameEnvironmentAnswer(sourceTypes, accessRestriction);
 				} catch (JavaModelException npe) {
 					return null;
 				}

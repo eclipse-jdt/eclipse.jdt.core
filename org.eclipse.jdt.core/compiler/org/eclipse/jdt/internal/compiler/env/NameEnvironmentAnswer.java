@@ -16,19 +16,28 @@ public class NameEnvironmentAnswer {
 	IBinaryType binaryType;
 	ICompilationUnit compilationUnit;
 	ISourceType[] sourceTypes;
+	AccessRestriction accessRestriction;
 	
-	public NameEnvironmentAnswer(IBinaryType binaryType) {
+	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
 		this.binaryType = binaryType;
+		this.accessRestriction = accessRestriction;
 	}
 
-	public NameEnvironmentAnswer(ICompilationUnit compilationUnit) {
+	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction) {
 		this.compilationUnit = compilationUnit;
+		this.accessRestriction = accessRestriction;
 	}
 
-	public NameEnvironmentAnswer(ISourceType[] sourceTypes) {
+	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction) {
 		this.sourceTypes = sourceTypes;
+		this.accessRestriction = accessRestriction;
 	}
-
+	/**
+	 * Returns the associated access restriction, or null if none.
+	 */
+	public AccessRestriction getAccessRestriction() {
+		return this.accessRestriction;
+	}
 	/**
 	 * Answer the resolved binary form for the type or null if the
 	 * receiver represents a compilation unit or source type.

@@ -238,13 +238,13 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				IContainer outputFolder = path.segmentCount() == 1
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
-				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean());
+				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), null /* TODO store restriction in build state */);
 				break;
 			case EXTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF());
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), null /* TODO store restriction in build state */);
 				break;
 			case INTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())));
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), null /* TODO store restriction in build state */);
 		}
 	}
 

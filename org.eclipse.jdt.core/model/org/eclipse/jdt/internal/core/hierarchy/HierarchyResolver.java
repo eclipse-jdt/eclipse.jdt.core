@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
@@ -148,8 +149,8 @@ public HierarchyResolver(LookupEnvironment lookupEnvironment, HierarchyBuilder r
  * @param binaryType
  * @param packageBinding
  */
-public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
-	BinaryTypeBinding typeBinding = this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
+	BinaryTypeBinding typeBinding = this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	try {
 		this.remember(binaryType, typeBinding);
 	} catch (AbortCompilation e) {
@@ -161,7 +162,7 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
  * Add an additional compilation unit.
  * @param sourceUnit
  */
-public void accept(ICompilationUnit sourceUnit) {
+public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	this.lookupEnvironment.problemReporter.abortDueToInternalError(
 		new StringBuffer(Util.bind("accept.cannot")) //$NON-NLS-1$
@@ -174,7 +175,7 @@ public void accept(ICompilationUnit sourceUnit) {
  * @param sourceTypes
  * @param packageBinding
  */
-public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	// find most enclosing type first (needed when explicit askForType(...) is done 
 	// with a member type (e.g. p.A$B))
 	ISourceType sourceType = sourceTypes[0];
@@ -194,7 +195,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	// build bindings
 	if (unit != null) {
 		try {
-			this.lookupEnvironment.buildTypeBindings(unit);
+			this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
 			
 			org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)sourceType).getHandle().getCompilationUnit();
 			rememberAllTypes(unit, cu, false);
@@ -500,7 +501,7 @@ private void reset(){
 public void resolve(IGenericType suppliedType) {
 	try {
 		if (suppliedType.isBinaryType()) {
-			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType);
+			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType, null /*no access restriction*/);
 			remember(suppliedType, binaryTypeBinding);
 			// We still need to add superclasses and superinterfaces bindings (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
 			int startIndex = this.typeIndex;
@@ -624,7 +625,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					cus[unitsIndex] = cu;
 					parsedUnits[unitsIndex++] = parsedUnit;
 					try {
-						this.lookupEnvironment.buildTypeBindings(parsedUnit);
+						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 						if (openable.equals(focusOpenable)) {
 							focusUnit = parsedUnit;
 						}
@@ -656,7 +657,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				}
 				if (binaryType != null) {
 					try {
-						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType);
+						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType, null /*no access restriction*/);
 						remember(binaryType, binaryTypeBinding);
 						if (openable.equals(focusOpenable)) {
 							focusBinaryBinding = binaryTypeBinding;

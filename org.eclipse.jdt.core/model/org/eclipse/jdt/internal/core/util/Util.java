@@ -156,7 +156,7 @@ public class Util {
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given string values.
 	 */
-	public static String bind(String id, String[] bindings) {
+	public static String bind(String id, String[] arguments) {
 		if (id == null)
 			return "No message available"; //$NON-NLS-1$
 		String message = null;
@@ -171,7 +171,7 @@ public class Util {
 		char[] messageWithNoDoubleQuotes =
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 	
-		if (bindings == null) return new String(messageWithNoDoubleQuotes);
+		if (arguments == null) return new String(messageWithNoDoubleQuotes);
 	
 		int length = messageWithNoDoubleQuotes.length;
 		int start = 0;
@@ -179,14 +179,18 @@ public class Util {
 		StringBuffer output = null;
 		while (true) {
 			if ((end = CharOperation.indexOf('{', messageWithNoDoubleQuotes, start)) > -1) {
-				if (output == null) output = new StringBuffer(length+bindings.length*20);
+				if (output == null) output = new StringBuffer(length+arguments.length*20);
 				output.append(messageWithNoDoubleQuotes, start, end - start);
 				if ((start = CharOperation.indexOf('}', messageWithNoDoubleQuotes, end + 1)) > -1) {
 					int index = -1;
 					String argId = new String(messageWithNoDoubleQuotes, end + 1, start - end - 1);
 					try {
 						index = Integer.parseInt(argId);
-						output.append(bindings[index]);
+						if (arguments[index] == null) {
+							output.append('{').append(argId).append('}'); // leave parameter in since no better arg '{0}'
+						} else {
+							output.append(arguments[index]);
+						}
 					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
 						boolean done = false;
 						if (!id.equals(argId)) {
@@ -1152,42 +1156,9 @@ public class Util {
 	 */
 	public final static boolean isExcluded(IPath resourcePath, char[][] inclusionPatterns, char[][] exclusionPatterns, boolean isFolderPath) {
 		if (inclusionPatterns == null && exclusionPatterns == null) return false;
-		char[] path = resourcePath.toString().toCharArray();
-
-		inclusionCheck: if (inclusionPatterns != null) {
-			for (int i = 0, length = inclusionPatterns.length; i < length; i++) {
-				char[] pattern = inclusionPatterns[i];
-				char[] folderPattern = pattern;
-				if (isFolderPath) {
-					int lastSlash = CharOperation.lastIndexOf('/', pattern);
-					if (lastSlash != -1 && lastSlash != pattern.length-1){ // trailing slash -> adds '**' for free (see http://ant.apache.org/manual/dirtasks.html)
-						int star = CharOperation.indexOf('*', pattern, lastSlash);
-						if ((star == -1
-								|| star >= pattern.length-1 
-								|| pattern[star+1] != '*')) {
-							folderPattern = CharOperation.subarray(pattern, 0, lastSlash);
-						}
-					}
-				}
-				if (CharOperation.pathMatch(folderPattern, path, true, '/')) {
-					break inclusionCheck;
-				}
-			}
-			return true; // never included
-		}
-		if (isFolderPath) {
-			path = CharOperation.concat(path, new char[] {'*'}, '/');
-		}
-		exclusionCheck: if (exclusionPatterns != null) {
-			for (int i = 0, length = exclusionPatterns.length; i < length; i++) {
-				if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/')) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return org.eclipse.jdt.internal.compiler.util.Util.isExcluded(resourcePath.toString().toCharArray(), inclusionPatterns, exclusionPatterns, isFolderPath);
 	}	
-	
+
 	/*
 	 * Returns whether the given resource matches one of the exclusion patterns.
 	 * NOTE: should not be asked directly using pkg root pathes

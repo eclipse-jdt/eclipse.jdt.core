@@ -827,7 +827,7 @@ public final class CompletionEngine
 				
 				if (compilationUnit.types != null) {
 					try {
-						this.lookupEnvironment.buildTypeBindings(compilationUnit);
+						this.lookupEnvironment.buildTypeBindings(compilationUnit, null /*no access restriction*/);
 				
 						if ((this.unitScope = compilationUnit.scope) != null) {
 							this.lookupEnvironment.completeTypeBindings(compilationUnit, true);
@@ -958,7 +958,7 @@ public final class CompletionEngine
 
 				if (parsedUnit.types != null) {
 					try {
-						this.lookupEnvironment.buildTypeBindings(parsedUnit);
+						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 
 						if ((this.unitScope = parsedUnit.scope) != null) {
 							this.source = sourceUnit.getContents();

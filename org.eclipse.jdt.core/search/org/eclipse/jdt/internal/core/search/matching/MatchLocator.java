@@ -300,19 +300,19 @@ public MatchLocator(
 /**
  * Add an additional binary type
  */
-public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
-	this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
+	this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 }
 /**
  * Add an additional compilation unit into the loop
  *  ->  build compilation unit declarations, their bindings and record their results.
  */
-public void accept(ICompilationUnit sourceUnit) {
+public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 	// Switch the current policy and compilation result for this unit to the requested one.
 	CompilationResult unitResult = new CompilationResult(sourceUnit, 1, 1, this.options.maxProblemsPerUnit);
 	try {
 		CompilationUnitDeclaration parsedUnit = basicParser().dietParse(sourceUnit, unitResult);
-		this.lookupEnvironment.buildTypeBindings(parsedUnit);
+		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 		this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	} catch (AbortCompilationUnit e) {
 		// at this point, currentCompilationUnitResult may not be sourceUnit, but some other
@@ -327,7 +327,7 @@ public void accept(ICompilationUnit sourceUnit) {
 /**
  * Add additional source types
  */
-public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	// case of SearchableEnvironment of an IJavaProject is used
 	ISourceType sourceType = sourceTypes[0];
 	while (sourceType.getEnclosingType() != null)
@@ -337,7 +337,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) sourceType;
 		IType type = elementInfo.getHandle();
 		ICompilationUnit sourceUnit = (ICompilationUnit) type.getCompilationUnit();
-		accept(sourceUnit);
+		accept(sourceUnit, accessRestriction);
 	} else {
 		CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1, 0);
 		CompilationUnitDeclaration unit =
@@ -348,7 +348,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 				// no need for field initialization
 				this.lookupEnvironment.problemReporter,
 				result);
-		this.lookupEnvironment.buildTypeBindings(unit);
+		this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
 		this.lookupEnvironment.completeTypeBindings(unit, true);
 	}
 }	
@@ -381,7 +381,7 @@ protected void parseAndBuildBindings(PossibleMatch possibleMatch, boolean mustRe
 		CompilationUnitDeclaration parsedUnit = this.parser.dietParse(possibleMatch, unitResult);
 		if (parsedUnit != null) {
 			if (mustResolve && !parsedUnit.isEmpty())
-				this.lookupEnvironment.buildTypeBindings(parsedUnit);
+				this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 
 			// add the possibleMatch with its parsedUnit to matchesToProcess
 			possibleMatch.parsedUnit = parsedUnit;
@@ -415,7 +415,7 @@ protected BinaryTypeBinding cacheBinaryType(IType type, IBinaryType binaryType) 
 			}
 		}
 	}
-	BinaryTypeBinding binding = this.lookupEnvironment.cacheBinaryType(binaryType);
+	BinaryTypeBinding binding = this.lookupEnvironment.cacheBinaryType(binaryType, null /*no access restriction*/);
 	if (binding == null) { // it was already cached as a result of a previous query
 		char[][] compoundName = CharOperation.splitOn('.', type.getFullyQualifiedName().toCharArray());
 		ReferenceBinding referenceBinding = this.lookupEnvironment.getCachedType(compoundName);
@@ -551,7 +551,7 @@ protected boolean createHierarchyResolver(IType focusType, PossibleMatch[] possi
 			}
 		} else {
 			// cache all types in the focus' compilation unit (even secondary types)
-			accept((ICompilationUnit) focusType.getCompilationUnit());
+			accept((ICompilationUnit) focusType.getCompilationUnit(), null /*TODO no access restriction*/);
 		}
 	}
 

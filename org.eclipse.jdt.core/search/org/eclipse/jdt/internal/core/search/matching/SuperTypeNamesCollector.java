@@ -134,7 +134,7 @@ protected CompilationUnitDeclaration buildBindings(ICompilationUnit compilationU
 			this.locator.basicParser().dietParse(sourceUnit, compilationResult) :
 			this.locator.basicParser().parse(sourceUnit, compilationResult);
 	if (unit != null) {
-		this.locator.lookupEnvironment.buildTypeBindings(unit);
+		this.locator.lookupEnvironment.buildTypeBindings(unit, null /*no access restriction*/);
 		this.locator.lookupEnvironment.completeTypeBindings(unit, !isTopLevelOrMember);
 		if (!isTopLevelOrMember) {
 			if (unit.scope != null)

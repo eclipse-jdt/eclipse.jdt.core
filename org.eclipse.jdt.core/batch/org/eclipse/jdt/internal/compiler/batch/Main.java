@@ -188,7 +188,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given string values.
 	 */
-	public static String bind(String id, String[] bindings) {
+	public static String bind(String id, String[] arguments) {
 		if (id == null)
 			return "No message available"; //$NON-NLS-1$
 		String message = null;
@@ -202,8 +202,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// for compatibility with MessageFormat which eliminates double quotes in original message
 		char[] messageWithNoDoubleQuotes =
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
+		if (arguments == null) return new String(messageWithNoDoubleQuotes);
+		
 		message = new String(messageWithNoDoubleQuotes);
-
 		int length = message.length();
 		int start = -1;
 		int end = length;
@@ -215,8 +216,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if ((start = message.indexOf('}', end)) > -1) {
 					int index = -1;
 					try {
-						index = Integer.parseInt(message.substring(end + 1, start));
-						output.append(bindings[index]);
+						String argId = message.substring(end + 1, start);
+						index = Integer.parseInt(argId);
+						if (arguments[index] == null) {
+							output.append('{').append(argId).append('}'); // leave parameter in since no better arg '{0}'
+						} else {
+							output.append(arguments[index]);
+						}						
 					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
 						String argId = message.substring(end + 1, start);
 						boolean done = false;

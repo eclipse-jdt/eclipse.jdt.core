@@ -508,7 +508,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				if (parsedUnit.types != null) {
 					if(selectDeclaration(parsedUnit))
 						return;
-					this.lookupEnvironment.buildTypeBindings(parsedUnit);
+					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 					if ((this.unitScope = parsedUnit.scope)  != null) {
 						try {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
@@ -872,7 +872,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					typeDecl.fields = new FieldDeclaration[] { field };
 
 					// build bindings
-					this.lookupEnvironment.buildTypeBindings(parsedUnit);
+					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 					if ((this.unitScope = parsedUnit.scope) != null) {
 						try {
 							// build fields

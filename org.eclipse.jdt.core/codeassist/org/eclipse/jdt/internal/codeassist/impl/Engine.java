@@ -40,19 +40,19 @@ public abstract class Engine implements ITypeRequestor {
 	/**
 	 * Add an additional binary type
 	 */
-	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
-		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
+		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	}
 
 	/**
 	 * Add an additional compilation unit.
 	 */
-	public void accept(ICompilationUnit sourceUnit) {
+	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit =
 			this.getParser().dietParse(sourceUnit, result);
 
-		lookupEnvironment.buildTypeBindings(parsedUnit);
+		lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 		lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	}
 
@@ -60,7 +60,7 @@ public abstract class Engine implements ITypeRequestor {
 	 * Add additional source types (the first one is the requested type, the rest is formed by the
 	 * secondary types defined in the same compilation unit).
 	 */
-	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		CompilationResult result =
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration unit =
@@ -73,7 +73,7 @@ public abstract class Engine implements ITypeRequestor {
 				result);
 
 		if (unit != null) {
-			lookupEnvironment.buildTypeBindings(unit);
+			lookupEnvironment.buildTypeBindings(unit, accessRestriction);
 			lookupEnvironment.completeTypeBindings(unit, true);
 		}
 	}

@@ -180,7 +180,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Add an additional binary type
 	 */
-	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
+	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		if (options.verbose) {
 			System.out.println(
 				Util.bind(
@@ -190,14 +190,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 //			new Exception("TRACE BINARY").printStackTrace(System.out);
 //		    System.out.println();
 		}
-		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
+		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	}
 
 	/**
 	 * Add an additional compilation unit into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
-	public void accept(ICompilationUnit sourceUnit) {
+	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 		// Switch the current policy and compilation result for this unit to the requested one.
 		CompilationResult unitResult =
 			new CompilationResult(sourceUnit, totalUnits, totalUnits, this.options.maxProblemsPerUnit);
@@ -220,7 +220,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			}
 			// initial type binding creation
-			lookupEnvironment.buildTypeBindings(parsedUnit);
+			lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 			this.addCompilationUnit(sourceUnit, parsedUnit);
 
 			// binding resolution
@@ -239,7 +239,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Add additional source types
 	 */
-	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		problemReporter.abortDueToInternalError(
 			Util.bind(
 				"abort.againstSourceModel" , //$NON-NLS-1$
@@ -295,7 +295,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
 				}
 				// initial type binding creation
-				lookupEnvironment.buildTypeBindings(parsedUnit);
+				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 				this.addCompilationUnit(sourceUnits[i], parsedUnit);
 				//} catch (AbortCompilationUnit e) {
 				//	requestor.acceptResult(unitResult.tagAsAccepted());
@@ -548,7 +548,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				unit = unitsToProcess[0];
 			} else {
 				// initial type binding creation
-				lookupEnvironment.buildTypeBindings(unit);
+				lookupEnvironment.buildTypeBindings(unit, null /*no access restriction*/);
 
 				// binding resolution
 				lookupEnvironment.completeTypeBindings();

@@ -53,7 +53,7 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	if (unit == null) {
 		return this.findTypeFromClassLibs(typeName, packageName);
 	}
-	return new NameEnvironmentAnswer(unit);
+	return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
 }
 private NameEnvironmentAnswer findTypeFromClassLibs(char[] typeName, char[][] packageName) {
 	for (int i = 0; i < this.classLibs.length; i++) {

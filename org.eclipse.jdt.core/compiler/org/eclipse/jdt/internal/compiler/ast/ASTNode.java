@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -238,7 +239,13 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 			// ignore cases where type is used from within inside itself 
 			((ReferenceBinding)refType.erasure()).modifiers |= AccPrivateUsed;
 		}
-
+		
+		if (refType.hasRestrictedAccess()) {
+			AccessRestriction restriction = scope.environment().getAccessRestriction(type);
+			if (restriction != null) {
+				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate());
+			}
+		}
 		if (!refType.isViewedAsDeprecated()) return false;
 		
 		// inside same unit - no report

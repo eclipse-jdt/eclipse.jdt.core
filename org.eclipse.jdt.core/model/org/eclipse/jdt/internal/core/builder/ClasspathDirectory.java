@@ -14,24 +14,26 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-class ClasspathDirectory extends ClasspathLocation {
+public class ClasspathDirectory extends ClasspathLocation {
 
 IContainer binaryFolder; // includes .class files for a single directory
 boolean isOutputFolder;
 String binaryLocation;
 SimpleLookupTable directoryCache;
 String[] missingPackageHolder = new String[1];
+AccessRestriction accessRestriction;
 
-ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder) {
+ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRestriction accessRule) {
 	this.binaryFolder = binaryFolder;
 	this.isOutputFolder = isOutputFolder;
 	IPath location = binaryFolder.getLocation();
 	this.binaryLocation = location != null ? location.addTrailingSeparator().toString() : ""; //$NON-NLS-1$
-
 	this.directoryCache = new SimpleLookupTable(5);
+	this.accessRestriction = accessRule;
 }
 
 public void cleanup() {
@@ -89,7 +91,13 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 
 	try {
 		ClassFileReader reader = ClassFileReader.read(binaryLocation + qualifiedBinaryFileName);
-		if (reader != null) return new NameEnvironmentAnswer(reader);
+		if (reader != null) {
+			AccessRestriction violatedRestriction = null;
+			if (this.accessRestriction != null) {
+				violatedRestriction = this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null);
+			}
+			return new NameEnvironmentAnswer(reader, violatedRestriction);
+		}
 	} catch (Exception e) {
 		// handle the case when the project is the output folder and the top-level package is a linked folder
 		if (binaryFolder instanceof IProject) {
@@ -99,7 +107,11 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 				if (location != null) {
 					try {
 						ClassFileReader reader = ClassFileReader.read(location.toString());
-						if (reader != null) return new NameEnvironmentAnswer(reader);
+						AccessRestriction violatedRestriction = null;
+						if (this.accessRestriction != null) {
+							violatedRestriction = this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null);
+						}						
+						if (reader != null) return new NameEnvironmentAnswer(reader, violatedRestriction);
 					} catch (Exception ignored) { // treat as if class file is missing
 					}
 				}

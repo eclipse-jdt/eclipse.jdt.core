@@ -40,7 +40,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
-		if (reader != null) return new NameEnvironmentAnswer(reader);
+		if (reader != null) return new NameEnvironmentAnswer(reader, null /*no access restriction*/);
 	} catch (Exception e) {
 		// treat as if class file is missing
 	}

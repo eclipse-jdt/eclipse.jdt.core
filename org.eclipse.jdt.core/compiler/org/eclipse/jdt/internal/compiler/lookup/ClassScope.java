@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -212,7 +213,7 @@ public class ClassScope extends Scope {
 		referenceContext.binding.verifyMethods(environment().methodVerifier());
 	}
 	
-	private void buildMemberTypes() {
+	private void buildMemberTypes(AccessRestriction accessRestriction) {
 	    SourceTypeBinding sourceType = referenceContext.binding;
 		ReferenceBinding[] memberTypeBindings = NoMemberTypes;
 		if (referenceContext.memberTypes != null) {
@@ -246,7 +247,7 @@ public class ClassScope extends Scope {
 				}
 
 				ClassScope memberScope = new ClassScope(this, memberContext);
-				memberTypeBindings[count++] = memberScope.buildType(sourceType, sourceType.fPackage);
+				memberTypeBindings[count++] = memberScope.buildType(sourceType, sourceType.fPackage, accessRestriction);
 			}
 			if (count != length)
 				System.arraycopy(memberTypeBindings, 0, memberTypeBindings = new ReferenceBinding[count], 0, count);
@@ -288,7 +289,7 @@ public class ClassScope extends Scope {
 		referenceContext.binding.modifiers |= AccUnresolved; // until methods() is sent
 	}
 	
-	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
+	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		// provide the typeDeclaration with needed scopes
 		referenceContext.scope = this;
 		referenceContext.staticInitializerScope = new MethodScope(this, referenceContext, true);
@@ -305,10 +306,11 @@ public class ClassScope extends Scope {
 		}
 
 		SourceTypeBinding sourceType = referenceContext.binding;
+		environment().setAccessRestriction(sourceType, accessRestriction);		
 		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
 		buildTypeVariables();
-		buildMemberTypes();
+		buildMemberTypes(accessRestriction);
 		return sourceType;
 	}
 	

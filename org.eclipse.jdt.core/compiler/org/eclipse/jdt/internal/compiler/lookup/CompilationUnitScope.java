@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -57,7 +58,7 @@ void buildFieldsAndMethods() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
 		topLevelTypes[i].scope.buildFieldsAndMethods();
 }
-void buildTypeBindings() {
+void buildTypeBindings(AccessRestriction accessRestriction) {
 	topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
 	if (referenceContext.compilationResult.compilationUnit != null) {
 		char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
@@ -117,7 +118,7 @@ void buildTypeBindings() {
 		}
 
 		ClassScope child = new ClassScope(this, typeDecl);
-		SourceTypeBinding type = child.buildType(null, fPackage);
+		SourceTypeBinding type = child.buildType(null, fPackage, accessRestriction);
 		if(type != null) {
 			topLevelTypes[count++] = type;
 		}

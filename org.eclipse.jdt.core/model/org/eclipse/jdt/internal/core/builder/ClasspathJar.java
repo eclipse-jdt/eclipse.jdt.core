@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
@@ -80,26 +81,30 @@ IFile resource;
 ZipFile zipFile;
 boolean closeZipFileAtEnd;
 SimpleSet knownPackageNames;
+AccessRestriction accessRestriction;
 
-ClasspathJar(String zipFilename) {
+ClasspathJar(String zipFilename, AccessRestriction accessRestriction) {
 	this.zipFilename = zipFilename;
 	this.zipFile = null;
 	this.knownPackageNames = null;
+	this.accessRestriction = accessRestriction;
 }
 
-ClasspathJar(IFile resource) {
+ClasspathJar(IFile resource, AccessRestriction accessRestriction) {
 	this.resource = resource;
 	IPath location = resource.getLocation();
 	this.zipFilename = location != null ? location.toString() : ""; //$NON-NLS-1$
 	this.zipFile = null;
 	this.knownPackageNames = null;
+	this.accessRestriction = accessRestriction;
 }
 
-public ClasspathJar(ZipFile zipFile) {
+public ClasspathJar(ZipFile zipFile, AccessRestriction accessRestriction) {
 	this.zipFilename = zipFile.getName();
 	this.zipFile = zipFile;
 	this.closeZipFileAtEnd = false;
 	this.knownPackageNames = null;
+	this.accessRestriction = accessRestriction;
 }
 
 public void cleanup() {
@@ -125,7 +130,13 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
-		if (reader != null) return new NameEnvironmentAnswer(reader);
+		if (reader != null) {
+			AccessRestriction violatedRestriction = null;
+			if (this.accessRestriction != null) {
+				violatedRestriction = this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null);
+			}			
+			return new NameEnvironmentAnswer(reader, violatedRestriction);
+		}
 	} catch (Exception e) { // treat as if class file is missing
 	}
 	return null;

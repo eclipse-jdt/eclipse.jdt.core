@@ -30,7 +30,7 @@ public class NameEnvironment implements INameEnvironment, SuffixConstants {
 boolean isIncrementalBuild;
 ClasspathMultiDirectory[] sourceLocations;
 ClasspathLocation[] binaryLocations;
-
+	
 String[] initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
 SourceFile[] additionalUnits;
 
@@ -91,6 +91,7 @@ private void computeClasspathLocations(
 	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(true/*ignore unresolved variable*/, false/*don't create markers*/, null/*preferred cp*/, null/*preferred output*/);
 	ArrayList sLocations = new ArrayList(classpathEntries.length);
 	ArrayList bLocations = new ArrayList(classpathEntries.length);
+	AccessRestriction importRestriction = javaProject.getProjectImportRestriction();
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
@@ -136,7 +137,11 @@ private void computeClasspathLocations(
 							: (IContainer) root.getFolder(prereqOutputPath);
 						if (binaryFolder.exists() && !seen.contains(binaryFolder)) {
 							seen.add(binaryFolder);
-							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true);
+							ClasspathLocation bLocation = 
+								ClasspathLocation.forBinaryFolder(
+										binaryFolder, 
+										true, 
+										javaProject.getProjectDependencyRestriction(prereqJavaProject));
 							bLocations.add(bLocation);
 							if (binaryLocationsPerProject != null) { // normal builder mode
 								ClasspathLocation[] existingLocations = (ClasspathLocation[]) binaryLocationsPerProject.get(prereqProject);
@@ -161,9 +166,9 @@ private void computeClasspathLocations(
 					if (resource instanceof IFile) {
 						if (!(org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())))
 							continue nextEntry;
-						bLocation = ClasspathLocation.forLibrary((IFile) resource);
+						bLocation = ClasspathLocation.forLibrary((IFile) resource, importRestriction);
 					} else if (resource instanceof IContainer) {
-						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false); // is library folder not output folder
+						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, importRestriction);	 // is library folder not output folder
 					}
 					bLocations.add(bLocation);
 					if (binaryLocationsPerProject != null) { // normal builder mode
@@ -181,7 +186,7 @@ private void computeClasspathLocations(
 				} else if (target instanceof File) {
 					if (!(org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())))
 						continue nextEntry;
-					bLocations.add(ClasspathLocation.forLibrary(path.toString()));
+					bLocations.add(ClasspathLocation.forLibrary(path.toString(), importRestriction));
 				}
 				continue nextEntry;
 		}
@@ -266,7 +271,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 						continue next;
 				if (!Util.equalsIgnoreJavaLikeExtension(fullPath.segment(qSegmentCount-1 + prefixCount), qSourceFilePath.segment(qSegmentCount-1)))
 					continue next;
-				return new NameEnvironmentAnswer(additionalUnit);
+				return new NameEnvironmentAnswer(additionalUnit, null /*no access restriction*/);
 			}
 		}
 	}

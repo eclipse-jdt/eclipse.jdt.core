@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 public abstract class ClasspathLocation {
@@ -21,16 +22,16 @@ static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer out
 	return new ClasspathMultiDirectory(sourceFolder, outputFolder, inclusionPatterns, exclusionPatterns);
 }
 
-public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder) {
-	return new ClasspathDirectory(binaryFolder, isOutputFolder);
+public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder, AccessRestriction accessRestriction) {
+	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRestriction);
 }
 
-static ClasspathLocation forLibrary(String libraryPathname) {
-	return new ClasspathJar(libraryPathname);
+static ClasspathLocation forLibrary(String libraryPathname, AccessRestriction accessRestriction) {
+	return new ClasspathJar(libraryPathname, accessRestriction);
 }
 
-static ClasspathLocation forLibrary(IFile library) {
-	return new ClasspathJar(library);
+static ClasspathLocation forLibrary(IFile library, AccessRestriction accessRestriction) {
+	return new ClasspathJar(library, accessRestriction);
 }
 
 public abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);

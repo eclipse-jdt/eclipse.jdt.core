@@ -90,18 +90,18 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	if (sourceExists) {
 		String fullSourcePath = this.path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java;
 		if (!binaryExists)
-			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding));
+			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding), null/* TODO no access restriction*/);
 
 		String fullBinaryPath = this.path + qualifiedBinaryFileName;
 		long binaryModified = new File(fullBinaryPath).lastModified();
 		long sourceModified = new File(fullSourcePath).lastModified();
 		if (sourceModified > binaryModified)
-			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding));
+			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding), null/* TODO no access restriction*/);
 	}
 	if (binaryExists) {
 		try {
 			ClassFileReader reader = ClassFileReader.read(this.path + qualifiedBinaryFileName);
-			if (reader != null) return new NameEnvironmentAnswer(reader);
+			if (reader != null) return new NameEnvironmentAnswer(reader, null/* TODO no access restriction*/);
 		} catch (Exception e) { 
 			// treat as if file is missing
 		}

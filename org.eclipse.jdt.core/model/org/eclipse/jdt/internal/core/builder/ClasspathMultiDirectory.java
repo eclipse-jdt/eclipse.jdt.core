@@ -23,7 +23,7 @@ char[][] exclusionPatterns; // used by builders when walking source folders
 boolean hasIndependentOutputFolder; // if output folder is not equal to any of the source folders
 
 ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
-	super(binaryFolder, true);
+	super(binaryFolder, true, null);
 
 	this.sourceFolder = sourceFolder;
 	this.inclusionPatterns = inclusionPatterns;

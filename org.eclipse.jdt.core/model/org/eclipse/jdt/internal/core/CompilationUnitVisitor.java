@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -79,7 +80,7 @@ public class CompilationUnitVisitor extends Compiler {
 	/**
 	 * Add additional source types
 	 */
-	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		CompilationResult result =
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 		// need to hold onto this
@@ -93,7 +94,7 @@ public class CompilationUnitVisitor extends Compiler {
 				result);
 
 		if (unit != null) {
-			this.lookupEnvironment.buildTypeBindings(unit);
+			this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
 			this.lookupEnvironment.completeTypeBindings(unit, true);
 		}
 	}

@@ -50,6 +50,85 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Introduced access restrictions so as to control project imports and exports; so as
+to better control proper usage of APIs across components. Usually, only a subset of the types exposed
+on a classpath are part of the API (some internal types are required for the compiler to properly 
+perform). A typical restriction for Eclipse developpers is to not use internal classes from prerequisite 
+plug-ins). By specifying export rules on a project, one can describe which portion of a project
+contribution can be referenced from dependents. Import rules can be specified on a project so as to further
+control which fraction of the types accessible via its classpath (and not defined as sources in the project)
+can be referenced. 
+Also note that an export restriction on prereq project cannot be overriden by an import restriction on 
+dependent project. Export restrictions are checked before considering import ones.
+<p>
+In order to challenge this, before UI preferences are added, you may edit manually preference files and add
+the following lines (tuned for Eclipse development rules):
+<pre>
+org.eclipse.jdt.core.compiler.accessRestriction.import.exclude=**/internal/
+org.eclipse.jdt.core.compiler.accessRestriction.export.exclude=**/internal/
+org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning
+</pre>
+Note that the workspace default preferences are located in: <code>&lt;workspace&gt;\.metadata\.plugins\org.eclipse.core.runtime\.settings\org.eclipse.jdt.core.prefs</code>,
+and can be refined on a project basis (see <code>&lt;project&gt;/.settings/org.eclipse.jdt.core.prefs</code>)
+<p>
+Corresponding problem marker ID is <code>IProblem.ForbiddenReference</code>.
+<pre>
+* COMPILER / Reporting Forbidden Reference to Type with Restricted Access
+*    When enabled, the compiler will issue an error or a warning when referring to a type with restricted access, as defined according
+*    to the access restriction specifications.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+* 
+* COMPILER / Define the Inclusion Rules for Import Access Restriction
+*    When the inclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
+*    to type defined outside the current project, and for which the file path does not match the inclusion rule (the file path is
+*    considered only relatively to its containing source or library root path, e.g. "java/lang/" would include all types located
+*    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
+*    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
+*    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
+*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.include"
+*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+*     - default:           ""
+*
+* COMPILER / Define the Exclusion Rules for Import Access Restriction
+*    When the exclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
+*    to a type defined outside the current project, and for which the file path does not match the exclusion rule (the file path is
+*    considered only relatively to its containing source or library root path, e.g. "java/lang/" would exclude all types located
+*    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
+*    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
+*    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
+*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"
+*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+*     - default:           ""
+*
+* COMPILER / Define the Inclusion Rules for Export Access Restriction
+*    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
+*    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
+*    inclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
+*    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
+*    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
+*    rules are specified, exclusion rules will prevail.
+*    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
+*    Export restrictions are checked before considering import ones.
+*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.include"
+*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+*     - default:           ""
+*
+* COMPILER / Define the Exclusion Rules for Export Access Restriction
+*    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
+*    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
+*    exclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
+*    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
+*    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
+*    rules are specified, exclusion rules will prevail.
+*    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
+*    Export restrictions are checked before considering import ones.
+*     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.exclude"
+*     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+*     - default:           ""
+</pre>
+</li>
 <li>Added new API <code>IBinding#getJavaElement()</code> to get the Java element corresponding to a 
      <code>org.eclipse.jdt.core.dom.IBinding</code>.
 </li>

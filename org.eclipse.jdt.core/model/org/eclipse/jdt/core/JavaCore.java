@@ -270,7 +270,6 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_ENUM_IDENTIFIER = PLUGIN_ID + ".compiler.problem.enumIdentifier"; //$NON-NLS-1$
-	
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -511,6 +510,36 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_TASK_CASE_SENSITIVE = PLUGIN_ID + ".compiler.taskCaseSensitive"; //$NON-NLS-1$	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_FORBIDDEN_REFERENCE = PLUGIN_ID + ".compiler.problem.forbiddenReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_ACCESS_RESTRICTION_IMPORT_INCLUDE = PLUGIN_ID + ".compiler.accessRestriction.import.include"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_ACCESS_RESTRICTION_IMPORT_EXCLUDE = PLUGIN_ID + ".compiler.accessRestriction.import.exclude"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_ACCESS_RESTRICTION_EXPORT_INCLUDE = PLUGIN_ID + ".compiler.accessRestriction.export.include"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_ACCESS_RESTRICTION_EXPORT_EXCLUDE = PLUGIN_ID + ".compiler.accessRestriction.export.exclude"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1880,6 +1909,61 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 *
+	 * COMPILER / Reporting Forbidden Reference to Type with Restricted Access
+	 *    When enabled, the compiler will issue an error or a warning when referring to a type with restricted access, as defined according
+	 *    to the access restriction specifications.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Define the Inclusion Rules for Import Access Restriction
+	 *    When the inclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
+	 *    to type defined outside the current project, and for which the file path does not match the inclusion rule (the file path is
+	 *    considered only relatively to its containing source or library root path, e.g. "java/lang/" would include all types located
+	 *    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
+	 *    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
+	 *    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.include"
+	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+	 *     - default:           ""
+	 *
+	 * COMPILER / Define the Exclusion Rules for Import Access Restriction
+	 *    When the exclusion rule list is not empty, the compiler will issue a problem marker whenever it encounters a reference 
+	 *    to a type defined outside the current project, and for which the file path does not match the exclusion rule (the file path is
+	 *    considered only relatively to its containing source or library root path, e.g. "java/lang/" would exclude all types located
+	 *    in package "java.lang"). Note that in case both exclusion and inclusion rules are specified, exclusion rules will prevail.
+	 *    Also note that when imported types are contributed from sources of a prerequisite project, the export restrictions 
+	 *    of the prerequisite will automatically apply as well (import restrictions do not override export ones).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"
+	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+	 *     - default:           ""
+	 *
+	 * COMPILER / Define the Inclusion Rules for Export Access Restriction
+	 *    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
+	 *    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
+	 *    inclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
+	 *    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
+	 *    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
+	 *    rules are specified, exclusion rules will prevail.
+	 *    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
+	 *    Export restrictions are checked before considering import ones.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.include"
+	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+	 *     - default:           ""
+	 *
+	 * COMPILER / Define the Exclusion Rules for Export Access Restriction
+	 *    A project can be associated with export restrictions, so as not to expose portions of its implementation to dependent
+	 *    project. When the inclusion rule list is not empty, the compiler will recognize certain types to be exported based on these
+	 *    exclusion rules. If a non exported type is directy referenced outside its defining project, then the compiler will issue a 
+	 *    problem marker. Inclusion rules are described in term of file path, relative to their containing source root path, 
+	 *    e.g. "java/lang/" would export all types located in package "java.lang"). Note that in case both exclusion and inclusion 
+	 *    rules are specified, exclusion rules will prevail.
+	 *    Also note that an export restriction on prereq project cannot be overriden by an import restriction on dependent project.
+	 *    Export restrictions are checked before considering import ones.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.accessRestriction.export.exclude"
+	 *     - possible values:   { "&lt;pattern&gt;[,&lt;pattern&gt;]*" } where &lt;pattern&gt; is an Ant file pattern, allowing use of '**,'*' and '?' wildcards 
+	 *     - default:           ""
+	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:         "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
@@ -2442,14 +2526,15 @@ public final class JavaCore extends Plugin {
 			defaultPreferences.put(optionName, (String)entry.getValue());
 			optionNames.add(optionName);
 		}
-		// override some compiler defaults
+		
+		// Override some compiler defaults
 		defaultPreferences.put(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
 		defaultPreferences.put(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
 		defaultPreferences.put(COMPILER_TASK_TAGS, DEFAULT_TASK_TAGS);
 		defaultPreferences.put(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITIES);
 		defaultPreferences.put(COMPILER_TASK_CASE_SENSITIVE, ENABLED);
 		defaultPreferences.put(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
-
+	
 		// Builder settings
 		defaultPreferences.put(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
 		optionNames.add(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
@@ -2855,7 +2940,7 @@ public final class JavaCore extends Plugin {
 			null, // specific output folder
 			isExported);
 	}
-
+	
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
@@ -20,12 +21,12 @@ public interface ITypeRequestor {
 	/**
 	 * Accept the resolved binary form for the requested type.
 	 */
-	void accept(IBinaryType binaryType, PackageBinding packageBinding);
+	void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction);
 
 	/**
 	 * Accept the requested type's compilation unit.
 	 */
-	void accept(ICompilationUnit unit);
+	void accept(ICompilationUnit unit, AccessRestriction accessRestriction);
 
 	/**
 	 * Accept the unresolved source forms for the requested type.
@@ -33,5 +34,5 @@ public interface ITypeRequestor {
 	 * contains multiple types. The first one is then guaranteed to be the one corresponding to the
 	 * requested type.
 	 */
-	void accept(ISourceType[] sourceType, PackageBinding packageBinding);
+	void accept(ISourceType[] sourceType, PackageBinding packageBinding, AccessRestriction accessRestriction);
 }

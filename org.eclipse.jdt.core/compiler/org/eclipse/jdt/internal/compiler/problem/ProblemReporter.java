@@ -1045,12 +1045,13 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-public void forbiddenReference(TypeBinding type, ASTNode location, String visibilityRuleOwner) {
+public void forbiddenReference(TypeBinding type, ASTNode location, String messageTemplate) {
 	if (location == null) return; 
+	// this problem has a message template extracted from the access restriction rule
 	this.handle(
 		IProblem.ForbiddenReference,
-		new String[] {new String(type.readableName()), visibilityRuleOwner},
-		new String[] {new String(type.shortReadableName()), visibilityRuleOwner},
+		new String[] { new String(type.readableName()) }, // distinct from msg arg for quickfix purpose
+		new String[] { Util.bindMessage(messageTemplate, new String[]{ new String(type.shortReadableName()) } ) },
 		location.sourceStart,
 		location.sourceEnd);
 }

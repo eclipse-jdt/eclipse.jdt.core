@@ -47,7 +47,7 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		if (binary == null) {
 			return null;
 		} else {
-			return new NameEnvironmentAnswer(binary);
+			return new NameEnvironmentAnswer(binary, null /*no access restriction*/);
 		}
 	}
 	VariablesInfo installedVars = this.context.installedVars;
@@ -62,7 +62,7 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 				e.printStackTrace();  // Should never happen since we compiled this type
 				return null;
 			}
-			return new NameEnvironmentAnswer(binary);
+			return new NameEnvironmentAnswer(binary, null /*no access restriction*/);
 		}
 	}
 	return null;
