@@ -4255,7 +4255,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 60556
-	public void _test152() {
+	public void test152() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4271,5 +4271,453 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"SUCCESS");
+	}		
+	public void test153() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<X> a = bar(ax);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(AX<? extends T> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	public void test154() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<X> a = bar(ax);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(AX<? super T> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	public void test155() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<X> a = bar(ax);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(AX<?> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	public void test156() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<X> a = bar(ax);\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(AX<?> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E extends X> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public static <T> AX<T> bar(AX<?> a) {\n" + 
+			"	                     ^\n" + 
+			"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends X> of the type AX<E>\n" + 
+			"----------\n");
 	}			
+	public void test157() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<String> as = new AX<String>();\n" + 
+				"        AX<X> a = bar(ax, as);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T,U> AX<T> bar(AX<? extends U> a, AX<? super U> b) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	AX<X> a = bar(ax, as);\n" + 
+			"	          ^^^\n" + 
+			"The method bar(AX<? extends U>, AX<? super U>) in the type X is not applicable for the arguments (AX<X>, AX<String>)\n" + 
+			"----------\n");
+	}
+	public void test158() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<String> as = new AX<String>();\n" + 
+				"        AX<X> a = bar(ax, as);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T,U> AX<T> bar(AX<?> a, AX<? super U> b) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
+	public void test159() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>(new X());\n" + 
+				"        AX<String> as = new AX<String>(\"SUCCESS\");\n" + 
+				"        AX<X> a = bar(ax, as);\n" + 
+				"	}\n" + 
+				"    public static <T,U> T bar(AX<?> a, AX<? super U> b) {\n" + 
+				"		return a.get();\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"	 E e;\n" +
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from ? to T\n" + 
+			"----------\n");
+	}		
+	public void test160() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        String s = foo(new AX<String>(\"aaa\"));\n" + 
+				"	}\n" + 
+				"    static <V> V foo(AX<String> a) {\n" + 
+				"        return a.get();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to V\n" + 
+			"----------\n");
+	}		
+	public void test161() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        boolean b = foo(new AX<String>(\"aaa\")).equals(args);\n" + 
+				"	}\n" + 
+				"    static <V> V foo(AX<String> a) {\n" + 
+				"        return a.get();\n" + 
+				"    }\n" + 
+				"    String bar() {\n" + 
+				"        return \"bbb\";\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to V\n" + 
+			"----------\n");
+	}		
+	public void test162() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
+				"	}\n" + 
+				"    static <V> V foo(AX<String> a) {\n" + 
+				"        return a.get();\n" + 
+				"    }\n" + 
+				"    String bar() {\n" + 
+				"        return \"bbb\";\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
+			"	                                      ^^^\n" + 
+			"The method bar() is undefined for the type V\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to V\n" + 
+			"----------\n");
+	}		
+	public void test163() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
+				"	}\n" + 
+				"    static <V> V foo(AX<String> a) {\n" + 
+				"        return a.get();\n" + 
+				"    }\n" + 
+				"    String bar() {\n" + 
+				"        return \"bbb\";\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
+			"	                                      ^^^\n" + 
+			"The method bar() is undefined for the type V\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to V\n" + 
+			"----------\n");
+	}		
+	public void test164() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        foo(new AX<String>(\"SUCCESS\"));\n" + 
+				"	}\n" + 
+				"    static <V> List<V> foo(AX<String> a) {\n" + 
+				"        System.out.println(a.get());\n" + 
+				"        List<V> v = null;\n" + 
+				"        if (a == null) v = foo(a); \n" + 
+				"        return v;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	public void test165() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>();\n" + 
+				"        AX<String> a = bar(ax);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(AX<?> a) {\n" + 
+				"		 if (a == null) {\n" +
+				"        	AX<String> as = bar(a);\n" + 
+				"        	String s = as.get();\n" + 
+				"		}\n" +
+				"		return null;\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E get() { return null; }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
+	public void test166() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<X> ax = new AX<X>(new X());\n" + 
+				"        AX<String> a = bar(ax, true);\n" + 
+				"        String s = a.get();\n" + 
+				"        System.out.println(s);\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(AX<?> a, boolean recurse) {\n" + 
+				"        if (recurse) {\n" + 
+				"	        AX<String> as = bar(a, false);\n" + 
+				"			String s = as.get();\n" + 
+				"        }\n" + 
+				"		return new AX(\"SUCCESS\");\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
+	public void test167() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<String, Thread> a = bar();\n" + 
+				"        String s = a.get();\n" + 
+				"        System.out.println(s);\n" + 
+				"	}\n" + 
+				"    public static <T, U> AX<T, U> bar() {\n" + 
+				"		return new AX(\"SUCCESS\");\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E, F> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	public void test168() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<String, Thread> a = bar();\n" + 
+				"        String s = a.get();\n" + 
+				"        System.out.println(s);\n" + 
+				"	}\n" + 
+				"    public static <T, U> AX<AX<T, T>, U> bar() {\n" + 
+				"		return new AX(\"SUCCESS\");\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E, F> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	AX<String, Thread> a = bar();\n" + 
+			"	                   ^\n" + 
+			"Type mismatch: cannot convert from AX<AX<T,T>,Thread> to AX<String,Thread>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	return new AX(\"SUCCESS\");\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the constructor AX(E) of raw type AX. References to generic type AX<E,F> should be parameterized\n" + 
+			"----------\n");
+	}		
+	public void test169() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX<String> a = bar(new X());\n" + 
+				"        String s = a.get();\n" + 
+				"        System.out.println(s);\n" + 
+				"	}\n" + 
+				"    public static <T> AX<T> bar(T t) {\n" + 
+				"		return new AX(\"SUCCESS\");\n" + 
+				"    }    \n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"    E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	AX<String> a = bar(new X());\n" + 
+			"	           ^\n" + 
+			"Type mismatch: cannot convert from AX<X> to AX<String>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	return new AX(\"SUCCESS\");\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not invoke the constructor AX(E) of raw type AX. References to generic type AX<E> should be parameterized\n" + 
+			"----------\n");
+	}		
 }

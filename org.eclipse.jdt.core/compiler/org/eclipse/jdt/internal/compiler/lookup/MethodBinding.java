@@ -21,7 +21,7 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public TypeBinding[] parameters;
 	public ReferenceBinding[] thrownExceptions;
 	public ReferenceBinding declaringClass;
-	public TypeVariableBinding[] typeVariables;
+	public TypeVariableBinding[] typeVariables = NoTypeVariables;
 
 	char[] signature;
 
@@ -35,7 +35,7 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 	this.parameters = (parameters == null || parameters.length == 0) ? NoParameters : parameters;
 	this.thrownExceptions = (thrownExceptions == null || thrownExceptions.length == 0) ? NoExceptions : thrownExceptions;
 	this.declaringClass = declaringClass;
-
+	
 	// propagate the strictfp & deprecated modifiers
 	if (this.declaringClass != null) {
 		if (this.declaringClass.isStrictfp())

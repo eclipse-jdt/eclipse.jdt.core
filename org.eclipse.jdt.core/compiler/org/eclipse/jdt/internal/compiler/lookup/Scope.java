@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -78,65 +77,30 @@ public abstract class Scope
 	 * Will answer a subsituted method in case the method was generic and type inference got triggered;
 	 * in case the method was originally compatible, then simply answer it back.
 	 */
-	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments) {
+	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments, InvocationSite invocationSite) {
 
 		TypeBinding[] parameters = method.parameters;
-		if (parameters == arguments)
+		if (parameters == arguments && (method.returnType.tagBits & HasTypeVariable) == 0)
 			return method;
 
 		int argLength = arguments.length;
 		if (argLength != parameters.length)
 			return null; // incompatible
 
+		TypeVariableBinding[] typeVariables = method.typeVariables;
+		if (typeVariables != NoTypeVariables) { // generic method
+			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
+			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
+			parameters = method.parameters; // reacquire them after type inference has performed
+		}
+		
 		argumentCompatibility: {
 			for (int i = 0; i < argLength; i++)
 				if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
 					break argumentCompatibility;
 			return method; // compatible
 		}
-
-		// can only be compatible if generic method and inferred types are compatible
-		TypeVariableBinding[] typeVariables = method.typeVariables;
-		if (typeVariables == NoTypeVariables)
-			return null; // incompatible
-
-		// perform inference of generic method type parameters
-		int varLength = typeVariables.length;
-		HashMap substitutes = new HashMap(varLength);
-		for (int i = 0; i < varLength; i++)
-			substitutes.put(typeVariables[i], new TypeBinding[1]);
-		for (int i = 0; i < argLength; i++)
-			parameters[i].collectSubstitutes(arguments[i], substitutes);
-		TypeBinding[] mostSpecificSubstitutes = new TypeBinding[varLength];
-		for (int i = 0; i < varLength; i++) {
-			TypeBinding[] variableSubstitutes = (TypeBinding[]) substitutes.get(typeVariables[i]);
-			TypeBinding mostSpecificSubstitute = mostSpecificCommonSuperType(variableSubstitutes);
-			if (mostSpecificSubstitute == null)
-				return null; // incompatible
-			mostSpecificSubstitutes[i] = mostSpecificSubstitute;
-		}
-
-		// apply inferred variable substitutions
-		ParameterizedGenericMethodBinding methodSubstitute = new ParameterizedGenericMethodBinding(method, mostSpecificSubstitutes, environment());
-
-		// check bounds
-		for (int i = 0, length = typeVariables.length; i < length; i++) {
-		    TypeVariableBinding typeVariable = typeVariables[i];
-		    if (!typeVariable.boundCheck(methodSubstitute, mostSpecificSubstitutes[i]))
-		        // incompatible due to bound check
-		        return new ProblemMethodBinding(methodSubstitute, method.selector, new TypeBinding[]{mostSpecificSubstitutes[i], typeVariables[i] }, ParameterBoundMismatch);
-		}
-
-		// recheck argument compatibility
-		if (false) { // only necessary if inferred types got suggested
-			parameters = methodSubstitute.parameters;
-			argumentCompatibility: {
-				for (int i = 0; i < argLength; i++)
-					if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
-						return null;
-			}
-		}
-		return methodSubstitute;
+		return null; // incompatible
 	}
 	
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters) {
@@ -360,7 +324,7 @@ public abstract class Scope
 		// argument type compatibility check
 		for (int i = startFoundSize; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 			if (compatibleMethod != null) {
 				if (compatibleMethod.isValidBinding())
 					candidates[candidatesCount++] = compatibleMethod;
@@ -392,7 +356,7 @@ public abstract class Scope
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
 		// no need to check for visibility - interface methods are public
-		return mostSpecificInterfaceMethodBinding(candidates, candidatesCount);
+		return mostSpecificInterfaceMethodBinding(candidates, candidatesCount, invocationSite);
 	}
 
 	// Internal use only
@@ -434,6 +398,9 @@ public abstract class Scope
 			            && exactMethod.returnType.isParameterizedType()/*1.5*/) {
 			        return ParameterizedMethodBinding.instantiateGetClass(receiverType, exactMethod, this);
 			    }
+			    // targeting a generic method could find an exact match with variable return type
+			    if (exactMethod.typeVariables != NoTypeVariables)
+			    	exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
 				return exactMethod;
 			}
 		}
@@ -765,7 +732,7 @@ public abstract class Scope
 			// argument type compatibility check
 			for (int i = 0; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
 						switch (candidatesCount) {
@@ -794,7 +761,7 @@ public abstract class Scope
 		// if only one matching method left (either from start or due to elimination of rivals), then match is in matchingMethod
 		if (matchingMethod != null) {
 			if (!checkedMatchingMethod) {
-				MethodBinding compatibleMethod = computeCompatibleMethod(matchingMethod, argumentTypes);
+				MethodBinding compatibleMethod = computeCompatibleMethod(matchingMethod, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
 						matchingMethod = compatibleMethod;
@@ -880,10 +847,10 @@ public abstract class Scope
 			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, NotVisible);
 		}
 		if (isCompliant14)
-			return mostSpecificMethodBinding(candidates, visiblesCount);
+			return mostSpecificMethodBinding(candidates, visiblesCount, invocationSite);
 		return candidates[0].declaringClass.isClass()
-			? mostSpecificClassMethodBinding(candidates, visiblesCount)
-			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+			? mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite)
+			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
 	}
 	
 	// Internal use only
@@ -931,7 +898,7 @@ public abstract class Scope
 		if (methodBinding == null)
 			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 		if (methodBinding.isValidBinding()) {
-			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 			if (compatibleMethod == null)
 				return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 			if (!compatibleMethod.isValidBinding())
@@ -1277,7 +1244,7 @@ public abstract class Scope
 		int compatibleIndex = 0;
 		MethodBinding problemMethod = null;
 		for (int i = 0, length = methods.length; i < length; i++) {
-			MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes);
+			MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite);
 			if (compatibleMethod != null) {
 				if (compatibleMethod.isValidBinding())
 					compatible[compatibleIndex++] = compatibleMethod;
@@ -1306,7 +1273,7 @@ public abstract class Scope
 				ConstructorDeclaration.ConstantPoolName,
 				compatible[0].parameters,
 				NotVisible);
-		return mostSpecificClassMethodBinding(visible, visibleIndex);
+		return mostSpecificClassMethodBinding(visible, visibleIndex, invocationSite);
 	}
 
 	public final PackageBinding getCurrentPackage() {
@@ -1485,7 +1452,7 @@ public abstract class Scope
 		if (methodBinding == null)
 			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 		if (methodBinding.isValidBinding()) {
-			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 			if (compatibleMethod == null)
 				return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 			if (!compatibleMethod.isValidBinding())
@@ -1922,7 +1889,13 @@ public abstract class Scope
 		return null;
 	}
 
-	public TypeBinding mostSpecificCommonSuperType(TypeBinding[] types) {
+	/**
+	 * Returns the most specific type compatible with all given types.
+	 * (i.e. most specific common super type)
+	 * If no types is given, will return VoidBinding. If not compatible 
+	 * reference type is found, returns null.
+	 */
+	public TypeBinding mostSpecificCommonType(TypeBinding[] types) {
 		int length = types.length;
 		int indexOfFirst = -1, actualLength = 0;
 		for (int i = 0; i < length; i++) {
@@ -1933,7 +1906,7 @@ public abstract class Scope
 			actualLength ++;
 		}
 		switch (actualLength) {
-			case 0: return null;
+			case 0: return VoidBinding;
 			case 1: return types[indexOfFirst];
 		}
 
@@ -1956,7 +1929,7 @@ public abstract class Scope
 			ArrayList typesToVisit = new ArrayList(5);
 			typesToVisit.add(firstType);
 			ReferenceBinding currentType = (ReferenceBinding)firstType;
-			for (int i = 0, max = 1; i <= max; i++) {
+			for (int i = 0, max = 1; i < max; i++) {
 				currentType = (ReferenceBinding) typesToVisit.get(i);
 				ReferenceBinding itsSuperclass = currentType.superclass();
 				if (itsSuperclass != null && !typesToVisit.contains(itsSuperclass)) {
@@ -2025,7 +1998,7 @@ public abstract class Scope
 	* is defined by a superclass, when a lesser match is defined by the receiver type
 	* or a closer superclass.
 	*/
-	protected final MethodBinding mostSpecificClassMethodBinding(MethodBinding[] visible, int visibleSize) {
+	protected final MethodBinding mostSpecificClassMethodBinding(MethodBinding[] visible, int visibleSize, InvocationSite invocationSite) {
 		MethodBinding problemMethod = null;
 		MethodBinding previous = null;
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
@@ -2036,7 +2009,7 @@ public abstract class Scope
 			previous = method;
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters);
+				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);
 				if (compatibleMethod == null || !compatibleMethod.isValidBinding()) {
 					if (problemMethod == null)
 						problemMethod = compatibleMethod;
@@ -2080,13 +2053,13 @@ public abstract class Scope
 		public void foo(I i, X x) { i.bar(x); }
 	}
 	*/
-	protected final MethodBinding mostSpecificInterfaceMethodBinding(MethodBinding[] visible, int visibleSize) {
+	protected final MethodBinding mostSpecificInterfaceMethodBinding(MethodBinding[] visible, int visibleSize, InvocationSite invocationSite) {
 		MethodBinding problemMethod = null;
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
 			MethodBinding method = visible[i];
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters);
+				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);
 				if (compatibleMethod == null || !compatibleMethod.isValidBinding()) {
 					if (problemMethod == null)
 						problemMethod = compatibleMethod;
@@ -2105,13 +2078,13 @@ public abstract class Scope
 	/* All methods in visible are acceptable matches for the method in question...
 	* Since 1.4, the inherited ambiguous case has been removed from mostSpecificClassMethodBinding
 	*/
-	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize) {
+	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, InvocationSite invocationSite) {
 		MethodBinding method = null;
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
 			method = visible[i];
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
-				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters);
+				MethodBinding compatibleMethod = computeCompatibleMethod(visible[j], method.parameters, invocationSite);
 				if (compatibleMethod == null)
 					continue nextVisible;
 			}

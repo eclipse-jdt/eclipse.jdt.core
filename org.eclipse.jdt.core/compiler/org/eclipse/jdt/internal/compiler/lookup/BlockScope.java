@@ -789,7 +789,7 @@ public class BlockScope extends Scope {
 						MethodBinding insideProblem = null;
 						if (methodBinding.isValidBinding()) {
 							if (!isExactMatch) {
-								MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+								MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 								if (compatibleMethod == null) {
 									if (foundMethod == null || foundMethod.problemId() == NotVisible)
 										// inherited mismatch is reported directly, not looking at enclosing matches

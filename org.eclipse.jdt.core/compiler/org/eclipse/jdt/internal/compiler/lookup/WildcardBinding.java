@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -61,6 +62,23 @@ public class WildcardBinding extends ReferenceBinding {
 	            return this.bound.isCompatibleWith(argumentType);
 	    }
     }
+	
+	/**
+	 * Collect the substitutes into a map for certain type variables inside the receiver type
+	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
+	 */
+	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+	    switch(this.kind) {
+	        case Wildcard.UNBOUND :
+	            return;
+	        case Wildcard.EXTENDS :
+	            this.bound.collectSubstitutes(otherType, substitutes);
+	            return;
+	        default: // SUPER
+	            this.bound.collectSubstitutes(otherType, substitutes);
+	            return;
+	    }
+	}
 	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
@@ -121,7 +139,14 @@ public class WildcardBinding extends ReferenceBinding {
 	public boolean isEquivalentTo(TypeBinding otherType) {
 	    if (this == otherType) return true;
         if (otherType == null) return false;
-		return boundCheck(otherType);
+	    switch (this.kind) {
+	        case Wildcard.UNBOUND :
+	            return this.typeVariable().isCompatibleWith(otherType);
+	        case Wildcard.EXTENDS :
+	            return otherType.isCompatibleWith(this.bound);
+	        default: // SUPER
+	            return this.bound.isCompatibleWith(otherType);
+	    }        
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isInterface()

@@ -23,8 +23,9 @@ public class MessageSend extends Expression implements InvocationSite {
 	public char[] selector ;
 	public Expression[] arguments ;
 	public MethodBinding binding;							// exact binding resulting from lookup
-	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
+	protected MethodBinding codegenBinding;		// actual binding used for code generation (if no synthetic accessor)
 	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
+	public TypeBinding expectedType;					// for generic method invocation (return type inference)
 
 	public long nameSourcePosition ; //(start<<32)+end
 
@@ -262,11 +263,18 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		scope.problemReporter().invalidMethod(this, binding);
 		// record the closest match, for clients who may still need hint about possible method match
-		if (binding instanceof ProblemMethodBinding){
-			MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
-			if (closestMatch != null) this.binding = closestMatch;
+		MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
+		if (closestMatch != null) this.binding = closestMatch;
+		switch (binding.problemId()) {
+			case ProblemReasons.NotVisible :
+			case ProblemReasons.NonStaticReferenceInConstructorInvocation :
+			case ProblemReasons.NonStaticReferenceInStaticContext :
+			case ProblemReasons.ReceiverTypeNotVisible :
+			case ProblemReasons.ParameterBoundMismatch :
+				if (binding != null) this.resolvedType = binding.returnType;
+			default :
 		}
-		return this.resolvedType = binding == null ? null : binding.returnType;
+		return this.resolvedType;
 	}
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
@@ -304,6 +312,13 @@ public TypeBinding resolveType(BlockScope scope) {
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	this.qualifyingType = receiverType;
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+ */
+public void setExpectedType(TypeBinding expectedType) {
+    this.expectedType = expectedType;
+}
+
 public void setDepth(int depth) {
 	bits &= ~DepthMASK; // flush previous depth if any
 	if (depth > 0) {

@@ -420,7 +420,7 @@ public MethodBinding findMethod(
 		// argument type compatibility check
 		for (int i = 0; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 			if (compatibleMethod != null)
 				candidates[candidatesCount++] = compatibleMethod;
 		}
@@ -476,9 +476,9 @@ public MethodBinding findMethod(
 				NotVisible);
 		}	
 		if (candidates[0].declaringClass.isClass()) {
-			return mostSpecificClassMethodBinding(candidates, visiblesCount);
+			return mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite);
 		} else {
-			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
 		}
 	}
 
@@ -499,7 +499,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	if (methodBinding == null)
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	if (methodBinding.isValidBinding()) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 	    if (compatibleMethod == null)
 			return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 	    methodBinding = compatibleMethod;
@@ -627,7 +627,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
 	for (int i = 0, length = methods.length; i < length; i++) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes);
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite);
 		if (compatibleMethod != null)
 			compatible[compatibleIndex++] = compatibleMethod;
 	}
@@ -648,7 +648,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	if (visibleIndex == 0) {
 		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, compatible[0].parameters, NotVisible);
 	}
-	return mostSpecificClassMethodBinding(visible, visibleIndex);
+	return mostSpecificClassMethodBinding(visible, visibleIndex, invocationSite);
 }
 /* API
 
@@ -718,7 +718,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 		ProblemMethodBinding insideProblem = null;
 		if (methodBinding.isValidBinding()) {
 			if (!isExactMatch) {
-	    	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+	    	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod == null) {
 					fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 				} else {

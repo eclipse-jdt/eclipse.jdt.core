@@ -19,71 +19,6 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Expression extends Statement {
-	
-	//Some expression may not be used - from a java semantic point
-	//of view only - as statements. Other may. In order to avoid the creation
-	//of wrappers around expression in order to tune them as expression
-	//Expression is a subclass of Statement. See the message isValidJavaStatement()
-
-	public int implicitConversion;
-	public TypeBinding resolvedType;
-	
-	public Constant constant;
-
-	public Expression() {
-		super();
-	}
-
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-
-		return flowInfo;
-	}
-
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
-
-		return analyseCode(currentScope, flowContext, flowInfo);
-	}
-
-	/**
-	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
-	 * Also check unsafe type operations.
-	 */ 
-	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
-
-		if (runtimeTimeType == null || compileTimeType == null)
-			return;
-
-		switch (runtimeTimeType.id) {
-			case T_byte :
-			case T_short :
-			case T_char :
-				this.implicitConversion = (T_int << 4) + compileTimeType.id;
-				break;
-			case T_String :
-			case T_float :
-			case T_boolean :
-			case T_double :
-			case T_int : //implicitConversion may result in i2i which will result in NO code gen
-			case T_long :
-				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
-				break;
-			default : // regular object ref
-//				if (compileTimeType.isRawType() && runtimeTimeType.isParameterizedType()) {
-//				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);
-//				}		
-		}
-	}	
-	
-	/**
-	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
-	 * since it is not strictly equivalent to the definition of constant expressions.
-	 * In particular, some side-effects may be required to occur (only the end value
-	 * is known).
-	 * @return Constant known to be of boolean type
-	 */ 
-	public Constant optimizedBooleanConstant() {
-		return this.constant;
-	}
 
 	public static final boolean isConstantValueRepresentable(
 		Constant constant,
@@ -239,6 +174,60 @@ public abstract class Expression extends Statement {
 				return false; //boolean
 		} 
 	}
+	
+	public Constant constant;
+	
+	//Some expression may not be used - from a java semantic point
+	//of view only - as statements. Other may. In order to avoid the creation
+	//of wrappers around expression in order to tune them as expression
+	//Expression is a subclass of Statement. See the message isValidJavaStatement()
+
+	public int implicitConversion;
+	public TypeBinding resolvedType;
+
+	public Expression() {
+		super();
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+
+		return flowInfo;
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
+
+		return analyseCode(currentScope, flowContext, flowInfo);
+	}
+
+	/**
+	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
+	 * Also check unsafe type operations.
+	 */ 
+	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+
+		if (runtimeTimeType == null || compileTimeType == null)
+			return;
+
+		switch (runtimeTimeType.id) {
+			case T_byte :
+			case T_short :
+			case T_char :
+				this.implicitConversion = (T_int << 4) + compileTimeType.id;
+				break;
+			case T_String :
+			case T_float :
+			case T_boolean :
+			case T_double :
+			case T_int : //implicitConversion may result in i2i which will result in NO code gen
+			case T_long :
+				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
+				break;
+			default : // regular object ref
+//				if (compileTimeType.isRawType() && runtimeTimeType.isParameterizedType()) {
+//				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);
+//				}		
+		}
+	}	
 
 	/**
 	 * Expression statements are plain expressions, however they generate like
@@ -431,6 +420,28 @@ public abstract class Expression extends Statement {
 	public boolean isTypeReference() {
 		return false;
 	}
+	
+	/**
+	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
+	 * since it is not strictly equivalent to the definition of constant expressions.
+	 * In particular, some side-effects may be required to occur (only the end value
+	 * is known).
+	 * @return Constant known to be of boolean type
+	 */ 
+	public Constant optimizedBooleanConstant() {
+		return this.constant;
+	}
+
+	public StringBuffer print(int indent, StringBuffer output) {
+		printIndent(indent, output);
+		return printExpression(indent, output);
+	}
+
+	public abstract StringBuffer printExpression(int indent, StringBuffer output);
+	
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		return print(indent, output).append(";"); //$NON-NLS-1$
+	}
 
 	public void resolve(BlockScope scope) {
 		// drops the returning expression's type whatever the type is.
@@ -465,17 +476,15 @@ public abstract class Expression extends Statement {
 		return expressionType;
 	}
 
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		return printExpression(indent, output);
+	/**
+	 * Record the type expectation before this expression is typechecked.
+	 * e.g. String s = foo();, foo() will be tagged as being expected of type String
+	 * Used to trigger proper inference of generic method invocations.
+	 */
+	public void setExpectedType(TypeBinding expectedType) {
+	    // do nothing by default
 	}
-
-	public abstract StringBuffer printExpression(int indent, StringBuffer output);
 	
-	public StringBuffer printStatement(int indent, StringBuffer output) {
-		return print(indent, output).append(";"); //$NON-NLS-1$
-	}
-
 	public Expression toTypeReference() {
 		//by default undefined
 
