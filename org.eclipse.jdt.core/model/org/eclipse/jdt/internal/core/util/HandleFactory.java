@@ -189,15 +189,6 @@ public class HandleFactory {
 				pop(node);
 			}
 			
-			public boolean visit(ParameterizedConstructorDeclaration node, ClassScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(ParameterizedConstructorDeclaration node, ClassScope scope) {
-				pop(node);
-			}
-
 			public boolean visit(FieldDeclaration node, MethodScope scope) {
 			    push(node);
 				if (node == toBeFound) throw new EndVisit();
@@ -256,16 +247,6 @@ public class HandleFactory {
 				pop(node);
 			}
 			
-			public boolean visit(ParameterizedMethodDeclaration node, ClassScope scope) {
-				push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-	
-			public void endVisit(ParameterizedMethodDeclaration node, ClassScope scope) {
-				pop(node);
-			}
-
 			public boolean visit(TypeDeclaration node, CompilationUnitScope scope) {
 			    push(node);
 				if (node == toBeFound) throw new EndVisit();
