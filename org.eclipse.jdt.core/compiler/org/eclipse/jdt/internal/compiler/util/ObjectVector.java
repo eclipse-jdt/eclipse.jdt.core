@@ -37,6 +37,16 @@ public final class ObjectVector {
 		this.size += newElements.length;
 	}
 
+	public void addAll(ObjectVector newVector) {
+
+		if (this.size + newVector.size >= this.maxSize) {
+			maxSize = this.size + newVector.size; // assume no more elements will be added
+			System.arraycopy(this.elements, 0, (this.elements = new Object[this.maxSize]), 0, this.size);
+		}
+		System.arraycopy(newVector.elements, 0, this.elements, size, newVector.size);
+		this.size += newVector.size;
+	}
+
 	/**
 	 * Identity check
 	 */

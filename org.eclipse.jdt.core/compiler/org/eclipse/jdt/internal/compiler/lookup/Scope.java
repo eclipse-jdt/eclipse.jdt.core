@@ -436,7 +436,8 @@ public abstract class Scope
 		int foundSize = found.size;
 		if (foundSize == 0) {
 			if (matchingMethod == null && hierarchyContainsAbstractClasses){
-				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+				MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+				if (interfaceMethod != null) return interfaceMethod;
 			}
 			return matchingMethod; // may be null - have not checked arg types or visibility
 		}
@@ -455,9 +456,11 @@ public abstract class Scope
 		}
 		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
 			if (hierarchyContainsAbstractClasses){
-				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+				MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+				if (interfaceMethod != null) return interfaceMethod;
 			}
 			int argLength = argumentTypes.length;
+			foundSize = found.size;
 			nextMethod : for (int i = 0; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 				TypeBinding[] params = methodBinding.parameters;
@@ -492,7 +495,8 @@ public abstract class Scope
 		}
 		if (visiblesCount == 0) {
 			if (hierarchyContainsAbstractClasses){
-				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+				MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+				if (interfaceMethod != null) return interfaceMethod;
 			}
 			return new ProblemMethodBinding(
 				candidates[0].selector,
@@ -517,23 +521,24 @@ public abstract class Scope
 		ReferenceBinding classHierarchyStart,
 		MethodBinding matchingMethod,
 		ObjectVector found){
-			
-			ReferenceBinding currentType = classHierarchyStart;
-			found.removeAll();
-			while (currentType != null){
-				if (currentType.isAbstract()) matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
-				currentType = currentType.superclass();
-			}
+
+		int startFoundSize = found.size;
+		
+		ReferenceBinding currentType = classHierarchyStart;
+		while (currentType != null){
+			if (currentType.isAbstract()) matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+			currentType = currentType.superclass();
+		}
 		int foundSize = found.size;
-		if (foundSize == 0) {
-			if (matchingMethod != null) compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
-			return matchingMethod; // may be null - have not checked arg types or visibility
+		if (foundSize == startFoundSize) {
+			if (matchingMethod != null) return matchingMethod;
+			return null; 
 		}		
-		MethodBinding[] candidates = new MethodBinding[foundSize];
+		MethodBinding[] candidates = new MethodBinding[foundSize-startFoundSize];
 		int candidatesCount = 0;
 
 		// argument type compatibility check
-		for (int i = 0; i < foundSize; i++) {
+		for (int i = startFoundSize; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
 				candidates[candidatesCount++] = methodBinding;
