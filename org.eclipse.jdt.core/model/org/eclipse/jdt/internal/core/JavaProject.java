@@ -1491,6 +1491,7 @@ public class JavaProject
 		boolean generateMarkerOnError) // if unresolved entries are met, should it trigger initializations
 		throws JavaModelException {
 
+		IJavaModelStatus status;
 		if (generateMarkerOnError){
 			flushClasspathProblemMarkers(false, false);
 		}
@@ -1501,9 +1502,9 @@ public class JavaProject
 		for (int i = 0; i < length; i++) {
 
 			IClasspathEntry rawEntry = classpathEntries[i];
-
+			status = null;
+			
 			/* validation if needed */
-			IJavaModelStatus status = null;
 			if (generateMarkerOnError || !ignoreUnresolvedEntry) {
 				status = JavaConventions.validateClasspathEntry(this, rawEntry, false);
 				if (generateMarkerOnError && !status.isOK()) createClasspathProblemMarker(status);
@@ -1562,6 +1563,10 @@ public class JavaProject
 		IClasspathEntry[] resolvedPath = new IClasspathEntry[resolvedEntries.size()];
 		resolvedEntries.toArray(resolvedPath);
 
+		if (generateMarkerOnError) {
+			status = JavaConventions.validateClasspath(this, resolvedPath, this.getOutputLocation());
+			if (!status.isOK()) createClasspathProblemMarker(status);
+		}
 		return resolvedPath;
 	}
 
