@@ -3523,6 +3523,13 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			&& BaseTypes.LongBinding == field.type) {
 				return; // do not report unused serialVersionUID field
 		}
+	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
+			&& field.isStatic()
+			&& field.isFinal()
+			&& field.type.dimensions() == 1
+			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTSTREAMFIELD, field.type.leafComponentType().readableName())) {
+				return; // do not report unused serialPersistentFields field
+		}
 	this.handle(
 			IProblem.UnusedPrivateField,
 		new String[] {
