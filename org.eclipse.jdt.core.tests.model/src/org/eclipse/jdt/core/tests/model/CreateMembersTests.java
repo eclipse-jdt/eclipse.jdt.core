@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2003 IBM Corp. and others.
+ * Copyright (c) 2000, 2003 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0 
+ * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- ******************************************************************************/
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
@@ -74,7 +74,11 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		assertEquals("Wrong size", 1, types.length);
 		IType type = types[0];
 		type.createMethod("\tpublic void foo() {\n\t\tSystem.out.println(\"Hello World\");\n\t}\n", null, true, new NullProgressMonitor());
-		String expectedSource = "public class A\n" +			"{	public void foo() {\n" +			"		System.out.println(\"Hello World\");\n" +			"	}\n" +			"}";
+		String expectedSource = "public class A\n" +
+			"{	public void foo() {\n" +
+			"		System.out.println(\"Hello World\");\n" +
+			"	}\n" +
+			"}";
 		assertArraysEquals(type.getSource(), expectedSource);
 	}
 }

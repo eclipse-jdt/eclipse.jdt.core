@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2002 IBM Corp. and others.
+ * Copyright (c) 2000, 2003 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0 
+ * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- ******************************************************************************/
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
@@ -345,7 +345,9 @@ public void testRootPath4() throws JavaModelException {
 	IClassFile cf = root.getPackageFragment("test1").getClassFile("Test.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test1;\n" +		"\n" +		"public class Test {}",
+		"package test1;\n" +
+		"\n" +
+		"public class Test {}",
 		cf.getSource());
 	root.close();
 }
