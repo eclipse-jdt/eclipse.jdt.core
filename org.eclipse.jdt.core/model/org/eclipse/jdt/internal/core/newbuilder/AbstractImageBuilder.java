@@ -60,10 +60,11 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	// only perform resource copying if the output location does not match a source folder
 	// corresponds to: project == src == bin, or several source folders are contributing resources,
 	// but one is the output location too (and would get populated with other source folder resources).
+	int index = sourceFolders.length;
+	this.hasSeparateOutputFolder = index > 0; // skip it if it doesn't have any source folders
 	IPath outputPath = outputFolder.getFullPath();
-	this.hasSeparateOutputFolder = !outputPath.equals(javaBuilder.currentProject.getFullPath());
-	for (int i = 0, length = sourceFolders.length; hasSeparateOutputFolder && i < length; i++)
-		this.hasSeparateOutputFolder = !outputPath.equals(sourceFolders[i].getFullPath());
+	while (this.hasSeparateOutputFolder && --index >= 0)
+		this.hasSeparateOutputFolder = !outputPath.equals(sourceFolders[index].getFullPath());
 
 	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
 	this.compiler = newCompiler();
