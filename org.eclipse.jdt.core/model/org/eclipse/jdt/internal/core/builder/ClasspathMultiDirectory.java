@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 class ClasspathMultiDirectory extends ClasspathDirectory {
 
@@ -35,7 +36,8 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClasspathMultiDirectory)) return false;
 
 	ClasspathMultiDirectory md = (ClasspathMultiDirectory) o;
-	return sourceFolder.equals(md.sourceFolder) && binaryFolder.equals(md.binaryFolder);
+	return sourceFolder.equals(md.sourceFolder) && binaryFolder.equals(md.binaryFolder)
+		&& CharOperation.equals(exclusionPatterns, md.exclusionPatterns);
 } 
 
 public String toString() {
