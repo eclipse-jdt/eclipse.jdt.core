@@ -835,7 +835,13 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				0, 
 				length); 
 		}
-		alloc.type = getTypeReference(intStack[intPtr--]);
+		if (alwaysQualified) {
+			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnAstLengthStack(0);
+			alloc.type = getTypeReference(0);
+		} else {
+			alloc.type = getTypeReference(intStack[intPtr--]);
+		}
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -1633,50 +1639,7 @@ protected void consumeClassInstanceCreationExpressionName() {
 protected void consumeClassInstanceCreationExpressionQualified() {
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
-
-	AllocationExpression alloc;
-	int length;
-	if (((length = astLengthStack[astLengthPtr--]) == 1)
-		&& (astStack[astPtr] == null)) {
-		//NO ClassBody
-		astPtr--;
-		alloc = new QualifiedAllocationExpression();
-		alloc.sourceEnd = endPosition; //the position has been stored explicitly
-
-		if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
-			expressionPtr -= length;
-			System.arraycopy(
-				expressionStack, 
-				expressionPtr + 1, 
-				alloc.arguments = new Expression[length], 
-				0, 
-				length); 
-		}
-		pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-		pushOnAstLengthStack(0);
-		alloc.type = getTypeReference(0);
-		
-		//the default constructor with the correct number of argument
-		//will be created and added by the TC (see createsInternalConstructorWithBinding)
-		alloc.sourceStart = intStack[intPtr--];
-		pushOnExpressionStack(alloc);
-	} else {
-		dispatchDeclarationInto(length);
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
-		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
-		anonymousTypeDeclaration.bodyEnd = endStatementPosition;
-		if (anonymousTypeDeclaration.allocation != null) {
-			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
-		}
-		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= AstNode.UndocumentedEmptyBlockMASK;
-		}
-		astPtr--;
-		astLengthPtr--;
-
-		// mark initializers with local type mark if needed
-		markInitializersWithLocalType(anonymousTypeDeclaration);
-	}
+	classInstanceCreation(true);
 
 	expressionLengthPtr--;
 	QualifiedAllocationExpression qae = 

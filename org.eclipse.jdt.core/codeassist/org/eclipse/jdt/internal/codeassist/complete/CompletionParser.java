@@ -1045,7 +1045,7 @@ protected void consumeCaseLabel() {
 		pushOnElementStack(K_SWITCH_LABEL);
 	}
 }
-protected void consumeCastExpression() {
+protected void consumeCastExpressionWithPrimitiveType() {
 	popElement(K_CAST_STATEMENT);
 	
 	Expression exp, cast, castType;
@@ -1053,6 +1053,23 @@ protected void consumeCastExpression() {
 	expressionLengthPtr--;
 	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr+1], castType = expressionStack[expressionPtr]);
 	cast.sourceStart = castType.sourceStart - 1;
+	cast.sourceEnd = exp.sourceEnd;
+}
+protected void consumeCastExpressionWithNameArray() {
+	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+	popElement(K_CAST_STATEMENT);
+
+	Expression exp, cast, castType;
+	int end = intStack[intPtr--];
+	
+	// handle type arguments
+	pushOnAstLengthStack(0);
+	int dim = intStack[intPtr--];
+	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(dim));
+	castType.sourceEnd = end - 1;
+	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
 protected void consumeCastExpressionLL1() {
@@ -1198,6 +1215,11 @@ protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR_QUALIFIER);
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeEnterAnonymousClassBody();
+}
+protected void consumeEnterAnonymousClassBodySimpleName() {
+	popElement(K_SELECTOR_QUALIFIER);
+	popElement(K_SELECTOR_INVOCATION_TYPE);
+	super.consumeEnterAnonymousClassBodySimpleName();
 }
 protected void consumeEnterVariable() {
 	identifierPtr--;

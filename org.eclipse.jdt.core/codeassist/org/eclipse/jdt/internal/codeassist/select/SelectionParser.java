@@ -124,8 +124,14 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		// trick to avoid creating a selection on type reference
 		char [] oldIdent = this.assistIdentifier();
 		this.setAssistIdentifier(null);			
-		alloc.type = getTypeReference(0);
-
+		if (alwaysQualified) {
+			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+			pushOnAstLengthStack(0);
+			alloc.type = getTypeReference(0);
+		} else {
+			alloc.type = getTypeReference(intStack[intPtr--]);
+		}
+		
 		this.setAssistIdentifier(oldIdent);
 		
 		//the default constructor with the correct number of argument
@@ -209,6 +215,8 @@ protected void consumeEnterAnonymousClassBody() {
 		super.consumeEnterAnonymousClassBody();
 		return;
 	}
+	TypeReference typeReference = getTypeReference(intStack[intPtr--]);
+
 	QualifiedAllocationExpression alloc;
 	AnonymousLocalTypeDeclaration anonymousType = 
 		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
@@ -231,7 +239,68 @@ protected void consumeEnterAnonymousClassBody() {
 	// trick to avoid creating a selection on type reference
 	char [] oldIdent = this.assistIdentifier();
 	this.setAssistIdentifier(null);			
-	alloc.type = getTypeReference(0);
+	alloc.type = typeReference;
+	this.setAssistIdentifier(oldIdent);		
+
+	anonymousType.sourceEnd = alloc.sourceEnd;
+	//position at the type while it impacts the anonymous declaration
+	anonymousType.sourceStart = anonymousType.declarationSourceStart = alloc.type.sourceStart;
+	alloc.sourceStart = intStack[intPtr--];
+	pushOnExpressionStack(alloc);
+
+	assistNode = alloc;
+	this.lastCheckPoint = alloc.sourceEnd + 1;
+	if (!diet){
+		this.restartRecovery	= true;	// force to restart in recovery mode
+		this.lastIgnoredToken = -1;
+		currentToken = 0; // opening brace already taken into account
+		hasReportedError = true;
+	}
+
+	anonymousType.bodyStart = scanner.currentPosition;
+	listLength = 0; // will be updated when reading super-interfaces
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = anonymousType.bodyStart;
+		currentElement = currentElement.add(anonymousType, 0);
+		currentToken = 0; // opening brace already taken into account
+		lastIgnoredToken = -1;		
+	}
+}
+protected void consumeEnterAnonymousClassBodySimpleName() {
+	// EnterAnonymousClassBody ::= $empty
+
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeEnterAnonymousClassBodySimpleName();
+		return;
+	}
+	pushOnAstLengthStack(0);
+	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
+	TypeReference typeReference = getTypeReference(0);
+
+	QualifiedAllocationExpression alloc;
+	AnonymousLocalTypeDeclaration anonymousType = 
+		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
+	alloc = 
+		anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
+	markEnclosingMemberWithLocalType();
+	pushOnAstStack(anonymousType);
+
+	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
+	int argumentLength;
+	if ((argumentLength = expressionLengthStack[expressionLengthPtr--]) != 0) {
+		expressionPtr -= argumentLength;
+		System.arraycopy(
+			expressionStack, 
+			expressionPtr + 1, 
+			alloc.arguments = new Expression[argumentLength], 
+			0, 
+			argumentLength); 
+	}
+	// trick to avoid creating a selection on type reference
+	char [] oldIdent = this.assistIdentifier();
+	this.setAssistIdentifier(null);			
+	alloc.type = typeReference;
 	this.setAssistIdentifier(oldIdent);		
 
 	anonymousType.sourceEnd = alloc.sourceEnd;
