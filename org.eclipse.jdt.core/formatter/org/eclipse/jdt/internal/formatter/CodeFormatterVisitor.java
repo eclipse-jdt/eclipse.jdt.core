@@ -1577,8 +1577,14 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (isComma()) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 			}
+			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
+				this.scribe.printNewLine();
+			}
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
 		} else {
+			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
+				this.scribe.printNewLine();
+			}
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer, true);
 		}
 	

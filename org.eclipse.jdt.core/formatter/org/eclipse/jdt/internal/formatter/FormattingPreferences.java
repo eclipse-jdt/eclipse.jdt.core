@@ -163,6 +163,7 @@ public class FormattingPreferences {
 	public static final String INSERT_NEW_LINE_IN_EMPTY_BLOCK = "insert_new_line_in_empty_block";	//$NON-NLS-1$
 	public static final String NUMBER_OF_EMPTY_LINES_TO_PRESERVE = "number_of_empty_lines_to_preserve";	//$NON-NLS-1$
 	public static final String PRESERVE_USER_LINEBREAKS = "preserve_user_linebreaks";//$NON-NLS-1$
+	public static final String INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = "insert_new_line_before_closing_brace_in_array_initializer";//$NON-NLS-1$
 
 	/**
 	 * Preferences defaults value	 */	
@@ -301,6 +302,7 @@ public class FormattingPreferences {
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_BLOCK = true;
 	public static final int DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = 1;
 	public static final boolean DEFAULT_PRESERVE_USER_LINEBREAKS = false;
+	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = true;
 
 	public int page_width;
 	public boolean use_tab;
@@ -437,6 +439,7 @@ public class FormattingPreferences {
 	public boolean insert_new_line_in_empty_block;
 	public int number_of_empty_lines_to_preserve;
 	public boolean preserve_user_linebreaks;
+	public boolean insert_new_line_before_closing_brace_in_array_initializer;
 
 	private FormattingPreferences() {
 		// default implementation: make instanciation impossible
@@ -1244,7 +1247,8 @@ public class FormattingPreferences {
 		defaults.insert_new_line_in_empty_type_declaration = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION;
 		defaults.insert_new_line_in_empty_anonymous_type_declaration = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION;
 		defaults.number_of_empty_lines_to_preserve = DEFAULT_NUMBER_OF_EMPTY_LINES_TO_PRESERVE;
-		defaults.preserve_user_linebreaks = false;
+		defaults.preserve_user_linebreaks = DEFAULT_PRESERVE_USER_LINEBREAKS;
+		defaults.insert_new_line_before_closing_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
 		return defaults;
 	}
 
@@ -1383,6 +1387,7 @@ public class FormattingPreferences {
 		sunSettings.insert_new_line_in_empty_anonymous_type_declaration = true;
 		sunSettings.number_of_empty_lines_to_preserve = 1;
 		sunSettings.preserve_user_linebreaks = false;
+		sunSettings.insert_new_line_before_closing_brace_in_array_initializer = false;
 		return sunSettings;
 	}
 }
