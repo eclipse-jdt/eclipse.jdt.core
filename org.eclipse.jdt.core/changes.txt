@@ -48,8 +48,6 @@ STREAM: 2.0
   
   1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - checked exception in variable initializer of anonymous class 
   1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
-  1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true     
-  1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
 
   JCK1.4 remaining defects:
   ================================================================================
