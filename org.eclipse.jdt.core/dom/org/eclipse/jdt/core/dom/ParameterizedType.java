@@ -98,6 +98,7 @@ public class ParameterizedType extends Type {
 	 */
 	ParameterizedType(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

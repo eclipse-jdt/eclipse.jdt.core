@@ -1392,21 +1392,21 @@ public final class AST {
 	private final Object[] THIS_AST= new Object[] {this};
 	
 	/**
-	 * Creates an unparented node owned by this AST.
+	 * Creates an unparented node of the given node class
+	 * (non-abstract subclass of {@link ASTNode}. 
 	 * 
 	 * @param nodeClass AST node class
-	 * @return a new unparented node
+	 * @return a new unparented node owned by this AST
 	 * @exception RuntimeException if unsuccessful for any reason
 	 * @since 3.0
-	 * TBD (jeem) - make public when fully implemented (requires 1-arg constructors on all concrete node type)
 	 */
-	ASTNode createInstance(Class nodeClass) {
+	public ASTNode createInstance(Class nodeClass) {
 		if (nodeClass == null) {
 			throw new IllegalArgumentException();
 		}
 		try {
 			// invoke constructor with signature Foo(AST)
-			Constructor c = nodeClass.getConstructor(AST_CLASS);
+			Constructor c = nodeClass.getDeclaredConstructor(AST_CLASS);
 			Object result = c.newInstance(THIS_AST);
 			return (ASTNode) result;
 		} catch (NoSuchMethodException e) {
@@ -1421,14 +1421,19 @@ public final class AST {
 	}
 
 	/**
-	 * Creates an unparented node owned by this AST.
+	 * Creates an unparented node of the given node type.
+	 * This convenience method is equivalent to:
+	 * <pre>
+	 * createInstance(ASTNode.nodeClassForType(nodeType))
+	 * </pre>
 	 * 
-	 * @param nodeType AST node type
-	 * @return a new unparented node
+	 * @param nodeType AST node type, one of the node type
+	 * constants declared on {@link ASTNode}
+	 * @return a new unparented node owned by this AST
+	 * @exception RuntimeException if unsuccessful for any reason
 	 * @since 3.0
-	 * TBD (jeem) - make public when implemented
 	 */
-	ASTNode createInstance(int nodeType) {
+	public ASTNode createInstance(int nodeType) {
 		return createInstance(ASTNode.nodeClassForType(nodeType));
 	}
 
@@ -1617,7 +1622,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public ParameterizedType newParameterizedType(Name typeName) {
-	    unsupportedIn2();
 		ParameterizedType result = new ParameterizedType(this);
 		result.setName(typeName);
 		return result;
@@ -1646,7 +1650,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public QualifiedType newQualifiedType(Type qualifier, SimpleName name) {
-	    unsupportedIn2();
 		QualifiedType result = new QualifiedType(this);
 		result.setQualifier(qualifier);
 		result.setName(name);
@@ -1674,7 +1677,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public WildcardType newWildcardType() {
-	    unsupportedIn2();
 		WildcardType result = new WildcardType(this);
 		return result;
 	}
@@ -1827,7 +1829,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public EnumConstantDeclaration newEnumConstantDeclaration() {
-	    unsupportedIn2();
 		EnumConstantDeclaration result = new EnumConstantDeclaration(this);
 		return result;
 	}
@@ -1850,7 +1851,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public EnumDeclaration newEnumDeclaration() {
-	    unsupportedIn2();
 		EnumDeclaration result = new EnumDeclaration(this);
 		return result;
 	}
@@ -1871,7 +1871,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public TypeParameter newTypeParameter() {
-	    unsupportedIn2();
 		TypeParameter result = new TypeParameter(this);
 		return result;
 	}
@@ -1893,7 +1892,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public AnnotationTypeDeclaration newAnnotationTypeDeclaration() {
-	    unsupportedIn2();
 		AnnotationTypeDeclaration result = new AnnotationTypeDeclaration(this);
 		return result;
 	}
@@ -1916,7 +1914,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public AnnotationTypeMemberDeclaration newAnnotationTypeMemberDeclaration() {
-	    unsupportedIn2();
 		AnnotationTypeMemberDeclaration result = new AnnotationTypeMemberDeclaration(this);
 		return result;
 	}
@@ -1939,7 +1936,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
-	    unsupportedIn2();
 		Modifier result = new Modifier(this);
 		result.setKeyword(keyword);
 		return result;
@@ -2390,7 +2386,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public EnhancedForStatement newEnhancedForStatement() {
-	    unsupportedIn2();
 		return new EnhancedForStatement(this);
 	}
 
@@ -2852,7 +2847,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public NormalAnnotation newNormalAnnotation() {
-	    unsupportedIn2();
 		NormalAnnotation result = new NormalAnnotation(this);
 		return result;
 	}
@@ -2873,7 +2867,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public MarkerAnnotation newMarkerAnnotation() {
-	    unsupportedIn2();
 		MarkerAnnotation result = new MarkerAnnotation(this);
 		return result;
 	}
@@ -2894,7 +2887,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public SingleMemberAnnotation newSingleMemberAnnotation() {
-	    unsupportedIn2();
 		SingleMemberAnnotation result = new SingleMemberAnnotation(this);
 		return result;
 	}
@@ -2915,7 +2907,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public MemberValuePair newMemberValuePair() {
-	    unsupportedIn2();
 		MemberValuePair result = new MemberValuePair(this);
 		return result;
 	}

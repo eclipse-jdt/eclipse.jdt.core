@@ -142,6 +142,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 */
 	EnumConstantDeclaration(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

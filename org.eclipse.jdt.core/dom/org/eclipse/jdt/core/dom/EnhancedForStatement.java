@@ -111,6 +111,7 @@ public class EnhancedForStatement extends Statement {
 	 */
 	EnhancedForStatement(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

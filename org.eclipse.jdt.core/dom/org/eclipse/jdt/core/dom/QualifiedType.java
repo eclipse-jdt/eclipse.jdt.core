@@ -115,6 +115,7 @@ public class QualifiedType extends Type {
 	 */
 	QualifiedType(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

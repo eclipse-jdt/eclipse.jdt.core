@@ -77,6 +77,7 @@ public final class MarkerAnnotation extends Annotation {
 	 */
 	MarkerAnnotation(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)

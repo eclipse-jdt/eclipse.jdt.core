@@ -128,6 +128,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 */
 	EnumDeclaration(AST ast) {
 		super(ast);
+	    unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)
