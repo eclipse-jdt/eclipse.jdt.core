@@ -105,6 +105,7 @@ protected void cleanOutputFolders() throws CoreException {
 					for (int j = 0, m = members.length; j < m; j++)
 						members[j].delete(IResource.FORCE, null);
 				}
+				notifier.checkCancel();
 				copyExtraResourcesBack(sourceLocation, deleteAll);
 			} else {
 				boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
@@ -133,8 +134,10 @@ protected void cleanOutputFolders() throws CoreException {
 					},
 					IResource.NONE
 				);
-				if (!isOutputFolder)
+				if (!isOutputFolder) {
+					notifier.checkCancel();
 					copyPackages(sourceLocation);
+				}
 			}
 			notifier.checkCancel();
 		}
