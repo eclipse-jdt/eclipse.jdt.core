@@ -179,6 +179,8 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * (possibly in a folder).
 	 * </p>
 	 * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
 	 * @return an array of non-Java resources (<code>IFile</code>s, 
 	 *              <code>IFolder</code>s, or <code>IStorage</code>s if the
 	 *              package fragment is in an archive) contained in this package 
