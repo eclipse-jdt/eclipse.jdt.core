@@ -458,8 +458,9 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature == null) 
 		return EmptyStringList;
-	CharOperation.replace(genericSignature, '/', '.');
-	char[][] typeParams = Signature.getTypeParameters(genericSignature);
+	
+	char[] dotBaseSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
+	char[][] typeParams = Signature.getTypeParameters(dotBaseSignature);
 	int length = typeParams.length;
 	if (length == 0)
 		return EmptyStringList;

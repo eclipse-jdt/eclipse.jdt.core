@@ -113,8 +113,8 @@ public String[] getExceptionTypes() throws JavaModelException {
 		IBinaryMethod info = (IBinaryMethod) getElementInfo();
 		char[] genericSignature = info.getGenericSignature();
 		if (genericSignature != null) {
-			CharOperation.replace(genericSignature, '/', '.');
-			this.exceptionTypes = Signature.getThrownExceptionTypes(new String(genericSignature));
+			char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
+			this.exceptionTypes = Signature.getThrownExceptionTypes(new String(dotBasedSignature));
 		}
 		if (this.exceptionTypes == null || this.exceptionTypes.length == 0) {
 			char[][] eTypeNames = info.getExceptionTypeNames();
@@ -238,8 +238,8 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature == null) 
 		return EmptyStringList;
-	CharOperation.replace(genericSignature, '/', '.');
-	char[][] typeParams = Signature.getTypeParameters(genericSignature);
+	char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
+	char[][] typeParams = Signature.getTypeParameters(dotBasedSignature);
 	int length = typeParams.length;
 	if (length == 0)
 		return EmptyStringList;
@@ -258,8 +258,8 @@ public String getReturnType() throws JavaModelException {
 	if (this.returnType == null) {
 		char[] genericSignature = info.getGenericSignature();
 		char[] signature = genericSignature == null ? info.getMethodDescriptor() : genericSignature;
-		CharOperation.replace(signature, '/', '.');
-		String returnTypeName= Signature.getReturnType(new String(signature));
+		char[] dotBasedSignature = CharOperation.replaceOnCopy(signature, '/', '.');
+		String returnTypeName= Signature.getReturnType(new String(dotBasedSignature));
 		this.returnType= new String(ClassFile.translatedName(returnTypeName.toCharArray()));
 	}
 	return this.returnType;

@@ -23,14 +23,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 public class ClassFileMatchLocator implements IIndexConstants {
 
 public static char[] convertClassFileFormat(char[] name) {
-	for (int i = 0, l = name.length; i < l; i++) {
-		if (name[i] == '/') {
-			char[] newName = (char[]) name.clone();
-			CharOperation.replace(newName, '/', '.');
-			return newName;
-		}
-	}
-	return name;
+	return CharOperation.replaceOnCopy(name, '/', '.');
 }
 
 boolean checkDeclaringType(IBinaryType enclosingBinaryType, char[] simpleName, char[] qualification, boolean isCaseSensitive) {
