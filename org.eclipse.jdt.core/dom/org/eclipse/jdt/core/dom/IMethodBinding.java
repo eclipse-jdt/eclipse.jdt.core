@@ -142,11 +142,40 @@ public interface IMethodBinding extends IBinding {
 	public ITypeBinding[] getTypeParameters();
 	
 	/**
+	 * Returns whether this method binding represents a declaration of
+	 * a generic method.
+	 * <p>
+	 * Note that type parameters only occur on the binding of the
+	 * declaring generic method; e.g., <code>public &lt;T&gt; T identity(T t);</code>.
+	 * Method bindings corresponding to a raw or parameterized reference to a generic
+	 * method do not carry type parameters (they instead have non-empty type arguments
+	 * and non-trivial erasure).
+	 * This method is fully equivalent to <code>getTypeParameters().length &gt; 0)</code>.
+	 * </p>
+	 * <p>
+	 * Note that {@link #isGenericMethod()},
+	 * {@link #isParameterizedMethod()},
+	 * and {@link #isRawMethod()} are mutually exclusive.
+	 * </p>
+	 * <p>
+	 * Note: Support for new language features of the 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this method binding represents a 
+	 * declaration of a generic method, and <code>false</code> otherwise
+	 * @see #getTypeParameters()
+	 * @since 3.1
+	 */
+	public boolean isGenericMethod();
+	
+	/**
 	 * Returns whether this method binding represents an instance of
 	 * a generic method corresponding to a parameterized method reference.
 	 * <p>
-	 * Note that <code>isRawMethod()</code> and
-	 * <code>isParameterizedMethod()</code> are mutually exclusive.
+	 * Note that {@link #isGenericMethod()},
+	 * {@link #isParameterizedMethod()},
+	 * and {@link #isRawMethod()} are mutually exclusive.
 	 * </p>
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
@@ -158,10 +187,8 @@ public interface IMethodBinding extends IBinding {
 	 * method reference, and <code>false</code> otherwise
 	 * @see #getErasure()
 	 * @see #getTypeArguments()
-	 * @see #isRawMethod()
 	 * @since 3.1
 	 */
-	// TODO - need better name
 	public boolean isParameterizedMethod();
 	
 	/**
@@ -195,6 +222,10 @@ public interface IMethodBinding extends IBinding {
 	 * returns the generic method binding from which this method binding
 	 * was instantiated.
 	 * For other type bindings, this method returns the identical type binding.
+	 * Note that the resulting method binding will answer true to
+	 * {@link #isGenericMethod()} iff this method binding would return true
+	 * to either {@link #isGenericMethod()}, {@link #isParameterizedMethod()},
+	 * or {@link #isRawMethod()}.
 	 * <p>
 	 * Note: the erasure link is not a general back-link between the members
 	 * of a generic type instance and the corresponding members of the
@@ -214,8 +245,9 @@ public interface IMethodBinding extends IBinding {
 	 * Returns whether this method binding represents an instance of
 	 * a generic method corresponding to a raw method reference.
 	 * <p>
-	 * Note that <code>isRawMethod()</code> and
-	 * <code>isParameterizedMethod()</code> are mutually exclusive.
+	 * Note that {@link #isGenericMethod()},
+	 * {@link #isParameterizedMethod()},
+	 * and {@link #isRawMethod()} are mutually exclusive.
 	 * </p>
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
@@ -227,10 +259,8 @@ public interface IMethodBinding extends IBinding {
 	 * method reference, and <code>false</code> otherwise
 	 * @see #getErasure()
 	 * @see #getTypeArguments()
-	 * @see #isParameterizedMethod()
 	 * @since 3.1
 	 */
-	// TODO - need better name
 	public boolean isRawMethod();
 	
 	/**

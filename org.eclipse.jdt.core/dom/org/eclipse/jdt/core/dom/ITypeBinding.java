@@ -186,6 +186,34 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding[] getTypeParameters();
 	
 	/**
+	 * Returns whether this type binding represents a declaration of
+	 * a generic class or interface.
+	 * <p>
+	 * Note that type parameters only occur on the binding of the
+	 * declaring generic class or interface; e.g., <code>Collection&lt;T&gt;</code>.
+	 * Type bindings corresponding to a raw or parameterized reference to a generic
+	 * type do not carry type parameters (they instead have non-empty type arguments
+	 * and non-trivial erasure).
+	 * This method is fully equivalent to <code>getTypeParameters().length &gt; 0)</code>.
+	 * </p>
+	 * <p>
+	 * Note that {@link #isGenericType()},
+	 * {@link #isParameterizedType()},
+	 * and {@link #isRawType()} are mutually exclusive.
+	 * </p>
+	 * <p>
+	 * Note: Support for new language features of the 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this type binding represents a 
+	 * declaration of a generic class or interface, and <code>false</code> otherwise
+	 * @see #getTypeParameters()
+	 * @since 3.1
+	 */
+	public boolean isGenericType();
+	
+	/**
 	 * Returns whether this type binding represents a type variable.
 	 * Type variables bindings carry the type variable's bounds.
 	 * <p>
@@ -225,8 +253,9 @@ public interface ITypeBinding extends IBinding {
 	 * class <code>java.lang.String</code> and whose erasure is the type
 	 * binding for the generic type <code>java.util.Collection</code>.
 	 * </p>
-	 * <p>Note that <code>isRawType()</code> and
-	 * <code>isParameterizedType()</code> are mutually exclusive.
+	 * Note that {@link #isGenericType()},
+	 * {@link #isParameterizedType()},
+	 * and {@link #isRawType()} are mutually exclusive.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this type binding represents a 
@@ -234,10 +263,8 @@ public interface ITypeBinding extends IBinding {
 	 * type reference, and <code>false</code> otherwise
 	 * @see #getTypeArguments()
 	 * @see #getErasure()
-	 * @see #isRawType()
 	 * @since 3.0
 	 */
-	// TODO - need better name
 	public boolean isParameterizedType();
 	
 	/**
@@ -260,6 +287,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic type, or otherwise the empty list
 	 * @see #getErasure()
+	 * @see #isGenericType()
 	 * @see #isParameterizedType()
 	 * @see #isRawType()
 	 * @since 3.0
@@ -274,6 +302,10 @@ public interface ITypeBinding extends IBinding {
 	 * the generic type binding from which this type binding
 	 * was instantiated. For other type bindings, this method returns
 	 * the identical type binding.
+	 * Note that the resulting type binding will answer true to
+	 * {@link #isGenericType()} iff this type binding would return true
+	 * to either {@link #isGenericType()}, {@link #isParameterizedType()},
+	 * or {@link #isRawType()}.
 	 * <p>
 	 * Note: the erasure link is not a general back-link between the members
 	 * of a generic type instance and the corresponding members of the
@@ -303,8 +335,9 @@ public interface ITypeBinding extends IBinding {
 	 * <code>java.util.Collection</code>.
 	 * </p>
 	 * <p>
-	 * Note that <code>isRawType()</code> and
-	 * <code>isParameterizedType()</code> are mutually exclusive.
+	 * Note that {@link #isGenericType()},
+	 * {@link #isParameterizedType()},
+	 * and {@link #isRawType()} are mutually exclusive.
 	 * </p>
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
@@ -315,11 +348,9 @@ public interface ITypeBinding extends IBinding {
 	 * an instance of a generic type corresponding to a raw
 	 * type reference, and <code>false</code> otherwise
 	 * @see #getErasure()
-	 * @see #isParameterizedType()
 	 * @see #getTypeArguments()
 	 * @since 3.0
 	 */
-	// TODO - need better name
 	public boolean isRawType();
 	
 	/**

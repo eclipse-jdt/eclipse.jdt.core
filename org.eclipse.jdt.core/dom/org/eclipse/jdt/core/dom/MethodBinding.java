@@ -328,6 +328,19 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isGenericMethod()
+	 * @since 3.1
+	 */
+	public boolean isGenericMethod() {
+		// equivalent to return getTypeParameters().length > 0;
+		if (this.typeParameters != null) {
+			return this.typeParameters.length > 0;
+		}
+		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
+		return (typeVariableBindings != null && typeVariableBindings.length > 0);
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeArguments()
 	 */
 	public ITypeBinding[] getTypeArguments() {

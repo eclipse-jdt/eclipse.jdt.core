@@ -854,6 +854,16 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isGenericType()
+	 * @since 3.1
+	 */
+	public boolean isGenericType() {
+		// equivalent to return getTypeParameters().length > 0;
+		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
+		return (typeVariableBindings != null && typeVariableBindings.length > 0);
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isAnnotation()
 	 */
 	public boolean isAnnotation() {
