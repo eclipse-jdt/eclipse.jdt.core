@@ -564,8 +564,9 @@ public void testBatchOperation() throws CoreException {
 /*
  * Ensures that if a project's output folder is used as a lib folder in another project, building
  * the first project results in the correct delta in the other project.
+ * TODO Reenable post M9. see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62927
  */
-public void testBuildProjectUsedAsLib() throws CoreException {
+public void _testBuildProjectUsedAsLib() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src1"}, new String[] {"JCL_LIB"}, "bin1");
 		this.createJavaProject("P2", new String[] {"src2"}, new String[] {"/P1/bin1"}, "bin2");
