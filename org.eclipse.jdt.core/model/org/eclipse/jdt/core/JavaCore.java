@@ -891,6 +891,10 @@ public final class JavaCore extends Plugin {
 	public JavaCore() {
 		super();
 		JAVA_CORE_PLUGIN = this;
+		
+		// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=60537
+		String option = Platform.getDebugOption(JavaCore.PLUGIN_ID + "/debug"); //$NON-NLS-1$
+		setDebugging(option != null && option.equalsIgnoreCase("true")); //$NON-NLS-1$
 	}
 
 	/**
