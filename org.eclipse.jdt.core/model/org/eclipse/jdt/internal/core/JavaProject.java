@@ -1896,9 +1896,6 @@ public IJavaElement rootedAt(IJavaProject project) {
 			if (rawEntries == null) {
 				rawEntries = defaultClasspath();
 			}
-
-			// clear the existing children
-			info.setChildren(new IPackageFragmentRoot[] {});
 			info.setRawClasspath(rawEntries);
 
 			// compute the new roots

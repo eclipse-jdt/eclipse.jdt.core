@@ -57,6 +57,10 @@ public IGlobalVariable[] allVariables() {
  * Checks to ensure that there is a previously built state.
  */
 protected void checkBuilderState() throws JavaModelException {
+	
+	if (JavaModelManager.USING_NEW_BUILDER){
+		return;
+	}
 	if (!getProject().hasBuildState()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"))); //$NON-NLS-1$
 	}
