@@ -21,8 +21,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class MatchLocatorParser extends Parser {
 
-private MatchingNodeSet matchSet;
-private PatternLocator patternLocator;
+MatchingNodeSet matchSet;
+PatternLocator patternLocator;
 private AbstractSyntaxTreeVisitorAdapter localDeclarationVisitor;
 private int matchContainer;
 
