@@ -111,7 +111,7 @@ public class Assignment extends Expression {
 			expression,
 			rhsType,
 			this.resolvedType);
-		return null;
+		return this.resolvedType;
 	}
 
 	public String toString(int tab) {
