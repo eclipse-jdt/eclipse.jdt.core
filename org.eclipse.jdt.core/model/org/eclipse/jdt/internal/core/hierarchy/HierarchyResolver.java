@@ -25,6 +25,8 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -399,8 +401,8 @@ private void reset(){
  * instead of a binary type.
  */
 
-public void resolve(IGenericType[] suppliedTypes) {
-	resolve(suppliedTypes, null);
+public void resolve(IGenericType[] suppliedTypes, IProgressMonitor monitor) {
+	resolve(suppliedTypes, null, monitor);
 }
 /**
  * Resolve the supertypes for the supplied source types.
@@ -413,7 +415,7 @@ public void resolve(IGenericType[] suppliedTypes) {
  * instead of a binary type.
  */
 
-public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits) {
+public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits, IProgressMonitor monitor) {
 	try {
 		int suppliedLength = suppliedTypes == null ? 0 : suppliedTypes.length;
 		int sourceLength = sourceUnits == null ? 0 : sourceUnits.length;
@@ -464,6 +466,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 					}
 				}
 			}
+			worked(monitor, 1);
 		}
 		Parser parser = new Parser(lookupEnvironment.problemReporter, true, options.sourceLevel >= CompilerOptions.JDK1_4);
 		for (int i = 0; i < sourceLength; i++){
@@ -474,6 +477,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 				units[suppliedLength+i] = parsedUnit;
 				lookupEnvironment.buildTypeBindings(parsedUnit);
 			}
+			worked(monitor, 1);
 		}
 		
 		// complete type bindings (ie. connect super types) and remember them
@@ -494,6 +498,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 					}
 				}
 			}
+			worked(monitor, 1);
 		}
 		for (int i = 0; i < sourceLength; i++) {
 			CompilationUnitDeclaration parsedUnit = units[suppliedLength+i];
@@ -506,6 +511,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 					rememberWithMemberTypes(parsedUnit.types[j], null, sourceUnit);
 				}
 			}
+			worked(monitor, 1);
 		}
 
 		reportHierarchy();
@@ -585,5 +591,14 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 		} 
 	}
 	return false;
+}
+protected void worked(IProgressMonitor monitor, int work) {
+	if (monitor != null) {
+		if (monitor.isCanceled()) {
+			throw new OperationCanceledException();
+		} else {
+			monitor.worked(work);
+		}
+	}
 }
 }

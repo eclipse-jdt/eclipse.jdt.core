@@ -1347,7 +1347,11 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		this.progressMonitor = monitor;
 		if (monitor != null) {
-			monitor.beginTask(Util.bind("hierarchy.creating"), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+			if (this.type != null) {
+				monitor.beginTask(Util.bind("hierarchy.creatingOnType", type.getFullyQualifiedName()), 100); //$NON-NLS-1$
+			} else {
+				monitor.beginTask(Util.bind("hierarchy.creating"), 100); //$NON-NLS-1$
+			}
 		}
 		long start = -1;
 		if (DEBUG) {

@@ -147,10 +147,18 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		manager.cacheZipFiles();
 				
 		if (computeSubtypes) {
-			String[] allPossibleSubtypes = this.determinePossibleSubTypes();
+			IProgressMonitor possibleSubtypesMonitor = 
+				this.hierarchy.progressMonitor == null ? 
+					null : 
+					new SubProgressMonitor(this.hierarchy.progressMonitor, 95);
+			String[] allPossibleSubtypes = this.determinePossibleSubTypes(possibleSubtypesMonitor);
 			if (allPossibleSubtypes != null) {
+			IProgressMonitor buildMonitor = 
+				this.hierarchy.progressMonitor == null ? 
+					null : 
+					new SubProgressMonitor(this.hierarchy.progressMonitor, 5);
 				this.hierarchy.initialize(allPossibleSubtypes.length);
-				buildFromPotentialSubtypes(allPossibleSubtypes);
+				buildFromPotentialSubtypes(allPossibleSubtypes, buildMonitor);
 			}
 		} else {
 			this.hierarchy.initialize(1);
@@ -160,7 +168,7 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		manager.flushZipFiles();
 	}
 }
-private void buildForProject(JavaProject project, ArrayList infos, ArrayList units, IWorkingCopy[] workingCopies) throws JavaModelException {
+private void buildForProject(JavaProject project, ArrayList infos, ArrayList units, IWorkingCopy[] workingCopies, IProgressMonitor monitor) throws JavaModelException {
 	// copy vectors into arrays
 	IGenericType[] genericTypes;
 	int infosSize = infos.size();
@@ -215,7 +223,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 						return;
 					}
 				}
-				this.hierarchyResolver.resolve(genericTypes, compilationUnits);
+				this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
 			} finally {
 				if (inProjectOfFocusType) {
 					this.nameLookup.setUnitsToLookInside(null);
@@ -227,7 +235,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 /**
  * Configure this type hierarchy based on the given potential subtypes.
  */
-private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
+private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgressMonitor monitor) {
 	IType focusType = this.getType();
 		
 	// substitute compilation units with working copies
@@ -277,75 +285,78 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	ArrayList infos = new ArrayList();
 	ArrayList units = new ArrayList();
 
-	// create element infos for subtypes
-	HandleFactory factory = new HandleFactory(ResourcesPlugin.getWorkspace());
-	IJavaProject currentProject = null;
-	for (int i = 0; i < length; i++) {
-		try {
-			String resourcePath = allPotentialSubTypes[i];
-			
-			// skip duplicate paths (e.g. if focus path was injected when it was already a potential subtype)
-			if (i > 0 && resourcePath.equals(allPotentialSubTypes[i-1])) continue;
-			
-			Openable handle;
-			IWorkingCopy workingCopy = (IWorkingCopy)wcPaths.get(resourcePath);
-			if (workingCopy != null) {
-				handle = (Openable)workingCopy;
-			} else {
-				handle = 
-					resourcePath.equals(focusPath) ? 
-						focusCU :
-						factory.createOpenable(resourcePath, this.scope);
-				if (handle == null) continue; // match is outside classpath
-			}
-			
-			IJavaProject project = handle.getJavaProject();
-			if (currentProject == null) {
-				currentProject = project;
-				infos = new ArrayList(5);
-				units = new ArrayList(5);
-			} else if (!currentProject.equals(project)) {
-				// build current project
-				this.buildForProject((JavaProject)currentProject, infos, units, workingCopies);
-				currentProject = project;
-				infos = new ArrayList(5);
-				units = new ArrayList(5);
-			}
-			
-			this.addInfoFromElement(handle, infos, units, resourcePath);
-			
-			worked(1);
-		} catch (JavaModelException e) {
-			continue;
-		}
-	}
-	
-	// build last project
 	try {
-		if (currentProject == null) {
-			// case of no potential subtypes
-			currentProject = focusType.getJavaProject();
-			this.addInfosFromType(focusType, infos);
+		// create element infos for subtypes
+		HandleFactory factory = new HandleFactory(ResourcesPlugin.getWorkspace());
+		IJavaProject currentProject = null;
+		if (monitor != null) monitor.beginTask("", length*2 /* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+		for (int i = 0; i < length; i++) {
+			try {
+				String resourcePath = allPotentialSubTypes[i];
+				
+				// skip duplicate paths (e.g. if focus path was injected when it was already a potential subtype)
+				if (i > 0 && resourcePath.equals(allPotentialSubTypes[i-1])) continue;
+				
+				Openable handle;
+				IWorkingCopy workingCopy = (IWorkingCopy)wcPaths.get(resourcePath);
+				if (workingCopy != null) {
+					handle = (Openable)workingCopy;
+				} else {
+					handle = 
+						resourcePath.equals(focusPath) ? 
+							focusCU :
+							factory.createOpenable(resourcePath, this.scope);
+					if (handle == null) continue; // match is outside classpath
+				}
+				
+				IJavaProject project = handle.getJavaProject();
+				if (currentProject == null) {
+					currentProject = project;
+					infos = new ArrayList(5);
+					units = new ArrayList(5);
+				} else if (!currentProject.equals(project)) {
+					// build current project
+					this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
+					currentProject = project;
+					infos = new ArrayList(5);
+					units = new ArrayList(5);
+				}
+				
+				this.addInfoFromElement(handle, infos, units, resourcePath);
+			} catch (JavaModelException e) {
+				continue;
+			}
 		}
-		this.buildForProject((JavaProject)currentProject, infos, units, workingCopies);
-	} catch (JavaModelException e) {
-	}
-	
-	// Compute hierarchy of focus type if not already done (case of a type with potential subtypes that are not real subtypes)
-	if (!this.hierarchy.contains(focusType)) {
+		
+		// build last project
 		try {
-			currentProject = focusType.getJavaProject();
-			infos = new ArrayList();
-			units = new ArrayList();
-			this.addInfosFromType(focusType, infos);
-			this.buildForProject((JavaProject)currentProject, infos, units, workingCopies);
+			if (currentProject == null) {
+				// case of no potential subtypes
+				currentProject = focusType.getJavaProject();
+				this.addInfosFromType(focusType, infos);
+			}
+			this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
 		} catch (JavaModelException e) {
 		}
-	}
-	
-	// Add focus if not already in (case of a type with no explicit super type)
-	if (!this.hierarchy.contains(focusType)) {
-		this.hierarchy.addRootClass(focusType);
+		
+		// Compute hierarchy of focus type if not already done (case of a type with potential subtypes that are not real subtypes)
+		if (!this.hierarchy.contains(focusType)) {
+			try {
+				currentProject = focusType.getJavaProject();
+				infos = new ArrayList();
+				units = new ArrayList();
+				this.addInfosFromType(focusType, infos);
+				this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
+			} catch (JavaModelException e) {
+			}
+		}
+		
+		// Add focus if not already in (case of a type with no explicit super type)
+		if (!this.hierarchy.contains(focusType)) {
+			this.hierarchy.addRootClass(focusType);
+		}
+	} finally {
+		if (monitor != null) monitor.done();
 	}
 }
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String osPath) throws JavaModelException {
@@ -357,7 +368,7 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String 
  * Returns all of the possible subtypes of this type hierarchy.
  * Returns null if they could not be determine.
  */
-private String[] determinePossibleSubTypes() throws JavaModelException, CoreException {
+private String[] determinePossibleSubTypes(IProgressMonitor monitor) throws JavaModelException, CoreException {
 
 	class PathCollector implements IPathRequestor {
 		HashSet paths = new HashSet(10);
@@ -368,14 +379,19 @@ private String[] determinePossibleSubTypes() throws JavaModelException, CoreExce
 	PathCollector collector = new PathCollector();
 	IProject project = this.hierarchy.javaProject().getProject();
 	
-	searchAllPossibleSubTypes(
-		project.getWorkspace(),
-		this.getType(),
-		this.scope,
-		this.binariesFromIndexMatches,
-		collector,
-		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-		this.hierarchy.progressMonitor);
+	try {
+		if (monitor != null) monitor.beginTask("", 500/*500 layers max*/); //$NON-NLS-1$
+		searchAllPossibleSubTypes(
+			project.getWorkspace(),
+			this.getType(),
+			this.scope,
+			this.binariesFromIndexMatches,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			monitor);
+	} finally {
+		if (monitor != null) monitor.done();
+	}
 
 	HashSet paths = collector.paths;
 	int length = paths.size();
@@ -484,7 +500,8 @@ public static void searchAllPossibleSubTypes(
 	/* initialize entry result cache */
 	pattern.entryResults = new HashMap();
 	/* iterate all queued names */
-	int ticks = 50;
+	int ticks = 0;
+	int maxTicks = 500;
 	awaitings.add(type.getElementName().toCharArray());
 	while (awaitings.start <= awaitings.end){
 		if (progressMonitor != null && progressMonitor.isCanceled()) return;
@@ -500,10 +517,9 @@ public static void searchAllPossibleSubTypes(
 		indexManager.performConcurrentJob(
 			job, 
 			waitingPolicy, 
-			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, ticks));
+			(progressMonitor == null || ++ticks > maxTicks) ? null : new SubProgressMonitor(progressMonitor, 1));
 		/* in case, we search all subtypes, no need to search further */
 		if (currentTypeName == null) break;
-		ticks = ticks / 2;
 	}
 	/* close all cached index inputs */
 	job.closeAll();

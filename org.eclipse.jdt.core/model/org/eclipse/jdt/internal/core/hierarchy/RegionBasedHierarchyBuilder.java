@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.hierarchy;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -45,9 +47,17 @@ public void build(boolean computeSubtypes) {
 		manager.cacheZipFiles();
 				
 		if (this.hierarchy.type == null || computeSubtypes) {
-			ArrayList allTypesInRegion = determineTypesInRegion();
+			IProgressMonitor typeInRegionMonitor = 
+				this.hierarchy.progressMonitor == null ? 
+					null : 
+					new SubProgressMonitor(this.hierarchy.progressMonitor, 30);
+			ArrayList allTypesInRegion = determineTypesInRegion(typeInRegionMonitor);
 			this.hierarchy.initialize(allTypesInRegion.size());
-			createTypeHierarchyBasedOnRegion(allTypesInRegion);
+			IProgressMonitor buildMonitor = 
+				this.hierarchy.progressMonitor == null ? 
+					null : 
+					new SubProgressMonitor(this.hierarchy.progressMonitor, 70);
+			createTypeHierarchyBasedOnRegion(allTypesInRegion, buildMonitor);
 			((RegionBasedTypeHierarchy)this.hierarchy).pruneDeadBranches();
 		} else {
 			this.hierarchy.initialize(1);
@@ -60,7 +70,7 @@ public void build(boolean computeSubtypes) {
 /**
  * Configure this type hierarchy that is based on a region.
  */
-private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
+private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgressMonitor monitor) {
 	
 	int size = allTypesInRegion.size();
 	if (size != 0) {
@@ -94,7 +104,6 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
 		try {
 			IType type = types[i];
 			this.addInfoFromElement((Openable)type.getOpenable(), infos, units, type.getPath().toString());
-			worked(1);
 		} catch (JavaModelException npe) {
 			continue types;
 		}
@@ -118,69 +127,81 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
 		compilationUnits = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[0];
 	}
 
-	// resolve
-	if (infosSize > 0 || unitsSize > 0) {
-		IType focusType = this.getType();
-		CompilationUnit unitToLookInside = null;
-		if (focusType != null) {
-			unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
-		}
-		if (this.nameLookup != null && unitToLookInside != null) {
-			synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
-				try {
-					nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
-					this.hierarchyResolver.resolve(genericTypes, compilationUnits);
-				} finally {
-					nameLookup.setUnitsToLookInside(null);
-				}
+	try {
+		// resolve
+		if (monitor != null) monitor.beginTask("", (infosSize+unitsSize) * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+		if (infosSize > 0 || unitsSize > 0) {
+			IType focusType = this.getType();
+			CompilationUnit unitToLookInside = null;
+			if (focusType != null) {
+				unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
 			}
-		} else {
-			this.hierarchyResolver.resolve(genericTypes, compilationUnits);
+			if (this.nameLookup != null && unitToLookInside != null) {
+				synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+					try {
+						nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
+						this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+					} finally {
+						nameLookup.setUnitsToLookInside(null);
+					}
+				}
+			} else {
+				this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+			}
 		}
+	} finally {
+		if (monitor != null) monitor.done();
 	}
 }
 	
 	/**
 	 * Returns all of the types defined in the region of this type hierarchy.
 	 */
-	private ArrayList determineTypesInRegion() {
+	private ArrayList determineTypesInRegion(IProgressMonitor monitor) {
 
-		ArrayList types = new ArrayList();
-		IJavaElement[] roots =
-			((RegionBasedTypeHierarchy) this.hierarchy).fRegion.getElements();
-		for (int i = 0; i < roots.length; i++) {
-			try {
-				IJavaElement root = roots[i];
-				switch (root.getElementType()) {
-					case IJavaElement.JAVA_PROJECT :
-						injectAllTypesForJavaProject((IJavaProject) root, types);
-						break;
-					case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-						injectAllTypesForPackageFragmentRoot((IPackageFragmentRoot) root, types);
-						break;
-					case IJavaElement.PACKAGE_FRAGMENT :
-						injectAllTypesForPackageFragment((IPackageFragment) root, types);
-						break;
-					case IJavaElement.CLASS_FILE :
-						types.add(((IClassFile) root).getType());
-						break;
-					case IJavaElement.COMPILATION_UNIT :
-						IType[] cuTypes = ((ICompilationUnit) root).getAllTypes();
-						for (int j = 0; j < cuTypes.length; j++) {
-							types.add(cuTypes[j]);
-						}
-						break;
-					case IJavaElement.TYPE :
-						types.add(root);
-						break;
-					default :
-						break;
+		try {
+			ArrayList types = new ArrayList();
+			IJavaElement[] roots =
+				((RegionBasedTypeHierarchy) this.hierarchy).fRegion.getElements();
+			int length = roots.length;
+			if (monitor != null) monitor.beginTask("", length); //$NON-NLS-1$
+			for (int i = 0; i <length; i++) {
+				try {
+					IJavaElement root = roots[i];
+					switch (root.getElementType()) {
+						case IJavaElement.JAVA_PROJECT :
+							injectAllTypesForJavaProject((IJavaProject) root, types);
+							break;
+						case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+							injectAllTypesForPackageFragmentRoot((IPackageFragmentRoot) root, types);
+							break;
+						case IJavaElement.PACKAGE_FRAGMENT :
+							injectAllTypesForPackageFragment((IPackageFragment) root, types);
+							break;
+						case IJavaElement.CLASS_FILE :
+							types.add(((IClassFile) root).getType());
+							break;
+						case IJavaElement.COMPILATION_UNIT :
+							IType[] cuTypes = ((ICompilationUnit) root).getAllTypes();
+							for (int j = 0; j < cuTypes.length; j++) {
+								types.add(cuTypes[j]);
+							}
+							break;
+						case IJavaElement.TYPE :
+							types.add(root);
+							break;
+						default :
+							break;
+					}
+				} catch (JavaModelException e) {
+					// just continue
 				}
-			} catch (JavaModelException e) {
-				// just continue
+				worked(monitor, 1);
 			}
+			return types;
+		} finally {
+			if (monitor != null) monitor.done();
 		}
-		return types;
 	}
 	
 	/**
@@ -258,7 +279,6 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
 			for (int i = 0; i < containers.length; i++) {
 				IClassFile cf = containers[i];
 				types.add(cf.getType());
-				this.worked(1);
 			}
 		} catch (JavaModelException e) {
 		}
@@ -278,7 +298,6 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
 				for (int j = 0; j < cuTypes.length; j++) {
 					types.add(cuTypes[j]);
 				}
-				this.worked(1);
 			}
 		} catch (JavaModelException e) {
 		}

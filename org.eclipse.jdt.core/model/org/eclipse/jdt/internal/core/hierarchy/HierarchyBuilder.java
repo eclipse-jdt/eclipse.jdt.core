@@ -150,7 +150,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		IGenericType suppliedType,
 		IGenericType superclass,
 		IGenericType[] superinterfaces) {
-		this.worked(1);
+
 		// convert all infos to handles
 		IType typeHandle = getHandle(suppliedType);
 		/*
@@ -283,13 +283,12 @@ protected IWorkingCopy[] getWokingCopies() {
 		qualifiedName = new String(ClassFile.translatedName(bName));
 		return this.nameLookup.findType(qualifiedName, false, flag);
 	}
-	protected void worked(int work) {
-		IProgressMonitor progressMonitor = this.hierarchy.progressMonitor;
-		if (progressMonitor != null) {
-			if (progressMonitor.isCanceled()) {
+	protected void worked(IProgressMonitor monitor, int work) {
+		if (monitor != null) {
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			} else {
-				progressMonitor.worked(work);
+				monitor.worked(work);
 			}
 		}
 	}
