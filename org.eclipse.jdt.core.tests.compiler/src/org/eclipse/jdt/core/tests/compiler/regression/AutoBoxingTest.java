@@ -1918,7 +1918,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81571
 	public void test073() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1929,6 +1929,13 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"    public static void a(Object a, Object b) {}\n" + 
 				"}\n",
 			},
-			"SUCCESS");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	a(new Integer(1), 2);\r\n" + 
+			"	^\n" + 
+			"The method a(int, int) is ambiguous for the type X\n" + 
+			"----------\n"
+			// a is ambiguous, both method a(int,int) in X and method a(java.lang.Object,java.lang.Object) in X match
+		);
 	}
 }

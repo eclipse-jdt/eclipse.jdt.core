@@ -34,9 +34,8 @@ public abstract class Scope
 
 	public final static int NOT_COMPATIBLE = -1;
 	public final static int COMPATIBLE = 0;
-	public final static int AUTOBOX_EXACT_MATCH = 1;
-	public final static int AUTOBOX_COMPATIBLE = 2;
-	public final static int VARARGS_COMPATIBLE = 3;
+	public final static int AUTOBOX_COMPATIBLE = 1;
+	public final static int VARARGS_COMPATIBLE = 2;
 
    /* Answer an int describing the relationship between the given types.
 	*
@@ -2903,9 +2902,7 @@ public abstract class Scope
 			return COMPATIBLE;
 		if (arg.isBaseType() != param.isBaseType()) {
 			TypeBinding convertedType = env.computeBoxingType(arg);
-			if (convertedType == param)
-				return AUTOBOX_EXACT_MATCH;
-			if (convertedType.isCompatibleWith(param))
+			if (convertedType == param || convertedType.isCompatibleWith(param))
 				return AUTOBOX_COMPATIBLE;
 		}
 		return NOT_COMPATIBLE;
