@@ -178,7 +178,7 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 		}
 	}
 	
-		/** 
+	/** 
 	 * @deprecated backport 1.0 internal functionality
 	 */
 	private static Map convertConfigurableOptions(ConfigurableOption[] settings) {
@@ -215,6 +215,8 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 				
 				} else if(optionName.equals("tabulation.size")) { //$NON-NLS-1$
 					options.put("org.eclipse.jdt.core.formatter.tabulation.size", String.valueOf(valueIndex)); //$NON-NLS-1$ //$NON-NLS-2$
+				} else if (optionName.equals("space.castexpression")) { //$NON-NLS-1$
+					options.put("org.eclipse.jdt.core.formatter.space.castexpression", valueIndex == 0 ? "insert" : "do not insert" ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 			}
 		}
@@ -920,8 +922,38 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 							&& (previousToken == TokenNameLBRACE || token == TokenNameRBRACE))
 						&& previousToken != Scanner.TokenNameCOMMENT_LINE) {
 						if ((!(options.compactAssignmentMode && token == TokenNameEQUAL))
-							&& !openAndCloseBrace)
-							space();
+							&& !openAndCloseBrace) {
+								if (previousCompilableToken == TokenNameRPAREN) {
+									switch(token) {
+										case TokenNameIdentifier :
+										case TokenNameDoubleLiteral :
+										case TokenNameIntegerLiteral :
+										case TokenNameFloatingPointLiteral :
+										case TokenNameStringLiteral :
+										case TokenNameCharacterLiteral :
+										case TokenNameLongLiteral :
+										case TokenNamenew :
+										case TokenNamethis :
+										case TokenNamesuper :
+										case TokenNameboolean :
+										case TokenNamebyte :
+										case TokenNamechar :
+										case TokenNameint :
+										case TokenNamelong :
+										case TokenNameshort :
+										case TokenNamedouble :
+										case TokenNamefloat :
+											if (options.isAddindSpaceInCastExpression()) {
+												space();
+											}
+											break;
+										default:
+											space();
+									}
+								} else {
+									space();
+								}
+						}
 					}
 					// Add the next token to the formatted source string.
 					outputCurrentToken(token);
@@ -1086,7 +1118,8 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 			new ConfigurableOption(componentName, "line.split",  locale, options.maxLineLength),//$NON-NLS-1$
 			new ConfigurableOption(componentName, "style.compactAssignment",  locale, options.compactAssignmentMode ? 0 : 1), //$NON-NLS-1$
 			new ConfigurableOption(componentName, "tabulation.char",  locale, options.indentWithTab ? 0 : 1), //$NON-NLS-1$
-			new ConfigurableOption(componentName, "tabulation.size",  locale, options.tabSize)	//$NON-NLS-1$
+			new ConfigurableOption(componentName, "tabulation.size",  locale, options.tabSize),	//$NON-NLS-1$
+			new ConfigurableOption(componentName, "space.castexpression",  locale, options.spaceInCastExpression ? 0 : 1)	//$NON-NLS-1$
 		};
 	}
 

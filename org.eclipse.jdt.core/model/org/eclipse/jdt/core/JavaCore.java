@@ -341,6 +341,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static final String FORMATTER_TAB_SIZE = PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
 	/**
+	 * Possible configurable option ID
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String FORMATTER_SPACE_CASTEXPRESSION = PLUGIN_ID + ".formatter.space.castexpression"; //$NON-NLS-1$
+	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
 	 * @since 2.0
@@ -1821,6 +1827,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
 		optionNames.add(FORMATTER_TAB_SIZE);
 		
+		preferences.setDefault(FORMATTER_SPACE_CASTEXPRESSION, INSERT); //$NON-NLS-1$ 
+		optionNames.add(FORMATTER_SPACE_CASTEXPRESSION);
+
 		// CodeAssist settings
 		preferences.setDefault(CODEASSIST_VISIBILITY_CHECK, DISABLED); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_VISIBILITY_CHECK);
