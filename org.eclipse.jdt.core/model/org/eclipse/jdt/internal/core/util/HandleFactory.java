@@ -324,6 +324,7 @@ public class HandleFactory {
 				}
 				break;				
 			case Scope.BLOCK_SCOPE :
+				// standard block, no element per se
 				newElement = createElement(scope.parent, elementPosition, unit, existingElements);
 				break;
 		}
