@@ -42,7 +42,7 @@ public ProjectResourceCopier(IJavaProject project, JavaDevelopmentContextImpl de
 	this.root = this.workspace.getRoot();
 	try {
 		this.outputLocation = this.project.getOutputLocation();
-		IClasspathEntry[] entries = this.project.getExpandedClasspath(true);
+		IClasspathEntry[] entries = this.project.getResolvedClasspath(true);
 		this.sourceFolders = new IResource[entries.length];
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];

@@ -201,7 +201,7 @@ public class SearchableEnvironment
 			// Collect the project and its prerequisites (ie. referenced projects and jars)
 			JavaSearchScope scope = new JavaSearchScope();
 			IWorkspaceRoot root = this.project.getUnderlyingResource().getWorkspace().getRoot();
-			IClasspathEntry[] entries = this.project.getExpandedClasspath(true);
+			IClasspathEntry[] entries = ((JavaProject)this.project).getExpandedClasspath(true);
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				switch (entry.getEntryKind()) {

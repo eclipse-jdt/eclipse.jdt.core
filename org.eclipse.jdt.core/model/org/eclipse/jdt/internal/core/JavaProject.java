@@ -1011,7 +1011,9 @@ public class JavaProject
 	}
 	
 	/**
-	 *  @see IJavaProject.getExpandedClasspath(boolean)
+	 * This is a helper method returning the expanded classpath for the project, as a list of classpath entries, 
+	 * where all classpath variable entries have been resolved and substituted with their final target entries.
+	 * All project exports have been appended to project entries.
 	 */
 	public IClasspathEntry[] getExpandedClasspath(boolean ignoreUnresolvedVariable)	throws JavaModelException {
 			

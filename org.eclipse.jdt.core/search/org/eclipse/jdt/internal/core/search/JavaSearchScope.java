@@ -167,7 +167,7 @@ public IPath[] enclosingProjectsAndJars() {
 				if (!paths.contains(path)) paths.add(path);
 				if (this.includesClasspaths) {
 					IJavaProject javaProject = javaModel.getJavaProject(project.getName());
-					IClasspathEntry[] entries = javaProject.getExpandedClasspath(true);
+					IClasspathEntry[] entries = ((JavaProject)javaProject).getExpandedClasspath(true);
 					for (int j = 0; j < entries.length; j++) {
 						IClasspathEntry entry = entries[j];
 						switch (entry.getEntryKind()) {

@@ -197,8 +197,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </ul>
 	 * @see IClasspathEntry 
 	 */
-	IClasspathEntry[] getExpandedClasspath(boolean ignoreUnresolvedVariable)
-		throws JavaModelException;
+//	IClasspathEntry[] getExpandedClasspath(boolean ignoreUnresolvedVariable)
+//		throws JavaModelException;
 
 	/**
 	 * Returns the raw classpath for the project, as a list of classpath entries. This corresponds to the exact set

@@ -197,7 +197,7 @@ public void scrubOutput() {
 	IJavaProject projectElement = JavaCore.create(this.project);
 	IClasspathEntry[] entries;
 	try {
-		entries = projectElement.getExpandedClasspath(true);
+		entries = projectElement.getResolvedClasspath(true);
 	} catch(JavaModelException e){
 		throw this.dc.internalException(e);
 	}

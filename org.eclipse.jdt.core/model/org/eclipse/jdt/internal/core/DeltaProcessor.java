@@ -329,7 +329,7 @@ protected Openable[] createElements(IResource resource) {
 			// Create a jar package fragment root only if on the classpath
 			IPath resourcePath = resource.getFullPath();
 			try {
-				IClasspathEntry[] entries = project.getExpandedClasspath(true);
+				IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 				for (int j = 0, length2 = entries.length; j < length2; j++) {
 					IClasspathEntry entry = entries[j];
 					IPath rootPath = entry.getPath();

@@ -54,7 +54,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 				// consider that a jar can see another jar only they are both referenced by the same project
 				return this.haveSameParent(projectOrJarPath, jarPath, model); 
 			} else {
-				IClasspathEntry[] entries = project.getExpandedClasspath(true);
+				IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 				for (int i = 0, length = entries.length; i < length; i++) {
 					IClasspathEntry entry = entries[i];
 					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
@@ -69,7 +69,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 			IJavaProject focusProject = (IJavaProject)this.focus;
 			if (project == null) {
 				// consider that a jar can see a project only if it is referenced by this project
-				IClasspathEntry[] entries = focusProject.getExpandedClasspath(true);
+				IClasspathEntry[] entries = ((JavaProject)focusProject).getExpandedClasspath(true);
 				for (int i = 0, length = entries.length; i < length; i++) {
 					IClasspathEntry entry = entries[i];
 					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
@@ -83,7 +83,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 					return true;
 				} else {
 					IPath focusPath = focusProject.getProject().getFullPath();
-					IClasspathEntry[] entries = project.getExpandedClasspath(true);
+					IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 					for (int i = 0, length = entries.length; i < length; i++) {
 						IClasspathEntry entry = entries[i];
 						if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
@@ -152,7 +152,7 @@ private boolean haveSameParent(IPath jarPath1, IPath jarPath2, IJavaModel model)
 		IJavaProject[] projects = model.getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject project = projects[i];
-			IClasspathEntry[] entries = project.getExpandedClasspath(true);
+			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 			boolean referencesJar1 = false;
 			boolean referencesJar2 = false;
 			for (int j = 0, length2 = entries.length; j < length2; j++) {
@@ -190,7 +190,7 @@ private boolean projectCanSeeFocusElement(IJavaProject project) {
 			// this.focus is part of a jar
 			JarPackageFragmentRoot root = (JarPackageFragmentRoot)this.focus;
 			IPath rootPath = root.getPath();
-			IClasspathEntry[] entries = project.getExpandedClasspath(true);
+			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
@@ -206,7 +206,7 @@ private boolean projectCanSeeFocusElement(IJavaProject project) {
 				return true;
 			} else {
 				IPath focusPath = focusProject.getProject().getFullPath();
-				IClasspathEntry[] entries = project.getExpandedClasspath(true);
+				IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 				for (int i = 0, length = entries.length; i < length; i++) {
 					IClasspathEntry entry = entries[i];
 					if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 

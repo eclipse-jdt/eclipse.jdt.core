@@ -171,7 +171,7 @@ public IJavaModelStatus verify() {
 	IJavaProject javaProject= (IJavaProject)getElementToProcess();
 	IPath projectPath= javaProject.getProject().getFullPath();	
 	try {
-		classpath = javaProject.getExpandedClasspath(true);
+		classpath = ((JavaProject)javaProject).getExpandedClasspath(true);
 	} catch (JavaModelException e) {
 		return e.getJavaModelStatus();
 	}
