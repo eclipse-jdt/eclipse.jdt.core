@@ -120,7 +120,16 @@ protected int matchMethod(MethodBinding method) {
 		if (method.parameters == null) return INACCURATE_MATCH;
 		if (parameterCount != method.parameters.length) return IMPOSSIBLE_MATCH;
 		for (int i = 0; i < parameterCount; i++) {
-			int newLevel = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], method.parameters[i]);
+			TypeBinding argType = method.parameters[i];
+			int newLevel = IMPOSSIBLE_MATCH;
+			if (argType.isMemberType()) {
+				// only compare source name for member type (bug 41018)
+				newLevel = CharOperation.match(this.pattern.parameterSimpleNames[i], argType.sourceName(), this.isCaseSensitive)
+					? ACCURATE_MATCH
+					: IMPOSSIBLE_MATCH;
+			} else {
+				newLevel = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], method.parameters[i]);
+			}
 			if (level > newLevel) {
 				if (newLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 				level = newLevel; // can only be downgraded
@@ -252,6 +261,41 @@ protected int resolveLevel(MessageSend messageSend) {
 		declaringLevel = resolveLevelForType(qualifiedPattern, method.declaringClass);
 	}
 	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
+}
+/**
+ * Returns whether the given type binding matches the given qualified pattern.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve failed.
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
+ */
+protected int resolveLevelForArgumentType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding argumentType) {
+	if (simpleNamePattern == null && qualificationPattern == null) return ACCURATE_MATCH;
+	if (argumentType  == null) return INACCURATE_MATCH;
+
+	// NOTE: if case insensitive search then qualifiedPattern is assumed to be lowercase
+
+	if (argumentType.isMemberType()) {
+		char[] sourceName = argumentType.sourceName();
+		return CharOperation.match(simpleNamePattern, sourceName, this.isCaseSensitive)
+			? ACCURATE_MATCH
+			: IMPOSSIBLE_MATCH;
+	
+	} else {
+		char[] qualifiedSourceName = CharOperation.concat(argumentType.qualifiedSourceName(), argumentType.sourceName(), '.');
+		if (argumentType instanceof ReferenceBinding) {
+			ReferenceBinding type = (ReferenceBinding) argumentType;
+			if (type.isLocalType()) {
+				qualifiedSourceName = CharOperation.concat(qualifiedSourceName(type.enclosingType()), new char[] {'.', '1', '.'}, type.sourceName());
+			}
+		}
+		char[] qualifiedPackageName = argumentType.qualifiedPackageName();
+		char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
+			? qualifiedSourceName
+			: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
+		return CharOperation.match(qualifiedPattern(simpleNamePattern, qualificationPattern), fullyQualifiedTypeName, this.isCaseSensitive)
+			? ACCURATE_MATCH
+			: IMPOSSIBLE_MATCH;
+	}
 }
 /**
  * Returns whether the given reference type binding matches or is a subtype of a type

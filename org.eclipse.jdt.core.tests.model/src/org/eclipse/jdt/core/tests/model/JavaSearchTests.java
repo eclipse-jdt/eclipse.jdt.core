@@ -299,7 +299,8 @@ public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(JavaSearchTests.class.getName());
 		System.err.println("WARNING: Only subset of test cases are running for "+JavaSearchTests.class.getName());
-		suite.addTest(new JavaSearchTests("testConstructorReference10"));
+		suite.addTest(new JavaSearchTests("testMethodDeclaration08"));
+		suite.addTest(new JavaSearchTests("testBug41018"));
 		return suite;
 	}
 	return new Suite(JavaSearchTests.class);
@@ -1559,7 +1560,6 @@ public void testMethodDeclaration08() throws CoreException { // was testMethodDe
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	// System.out.println(displayString(resultCollector, 2));
 	assertSearchResults(
 		"MyJar.jar boolean p1.A.foo(java.lang.String) [No source]",
 		resultCollector);
@@ -3288,6 +3288,23 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
+		resultCollector);
+}
+/**
+ * Regression test for bug 41018: Method reference not found
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018)
+ */
+public void testBug41018() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "bug41018", "A.java").getType("A");
+	IMethod method = type.getMethod("methodA", new String[] { "QClassB.InnerInterface;" });
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		method, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/bug41018/A.java void bug41018.A.anotherMethod() [methodA(null)]",
 		resultCollector);
 }
 }
