@@ -10,6 +10,7 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -689,9 +690,9 @@ public class SourceMapper
 					this.anonymousClassName = Integer.parseInt(fType.getElementName());
 				} catch(NumberFormatException e) {
 				}
-				parser = new SourceElementParser(this, factory, true);
+				parser = new SourceElementParser(this, factory, new CompilerOptions(JavaCore.getOptions()), true);
 			} else {
-				parser = new SourceElementParser(this, factory);
+				parser = new SourceElementParser(this, factory, new CompilerOptions(JavaCore.getOptions()));
 			}
 			parser.parseCompilationUnit(
 				new BasicCompilationUnit(contents, type.getElementName() + ".java" ), //$NON-NLS-1$

@@ -62,11 +62,6 @@ public DocumentElementParser(
 	intArrayStack = new int[30][];
 }
 
-public DocumentElementParser(
-	final IDocumentElementRequestor requestor, 
-	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions());
-}
 /**
  *
  * INTERNAL USE-ONLY

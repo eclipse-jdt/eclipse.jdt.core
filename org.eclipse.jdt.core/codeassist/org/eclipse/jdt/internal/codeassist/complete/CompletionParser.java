@@ -76,10 +76,6 @@ public class CompletionParser extends AssistParser {
 	int lastModifiers = AccDefault;
 	int lastModifiersStart = -1;
 	
-/** @deprecated - should use constructor with assertMode */
-public CompletionParser(ProblemReporter problemReporter) {
-	this(problemReporter, false/*no assertion by default*/);
-}
 public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }

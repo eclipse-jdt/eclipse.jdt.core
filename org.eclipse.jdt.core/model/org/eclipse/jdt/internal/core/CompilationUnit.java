@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.lookup.*;
@@ -199,7 +200,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, H
 		// generate structure
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 		IProblemFactory factory = new DefaultProblemFactory();
-		SourceElementParser parser = new SourceElementParser(requestor, factory);
+		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
 		parser.parseCompilationUnit(this, !isWorkingCopy());
 		if (isWorkingCopy()) {
 			// remember problems

@@ -32,11 +32,7 @@ public class SelectionParser extends AssistParser {
 
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
-
-/** @deprecated - should use constructor with assertMode */
-public SelectionParser(ProblemReporter problemReporter) {
-	this(problemReporter, false/*no assertion by default*/);
-}	
+	
 public SelectionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }
