@@ -299,6 +299,9 @@ public class MethodScope extends BlockScope {
 		SourceTypeBinding declaringClass = referenceType().binding;
 		int modifiers = method.modifiers | AccUnresolved;
 		if (method.isConstructor()) {
+			if (method.isDefaultConstructor()) {
+				modifiers |= AccIsDefaultConstructor;
+			}
 			method.binding = new MethodBinding(modifiers, null, null, declaringClass);
 			checkAndSetModifiersForConstructor(method.binding);
 		} else {
@@ -308,7 +311,6 @@ public class MethodScope extends BlockScope {
 				new MethodBinding(modifiers, method.selector, null, null, null, declaringClass);
 			checkAndSetModifiersForMethod(method.binding);
 		}
-
 		this.isStatic = method.binding.isStatic();
 		return method.binding;
 	}
