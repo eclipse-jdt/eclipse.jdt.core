@@ -790,9 +790,9 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot[] findPackageFragmentRoots(IClasspathEntry entry) {
 		try {
-			IClasspathEntry[] resolvedClasspath = this.getResolvedClasspath(false); // use raw CP
-			for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-				if (resolvedClasspath[i].equals(entry)) {
+			IClasspathEntry[] classpath = this.getRawClasspath();
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				if (classpath[i].equals(entry)) {
 					return computePackageFragmentRoots(entry);
 				}
 			}
