@@ -519,10 +519,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public static void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
 		try {
-			if (operation.isReadOnly() || ResourcesPlugin.getWorkspace().isTreeLocked()) {
+			if (operation.isReadOnly()) {
 				operation.run(monitor);
 			} else {
-				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
+				// Use IWorkspace.run(...) to ensure that a build will be done in autobuild mode.
+				// Note that if the tree is locked, this will throw a CoreException, but this is ok
+				// as this operation is modifying the tree (not read-only) and a CoreException will be thrown anyway.
 				ResourcesPlugin.getWorkspace().run(operation, monitor);
 			}
 		} catch (CoreException ce) {
