@@ -41,6 +41,7 @@ STREAM: 2.0
 
   PM
   ================================================================================
+  * Open on Selection
   * JCK1.4 compliance flow analysis
   1GK7B5L: ITPJCORE:WIN2000 - JCK 1.4 - DASG - checked exception in variable initializer of anonymous class 
   1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - DASG - assigned variable before catch block after return statement
