@@ -10,16 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 
 /**
- * TODO add spec
+ * A <code>IRestrictedAccessTypeRequestor</code> collects search results from a <code>searchAllTypeNames</code>
+ * query to a <code>SearchBasicEngine</code> providing restricted access information when a class or an interface is accepted.
+ * @see org.eclipse.jdt.core.search.ITypeNameRequestor
  */
-public abstract class IndexQueryRequestor {
-	
-	// answer false if requesting cancel
-	public abstract boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRestriction access);
-	
+public interface IRestrictedAccessTypeRequestor {
+
+	public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
+
+	public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access);
+
 }

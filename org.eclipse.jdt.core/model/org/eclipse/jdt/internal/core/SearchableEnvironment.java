@@ -21,8 +21,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.ITypeNameRequestor;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -31,6 +29,8 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
+import org.eclipse.jdt.internal.core.search.SearchBasicEngine;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -54,8 +54,9 @@ public class SearchableEnvironment
 		this.project = project;
 		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
 		this.nameLookup = project.newNameLookup(workingCopies);
+
 		// Create search scope with visible entry on the project's classpath
-		this.searchScope = SearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
+		this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
 	}
 
 	/**
@@ -67,7 +68,7 @@ public class SearchableEnvironment
 		this.nameLookup = project.newNameLookup(owner);
 
 		// Create search scope with visible entry on the project's classpath
-		this.searchScope = SearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
+		this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
 	}
 
 	/**
@@ -263,12 +264,13 @@ public class SearchableEnvironment
 					// implements interface method
 				}
 			};
-			ITypeNameRequestor nameRequestor = new ITypeNameRequestor() {
+			IRestrictedAccessTypeRequestor typeRequestor = new IRestrictedAccessTypeRequestor() {
 				public void acceptClass(
 					char[] packageName,
 					char[] simpleTypeName,
 					char[][] enclosingTypeNames,
-					String path) {
+					String path,
+					AccessRestriction access) {
 					if (excludePath != null && excludePath.equals(path))
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
@@ -279,7 +281,8 @@ public class SearchableEnvironment
 					char[] packageName,
 					char[] simpleTypeName,
 					char[][] enclosingTypeNames,
-					String path) {
+					String path,
+					AccessRestriction access) {
 					if (excludePath != null && excludePath.equals(path))
 						return;
 					if (enclosingTypeNames != null && enclosingTypeNames.length > 0)
@@ -288,13 +291,13 @@ public class SearchableEnvironment
 				}
 			};
 			try {
-				new SearchEngine().searchAllTypeNames(
+				new SearchBasicEngine().searchAllTypeNames(
 					qualification,
 					simpleName,
 					SearchPattern.R_PREFIX_MATCH, // not case sensitive
 					IJavaSearchConstants.TYPE,
 					this.searchScope,
-					nameRequestor,
+					typeRequestor,
 					CANCEL_IF_NOT_READY_TO_SEARCH,
 					progressMonitor);
 			} catch (OperationCanceledException e) {

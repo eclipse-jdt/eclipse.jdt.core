@@ -373,7 +373,7 @@ protected void parseAndBuildBindings(PossibleMatch possibleMatch, boolean mustRe
 		throw new OperationCanceledException();
 
 	try {
-		if (SearchEngine.VERBOSE)
+		if (SearchBasicEngine.VERBOSE)
 			System.out.println("Parsing " + possibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
 		this.parser.nodeSet = possibleMatch.nodeSet;
@@ -809,7 +809,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
  */
 public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
 	int docsLength = searchDocuments.length;
-	if (SearchEngine.VERBOSE) {
+	if (SearchBasicEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
 		for (int i = 0; i < docsLength; i++)
 			System.out.println("\t" + searchDocuments[i]); //$NON-NLS-1$
@@ -1169,7 +1169,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		getMethodBodies(unit);
 
 		if (bindingsWereCreated && ((InternalSearchPattern)this.pattern).mustResolve && unit.types != null) {
-			if (SearchEngine.VERBOSE)
+			if (SearchBasicEngine.VERBOSE)
 				System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
 			reduceParseTree(unit);
@@ -1238,7 +1238,7 @@ public SearchParticipant getParticipant() {
 
 protected void report(SearchMatch match) throws CoreException {
 	long start = -1;
-	if (SearchEngine.VERBOSE) {
+	if (SearchBasicEngine.VERBOSE) {
 		start = System.currentTimeMillis();
 		System.out.println("Reporting match"); //$NON-NLS-1$
 		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
@@ -1249,7 +1249,7 @@ protected void report(SearchMatch match) throws CoreException {
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
 	}
 	this.requestor.acceptSearchMatch(match);
-	if (SearchEngine.VERBOSE)
+	if (SearchBasicEngine.VERBOSE)
 		this.resultCollectorTime += System.currentTimeMillis()-start;
 }
 /**

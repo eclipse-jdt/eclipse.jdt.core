@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
@@ -46,7 +45,7 @@ public class JavaSearchDocument extends SearchDocument {
 		try {
 			return org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(getLocation().toFile());
 		} catch (IOException e) {
-			if (SearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
+			if (SearchBasicEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
 				e.printStackTrace();
 			}
 			return null;
@@ -57,7 +56,7 @@ public class JavaSearchDocument extends SearchDocument {
 		try {
 			return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(getLocation().toFile(), getEncoding());
 		} catch (IOException e) {
-			if (SearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
+			if (SearchBasicEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
 				e.printStackTrace();
 			}
 			return null;

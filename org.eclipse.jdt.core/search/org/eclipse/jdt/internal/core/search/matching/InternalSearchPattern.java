@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.*;
 
@@ -33,9 +34,20 @@ public abstract class InternalSearchPattern {
 	
 	void acceptMatch(String documentName, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 		String documentPath = Index.convertPath(documentName);
-		if (scope.encloses(documentPath))
-			if (!requestor.acceptIndexMatch(documentPath, pattern, participant)) 
+
+		if (scope instanceof JavaSearchScope) {
+			JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
+			// Get document path access restriction from java search scope
+			// Note that requestor has to verify if needed whether the document violates the access restriction or not
+			AccessRestriction access = javaSearchScope.getAccessRestriction(documentPath);
+			if (JavaSearchScope.UNINIT_RESTRICTION != access) { // scope encloses the document path
+				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, access)) 
+					throw new OperationCanceledException();
+			}
+		} else if (scope.encloses(documentPath)) {
+			if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null)) 
 				throw new OperationCanceledException();
+		}
 	}
 	SearchPattern currentPattern() {
 		return (SearchPattern) this;

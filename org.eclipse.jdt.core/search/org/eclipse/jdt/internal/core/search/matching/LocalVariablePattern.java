@@ -14,10 +14,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
+import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class LocalVariablePattern extends VariablePattern implements IIndexConstants {
@@ -38,9 +40,20 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
     } else {
         path = this.localVariable.getPath().toString();
     }
-	if (scope.encloses(path))
-		if (!requestor.acceptIndexMatch(path, this, participant)) 
+
+	if (scope instanceof JavaSearchScope) {
+		JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
+		// Get document path access restriction from java search scope
+		// Note that requestor has to verify if needed whether the document violates the access restriction or not
+		AccessRestriction access = javaSearchScope.getAccessRestriction(path);
+		if (!JavaSearchScope.UNINIT_RESTRICTION.equals(access)) { // scope encloses the path
+			if (!requestor.acceptIndexMatch(path, this, participant, access)) 
+				throw new OperationCanceledException();
+		}
+	} else if (scope.encloses(path)) {
+		if (!requestor.acceptIndexMatch(path, this, participant, null)) 
 			throw new OperationCanceledException();
+	}
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
