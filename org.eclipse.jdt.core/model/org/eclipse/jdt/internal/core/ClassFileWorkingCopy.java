@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
@@ -27,7 +28,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * A working copy on an <code>IClassFile</code>.
- * Only the <code>getBuffer()</code> operation is valid.
+ * Only the <code>getBuffer()</code> and <code>getOriginalElement()</code> operations are valid.
  * All other operations return either <code>null</code> or throw a <code>JavaModelException</code>.
  */
 public class ClassFileWorkingCopy implements ICompilationUnit {
@@ -326,7 +327,7 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	 * @see IWorkingCopy#getOriginalElement()
 	 */
 	public IJavaElement getOriginalElement() {
-		return null;
+		return new ClassFile((IPackageFragment)getParent(), getElementName());
 	}
 
 	/*

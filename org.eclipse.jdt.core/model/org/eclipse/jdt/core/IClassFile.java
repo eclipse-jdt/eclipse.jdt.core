@@ -59,7 +59,7 @@ IType getType() throws JavaModelException;
  * The buffer will be automatically initialized with the source of the class file
  * upon creation.
  * <p>
- * The only valid operation on this working copy is <code>getBuffer()</code>.
+ * The only valid operations on this working copy are <code>getBuffer()</code> or <code>getOriginalElement</code>.
  *
  * @param monitor a progress monitor used to report progress while opening this compilation unit
  *                 or <code>null</code> if no progress should be reported 
