@@ -389,14 +389,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 
 	ReferenceBinding resolve() {
 		// TODO (philippe) what about the superclass & superinterfaces fields? do they not also have to be resolved?
-		// fields/methods should be uninitialized
+	    // TODO (kent) these are lazily resolved in accessor methods
 		ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.type, this.environment);
 		boolean isDifferent = resolvedType != this.type;
 		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
 		int argLength = originalArguments.length;
 		for (int i = 0; i < argLength; i++) {
 		    TypeBinding originalArgument = originalArguments[i];
-		    // TODO (philippe) can this be an array of another parameterized type?
+		    // TODO (kent) add support for array argument type (legal) - should add support in BinaryTypeBinding.resolveReferenceType ? (and rename)
 		    if (originalArgument instanceof ReferenceBinding) {
 			    TypeBinding resolvedArgument = BinaryTypeBinding.resolveReferenceType((ReferenceBinding)originalArgument, this.environment);
 			    if (resolvedArgument != originalArgument) {
@@ -435,7 +435,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		}
 		// if portion of the type got resolved, then update the type in cache
 		if (isDifferent) {
-		    // TODO (philippe) do we still need this?
+		    // TODO (kent) investigate if we still need this? if not then last argument should disappear
 		    if (this.type != resolvedType) {
 		        // perform side-effect on the cache to recache the updated parameterized type
 		        environment.createParameterizedType(resolvedType, resolvedArguments, this);
