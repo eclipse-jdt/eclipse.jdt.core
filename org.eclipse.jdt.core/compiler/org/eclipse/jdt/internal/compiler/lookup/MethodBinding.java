@@ -201,6 +201,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		if (invocationType.fPackage == declaringClass.fPackage) return true;
 		
 		ReferenceBinding currentType = invocationType;
+		TypeBinding receiverErasure = receiverType.erasure();		
 		int depth = 0;
 		do {
 			if (declaringClass.isSuperclassOf(currentType)) {
@@ -215,7 +216,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
 				}
-				if (currentType == receiverType || currentType.isSuperclassOf((ReferenceBinding) receiverType)){
+				if (currentType == receiverErasure || currentType.isSuperclassOf((ReferenceBinding) receiverErasure)){
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true;
 				}

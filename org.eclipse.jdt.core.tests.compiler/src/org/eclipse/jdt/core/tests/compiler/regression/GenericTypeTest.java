@@ -29,11 +29,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
+	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 468 };
 //		TESTS_RANGE = new int[] { 379, -1 };
-//	}
+	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -12504,4 +12504,67 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671
+	public void test467() {
+		this.runConformTest(
+			new String[] {
+				"test/Foo.java",
+				"package test; \n" + 
+				"public class Foo { \n" + 
+				"   protected String s; \n" + 
+				"   protected String dosomething(){ return \"done\"; } \n" + 
+				"   protected class Bar {} \n" +
+				"} \n",
+				"test2/FooBar.java",
+				"package test2; \n" + 
+				"import test.Foo; \n" + 
+				"public class FooBar<R> extends Foo { \n" + 
+				"   void fail() { \n" + 
+				"      FooBar f = new FooBar(); \n" + 
+				"      f.s = \"foo\"; \n" + 
+				"      this.s = \"foo\";\n" + 
+				"      f.dosomething(); \n" + 
+				"      this.dosomething();  \n" + 
+				"      Bar b1; \n" +
+				"      FooBar.Bar b2; \n" +
+				"      Foo.Bar b3; \n" +
+				"   } \n" + 
+				"}\n"
+			},
+			""
+		);
+	}	
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82671 - variation
+	public void test468() {
+		this.runConformTest(
+			new String[] {
+				"test/Foo.java",
+				"package test; \n" + 
+				"public class Foo { \n" + 
+				"   String s; \n" + 
+				"   String dosomething(){ return \"done\"; } \n" + 
+				"   class Bar {} \n" +
+				"} \n",
+				"test/FooBar.java",
+				"package test; \n" + 
+				"import test.Foo; \n" + 
+				"public class FooBar<R> extends Foo { \n" + 
+				"   void fail() { \n" + 
+				"      FooBar f = new FooBar(); \n" + 
+				"      f.s = \"foo\"; \n" + 
+				"      this.s = \"foo\";\n" + 
+				"      f.dosomething(); \n" + 
+				"      this.dosomething();  \n" + 
+				"      Bar b1; \n" +
+				"      FooBar.Bar b2; \n" +
+				"      Foo.Bar b3; \n" +
+				"   } \n" + 
+				"}\n"
+			},
+			""
+		);
+	}	
+
 }
