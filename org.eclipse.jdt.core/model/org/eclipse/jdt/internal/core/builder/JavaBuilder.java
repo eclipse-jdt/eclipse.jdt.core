@@ -126,12 +126,12 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 			throw e.getThrowable();
 		}
 	} catch (IncompleteClassPathException e) {
-		Util.log(e, "JavaBuilder handling IncompleteClassPathException"); //$NON-NLS-1$
+		if (DEBUG) Util.log(e, "JavaBuilder handling IncompleteClassPathException"); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath", e.missingClassFile)); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (MissingSourceFileException e) {
-		Util.log(e, "JavaBuilder handling MissingSourceFileException"); //$NON-NLS-1$
+		if (DEBUG) Util.log(e, "JavaBuilder handling MissingSourceFileException"); //$NON-NLS-1$
 		removeProblemsFor(currentProject); // make this the only problem for this project
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
