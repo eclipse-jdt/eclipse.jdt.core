@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 public abstract class IndexRequest implements IJob {
@@ -42,7 +42,7 @@ public abstract class IndexRequest implements IJob {
 	/*
 	 * This code is assumed to be invoked while monitor has read lock
 	 */
-	protected void saveIfNecessary(IIndex index, ReadWriteMonitor monitor) throws IOException {
+	protected void saveIfNecessary(Index index, ReadWriteMonitor monitor) throws IOException {
 		/* if index has changed, commit these before querying */
 		if (index.hasChanged()) {
 			try {

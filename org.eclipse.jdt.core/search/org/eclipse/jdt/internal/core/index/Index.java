@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.index.impl.EntryResult;
 
 /**
@@ -21,45 +21,53 @@ import org.eclipse.jdt.internal.core.index.impl.EntryResult;
  * this index.
  */
 
-public interface IIndex {
+public abstract class Index {
 	/**
-	 * Adds the given document to the index.
+	 * Associates the category and key with the document.
 	 */
-	void add(SearchDocument document, IIndexer indexer) throws IOException;
+	public abstract void addIndexEntry(char[] category, char[] key, SearchDocument document);
 	/**
 	 * Returns the index file on the disk.
 	 */
-	File getIndexFile();
+	public abstract File getIndexFile();
 	/**
 	 * Returns the path corresponding to a given document number
 	 */
-	String getPath(int documentNumber) throws IOException;
+	public abstract String getPath(int documentNumber) throws IOException;
 	/**
 	 * Ansers true if has some changes to save.
 	 */
-	boolean hasChanged();
+	public abstract boolean hasChanged();
+	/**
+	 * Adds the given document to the index.
+	 */
+	public abstract void indexDocument(SearchDocument document, SearchParticipant searchParticipant, IPath indexPath) throws IOException;
+	/**
+	 * Returns the paths of the documents containing the given word - query a group of categories.
+	 */
+//	EntryResult[] query(char[][] categories, char[] key, int matchRule);
 	/**
 	 * Returns the paths of the documents containing the given word.
 	 */
-	String[] query(String word) throws IOException;
+	public abstract String[] query(String word) throws IOException;
 	/**
 	 * Returns all entries for a given word.
 	 */
-	EntryResult[] queryEntries(char[] pattern) throws IOException;
+	public abstract EntryResult[] queryEntries(char[] pattern) throws IOException;
 	/**
 	 * Returns the paths of the documents whose names contain the given word.
 	 */
-	String[] queryInDocumentNames(String word) throws IOException;
+	public abstract String[] queryInDocumentNames(String word) throws IOException;
 	/**
 	 * Returns the paths of the documents containing the given word prefix.
 	 */
-	String[] queryPrefix(char[] prefix) throws IOException;
+	public abstract String[] queryPrefix(char[] prefix) throws IOException;
 	/**
 	 * Removes the corresponding document from the index.
 	 */
-	void remove(String documentName) throws IOException;
+	public abstract void remove(String documentName);
 	/**
 	 * Saves the index on the disk.
 	 */
-	void save() throws IOException;
+	public abstract void save() throws IOException;
 }

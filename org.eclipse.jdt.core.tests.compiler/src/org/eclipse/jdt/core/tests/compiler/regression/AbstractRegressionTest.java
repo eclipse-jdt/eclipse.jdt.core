@@ -70,7 +70,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 		};
 		SearchDocument document = participant.getDocument(new File(classFilePath).getPath());
-		BinaryIndexer indexer = new BinaryIndexer(document, null) {
+		BinaryIndexer indexer = new BinaryIndexer(document) {
 			protected void addIndexEntry(char[] category, char[] key) {
 				references.append(category);
 				references.append(key);

@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.index.IIndex;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -62,7 +62,7 @@ class AddJarFileToIndex extends IndexRequest {
 		try {
 			// if index is already cached, then do not perform any check
 			// MUST reset the IndexManager if a jar file is changed
-			IIndex index = manager.getIndexForUpdate(this.containerPath, false, /*do not reuse index file*/ false /*do not create if none*/);
+			Index index = manager.getIndexForUpdate(this.containerPath, false, /*do not reuse index file*/ false /*do not create if none*/);
 			if (index != null) {
 				if (JobManager.VERBOSE)
 					JobManager.verbose("-> no indexing required (index already exists) for " + this.containerPath); //$NON-NLS-1$
@@ -170,7 +170,7 @@ class AddJarFileToIndex extends IndexRequest {
 					if (Util.isClassFileName(ze.getName())) {
 						final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, classFileBytes, participant);
-						this.manager.indexDocument(entryDocument, participant, index);
+						this.manager.indexDocument(entryDocument, participant, index, this.containerPath);
 					}
 				}
 				this.manager.saveIndex(index);

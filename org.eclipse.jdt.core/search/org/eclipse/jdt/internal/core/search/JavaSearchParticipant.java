@@ -14,22 +14,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
-import org.eclipse.jdt.core.search.SearchParticipant;
 
 /**
  * A search participant describes a particular extension to a generic search mechanism, allowing thus to 
@@ -88,6 +80,13 @@ public class JavaSearchParticipant extends SearchParticipant {
 	}
 	
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.search.SearchParticipant#getDocument(IFile)
+	 */
+	public SearchDocument getDocument(IFile file) {
+		return new JavaSearchDocument(file, this);
+	}
+
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#getDocument(String)
 	 */
 	public SearchDocument getDocument(String documentPath) {
@@ -97,12 +96,15 @@ public class JavaSearchParticipant extends SearchParticipant {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#indexDocument(SearchDocument)
 	 */
-	public void indexDocument(SearchDocument document, String indexPath) {
+	public void indexDocument(SearchDocument document, IPath indexPath) {
+		// TODO must verify that the document + indexPath match, when this is not called from scheduleDocumentIndexing
+		removeAllIndexEntries(document); // in case the document was already indexed
+
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(documentPath)) {
-			new SourceIndexer(document, indexPath).indexDocument();
+			new SourceIndexer(document).indexDocument();
 		} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
-			new BinaryIndexer(document, indexPath).indexDocument();
+			new BinaryIndexer(document).indexDocument();
 		}
 	}
 	

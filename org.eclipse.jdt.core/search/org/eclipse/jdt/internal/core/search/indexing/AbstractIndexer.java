@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
@@ -19,11 +18,9 @@ import org.eclipse.jdt.internal.core.search.matching.*;
 public abstract class AbstractIndexer implements IIndexConstants {
 
 	SearchDocument document;
-	String indexPath;
-	
-	public AbstractIndexer(SearchDocument document, String indexPath) {
+
+	public AbstractIndexer(SearchDocument document) {
 		this.document = document;
-		this.indexPath = indexPath;
 	}
 	public void addClassDeclaration(int modifiers, char[] packageName,char[] name,  char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(packageName, enclosingTypeNames, name, true));
@@ -60,7 +57,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(FIELD_REF, FieldPattern.createIndexKey(fieldName));
 	}
 	protected void addIndexEntry(char[] category, char[] key) {
-		SearchParticipant.addIndexEntry(category, key, this.document, this.indexPath);
+		SearchParticipant.addIndexEntry(category, key, this.document);
 	}
 	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(packageName, enclosingTypeNames, name, false));

@@ -2368,10 +2368,10 @@ public class DeltaProcessor {
 						if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
 							break;
 					case IResourceDelta.ADDED :
-						indexManager.addSource(file, file.getProject().getProject().getFullPath());
+						indexManager.addSource(file, file.getProject().getFullPath());
 						break;
 					case IResourceDelta.REMOVED :
-						indexManager.remove(file.getFullPath().toString(), file.getProject().getProject().getFullPath());
+						indexManager.remove(file.getFullPath().toString(), file.getProject().getFullPath());
 						break;
 				}
 		}

@@ -34,8 +34,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	private static final char[] ONE_DOLLAR = "$".toCharArray(); //$NON-NLS-1$
 	private static final char[] ONE_DOT = ".".toCharArray(); //$NON-NLS-1$
 
-	public BinaryIndexer(SearchDocument document, String indexPath) {
-		super(document, indexPath);
+	public BinaryIndexer(SearchDocument document) {
+		super(document);
 	}
 	public void addTypeReference(char[] typeName){
 	 

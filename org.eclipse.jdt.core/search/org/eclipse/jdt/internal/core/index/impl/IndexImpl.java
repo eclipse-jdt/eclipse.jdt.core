@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IIndexer;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.index.Index;
 
 /**
  * An Index is used to create an index on the disk, and to make queries. It uses a set of 
@@ -27,7 +25,7 @@ import org.eclipse.jdt.internal.core.index.IIndexer;
  * The changes are only taken into account by the queries after a merge.
  */
 
-public class Index implements IIndex {
+public class IndexImpl extends Index {
 	/**
 	 * Maximum size of the index in memory.
 	 */
@@ -63,41 +61,27 @@ public class Index implements IIndex {
 	 * String representation of this index.
 	 */
 	public String toString;
-	public Index(File indexDirectory, boolean reuseExistingFile) throws IOException {
+	public IndexImpl(File indexDirectory, boolean reuseExistingFile) throws IOException {
 		this(indexDirectory,".index", reuseExistingFile); //$NON-NLS-1$
 	}
-	public Index(File indexDirectory, String indexName, boolean reuseExistingFile) throws IOException {
-		super();
+	public IndexImpl(File indexDirectory, String indexName, boolean reuseExistingFile) throws IOException {
 		state= MERGED;
 		indexFile= new File(indexDirectory, indexName);
 		initialize(reuseExistingFile);
 	}
-	public Index(String indexName, boolean reuseExistingFile) throws IOException {
+	public IndexImpl(String indexName, boolean reuseExistingFile) throws IOException {
 		this(indexName, null, reuseExistingFile);
 	}
-	public Index(String indexName, String toString, boolean reuseExistingFile) throws IOException {
-		super();
+	public IndexImpl(String indexName, String toString, boolean reuseExistingFile) throws IOException {
 		state= MERGED;
 		indexFile= new File(indexName);
 		this.toString = toString;
 		initialize(reuseExistingFile);
 	}
-	/**
-	 * Indexes the given document, using the appropriate indexer registered in the indexerRegistry.
-	 * If the document already exists in the index, it overrides the previous one. The changes will be 
-	 * taken into account after a merge.
-	 */
-	public void add(SearchDocument document, IIndexer indexer) throws IOException {
-		if (timeToMerge()) {
-			merge();
-		}
-		IndexedFile indexedFile= addsIndex.getIndexedFile(document.getPath());
-		if (indexedFile != null /*&& removedInAdds.get(document.getName()) == null*/
-			)
-			remove(indexedFile, MergeFactory.ADDS_INDEX);
-		IndexerOutput output= new IndexerOutput(addsIndex);
-		indexer.index(document, output);
-		state= CAN_MERGE;
+	public void addIndexEntry(char[] category, char[] key, SearchDocument document) {
+		if (document.indexedFile == null)
+			throw new IllegalStateException();
+		addsIndex.addRef(document.indexedFile, org.eclipse.jdt.core.compiler.CharOperation.concat(category, key));
 	}
 	/**
 	 * Returns true if the index in memory is not empty, so 
@@ -129,9 +113,6 @@ public class Index implements IIndex {
 //		removedInAdds= new HashMap(11);
 //		removedInOld= new HashMap(11);
 //	}
-	/**
-	 * @see IIndex#getIndexFile
-	 */
 	public File getIndexFile() {
 		return indexFile;
 	}
@@ -155,6 +136,27 @@ public class Index implements IIndex {
 	 */
 	public boolean hasChanged() {
 		return canMerge();
+	}
+	/**
+	 * Indexes the given document, using the searchParticipant.
+	 * If the document already exists in the index, it overrides the previous one.
+	 * The changes are taken into account after a merge.
+	 */
+	public void indexDocument(SearchDocument document, SearchParticipant searchParticipant, IPath indexPath) throws IOException {
+		if (timeToMerge())
+			merge();
+
+		IndexedFile indexedFile = addsIndex.getIndexedFile(document.getPath());
+		if (indexedFile != null)
+			remove(indexedFile, MergeFactory.ADDS_INDEX);
+
+		// add the name of the file to the index
+		if (document.indexedFile != null)
+			throw new IllegalStateException();
+		document.indexedFile = addsIndex.addDocument(document);
+
+		searchParticipant.indexDocument(document, indexPath);
+		state = CAN_MERGE;
 	}
 	/**
 	 * Initialises the indexGenerator.
@@ -228,9 +230,6 @@ public class Index implements IIndex {
 			state= MERGED;
 		}
 	}
-	/**
-	 * @see IIndex#query
-	 */
 	public String[] query(String word) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
@@ -249,9 +248,6 @@ public class Index implements IIndex {
 			input.close();
 		}
 	}
-	/**
-	 * @see IIndex#queryInDocumentNames
-	 */
 	public String[] queryInDocumentNames(String word) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
@@ -261,9 +257,6 @@ public class Index implements IIndex {
 			input.close();
 		}
 	}
-	/**
-	 * @see IIndex#queryPrefix
-	 */
 	public String[] queryPrefix(char[] prefix) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
@@ -273,9 +266,6 @@ public class Index implements IIndex {
 			input.close();
 		}
 	}
-	/**
-	 * @see IIndex#remove
-	 */
 	public void remove(String documentName) {
 		IndexedFile file= addsIndex.getIndexedFile(documentName);
 		if (file != null) {
@@ -312,9 +302,6 @@ public class Index implements IIndex {
 			throw new Error();
 		state= CAN_MERGE;
 	}
-	/**
-	 * @see IIndex#save
-	 */
 	public void save() throws IOException {
 		if (canMerge())
 			merge();

@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.index.Index;
 
 class RemoveFromIndex extends IndexRequest {
 	String resourceName;
@@ -29,7 +26,7 @@ class RemoveFromIndex extends IndexRequest {
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 
 		/* ensure no concurrent write access to index */
-		IIndex index = manager.getIndex(this.containerPath, true, /*reuse index file*/ false /*create if none*/);
+		Index index = manager.getIndex(this.containerPath, true, /*reuse index file*/ false /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -37,12 +34,6 @@ class RemoveFromIndex extends IndexRequest {
 		try {
 			monitor.enterWrite(); // ask permission to write
 			index.remove(resourceName);
-		} catch (IOException e) {
-			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to remove " + this.resourceName + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-			}
-			return false;
 		} finally {
 			monitor.exitWrite(); // free write lock
 		}
