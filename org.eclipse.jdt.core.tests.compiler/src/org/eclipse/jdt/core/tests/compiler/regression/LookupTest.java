@@ -969,6 +969,36 @@ public void test28() {
 		"SUCCESS"
 	);
 }
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39467
+ * should diagnose missing abstract method implementation
+ */
+public void test29() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"}\n" + 
+			"abstract class Y extends Z {\n" + 
+			"  public abstract void foo();\n" + 
+			"}\n" + 
+			"abstract class Z extends T {\n" + 
+			"}\n" + 
+			"class T implements I {\n" + 
+			"  public void foo(){}\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"    public void foo ();\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X extends Y {\n" + 
+		"	             ^\n" + 
+		"Class must implement the inherited abstract method Y.foo()\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
