@@ -126,6 +126,8 @@ STREAM: 2.0
   1GKCH3N: ITPJCORE:WIN2000 - search: method refs - super call not found
   1GKB475: ITPJCORE:WINNT - StringIndexOutOfBoundsException on searchfor methods
   1GJL6V0: ITPJCORE:WINNT - JavaConventions.validateClasspath: IStatus usage
+  1GKM1MU: ITPJCORE:WINNT - Classpath validation: Overlapping accepted
+  1GJL7RS: ITPJCORE:WINNT - JavaConventions.validateClasspath: nested sourcefolders
 
 **********************************************************************************
 *** BUILD ??? (2.0 STREAM, v_201_02) *********************************************
