@@ -224,6 +224,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.toString()
 		);
 	}
+	protected void assertElementEquals(String message, String expected, IJavaElement element) {
+		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 3) + ",");
+		}
+		assertEquals(message, expected, actual);
+	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
 		StringBuffer buffer = new StringBuffer();
 		if (elements != null) {

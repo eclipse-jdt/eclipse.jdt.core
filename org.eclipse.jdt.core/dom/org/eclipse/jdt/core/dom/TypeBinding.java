@@ -11,10 +11,20 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.io.File;
+
+import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -22,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.core.ClassFile;
 
 /**
  * Internal implementation of type bindings.
@@ -234,6 +245,48 @@ class TypeBinding implements ITypeBinding {
 			return newInterfaces;
 		}
 	}
+	
+	/*
+	 * @see IBinding#getJavaElement()
+	 */
+	public IJavaElement getJavaElement() {
+		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) return null;
+		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+		if (referenceBinding.isBinaryBinding()) {
+			ClassFile classFile = (ClassFile) getClassFile(referenceBinding.getFileName());
+			if (classFile == null) return null;
+			return classFile.getType();
+		}
+		if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
+			// local or anonymous type
+			ICompilationUnit cu = getCompilationUnit(referenceBinding.getFileName());
+			if (cu == null) return null;
+			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
+			DefaultBindingResolver bindingResolver = (DefaultBindingResolver) this.resolver;
+			ASTNode node = (ASTNode) bindingResolver.bindingsToAstNodes.get(this);
+			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
+			try {
+				return cu.getElementAt(node.getStartPosition());
+			} catch (JavaModelException e) {
+				// does not exist
+				return null;
+			}
+		} else {
+			// member or top level type
+			ITypeBinding declaringTypeBinding = getDeclaringClass();
+			if (declaringTypeBinding == null) {
+				// top level type
+				ICompilationUnit cu = getCompilationUnit(referenceBinding.getFileName());
+				if (cu == null) return null;
+				return cu.getType(new String(referenceBinding.sourceName()));
+			} else {
+				// member type
+				IType declaringType = (IType) declaringTypeBinding.getJavaElement();
+				if (declaringType == null) return null;
+				return declaringType.getType(new String(referenceBinding.sourceName()));
+			}
+		}
+	}
 
 	/*
 	 * @see IBinding#getModifiers()
@@ -350,6 +403,72 @@ class TypeBinding implements ITypeBinding {
 		if (constantPoolName == null) return null;
 		char[] dotSeparated = CharOperation.replaceOnCopy(constantPoolName, '/', '.');
 		return new String(dotSeparated);
+	}
+	
+	/*
+	 * Returns the class file for the given file name, or null if not found.
+	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+	 */
+	private IClassFile getClassFile(char[] fileName) {
+		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
+		int lastSlash = CharOperation.lastIndexOf('/', slashSeparatedFileName);
+		if (lastSlash == -1) return null;
+		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash);
+		if (pkg == null) return null;
+		char[] simpleName = CharOperation.subarray(slashSeparatedFileName, lastSlash+1, slashSeparatedFileName.length);
+		return pkg.getClassFile(new String(simpleName));
+	}
+	
+	/*
+	 * Returns the compilation unit for the given file name, or null if not found.
+	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+	 */
+	private ICompilationUnit getCompilationUnit(char[] fileName) {
+		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
+		int lastSlash = CharOperation.lastIndexOf('/', slashSeparatedFileName);
+		if (lastSlash == -1) return null;
+		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash);
+		if (pkg == null) return null;
+		char[] simpleName = CharOperation.subarray(slashSeparatedFileName, lastSlash+1, slashSeparatedFileName.length);
+		ICompilationUnit cu = pkg.getCompilationUnit(new String(simpleName));
+		if (this.resolver instanceof DefaultBindingResolver) {
+			ICompilationUnit workingCopy = cu.findWorkingCopy(((DefaultBindingResolver) this.resolver).workingCopyOwner);
+			if (workingCopy != null) 
+				return workingCopy;
+		}
+		return cu;
+	}
+	
+	/*
+	 * Returns the package that includes the given file name, or null if not found.
+	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
+	 */
+	private IPackageFragment getPackageFragment(char[] fileName, int lastSlash) {
+		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+		if (jarSeparator != -1) {
+			String jarMemento = new String(CharOperation.subarray(fileName, 0, jarSeparator));
+			IPackageFragmentRoot root = (IPackageFragmentRoot) JavaCore.create(jarMemento);
+			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, lastSlash);
+			CharOperation.replace(pkgName, '/', '.');
+			return root.getPackageFragment(new String(pkgName));
+		} else {
+			Path path = new Path(new String(CharOperation.subarray(fileName, 0, lastSlash)));
+			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer folder = path.segmentCount() == 1 ? workspaceRoot.getProject(path.lastSegment()) : (IContainer) workspaceRoot.getFolder(path);
+			IJavaElement element = JavaCore.create(folder);
+			if (element == null) return null;
+			switch (element.getElementType()) {
+				case IJavaElement.PACKAGE_FRAGMENT:
+					return (IPackageFragment) element;
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+					return ((IPackageFragmentRoot) element).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+				case IJavaElement.JAVA_PROJECT:
+					IPackageFragmentRoot root = ((IJavaProject) element).getPackageFragmentRoot(folder);
+					if (root == null) return null;
+					return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			}
+			return null;
+		}
 	}
 
 	/*

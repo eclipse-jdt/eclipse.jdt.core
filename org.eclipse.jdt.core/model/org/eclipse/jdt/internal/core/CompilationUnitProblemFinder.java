@@ -140,8 +140,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		char[] fileName = unitElement.getElementName().toCharArray();
-		
 		JavaProject project = (JavaProject) unitElement.getJavaProject();
 		CompilationUnitProblemFinder problemFinder =
 			new CompilationUnitProblemFinder(
@@ -166,7 +164,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 					new BasicCompilationUnit(
 						contents,
 						expectedPackageName,
-						new String(fileName),
+						unitElement.getPath().toString(),
 						unitElement),
 					true, // verify methods
 					true, // analyze code

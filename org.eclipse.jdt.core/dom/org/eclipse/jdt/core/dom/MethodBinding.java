@@ -11,6 +11,12 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -108,6 +114,61 @@ class MethodBinding implements IMethodBinding {
 		}
 		return this.returnType;
 	}
+	
+	/*
+	 * Returns the signature of the given type.
+	 */
+	private String getSignature(Type type) {
+		StringBuffer buffer = new StringBuffer();
+		getFullyQualifiedName(type, buffer);
+		return Signature.createTypeSignature(buffer.toString(), false/*not resolved in source*/);
+	}
+	
+	/*
+	 * Appends to the given buffer the fully qualified name (as it appears in the source) of the given type
+	 */
+	private void getFullyQualifiedName(Type type, StringBuffer buffer) {
+		if (type.isArrayType()) {
+			ArrayType arrayType = (ArrayType) type;
+			getFullyQualifiedName(arrayType.getElementType(), buffer);
+			for (int i = 0, length = arrayType.getDimensions(); i < length; i++) {
+				buffer.append('[');
+				buffer.append(']');
+			}
+		} else if (type.isParameterizedType()) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			getFullyQualifiedName(parameterizedType.getType(), buffer);
+			buffer.append('<');
+			Iterator iterator = parameterizedType.typeArguments().iterator();
+			boolean isFirst = true;
+			while (iterator.hasNext()) {
+				if (!isFirst)
+					buffer.append(',');
+				else
+					isFirst = false;
+				Type typeArgument = (Type) iterator.next();
+				getFullyQualifiedName(typeArgument, buffer);
+			}
+			buffer.append('>');
+		} else if (type.isPrimitiveType()) {
+			buffer.append(((PrimitiveType) type).getPrimitiveTypeCode().toString());
+		} else if (type.isQualifiedType()) {
+			buffer.append(((QualifiedType) type).getName().getFullyQualifiedName());
+		} else if (type.isSimpleType()) {
+			buffer.append(((SimpleType) type).getName().getFullyQualifiedName());
+		} else if (type.isWildcardType()) {
+			buffer.append('?');
+			WildcardType wildcardType = (WildcardType) type;
+			Type bound = wildcardType.getBound();
+			if (bound == null) return;
+			if (wildcardType.isUpperBound()) {
+				buffer.append(" extends "); //$NON-NLS-1$
+			} else {
+				buffer.append(" super "); //$NON-NLS-1$
+			}
+			getFullyQualifiedName(bound, buffer);
+		}
+	}
 
 	/*
 	 * @see IMethodBinding#getExceptionTypes()
@@ -129,6 +190,28 @@ class MethodBinding implements IMethodBinding {
 		return this.exceptionTypes;
 	}
 
+	/*
+	 * @see IBinding#getJavaElement()
+	 */
+	public IJavaElement getJavaElement() {
+		IType declaringType = (IType) getDeclaringClass().getJavaElement();
+		if (declaringType == null) return null;
+		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
+		MethodDeclaration method = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
+		if (method == null) return null;
+		ArrayList parameterSignatures = new ArrayList();
+		Iterator iterator = method.parameters().iterator();
+		while (iterator.hasNext()) {
+			SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
+			Type type = parameter.getType();
+			parameterSignatures.add(getSignature(type));
+		}
+		int parameterCount = parameterSignatures.size();
+		String[] parameters = new String[parameterCount];
+		parameterSignatures.toArray(parameters);
+		return declaringType.getMethod(getName(), parameters);
+	}
+	
 	/*
 	 * @see IBinding#getKind()
 	 */

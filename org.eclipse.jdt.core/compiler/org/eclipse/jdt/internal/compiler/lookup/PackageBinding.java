@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 public class PackageBinding extends Binding implements TypeConstants {
 	public char[][] compoundName;
 	PackageBinding parent;
-	LookupEnvironment environment;
+	public LookupEnvironment environment;
 	HashtableOfType knownTypes;
 	HashtableOfPackage knownPackages;
 protected PackageBinding() {

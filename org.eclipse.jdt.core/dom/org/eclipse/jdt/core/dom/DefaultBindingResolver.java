@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -108,6 +109,11 @@ class DefaultBindingResolver extends BindingResolver {
 	private CompilationUnitScope scope;
 	
 	/**
+	 * The working copy owner that defines the context in which this resolver is creating the bindings.
+	 */
+	WorkingCopyOwner workingCopyOwner;
+	
+	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
 	DefaultBindingResolver() {
@@ -121,9 +127,10 @@ class DefaultBindingResolver extends BindingResolver {
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
-	DefaultBindingResolver(CompilationUnitScope scope) {
+	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner) {
 		this();
 		this.scope = scope;
+		this.workingCopyOwner = workingCopyOwner;
 	}
 	
 	/*

@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -120,6 +122,18 @@ class VariableBinding implements IVariableBinding {
 		return false;
 	}
 
+	/*
+	 * @see IBinding#getJavaElement()
+	 */
+	public IJavaElement getJavaElement() {
+		if (isField()) {
+			IType declaringType = (IType) getDeclaringClass().getJavaElement();
+			if (declaringType == null) return null;
+			return declaringType.getField(getName());
+		}
+		return null;
+	}
+	
 	/*
 	 * @see IBinding#getKey()
 	 */

@@ -148,7 +148,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		
 		if (info instanceof ASTHolderCUInfo) {
 			int astLevel = ((ASTHolderCUInfo) info).astLevel;
-			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, pm);
+			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this.owner, pm);
 			((ASTHolderCUInfo) info).ast = cu;
 		}
 	} finally {
@@ -637,7 +637,7 @@ public int getElementType() {
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
 public char[] getFileName(){
-	return getElementName().toCharArray();
+	return getPath().toString().toCharArray();
 }
 
 /*

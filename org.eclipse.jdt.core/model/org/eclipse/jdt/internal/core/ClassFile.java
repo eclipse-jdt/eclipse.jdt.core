@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -213,9 +214,14 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 			ZipFile zip = null;
 			try {
 				zip = root.getJar();
-				PackageFragment pkg = (PackageFragment) getParent();
+				PackageFragment pkg = (PackageFragment) le;
 				String entryName = Util.concatWith(pkg.names, getElementName(), '/');
-				info = ClassFileReader.read(zip, entryName, true);
+				ZipEntry ze = zip.getEntry(entryName);
+				if (ze != null) {
+					byte contents[] = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+					String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+					info = new ClassFileReader(contents, fileName.toCharArray());
+				}
 			} finally {
 				JavaModelManager.getJavaModelManager().closeZipFile(zip);
 			}
@@ -241,7 +247,7 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	} else {
 		byte[] contents = Util.getResourceContentsAsByteArray(file);
 		try {
-			return new ClassFileReader(contents, getElementName().toCharArray());
+			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray());
 		} catch (ClassFormatException cfe) {
 			//the structure remains unknown
 			return null;

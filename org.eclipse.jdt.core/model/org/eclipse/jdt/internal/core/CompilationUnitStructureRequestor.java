@@ -111,7 +111,7 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 	this.unit = unit;
 	this.unitInfo = unitInfo;
 	this.newElements = newElements;
-	this.sourceFileName= unit.getElementName().toCharArray();
+	this.sourceFileName= unit.getPath().toString().toCharArray();
 } 
 /**
  * @see ISourceElementRequestor

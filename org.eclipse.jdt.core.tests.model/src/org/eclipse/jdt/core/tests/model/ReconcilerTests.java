@@ -37,7 +37,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 		public void acceptProblem(IProblem problem) {
 			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
-			problems.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
+			problems.append(" in " + new String(problem.getOriginatingFileName()));
 			if (this.unitSource != null) {
 				problems.append(((DefaultProblem)problem).errorReportSource(this.unitSource));
 			}
@@ -597,7 +597,7 @@ public void testMethodWithError01() throws CoreException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
 		"	public.void foo() {\n" + 
 		"	      ^\n" + 
 		"Syntax error on token \".\", delete this token\n" + 
@@ -623,7 +623,7 @@ public void testMethodWithError01() throws CoreException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
+		"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" + 
 		"	import p2.*;\n" + 
 		"	       ^^\n" + 
 		"The import p2 is never used\n" + 
@@ -650,7 +650,7 @@ public void testMethodWithError02() throws CoreException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
 		"	public.void foo() {\n" + 
 		"	      ^\n" + 
 		"Syntax error on token \".\", delete this token\n" + 
@@ -710,7 +710,7 @@ public void testMethodWithError04() throws CoreException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 3)\n" + 
 		"	Zork f;	\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -818,7 +818,7 @@ public void testMethodWithError06() throws CoreException {
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
-			"1. ERROR in Y.java (at line 3)\n" + 
+			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" + 
 			"	public.void foo() {\n" + 
 			"	      ^\n" + 
 			"Syntax error on token \".\", delete this token\n" + 
@@ -859,7 +859,7 @@ public void testMethodWithError07() throws CoreException {
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
-			"1. ERROR in Y.java (at line 3)\n" + 
+			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" + 
 		"	public.void foo() {\n" + 
 		"	      ^\n" + 
 		"Syntax error on token \".\", delete this token\n" + 
@@ -1136,7 +1136,7 @@ public void testMethodWithError13() throws CoreException {
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
-			"1. WARNING in Y.java (at line 5)\n" + 
+			"1. WARNING in /Reconciler15/src/test/Y.java (at line 5)\n" + 
 			"	someX.bar(null);\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not invoke the method bar(Y1[]) of raw type X. References to generic type X<T,U> should be parameterized\n" + 
@@ -1184,7 +1184,7 @@ public void testMethodWithError14() throws CoreException {
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
-			"1. ERROR in Y.java (at line 5)\n" + 
+			"1. ERROR in /Reconciler15/src/test/Y.java (at line 5)\n" + 
 			"	someX.bar();\n" + 
 			"	      ^^^\n" + 
 			"The method bar(Object) in the type X is not applicable for the arguments ()\n" + 
@@ -1310,7 +1310,7 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
 		"	public void bar( {\n" + 
 		"	               ^\n" + 
 		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
@@ -1333,7 +1333,7 @@ public void testUnhandledException() throws JavaModelException {
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
 		"	throw new Exception();\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unhandled exception type Exception\n" + 

@@ -32,7 +32,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
 	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR, NotFound);
 
-	private INameEnvironment nameEnvironment;
+	public INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
 	private ArrayBinding[][] uniqueArrayBindings;
 	private SimpleLookupTable uniqueParameterizedTypeBindings;

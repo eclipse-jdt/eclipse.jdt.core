@@ -696,7 +696,7 @@ public class ASTParser {
 		CompilationUnit compilationUnit = null;
 		ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
 		if (needToResolveBindings) {
-			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
+			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, this.compilationUnitSource == null ? null : this.compilationUnitSource.getOwner());
 		} else {
 			resolver = new BindingResolver();
 		}
