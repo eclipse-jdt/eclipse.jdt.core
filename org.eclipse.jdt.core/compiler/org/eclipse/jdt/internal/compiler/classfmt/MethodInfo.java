@@ -122,12 +122,12 @@ public boolean isConstructor() {
  * Return true if the field is a synthetic method, false otherwise.
  * @return boolean
  */
-private boolean isSynthetic() {
+public boolean isSynthetic() {
 	int attributesCount = u2At(6);
 	int readOffset = 8;
 	boolean isSynthetic = false;
 	for (int i = 0; i < attributesCount; i++) {
-		int utf8Offset = constantPoolOffsets[u2At(8)] - structOffset;
+		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation.equals(attributeName, SyntheticName)) {
 			isSynthetic = true;

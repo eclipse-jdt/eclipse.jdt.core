@@ -498,9 +498,31 @@ public String toString() {
  * - changes for thrown exceptions
  * - change for the super class or any super interfaces.
  * - changes for member types name or modifiers
- * If any of these changes occurs, the method returns true. false otherwise.
+ * If any of these changes occurs, the method returns true. false otherwise. 
+ * The synthetic fields are included and the members are not required to be sorted.
+ * @param newBytes the bytes of the .class file we want to compare the receiver to
+ * @return boolean Returns true is there is a structural change between the two .class files, false otherwise
  */
 public boolean hasStructuralChanges(byte[] newBytes) {
+	return hasStructuralChanges(newBytes, false, false);
+}
+/**
+ * Check if the receiver has structural changes compare to the byte array in argument.
+ * Structural changes are:
+ * - modifiers changes for the class, the this.fields or the this.methods
+ * - signature changes for this.fields or this.methods.
+ * - changes in the number of this.fields or this.methods
+ * - changes for field constants
+ * - changes for thrown exceptions
+ * - change for the super class or any super interfaces.
+ * - changes for member types name or modifiers
+ * If any of these changes occurs, the method returns true. false otherwise.
+ * @param newBytes the bytes of the .class file we want to compare the receiver to
+ * @param orderRequired a boolean indicating whether the members should be sorted or not
+ * @param excludesSynthetics a boolean indicating whether the synthetic members should be used in the comparison
+ * @return boolean Returns true is there is a structural change between the two .class files, false otherwise
+ */
+public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, boolean excludesSynthetic) {
 	try {
 		ClassFileReader newClassFile =
 			new ClassFileReader(newBytes, this.classFileName);
@@ -529,144 +551,228 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 		// this.fields
 		FieldInfo[] otherFieldInfos = (FieldInfo[]) newClassFile.getFields();
 		int otherFieldInfosLength = otherFieldInfos == null ? 0 : otherFieldInfos.length;
+		boolean jumpOverFieldCheck = false;
 		if (this.fieldsCount != otherFieldInfosLength) {
-			return true;
+			if (excludesSynthetic) {
+				if (orderRequired) {
+					if (this.fieldsCount != 0) {
+						Arrays.sort(this.fields);
+					}
+					if (otherFieldInfosLength != 0) {
+						Arrays.sort(otherFieldInfos);	
+					}
+				}
+				// remove synthetic fields
+				FieldInfo[] otherFieldsInfoWithoutSynthetics = this.removeSyntheticFieldsInfos(otherFieldInfos);
+				FieldInfo[] fieldsInfoWithoutSynthetics = this.removeSyntheticFieldsInfos(this.fields);
+				int fieldsInfoWithoutSyntheticsLength = fieldsInfoWithoutSynthetics == null ? 0 : fieldsInfoWithoutSynthetics.length;
+				int otherFieldsInfoWithoutSyntheticsLength = otherFieldsInfoWithoutSynthetics == null ? 0 : otherFieldsInfoWithoutSynthetics.length;
+				if (fieldsInfoWithoutSyntheticsLength != this.fieldsCount || otherFieldsInfoWithoutSyntheticsLength != otherFieldInfosLength) {
+					if (fieldsInfoWithoutSyntheticsLength != otherFieldsInfoWithoutSyntheticsLength) {
+						return true;
+					}
+					boolean changedInFields = false;
+					if (otherFieldsInfoWithoutSyntheticsLength != 0) {
+						for (int i = 0; i < otherFieldsInfoWithoutSyntheticsLength && !changedInFields; i++) {
+							changedInFields = hasStructuralFieldChanges(fieldsInfoWithoutSynthetics[i], otherFieldsInfoWithoutSynthetics[i]);
+						}
+						if (changedInFields) {
+							return true;
+						} else {
+							jumpOverFieldCheck = true;
+						}
+					} else {
+						jumpOverFieldCheck = true;
+					}
+				} else {
+					return true;
+				}
+			} else {
+				return true;
+			}
 		}
-		if (otherFieldInfosLength != 0) {
-//			Arrays.sort(this.fields);
-//			Arrays.sort(otherFieldInfos);
-			for (int i = 0; i < otherFieldInfosLength; i++) {
-				FieldInfo currentFieldInfo = this.fields[i];
-				FieldInfo otherFieldInfo = otherFieldInfos[i];
-				if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers()) {
-					return true;
-				}
-				if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName())) {
-					return true;
-				}
-				if (!CharOperation.equals(currentFieldInfo.getTypeName(), otherFieldInfo.getTypeName())) {
-					return true;
-				}
-				if (currentFieldInfo.hasConstant()) {
-					if (!otherFieldInfo.hasConstant()) {
+		if (otherFieldInfosLength != 0 && !jumpOverFieldCheck) {
+			boolean changedInFields = false;
+			for (int i = 0; i < otherFieldInfosLength && !changedInFields; i++) {
+				changedInFields = hasStructuralFieldChanges(this.fields[i], otherFieldInfos[i]);
+			}
+			if (changedInFields) {
+				if (orderRequired) {
+					if (this.fieldsCount != 0) {
+						Arrays.sort(this.fields);
+					}
+					if (otherFieldInfosLength != 0) {
+						Arrays.sort(otherFieldInfos);	
+					}
+					changedInFields = false;			
+					for (int i = 0; i < otherFieldInfosLength && !changedInFields; i++) {
+						changedInFields = hasStructuralFieldChanges(this.fields[i], otherFieldInfos[i]);
+					}
+					if (changedInFields) {
+						if (excludesSynthetic) {
+							// remove synthetic fields
+							FieldInfo[] otherFieldsInfoWithoutSynthetics = this.removeSyntheticFieldsInfos(otherFieldInfos);
+							FieldInfo[] fieldsInfoWithoutSynthetics = this.removeSyntheticFieldsInfos(this.fields);
+							int fieldsInfoWithoutSyntheticsLength = fieldsInfoWithoutSynthetics == null ? 0 : fieldsInfoWithoutSynthetics.length;
+							int otherFieldsInfoWithoutSyntheticsLength = otherFieldsInfoWithoutSynthetics == null ? 0 : otherFieldsInfoWithoutSynthetics.length;
+							if (fieldsInfoWithoutSyntheticsLength != this.fieldsCount || otherFieldsInfoWithoutSyntheticsLength != otherFieldInfosLength) {
+								if (fieldsInfoWithoutSyntheticsLength != otherFieldsInfoWithoutSyntheticsLength) {
+									return true;
+								}
+								changedInFields = false;
+								if (otherFieldsInfoWithoutSyntheticsLength != 0) {
+									for (int i = 0; i < otherFieldsInfoWithoutSyntheticsLength && !changedInFields; i++) {
+										changedInFields = hasStructuralFieldChanges(fieldsInfoWithoutSynthetics[i], otherFieldsInfoWithoutSynthetics[i]);
+									}
+									if (changedInFields) {
+										return true;
+									}
+								}
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}
+					}
+				} else if (excludesSynthetic) {
+					// remove synthetic fields
+					FieldInfo[] otherFieldsInfoWithoutSynthetics = this.removeSyntheticFieldsInfos(otherFieldInfos);
+					FieldInfo[] fieldsInfoWithoutSynthetics = this.removeSyntheticFieldsInfos(this.fields);
+					int fieldsInfoWithoutSyntheticsLength = fieldsInfoWithoutSynthetics == null ? 0 : fieldsInfoWithoutSynthetics.length;
+					int otherFieldsInfoWithoutSyntheticsLength = otherFieldsInfoWithoutSynthetics == null ? 0 : otherFieldsInfoWithoutSynthetics.length;
+					if (fieldsInfoWithoutSyntheticsLength != this.fieldsCount || otherFieldsInfoWithoutSyntheticsLength != otherFieldInfosLength) {
+						if (fieldsInfoWithoutSyntheticsLength != otherFieldsInfoWithoutSyntheticsLength) {
+							return true;
+						}
+						changedInFields = false;
+						if (otherFieldsInfoWithoutSyntheticsLength != 0) {
+							for (int i = 0; i < otherFieldsInfoWithoutSyntheticsLength && !changedInFields; i++) {
+								changedInFields = hasStructuralFieldChanges(fieldsInfoWithoutSynthetics[i], otherFieldsInfoWithoutSynthetics[i]);
+							}
+							if (changedInFields) {
+								return true;
+							}
+						}
+					} else {
 						return true;
 					}
-					Constant currentConstant = currentFieldInfo.getConstant();
-					Constant otherConstant = otherFieldInfo.getConstant();
-					if (!currentConstant.getClass().equals(otherConstant.getClass())) {
-						return true;
-					} 
-					switch (currentConstant.typeID()) {
-							case TypeIds.T_int : 
-								if (otherConstant.typeID() != TypeIds.T_int) {
-									return true;
-								}
-								if (otherConstant.intValue() != currentConstant.intValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_byte :
-								if (otherConstant.typeID() != TypeIds.T_byte) {
-									return true;
-								}
-								if (otherConstant.byteValue() != currentConstant.byteValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_short : 
-								if (otherConstant.typeID() != TypeIds.T_short) {
-									return true;
-								}
-								if (otherConstant.shortValue() != currentConstant.shortValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_char : 
-								if (otherConstant.typeID() != TypeIds.T_char) {
-									return true;
-								}
-								if (otherConstant.charValue() != currentConstant.charValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_float :
-								if (otherConstant.typeID() != TypeIds.T_float) {
-									return true;
-								}
-								if (otherConstant.floatValue() != currentConstant.floatValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_double :
-								if (otherConstant.typeID() != TypeIds.T_double) {
-									return true;
-								}
-								if (otherConstant.doubleValue() != currentConstant.doubleValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_boolean : 
-								if (otherConstant.typeID() != TypeIds.T_boolean) {
-									return true;
-								}
-								if (otherConstant.booleanValue() != currentConstant.booleanValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_String : 
-								if (otherConstant.typeID() != TypeIds.T_String) {
-									return true;
-								}
-								if (otherConstant.stringValue() != currentConstant.stringValue()) {
-									return true;
-								}
-								break;
-							case TypeIds.T_null :
-								if (otherConstant.typeID() != TypeIds.T_null) {
-									return true;
-								}
-								if (otherConstant != NullConstant.Default) {
-									return true;
-								}
-					}
-				} else if (otherFieldInfo.hasConstant()) {
+				} else {
 					return true;
 				}
 			}
+
 		}
+		
 		// this.methods
+		boolean jumpOverMethodCheck = false;
 		MethodInfo[] otherMethodInfos = (MethodInfo[]) newClassFile.getMethods();
 		int otherMethodInfosLength = otherMethodInfos == null ? 0 : otherMethodInfos.length;
+		boolean changedInMethods = false;
 		if (this.methodsCount != otherMethodInfosLength) {
-			return true;
+			if (excludesSynthetic) {
+				if (orderRequired) {
+					if (this.methodsCount != 0) {
+						Arrays.sort(this.methods);
+					}
+					if (otherMethodInfosLength != 0) {
+						Arrays.sort(otherMethodInfos);	
+					}
+				}
+				// remove synthetic fields
+				MethodInfo[] otherMethodInfosWithoutSynthetics = this.removeSyntheticMethodsInfos(otherMethodInfos);
+				MethodInfo[] methodInfosWithoutSynthetics = this.removeSyntheticMethodsInfos(this.methods);
+				int methodInfosWithoutSyntheticsLength = methodInfosWithoutSynthetics == null ? 0 : methodInfosWithoutSynthetics.length;
+				int otherMethodInfosWithoutSyntheticsLength = otherMethodInfosWithoutSynthetics == null ? 0 : otherMethodInfosWithoutSynthetics.length;
+				if (methodInfosWithoutSyntheticsLength != this.fieldsCount || otherMethodInfosWithoutSyntheticsLength != otherFieldInfosLength) {
+					if (methodInfosWithoutSyntheticsLength != otherMethodInfosWithoutSyntheticsLength) {
+						return true;
+					}
+					if (otherMethodInfosWithoutSyntheticsLength != 0) {
+						for (int i = 0; i < otherMethodInfosWithoutSyntheticsLength && !changedInMethods; i++) {
+							changedInMethods = hasStructuralMethodChanges(methodInfosWithoutSynthetics[i], otherMethodInfosWithoutSynthetics[i]);
+						}
+						if (changedInMethods) {
+							return true;
+						} else {
+							jumpOverMethodCheck = true;
+						}
+					} else {
+						jumpOverMethodCheck = true;
+					}
+				} else {
+					return true;
+				}
+			} else {
+				return true;
+			}
 		}
-		if (otherMethodInfosLength != 0) {
-//			Arrays.sort(this.methods);
-//			Arrays.sort(otherMethodInfos);
-			for (int i = 0; i < otherMethodInfosLength; i++) {
+		
+		if (otherMethodInfosLength != 0 && !jumpOverMethodCheck) {
+			for (int i = 0; i < otherMethodInfosLength && !changedInMethods; i++) {
 				MethodInfo otherMethodInfo = otherMethodInfos[i];
 				MethodInfo currentMethodInfo = this.methods[i];
-				if (otherMethodInfo.getModifiers() != currentMethodInfo.getModifiers()) {
-					return true;
-				}				
-				if (!CharOperation.equals(otherMethodInfo.getSelector(), currentMethodInfo.getSelector())) {
-					return true;
-				}
-				if (!CharOperation.equals(otherMethodInfo.getMethodDescriptor(), currentMethodInfo.getMethodDescriptor())) {
-					return true;
-				}
-				char[][] otherThrownExceptions = otherMethodInfo.getExceptionTypeNames();
-				int otherThrownExceptionsLength = otherThrownExceptions == null ? 0 : otherThrownExceptions.length;
-				char[][] currentThrownExceptions = currentMethodInfo.getExceptionTypeNames();
-				int currentThrownExceptionsLength = currentThrownExceptions == null ? 0 : currentThrownExceptions.length;
-				if (currentThrownExceptionsLength != otherThrownExceptionsLength) {
-					return true;
-				}
-				if (currentThrownExceptionsLength != 0) {
-					for (int k = 0; k < currentThrownExceptionsLength; k++) {
-						if (!CharOperation.equals(currentThrownExceptions[k], otherThrownExceptions[k])) {
+				changedInMethods = hasStructuralMethodChanges(currentMethodInfo, otherMethodInfo);
+			}
+			if (changedInMethods) {
+				// try sorting the collection
+				if (orderRequired) {
+					if (this.methodsCount != 0) {
+						Arrays.sort(this.methods);
+					}
+					if (otherMethodInfosLength != 0) {
+						Arrays.sort(otherMethodInfos);
+					}
+					changedInMethods = false;			
+					for (int i = 0; i < otherMethodInfosLength && !changedInMethods; i++) {
+						changedInMethods = hasStructuralMethodChanges(this.methods[i], otherMethodInfos[i]);
+					}
+					if (changedInMethods) {
+						if (excludesSynthetic) {
+							// remove synthetic fields
+							MethodInfo[] otherMethodInfosWithoutSynthetics = this.removeSyntheticMethodsInfos(otherMethodInfos);
+							MethodInfo[] methodInfosWithoutSynthetics = this.removeSyntheticMethodsInfos(this.methods);
+							int methodInfosWithoutSyntheticsLength = methodInfosWithoutSynthetics == null ? 0 : methodInfosWithoutSynthetics.length;
+							int otherMethodInfosWithoutSyntheticsLength = otherMethodInfosWithoutSynthetics == null ? 0 : otherMethodInfosWithoutSynthetics.length;
+							if (methodInfosWithoutSyntheticsLength != this.fieldsCount || otherMethodInfosWithoutSyntheticsLength != otherFieldInfosLength) {
+								if (methodInfosWithoutSyntheticsLength != otherMethodInfosWithoutSyntheticsLength) {
+									return true;
+								}
+								if (otherMethodInfosWithoutSyntheticsLength != 0) {
+									for (int i = 0; i < otherMethodInfosWithoutSyntheticsLength && !changedInMethods; i++) {
+										changedInMethods = hasStructuralMethodChanges(methodInfosWithoutSynthetics[i], otherMethodInfosWithoutSynthetics[i]);
+									}
+									if (changedInMethods) {
+										return true;
+									}
+								}
+							} else {
+								return true;
+							}
+						} else {
+							return true;
+						}		
+					}
+				} else if (excludesSynthetic) {
+					// remove synthetic fields
+					MethodInfo[] otherMethodInfosWithoutSynthetics = this.removeSyntheticMethodsInfos(otherMethodInfos);
+					MethodInfo[] methodInfosWithoutSynthetics = this.removeSyntheticMethodsInfos(this.methods);
+					int methodInfosWithoutSyntheticsLength = methodInfosWithoutSynthetics == null ? 0 : methodInfosWithoutSynthetics.length;
+					int otherMethodInfosWithoutSyntheticsLength = otherMethodInfosWithoutSynthetics == null ? 0 : otherMethodInfosWithoutSynthetics.length;
+					if (methodInfosWithoutSyntheticsLength != this.fieldsCount || otherMethodInfosWithoutSyntheticsLength != otherFieldInfosLength) {
+						if (methodInfosWithoutSyntheticsLength != otherMethodInfosWithoutSyntheticsLength) {
 							return true;
 						}
+						if (otherMethodInfosWithoutSyntheticsLength != 0) {
+							for (int i = 0; i < otherMethodInfosWithoutSyntheticsLength && !changedInMethods; i++) {
+								changedInMethods = hasStructuralMethodChanges(methodInfosWithoutSynthetics[i], otherMethodInfosWithoutSynthetics[i]);
+							}
+							if (changedInMethods) {
+								return true;
+							}
+						}
+					} else {
+						return true;
 					}
 				}
 			}
@@ -692,4 +798,177 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 		return true;
 	}
 }
+
+private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo otherFieldInfo) {
+
+	if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers()) {
+		return true;
+	}
+	if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName())) {
+		return true;
+	}
+	if (!CharOperation.equals(currentFieldInfo.getTypeName(), otherFieldInfo.getTypeName())) {
+		return true;
+	}
+	if (currentFieldInfo.hasConstant()) {
+		if (!otherFieldInfo.hasConstant()) {
+			return true;
+		}
+		Constant currentConstant = currentFieldInfo.getConstant();
+		Constant otherConstant = otherFieldInfo.getConstant();
+		if (!currentConstant.getClass().equals(otherConstant.getClass())) {
+			return true;
+		} 
+		switch (currentConstant.typeID()) {
+				case TypeIds.T_int : 
+					if (otherConstant.typeID() != TypeIds.T_int) {
+						return true;
+					}
+					if (otherConstant.intValue() != currentConstant.intValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_byte :
+					if (otherConstant.typeID() != TypeIds.T_byte) {
+						return true;
+					}
+					if (otherConstant.byteValue() != currentConstant.byteValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_short : 
+					if (otherConstant.typeID() != TypeIds.T_short) {
+						return true;
+					}
+					if (otherConstant.shortValue() != currentConstant.shortValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_char : 
+					if (otherConstant.typeID() != TypeIds.T_char) {
+						return true;
+					}
+					if (otherConstant.charValue() != currentConstant.charValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_float :
+					if (otherConstant.typeID() != TypeIds.T_float) {
+						return true;
+					}
+					if (otherConstant.floatValue() != currentConstant.floatValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_double :
+					if (otherConstant.typeID() != TypeIds.T_double) {
+						return true;
+					}
+					if (otherConstant.doubleValue() != currentConstant.doubleValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_boolean : 
+					if (otherConstant.typeID() != TypeIds.T_boolean) {
+						return true;
+					}
+					if (otherConstant.booleanValue() != currentConstant.booleanValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_String : 
+					if (otherConstant.typeID() != TypeIds.T_String) {
+						return true;
+					}
+					if (otherConstant.stringValue() != currentConstant.stringValue()) {
+						return true;
+					}
+					break;
+				case TypeIds.T_null :
+					if (otherConstant.typeID() != TypeIds.T_null) {
+						return true;
+					}
+					if (otherConstant != NullConstant.Default) {
+						return true;
+					}
+		}
+	} else if (otherFieldInfo.hasConstant()) {
+		return true;
+	}
+	return false;
+}
+private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodInfo otherMethodInfo) {
+	if (otherMethodInfo.getModifiers() != currentMethodInfo.getModifiers()) {
+		return true;
+	}				
+	if (!CharOperation.equals(otherMethodInfo.getSelector(), currentMethodInfo.getSelector())) {
+		return true;
+	}
+	if (!CharOperation.equals(otherMethodInfo.getMethodDescriptor(), currentMethodInfo.getMethodDescriptor())) {
+		return true;
+	}
+	char[][] otherThrownExceptions = otherMethodInfo.getExceptionTypeNames();
+	int otherThrownExceptionsLength = otherThrownExceptions == null ? 0 : otherThrownExceptions.length;
+	char[][] currentThrownExceptions = currentMethodInfo.getExceptionTypeNames();
+	int currentThrownExceptionsLength = currentThrownExceptions == null ? 0 : currentThrownExceptions.length;
+	if (currentThrownExceptionsLength != otherThrownExceptionsLength) {
+		return true;
+	}
+	if (currentThrownExceptionsLength != 0) {
+		for (int k = 0; k < currentThrownExceptionsLength; k++) {
+			if (!CharOperation.equals(currentThrownExceptions[k], otherThrownExceptions[k])) {
+				return true;
+			}
+		}
+	}
+	return false;
+}			
+
+private FieldInfo[] removeSyntheticFieldsInfos(FieldInfo[] fieldInfos) {
+	if (fieldInfos == null) return fieldInfos;
+	// remove synthetic fields
+	int fieldInfosLength = fieldInfos.length;
+	int fieldInfosWithoutSyntheticsLength = fieldInfosLength;
+
+	for (int i = 0; i < fieldInfosLength; i++) {
+		if (fieldInfos[i].isSynthetic()) {
+			fieldInfosWithoutSyntheticsLength--;
+		}
+	}
+	FieldInfo[] fieldInfosWithoutSynthetics = fieldInfos;
+	if (fieldInfosWithoutSyntheticsLength != fieldInfosLength) {
+		fieldInfosWithoutSynthetics = new FieldInfo[fieldInfosWithoutSyntheticsLength];
+		fieldInfosWithoutSyntheticsLength = 0;
+		for (int i = 0; i < fieldInfosLength; i++) {
+			if (!fieldInfos[i].isSynthetic()) {
+				fieldInfosWithoutSynthetics[fieldInfosWithoutSyntheticsLength++] = fieldInfos[i];
+			}
+		}
+	}
+	return fieldInfosWithoutSynthetics;
+}
+
+private MethodInfo[] removeSyntheticMethodsInfos(MethodInfo[] methodInfos) {
+	if (methodInfos == null) return methodInfos;
+	// remove synthetic fields
+	int methodInfosLength = methodInfos.length;
+	int methodInfosWithoutSyntheticsLength = methodInfosLength;
+	for (int i = 0; i < methodInfosLength; i++) {
+		if (methodInfos[i].isSynthetic()) {
+			methodInfosWithoutSyntheticsLength--;
+		}
+	}
+	MethodInfo[] methodInfosWithoutSynthetics = methodInfos;
+	if (methodInfosWithoutSyntheticsLength != methodInfosLength) {
+		methodInfosWithoutSynthetics = new MethodInfo[methodInfosWithoutSyntheticsLength];
+		methodInfosWithoutSyntheticsLength = 0;
+		for (int i = 0; i < methodInfosLength; i++) {
+			if (!methodInfos[i].isSynthetic()) {
+				methodInfosWithoutSynthetics[methodInfosWithoutSyntheticsLength++] = methodInfos[i];
+			}
+		}
+	}
+	return methodInfosWithoutSynthetics;
+}
+
 }
