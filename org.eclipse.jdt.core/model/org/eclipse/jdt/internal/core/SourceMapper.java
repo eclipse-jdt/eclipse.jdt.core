@@ -498,6 +498,9 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void enterClass(TypeInfo typeInfo) {
+		enterType(typeInfo);
+	}
+	private void enterType(TypeInfo typeInfo) {
 
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
@@ -576,14 +579,14 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void enterConstructor(MethodInfo methodInfo) {
-		enterMethod(methodInfo);
+		enterAbstractMethod(methodInfo);
 	}
 	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(TypeInfo)
 	 */
 	public void enterEnum(TypeInfo typeInfo) {
-		enterClass(typeInfo);
+		enterType(typeInfo);
 	}
 	
 	/**
@@ -611,14 +614,16 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void enterInterface(TypeInfo typeInfo) {
-		enterClass(typeInfo);
+		enterType(typeInfo);
 	}
 	
 	/**
 	 * @see ISourceElementRequestor
 	 */
 	public void enterMethod(MethodInfo methodInfo) {
-		
+		enterAbstractMethod(methodInfo);
+	}
+	private void enterAbstractMethod(MethodInfo methodInfo) {
 		if (typeDepth >= 0) {
 			fMemberName[typeDepth] = new String(methodInfo.name);
 			fMemberNameRange[typeDepth] =
@@ -633,6 +638,9 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void exitClass(int declarationEnd) {
+		exitType(declarationEnd);
+	}
+	private void exitType(int declarationEnd) {
 		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
 			setSourceRange(
@@ -656,14 +664,14 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void exitConstructor(int declarationEnd) {
-		exitMethod(declarationEnd);
+		exitAbstractMethod(declarationEnd);
 	}
 	
 	/**
 	 * @see ISourceElementRequestor
 	 */
 	public void exitEnum(int declarationEnd) {
-		exitClass(declarationEnd);
+		exitType(declarationEnd);
 	}
 	
 	/**
@@ -692,13 +700,16 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void exitInterface(int declarationEnd) {
-		exitClass(declarationEnd);
+		exitType(declarationEnd);
 	}
 	
 	/**
 	 * @see ISourceElementRequestor
 	 */
 	public void exitMethod(int declarationEnd) {
+		exitAbstractMethod(declarationEnd);
+	}
+	private void exitAbstractMethod(int declarationEnd) {
 		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
 			SourceRange sourceRange =

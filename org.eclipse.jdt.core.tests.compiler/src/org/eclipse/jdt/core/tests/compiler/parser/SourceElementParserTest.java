@@ -166,11 +166,10 @@ public static String displayModifiers(int modifiers) {
 		buffer.append("synchronized ");
 	return buffer.toString();
 }
-/**
- * enterClass method comment.
- */
 public void enterClass(TypeInfo typeInfo) {
-
+	enterType(typeInfo);
+}
+protected void enterType(TypeInfo typeInfo) {
 	if (currentType == null) {
 		// top level type
 		currentType = 
@@ -204,41 +203,19 @@ public void enterClass(TypeInfo typeInfo) {
 		memberType.parent = currentType;
 		currentType = memberType;
 	}
-}
-/**
- * enterCompilationUnit method comment.
- */
-public void enterCompilationUnit() {}
-/**
- * enterConstructor method comment.
- */
-public void enterConstructor(MethodInfo methodInfo) {
-
-	currentType.addMethod(
-		currentMethod = 
-			new SourceMethod(
-				methodInfo.declarationStart, 
-				methodInfo.modifiers, 
-				null, 
-				methodInfo.name, 
-				methodInfo.nameSourceStart, 
-				methodInfo.nameSourceEnd, 
-				methodInfo.parameterTypes, 
-				methodInfo.parameterNames, 
-				methodInfo.exceptionTypes,
-				source)); 
-	if (methodInfo.typeParameters != null) {
-		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
-			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+	if (typeInfo.typeParameters != null) {
+		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
+			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
 			addTypeParameter(typeParameterInfo);
 		}
 	}
 }
-/**
- * enterField method comment.
- */
+public void enterCompilationUnit() {
+}
+public void enterConstructor(MethodInfo methodInfo) {
+	enterAbtractMethod(methodInfo);
+}
 public void enterField(FieldInfo fieldInfo) {
-
 	currentType.addField(
 		currentField = 
 			new SourceField(
@@ -251,119 +228,32 @@ public void enterField(FieldInfo fieldInfo) {
 				source)); 
 
 }
-/**
- * enterEnum method comment.
- */
 public void enterEnum(TypeInfo typeInfo) {
-
-	if (currentType == null) {
-		// top level type
-		currentType = 
-			new SourceType(
-				null, 
-				typeInfo.declarationStart, 
-				typeInfo.modifiers, 
-				typeInfo.name, 
-				typeInfo.nameSourceStart, 
-				typeInfo.nameSourceEnd, 
-				null, 
-				typeInfo.superinterfaces, 
-				source); 
-		currentType.setPackage(currentPackage);
-		setImports();
-	} else {
-		// member type
-		SourceType memberType;
-		currentType.addMemberType(
-			memberType = 
-				new SourceType(
-					currentType.getName(), 
-					typeInfo.declarationStart, 
-					typeInfo.modifiers, 
-					typeInfo.name, 
-					typeInfo.nameSourceStart, 
-					typeInfo.nameSourceEnd, 
-					null, 
-					typeInfo.superinterfaces, 
-					source)); 
-		memberType.parent = currentType;
-		currentType = memberType;
-	}
+	enterType(typeInfo);
 }
-
-/**
- * enterInitializer method comment.
- */
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	currentType.addField(
 		currentInitializer = new SourceInitializer(
 			declarationSourceStart, 
 			modifiers)); 
 }
-
-/**
- * exitInitializer method comment.
- */
 public void exitInitializer(int declarationSourceEnd) {
 	currentInitializer.setDeclarationSourceEnd(declarationSourceEnd);
 }
-/**
- * enterInterface method comment.
- */
 public void enterInterface(TypeInfo typeInfo) {
-
-	if (currentType == null) {
-		// top level type
-		currentType = 
-			new SourceType(
-				null, 
-				typeInfo.declarationStart, 
-				typeInfo.modifiers, 
-				typeInfo.name, 
-				typeInfo.nameSourceStart, 
-				typeInfo.nameSourceEnd, 
-				null, 
-				typeInfo.superinterfaces, 
-				source); 
-		currentType.setPackage(currentPackage);
-		setImports();
-	} else {
-		// member type
-		SourceType memberType;
-		currentType.addMemberType(
-			memberType = 
-				new SourceType(
-					currentType.getName(), 
-					typeInfo.declarationStart, 
-					typeInfo.modifiers, 
-					typeInfo.name, 
-					typeInfo.nameSourceStart, 
-					typeInfo.nameSourceEnd, 
-					null, 
-					typeInfo.superinterfaces, 
-					source)); 
-		memberType.parent = currentType;
-		currentType = memberType;
-	}
-	if (typeInfo.typeParameters != null) {
-		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
-			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-			addTypeParameter(typeParameterInfo);
-		}
-	}
+	enterType(typeInfo);
 }
-/**
- * enterMethod method comment.
- */
 public void enterMethod(MethodInfo methodInfo) {
-
+	enterAbtractMethod(methodInfo);
+}
+protected void enterAbtractMethod(MethodInfo methodInfo) {
 	currentType.addMethod(
 		currentMethod = 
 			new SourceMethod(
 				methodInfo.declarationStart, 
 				methodInfo.modifiers, 
 				methodInfo.returnType, 
-				methodInfo.name, 
+				methodInfo.name, // null for constructors
 				methodInfo.nameSourceStart, 
 				methodInfo.nameSourceEnd, 
 				methodInfo.parameterTypes, 
@@ -390,54 +280,32 @@ public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
 		currentMethod.typeParameterBounds[length] = typeParameterInfo.typeParameterBounds;
 	}
 }
-/**
- * exitClass method comment.
- */
 public void exitClass(int declarationEnd) {
+	exitType(declarationEnd);
+}
+protected void exitType(int declarationEnd) {
 	currentType.setDeclarationSourceEnd(declarationEnd);
 	if (currentType.parent != null) {
 		currentType = currentType.parent;
 	}
 }
-/**
- * exitCompilationUnit method comment.
- */
 public void exitCompilationUnit(int declarationEnd) {}
-/**
- * exitConstructor method comment.
- */
 public void exitConstructor(int declarationEnd) {
-	
-	currentMethod.setDeclarationSourceEnd(declarationEnd);
+	exitAbstractMethod(declarationEnd);
 }
-/**
- * exitEnum method comment.
- */
 public void exitEnum(int declarationEnd) {
-	currentType.setDeclarationSourceEnd(declarationEnd);
-	if (currentType.parent != null) {
-		currentType = currentType.parent;
-	}
+	exitType(declarationEnd);
 }
-/**
- * exitField method comment.
- */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	currentField.setDeclarationSourceEnd(declarationEnd);
 }
-/**
- * exitClass method comment.
- */
 public void exitInterface(int declarationEnd) {
-	currentType.setDeclarationSourceEnd(declarationEnd);
-	if (currentType.parent != null) {
-		currentType = currentType.parent;
-	}
+	exitType(declarationEnd);
 }
-/**
- * exitMethod method comment.
- */
 public void exitMethod(int declarationEnd) {
+	exitAbstractMethod(declarationEnd);
+}
+protected void exitAbstractMethod(int declarationEnd) {
 	currentMethod.setDeclarationSourceEnd(declarationEnd);
 }
 public void fullParse(String s, String testName) {
