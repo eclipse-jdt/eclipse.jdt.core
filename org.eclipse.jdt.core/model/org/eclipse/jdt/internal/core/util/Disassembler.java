@@ -395,10 +395,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		
 		StringBuffer buffer = new StringBuffer();
 
+		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
 			buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
+			if (sourceAttribute != null) {
+				buffer.append(Util.bind("classfileformat.sourcename")); //$NON-NLS-1$
+				buffer.append(sourceAttribute.getSourceFileName());
+			}
 			writeNewLine(buffer, lineSeparator, 0);
 			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
 			if (minorVersion == 3 && majorVersion == 45) {
@@ -427,11 +432,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			writeNewLine(buffer, lineSeparator, 0);
 			buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, 0);
-		}
-		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
-		if (sourceAttribute != null) {
-			buffer.append(Util.bind("classfileformat.sourcename")); //$NON-NLS-1$
-			buffer.append(sourceAttribute.getSourceFileName());
 		}
 		writeNewLine(buffer, lineSeparator, 0);
 		char[] className = classFileReader.getClassName();
