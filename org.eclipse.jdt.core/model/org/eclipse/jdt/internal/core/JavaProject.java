@@ -332,15 +332,18 @@ public class JavaProject
 		JavaProject initialProject, 
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError,
-		HashSet visitedProjects, 
+		HashSet rootIDs,
 		ObjectVector accumulatedEntries,
 		Map preferredClasspaths,
 		Map preferredOutputs) throws JavaModelException {
 		
-		if (visitedProjects.contains(this)){
+		// for the project we add this, in case the project is its own source folder.
+		// we don't want the recursion to end if the source folder has been added
+		// so we might add it as a rootID and as a project
+		if (rootIDs.contains(this)){
 			return; // break cycles if any
 		}
-		visitedProjects.add(this);
+		rootIDs.add(this);
 
 		IClasspathEntry[] preferredClasspath = preferredClasspaths != null ? (IClasspathEntry[])preferredClasspaths.get(this) : null;
 		IPath preferredOutput = preferredOutputs != null ? (IPath)preferredOutputs.get(this) : null;
@@ -352,10 +355,15 @@ public class JavaProject
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		boolean isInitialProject = this.equals(initialProject);
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
-			IClasspathEntry entry = immediateClasspath[i];
+			ClasspathEntry entry = (ClasspathEntry) immediateClasspath[i];
 			if (isInitialProject || entry.isExported()){
+				String rootID = entry.rootID();
+				if (rootIDs.contains(rootID)) {
+					continue;
+				}
 				
 				accumulatedEntries.add(entry);
+				rootIDs.add(rootID);
 				
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
@@ -368,7 +376,7 @@ public class JavaProject
 								initialProject, 
 								ignoreUnresolvedVariable, 
 								false /* no marker when recursing in prereq*/,
-								visitedProjects, 
+								rootIDs,
 								accumulatedEntries,
 								preferredClasspaths,
 								preferredOutputs);
