@@ -1043,4 +1043,18 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	
+	public void test033() { // boolean expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"   public static void main(String[] s) {\n" +
+				"      System.out.print(Boolean.TRUE || Boolean.FALSE);\n" +
+				"   }\n" +
+				"}",
+			},
+			"true"
+		);
+	}
 }
