@@ -319,7 +319,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding = closestMatch;
 			if (closestMatch.isPrivate() && !scope.isDefinedInMethod(closestMatch)) {
 				// ignore cases where method is used from within inside itself (e.g. direct recursions)
-				closestMatch.modifiers |= AccPrivateUsed;
+				closestMatch.original().modifiers |= AccPrivateUsed;
 			}
 		}
 		return this.resolvedType;

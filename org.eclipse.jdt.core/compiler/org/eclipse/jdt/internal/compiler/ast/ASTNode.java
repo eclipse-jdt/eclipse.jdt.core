@@ -199,7 +199,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if (method.isPrivate() && !scope.isDefinedInMethod(method)) {
 			// ignore cases where method is used from within inside itself (e.g. direct recursions)
-			method.modifiers |= AccPrivateUsed;
+			method.original().modifiers |= AccPrivateUsed;
 		}
 		
 		if (!method.isViewedAsDeprecated()) return false;
@@ -236,7 +236,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if (refType.isPrivate() && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself 
-			refType.modifiers |= AccPrivateUsed;
+			((ReferenceBinding)refType.erasure()).modifiers |= AccPrivateUsed;
 		}
 
 		if (!refType.isViewedAsDeprecated()) return false;

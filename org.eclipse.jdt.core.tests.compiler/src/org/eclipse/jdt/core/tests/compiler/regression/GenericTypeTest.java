@@ -8029,4 +8029,53 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");	
 	}	
+	// 74119
+	public void _test300() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public class X {\n" + 
+				"    static interface I extends Visitible<I> {\n" + 
+				"    }\n" + 
+				"    static interface Visitible<T> {\n" + 
+				"        void acceptVisitor(Visitor<? super T> visitor);\n" + 
+				"    }\n" + 
+				"    static interface Visitor<T> {\n" + 
+				"        void visit(T t);\n" + 
+				"    }\n" + 
+				"    static class C implements I {\n" + 
+				"        public void acceptVisitor(Visitor<? super I> visitor) {\n" + 
+				"            visitor.visit(this); // should be ok\n" + 
+				"            visitor.visit((I) this); // (2) This is a workaround\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");	
+	}
+	public void test301() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java", //---------------------------
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"	public static void reverse(List<?> list) { \n" + 
+				"		rev(list);\n" + 
+				"	}\n" + 
+				"	private static <T> void rev(List<T> list) {\n" + 
+				"	}\n" + 
+				"	Zork foo() {\n" + 
+				"	}\n" + 				
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	Zork foo() {\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
+	}		
 }

@@ -321,7 +321,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (this.arguments != null)
 					checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 				if (binding.isPrivate()) {
-					binding.modifiers |= AccPrivateUsed;
+					binding.original().modifiers |= AccPrivateUsed;
 				}				
 			} else {
 				if (binding.declaringClass == null)
