@@ -425,4 +425,40 @@ public void test0023() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77184
+ */
+public void test0024() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0024", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Test [in Test.java [in test0024 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77184
+ */
+public void test0025() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0025", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Test [in Test.java [in test0025 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
 }

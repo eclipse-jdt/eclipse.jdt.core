@@ -936,10 +936,22 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.actualSelectionEnd);
 					break;
 				case IGenericType.ENUM :
-					// TODO (david) need support
+					this.requestor.acceptClass(
+						packageName,
+						qualifiedSourceName,
+						false,
+						true,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
 					break;
 				case IGenericType.ANNOTATION_TYPE :
-					// TODO (david) need support
+					this.requestor.acceptInterface(
+						packageName,
+						qualifiedSourceName,
+						false,
+						true,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
 					break;
 			}			
 			this.noProposal = false;
