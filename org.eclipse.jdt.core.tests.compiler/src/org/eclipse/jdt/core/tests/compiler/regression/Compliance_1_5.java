@@ -2667,6 +2667,22 @@ public void test080() {
 		},
 		"SUCCESS");
 }
+public void test081() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public X foo() { return this; } \n" +
+			"    public static void main(String[] args) {\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    public Y foo() { return this; } \n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

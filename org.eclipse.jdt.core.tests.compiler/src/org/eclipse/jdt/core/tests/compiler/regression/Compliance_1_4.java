@@ -2640,7 +2640,24 @@ public void test080() {
 		"Incompatible conditional operand types C1 and C2\n" + 
 		"----------\n");
 }
-
+public void test081() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public X foo() { return this; } \n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    public Y foo() { return this; } \n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	public Y foo() { return this; } \n" + 
+		"	         ^^^^^\n" + 
+		"The return type is incompatible with X.foo()\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
