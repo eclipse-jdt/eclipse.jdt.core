@@ -74,8 +74,7 @@ public class Util {
 				left++;
 				right--;
 			}
-		}
-		while (left <= right);
+		} while (left <= right);
 		if (original_left < right) {
 			quickSort(list, original_left, right);
 		}
@@ -101,8 +100,7 @@ public class Util {
 				left++;
 				right--;
 			}
-		}
-		while (left <= right);
+		} while (left <= right);
 		if (original_left < right) {
 			quickSort(list, original_left, right);
 		}
@@ -111,10 +109,8 @@ public class Util {
 		}
 	}
 	private static void quickSort(String[] list, int left, int right) {
-
 		int original_left= left;
 		int original_right= right;
-
 		String mid= list[(left + right) / 2];
 		do {
 			while (list[left].compareTo(mid) < 0) {
@@ -130,9 +126,7 @@ public class Util {
 				left++;
 				right--;
 			}
-		}
-		while (left <= right);
-
+		} while (left <= right);
 		if (original_left < right) {
 			quickSort(list, original_left, right);
 		}
@@ -141,16 +135,14 @@ public class Util {
 		}
 	}
 	private static void quickSort(IndexedFile[] list, int left, int right) {
-
 		int original_left= left;
 		int original_right= right;
-
-		IndexedFile mid= list[(left + right) / 2];
+		String mid= list[(left + right) / 2].path;
 		do {
-			while (list[left].getPath().compareTo(mid.getPath()) < 0) {
+			while (list[left].path.compareTo(mid) < 0) {
 				left++;
 			}
-			while (mid.getPath().compareTo(list[right].getPath()) < 0) {
+			while (mid.compareTo(list[right].path) < 0) {
 				right--;
 			}
 			if (left <= right) {
@@ -160,9 +152,33 @@ public class Util {
 				left++;
 				right--;
 			}
+		} while (left <= right);
+		if (original_left < right) {
+			quickSort(list, original_left, right);
 		}
-		while (left <= right);
-
+		if (left < original_right) {
+			quickSort(list, left, original_right);
+		}
+	}
+	private static void quickSort(WordEntry[] list, int left, int right) {
+		int original_left= left;
+		int original_right= right;
+		char[] mid= list[(left + right) / 2].fWord;
+		do {
+			while (compare(list[left].fWord, mid) < 0) {
+				left++;
+			}
+			while (compare(mid, list[right].fWord) < 0) {
+				right--;
+			}
+			if (left <= right) {
+				WordEntry tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
+				left++;
+				right--;
+			}
+		} while (left <= right);
 		if (original_left < right) {
 			quickSort(list, original_left, right);
 		}
@@ -259,6 +275,10 @@ public class Util {
 			quickSort(list, 0, list.length - 1);
 	}
 	public static void sort(IndexedFile[] list) {
+		if (list.length > 1)
+			quickSort(list, 0, list.length - 1);
+	}
+	public static void sort(WordEntry[] list) {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
 	}

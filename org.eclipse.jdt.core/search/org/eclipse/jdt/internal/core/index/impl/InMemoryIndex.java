@@ -38,7 +38,7 @@ public class InMemoryIndex {
 	protected long footprint= 0;
 
 	protected long indexFileSize;
-	private char[][] sortedWords;
+	private WordEntry[] sortedWordEntries;
 	private IndexedFile[] sortedFiles;
 	public InMemoryIndex() {
 		super();
@@ -76,7 +76,7 @@ public class InMemoryIndex {
 			entry= new WordEntry(word);
 			entry.addRef(fileNum);
 			this.words.put(word, entry);
-			this.sortedWords= null;
+			this.sortedWordEntries= null;
 			this.footprint += entry.footprint();
 		} else {
 			this.footprint += entry.addRef(fileNum);
@@ -139,22 +139,20 @@ public class InMemoryIndex {
 		return this.sortedFiles;
 	}
 	/**
-	 * Returns the words contained in the hashtable of words, sorted by alphabetical order.
+	 * Returns the word entries contained in the hashtable of words, sorted by alphabetical order.
 	 */
-	protected char[][] getSortedWords() {
-		if (this.sortedWords == null) {
-			char[][] words= new char[this.words.size()][];
+	protected WordEntry[] getSortedWordEntries() {
+		if (this.sortedWordEntries == null) {
+			WordEntry[] words= new WordEntry[this.words.size()];
 			int numWords= 0;
-			char[][] keys= this.words.keyTable;
-			for (int i= keys.length; i-- > 0;) {
-				if (keys[i] != null) {
-					words[numWords++]= keys[i];
-				}
-			}
+			Object[] entries= this.words.valueTable;
+			for (int i= entries.length; i-- > 0;)
+				if (entries[i] != null)
+					words[numWords++]= (WordEntry) entries[i];
 			Util.sort(words);
-			this.sortedWords= words;
+			this.sortedWordEntries= words;
 		}
-		return this.sortedWords;
+		return this.sortedWordEntries;
 	}
 	/**
 	 * Returns the word entry corresponding to the given word.
@@ -167,10 +165,10 @@ public class InMemoryIndex {
 	 */
 	public void init() {
 		words= new HashtableOfObject(1023);
-		files= new ObjectVector();
+		files= new ObjectVector(); // want to change this to a lookup table
 		wordCount= 0;
 		footprint= 0;
-		sortedWords= null;
+		sortedWordEntries= null;
 		sortedFiles= null;
 	}
 	protected char[] preprocessWord(char[] word) {
@@ -213,27 +211,22 @@ public class InMemoryIndex {
 
 	protected void save(IndexOutput output) throws IOException {
 		boolean ok= false;
-		char[][] sortedWords= getSortedWords();
+		getSortedWordEntries(); // init the slot
 		try {
 			output.open();
 			int numFiles= this.files.size;
 			for (int i= 0; i < numFiles; ++i) {
 				IndexedFile indexedFile= (IndexedFile) this.files.elementAt(i);
-				output.addFile(indexedFile);
+				output.addFile(indexedFile); // written out in order BUT not alphabetical
 			}
-			int numWords= sortedWords.length;
-			for (int i= 0; i < numWords; ++i) {
-				char[] word= sortedWords[i];
-				WordEntry entry= (WordEntry) this.words.get(word);
-				output.addWord(entry);
-			}
+			for (int i= 0, numWords= sortedWordEntries.length; i < numWords; ++i)
+				output.addWord(sortedWordEntries[i]);
 			output.flush();
 			output.close();
 			ok= true;
 		} finally {
-			if (!ok)
-				if (output != null)
-					output.close();
+			if (!ok && output != null)
+				output.close();
 		}
 	}
 }

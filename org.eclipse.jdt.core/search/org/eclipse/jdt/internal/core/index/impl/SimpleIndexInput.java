@@ -13,7 +13,7 @@ import org.eclipse.jdt.internal.core.index.*;
  */
 
 public class SimpleIndexInput extends IndexInput {
-	protected char[][] sortedWords;
+	protected WordEntry[] sortedWordEntries;
 	protected IndexedFile currentFile;
 	protected IndexedFile[] sortedFiles;
 	protected InMemoryIndex index;
@@ -54,11 +54,10 @@ public class SimpleIndexInput extends IndexInput {
 	 * @see IndexInput#getIndexedFile
 	 */
 	public IndexedFile getIndexedFile(IDocument document) throws IOException {
+		String name= document.getName();
 		for (int i= index.getNumFiles(); i >= 1; i--) {
 			IndexedFile file= getIndexedFile(i);
-			String path= file.getPath();
-			String name= document.getName();
-			if (name.equals(path))
+			if (name.equals(file.getPath()))
 				return file;
 		}
 		return null;
@@ -73,7 +72,7 @@ public class SimpleIndexInput extends IndexInput {
 	 * @see IndexInput#getNumWords
 	 */
 	public int getNumWords() {
-		return sortedWords.length;
+		return sortedWordEntries.length;
 	}
 	/**
 	 * @see IndexInput#getSource
@@ -103,17 +102,14 @@ public class SimpleIndexInput extends IndexInput {
 	 */
 	public void moveToNextWordEntry() throws IOException {
 		wordPosition++;
-		if (!hasMoreWords()) {
-			return;
-		}
-		char[] word= sortedWords[wordPosition - 1];
-		currentWordEntry= (WordEntry) index.words.get(word);
+		if (hasMoreWords())
+			currentWordEntry= sortedWordEntries[wordPosition - 1];
 	}
 	/**
 	 * @see IndexInput#open
 	 */
 	public void open() throws IOException {
-		sortedWords= index.getSortedWords();
+		sortedWordEntries= index.getSortedWordEntries();
 		sortedFiles= index.getSortedFiles();
 		filePosition= 1;
 		wordPosition= 1;
@@ -168,9 +164,7 @@ public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOExcept
 	 */
 	protected void setFirstWord() throws IOException {
 		wordPosition= 1;
-		if (sortedWords.length > 0) {
-			char[] word= sortedWords[0];
-			currentWordEntry= (WordEntry) index.words.get(word);
-		}
+		if (sortedWordEntries.length > 0)
+			currentWordEntry= sortedWordEntries[0];
 	}
 }
