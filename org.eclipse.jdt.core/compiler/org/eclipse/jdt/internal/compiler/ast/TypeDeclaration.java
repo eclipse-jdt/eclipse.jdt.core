@@ -507,6 +507,9 @@ public class TypeDeclaration
 	 */
 	public void generateCode(BlockScope blockScope, CodeStream codeStream) {
 
+		if ((this.bits & IsReachableMASK) == 0) {
+			return;
+		}		
 		if (hasBeenGenerated) return;
 		int pc = codeStream.position;
 		if (binding != null) ((NestedTypeBinding) binding).computeSyntheticArgumentSlotSizes();
