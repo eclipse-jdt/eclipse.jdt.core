@@ -756,7 +756,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @param matchRule one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
 	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
 	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
-	 * @param isCaseSensitive indicates whether the search is case sensitive or not
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
 	 */
 	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
