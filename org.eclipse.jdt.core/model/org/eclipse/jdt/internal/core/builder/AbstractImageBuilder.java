@@ -300,14 +300,15 @@ protected IResource resourceForLocation(String sourceLocation) {
 protected void storeProblemsFor(IResource resource, IProblem[] problems) throws CoreException {
 	if (resource == null || problems == null || problems.length == 0) return;
 
-	boolean classPathIsIncorrect = false;
+	String missingClassFile = null;
 	for (int i = 0, length = problems.length; i < length; i++) {
 		IProblem problem = problems[i];
 		int id = problem.getID();
 		switch (id) {
 			case ProblemIrritants.IsClassPathCorrect :
 				JavaBuilder.removeProblemsFor(javaBuilder.currentProject); // make this the only problem for this project
-				classPathIsIncorrect = true;
+				String[] args = problem.getArguments();
+				missingClassFile = args[0];
 				break;
 			case ProblemIrritants.SuperclassMustBeAClass :
 			case ProblemIrritants.SuperInterfaceMustBeAnInterface :
@@ -355,8 +356,8 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 			location = ((JavaElement) element).readableName();
 		if (location != null)
 			marker.setAttribute(IMarker.LOCATION, location);
-		if (classPathIsIncorrect)
-			throw new IncompleteClassPathException();
+		if (missingClassFile != null)
+			throw new IncompleteClassPathException(missingClassFile);
 	}
 }
 

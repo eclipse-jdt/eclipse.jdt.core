@@ -9,4 +9,11 @@ package org.eclipse.jdt.internal.core.builder;
  * Exception thrown when the build should be aborted because the project's
  * class path is incomplete/incorrect.
  */
-public class IncompleteClassPathException extends RuntimeException {}
+public class IncompleteClassPathException extends RuntimeException {
+
+protected String missingClassFile;
+
+public IncompleteClassPathException(String missingClassFile) {
+	this.missingClassFile = missingClassFile;
+}
+}
