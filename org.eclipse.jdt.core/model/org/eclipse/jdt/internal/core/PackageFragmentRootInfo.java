@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -22,6 +22,12 @@ import org.eclipse.jdt.core.JavaModelException;
  * The element info for <code>PackageFragmentRoot</code>s.
  */
 class PackageFragmentRootInfo extends OpenableElementInfo {
+
+	/**
+	 * The SourceMapper for this JAR (or <code>null</code> if
+	 * this JAR does not have source attached).
+	 */
+	protected SourceMapper sourceMapper = null;
 
 	/**
 	 * The kind of the root associated with this info.
@@ -125,6 +131,13 @@ public int getRootKind() {
 	return fRootKind;
 }
 /**
+ * Retuns the SourceMapper for this root, or <code>null</code>
+ * if this root does not have attached source.
+ */
+protected SourceMapper getSourceMapper() {
+	return this.sourceMapper;
+}
+/**
  * Set the fNonJavaResources to res value
  */
 synchronized void setNonJavaResources(Object[] resources) {
@@ -135,5 +148,11 @@ synchronized void setNonJavaResources(Object[] resources) {
  */
 protected void setRootKind(int newRootKind) {
 	fRootKind = newRootKind;
+}
+/**
+ * Sets the SourceMapper for this root.
+ */
+protected void setSourceMapper(SourceMapper mapper) {
+	this.sourceMapper= mapper;
 }
 }

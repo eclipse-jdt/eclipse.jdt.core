@@ -1,21 +1,26 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
@@ -51,13 +56,13 @@ public class SourceMapper
 	/**
 	 * The location of the zip file containing source.
 	 */
-	protected IPath fZipPath;
+	protected IPath sourcePath;
 	/**
 	 * Specifies the location of the package fragment root within
 	 * the zip (empty specifies the default root). <code>null</code> is
 	 * not a valid root path.
 	 */
-	protected String fRootPath;
+	protected String rootPath;
 
 	/**
 	 * Used for efficiency
@@ -144,12 +149,13 @@ public class SourceMapper
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
-	public SourceMapper(IPath zipPath, String rootPath, Map options) {
-		this.fZipPath = zipPath;
-		this.fRootPath = rootPath.replace('\\', '/');
-		if (this.fRootPath.endsWith("/" )) { //$NON-NLS-1$
-			this.fRootPath = this.fRootPath.substring(0, this.fRootPath.lastIndexOf('/'));
+	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
+		this.sourcePath = sourcePath;
+		rootPath = rootPath.replace('\\', '/');
+		if (rootPath.endsWith("/" )) { //$NON-NLS-1$
+			rootPath =rootPath.substring(0, rootPath.lastIndexOf('/'));
 		}
+		this.rootPath = rootPath;
 		this.fSourceRanges = new HashMap();
 		this.fParameterNames = new HashMap();
 		this.importsTable = new HashMap();
@@ -575,39 +581,64 @@ public class SourceMapper
 		if (name == null) {
 			return null;
 		}
-		// try to get the entry
-		ZipEntry entry = null;
-		ZipFile zip = null;
+
+		String fullName;
+		//add the root path if specified
+		if (!this.rootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
+			fullName = this.rootPath + '/' + name;
+		} else {
+			fullName = name;
+		}
+
 		char[] source = null;
-		try {
-			String fullName;
-			//add the root path if specified
-			if (!fRootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
-				fullName = fRootPath + '/' + name;
-			} else {
-				fullName = name;
-			}
-			zip = getZip();
-			entry = zip.getEntry(fullName);
-			if (entry != null) {
-				// now read the source code
-				byte[] bytes = null;
-				try {
-					bytes = Util.getZipEntryByteContent(entry, zip);
-				} catch (IOException e) {
-				}
-				if (bytes != null) {
+		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
+			// try to get the entry
+			ZipEntry entry = null;
+			ZipFile zip = null;
+			try {
+				zip = getZip();
+				entry = zip.getEntry(fullName);
+				if (entry != null) {
+					// now read the source code
+					byte[] bytes = null;
 					try {
-						source = Util.bytesToChar(bytes, this.encoding);
+						bytes = Util.getZipEntryByteContent(entry, zip);
 					} catch (IOException e) {
-						source = null;
+					}
+					if (bytes != null) {
+						try {
+							source = Util.bytesToChar(bytes, this.encoding);
+						} catch (IOException e) {
+							source = null;
+						}
+					}
+				}
+			} catch (CoreException e) {
+				return null;
+			} finally {
+				JavaModelManager.getJavaModelManager().closeZipFile(zip);
+			}
+		} else {
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
+			if (target instanceof IFolder) {
+				IFolder folder = (IFolder)target;
+				IResource res = folder.findMember(fullName);
+				if (res instanceof IFile) {
+					try {
+						source = org.eclipse.jdt.internal.core.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
+					} catch (JavaModelException e) {
+					}
+				}
+			} else if (target instanceof File) {
+				File file = (File)target;
+				if (file.isDirectory()) {
+					File sourceFile = new File(file, fullName);
+					try {
+						source = Util.getFileCharContent(sourceFile, this.encoding);
+					} catch (IOException e) {
 					}
 				}
 			}
-		} catch (CoreException e) {
-			return null;
-		} finally {
-			JavaModelManager.getJavaModelManager().closeZipFile(zip);
 		}
 		return source;
 	}
@@ -735,7 +766,7 @@ public class SourceMapper
 	 * Returns the <code>ZipFile</code> that source is located in.
 	 */
 	public ZipFile getZip() throws CoreException {
-		return JavaModelManager.getJavaModelManager().getZipFile(fZipPath);
+		return JavaModelManager.getJavaModelManager().getZipFile(this.sourcePath);
 	}
 	
 	/**
