@@ -1423,7 +1423,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "	/**\n"
 					+ "	 * Valid empty return declaration\n"
 					+ "	 *\n"
-					+ "	 * @return\n"
+					+ "	 * @return string\n"
 					+ "	 */\n"
 					+ "	public String foo();\n"
 					+ "}\n" });
