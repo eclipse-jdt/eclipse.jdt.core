@@ -499,7 +499,7 @@ public void saveIndexes() {
 				}
 			}
 		} finally {
-			monitor.exitWrite();
+			monitor.exitRead();
 		}
 	}
 	this.needToSave = !allSaved;
