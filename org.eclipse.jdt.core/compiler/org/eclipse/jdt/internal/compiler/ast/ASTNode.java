@@ -161,7 +161,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		super();
 	}
-	private static boolean checkInvocationArgument(BlockScope scope, Expression argument, TypeBinding parameterType, TypeBinding argumentType) {
+	private static boolean checkInvocationArgument(BlockScope scope, Expression argument, TypeBinding parameterType, TypeBinding argumentType, TypeBinding originalParameterType) {
 		argument.computeConversion(scope, parameterType, argumentType);
 
 		if (argumentType != NullBinding && parameterType.isWildcard()) {
@@ -169,10 +169,10 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 			if (wildcard.kind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
 		    	return true; // unsafeWildcardInvocation
 		}
-		if (argumentType != parameterType) {
-			if (argumentType.needsUncheckedConversion(parameterType)) {
-//			if (argumentType.isRawType() && (parameterType.isBoundParameterizedType() || parameterType.isGenericType())) {
-				scope.problemReporter().unsafeTypeConversion(argument, argumentType, parameterType);
+		TypeBinding checkedParameterType = originalParameterType == null ? parameterType : originalParameterType;
+		if (argumentType != checkedParameterType) {
+			if (argumentType.needsUncheckedConversion(checkedParameterType)) {
+				scope.problemReporter().unsafeTypeConversion(argument, argumentType, checkedParameterType);
 			}
 		}
 		return false;
@@ -180,20 +180,37 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		boolean unsafeWildcardInvocation = false;
 		TypeBinding[] params = method.parameters;
+		boolean isRawMemberInvocation = !method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters();
+		MethodBinding rawOriginalGenericMethod = null;
+		if (!isRawMemberInvocation) {
+			if (method instanceof ParameterizedGenericMethodBinding) {
+				if (((ParameterizedGenericMethodBinding)method).isRaw && method.hasSubstitutedParameters()) {
+					rawOriginalGenericMethod = method.original();
+				}
+			}
+		}
 		if (method.isVarargs()) {
 			// 4 possibilities exist for a call to the vararg method foo(int i, long ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new long[] {1, 2})
 			int lastIndex = params.length - 1;
-			for (int i = 0; i < lastIndex; i++)
-			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i]))
+			for (int i = 0; i < lastIndex; i++) {
+				TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
+			    if (checkInvocationArgument(scope, arguments[i], params[i] , argumentTypes[i], originalRawParam)) {
 				    unsafeWildcardInvocation = true;
+			    }
+			}
 		   int argLength = arguments.length;
 		   if (lastIndex < argLength) { // vararg argument was provided
 			   	TypeBinding parameterType = params[lastIndex];
-			    if (params.length != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions())
+				TypeBinding originalRawParam = null;
+
+			    if (params.length != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
 			    	parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
-				for (int i = lastIndex; i < argLength; i++)
-				    if (checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i]))
+					originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();
+			    }
+				for (int i = lastIndex; i < argLength; i++) {
+				    if (checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i], originalRawParam))
 					    unsafeWildcardInvocation = true;
+				}
 			}
 
 		   if (method.parameters.length == argumentTypes.length) { // 70056
@@ -214,9 +231,11 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				}
 			}
 		} else {
-			for (int i = 0, argLength = arguments.length; i < argLength; i++)
-			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i]))
+			for (int i = 0, argLength = arguments.length; i < argLength; i++) {
+				TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
+			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i], originalRawParam))
 				    unsafeWildcardInvocation = true;
+			}
 		}
 		if (argsContainCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);
@@ -225,6 +244,8 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
 		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
+		} else if (rawOriginalGenericMethod != null) {
+		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method);
 		}
 	}
 	public ASTNode concreteStatement() {

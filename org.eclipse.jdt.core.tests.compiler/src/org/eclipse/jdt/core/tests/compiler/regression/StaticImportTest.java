@@ -938,4 +938,23 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+	public void test025() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.Math.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		System.out.print(max(PI, 4));\n" + 
+				"		new Runnable() {\n" + 
+				"			public void run() {\n" + 
+				"				System.out.println(max(PI, 5));\n" + 
+				"			}\n" + 
+				"		}.run();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"4.05.0"
+		);
+	}	
 }

@@ -2,11 +2,11 @@
 <project name="export-executable" default="build" basedir="..">
 
 	<property name="version" value="310" />
-	<property name="gcc-path" value="C:/java_tools/thisiscool-gcc/gcc-4.0" />
+	<property name="gcc-path" value="d:/gcj/thisiscool-gcc/gcc-4.0" />
 	<property name="binaryname" value="ejavac${version}" />
 	<property name="dest" value="../../bingcj/" />
 	<property name="work" value="${dest}tmp/" />
-	<property name="source" value="C:/eclipse/workspaces/head/org.eclipse.jdt.core" />
+	<property name="source" value="d:/eclipse/workspaces/dev3.1/plugins/org.eclipse.jdt.core" />
 	<property name="gcj_script_name" value="export-executable.xml"/>
 
     <target name="build">

@@ -1737,6 +1737,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportAutoboxing,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+					} else if (token.equals("intfAnnotation")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportAnnotationSuperInterface,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}

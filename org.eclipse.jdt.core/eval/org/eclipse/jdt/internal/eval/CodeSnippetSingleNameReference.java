@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -575,19 +576,26 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	}		
 	if ((this.bits & Binding.FIELD) != 0) {
 		FieldBinding fieldBinding = (FieldBinding) this.binding;
+		
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 		// and not from Object or implicit static field access.	
 		if (fieldBinding.declaringClass != this.delegateThis.type
-			&& fieldBinding.declaringClass != null
-			&& !fieldBinding.isConstantValue()
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-					&& !fieldBinding.isStatic()
-					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields (if there was any)
-				|| !((FieldBinding)this.codegenBinding).declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding((FieldBinding)this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
-		}
+				&& fieldBinding.declaringClass != null // array.length
+				&& !fieldBinding.isConstantValue()) {
+			CompilerOptions options = currentScope.environment().options;
+			if ((options.targetJDK >= ClassFileConstants.JDK1_2
+					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !fieldBinding.isStatic())
+					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
+				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope)) {
+	
+				this.codegenBinding = 
+				    currentScope.enclosingSourceType().getUpdatedFieldBinding(
+					       (FieldBinding)this.codegenBinding, 
+					        (ReferenceBinding)this.delegateThis.type.erasure());
+			}
+		}				
 	}
 }
 /**

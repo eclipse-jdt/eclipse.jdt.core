@@ -116,7 +116,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
 		if (nonStatic) receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
 		
-		if (valueRequired) {
+		if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 		}
 		return flowInfo;
@@ -478,19 +478,23 @@ public class FieldReference extends Reference implements InvocationSite {
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static field access.	
 		if (this.binding.declaringClass != this.receiverType
-			&& !this.receiverType.isArrayType()
-			&& this.binding.declaringClass != null // array.length
-			&& !this.binding.isConstantValue()
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& this.binding.declaringClass.id != T_JavaLangObject)
-			//no change for Object fields (in case there was)
-				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
-			this.codegenBinding =
-				currentScope.enclosingSourceType().getUpdatedFieldBinding(
-					this.codegenBinding,
-					(ReferenceBinding) this.receiverType.erasure());
-		}
+				&& !this.receiverType.isArrayType()
+				&& this.binding.declaringClass != null // array.length
+				&& !this.binding.isConstantValue()) {
+			CompilerOptions options = currentScope.environment().options;
+			if ((options.targetJDK >= ClassFileConstants.JDK1_2
+					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+					&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object fields
+				|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
+	
+				this.codegenBinding =
+					currentScope.enclosingSourceType().getUpdatedFieldBinding(
+						this.codegenBinding,
+						(ReferenceBinding) this.receiverType.erasure());
+			}
+		}		
 	}
 
 
@@ -528,6 +532,13 @@ public class FieldReference extends Reference implements InvocationSite {
 			constant = NotAConstant;
 			scope.problemReporter().invalidField(this, this.receiverType);
 			return null;
+		}
+		TypeBinding receiverErasure = this.receiverType.erasure();
+		if (receiverErasure instanceof ReferenceBinding) {
+			ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)this.binding.declaringClass.erasure());
+			if (match == null) {
+				this.receiverType = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
+			}
 		}
 		this.receiver.computeConversion(scope, this.receiverType, this.receiverType);
 		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {

@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -345,9 +344,9 @@ void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 	problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
 }
 void computeInheritedMethods() {
-	ReferenceBinding superclass = (this.type.modifiers & IConstants.AccInterface) == 0
-		? this.type.superclass() // class or enum
-		: this.type.scope.getJavaLangObject(); // check interface methods against Object
+	ReferenceBinding superclass = this.type.isInterface()
+		? this.type.scope.getJavaLangObject() // check interface methods against Object
+		: this.type.superclass(); // class or enum
 	computeInheritedMethods(superclass, type.superInterfaces());
 }
 /*
@@ -564,7 +563,7 @@ boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
 	return superclass.isAbstract();		// if it is a concrete class then we have already reported problem against it
 }
 boolean mustImplementAbstractMethods() {
-	return (this.type.modifiers & IConstants.AccInterface) == 0 && !this.type.isAbstract();
+	return !this.type.isInterface() && !this.type.isAbstract();
 }
 ProblemReporter problemReporter() {
 	return this.type.scope.problemReporter();

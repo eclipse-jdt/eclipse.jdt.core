@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -116,7 +117,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			if( (receiver.isSuper()) || this.codegenBinding.isPrivate()){
 				codeStream.invokespecial(this.codegenBinding);
 			} else {
-				if ((this.codegenBinding.declaringClass.modifiers & AccInterface) != 0) { // interface or annotation type
+				if (this.codegenBinding.declaringClass.isInterface()) { // interface or annotation type
 					codeStream.invokeinterface(this.codegenBinding);
 				} else {
 					codeStream.invokevirtual(this.codegenBinding);
@@ -202,15 +203,16 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
 	if (this.binding.declaringClass != this.actualReceiverType
-		&& !this.actualReceiverType.isArrayType()
-		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (!receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+			&& !this.actualReceiverType.isArrayType()) {
+		CompilerOptions options = currentScope.environment().options;
+		if ((options.targetJDK >= ClassFileConstants.JDK1_2
+				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
-			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
+			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
 
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
-		        										this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
-
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
+			        										this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
+		}
 		// Post 1.4.0 target, array clone() invocations are qualified with array type 
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
 	}
@@ -349,11 +351,14 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 		} else {
 			// compute generic cast if necessary
-			TypeBinding expectedReceiverType = this.actualReceiverType.erasure().isCompatibleWith(this.binding.declaringClass.erasure())
-				? this.actualReceiverType
-				: this.binding.declaringClass;
-			receiver.computeConversion(scope, expectedReceiverType, actualReceiverType);
-			if (expectedReceiverType != this.actualReceiverType) this.actualReceiverType = expectedReceiverType;
+			TypeBinding receiverErasure = this.actualReceiverType.erasure();
+			if (receiverErasure instanceof ReferenceBinding) {
+				ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)this.binding.declaringClass.erasure());
+				if (match == null) {
+					this.actualReceiverType = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
+				}
+			}
+			receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).

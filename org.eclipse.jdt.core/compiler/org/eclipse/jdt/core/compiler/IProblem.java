@@ -940,6 +940,12 @@ public interface IProblem {
 	int DuplicateBounds = TypeRelated + 567;
 	/** @since 3.1 */
 	int BoundCannotBeArray = TypeRelated + 568;
+    /** @since 3.1 */
+	int UnsafeRawGenericConstructorInvocation = TypeRelated + 569;
+    /** @since 3.1 */
+	int UnsafeRawGenericMethodInvocation = TypeRelated + 570;
+	/** @since 3.1 */
+	int TypeParameterHidingType = TypeRelated + 571;
 	
 	/**
 	 * Foreach
@@ -1024,6 +1030,8 @@ public interface IProblem {
 	int AnnotationTypeDeclarationCannotHaveConstructor = Syntax + Internal + 624;
 	/** @since 3.1 */
 	int AnnotationValueMustBeAnnotation = Internal + 625;
+	/** @since 3.1 */
+	int AnnotationTypeUsedAsSuperInterface = TypeRelated + 626;
 	
 	/**
 	 * Corrupted binaries

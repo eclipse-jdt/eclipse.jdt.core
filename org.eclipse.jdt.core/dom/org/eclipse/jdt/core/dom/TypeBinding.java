@@ -404,6 +404,11 @@ class TypeBinding implements ITypeBinding {
 				return accessFlags & ~Modifier.FINAL;
 			}
 			return accessFlags;
+		} else if (isAnnotation()) {
+			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
+			// clear the AccAbstract, AccAnnotation and the AccInterface bits
+			return accessFlags & ~(IConstants.AccAbstract | IConstants.AccInterface | IConstants.AccAnnotation);			
 		} else if (isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
@@ -414,11 +419,6 @@ class TypeBinding implements ITypeBinding {
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			// clear the AccEnum bits
 			return accessFlags & ~IConstants.AccEnum;
-		} else if (isAnnotation()) {
-			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
-			// clear the AccAbstract, AccAnnotation and the AccInterface bits
-			return accessFlags & ~(IConstants.AccAbstract | IConstants.AccInterface | IConstants.AccAnnotation);			
 		} else {
 			return 0;
 		}

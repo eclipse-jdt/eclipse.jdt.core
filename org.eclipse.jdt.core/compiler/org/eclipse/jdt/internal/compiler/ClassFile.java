@@ -572,7 +572,7 @@ public class ClassFile
 					accessFlags |= AccPrivate;
 				} else if (innerClass.isLocalType() && !innerClass.isMemberType()) {
 					accessFlags |= AccPrivate;
-				} else if (innerClass.isMemberType() && (innerClass.isInterface() || innerClass.isAnnotationType())) {
+				} else if (innerClass.isMemberType() && innerClass.isInterface()) {
 					accessFlags |= AccStatic; // implicitely static
 				}
 				contents[contentsOffset++] = (byte) (accessFlags >> 8);

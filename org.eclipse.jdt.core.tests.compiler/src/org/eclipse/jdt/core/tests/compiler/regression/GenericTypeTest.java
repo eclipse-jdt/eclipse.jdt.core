@@ -99,7 +99,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n", 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X <X> extends X {\n" + 
+			"	                ^\n" + 
+			"The type parameter X is hiding the type X<X>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <X> extends X {\n" + 
 			"	                           ^\n" + 
 			"Cannot refer to the type parameter X as a supertype\n" + 
@@ -115,7 +120,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n", 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X <X> implements X {\n" + 
+			"	                ^\n" + 
+			"The type parameter X is hiding the type X<X>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <X> implements X {\n" + 
 			"	                              ^\n" + 
 			"Cannot refer to the type parameter X as a supertype\n" + 
@@ -2763,7 +2773,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		"The method bar(String) is undefined for the type ?\n" + 
 		"----------\n");		
 	}		
-	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303
 	public void test103() {
 		this.runConformTest(
 			new String[] {
@@ -2793,7 +2803,57 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"SUCCESS");		
-	}			
+		String expectedOutput =
+			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 4, Locals: 2\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  new X [2]\n" + 
+			"     3  dup\n" + 
+			"     4  new BX [27]\n" + 
+			"     7  dup\n" + 
+			"     8  invokespecial BX.<init>()V [28]\n" + 
+			"    11  invokespecial X.<init>(LAX;)V [30]\n" + 
+			"    14  astore_1 [x]\n" + 
+			"    15  aload_1 [x]\n" + 
+			"    16  getfield X.t LAX; [17]\n" + 
+			"    19  checkcast BX [27]\n" + 
+			"    22  ldc <String \"SUCC\"> [32]\n" + 
+			"    24  invokevirtual BX.foo(Ljava/lang/Object;)V [36]\n" + 
+			"    27  aload_1 [x]\n" + 
+			"    28  getfield X.t LAX; [17]\n" + 
+			"    31  checkcast BX [27]\n" + 
+			"    34  ldc <String \"ESS\"> [38]\n" + 
+			"    36  invokevirtual BX.bar(Ljava/lang/Object;)V [41]\n" + 
+			"    39  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 27, line: 9]\n" + 
+			"        [pc: 39, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 40] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 15, pc: 40] local: x index: 1 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 15, pc: 40] local: x index: 1 type: LX<+LBX;>;\n";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
 
 	// wildcard bound check
 	public void test104() {
@@ -12369,7 +12429,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n"
 			},
-			"should be 2 unchecked warnings"
+			"should be 2 unchecked warnings?"
 		);
 	}
 	
@@ -13562,4 +13622,757 @@ public void test500(){
 		},
 		"");
 }	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
+	public void test501() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends BX> x = new X<BX<String>>(new BX<String>());\n" + 
+				"		System.out.print(x.t.ax);\n" + 
+				"		System.out.print(x.t.bx);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"	P ax;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> extends AX<Q> {\n" + 
+				"	Q bx;\n" + 
+				"}\n",
+			},
+			"nullnull");		
+		String expectedOutput =
+			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 4, Locals: 2\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  new X [2]\n" + 
+			"     3  dup\n" + 
+			"     4  new BX [27]\n" + 
+			"     7  dup\n" + 
+			"     8  invokespecial BX.<init>()V [28]\n" + 
+			"    11  invokespecial X.<init>(LAX;)V [30]\n" + 
+			"    14  astore_1 [x]\n" + 
+			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    18  aload_1 [x]\n" + 
+			"    19  getfield X.t LAX; [17]\n" + 
+			"    22  checkcast BX [27]\n" + 
+			"    25  getfield BX.ax Ljava/lang/Object; [40]\n" + 
+			"    28  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [46]\n" + 
+			"    31  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    34  aload_1 [x]\n" + 
+			"    35  getfield X.t LAX; [17]\n" + 
+			"    38  checkcast BX [27]\n" + 
+			"    41  getfield BX.bx Ljava/lang/Object; [49]\n" + 
+			"    44  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [46]\n" + 
+			"    47  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 31, line: 9]\n" + 
+			"        [pc: 47, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 48] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 15, pc: 48] local: x index: 1 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 15, pc: 48] local: x index: 1 type: LX<+LBX;>;\n";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
+	public void test502() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends BX> x = new X<BX<String>>(new BX<String>());\n" + 
+				"		System.out.print(x.self().t.ax);\n" + 
+				"		System.out.print(x.self().t.bx);\n" + 
+				"	}\n" + 
+				"	X<T> self() {\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"	P ax;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> extends AX<Q> {\n" + 
+				"	Q bx;\n" + 
+				"}\n",
+			},
+			"nullnull");		
+		String expectedOutput =
+			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 4, Locals: 2\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  new X [2]\n" + 
+			"     3  dup\n" + 
+			"     4  new BX [27]\n" + 
+			"     7  dup\n" + 
+			"     8  invokespecial BX.<init>()V [28]\n" + 
+			"    11  invokespecial X.<init>(LAX;)V [30]\n" + 
+			"    14  astore_1 [x]\n" + 
+			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    18  aload_1 [x]\n" + 
+			"    19  invokevirtual X.self()LX; [40]\n" + 
+			"    22  getfield X.t LAX; [17]\n" + 
+			"    25  checkcast BX [27]\n" + 
+			"    28  getfield BX.ax Ljava/lang/Object; [44]\n" + 
+			"    31  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [50]\n" + 
+			"    34  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    37  aload_1 [x]\n" + 
+			"    38  invokevirtual X.self()LX; [40]\n" + 
+			"    41  getfield X.t LAX; [17]\n" + 
+			"    44  checkcast BX [27]\n" + 
+			"    47  getfield BX.bx Ljava/lang/Object; [53]\n" + 
+			"    50  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [50]\n" + 
+			"    53  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 34, line: 9]\n" + 
+			"        [pc: 53, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 54] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 15, pc: 54] local: x index: 1 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 15, pc: 54] local: x index: 1 type: LX<+LBX;>;\n";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
+	public void test503() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+			"class XA {}\n" + 
+			"interface XB {\n" + 
+			"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+			"}\n" + 
+			"class XAB extends XA implements XB {}\n" + 
+			"\n" + 
+			"public class X <E extends XA&XB> {\n" + 
+			"	E e;\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"	  System.out.print(new X<XAB>().e.CONST);\n" + 
+			"	  new X<XAB>().foo();\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    System.out.print(this.e.CONST);\n" + 
+			"  }\n" + 
+			"}\n",
+			},
+			"SUCCESSSUCCESS");		
+		String expectedOutput =
+			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
+			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  // Field descriptor #6 LXA;\n" + 
+			"  // Signature: TE;\n" + 
+			"  XA e;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #10 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public X();\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  invokespecial java/lang/Object.<init>()V [13]\n" + 
+			"    4  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #21 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 3, Locals: 1\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     3  new X [2]\n" + 
+			"     6  dup\n" + 
+			"     7  invokespecial X.<init>()V [28]\n" + 
+			"    10  getfield X.e LXA; [30]\n" + 
+			"    13  pop\n" + 
+			"    14  getstatic XAB.CONST LXB; [36]\n" + 
+			"    17  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"    20  new X [2]\n" + 
+			"    23  dup\n" + 
+			"    24  invokespecial X.<init>()V [28]\n" + 
+			"    27  invokevirtual X.foo()V [45]\n" + 
+			"    30  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 10]\n" + 
+			"        [pc: 20, line: 11]\n" + 
+			"        [pc: 30, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 31] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #10 ()V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public void foo();\n" + 
+			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     3  aload_0 [this]\n" + 
+			"     4  getfield X.e LXA; [30]\n" + 
+			"     7  pop\n" + 
+			"     8  getstatic XB.CONST LXB; [50]\n" + 
+			"    11  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"    14  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 14]\n" + 
+			"        [pc: 14, line: 15]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: LX<TE;>;\n" + 
+			"}";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
+	public void test504() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class XA {}\n" + 
+				"interface XB {\n" + 
+				"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+				"}\n" + 
+				"class XAB extends XA implements XB {}\n" + 
+				"\n" + 
+				"public class X <E extends XA&XB> {\n" + 
+				"  E e() { return null; }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"	  System.out.print(new X<XAB>().e().CONST);\n" + 
+				"	  new X<XAB>().foo();\n" + 
+				"  }\n" + 
+				"  public void foo() {\n" + 
+				"    System.out.print(this.e().CONST);\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"SUCCESSSUCCESS");		
+		String expectedOutput =
+			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
+			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public X();\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  invokespecial java/lang/Object.<init>()V [9]\n" + 
+			"    4  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #17 ()LXA;\n" + 
+			"  // Signature: ()TE;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  XA e();\n" + 
+			"    0  aconst_null\n" + 
+			"    1  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 2] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 2] local: this index: 0 type: LX<TE;>;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #21 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 3, Locals: 1\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     3  new X [2]\n" + 
+			"     6  dup\n" + 
+			"     7  invokespecial X.<init>()V [28]\n" + 
+			"    10  invokevirtual X.e()LXA; [30]\n" + 
+			"    13  pop\n" + 
+			"    14  getstatic XAB.CONST LXB; [36]\n" + 
+			"    17  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"    20  new X [2]\n" + 
+			"    23  dup\n" + 
+			"    24  invokespecial X.<init>()V [28]\n" + 
+			"    27  invokevirtual X.foo()V [45]\n" + 
+			"    30  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 10]\n" + 
+			"        [pc: 20, line: 11]\n" + 
+			"        [pc: 30, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 31] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #6 ()V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public void foo();\n" + 
+			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     3  aload_0 [this]\n" + 
+			"     4  invokevirtual X.e()LXA; [30]\n" + 
+			"     7  pop\n" + 
+			"     8  getstatic XB.CONST LXB; [50]\n" + 
+			"    11  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"    14  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 14]\n" + 
+			"        [pc: 14, line: 15]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: LX<TE;>;\n" + 
+			"}";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303 - variation
+	public void test505() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class XA {}\n" + 
+				"interface XB {\n" + 
+				"	XB CONST = new XB(){ public String toString() { return \"SUCCESS\"; }};\n" + 
+				"}\n" + 
+				"class XAB extends XA implements XB {}\n" + 
+				"\n" + 
+				"public class X <E extends XA&XB> {\n" + 
+				"  E e;\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"	  new X<XAB>().foo();\n" + 
+				"  }\n" + 
+				"  public void foo() {\n" + 
+				"	new Object() {\n" + 
+				"		void run() {\n" + 
+				"			System.out.print(e.CONST);\n" + 
+				"		}\n" + 
+				"	}.run();\n" + 
+				"    System.out.print(e.CONST);\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"SUCCESSSUCCESS");		
+		String expectedOutput =
+			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
+			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
+			"public class X extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  // Field descriptor #6 LXA;\n" + 
+			"  // Signature: TE;\n" + 
+			"  XA e;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #10 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public X();\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  invokespecial java/lang/Object.<init>()V [13]\n" + 
+			"    4  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #21 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public static void main(String[] args);\n" + 
+			"     0  new X [2]\n" + 
+			"     3  dup\n" + 
+			"     4  invokespecial X.<init>()V [22]\n" + 
+			"     7  invokevirtual X.foo()V [25]\n" + 
+			"    10  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 10]\n" + 
+			"        [pc: 10, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 11] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"  \n" + 
+			"  // Method descriptor  #10 ()V\n" + 
+			"  // Stack: 3, Locals: 1\n" + 
+			"  public void foo();\n" + 
+			"     0  new X$1 [29]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$1.<init>(LX;)V [32]\n" + 
+			"     8  invokevirtual X$1.run()V [35]\n" + 
+			"    11  getstatic java/lang/System.out Ljava/io/PrintStream; [41]\n" + 
+			"    14  aload_0 [this]\n" + 
+			"    15  getfield X.e LXA; [43]\n" + 
+			"    18  pop\n" + 
+			"    19  getstatic XB.CONST LXB; [49]\n" + 
+			"    22  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [55]\n" + 
+			"    25  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 13]\n" + 
+			"        [pc: 8, line: 17]\n" + 
+			"        [pc: 11, line: 18]\n" + 
+			"        [pc: 25, line: 19]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 26] local: this index: 0 type: LX;\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 26] local: this index: 0 type: LX<TE;>;\n" + 
+			"\n" + 
+			"  Inner classes:\n" + 
+			"    [inner class info: #29 X$1, outer class info: #0\n" + 
+			"     inner name: #0, accessflags: 18 private final ]\n" + 
+			"}";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}				
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85477
+	public void test506() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.util.Collections;\n" + 
+				"import java.util.Comparator;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public final class X<E> {\n" + 
+				"	public void test(List list,final Comparator comparator, X x) {\n" + 
+				"		foo(list, comparator);\n" + 
+				"		bar(list, comparator);\n" + 
+				"		\n" + 
+				"		x.foo(list, comparator);\n" + 
+				"		x.bar(list, comparator);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	<T> void foo(List<T> lt, Comparator<? super T> ct) {\n" + 
+				"	}\n" + 
+				"	static <T> void bar(List<T> lt, Comparator<? super T> ct) {\n" + 
+				"	}\n" + 
+				" Zork z;\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	import java.util.Collections;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import java.util.Collections is never used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	foo(list, comparator);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List, Comparator) of the generic method foo(List<T>, Comparator<? super T>) of type X<E>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	foo(list, comparator);\n" + 
+			"	    ^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	foo(list, comparator);\n" + 
+			"	          ^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
+			"	bar(list, comparator);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation bar(List, Comparator) of the generic method bar(List<T>, Comparator<? super T>) of type X<E>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 8)\n" + 
+			"	bar(list, comparator);\n" + 
+			"	    ^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 8)\n" + 
+			"	bar(list, comparator);\n" + 
+			"	          ^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 10)\n" + 
+			"	x.foo(list, comparator);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method foo(List, Comparator) belongs to the raw type X. References to generic type X<E> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 11)\n" + 
+			"	x.bar(list, comparator);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The static method bar(List, Comparator) from the type X should be accessed in a static way\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 11)\n" + 
+			"	x.bar(list, comparator);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation bar(List, Comparator) of the generic method bar(List<T>, Comparator<? super T>) of type X\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 11)\n" + 
+			"	x.bar(list, comparator);\n" + 
+			"	      ^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 11)\n" + 
+			"	x.bar(list, comparator);\n" + 
+			"	            ^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
+			"----------\n" + 
+			"13. ERROR in X.java (at line 18)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
+	// array bound for wildcard
+	public void test507() {
+		this.runConformTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.io.Serializable;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo1(List<? extends int[]> l) {\n" + 
+				"		int i = l.get(0).length;\n" + 
+				"	}\n" + 
+				"	void foo2(List<? extends int[]> l) {\n" + 
+				"		Object o = l.get(0).toString();\n" + 
+				"	}\n" + 
+				"	void foo3(List<? extends int[]> l, Serializable s) {\n" + 
+				"		boolean b = true;\n" + 
+				"		Serializable s2 = b ? l.get(0) : s;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
+	// array bound for wildcard
+	public void test508() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.io.Serializable;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo1(List<? super int[]> l) {\n" + 
+				"		int i = l.get(0).length;\n" + 
+				"	}\n" + 
+				"	void foo2(List<? super int[]> l) {\n" + 
+				"		Object o = l.get(0).toString();\n" + 
+				"	}\n" + 
+				"	void foo3(List<? super int[]> l, Serializable s) {\n" + 
+				"		boolean b = true;\n" + 
+				"		Serializable s2 = b ? l.get(0) : s;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\r\n" + 
+			"	int i = l.get(0).length;\r\n" + 
+			"	                 ^^^^^^\n" + 
+			"length cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\r\n" + 
+			"	Serializable s2 = b ? l.get(0) : s;\r\n" + 
+			"	             ^^\n" + 
+			"Type mismatch: cannot convert from Object to Serializable\n" + 
+			"----------\n");
+	}		
+	// type parameter hiding
+	public void test509() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"        List<MyTigerSimpleObject> list = new ArrayList<MyTigerSimpleObject>();\n" + 
+				"        list.add(new MyTigerSimpleObject(\"a\"));\n" + 
+				"        list.add(new MyTigerSimpleObject(\"b\"));\n" + 
+				"        \n" + 
+				"        for (MyTigerSimpleObject so : list)\n" + 
+				"            System.out.println(so.getSomeAttribute());		\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class MyTigerSimpleObject<E> {\n" + 
+				"	MyTigerSimpleObject(String s) {}\n" + 
+				"	E getSomeAttribute() { return null; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class TigerList<MyTigerSimpleObject> extends ArrayList<MyTigerSimpleObject> {\n" + 
+				"    public void listAll() {\n" + 
+				"        for (MyTigerSimpleObject so : this)\n" + 
+				"            System.out.println(so.getSomeAttribute());\n" + 
+				"    }\n" + 
+				"	\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 17)\n" + 
+			"	class TigerList<MyTigerSimpleObject> extends ArrayList<MyTigerSimpleObject> {\n" + 
+			"	      ^^^^^^^^^\n" + 
+			"The serializable class TigerList does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 17)\n" + 
+			"	class TigerList<MyTigerSimpleObject> extends ArrayList<MyTigerSimpleObject> {\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type parameter MyTigerSimpleObject is hiding the type MyTigerSimpleObject<E>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 20)\n" + 
+			"	System.out.println(so.getSomeAttribute());\n" + 
+			"	                      ^^^^^^^^^^^^^^^^\n" + 
+			"The method getSomeAttribute() is undefined for the type MyTigerSimpleObject\n" + 
+			"----------\n");
+	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84355
+	public void test510() {
+		this.runConformTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.io.Serializable;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public X() {\n" + 
+				"		String[] strings = new String[]{\"test\"};\n" + 
+				"\n" + 
+				"		// this fails\n" + 
+				"		Object obj = ClassB.doSomething((String) strings[0]);\n" + 
+				"\n" + 
+				"		// this works fine\n" + 
+				"		String intermediate = ClassB.doSomething((String) strings[0]);\n" + 
+				"		Object obj1 = intermediate;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class ClassB {\n" + 
+				"	public static <T extends Serializable> T doSomething(String value) {\n" + 
+				"		return (T) value;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82407
+	public void test511() {
+		this.runConformTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.util.HashMap;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	static HashMap<Character, Character> substitutionList(String s1, String s2) {\n" + 
+				"\n" + 
+				"		HashMap<Character, Character> subst = new HashMap<Character, Character>();\n" + 
+				"\n" + 
+				"		for (int i = 0; i < s1.length(); i++) {\n" + 
+				"			char key = s1.charAt(i);\n" + 
+				"			char value = s2.charAt(i);\n" + 
+				"			if (subst.containsKey(key)) {\n" + 
+				"				if (value != subst.get(key)) {\n" + 
+				"					return null;\n" + 
+				"				}\n" + 
+				"			} else if (subst.containsValue(value)) {\n" + 
+				"				return null;\n" + 
+				"			} else {\n" + 
+				"				subst.put(key, value);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		return subst;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
 }

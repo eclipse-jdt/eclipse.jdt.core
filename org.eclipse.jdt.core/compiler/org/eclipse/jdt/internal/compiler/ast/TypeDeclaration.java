@@ -947,6 +947,12 @@ public class TypeDeclaration
 			int lastVisibleFieldID = -1;
 			boolean hasEnumConstants = false;
 			boolean hasEnumConstantsWithoutBody = false;
+			
+			if (this.typeParameters != null) {
+				for (int i = 0, count = this.typeParameters.length; i < count; i++) {
+					this.typeParameters[i].resolve(this.scope);
+				}
+			}
 			if (this.memberTypes != null) {
 				for (int i = 0, count = this.memberTypes.length; i < count; i++) {
 					this.memberTypes[i].resolve(this.scope);

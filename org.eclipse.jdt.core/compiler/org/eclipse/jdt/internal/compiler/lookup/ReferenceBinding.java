@@ -454,7 +454,7 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 
     if (this == erasure || erasure() == erasure) return this;
     ReferenceBinding currentType = this;
-    if ((erasure.modifiers & AccInterface) == 0) {
+    if (!erasure.isInterface()) {
 		while ((currentType = currentType.superclass()) != null) {
 			if (currentType == erasure || currentType.erasure() == erasure) return currentType;
 		}
@@ -643,9 +643,9 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 	if (otherReferenceType.isWildcard()) {
 		return false; // should have passed equivalence check above if wildcard
 	}
-	if ((otherReferenceType.modifiers & AccInterface) != 0)
+	if (otherReferenceType.isInterface())
 		return implementsInterface(otherReferenceType, true);
-	if ((this.modifiers & AccInterface) != 0)  // Explicit conversion from an interface to a class is not allowed
+	if (this.isInterface())  // Explicit conversion from an interface to a class is not allowed
 		return false;
 	return otherReferenceType.isSuperclassOf(this);
 }
@@ -670,8 +670,8 @@ public final boolean isFinal() {
 	return (modifiers & AccFinal) != 0;
 }
 public boolean isInterface() {
-	// only consider strict interfaces
-	return (modifiers & (AccInterface | AccAnnotation)) == AccInterface;
+	// consider strict interfaces and annotation types
+	return (modifiers & AccInterface) != 0;
 }
 
 /* Answer true if the receiver has private visibility

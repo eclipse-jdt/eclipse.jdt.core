@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -179,12 +180,18 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
 	if (this.binding.declaringClass != this.actualReceiverType
-		&& !this.actualReceiverType.isArrayType()
-		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (!this.receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+			&& !this.actualReceiverType.isArrayType()) {
+		CompilerOptions options = currentScope.environment().options;
+		if ((options.targetJDK >= ClassFileConstants.JDK1_2
+				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
-			|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
+			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
+
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
+			        										this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
+		}
+		// Post 1.4.0 target, array clone() invocations are qualified with array type 
+		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
 	}	
 }
 public TypeBinding resolveType(BlockScope scope) {

@@ -368,7 +368,7 @@ public void test011() {
 		"----------\n"
 	);
 }
-// binary compatibility
+/// binary compatibility
 public void test012() {
 	this.runConformTest(
 		new String[] {
@@ -446,13 +446,13 @@ public void test012() {
 		+"*2* new Updated().foo: Updated.foo"
 		+"*3* new Y().foo: Updated.foo"
 		+"*4* new Y().bar: Updated.bar"
-		+"*5* bar: Top.bar"
+		+"*5* bar: Updated.bar"
 		+"*6* foo: Updated.foo"
 		+"*7* Y.bar: Updated.bar"
 		+"*8* this.bar: Updated.bar"
 		+"*9* this.foo: Updated.foo"
 		+"*10* store.value: Updated.store"
-		+"*11* sstore.value: Top.sstore"
+		+"*11* sstore.value: Updated.sstore"
 		+"*12* ss.sstore.value: Top.sstore",
 		null, // use default class-path
 		false, // do not flush previous output dir content
@@ -524,7 +524,7 @@ public void test013() {
 		+"*2* new Updated().foo(): Updated.foo()"
 		+"*3* new Y().foo(): Updated.foo()"
 		+"*4* new Y().bar(): Updated.bar()"
-		+"*5* bar(): Top.bar()"
+		+"*5* bar(): Updated.bar()"
 		+"*6* foo(): Updated.foo()"
 		+"*7* Y.bar(): Updated.bar()"
 		+"*8* this.bar(): Updated.bar()"

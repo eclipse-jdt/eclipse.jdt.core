@@ -203,6 +203,14 @@ public void annotationTypeDeclarationCannotHaveSuperinterfaces(TypeDeclaration t
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
+public void annotationTypeUsedAsSuperinterface(SourceTypeBinding type, TypeReference superInterfaceRef, ReferenceBinding superType) {
+	this.handle(
+		IProblem.AnnotationTypeUsedAsSuperInterface,
+		new String[] {new String(superType.readableName()), new String(type.sourceName())},
+		new String[] {new String(superType.shortReadableName()), new String(type.sourceName())},
+		superInterfaceRef.sourceStart,
+		superInterfaceRef.sourceEnd);
+}
 
 public void annotationValueMustBeAnnotation(TypeBinding annotationType, char[] name, Expression value, TypeBinding expectedType) {
 	String str = new String(name);
@@ -633,6 +641,9 @@ public int computeSeverity(int problemId){
 		case IProblem.FieldHidingField:
 			return this.options.getSeverity(CompilerOptions.FieldHiding);
 
+		case IProblem.TypeParameterHidingType:
+			return this.options.getSeverity(CompilerOptions.TypeParameterHiding);
+			
 		case IProblem.PossibleAccidentalBooleanAssignment:
 			return this.options.getSeverity(CompilerOptions.AccidentalBooleanAssign);
 
@@ -666,6 +677,8 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
 		case IProblem.UnsafeReturnTypeOverride:
+		case IProblem.UnsafeRawGenericMethodInvocation:
+		case IProblem.UnsafeRawGenericConstructorInvocation:
 			return this.options.getSeverity(CompilerOptions.UncheckedTypeOperation);
 
 		case IProblem.FinalBoundForTypeVariable:
@@ -691,6 +704,10 @@ public int computeSeverity(int problemId){
 
 		case IProblem.VarargsConflict :
 			return Warning;
+			
+		case IProblem.AnnotationTypeUsedAsSuperInterface :
+			return this.options.getSeverity(CompilerOptions.AnnotationSuperInterface);
+			
 		/*
 		 * Javadoc syntax errors
 		 */
@@ -1273,6 +1290,15 @@ public void expressionShouldBeAVariable(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void typeHiding(TypeParameter typeParam, Binding hidden) {
+	TypeBinding hiddenType = (TypeBinding) hidden;
+	this.handle(
+		IProblem.TypeParameterHidingType,
+		new String[] { new String(typeParam.name) , new String(hiddenType.readableName())  },
+		new String[] { new String(typeParam.name) , new String(hiddenType.shortReadableName()) },
+		typeParam.sourceStart,
+		typeParam.sourceEnd);
+	}
 public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 	FieldBinding field = fieldDecl.binding;
 	if (CharOperation.equals(TypeConstants.SERIALVERSIONUID, field.name)
@@ -5142,6 +5168,43 @@ public void unsafeRawInvocation(ASTNode location, MethodBinding rawMethod) {
 				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, true),
 				new String(rawMethod.declaringClass.shortReadableName()),
 				new String(rawMethod.declaringClass.erasure().shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    }
+}
+public void unsafeRawGenericMethodInvocation(ASTNode location, MethodBinding rawMethod) {
+    if (rawMethod.isConstructor()) {
+		this.handle(
+			IProblem.UnsafeRawGenericConstructorInvocation, // The generic constructor {0}({1}) of type {2} is applied to non-parameterized type arguments ({3})
+			new String[] {
+				new String(rawMethod.declaringClass.sourceName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.original().parameters, false),
+				new String(rawMethod.declaringClass.readableName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, false),
+			 }, 
+			new String[] {
+				new String(rawMethod.declaringClass.sourceName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.original().parameters, true),
+				new String(rawMethod.declaringClass.shortReadableName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, true),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    } else {
+		this.handle(
+			IProblem.UnsafeRawGenericMethodInvocation,
+			new String[] {
+				new String(rawMethod.selector),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.original().parameters, false),
+				new String(rawMethod.declaringClass.readableName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, false),
+			 }, 
+			new String[] {
+				new String(rawMethod.selector),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.original().parameters, true),
+				new String(rawMethod.declaringClass.shortReadableName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, true),
 			 }, 
 			location.sourceStart,
 			location.sourceEnd);    

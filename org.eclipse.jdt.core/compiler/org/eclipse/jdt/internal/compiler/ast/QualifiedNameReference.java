@@ -232,10 +232,18 @@ public class QualifiedNameReference extends NameReference {
 			for (int i = 0; i < otherBindingsCount; i++) {
 				needValue = i < otherBindingsCount-1 ? !otherBindings[i+1].isStatic() : valueRequired;
 				if (needValue || complyTo14) {
+					TypeBinding lastReceiverType = getGenericCast(i);
+					if (lastReceiverType == null) {
+						if (i == 0) {
+							 lastReceiverType = ((VariableBinding)binding).type;
+						} else {
+							lastReceiverType = otherBindings[i-1].type;
+						}
+					}
 					manageSyntheticAccessIfNecessary(
 						currentScope, 
 						otherBindings[i], 
-						i == 0 	? ((VariableBinding)binding).type : otherBindings[i-1].type,
+						lastReceiverType,
 						i + 1,
 						flowInfo);
 				}
@@ -666,22 +674,28 @@ public class QualifiedNameReference extends NameReference {
 			if (type == null)
 				return null; // could not resolve type prior to this point
 
-			// set generic cast of for previous field (if any)
-			if (field != null) {
-				FieldBinding originalBinding = field.original();
-				if (originalBinding != field) {
-				    // extra cast needed if method return type has type variable
-				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && type.id != T_JavaLangObject) {
-				    	setGenericCast(index-1,originalBinding.type.genericCast(type)); // type cannot be base-type even in boxing case
-				    }
-				} 	
-			}
-			bits &= ~DepthMASK; // flush previous depth if any			
+			bits &= ~DepthMASK; // flush previous depth if any		
+			FieldBinding previousField = field;
 			field = scope.getField(type, token, this);
 			int place = index - indexOfFirstFieldBinding;
 			otherBindings[place] = field;
 			otherDepths[place] = (bits & DepthMASK) >> DepthSHIFT;
 			if (field.isValidBinding()) {
+				// set generic cast of for previous field (if any)
+				if (previousField != null) {
+					TypeBinding fieldReceiverType = type;
+					TypeBinding receiverErasure = type.erasure();
+					if (receiverErasure instanceof ReferenceBinding) {
+						ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)field.declaringClass.erasure());
+						if (match == null) {
+							fieldReceiverType = field.declaringClass; // handle indirect inheritance thru variable secondary bound
+						}
+					}				
+					FieldBinding originalBinding = previousField.original();
+				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && fieldReceiverType.id != T_JavaLangObject) {
+				    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
+				    }
+			    }
 				// only last field is actually a write access if any
 				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length)) {
 					scope.problemReporter().deprecatedField(field, this);
@@ -768,20 +782,24 @@ public class QualifiedNameReference extends NameReference {
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static field access.	
 		if (fieldBinding.declaringClass != lastReceiverType
-			&& !lastReceiverType.isArrayType()			
-			&& fieldBinding.declaringClass != null
-			&& !fieldBinding.isConstantValue()
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-					&& (fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-					&& fieldBinding.declaringClass.id != T_JavaLangObject)
-				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
+				&& !lastReceiverType.isArrayType()
+				&& fieldBinding.declaringClass != null // array.length
+				&& !fieldBinding.isConstantValue()) {
+			CompilerOptions options = currentScope.environment().options;
+			if ((options.targetJDK >= ClassFileConstants.JDK1_2
+					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
+					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
+				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope)) {
+	
 		    setCodegenBinding(
 		            index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index, 
 		            currentScope.enclosingSourceType().getUpdatedFieldBinding(
 		                    getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index), 
 		                    (ReferenceBinding)lastReceiverType.erasure()));
-		}
+			}
+		}			
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
@@ -835,7 +853,7 @@ public class QualifiedNameReference extends NameReference {
 							if ((!fieldBinding.isStatic() || methodScope.isStatic)
 								&& this.indexOfFirstFieldBinding == 1) {
 								scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
-								}
+							}
 						}
 						if (!fieldBinding.isStatic() 
 								&& this.indexOfFirstFieldBinding == 1

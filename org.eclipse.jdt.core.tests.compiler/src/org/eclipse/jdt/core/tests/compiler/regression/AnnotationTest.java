@@ -3493,10 +3493,25 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n",
             },
 			"----------\n" + 
-			"1. ERROR in X.java (at line 14)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	interface Iface extends Ann {\n" + 
+			"	                        ^^^\n" + 
+			"The annotation type Ann should not be used as a superinterface for Iface\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	abstract class Klass implements Ann {\n" + 
+			"	                                ^^^\n" + 
+			"The annotation type Ann should not be used as a superinterface for Klass\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
 			"	class SubKlass extends Klass {\n" + 
 			"	      ^^^^^^^^\n" + 
 			"The type SubKlass must implement the inherited abstract method Ann.foo()\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 20)\n" + 
+			"	class AnnImpl implements Ann {\n" + 
+			"	                         ^^^\n" + 
+			"The annotation type Ann should not be used as a superinterface for AnnImpl\n" + 
 			"----------\n");
     }            
 }

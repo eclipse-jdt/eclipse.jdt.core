@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -42,7 +43,14 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 	
 	public void resolve(ClassScope scope) {
-	    // TODO (philippe) add warning for detecting variable name collisions
+	    // detect variable/type name collisions
+		if (this.binding != null) {
+			Scope outerScope = scope.parent;
+			Binding existingType = outerScope.getBinding(this.name, Binding.TYPE, this, false);
+			if (existingType != null && this.binding != existingType && existingType.isValidBinding()) {
+				scope.problemReporter().typeHiding(this, existingType);
+			}
+		}
 	}
 
 	/* (non-Javadoc)

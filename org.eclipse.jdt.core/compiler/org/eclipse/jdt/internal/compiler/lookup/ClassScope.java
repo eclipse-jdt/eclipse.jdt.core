@@ -363,7 +363,7 @@ public class ClassScope extends Scope {
 				modifiers |= AccStrictfp;
 			if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
 				modifiers |= AccDeprecatedImplicitly;
-			if ((enclosingType.modifiers & AccInterface) != 0)
+			if (enclosingType.isInterface())
 				modifiers |= AccPublic;
 			if (sourceType.isEnum())
 				modifiers |= AccStatic;
@@ -540,7 +540,7 @@ public class ClassScope extends Scope {
 		if ((modifiers & AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForField(declaringClass, fieldDecl);
 
-		if ((declaringClass.modifiers  & AccInterface) != 0) {
+		if (declaringClass.isInterface()) {
 			int expectedValue = AccPublic | AccStatic | AccFinal;
 			// set the modifiers
 			modifiers |= expectedValue;
@@ -801,11 +801,13 @@ public class ClassScope extends Scope {
 					continue nextInterface;
 				}
 			}
-			if ((superInterface.modifiers & AccInterface) == 0) {
+			if (!superInterface.isInterface()) {
 				problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;
+			} else if (superInterface.isAnnotationType()){
+				problemReporter().annotationTypeUsedAsSuperinterface(sourceType, superInterfaceRef, superInterface);
 			}
 			if ((superInterface.tagBits & TagBits.HasDirectWildcard) != 0) {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superInterfaceRef, superInterface);

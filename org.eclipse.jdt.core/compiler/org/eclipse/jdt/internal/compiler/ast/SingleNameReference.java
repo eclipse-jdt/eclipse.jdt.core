@@ -621,18 +621,21 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 			// and not from Object or implicit static field access.	
 			if (fieldBinding.declaringClass != this.actualReceiverType
-				&& !this.actualReceiverType.isArrayType()	
-				&& fieldBinding.declaringClass != null
-				&& !fieldBinding.isConstantValue()
-				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-						&& !fieldBinding.isStatic()
-						&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields (if there was any)
-					|| !codegenField.declaringClass.canBeSeenBy(currentScope))){
-				this.codegenBinding = 
-				    currentScope.enclosingSourceType().getUpdatedFieldBinding(
-					       codegenField, 
-					        (ReferenceBinding)this.actualReceiverType.erasure());
-			}
+					&& !this.actualReceiverType.isArrayType()
+					&& fieldBinding.declaringClass != null // array.length
+					&& !fieldBinding.isConstantValue()) {
+				CompilerOptions options = currentScope.environment().options;
+				if ((options.targetJDK >= ClassFileConstants.JDK1_2
+						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !fieldBinding.isStatic())
+						&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
+					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope)) {
+		
+					this.codegenBinding = 
+					    currentScope.enclosingSourceType().getUpdatedFieldBinding(
+						       codegenField, 
+						        (ReferenceBinding)this.actualReceiverType.erasure());
+				}
+			}					
 		}
 	}
 	public StringBuffer printExpression(int indent, StringBuffer output){

@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedFieldBinding;
@@ -308,25 +309,24 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-	if (this.delegateThis != null) {
-		if (this.binding.declaringClass != this.delegateThis.type
-			&& this.binding.declaringClass != null
-			&& !this.binding.isConstantValue()
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-					&& !this.binding.isStatic()
-					&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object fields (if there was any)
-				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
+	TypeBinding someReceiverType = this.delegateThis != null ? this.delegateThis.type : this.receiverType;
+	if (this.binding.declaringClass != someReceiverType
+			&& !someReceiverType.isArrayType()
+			&& this.binding.declaringClass != null // array.length
+			&& !this.binding.isConstantValue()) {
+	
+		CompilerOptions options = currentScope.environment().options;
+		if ((options.targetJDK >= ClassFileConstants.JDK1_2
+				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object fields
+			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
+
+			this.codegenBinding =
+				currentScope.enclosingSourceType().getUpdatedFieldBinding(
+					this.codegenBinding,
+					(ReferenceBinding) someReceiverType.erasure());
 		}
-	} else if (this.binding.declaringClass != this.receiverType
-		&& !this.receiverType.isArrayType()
-		&& this.binding.declaringClass != null // array.length
-		&& !this.binding.isConstantValue()
-		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& this.binding.declaringClass.id != T_JavaLangObject) //no change for Object fields (in case there was)
-			|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(this.codegenBinding, (ReferenceBinding) this.receiverType.erasure());
-	}
+	}	
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature type of the field.

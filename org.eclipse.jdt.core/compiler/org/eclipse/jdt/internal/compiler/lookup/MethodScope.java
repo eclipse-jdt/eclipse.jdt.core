@@ -131,7 +131,7 @@ public class MethodScope extends BlockScope {
 		int realModifiers = modifiers & AccJustFlag;
 
 		// set the requested modifiers for a method in an interface/annotation
-		if ((declaringClass.modifiers & AccInterface) != 0) {
+		if (declaringClass.isInterface()) {
 			if ((realModifiers & ~(AccPublic | AccAbstract)) != 0) {
 				if ((declaringClass.modifiers & AccAnnotation) != 0)
 					problemReporter().illegalModifierForAnnotationMember((AbstractMethodDeclaration) referenceContext);
@@ -278,7 +278,7 @@ public class MethodScope extends BlockScope {
 			method.binding = new MethodBinding(modifiers, null, null, declaringClass);
 			checkAndSetModifiersForConstructor(method.binding);
 		} else {
-			if ((declaringClass.modifiers & AccInterface) != 0) // interface or annotation type
+			if (declaringClass.isInterface()) // interface or annotation type
 				modifiers |= AccPublic | AccAbstract;
 			method.binding =
 				new MethodBinding(modifiers, method.selector, null, null, null, declaringClass);

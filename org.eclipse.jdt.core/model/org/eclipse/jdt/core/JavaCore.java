@@ -319,6 +319,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_TYPE_PARAMETER_HIDING = PLUGIN_ID + ".compiler.problem.typeParameterHiding"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.possibleAccidentalBooleanAssignment"; //$NON-NLS-1$
@@ -413,6 +419,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_AUTOBOXING = PLUGIN_ID + ".compiler.problem.autoboxing"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_ANNOTATION_SUPER_INTERFACE = PLUGIN_ID + ".compiler.problem.annotationSuperInterface"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1761,6 +1773,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
+	 * COMPILER / Reporting Type Parameter Declaration Hiding another Type
+	 *    When enabled, the compiler will issue an error or a warning whenever a type parameter
+	 *    declaration is hiding some type.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.typeParameterHiding"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
 	 * COMPILER / Reporting Possible Accidental Boolean Assignment
 	 *    When enabled, the compiler will issue an error or a warning if a boolean assignment is acting as the condition
 	 *    of a control statement  (where it probably was meant to be a boolean comparison).
@@ -1841,6 +1860,13 @@ public final class JavaCore extends Plugin {
 	 *         - if variable was assumed to be null or non-null and further tested for null cases.
 	 *         
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nullReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting Use of Annotation Type as Super Interface
+	 *    When enabled, the compiler will issue an error or a warning whenever an annotation type is used
+	 *    as a super-interface. Though legal, this is discouraged.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 

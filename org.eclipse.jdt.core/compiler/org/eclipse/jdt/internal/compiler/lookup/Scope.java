@@ -678,8 +678,21 @@ public abstract class Scope
 
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReference(receiverType);
-		if (receiverType.isArrayType()) {
-			TypeBinding leafType = receiverType.leafComponentType();
+		checkArrayField: {
+			TypeBinding leafType;
+			switch (receiverType.kind()) {
+				case Binding.WILDCARD_TYPE :
+					TypeBinding receiverErasure = receiverType.erasure();
+					if (!receiverErasure.isArrayType())
+						break checkArrayField;
+					leafType =receiverErasure.leafComponentType();
+					break;
+				case Binding.ARRAY_TYPE :
+					leafType = receiverType.leafComponentType();
+					break;
+				default:
+					break checkArrayField;
+			}
 			if (leafType instanceof ReferenceBinding)
 				if (!((ReferenceBinding) leafType).canBeSeenBy(this))
 					return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ReceiverTypeNotVisible);
@@ -1384,21 +1397,6 @@ public abstract class Scope
 							// Use next line instead if willing to enable protected access accross inner types
 							// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
 							
-//							SourceTypeBinding initialType = this.enclosingSourceType();
-//							if ((fieldBinding == null || !fieldBinding.isValidBinding()) && enclosingType.hasMemberTypes()) { // check member enums
-//								ReferenceBinding[] memberTypes = enclosingType.memberTypes();
-//								for (int i = 0, length = memberTypes.length; i < length; i++) {
-//									ReferenceBinding memberType = memberTypes[i];
-//									if (memberType != initialType && memberType.isEnum()) { // do not find one's field through its enclosing members
-//										FieldBinding enumField = ((SourceTypeBinding)memberType).scope.findField(memberType, name, invocationSite, needResolve);
-//										if (enumField != null && (enumField.modifiers & AccEnum) != 0) {
-//											// grant access to enum constants of enclosing members
-//											// TODO (kent) need to revisit to see whether should walk sibling enums and issue an ambiguous match
-//											return enumField;
-//										}
-//									}
-//								}
-//							}
 							if (fieldBinding != null) { // skip it if we did not find anything
 								if (fieldBinding.problemId() == Ambiguous) {
 									if (foundField == null || foundField.problemId() == NotVisible)
@@ -1505,6 +1503,7 @@ public abstract class Scope
 										if (declaringClass.canBeSeenBy(this)) {
 											ImportReference importReference = importBinding.reference;
 											if (importReference != null) importReference.used = true;
+											invocationSite.setActualReceiverType(declaringClass);											
 											return importBinding.resolvedImport;
 										}
 										problemField = new ProblemFieldBinding(declaringClass, name, ReceiverTypeNotVisible);
@@ -1536,7 +1535,10 @@ public abstract class Scope
 								}
 							}
 						}
-						if (foundField != null) return foundField;
+						if (foundField != null) {
+							invocationSite.setActualReceiverType(foundField.declaringClass);							
+							return foundField;
+						}
 					}
 				}
 			}
@@ -1912,8 +1914,10 @@ public abstract class Scope
 					}
 				}
 			}
-			if (foundMethod != null)
+			if (foundMethod != null) {
+				invocationSite.setActualReceiverType(foundMethod.declaringClass);
 				return foundMethod;
+			}
 		}
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
@@ -2815,7 +2819,7 @@ public abstract class Scope
 			case 0: return NoTypes;
 			case 1: return types;
 		}
-
+	
 		// record all supertypes of type
 		// intersect with all supertypes of otherType
 		TypeBinding firstType = types[indexOfFirst];
@@ -2838,15 +2842,25 @@ public abstract class Scope
 			};
 		} else {
 			ArrayList typesToVisit = new ArrayList(5);
-			if (firstType.erasure() != firstType) {
+			TypeBinding firstErasure = firstType.erasure();
+			if (firstErasure != firstType) {
 				Set someInvocations = new HashSet(1);
 				someInvocations.add(firstType);
-				allInvocations.put(firstType.erasure(), someInvocations);
-			}			
-			typesToVisit.add(firstType.erasure());
+				allInvocations.put(firstErasure, someInvocations);
+			}
+			typesToVisit.add(firstErasure);
+			int max = 1;
+			if (firstErasure.isArrayType()) {
+				typesToVisit.add(getJavaIoSerializable());
+				typesToVisit.add(getJavaLangCloneable());
+				typesToVisit.add(getJavaLangObject());
+				max += 3;
+			}
 			ReferenceBinding currentType = (ReferenceBinding)firstType;
-			for (int i = 0, max = 1; i < max; i++) {
-				currentType = (ReferenceBinding) typesToVisit.get(i);
+			for (int i = 0; i < max; i++) {
+				TypeBinding typeToVisit = (TypeBinding) typesToVisit.get(i);
+				if (typeToVisit.isArrayType()) continue;
+				currentType = (ReferenceBinding) typeToVisit;
 				// inject super interfaces prior to superclass
 				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 				for (int j = 0, count = itsInterfaces.length; j < count; j++) {
