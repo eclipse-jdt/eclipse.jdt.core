@@ -188,7 +188,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 								try {
 									project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
 								} catch (JavaModelException e) {
-									if (project.getProject().isAccessible()){
+									if (project.getProject().isAccessible()) {
 										Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
 									}
 								}
@@ -208,18 +208,22 @@ public class DeltaProcessor implements IResourceChangeListener {
 											fileEntries = project.readPaths(fileClasspathString);
 										}
 									} catch(JavaModelException e) {
-										Util.log(e, 
-											"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
-											+"/.classpath, ignore change"); //$NON-NLS-1$
+										if (project.getProject().isAccessible()) {
+											Util.log(e, 
+												"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
+												+"/.classpath, ignore change"); //$NON-NLS-1$
+										}
 										project.createClasspathProblemMarker(
 											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
 											IMarker.SEVERITY_ERROR,
 											false,	//  cycle error
 											true);	//	file format error
 									} catch (IOException e) {
-										Util.log(e, 
-											"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
-											+"/.classpath, ignore change"); //$NON-NLS-1$
+										if (project.getProject().isAccessible()) {
+											Util.log(e, 
+												"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
+												+"/.classpath, ignore change"); //$NON-NLS-1$
+										}
 										project.createClasspathProblemMarker(
 											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
 											IMarker.SEVERITY_ERROR,
@@ -258,11 +262,15 @@ public class DeltaProcessor implements IResourceChangeListener {
 										true); // needValidation
 								} catch (RuntimeException e) {
 									// setRawClasspath might fire a delta, and a listener may throw an exception
-									Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+									if (project.getProject().isAccessible()) {
+										Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+									}
 									break;
 								} catch (CoreException e) {
 									// happens if the .classpath could not be written to disk
-									Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+									if (project.getProject().isAccessible()) {
+										Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
+									}
 									break;
 								}
 	
