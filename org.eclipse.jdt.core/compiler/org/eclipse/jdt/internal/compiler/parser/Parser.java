@@ -4911,12 +4911,9 @@ protected void ignoreInterfaceDeclaration() {
 	markInitializersWithLocalType(typeDecl);
 
 	// remove the ast node created in interface header
-	this.astPtr--;	
-	// Don't create an astnode for this inner interface, but have to push
-	// a 0 on the astLengthStack to be consistent with the reduction made
-	// at the end of the method:
-	// public void parse(MethodDeclaration md, CompilationUnitDeclaration unit)
-	pushOnAstLengthStack(0);
+	this.astPtr--;
+	pushOnAstLengthStack(-1);
+	concatNodeLists();
 }
 protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 	// InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody ==> true

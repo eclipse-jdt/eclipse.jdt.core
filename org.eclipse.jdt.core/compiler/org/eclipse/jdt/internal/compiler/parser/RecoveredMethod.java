@@ -201,9 +201,8 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			
 		if (this.parent == null) {
 			return this; // ignore
-		} else {
-			return this.parent.add(typeDeclaration, bracketBalanceValue);
 		}
+		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 	if ((typeDeclaration.bits & ASTNode.IsLocalTypeMASK) != 0){
 		if (methodBody == null){
@@ -212,7 +211,15 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			this.add(block, 1);
 		}
 		return methodBody.add(typeDeclaration, bracketBalanceValue, true);	
-	}	
+	}
+	if (typeDeclaration.isInterface()) {
+		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));
+		if (this.parent == null) {
+			return this; // ignore
+		}
+		// close the constructor
+		return this.parent.add(typeDeclaration, bracketBalanceValue);
+	}
 	if (localTypes == null) {
 		localTypes = new RecoveredType[5];
 		localTypeCount = 0;
@@ -254,7 +261,7 @@ public int sourceEnd(){
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered method:\n"); //$NON-NLS-1$
-	result.append(this.methodDeclaration.print(tab + 1, result));
+	this.methodDeclaration.print(tab + 1, result);
 	if (this.localTypes != null) {
 		for (int i = 0; i < this.localTypeCount; i++) {
 			result.append("\n"); //$NON-NLS-1$
