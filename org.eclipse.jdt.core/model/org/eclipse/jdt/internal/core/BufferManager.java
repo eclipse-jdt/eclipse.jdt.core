@@ -38,6 +38,9 @@ public class BufferManager {
 	 * @deprecated
 	 */
 	protected org.eclipse.jdt.core.IBufferFactory defaultBufferFactory = new org.eclipse.jdt.core.IBufferFactory() {
+	    /**
+	     * @deprecated
+	     */
 		public IBuffer createBuffer(IOpenable owner) {
 			return BufferManager.this.createBuffer(owner);
 		}
