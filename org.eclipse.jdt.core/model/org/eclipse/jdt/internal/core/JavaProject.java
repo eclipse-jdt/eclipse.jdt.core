@@ -1670,13 +1670,26 @@ public class JavaProject
 	 */	
 	public IEclipsePreferences getEclipsePreferences(){
 		if (!JavaProject.hasJavaNature(this.project)) return null;
+		// Get cached preferences if exist
 		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
-		IEclipsePreferences eclipsePreferences =  perProjectInfo.preferences;
-		if (eclipsePreferences != null) return eclipsePreferences;
+		if (perProjectInfo.preferences != null) return perProjectInfo.preferences;
+		// Init project preferences
 		IScopeContext context = new ProjectScope(getProject());
-		eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
+		final IEclipsePreferences eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
 		updatePreferences(eclipsePreferences);
 		perProjectInfo.preferences = eclipsePreferences;
+		// Listen to node removal from parent in order to reset cache (see bug 68993)
+		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
+			public void added(IEclipsePreferences.NodeChangeEvent event) {
+				// do nothing
+			}
+			public void removed(IEclipsePreferences.NodeChangeEvent event) {
+				if (event.getChild() == eclipsePreferences) {
+					JavaModelManager.getJavaModelManager().resetProjectPreferences(JavaProject.this);
+				}
+			}
+		};
+		((IEclipsePreferences) eclipsePreferences.parent()).addNodeChangeListener(listener);
 		return eclipsePreferences;
 	}
 
@@ -2591,10 +2604,6 @@ public class JavaProject
 
 			// persist options
 			projectPreferences.flush();
-			if (newOptions == null) {
-				// Uncache preferences
-				JavaModelManager.getJavaModelManager().resetProjectPreferences(this);
-			}
 		} catch (BackingStoreException e) {
 			// problem with pref store - quietly ignore
 		}
