@@ -3338,4 +3338,60 @@ public class AnnotationTest extends AbstractComparableTest {
 			"The value for annotation attribute Ann.bar must be a constant expression\n" + 
 			"----------\n");
     }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939 - variation
+    public void test108() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Foo {}\n" + 
+				"\n" + 
+				"@interface Bar {\n" + 
+				"    Foo[] foo() default null;\n" + 
+				"}\n" + 
+				"\n" + 
+				"@Bar(foo=null)\n" + 
+				"public class X { \n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Foo[] foo() default null;\n" + 
+			"	                    ^^^^\n" + 
+			"The value for annotation attribute Bar.foo must be some @Foo annotation \n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	@Bar(foo=null)\n" + 
+			"	         ^^^^\n" + 
+			"The value for annotation attribute Bar.foo must be some @Foo annotation \n" + 
+			"----------\n");
+    }    
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939 - variation
+    public void test109() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Foo {}\n" + 
+				"\n" + 
+				"@interface Bar {\n" + 
+				"    Foo[] foo() default \"\";\n" + 
+				"}\n" + 
+				"\n" + 
+				"@Bar(foo=\"\")\n" + 
+				"public class X { \n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Foo[] foo() default \"\";\n" + 
+			"	                    ^^\n" + 
+			"The value for annotation attribute Bar.foo must be some @Foo annotation \n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	@Bar(foo=\"\")\n" + 
+			"	         ^^\n" + 
+			"The value for annotation attribute Bar.foo must be some @Foo annotation \n" + 
+			"----------\n");
+    }        
 }

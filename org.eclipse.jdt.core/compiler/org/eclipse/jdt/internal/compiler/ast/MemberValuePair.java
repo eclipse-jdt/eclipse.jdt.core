@@ -76,7 +76,11 @@ public class MemberValuePair extends ASTNode {
 							|| (leafType.isBaseType() && BaseTypeBinding.isWidening(leafType.id, valueType.id)))
 							|| valueType.isCompatibleWith(leafType))) {
 				
-				scope.problemReporter().typeMismatchError(valueType, requiredType, this.value);
+				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
+					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);				
+				} else {
+					scope.problemReporter().typeMismatchError(valueType, requiredType, this.value);
+				}
 				return; // may allow to proceed to find more errors at once
 			}
 		} else {
@@ -130,6 +134,9 @@ public class MemberValuePair extends ASTNode {
 				break checkAnnotationMethodType;
 			}
 			if (leafType.isAnnotationType()) {
+				if (!valueType.leafComponentType().isAnnotationType()) { // null literal
+					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
+				}
 				break checkAnnotationMethodType;
 			}
 		}

@@ -203,6 +203,16 @@ public void annotationTypeDeclarationCannotHaveSuperinterfaces(TypeDeclaration t
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
+
+public void annotationValueMustBeAnnotation(TypeBinding annotationType, char[] name, Expression value, TypeBinding expectedType) {
+	String str = new String(name);
+	this.handle(
+		IProblem.AnnotationValueMustBeAnnotation,
+		new String[] { new String(annotationType.readableName()), str, new String(expectedType.readableName()),  },
+		new String[] { new String(annotationType.shortReadableName()), str, new String(expectedType.readableName()), },
+		value.sourceStart,
+		value.sourceEnd);
+}
 public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[] name, Expression value) {
 	String str = new String(name);
 	this.handle(

@@ -1022,7 +1022,9 @@ public interface IProblem {
 	int MethodMustOverride = TypeRelated + 623;
 	/** @since 3.1 */
 	int AnnotationTypeDeclarationCannotHaveConstructor = Syntax + Internal + 624;
-		
+	/** @since 3.1 */
+	int AnnotationValueMustBeAnnotation = Internal + 625;
+	
 	/**
 	 * Corrupted binaries
 	 */
