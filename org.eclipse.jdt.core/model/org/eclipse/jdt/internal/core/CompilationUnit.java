@@ -59,15 +59,13 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
 	CompilationUnitVisitor.visit(this, visitor);
 } 
 
-protected void buildStructure(OpenableElementInfo info, final IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
+protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) throws JavaModelException {
 
 	// remove existing (old) infos
 	removeInfo();
-	
-	if (problemRequestor != null) 	problemRequestor.beginReporting();
 
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), null));
+	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource()));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
@@ -75,11 +73,14 @@ protected void buildStructure(OpenableElementInfo info, final IProblemRequestor 
 		fgJavaModelManager.putInfo(key, value);
 	}
 
+	// error detection
+	IProblemRequestor problemRequestor = this.getProblemRequestor();
 	if (problemRequestor != null){
+		problemRequestor.beginReporting();
 		CompilationUnitProblemFinder.resolve(this, problemRequestor);
+		problemRequestor.endReporting();
 	}
 	
-	if (problemRequestor != null) 	problemRequestor.endReporting();
 
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.
@@ -284,7 +285,7 @@ public IJavaElement findSharedWorkingCopy() {
 	return (IJavaElement)JavaModelManager.getJavaModelManager().sharedWorkingCopies.get(this);
 }
 
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
@@ -295,10 +296,10 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
 		// generate structure
-		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements, problemRequestor);
+		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
-		parser.parseCompilationUnit(this, problemRequestor != null);
+		parser.parseCompilationUnit(this, false);
 		if (isWorkingCopy()) {
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
 			unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
@@ -489,6 +490,12 @@ public IResource getResource() {
 	}
 }
 
+/*
+ * Answer requestor to notify with problems
+ */
+public IProblemRequestor getProblemRequestor(){
+	return null;
+}
 
 /**
  * @see ISourceReference
@@ -628,11 +635,11 @@ public boolean isWorkingCopy() {
 /**
  * @see IOpenable
  */
-public void makeConsistent(IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
+public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
 	if (!isConsistent()) {
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
-		buildStructure(info, problemRequestor, pm);
+		buildStructure(info, pm);
 	}
 }
 

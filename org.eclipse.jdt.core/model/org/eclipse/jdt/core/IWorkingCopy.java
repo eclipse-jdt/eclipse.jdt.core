@@ -242,6 +242,7 @@ IJavaElement getWorkingCopy() throws JavaModelException;
  * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  * @since 2.0
+ * @deprecated - use API with extra IProblemRequestor instead
  */
 IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
 /**

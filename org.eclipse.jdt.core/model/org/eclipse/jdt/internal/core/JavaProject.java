@@ -548,8 +548,7 @@ public class JavaProject
 		OpenableElementInfo info,
 		IProgressMonitor pm,
 		Map newElements,
-		IResource underlyingResource, 
-		IProblemRequestor problemRequestor)	throws JavaModelException {
+		IResource underlyingResource)	throws JavaModelException {
 
 		boolean validInfo = false;
 		try {

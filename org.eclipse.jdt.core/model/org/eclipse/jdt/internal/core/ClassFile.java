@@ -116,7 +116,7 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
  * @see Openable
  * @see Signature
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
 	if (typeInfo == null) {
 		// The structure of a class file is unknown if a class file format errors occurred

@@ -210,6 +210,14 @@ protected IType getOriginalType(ArrayList hierarchy) {
 	}
 	return type;
 }
+
+/*
+ * Answer requestor to notify with problems
+ */
+public IProblemRequestor getProblemRequestor(){
+	return this.problemRequestor;
+}
+
 /**
  * @see IWorkingCopy
  * @deprecated
@@ -303,7 +311,7 @@ public IMarker[] reconcile() throws JavaModelException {
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
 	// update the element infos with the content of the working copy
-	this.makeConsistent(this.problemRequestor, null);
+	this.makeConsistent(null);
 
 	// build the deltas
 	deltaBuilder.buildDeltas();
@@ -331,10 +339,11 @@ public void reconcile(IProblemRequestor problemRequestor) throws JavaModelExcept
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
 	// update the element infos with the content of the working copy
-	this.makeConsistent(problemRequestor, null);
+	this.problemRequestor = problemRequestor;
+	this.makeConsistent(null);
 
 	// build the deltas
-	deltaBuilder.buildDeltas();
+	deltaBuilder.buildDeltas(); 
 	
 	// fire the deltas
 	boolean shouldFire = false;

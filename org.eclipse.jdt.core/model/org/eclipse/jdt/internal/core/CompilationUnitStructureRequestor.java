@@ -87,7 +87,6 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/**
 	 * Problem requestor which will get notified of discovered problems
 	 */
-	protected IProblemRequestor clientProblemRequestor;
 	protected boolean hasSyntaxErrors = false;
 	
 	/**
@@ -104,13 +103,12 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected HashtableOfObject typeRefCache;
 	protected HashtableOfObject unknownRefCache;
 
-protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements, IProblemRequestor clientProblemRequestor) throws JavaModelException {
+protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) throws JavaModelException {
 	this.fUnit = unit;
 	this.fUnitInfo = unitInfo;
 	this.fNewElements = newElements;
 	this.fSourceFileName= unit.getElementName().toCharArray();
-	this.clientProblemRequestor = clientProblemRequestor;
-}
+} 
 /**
  * @see ISourceElementRequestor
  */
@@ -186,9 +184,6 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 public void acceptProblem(IProblem problem) {
 	if ((problem.getID() & IProblem.Syntax) != 0){
 		this.hasSyntaxErrors = true;
-	}
-	if (this.clientProblemRequestor != null){
-		this.clientProblemRequestor.acceptProblem(problem);
 	}
 }
 /**

@@ -131,8 +131,7 @@ protected boolean generateInfos(
 	OpenableElementInfo info,
 	IProgressMonitor pm,
 	Map newElements,
-	IResource underlyingResource, 
-	IProblemRequestor problemRequestor)	throws JavaModelException {
+	IResource underlyingResource)	throws JavaModelException {
 
 	fgJavaModelManager.putInfo(((JavaModelInfo) info).getJavaModel(), info);
 	// determine my children
