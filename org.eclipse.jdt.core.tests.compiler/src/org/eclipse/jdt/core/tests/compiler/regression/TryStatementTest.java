@@ -741,6 +741,16 @@ public void test023() {
 		"	} catch(AX e) {\n" + 
 		"	        ^^\n" + 
 		"Unreachable catch block for AX. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	class AX extends Exception {}\n" + 
+		"	      ^^\n" + 
+		"The serializable class AX does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	class BX extends AX {}\n" + 
+		"	      ^^\n" + 
+		"The serializable class BX does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n",
 		null,
 		true,
