@@ -1313,7 +1313,7 @@ public static final int[] get_PLUS(){
 	table[(T_byte<<4)+T_long] 		= (Byte2Long<<12)+(Long2Long<<4)+T_long ;
 	table[(T_byte<<4)+T_short] 		= (Byte2Int<<12)+(Short2Int<<4)+T_int ;
 //	table[(T_byte<<4)+T_void] 		= T_undefined ;
-	table[(T_byte<<4)+T_String] 	= (Byte2Byte<<12)+(String2String<<4)+T_String ;
+//	table[(T_byte<<4)+T_String] 	= T_undefined ;
 //	table[(T_byte<<4)+T_Object] 	= T_undefined ;
 	table[(T_byte<<4)+T_double] 	= (Byte2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_byte<<4)+T_float] 		= (Byte2Float<<12)+(Float2Float<<4)+T_float;
@@ -1327,7 +1327,7 @@ public static final int[] get_PLUS(){
 	table[(T_long<<4)+T_long] 		= (Long2Long<<12)+(Long2Long<<4)+T_long ;
 	table[(T_long<<4)+T_short] 		= (Long2Long<<12)+(Short2Long<<4)+T_long ;
 //	table[(T_long<<4)+T_void] 		= T_undefined ;
-	table[(T_long<<4)+T_String] 	= (Long2Long<<12)+(String2String<<4)+T_String ;
+//	table[(T_long<<4)+T_String] 	= T_undefined ;
 //	table[(T_long<<4)+T_Object] 	= T_undefined ;
 	table[(T_long<<4)+T_double] 	= (Long2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_long<<4)+T_float] 		= (Long2Float<<12)+(Float2Float<<4)+T_float ;
@@ -1341,7 +1341,7 @@ public static final int[] get_PLUS(){
 	table[(T_short<<4)+T_long] 			= (Short2Long<<12)+(Long2Long<<4)+T_long ;
 	table[(T_short<<4)+T_short] 		= (Short2Int<<12)+(Short2Int<<4)+T_int ;
 //	table[(T_short<<4)+T_void] 			= T_undefined ;
-	table[(T_short<<4)+T_String] 		= (Short2Short<<12)+(String2String<<4)+T_String ;
+//	table[(T_short<<4)+T_String] 		= T_undefined ;
 //	table[(T_short<<4)+T_Object] 		= T_undefined ;
 	table[(T_short<<4)+T_double] 		= (Short2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_short<<4)+T_float] 		= (Short2Float<<12)+(Float2Float<<4)+T_float ;
@@ -1397,7 +1397,7 @@ public static final int[] get_PLUS(){
 	table[(T_double<<4)+T_long] 		= (Double2Double<<12)+(Long2Double<<4)+T_double ;
 	table[(T_double<<4)+T_short] 		= (Double2Double<<12)+(Short2Double<<4)+T_double ; ;
 //	table[(T_double<<4)+T_void] 		= T_undefined ;
-	table[(T_double<<4)+T_String] 		= (Double2Double<<12)+(String2String<<4)+T_String ;
+//	table[(T_double<<4)+T_String] 		= T_undefined ;
 //	table[(T_double<<4)+T_Object] 		= T_undefined ;
 	table[(T_double<<4)+T_double] 		= (Double2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_double<<4)+T_float] 		= (Double2Double<<12)+(Float2Double<<4)+T_double ; ;
@@ -1411,7 +1411,7 @@ public static final int[] get_PLUS(){
 	table[(T_float<<4)+T_long] 			= (Float2Float<<12)+(Long2Float<<4)+T_float ;
 	table[(T_float<<4)+T_short] 		= (Float2Float<<12)+(Short2Float<<4)+T_float ;
 //	table[(T_float<<4)+T_void] 			= T_undefined ;
-	table[(T_float<<4)+T_String] 		= (Float2Float<<12)+(String2String<<4)+T_String ;
+//	table[(T_float<<4)+T_String] 		= T_undefined ;
 //	table[(T_float<<4)+T_Object] 		= T_undefined ;
 	table[(T_float<<4)+T_double] 		= (Float2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_float<<4)+T_float] 		= (Float2Float<<12)+(Float2Float<<4)+T_float ;
@@ -1439,7 +1439,7 @@ public static final int[] get_PLUS(){
 	table[(T_char<<4)+T_long] 			= (Char2Long<<12)+(Long2Long<<4)+T_long ;
 	table[(T_char<<4)+T_short] 			= (Char2Int<<12)+(Short2Int<<4)+T_int ;
 //	table[(T_char<<4)+T_void] 			= T_undefined ;
-	table[(T_char<<4)+T_String] 		= (Char2Char<<12)+(String2String<<4)+T_String ;
+//	table[(T_char<<4)+T_String] 		= T_undefined ;
 //	table[(T_char<<4)+T_Object] 		= T_undefined ;
 	table[(T_char<<4)+T_double] 		= (Char2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_char<<4)+T_float] 			= (Char2Float<<12)+(Float2Float<<4)+T_float ;
@@ -1453,7 +1453,7 @@ public static final int[] get_PLUS(){
 	table[(T_int<<4)+T_long] 		= (Int2Long<<12)+(Long2Long<<4)+T_long ;
 	table[(T_int<<4)+T_short] 		= (Int2Int<<12)+(Short2Int<<4)+T_int ;
 //	table[(T_int<<4)+T_void] 		= T_undefined ;
-	table[(T_int<<4)+T_String] 		= (Int2Int<<12)+(String2String<<4)+T_String ;
+//	table[(T_int<<4)+T_String] 		= T_undefined ;
 //	table[(T_int<<4)+T_Object] 		= T_undefined ;
 	table[(T_int<<4)+T_double] 		= (Int2Double<<12)+(Double2Double<<4)+T_double ;
 	table[(T_int<<4)+T_float] 		= (Int2Float<<12)+(Float2Float<<4)+T_float ;
