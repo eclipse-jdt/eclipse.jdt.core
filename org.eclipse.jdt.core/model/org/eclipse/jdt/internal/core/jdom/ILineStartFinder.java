@@ -9,7 +9,7 @@ import org.eclipse.jdt.core.*;
  * The <coe>ILineSeparatorFinder</code> finds previous and next line separators
  * in source.
  */
-interface ILineStartFinder {
+public interface ILineStartFinder {
 /**
  * Returns the position of the start of the line at or before the given source position.
  *

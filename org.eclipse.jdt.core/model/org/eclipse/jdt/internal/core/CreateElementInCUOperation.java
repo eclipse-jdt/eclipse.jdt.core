@@ -190,7 +190,6 @@ protected ICompilationUnit getCompilationUnit() {
 /**
  * Returns the amount of work for the main task of this operation for
  * progress reporting.
- * @see #executeOperation()
  */
 protected int getMainAmountOfWork(){
 	return 2;
@@ -198,7 +197,6 @@ protected int getMainAmountOfWork(){
 /**
  * Returns the name of the main task of this operation for
  * progress reporting.
- * @see #executeOperation()
  */
 public abstract String getMainTaskName();
 /**
