@@ -1666,7 +1666,7 @@ public void test048() {
 }
 // 76682 - ClassCastException in qualified name computeConversion
 public void test049() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java", //---------------------------
 			"public class X\n" + 
