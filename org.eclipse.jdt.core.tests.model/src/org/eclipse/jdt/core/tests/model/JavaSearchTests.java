@@ -318,7 +318,7 @@ static {
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//	TESTS_SEARCH = new int[] { 16, -1 };
+//	TESTS_RANGE = new int[] { 16, -1 };
 	}
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});

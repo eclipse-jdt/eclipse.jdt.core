@@ -96,7 +96,7 @@ public static Test suite() {
 	AbstractJavaModelTests.TESTS_PREFIX = null;
 	AbstractJavaModelTests.TESTS_NAMES = null;
 	AbstractJavaModelTests.TESTS_NUMBERS = null;
-	AbstractJavaModelTests.TESTS_SEARCH = null;
+	AbstractJavaModelTests.TESTS_RANGE = null;
 
 	// creation of method
 	suite.addTest(CreateMembersTests.suite());

@@ -43,7 +43,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public static String TESTS_PREFIX = null; // prefix of test names to perform
 	public static String[] TESTS_NAMES = null; // list of test names to perform
 	public static int[] TESTS_NUMBERS = null; // list of test numbers to perform
-	public static int[] TESTS_SEARCH = null; // range of test numbers to perform
+	public static int[] TESTS_RANGE = null; // range of test numbers to perform
 	
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
@@ -176,7 +176,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					String methName = methods[m].getName();
 					Object[] params = {methName};
 					// no prefix, no subsets => add method
-					if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_SEARCH == null) {
+					if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_RANGE == null) {
 						suite.addTest((Test)constructor.newInstance(params));
 						continue nextMethod;
 					}
@@ -215,8 +215,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 										}
 									}
 									// tests range subset
-									if (TESTS_SEARCH != null && TESTS_SEARCH.length == 2 && !tests.contains(methName)) {
-										if ((TESTS_SEARCH[0]==-1 || num>=TESTS_SEARCH[0]) && (TESTS_SEARCH[1]==-1 || num<=TESTS_SEARCH[1])) {
+									if (TESTS_RANGE != null && TESTS_RANGE.length == 2 && !tests.contains(methName)) {
+										if ((TESTS_RANGE[0]==-1 || num>=TESTS_RANGE[0]) && (TESTS_RANGE[1]==-1 || num<=TESTS_RANGE[1])) {
 											tests.add(methName);
 											suite.addTest((Test)constructor.newInstance(params));
 											continue nextMethod;
@@ -229,7 +229,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						}
 
 						// no subset, add all tests
-						if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_SEARCH==null) {
+						if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_RANGE==null) {
 							suite.addTest((Test)constructor.newInstance(params));
 						}
 					}

@@ -54,7 +54,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		TESTS_SEARCH = new int[] { 16, -1 };
+//		TESTS_RANGE = new int[] { 16, -1 };
 	}
 
 	public WorkingCopyOwnerTests(String name) {

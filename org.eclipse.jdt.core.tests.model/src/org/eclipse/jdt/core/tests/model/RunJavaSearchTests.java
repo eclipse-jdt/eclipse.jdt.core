@@ -39,7 +39,7 @@ public static Test suite() {
 	AbstractJavaModelTests.TESTS_PREFIX = null;
 	AbstractJavaModelTests.TESTS_NAMES = null;
 	AbstractJavaModelTests.TESTS_NUMBERS = null;
-	AbstractJavaModelTests.TESTS_SEARCH = null;
+	AbstractJavaModelTests.TESTS_RANGE = null;
 
 	for (int i = 0, l=JavaSearchTests.TEST_SUITES.size(); i < l; i++) {
 		Class testClass = (Class) JavaSearchTests.TEST_SUITES.get(i);

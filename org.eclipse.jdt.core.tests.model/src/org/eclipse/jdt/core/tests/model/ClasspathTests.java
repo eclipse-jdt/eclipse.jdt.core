@@ -75,7 +75,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_NAMES = new String[] {"testInvalidInternalJar2"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
-//	TESTS_SEARCH = new int[] { 21, 38 };
+//	TESTS_RANGE = new int[] { 21, 38 };
 }
 public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);

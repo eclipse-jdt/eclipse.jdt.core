@@ -45,7 +45,7 @@ public static Test suite() {
 	AbstractJavaModelTests.TESTS_PREFIX = null;
 	AbstractJavaModelTests.TESTS_NAMES = null;
 	AbstractJavaModelTests.TESTS_NUMBERS = null;
-	AbstractJavaModelTests.TESTS_SEARCH = null;
+	AbstractJavaModelTests.TESTS_RANGE = null;
 
 	for (int i = 0; i < testClasses.length; i++) {
 		Class testClass = testClasses[i];

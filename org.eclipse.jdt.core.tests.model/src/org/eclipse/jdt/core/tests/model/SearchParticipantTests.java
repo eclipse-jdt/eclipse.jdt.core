@@ -125,7 +125,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 	//	TESTS_NAMES = new String[] { "testSearch"};
 	//	TESTS_NUMBERS = new int[] { 23, 28, 38 };
-	//	TESTS_SEARCH = new int[] { 21, 38 };
+	//	TESTS_RANGE = new int[] { 21, 38 };
 	}
 	
 	public static Test suite() {
