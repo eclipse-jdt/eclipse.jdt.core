@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class IteratorForStatement extends Statement {
+public class ForeachStatement extends Statement {
 	private static final char[] SecretCollectionVariableName = " collection".toCharArray(); //$NON-NLS-1$
 	private static final char[] SecretIndexVariableName = " index".toCharArray(); //$NON-NLS-1$
 	private static final char[] SecretMaxVariableName = " max".toCharArray(); //$NON-NLS-1$
@@ -50,7 +50,7 @@ public class IteratorForStatement extends Statement {
 	public LocalVariableBinding indexVariable;
 	public LocalVariableBinding maxVariable;
 	
-	public IteratorForStatement(
+	public ForeachStatement(
 		LocalDeclaration localDeclaration,
 		Expression collection,
 		Statement action,

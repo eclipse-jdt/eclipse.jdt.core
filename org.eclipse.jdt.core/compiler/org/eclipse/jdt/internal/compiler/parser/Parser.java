@@ -2251,10 +2251,10 @@ protected void consumeEnhancedForStatement(boolean hasModifiers) {
 	this.identifierLengthPtr--;
 	// remove fake modifiers/modifiers start
 	int declarationSourceStart = 0;
-	int modifiers  = 0;
+	int modifiersValue  = 0;
 	if (hasModifiers) {
 		declarationSourceStart = this.intStack[this.intPtr--];
-		modifiers = this.intStack[this.intPtr--];
+		modifiersValue = this.intStack[this.intPtr--];
 	} else {
 		this.intPtr-=2;
 	}
@@ -2265,11 +2265,11 @@ protected void consumeEnhancedForStatement(boolean hasModifiers) {
 	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
 	if (hasModifiers) {
 		localDeclaration.declarationSourceStart = declarationSourceStart;
-		localDeclaration.modifiers = modifiers;
+		localDeclaration.modifiers = modifiersValue;
 	}
 	localDeclaration.type = type;
 	pushOnAstStack(
-		new IteratorForStatement(
+		new ForeachStatement(
 			localDeclaration,
 			collection,
 			statement, 
