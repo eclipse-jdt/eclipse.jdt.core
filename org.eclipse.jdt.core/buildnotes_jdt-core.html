@@ -45,7 +45,27 @@ What's new in this drop</h2>
 <ul>
 <li>When diagnostic for unnecessary semicolon is enabled, the compiler will also flag empty
 control-flow statement: e.g. if (bool);.  Note that the naming of the option is going soon
-to be revised to better reflect this evolution.</li>
+to be revised to better reflect this evolution.
+Empty control-flow statement problem ID is: <tt>IProblem.EmptyControlFlowStatement</tt>.
+</li>
+<li>Added compiler style option to report situation where a statement is unnecessarily nested
+in else clause, e.g.: 
+<pre>
+ if (bool) 
+   return;
+ else
+   System.out.println();   // no need to be inside else
+</pre>    
+Associated problem ID is: <tt>IProblem.UnnecessaryElse</tt>.
+<pre>
+* COMPILER / Reporting Unnecessary Else
+*    When enabled, the compiler will issue an error or a warning when a statement is unnecessarily
+*    nested within an else clause (in situation where then clause is not completing normally).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unnecessaryElse"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
