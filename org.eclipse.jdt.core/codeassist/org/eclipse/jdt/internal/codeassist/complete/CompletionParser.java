@@ -59,6 +59,8 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN = COMPLETION_PARSER + 23;
 	protected static final int K_INSIDE_ASSERT_STATEMENT = COMPLETION_PARSER + 24;
 	protected static final int K_SWITCH_LABEL= COMPLETION_PARSER + 25;
+	protected static final int K_BETWEEN_CASE_AND_COLON = COMPLETION_PARSER + 26;
+	protected static final int K_BETWEEN_DEFAULT_AND_COLON = COMPLETION_PARSER + 26;
 	
 
 	/* public fields */
@@ -1876,6 +1878,12 @@ protected void consumeToken(int token) {
 					&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == QUESTION) {
 					popElement(K_CONDITIONAL_OPERATOR);
 					pushOnElementStack(K_CONDITIONAL_OPERATOR, COLON);
+				} else {
+					if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
+						popElement(K_BETWEEN_CASE_AND_COLON);
+					} else {
+						popElement(K_BETWEEN_DEFAULT_AND_COLON);
+					}
 				}
 				break;
 			case TokenNameif:
@@ -1895,6 +1903,12 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameassert:
 				pushOnElementStack(K_INSIDE_ASSERT_STATEMENT, this.bracketDepth);
+				break;
+			case TokenNamecase :
+				pushOnElementStack(K_BETWEEN_CASE_AND_COLON);
+				break;
+			case TokenNamedefault :
+				pushOnElementStack(K_BETWEEN_DEFAULT_AND_COLON);
 				break;
 		}
 	}
@@ -2009,7 +2023,7 @@ public NameReference createSingleAssistNameReference(char[] name, long position)
 				if(isInsideBreakable()) {
 					keywords[count++]= Keywords.BREAK;
 				}
-			} else {
+			} else if(kind != K_BETWEEN_CASE_AND_COLON && kind != K_BETWEEN_DEFAULT_AND_COLON) {
 				keywords[count++]= Keywords.TRUE;
 				keywords[count++]= Keywords.FALSE;
 				keywords[count++]= Keywords.NULL;
