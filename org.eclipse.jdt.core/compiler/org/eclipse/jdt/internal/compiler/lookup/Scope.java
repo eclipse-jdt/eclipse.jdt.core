@@ -64,6 +64,16 @@ public abstract class Scope
 					return false;
 		return true;
 	}
+	
+	public final ClassScope classScope() {
+		Scope scope = this;
+		do {
+			if (scope instanceof ClassScope)
+				return (ClassScope) scope;
+			scope = scope.parent;
+		} while (scope != null);
+		return null;
+	}	
 
 	/* Answer an int describing the relationship between the given type and unchecked exceptions.
 	*

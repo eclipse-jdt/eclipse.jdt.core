@@ -40,7 +40,7 @@ public class JavadocFieldReference extends FieldReference {
 		}
 
 		Binding fieldBinding = (this.receiver != null && this.receiver.isThis())
-			? scope.getBinding(this.token, this.bits & RestrictiveFlagMASK, this, true /*resolve*/)
+			? scope.classScope().getBinding(this.token, this.bits & RestrictiveFlagMASK, this, true /*resolve*/)
 			: scope.getField(this.receiverType, this.token, this);
 		if (!fieldBinding.isValidBinding()) {
 			// implicit lookup may discover issues due to static/constructor contexts. javadoc must be resilient
