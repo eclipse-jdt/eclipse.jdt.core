@@ -2208,14 +2208,23 @@ public class DeltaProcessor {
 						}
 						if (res.isOpen()) {
 							if (JavaProject.hasJavaNature(res)) {
-								elementAdded(element, delta, rootInfo);
+								addToParentInfo(element);
+								currentDelta().opened(element);
+								this.state.updateRoots(element.getPath(), delta, this);
+								
+								// refresh pkg fragment roots and caches of the project (and its dependents)
+								this.rootsToRefresh.add(element);
+								this.projectCachesToReset.add(element);
+								
 								this.manager.indexManager.indexAll(res);
 							}
 						} else {
 							JavaModel javaModel = this.manager.getJavaModel();
 							boolean wasJavaProject = javaModel.findJavaProject(res) != null;
 							if (wasJavaProject) {
-								elementRemoved(element, delta, rootInfo);
+								close(element);
+								removeFromParentInfo(element);
+								currentDelta().closed(element);
 								this.manager.indexManager.discardJobs(element.getElementName());
 								this.manager.indexManager.removeIndexFamily(res.getFullPath());
 							}

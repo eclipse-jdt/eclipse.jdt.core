@@ -860,7 +860,15 @@ private boolean isAffectedByJavaModel(IJavaElementDelta delta, IJavaElement elem
  * Returns true if the given java project delta could affect this type hierarchy
  */
 private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement element) {
-	switch (delta.getKind()) {
+    int kind = delta.getKind();
+    int flags = delta.getFlags();
+    if ((flags & IJavaElementDelta.F_OPENED) != 0) {
+        kind = IJavaElementDelta.ADDED; // affected in the same way
+    }
+    if ((flags & IJavaElementDelta.F_CLOSED) != 0) {
+        kind = IJavaElementDelta.REMOVED; // affected in the same way
+    }
+	switch (kind) {
 		case IJavaElementDelta.ADDED :
 			try {
 				// if the added project is on the classpath, then the hierarchy has changed
