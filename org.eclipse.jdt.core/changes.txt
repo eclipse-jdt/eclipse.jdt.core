@@ -1,13 +1,16 @@
 What's new in this drop
-
+==================================================================================
   *   JCK1.3a compliant. 
   *  All messages have been externalized. 
   *  Added 2 new APIs on JavaConventions: 
-         -  IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
+         - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
 
-PRs Fixed in this Release (since 1.0NL stream)
 
+PRs Fixed in this Release (since 1.0NL stream)
+==================================================================================
+1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
+1GH2R62: ITPJCORE:WIN2000 - Typo in progress message
 1GGYL32: ITPJCORE:ALL - Default supertypes are not visible when qualified
 1GDFJK0: IVJIDT:WIN2000 - Using 'synchronized' produces invalid exception table values in class, causes "Illegal exception table range" exception, VAJ 3.5+ 
 1GGAK6G: ITPJCORE:ALL - Incorrect javadoc comment in JavaElement 
@@ -22,8 +25,9 @@ PRs Fixed in this Release (since 1.0NL stream)
 1G7A1TL: ITPJCORE:WINNT - DCR - JM - Rules for classpath not specified 
 1FVVWZT: ITPJCORE:ALL - JM - IBinaryType should implement getSourceFileName() 
 
-PRs Fixed in 1.0NL stream (since 0.9)
 
+PRs Fixed in 1.0NL stream (since 0.9)
+==================================================================================
 1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
 1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
 1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 
@@ -46,9 +50,9 @@ PRs Fixed in 1.0NL stream (since 0.9)
 1GGCQZ3: ITPJCORE:ALL - NL problems in xml fil  
 1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP 
 
+
 PRs Closed in this Release
-
-
+==================================================================================
 1GF7PZW: ITPJCORE:WINNT - Evaluation - Walkback reporting error on local variable type 
 1GGLNOQ: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB - use a space instead. 
 1G295FE: ITPJCORE:ALL - Improve package fragment root management for java project 

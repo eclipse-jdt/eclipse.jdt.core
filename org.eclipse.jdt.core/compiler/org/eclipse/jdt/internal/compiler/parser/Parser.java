@@ -614,6 +614,7 @@ protected static short check(int i) {
 public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 
 	boolean anomaliesDetected = false;	
+	scanner.wasAcr = false;	
 	try {
 		char[] source = scanner.source;
 		int[] leftCount = {0, 0, 0};

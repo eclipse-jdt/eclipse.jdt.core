@@ -560,7 +560,7 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 				for (int i = 0; i < oldRoots.length; i++) {
 					rootResource = null;
 					try {
-						oldRoots[i].getUnderlyingResource();
+						rootResource = oldRoots[i].getUnderlyingResource();
 					} catch (JavaModelException e) {
 					}
 					if (rootResource != null && rootResource.getFullPath().isPrefixOf(path)) {
