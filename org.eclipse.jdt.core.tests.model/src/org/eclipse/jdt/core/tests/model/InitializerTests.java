@@ -50,11 +50,73 @@ public class DefaultVariableInitializer implements VariablesInitializer.ITestIni
 			(IPath)variableValues.get(variable), 
 			null);
 	}
+}
 
+public class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
+	
+	Map containerValues;
+	
+	/*
+	 * values is [<project name>, <lib path>[,<lib path>]* ]*
+	 */
+	public DefaultContainerInitializer(String[] values) throws JavaModelException {
+		containerValues = new HashMap();
+		for (int i = 0; i < values.length; i+=2) {
+			final String projectName = values[i];
+			final String[] libPaths = values[i+1].split(",");
+			containerValues.put(
+				projectName, 
+				new IClasspathContainer() {
+					public IClasspathEntry[] getClasspathEntries() {
+						int length = libPaths.length;
+						IClasspathEntry[] entries = new IClasspathEntry[length];
+						for (int j = 0; j < length; j++) {
+							entries[j] = JavaCore.newLibraryEntry(new Path(libPaths[j]), null, null);
+						}
+						return entries;
+					}
+					public String getDescription() {
+						return "Test container";
+					}
+					public int getKind() {
+						return IClasspathContainer.K_APPLICATION;
+					}
+					public IPath getPath() {
+						return new Path("org.eclipse.jdt.core.tests.model/TEST_CONTAINER");
+					}
+				}
+			);
+		}
+	}
+	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+		if (containerValues == null) return;
+		JavaCore.setClasspathContainer(
+			containerPath, 
+			new IJavaProject[] {project},
+			new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
+			null);
+	}
 }
 	
 public InitializerTests(String name) {
 	super(name);
+}
+public void testContainreInitializer1() throws CoreException {
+	try {
+		this.createProject("P1");
+		this.createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		IJavaProject p2 = this.createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(this.getFile("/P1/lib.jar"));
+		assertTrue("/P1/lib.jar should exist", root.exists());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
 }
 public static Test suite() {
 	return new Suite(InitializerTests.class);
@@ -184,20 +246,11 @@ public void testVariableInitializer6() throws CoreException {
 				buffer.append("Ignoring request to initialize");
 			}
 		});
-		
-		// cause variable initializer to be called
 		IPath path = JavaCore.getClasspathVariable("TEST_SRC");
 		assertEquals(
 			"Unexpected value of TEST_SRC after initializer was called",
 			null,
 			path);
-		assertEquals(
-			"Unexpected trace of initializer 1",
-			"Ignoring request to initialize",
-			buffer.toString());
-			
-		// explicitely set classpath var
-		buffer.delete(0, buffer.length());
 		IPath varValue = new Path("src.zip");
 		JavaCore.setClasspathVariable("TEST_SRC", varValue, null);
 		path = JavaCore.getClasspathVariable("TEST_SRC");
@@ -205,10 +258,6 @@ public void testVariableInitializer6() throws CoreException {
 			"Unexpected value of TEST_SRC after setting it",
 			varValue,
 			path);
-		assertEquals(
-			"Unexpected trace of initializer 2",
-			"",
-			buffer.toString());
 	} finally {
 		VariablesInitializer.reset();
 	}

@@ -340,12 +340,14 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 							null);
 					}
 				}
-				if (lib.equals(lib.toUpperCase())) { // all upper case is a var
+				if (lib.equals(lib.toUpperCase())) { // all upper case is a var 
 					String[] vars = lib.split(",");
 					entries[sourceLength+i] = JavaCore.newVariableEntry(
 						new Path(vars[0]), 
 						vars.length > 1 ? new Path(vars[1]) : null, 
 						vars.length > 2 ? new Path(vars[2]) : null);
+				} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
+					entries[sourceLength+i] = JavaCore.newContainerEntry(new Path(lib));
 				} else {
 					IPath libPath = new Path(lib);
 					if (!libPath.isAbsolute() && libPath.segmentCount() > 0 && libPath.getFileExtension() == null) {

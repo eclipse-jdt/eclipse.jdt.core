@@ -29,4 +29,10 @@
 			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
 	</extension>		
 
+	<extension point = "org.eclipse.jdt.core.classpathContainerInitializer">
+		<classpathContainerInitializer
+			id="org.eclipse.jdt.core.tests.model.TEST_CONTAINER"
+			class="org.eclipse.jdt.core.tests.model.ContainerInitializer"/>
+	</extension>
+
 </plugin>
