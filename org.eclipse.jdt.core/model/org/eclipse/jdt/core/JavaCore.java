@@ -16,7 +16,8 @@
  *     IBM Corporation - added run(IWorkspaceRunnable, IProgressMonitor)
  *     IBM Corporation - added exclusion patterns to source classpath entries
  *     IBM Corporation - added the following constants:
- * 								CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
+ *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
+ *                                 CLEAN
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
