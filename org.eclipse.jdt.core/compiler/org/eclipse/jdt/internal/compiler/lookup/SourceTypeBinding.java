@@ -619,7 +619,17 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
 	return (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 }
-
+/* 
+ * Answer the bridge method associated for an  inherited methods or null if one does not exist
+ */
+public SyntheticAccessMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
+    
+	if (synthetics == null) return null;
+	if (synthetics[METHOD_EMUL] == null) return null;
+	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
+	if (accessors == null) return null;
+	return accessors[1];
+}
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.
