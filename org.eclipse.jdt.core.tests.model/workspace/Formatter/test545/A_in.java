@@ -14,4 +14,6 @@ void case1(List<Object>... lists)
     {
         int notFormatted;
     }
+void case4(java.lang.List<Object>... lists)
+{ int notFormatted; }
 }

@@ -12,4 +12,8 @@ public class Bug {
     void case3(List<Object> lists) {
         int notFormatted;
     }
+
+    void case4(java.lang.List<Object>... lists) {
+        int notFormatted;
+    }
 }
