@@ -1275,6 +1275,9 @@ public class Main implements ProblemSeverities {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
 			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportNoEffectAssignment,
+			CompilerOptions.WARNING);
 		return defaultOptions;
 	}
 	public Map getOptions() {
