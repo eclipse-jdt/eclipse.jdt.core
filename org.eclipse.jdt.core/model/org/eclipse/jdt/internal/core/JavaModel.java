@@ -188,7 +188,7 @@ protected boolean generateInfos(
 
 	JavaModelManager.getJavaModelManager().putInfo(this, info);
 	// determine my children
-	IProject[] projects = this.getWorkspace().getRoot().getProjects();
+	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	for (int i = 0, max = projects.length; i < max; i++) {
 		IProject project = projects[i];
 		if (JavaProject.hasJavaNature(project)) {

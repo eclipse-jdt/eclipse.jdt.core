@@ -553,7 +553,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				operation.run(monitor);
 			} else {
 				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
-				this.getJavaModel().getWorkspace().run(operation, monitor);
+				ResourcesPlugin.getWorkspace().run(operation, monitor);
 			}
 		} catch (CoreException ce) {
 			if (ce instanceof JavaModelException) {
