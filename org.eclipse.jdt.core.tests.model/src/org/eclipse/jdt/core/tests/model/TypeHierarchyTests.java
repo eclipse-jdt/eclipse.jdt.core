@@ -191,6 +191,28 @@ public void testGetType() throws JavaModelException {
 	assertTrue("Unexpected focus type for hierarchy on region", this.typeHierarchy.getType() == null);
 }
 /**
+ * Ensures that a hierarchy on a type that implements a missing interface is correctly rooted.
+ * (regression test for bug 24691 Missing interface makes hierarchy incomplete)
+ */
+public void testMissingInterface() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p4", "X.java").getType("X");
+	ITypeHierarchy hierarchy = null;
+	try {
+		hierarchy = type.newSupertypeHierarchy(null);
+	} catch (IllegalArgumentException iae) {
+		assertTrue("IllegalArgumentException", false);
+	}
+	assertEquals(
+		"Unexpected hierarchy", 
+		"Focus: p4.X\n" +
+		"Super types:\n" +
+		"  X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n" +
+		"    Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" +
+		"Sub types:\n" +
+		"  X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n",
+		hierarchy.toString());
+}
+/**
  * Ensures that a potential subtype that is not in the classpth is handle correctly.
  * (Regression test for PR #1G4GL9R)
  */

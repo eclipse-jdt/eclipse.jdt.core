@@ -215,15 +215,15 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 			} else {
 				return null;
 			}
-			if (superclassName == null) return null;
-			int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
-			char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
-			return new MissingType(new String(simpleName));
-		} else {
-			for (int t = typeIndex; t >= 0; t--) {
-				if (typeBindings[t] == superBinding) {
-					return typeModels[t];
-				}
+			if (superclassName != null) { // if original is not java.lang.Object
+				int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
+				char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
+				return new MissingType(new String(simpleName));
+			}
+		}
+		for (int t = typeIndex; t >= 0; t--) {
+			if (typeBindings[t] == superBinding) {
+				return typeModels[t];
 			}
 		}
 	} 
