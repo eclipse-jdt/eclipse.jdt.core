@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
 /**
@@ -61,6 +62,6 @@ public abstract class ClasspathContainerResolver {
      * 
      * @see JavaCore#updateClasspathContainer     
      */
-    public abstract IClasspathEntry[] resolve(IPath containerPath, IJavaProject project);
+    public abstract IClasspathEntry[] resolve(IPath containerPath, IJavaProject project) throws CoreException;
 }
 

@@ -423,17 +423,21 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				break;
 
 			case IClasspathEntry.CPE_CONTAINER :
-				IClasspathEntry[] containerEntries = javaProject.getResolvedClasspathContainer(rawEntry.getPath());
-				if (containerEntries != null){
-					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-						 resolvedEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
-						if (resolvedEntry != null){
-							if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
-							// check if any source entries coincidates with binary output - in which case nesting inside output is legal
-							if (resolvedEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
-							resolvedEntries.add(resolvedEntry);
+				try {
+					IClasspathEntry[] containerEntries = javaProject.getResolvedClasspathContainer(rawEntry.getPath());
+					if (containerEntries != null){
+						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
+							 resolvedEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
+							if (resolvedEntry != null){
+								if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
+								// check if any source entries coincidates with binary output - in which case nesting inside output is legal
+								if (resolvedEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
+								resolvedEntries.add(resolvedEntry);
+							}
 						}
 					}
+				} catch(JavaModelException e){
+					return new JavaModelStatus(e);
 				}
 				break;
 				
@@ -523,15 +527,19 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 			// container entry check
 			case IClasspathEntry.CPE_CONTAINER :
 				if (path != null && path.segmentCount() >= 1){
-					IClasspathEntry[] containerEntries = javaProject.getResolvedClasspathContainer(path);
-					if (containerEntries == null){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", path.toString())); //$NON-NLS-1$
-					}
-					for (int i = 0, length = containerEntries.length; i < length; i++){
-						IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntries[i], checkSourceAttachment);
-						if (!containerEntryStatus.isOK()){
-							return containerEntryStatus;
+					try {
+						IClasspathEntry[] containerEntries = javaProject.getResolvedClasspathContainer(path);
+						if (containerEntries == null){
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", path.toString())); //$NON-NLS-1$
 						}
+						for (int i = 0, length = containerEntries.length; i < length; i++){
+							IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntries[i], checkSourceAttachment);
+							if (!containerEntryStatus.isOK()){
+								return containerEntryStatus;
+							}
+						}
+					} catch(JavaModelException e){
+						return new JavaModelStatus(e);
 					}
 				} else {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalContainerPath", path.toString()));					 //$NON-NLS-1$

@@ -140,6 +140,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (attributes != null && element != null)
 			attributes.put(ATT_HANDLE_ID, element.getHandleIdentifier());
 	}
+	
+	/** TOFIX
+	 * 
+	 */
+	public void classpathContainerChanged(IPath containerPath, IJavaProject project){
+	}
+	
 	/**
 	 * Configures the given marker for the given Java element.
 	 * Used for markers which denote a Java element rather than a resource.

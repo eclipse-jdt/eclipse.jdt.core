@@ -655,7 +655,7 @@ public class JavaProject
 		return writer.toString();
 	}
 
-	public IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath){
+	public IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath) throws JavaModelException {
 
 		Map projectContainers = (Map)JavaModelManager.Containers.get(this);
 		if (projectContainers == null){
@@ -669,7 +669,11 @@ public class JavaProject
 			ClasspathContainerResolver resolver = JavaModelManager.getClasspathContainerResolver(containerPath);
 			if (resolver != null){
 				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
-				entries = resolver.resolve(containerPath, this);
+				try {
+					entries = resolver.resolve(containerPath, this);
+				} catch(CoreException e){
+					throw new JavaModelException(e);
+				}
 				if (entries != null){
 					projectContainers.put(containerPath, entries);
 				}
@@ -724,7 +728,7 @@ public class JavaProject
 		Element element = document.createElement("classpathentry"); //$NON-NLS-1$
 		element.setAttribute("kind", kindToString(entry.getEntryKind()));	//$NON-NLS-1$
 		IPath path = entry.getPath();
-		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE) {
+		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE && entry.getEntryKind() != IClasspathEntry.CPE_CONTAINER) {
 			// translate to project relative from absolute (unless a device path)
 			if (path.isAbsolute()) {
 				if (prefixPath != null && prefixPath.isPrefixOf(path)) {
@@ -1538,6 +1542,8 @@ public IResource getResource() {
 			return IClasspathEntry.CPE_PROJECT;
 		if (kindStr.equalsIgnoreCase("var")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_VARIABLE;
+		if (kindStr.equalsIgnoreCase("container")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_CONTAINER;
 		if (kindStr.equalsIgnoreCase("src")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_SOURCE;
 		if (kindStr.equalsIgnoreCase("lib")) //$NON-NLS-1$
@@ -1561,6 +1567,8 @@ public IResource getResource() {
 				return "lib"; //$NON-NLS-1$
 			case IClasspathEntry.CPE_VARIABLE :
 				return "var"; //$NON-NLS-1$
+			case IClasspathEntry.CPE_CONTAINER :
+				return "container"; //$NON-NLS-1$
 			case ClasspathEntry.K_OUTPUT :
 				return "output"; //$NON-NLS-1$
 			default :
@@ -1763,6 +1771,12 @@ public IResource getResource() {
 									isExported));
 							break;
 							
+						case IClasspathEntry.CPE_CONTAINER :
+							paths.add(JavaCore.newContainerEntry(
+									path,
+									isExported));
+							break;
+
 						case ClasspathEntry.K_OUTPUT :
 							if (!path.isAbsolute()) return null;
 							paths.add(new ClasspathEntry(

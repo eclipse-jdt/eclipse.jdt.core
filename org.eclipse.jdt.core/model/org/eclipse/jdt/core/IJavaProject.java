@@ -101,11 +101,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IPackageFragmentRoot[] getAllPackageFragmentRoots() throws JavaModelException;
 
-	/** TOFIX
-	 * 
-	 */
-	IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath);
-
 	/**
 	 * Returns an array of non-Java resources directly contained in this project.
 	 * It does not transitively answer non-Java resources contained in folders;
@@ -262,8 +257,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </ul>
 	 * @see IClasspathEntry 
 	 */
-	IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable)
-		throws JavaModelException;
+	IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable) throws JavaModelException;
+
+	/** TOFIX
+	 * 
+	 */
+	IClasspathEntry[] getResolvedClasspathContainer(IPath containerPath) throws JavaModelException;
 
 	/**
 	 * Returns whether this project has been built at least once and thus whether it has a build state.
