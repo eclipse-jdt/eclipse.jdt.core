@@ -250,10 +250,6 @@ public class MethodScope extends BlockScope {
 			method.binding = new MethodBinding(modifiers, null, null, declaringClass);
 			checkAndSetModifiersForConstructor(method.binding);
 		} else {
-			if (((MethodDeclaration) method).returnType == null) {
-				problemReporter().missingReturnType(method);
-				return null;
-			}
 			if (declaringClass.isInterface())
 				modifiers |= AccPublic | AccAbstract;
 			method.binding =

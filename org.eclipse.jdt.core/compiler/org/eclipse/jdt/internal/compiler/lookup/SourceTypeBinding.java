@@ -812,15 +812,22 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 
 	boolean foundReturnTypeProblem = false;
 	if (!method.isConstructor()) {
-		method.returnType = ((MethodDeclaration) methodDecl).returnType.getTypeBinding(scope);
-		if (!method.returnType.isValidBinding()) {
-			methodDecl.scope.problemReporter().returnTypeProblem(this, (MethodDeclaration) methodDecl, method.returnType);
+		TypeReference returnType = ((MethodDeclaration) methodDecl).returnType;
+		if (returnType == null) {
+			methodDecl.scope.problemReporter().missingReturnType(methodDecl);
 			method.returnType = null;
 			foundReturnTypeProblem = true;
-		} else if (method.returnType.isArrayType() && ((ArrayBinding) method.returnType).leafComponentType == VoidBinding) {
-			methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray(this, (MethodDeclaration) methodDecl);
-			method.returnType = null;
-			foundReturnTypeProblem = true;
+		} else {
+			method.returnType = returnType.getTypeBinding(scope);
+			if (!method.returnType.isValidBinding()) {
+				methodDecl.scope.problemReporter().returnTypeProblem(this, (MethodDeclaration) methodDecl, method.returnType);
+				method.returnType = null;
+				foundReturnTypeProblem = true;
+			} else if (method.returnType.isArrayType() && ((ArrayBinding) method.returnType).leafComponentType == VoidBinding) {
+				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray(this, (MethodDeclaration) methodDecl);
+				method.returnType = null;
+				foundReturnTypeProblem = true;
+			}
 		}
 	}
 	if (foundArgProblem) {
