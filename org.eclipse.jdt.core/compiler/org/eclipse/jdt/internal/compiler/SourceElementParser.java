@@ -240,8 +240,8 @@ protected void consumeMethodHeaderName() {
 	if (currentElement != null){
 		if (currentElement instanceof RecoveredType 
 			//|| md.modifiers != 0
-			|| (scanner.searchLineNumber(md.returnType.sourceStart)
-					== scanner.searchLineNumber(md.sourceStart))){
+			|| (scanner.getLineNumber(md.returnType.sourceStart)
+					== scanner.getLineNumber(md.sourceStart))){
 			lastCheckPoint = md.bodyStart;
 			currentElement = currentElement.add(md, 0);
 			lastIgnoredToken = -1;			

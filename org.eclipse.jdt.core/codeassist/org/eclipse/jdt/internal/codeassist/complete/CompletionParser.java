@@ -130,7 +130,7 @@ protected void attachOrphanCompletionNode(){
 			if (method != null){
 				AbstractMethodDeclaration methodDecl = method.methodDeclaration;
 				if ((methodDecl.bodyStart == methodDecl.sourceEnd+1) // was missing opening brace
-					&& (scanner.searchLineNumber(orphan.sourceStart) == scanner.searchLineNumber(methodDecl.sourceEnd))){
+					&& (scanner.getLineNumber(orphan.sourceStart) == scanner.getLineNumber(methodDecl.sourceEnd))){
 					return;
 				}
 			}
@@ -155,7 +155,7 @@ protected void attachOrphanCompletionNode(){
 		if (method != null){
 			AbstractMethodDeclaration methodDecl = method.methodDeclaration;
 			if ((methodDecl.bodyStart == methodDecl.sourceEnd+1) // was missing opening brace
-				&& (scanner.searchLineNumber(expression.sourceStart) == scanner.searchLineNumber(methodDecl.sourceEnd))){
+				&& (scanner.getLineNumber(expression.sourceStart) == scanner.getLineNumber(methodDecl.sourceEnd))){
 				return;
 			}
 		}
@@ -458,8 +458,8 @@ private boolean checkRecoveredMethod() {
 		/* check if on line with an error already - to avoid completing inside 
 			illegal type names e.g.  int[<cursor> */
 		if (lastErrorEndPosition <= cursorLocation+1
-			&& scanner.searchLineNumber(lastErrorEndPosition) 
-				== scanner.searchLineNumber(((CompletionScanner)scanner).completedIdentifierStart)){
+			&& scanner.getLineNumber(lastErrorEndPosition) 
+				== scanner.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart)){
 			return false;
 		}		
  		RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
@@ -488,8 +488,8 @@ private boolean checkRecoveredType() {
 		/* check if on line with an error already - to avoid completing inside 
 			illegal type names e.g.  int[<cursor> */
 		if ((lastErrorEndPosition <= cursorLocation+1)
-			&& scanner.searchLineNumber(lastErrorEndPosition) 
-				== scanner.searchLineNumber(((CompletionScanner)scanner).completedIdentifierStart)){
+			&& scanner.getLineNumber(lastErrorEndPosition) 
+				== scanner.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart)){
 			return false;
 		}
 		RecoveredType recoveredType = (RecoveredType)currentElement;
@@ -689,8 +689,8 @@ protected void consumeMethodHeaderName() {
 		if (currentElement != null){
 			if (currentElement instanceof RecoveredType 
 				//|| md.modifiers != 0
-				|| (scanner.searchLineNumber(md.returnType.sourceStart)
-						== scanner.searchLineNumber(md.sourceStart))){
+				|| (scanner.getLineNumber(md.returnType.sourceStart)
+						== scanner.getLineNumber(md.sourceStart))){
 				lastCheckPoint = md.bodyStart;
 				currentElement = currentElement.add(md, 0);
 				lastIgnoredToken = -1;

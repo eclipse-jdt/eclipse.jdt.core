@@ -209,7 +209,7 @@ public int previousAvailableLineEnd(int position){
 	Scanner scanner = parser.scanner;
 	if (scanner.lineEnds == null) return position;
 	
-	int index = scanner.searchLineNumber(position);
+	int index = scanner.getLineNumber(position);
 	if (index < 2) return position;
 	int previousLineEnd = scanner.lineEnds[index-2];
 

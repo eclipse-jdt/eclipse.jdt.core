@@ -2701,7 +2701,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
  * Search the line number corresponding to a specific position
  *
  */
-public final int searchLineNumber(int position) {
+public final int getLineNumber(int position) {
 
 	if (lineEnds == null)
 		return 1;

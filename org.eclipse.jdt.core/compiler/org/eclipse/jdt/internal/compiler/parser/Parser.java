@@ -1927,8 +1927,8 @@ protected void consumeEnterVariable() {
 		if (!(currentElement instanceof RecoveredType)
 			&& (currentToken == TokenNameDOT
 				//|| declaration.modifiers != 0
-				|| (scanner.searchLineNumber(declaration.type.sourceStart)
-						!= scanner.searchLineNumber((int) (namePosition >>> 32))))){
+				|| (scanner.getLineNumber(declaration.type.sourceStart)
+						!= scanner.getLineNumber((int) (namePosition >>> 32))))){
 			lastCheckPoint = (int) (namePosition >>> 32);
 			restartRecovery = true;
 			return;
@@ -2465,8 +2465,8 @@ protected void consumeMethodHeaderName() {
 	if (currentElement != null){
 		if (currentElement instanceof RecoveredType 
 			//|| md.modifiers != 0
-			|| (scanner.searchLineNumber(md.returnType.sourceStart)
-					== scanner.searchLineNumber(md.sourceStart))){
+			|| (scanner.getLineNumber(md.returnType.sourceStart)
+					== scanner.getLineNumber(md.sourceStart))){
 			lastCheckPoint = md.bodyStart;
 			currentElement = currentElement.add(md, 0);
 			lastIgnoredToken = -1;
@@ -4792,7 +4792,7 @@ public int flushAnnotationsDefinedPriorTo(int position) {
 		if (immediateCommentEnd > 0){ // only tolerating non-javadoc comments
 			// is there any line break until the end of the immediate comment ? (thus only tolerating line comment)
 			immediateCommentEnd--; // comment end in one char too far
-			if (scanner.searchLineNumber(position) == scanner.searchLineNumber(immediateCommentEnd)){
+			if (scanner.getLineNumber(position) == scanner.getLineNumber(immediateCommentEnd)){
 				position = immediateCommentEnd;
 				validCount--; // flush this comment
 				index++;
@@ -6630,8 +6630,8 @@ protected boolean moveRecoveryCheckpoint() {
 				nextIgnoredToken = scanner.getNextToken();
 				switch(nextIgnoredToken){
 					case Scanner.TokenNameWHITESPACE :
-						if(scanner.searchLineNumber(scanner.startPosition)
-							== scanner.searchLineNumber(scanner.currentPosition)){
+						if(scanner.getLineNumber(scanner.startPosition)
+							== scanner.getLineNumber(scanner.currentPosition)){
 							nextIgnoredToken = -1;
 							}
 						break;
