@@ -274,8 +274,10 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	if (buffer == null && this.bufferFactory != null) {
 		buffer = this.bufferFactory.createBuffer(this);
-		CompilationUnit original = (CompilationUnit) getOriginalElement();
-		buffer.setContents(original.getContents());
+		if (buffer != null){
+			CompilationUnit original = (CompilationUnit) getOriginalElement();
+			buffer.setContents(original.getContents());
+		}
 	}
 	super.openWhenClosed(pm, buffer);
 }
