@@ -860,8 +860,9 @@ protected void checkAndSetModifiers(int flag){
 }
 public void checkComment() {
 
-	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-		flushCommentsDefinedPriorTo(this.endStatementPosition); // discard obsolete comments during recovery
+	// discard obsolete comments while inside methods or fields initializer (see bug 74369)
+	if (!(this.diet && this.dietInt==0) && this.scanner.commentPtr >= 0) {
+		flushCommentsDefinedPriorTo(this.endStatementPosition);
 	}
 	
 	int lastComment = this.scanner.commentPtr;

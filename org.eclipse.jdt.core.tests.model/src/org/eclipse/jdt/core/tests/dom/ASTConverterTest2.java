@@ -5201,9 +5201,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74369
-	 * TODO (frederic) activate once this bug is fixed
 	 */
-	public void _test0569() throws JavaModelException {
+	public void test0569() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0569", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$

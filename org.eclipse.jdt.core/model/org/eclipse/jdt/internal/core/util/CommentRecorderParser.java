@@ -41,8 +41,9 @@ public class CommentRecorderParser extends Parser {
 	// for backward compatibility with 2.1 DOM 
 	public void checkComment() {
 
-		if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-			flushCommentsDefinedPriorTo(this.endStatementPosition); // discard obsolete comments
+		// discard obsolete comments while inside methods or fields initializer (see bug 74369)
+		if (!(this.diet && this.dietInt==0) && this.scanner.commentPtr >= 0) {
+			flushCommentsDefinedPriorTo(this.endStatementPosition);
 		}
 		boolean deprecated = false;
 		boolean checkDeprecated = false;
