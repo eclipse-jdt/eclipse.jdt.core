@@ -98,13 +98,14 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 			return null;
 		}
-		TypeBinding lhsType = lhs.resolveType(scope);
+		TypeBinding originalLhsType = lhs.resolveType(scope);
 		TypeBinding expressionType = expression.resolveType(scope);
-		if (lhsType == null || expressionType == null)
+		if (originalLhsType == null || expressionType == null)
 			return null;
 	
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
+		TypeBinding lhsType = originalLhsType;
 		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
 		boolean unboxedLhs = false, unboxedExpression = false;
 		if (use15specifics) {
@@ -165,7 +166,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		this.lhs.implicitConversion = (unboxedLhs ? UNBOXING : 0) | (result >>> 12);
 		this.expression.implicitConversion = (unboxedExpression ? UNBOXING : 0) | ((result >>> 4) & 0x000FF);
 		this.assignmentImplicitConversion =  (unboxedLhs ? BOXING : 0) | (lhsID << 4) | (result & 0x0000F);
-		return this.resolvedType = lhsType;
+		return this.resolvedType = originalLhsType;
 	}
 	
 	public boolean restrainUsageToNumericTypes(){
