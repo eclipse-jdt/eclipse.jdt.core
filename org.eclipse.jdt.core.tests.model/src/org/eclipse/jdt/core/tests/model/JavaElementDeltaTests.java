@@ -138,6 +138,7 @@ public static Test suite() {
 	
 	// non-java resources
 	suite.addTest(new JavaElementDeltaTests("testMoveResInDotNamedFolder"));
+	suite.addTest(new JavaElementDeltaTests("testMoveTwoResInRoot"));
 	suite.addTest(new JavaElementDeltaTests("testMergeResourceDeltas"));
 	suite.addTest(new JavaElementDeltaTests("testAddFileToNonJavaProject"));
 	
@@ -1196,6 +1197,40 @@ public void testMoveResInDotNamedFolder() throws CoreException {
 			"P[*]: {CONTENT}\n" +
 			"	ResourceDelta(/P/test.txt)[+]\n" +
 			"	ResourceDelta(/P/x.y)[*]"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Move 2 non-java resources that were outside classpath to a package fragment root.
+ * (regression test for bug 28583 Missing one unit in package view)
+ */
+public void testMoveTwoResInRoot() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, "bin");
+		final IFile f1 = this.createFile("P/X.java", "public class X {}");
+		final IFile f2 = this.createFile("P/Y.java", "public class Y {}");
+		
+		this.startDeltas();
+		JavaCore.run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					f1.move(new Path("/P/src/X.java"), true, null);
+					f2.move(new Path("/P/src/Y.java"), true, null);
+				}
+			},
+			null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.java[+]: {}\n" + 
+			"			Y.java[+]: {}\n" + 
+			"	ResourceDelta(/P/X.java)[-]\n" + 
+			"	ResourceDelta(/P/Y.java)[-]"
 		);
 	} finally {
 		this.stopDeltas();

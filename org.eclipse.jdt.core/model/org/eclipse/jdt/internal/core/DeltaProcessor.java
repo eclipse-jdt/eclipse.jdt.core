@@ -985,7 +985,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				if (rootInfo == null) {
 					rootInfo = this.rootInfo(res.getFullPath());
 				}
-				if (Util.isExcluded(res, rootInfo == null ? null : rootInfo.exclusionPatterns)) {
+				if (rootInfo == null || Util.isExcluded(res, rootInfo.exclusionPatterns)) {
 					return NON_JAVA_RESOURCE;
 				}
 				if (res instanceof IFolder) {
