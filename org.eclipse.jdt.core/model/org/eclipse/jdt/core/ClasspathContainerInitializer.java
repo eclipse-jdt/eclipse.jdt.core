@@ -114,5 +114,20 @@ public abstract class ClasspathContainerInitializer {
 		// By default, classpath container initializers do not accept updating containers
     }
 
+	/**
+	 * Returns a readable description for a container path. A readable description for a container path can be
+	 * used for improving the display of references to container, without actually needing to resolve them.
+	 * A good implementation should answer a description consistent with the description of the associated 
+	 * target container (see <code>IClasspathContainer.getDescription()</code>).
+	 * 
+	 * @param containerPath - the path of the container which requires a readable description
+	 * @return String - a string description of the container
+	 * @since 2.1
+	 */    
+    public String getDescription(IPath containerPath) {
+    	
+    	// By default, a container path is the only available description
+    	return containerPath.makeRelative().toString();
+    }
 }
 

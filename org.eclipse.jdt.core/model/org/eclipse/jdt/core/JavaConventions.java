@@ -659,7 +659,9 @@ public final class JavaConventions {
 						IClasspathContainer container = JavaCore.getClasspathContainer(path, javaProject);
 						// container retrieval is performing validation check on container entry kinds.
 						if (container == null){
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", path.makeRelative().toString())); //$NON-NLS-1$
+							ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(path.segment(0));
+							String containerReadableName = initializer == null ? path.makeRelative().toString() : initializer.getDescription(path);
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundContainerPath", containerReadableName)); //$NON-NLS-1$
 						}
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){
@@ -672,7 +674,7 @@ public final class JavaConventions {
 									|| kind == IClasspathEntry.CPE_CONTAINER){
 										return new JavaModelStatus(
 											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
-											Util.bind("classpath.invalidContainer", container.getPath().toString())); //$NON-NLS-1$
+											Util.bind("classpath.invalidContainer", container.getDescription())); //$NON-NLS-1$
 								}
 								IJavaModelStatus containerEntryStatus = validateClasspathEntry(javaProject, containerEntry, checkSourceAttachment);
 								if (!containerEntryStatus.isOK()){
