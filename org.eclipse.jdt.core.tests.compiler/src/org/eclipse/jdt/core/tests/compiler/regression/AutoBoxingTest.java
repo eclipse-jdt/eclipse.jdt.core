@@ -2919,5 +2919,84 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"	             ^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from float[] to Float[]\n" + 
 			"----------\n");
-	}		
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85491
+	public void test101() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Object... i) { System.out.print(1); }\n" + 
+				"	void foo(int... i) { System.out.print(2); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(1);\n" + 
+				"		new X().foo(new Integer(1));\n" + 
+				"		new X().foo(1, new Integer(1));\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"222"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Number... i) { System.out.print(1); }\n" + 
+				"	void foo(int... i) { System.out.print(2); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(1);\n" + 
+				"		new X().foo(new Integer(1));\n" + 
+				"		new X().foo(1, new Integer(1));\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	new X().foo(1);\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Number[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	new X().foo(new Integer(1));\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Number[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	new X().foo(1, new Integer(1));\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Number[]) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(int i, Object... o) { System.out.print(1); }\n" + 
+				"	void foo(Integer o, int... i) { System.out.print(2); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().foo(1);\n" + 
+				"		new X().foo(new Integer(1));\n" + 
+				"		new X().foo(1, new Integer(1));\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\r\n" + 
+			"	new X().foo(1);\r\n" + 
+			"	        ^^^\n" + 
+			"The method foo(int, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\r\n" + 
+			"	new X().foo(new Integer(1));\r\n" + 
+			"	        ^^^\n" + 
+			"The method foo(int, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\r\n" + 
+			"	new X().foo(1, new Integer(1));\r\n" + 
+			"	        ^^^\n" + 
+			"The method foo(int, Object[]) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
+	}
 }

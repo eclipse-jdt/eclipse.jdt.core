@@ -3101,18 +3101,25 @@ public abstract class Scope
 			nextVisible : for (int i = 0; i < visibleSize; i++) {
 				if (compatibilityLevels[i] != level) continue nextVisible; // skip this method for now
 				MethodBinding method = visible[i];
+				TypeBinding[] params = method.tiebreakMethod().parameters;
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
 					MethodBinding method2 = visible[j];
 					// tiebreak generic methods using variant where type params are substituted by their erasures
-					if (!method2.tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters)) {
+					if (!method2.tiebreakMethod().areParametersCompatibleWith(params)) {
 						if (method.isVarargs() && method2.isVarargs()) {
-							int paramLength = method.parameters.length;
-							if (paramLength == method2.parameters.length && paramLength == argumentTypes.length + 1) {
-								TypeBinding elementsType = ((ArrayBinding) method2.parameters[paramLength - 1]).elementsType();
-								if (method.parameters[paramLength - 1].isCompatibleWith(elementsType))
-									continue; // special case to choose between 2 varargs methods when the last arg is missing
-							}
+							// check the non-vararg parameters
+							int paramLength = params.length;
+							TypeBinding[] params2 = method2.tiebreakMethod().parameters;
+							if (paramLength != params2.length)
+								continue nextVisible;
+							for (int p = paramLength - 2; p >= 0; p--)
+								if (params[p] != params2[p] && !params[p].isCompatibleWith(params2[p]))
+									continue nextVisible;
+
+							TypeBinding elementsType = ((ArrayBinding) params2[paramLength - 1]).elementsType();
+							if (params[paramLength - 1].isCompatibleWith(elementsType))
+								continue; // special case to choose between 2 varargs methods when the last arg is missing or its Object[]
 						}
 						continue nextVisible;
 					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
