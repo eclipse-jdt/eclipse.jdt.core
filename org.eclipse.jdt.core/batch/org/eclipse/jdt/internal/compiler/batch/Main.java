@@ -318,7 +318,7 @@ private void configure(String[] argv) throws InvalidInputException {
 			mode = InsideDestinationPath;
 			continue;
 		}
-		if (currentArg.equals("-classpath")) { //$NON-NLS-1$
+		if (currentArg.equals("-classpath") || currentArg.equals("-cp")) { //$NON-NLS-1$
 			if (pathCount > 0)
 				throw new InvalidInputException(Main.bind("configure.duplicateClasspath",currentArg)); //$NON-NLS-1$
 			classpaths = new String[DEFAULT_SIZE_CLASSPATH];
@@ -477,10 +477,6 @@ private void configure(String[] argv) throws InvalidInputException {
 				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 			} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
 				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-			} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
-				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
-			} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.targetJDK",currentArg)); //$NON-NLS-1$
 			}
@@ -619,8 +615,8 @@ private void configure(String[] argv) throws InvalidInputException {
 	System.arraycopy(classpaths, 0, (classpaths = new String[pathCount]), 0, pathCount);
 	for (int i = 0, max = classpaths.length; i < max; i++) {
 		File file = new File(classpaths[i]);
-		if (!file.exists())
-			throw new InvalidInputException(Main.bind("configure.incorrectClasspath",classpaths[i])); //$NON-NLS-1$
+		if (!file.exists()) // signal missing classpath entry file
+			out.println(Main.bind("configure.incorrectClasspath",classpaths[i])); //$NON-NLS-1$
 	}
 	if (destinationPath == null) {
 		destinationPath = System.getProperty("user.dir"); //$NON-NLS-1$
