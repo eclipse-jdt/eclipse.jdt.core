@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.dom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -737,25 +736,7 @@ public class CompilationUnit extends ASTNode {
 			this.optionalCommentList = Collections.unmodifiableList(commentList);
 		}
 	}
-	
-	
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
-	void appendDebugString(StringBuffer buffer) {
-		buffer.append("CompilationUnit"); //$NON-NLS-1$
-		// include the type names
-		buffer.append("["); //$NON-NLS-1$
-		for (Iterator it = types().iterator(); it.hasNext(); ) {
-			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
-			buffer.append(d.getName().getIdentifier());
-			if (it.hasNext()) {
-				buffer.append(","); //$NON-NLS-1$
-			}
-		}
-		buffer.append("]"); //$NON-NLS-1$
-	}
-		
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
