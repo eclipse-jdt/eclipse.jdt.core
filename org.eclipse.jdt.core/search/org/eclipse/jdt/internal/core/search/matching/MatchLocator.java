@@ -562,7 +562,7 @@ public class MatchLocator implements ITypeRequestor {
 					}
 				} else {
 					// class file in a directory
-					String osPath = resource.getFullPath().toOSString();
+					String osPath = resource.getLocation().toOSString();
 					info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
 				}
 				return info;
