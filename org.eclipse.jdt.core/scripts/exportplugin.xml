@@ -79,7 +79,6 @@
 
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${dest}/jdtcoresrc.zip">
-	    <zipfileset dir="antadapter" />
 	    <zipfileset dir="batch" />
 	    <zipfileset dir="codeassist" />
 	    <zipfileset dir="compiler" />
@@ -89,6 +88,10 @@
 	    <zipfileset dir="model" />
 	    <zipfileset dir="search" />
 	</zip>		
+	<echo message="UPDATE jdtCompilerAdaptersrc.zip" />
+	<zip zipfile="${dest}/jdtCompilerAdaptersrc.zip">
+		<zipfileset dir="antadapter" />
+	</zip>	    
 </target>
 
 <target name="zz_internal_export_structure">
