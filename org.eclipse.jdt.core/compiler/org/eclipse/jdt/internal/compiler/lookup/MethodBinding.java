@@ -82,11 +82,24 @@ public final boolean areParametersEquivalent(MethodBinding method) {
 	int length = parameters.length;
 	if (length != args.length)
 		return false;
-	
-	for (int i = 0; i < length; i++)
-		if (parameters[i] != args[i])
-			if (!parameters[i].isTypeVariable() || !args[i].isTypeVariable())
+
+	// TODO need to improve error message if methods are duplicates because of TypeVariableBindings
+	for (int i = 0; i < length; i++) {
+		if (parameters[i] != args[i]) {
+			TypeBinding rawParam = parameters[i] instanceof TypeVariableBinding
+				? ((TypeVariableBinding) parameters[i]).firstBound
+				: parameters[i];
+			if (rawParam != null && rawParam.id == TypeIds.T_Object)
+				rawParam = null; // a firstBound of null == Object
+			TypeBinding rawArg = args[i] instanceof TypeVariableBinding
+				? ((TypeVariableBinding) args[i]).firstBound
+				: args[i];
+			if (rawArg != null && rawArg.id == TypeIds.T_Object)
+				rawArg = null;
+			if (rawParam != rawArg)
 				return false;
+		}
+	}
 	return true;
 }
 /* API

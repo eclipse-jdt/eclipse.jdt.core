@@ -879,7 +879,17 @@ public void test035() {
 			"	void foo(Exception e, T t){}\n" + 
 			"}\n" ,
 		},
-		"duplicate");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(E e, Thread t){}\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method foo in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	void foo(Exception e, T t){}\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method foo in type X\n" + 
+		"----------\n");
 }	
 
 public void test036() {
