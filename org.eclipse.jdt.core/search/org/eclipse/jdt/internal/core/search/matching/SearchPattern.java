@@ -1018,12 +1018,17 @@ protected int matchLevelForType(char[][][] declaringTypes, ReferenceBinding rece
  */
 protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
 	if (type == null) return INACCURATE_MATCH;
+	char[] qualifiedPackageName = type.qualifiedPackageName();
+	char[] qualifiedSourceName = 
+		type instanceof LocalTypeBinding ?
+			CharOperation.concat("1".toCharArray(), type.qualifiedSourceName(), '.') :
+			type.qualifiedSourceName();
 	if (this.matchesType(
 			simpleNamePattern, 
 			qualificationPattern, 
-			type.qualifiedPackageName().length == 0 ? 
-				type.qualifiedSourceName() : 
-				CharOperation.concat(type.qualifiedPackageName(), type.qualifiedSourceName(), '.'))) {
+			qualifiedPackageName.length == 0 ? 
+				qualifiedSourceName : 
+				CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.'))) {
 		return ACCURATE_MATCH;
 	} else {
 		return IMPOSSIBLE_MATCH;

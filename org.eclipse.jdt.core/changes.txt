@@ -18,7 +18,6 @@ STREAM: 2.0
   1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
   1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
   1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
-  1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to class
 
   KJ
   ================================================================================
@@ -130,6 +129,7 @@ STREAM: 2.0
   	
   PRs Fixed in this Release
   ================================================================================
+  1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to class
   1G4TNX1: ITPJCORE:WINNT - Search - No search anonymous results in inner classes
   1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
   1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
