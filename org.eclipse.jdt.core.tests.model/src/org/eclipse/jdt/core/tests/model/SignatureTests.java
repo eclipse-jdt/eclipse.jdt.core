@@ -255,8 +255,20 @@ public void testGetParameterTypes() {
 			Signature.getParameterTypes(methodSig).length);
 	assertEquals("Signature#getParameterTypes 6", "La/b/c<TE;>.d<TF;>;",
 			Signature.getParameterTypes(methodSig)[0]);
-
 }
+/**
+ * @see Signature
+ */
+public void testGetTypeParameters() {
+	String methodSig = "<X:TF;Y::Ljava.lang.Cloneable;>";
+	assertEquals("Signature#getTypeParameters 1", 2,
+			Signature.getTypeParameters(methodSig).length);
+	assertEquals("Signature#getTypeParameters 2", "X:TF;",
+			Signature.getTypeParameters(methodSig)[0]);
+	assertEquals("Signature#getTypeParameters 3", "Y::Ljava.lang.Cloneable;",
+			Signature.getTypeParameters(methodSig)[1]);
+}
+
 /**
  * @see Signature
  */
