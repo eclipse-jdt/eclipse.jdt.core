@@ -314,7 +314,7 @@ public void testGeneral() throws JavaModelException, CoreException, IOException 
  */
 public void testGetOriginalBinaryElement() throws CoreException {
 	/* Evaluate the following in a scrapbook:
-	 org.eclipse.jdt.tests.core.ModifyingResourceTests.generateClassFile(
+	 org.eclipse.jdt.core.tests.model.ModifyingResourceTests.generateClassFile(
 		"A",
 		"public class A {\n" +
 		"}")
