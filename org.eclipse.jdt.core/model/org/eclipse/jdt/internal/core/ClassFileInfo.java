@@ -5,6 +5,10 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -12,10 +16,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.core.*;
-
-import java.util.Vector;
-import java.util.Hashtable;
-import java.util.Enumeration;
 
 /**
  * Element info for <code>ClassFile</code> handles.
@@ -46,7 +46,7 @@ ClassFileInfo(IClassFile classFile) {
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateFieldInfos(IType type, IBinaryType typeInfo, Hashtable newElements, Vector children) {
+private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
 	// Make the fields
 	IBinaryField[] fields = typeInfo.getFields();
 	if (fields == null) {
@@ -56,14 +56,14 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, Hashtable newE
 		IBinaryField fieldInfo = fields[i];
 		IField field = new BinaryField(type, new String(fieldInfo.getName()));
 		newElements.put(field, fieldInfo);
-		children.addElement(field);
+		children.add(field);
 	}
 }
 /**
  * Creates the handles and infos for the inner types of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateInnerClassInfos(IType type, IBinaryType typeInfo, Hashtable newElements, Vector children) {
+private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
 	// Add inner types
 	// If the current type is an inner type, innerClasses returns
 	// an extra entry for the current type.  This entry must be removed.
@@ -75,7 +75,7 @@ private void generateInnerClassInfos(IType type, IBinaryType typeInfo, Hashtable
 			String innerQualifiedName = new String(binaryType.getName());
 			IClassFile classFile= ((IPackageFragment)fClassFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + ".class"); //$NON-NLS-1$
 			IType innerType = new BinaryType(classFile, new String(ClassFile.simpleName(binaryType.getName())));
-			children.addElement(innerType);
+			children.add(innerType);
 		}
 	}
 }
@@ -83,7 +83,7 @@ private void generateInnerClassInfos(IType type, IBinaryType typeInfo, Hashtable
  * Creates the handles and infos for the methods of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateMethodInfos(IType type, IBinaryType typeInfo, Hashtable newElements, Vector children) {
+private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
 	IBinaryMethod[] methods = typeInfo.getMethods();
 	if (methods == null) {
 		return;
@@ -104,7 +104,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Hashtable new
 			pNames[j]= new String(parameterTypes[j]);
 		}
 		IMethod method = new BinaryMethod(type, selector, pNames);
-		children.addElement(method);
+		children.add(method);
 		newElements.put(method, methodInfo);
 	}
 }
@@ -131,8 +131,8 @@ boolean hasReadBinaryChildren() {
  * <code>JavaModelManager</code>'s cache.
  */
 private void readBinaryChildren() {
-	Vector children = new Vector();
-	Hashtable newElements = new Hashtable();
+	ArrayList children = new ArrayList();
+	HashMap newElements = new HashMap();
 	BinaryType type = null;
 	IBinaryType typeInfo = null;
 	JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
@@ -147,13 +147,15 @@ private void readBinaryChildren() {
 		generateMethodInfos(type, typeInfo, newElements, children);
 		generateInnerClassInfos(type, typeInfo, newElements, children);
 	}
-	for (Enumeration e = newElements.keys(); e.hasMoreElements();) {
-		IJavaElement key = (IJavaElement) e.nextElement();
-		Object value = newElements.get(key);
-		manager.putInfo(key, value);
+	
+	for (Iterator iter = newElements.entrySet().iterator(); iter.hasNext();) {
+		Map.Entry entry = (Map.Entry) iter.next();
+		manager.putInfo(
+			(IJavaElement) entry.getKey(), 
+			entry.getValue());
 	}
 	fBinaryChildren = new IJavaElement[children.size()];
-	children.copyInto(fBinaryChildren);
+	children.toArray(fBinaryChildren);
 }
 /**
  * Removes the binary children handles and remove their infos from

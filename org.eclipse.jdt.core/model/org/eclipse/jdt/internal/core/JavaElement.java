@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Root of Java element handle hierarchy.
@@ -164,12 +164,12 @@ public IDOMNode findNode(IDOMCompilationUnit dom) {
 		type == IJavaElement.METHOD || 
 		type == IJavaElement.PACKAGE_DECLARATION || 
 		type == IJavaElement.TYPE) {
-		Vector path = new Vector();
+		ArrayList path = new ArrayList();
 		IJavaElement element = this;
 		while (element != null && element.getElementType() != IJavaElement.COMPILATION_UNIT) {
 			if (element.getElementType() != IJavaElement.IMPORT_CONTAINER) {
 				// the DOM does not have import containers, so skip them
-				path.insertElementAt(element, 0);
+				path.add(0, element);
 			}
 			element = element.getParent();
 		}
@@ -184,14 +184,14 @@ public IDOMNode findNode(IDOMCompilationUnit dom) {
 				return null;
 			}
 		}
-		return ((JavaElement) path.elementAt(0)).followPath(path, 0, dom.getFirstChild());
+		return ((JavaElement) path.get(0)).followPath(path, 0, dom.getFirstChild());
 	} else {
 		return null;
 	}
 }
 /**
  */
-protected IDOMNode followPath(Vector path, int position, IDOMNode node) {
+protected IDOMNode followPath(ArrayList path, int position, IDOMNode node) {
 
 	try {
 		if (equalsDOMNode(node)) {
@@ -200,7 +200,7 @@ protected IDOMNode followPath(Vector path, int position, IDOMNode node) {
 			} else {
 				if (node.getFirstChild() != null) {
 					position++;
-					return ((JavaElement)path.elementAt(position)).followPath(path, position, node.getFirstChild());
+					return ((JavaElement)path.get(position)).followPath(path, position, node.getFirstChild());
 				} else {
 					return null;
 				}
@@ -227,17 +227,17 @@ public IJavaElement[] getChildren() throws JavaModelException {
  *
  * @param type - one of constants defined by IJavaLanguageElementTypes
  */
-public Vector getChildrenOfType(int type) throws JavaModelException {
+public ArrayList getChildrenOfType(int type) throws JavaModelException {
 	IJavaElement[] children = getChildren();
 	int size = children.length;
-	Vector v = new Vector(size);
+	ArrayList list = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
 		JavaElement elt = (JavaElement)children[i];
 		if (elt.getElementType() == type) {
-			v.addElement(elt);
+			list.add(elt);
 		}
 	}
-	return v;
+	return list;
 }
 /**
  * @see IMember

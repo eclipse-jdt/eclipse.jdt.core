@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * This operation creates a new package fragment under a given package fragment root. 
@@ -57,7 +57,7 @@ protected void executeOperation() throws JavaModelException {
 	beginTask(Util.bind("operation.createPackageFragmentProgress"), names.length); //$NON-NLS-1$
 	IContainer parentFolder = (IContainer) root.getUnderlyingResource();
 	String sideEffectPackageName = ""; //$NON-NLS-1$
-	Vector resultElements = new Vector(names.length);
+	ArrayList resultElements = new ArrayList(names.length);
 	int i;
 	for (i = 0; i < names.length; i++) {
 		String subFolderName = names[i];
@@ -68,7 +68,7 @@ protected void executeOperation() throws JavaModelException {
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			IPackageFragment addedFrag = root.getPackageFragment(sideEffectPackageName);
 			delta.added(addedFrag);
-			resultElements.addElement(addedFrag);
+			resultElements.add(addedFrag);
 		} else {
 			parentFolder = (IContainer) subFolder;
 		}
@@ -77,7 +77,7 @@ protected void executeOperation() throws JavaModelException {
 	}
 	if (resultElements.size() > 0) {
 		fResultElements = new IJavaElement[resultElements.size()];
-		resultElements.copyInto(fResultElements);
+		resultElements.toArray(fResultElements);
 		addDelta(delta);
 	}
 	done();

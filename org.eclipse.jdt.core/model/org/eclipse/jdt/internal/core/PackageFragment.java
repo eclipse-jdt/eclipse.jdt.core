@@ -128,7 +128,7 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	return computeChildren(info, underlyingResource);
 }
 /**
@@ -150,9 +150,9 @@ public IClassFile[] getClassFiles() throws JavaModelException {
 		return fgEmptyClassFileList;
 	}
 	
-	Vector v= getChildrenOfType(CLASS_FILE);
-	IClassFile[] array= new IClassFile[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(CLASS_FILE);
+	IClassFile[] array= new IClassFile[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -169,9 +169,9 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 		return fgEmptyCompilationUnitList;
 	}
 	
-	Vector v= getChildrenOfType(COMPILATION_UNIT);
-	ICompilationUnit[] array= new ICompilationUnit[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(COMPILATION_UNIT);
+	ICompilationUnit[] array= new ICompilationUnit[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**

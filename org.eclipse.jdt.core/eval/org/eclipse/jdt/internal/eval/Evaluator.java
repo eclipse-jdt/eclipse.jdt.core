@@ -67,7 +67,7 @@ protected EvaluationResult[] evaluationResultsForCompilationProblems(Compilation
  */
 ClassFile[] getClasses() {
 	final char[] source = getSource();
-	final Vector classDefinitions = new Vector();
+	final ArrayList classDefinitions = new ArrayList();
 
 	// The requestor collects the class definitions and problems
 	class CompilerRequestor implements ICompilerRequestor {
@@ -101,7 +101,7 @@ ClassFile[] getClasses() {
 					String str = "d:/test/snippet" + "/" + new String(relativeName);
 					System.out.println(com.ibm.compiler.java.classfmt.disassembler.ClassFileDisassembler.disassemble(str));				
  */	
-					classDefinitions.addElement(classFile);
+					classDefinitions.add(classFile);
 				}
 			}
 		}
@@ -126,7 +126,7 @@ ClassFile[] getClasses() {
 		return null;
 	} else {
 		ClassFile[] result = new ClassFile[classDefinitions.size()];
-		classDefinitions.copyInto(result);
+		classDefinitions.toArray(result);
 		return result;
 	}
 }

@@ -6,8 +6,8 @@ package org.eclipse.jdt.internal.core;
  */
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import java.util.ArrayList;
 import org.eclipse.core.resources.*;
-import java.util.Vector;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
@@ -127,13 +127,13 @@ public IField getField(String name) {
  * @see IType
  */
 public IField[] getFields() throws JavaModelException {
-	Vector v= getChildrenOfType(FIELD);
+	ArrayList list = getChildrenOfType(FIELD);
 	int size;
-	if ((size = v.size()) == 0) {
+	if ((size = list.size()) == 0) {
 		return NO_FIELDS;
 	} else {
 		IField[] array= new IField[size];
-		v.copyInto(array);
+		list.toArray(array);
 		return array;
 	}
 }
@@ -176,13 +176,13 @@ public IMethod getMethod(String name, String[] parameterTypeSignatures) {
  * @see IType
  */
 public IMethod[] getMethods() throws JavaModelException {
-	Vector v= getChildrenOfType(METHOD);
+	ArrayList list = getChildrenOfType(METHOD);
 	int size;
-	if ((size = v.size()) == 0) {
+	if ((size = list.size()) == 0) {
 		return NO_METHODS;
 	} else {
 		IMethod[] array= new IMethod[size];
-		v.copyInto(array);
+		list.toArray(array);
 		return array;
 	}
 }
@@ -259,13 +259,13 @@ public String getTypeQualifiedName() {
  * @see IType
  */
 public IType[] getTypes() throws JavaModelException {
-	Vector v= getChildrenOfType(TYPE);
+	ArrayList list = getChildrenOfType(TYPE);
 	int size;
-	if ((size = v.size()) == 0) {
+	if ((size = list.size()) == 0) {
 		return NO_TYPES;
 	} else {
 		IType[] array= new IType[size];
-		v.copyInto(array);
+		list.toArray(array);
 		return array;
 	}
 }

@@ -503,9 +503,10 @@ public final class CompletionEngine
 										} else {
 
 											if (astNode instanceof CompletionOnClassLiteralAccess) {
-
-												char[] token = ((CompletionOnClassLiteralAccess) astNode).completionIdentifier;
-												findClassField(token, (TypeBinding) qualifiedBinding);
+												CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess) astNode;
+												setSourceRange(access.classStart, access.sourceEnd);
+								
+												findClassField(access.completionIdentifier, (TypeBinding) qualifiedBinding);
 											} else {
 												if(astNode instanceof CompletionOnMethodName) {
 													CompletionOnMethodName method = (CompletionOnMethodName) astNode;

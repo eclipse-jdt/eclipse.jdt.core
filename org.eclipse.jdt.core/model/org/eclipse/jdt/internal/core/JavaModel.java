@@ -185,7 +185,7 @@ public boolean equals(Object o) {
 protected boolean generateInfos(
 	OpenableElementInfo info,
 	IProgressMonitor pm,
-	Hashtable newElements,
+	Map newElements,
 	IResource underlyingResource)
 	throws JavaModelException {
 
@@ -419,9 +419,9 @@ public IJavaProject getJavaProject(IResource resource) {
  * @see IJavaModel
  */
 public IJavaProject[] getJavaProjects() throws JavaModelException {
-	Vector v= getChildrenOfType(JAVA_PROJECT);
-	IJavaProject[] array= new IJavaProject[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(JAVA_PROJECT);
+	IJavaProject[] array= new IJavaProject[list.size()];
+	list.toArray(array);
 	return array;
 
 }

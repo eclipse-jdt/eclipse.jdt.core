@@ -469,7 +469,7 @@ public class JavaProject
 	protected boolean generateInfos(
 		OpenableElementInfo info,
 		IProgressMonitor pm,
-		Hashtable newElements,
+		Map newElements,
 		IResource underlyingResource)
 		throws JavaModelException {
 

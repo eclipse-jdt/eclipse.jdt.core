@@ -188,7 +188,7 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
@@ -205,9 +205,9 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, H
 		parser.parseCompilationUnit(this, !isWorkingCopy());
 		if (isWorkingCopy()) {
 			// remember problems
-			Vector problems = requestor.fProblems;
+			ArrayList problems = requestor.fProblems;
 			if (problems != null) {
-				problems.copyInto(((WorkingCopyElementInfo)unitInfo).problems = new IProblem[problems.size()]);
+				problems.toArray(((WorkingCopyElementInfo)unitInfo).problems = new IProblem[problems.size()]);
 			}
 			
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
@@ -225,23 +225,22 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, H
 public IType[] getAllTypes() throws JavaModelException {
 	IJavaElement[] types = getTypes();
 	int i;
-	Vector allTypes = new Vector(types.length);
-	Vector typesToTraverse = new Vector(types.length);
+	ArrayList allTypes = new ArrayList(types.length);
+	ArrayList typesToTraverse = new ArrayList(types.length);
 	for (i = 0; i < types.length; i++) {
-		typesToTraverse.addElement(types[i]);
+		typesToTraverse.add(types[i]);
 	}
 	while (!typesToTraverse.isEmpty()) {
-		IType type = (IType) typesToTraverse.elementAt(0);
-		typesToTraverse.removeElement(type);
-		allTypes.addElement(type);
+		IType type = (IType) typesToTraverse.get(0);
+		typesToTraverse.remove(type);
+		allTypes.add(type);
 		types = type.getTypes();
 		for (i = 0; i < types.length; i++) {
-			typesToTraverse.addElement(types[i]);
+			typesToTraverse.add(types[i]);
 		}
-	}
-	allTypes.trimToSize();
+	} 
 	IType[] arrayOfAllTypes = new IType[allTypes.size()];
-	allTypes.copyInto(arrayOfAllTypes);
+	allTypes.toArray(arrayOfAllTypes);
 	return arrayOfAllTypes;
 }
 /**
@@ -364,9 +363,9 @@ public IPackageDeclaration getPackageDeclaration(String name) {
  * @see ICompilationUnit
  */
 public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException {
-	Vector v= getChildrenOfType(PACKAGE_DECLARATION);
-	IPackageDeclaration[] array= new IPackageDeclaration[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(PACKAGE_DECLARATION);
+	IPackageDeclaration[] array= new IPackageDeclaration[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -399,9 +398,9 @@ public IType getType(String name) {
  * @see ICompilationUnit
  */
 public IType[] getTypes() throws JavaModelException {
-	Vector v= getChildrenOfType(TYPE);
-	IType[] array= new IType[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(TYPE);
+	IType[] array= new IType[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**

@@ -256,6 +256,7 @@ protected void consumeClassHeaderName() {
 	//compute the declaration source too
 	// 'class' and 'interface' push an int position
 	typeStartPosition = typeDecl.declarationSourceStart = intStack[intPtr--];
+	intPtr--;
 	int declarationSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
@@ -661,6 +662,7 @@ protected void consumeInterfaceHeaderName() {
 	//compute the declaration source too
 	// 'class' and 'interface' push an int position
 	typeStartPosition = typeDecl.declarationSourceStart = intStack[intPtr--];
+	intPtr--;
 	int declarationSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];

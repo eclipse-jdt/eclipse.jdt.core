@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.core.resources.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
@@ -110,9 +110,9 @@ public IField getField(String name) {
  * @see IType
  */
 public IField[] getFields() throws JavaModelException {
-	Vector v= getChildrenOfType(FIELD);
-	IField[] array= new IField[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(FIELD);
+	IField[] array= new IField[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -135,9 +135,9 @@ public IInitializer getInitializer(int occurrenceCount) {
  * @see IType
  */
 public IInitializer[] getInitializers() throws JavaModelException {
-	Vector v= getChildrenOfType(INITIALIZER);
-	IInitializer[] array= new IInitializer[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(INITIALIZER);
+	IInitializer[] array= new IInitializer[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -150,9 +150,9 @@ public IMethod getMethod(String name, String[] parameterTypeSignatures) {
  * @see IType
  */
 public IMethod[] getMethods() throws JavaModelException {
-	Vector v= getChildrenOfType(METHOD);
-	IMethod[] array= new IMethod[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(METHOD);
+	IMethod[] array= new IMethod[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -217,9 +217,9 @@ public String getTypeQualifiedName() {
  * @see IType
  */
 public IType[] getTypes() throws JavaModelException {
-	Vector v= getChildrenOfType(TYPE);
-	IType[] array= new IType[v.size()];
-	v.copyInto(array);
+	ArrayList list= getChildrenOfType(TYPE);
+	IType[] array= new IType[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**

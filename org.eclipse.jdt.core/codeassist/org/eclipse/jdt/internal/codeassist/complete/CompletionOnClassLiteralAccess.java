@@ -30,9 +30,11 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
 	public char[] completionIdentifier;
+	public int classStart;
+	
 public CompletionOnClassLiteralAccess(long pos, TypeReference t) {
-	super((int) (pos >>> 32), t);
-	this.sourceEnd = (int)pos;
+	super((int)pos, t);
+	this.classStart = (int) (pos >>> 32);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	if (super.resolveType(scope) == null)

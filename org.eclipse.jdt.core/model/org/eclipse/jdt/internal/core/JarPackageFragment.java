@@ -80,9 +80,9 @@ protected OpenableElementInfo createElementInfo() {
  * @see IPackageFragment
  */
 public IClassFile[] getClassFiles() throws JavaModelException {
-	Vector v= getChildrenOfType(CLASS_FILE);
-	IClassFile[] array= new IClassFile[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(CLASS_FILE);
+	IClassFile[] array= new IClassFile[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**

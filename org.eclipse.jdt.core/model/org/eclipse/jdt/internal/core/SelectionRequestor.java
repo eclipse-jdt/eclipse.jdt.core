@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 
+import java.util.ArrayList;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
@@ -255,9 +256,9 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 				tName = tName.replace('.','$');
 				IType[] allTypes= null;
 				try {
-					java.util.Vector v = ((JavaElement)fCodeResolve).getChildrenOfType(IJavaElement.TYPE);
-					allTypes = new IType[v.size()];
-					v.copyInto(allTypes);
+					ArrayList list = ((JavaElement)fCodeResolve).getChildrenOfType(IJavaElement.TYPE);
+					allTypes = new IType[list.size()];
+					list.toArray(allTypes);
 				} catch (JavaModelException e) {
 					return null;
 				}

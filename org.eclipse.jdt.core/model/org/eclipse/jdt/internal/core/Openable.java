@@ -162,7 +162,7 @@ protected OpenableElementInfo createElementInfo() {
  * if successful, or false if an error is encountered while determining
  * the structure of this element.
  */
-protected abstract boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException;
+protected abstract boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException;
 /**
  * Note: a buffer with no unsaved changes can be closed by the Java Model
  * since it has a finite number of buffers allowed open at one time. If this

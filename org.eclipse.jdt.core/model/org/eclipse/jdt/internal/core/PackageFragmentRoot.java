@@ -179,7 +179,7 @@ public boolean exists0() {
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
 	return computeChildren(info);
 }

@@ -1486,8 +1486,12 @@ protected void consumeClassHeaderName() {
 	identifierLengthPtr--;
 
 	//compute the declaration source too
+	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
 	typeDecl.declarationSourceStart = intStack[intPtr--]; 
-	// 'class' and 'interface' push an int position
+	intPtr--; // remove the end position of the class token
+
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
@@ -2226,8 +2230,11 @@ protected void consumeInterfaceHeaderName() {
 	identifierLengthPtr--;
 
 	//compute the declaration source too
+	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
 	typeDecl.declarationSourceStart = intStack[intPtr--];
-	// 'class' and 'interface' push an int position
+	intPtr--; // remove the end position of the class token
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
@@ -2679,12 +2686,14 @@ protected void consumePrimaryNoNewArray() {
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= ArrayType '.' 'class'
+	intPtr--;
 	pushOnExpressionStack(
 		new ClassLiteralAccess(intStack[intPtr--],
 		getTypeReference(intStack[intPtr--])));
 }
 protected void consumePrimaryNoNewArrayName() {
 	// PrimaryNoNewArray ::= Name '.' 'class'
+	intPtr--;
 	pushOnExpressionStack(
 		new ClassLiteralAccess(intStack[intPtr--],
 		getTypeReference(0)));
@@ -2707,6 +2716,7 @@ protected void consumePrimaryNoNewArrayNameThis() {
 }
 protected void consumePrimaryNoNewArrayPrimitiveType() {
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'
+	intPtr--;
 	pushOnExpressionStack(
 		new ClassLiteralAccess(intStack[intPtr--],
 		getTypeReference(0)));
@@ -3933,8 +3943,9 @@ protected void consumeToken(int type) {
 
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
-			//'class' is pushing an int (position) on the stack ==> 'interface' needs to do it too....
+			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
 			pushOnIntStack(scanner.startPosition);
+			pushOnIntStack(scanner.currentPosition - 1);			
 			break;
 
 		case TokenNameabstract :
@@ -4100,9 +4111,12 @@ protected void consumeToken(int type) {
 		case TokenNamewhile :
 		case TokenNamebreak :
 		case TokenNamecontinue :
-		case TokenNameclass :
 		case TokenNamereturn :
 		case TokenNamecase :
+			pushOnIntStack(scanner.startPosition);
+			break;
+		case TokenNameclass :
+			pushOnIntStack(scanner.currentPosition - 1);
 			pushOnIntStack(scanner.startPosition);
 			break;
 		case TokenNamedefault :
