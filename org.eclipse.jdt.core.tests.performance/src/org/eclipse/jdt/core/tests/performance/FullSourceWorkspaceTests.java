@@ -31,9 +31,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static TestingEnvironment env = null;
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
 	static int TESTS_COUNT = 0;
-	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
+	static boolean DEBUG = "true".equals(System.getProperty("debug"));
 	static IJavaProject[] ALL_PROJECTS;
-	
 
 	/**
 	 * @param name
@@ -165,6 +164,28 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			ALL_PROJECTS[i].setRawClasspath(ALL_PROJECTS[i].getRawClasspath(), null);
 		}
 		if (DEBUG) System.out.println("done!");
+	}
+
+	/**
+	 * Delete a directory from file system.
+	 * @param directory
+	 */
+	protected void cleanupDirectory(File directory) {
+		if (!directory.isDirectory() || !directory.exists()) {
+			return;
+		}
+		String[] fileNames = directory.list();
+		for (int i = 0; i < fileNames.length; i++) {
+			File file = new File(directory, fileNames[i]);
+			if (file.isDirectory()) {
+				cleanupDirectory(file);
+			} else {
+				if (!file.delete())
+					System.out.println("Could not delete file " + file.getPath()); //$NON-NLS-1$
+			}
+		}
+		if (!directory.delete())
+			System.out.println("Could not delete directory " + directory.getPath()); //$NON-NLS-1$
 	}
 
 	/**
