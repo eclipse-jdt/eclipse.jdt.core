@@ -320,9 +320,9 @@ protected boolean isOnClasspath() {
 
 }
 
-protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	if (!this.resourceExists() || !this.isOnClasspath()) throw newNotPresentException();
-	super.openWhenClosed(pm, buffer);
+	super.openWhenClosed(pm);
 }
 
 /**

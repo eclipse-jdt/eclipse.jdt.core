@@ -74,7 +74,7 @@ protected OpenableElementInfo createElementInfo() {
 public void destroy() {
 	if (--this.useCount > 0) {
 		if (SHARED_WC_VERBOSE) {
-			System.out.println("Decrementing use count of shared working copy " + this.toDebugString());//$NON-NLS-1$
+			System.out.println("Decrementing use count of shared working copy " + this.toStringWithAncestors());//$NON-NLS-1$
 		}
 		return;
 	}
@@ -102,7 +102,7 @@ public void destroy() {
 		if (perFactoryWorkingCopies != null){
 			if (perFactoryWorkingCopies.remove(originalElement) != null) {
 				if (SHARED_WC_VERBOSE) {
-					System.out.println("Destroying shared working copy " + this.toDebugString());//$NON-NLS-1$
+					System.out.println("Destroying shared working copy " + this.toStringWithAncestors());//$NON-NLS-1$
 				}
 	
 				// report removed java delta
@@ -229,6 +229,12 @@ protected IType getOriginalType(ArrayList hierarchy) {
 public IProblemRequestor getProblemRequestor(){
 	return this.problemRequestor;
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	return null;
+}
 
 /**
  * @see IWorkingCopy
@@ -287,11 +293,11 @@ public boolean isWorkingCopy() {
  * @exception JavaModelException attempting to open a read only element for something other than navigation
  * 	or if this is a working copy being opened after it has been destroyed.
  */
-public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+public void open(IProgressMonitor pm) throws JavaModelException {
 	if (this.useCount == 0) { // was destroyed
 		throw newNotPresentException();
 	} else {
-		super.open(pm, buffer);
+		super.open(pm);
 	}
 }
 /**
@@ -299,38 +305,29 @@ public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException 
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 
-	IBuffer buffer;
-	
-	// request buffer factory
-	if (this.bufferFactory != null) {
-		buffer = this.bufferFactory.createBuffer(this);
-		if (buffer != null){
-			if (buffer.getCharacters() == null){
-				CompilationUnit original = (CompilationUnit) getOriginalElement();
-				buffer.setContents(original.getContents());
-			}
-			buffer.addBufferChangedListener(this);
-			return buffer;
-		}
-	} 
-	// create default buffer
-	ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
-	buffer = getBufferManager().openBuffer((char[])original.getBuffer().getCharacters().clone(), pm, this, isReadOnly());
+	// get buffer factory
+	BufferManager bufManager = getBufferManager();
+	IBufferFactory factory = 
+		this.bufferFactory == null ? 
+			bufManager.getDefaultBufferFactory() :
+			this.bufferFactory;
+			
+	// create buffer
+	IBuffer buffer = factory.createBuffer(this);
+	bufManager.addBuffer(buffer);
+
+	// set the buffer source
+	if (buffer != null && buffer.getCharacters() == null){
+		ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
+		buffer.setContents((char[])original.getBuffer().getCharacters().clone());
+	}
+
+	// listen to buffer changes
 	buffer.addBufferChangedListener(this);
+
 	return buffer;	
 }
-protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-	if (buffer == null && this.bufferFactory != null) {
-		buffer = this.bufferFactory.createBuffer(this);
-		if (buffer != null){
-			if (buffer.getCharacters() == null){
-				CompilationUnit original = (CompilationUnit) getOriginalElement();
-				buffer.setContents(original.getContents());
-			}
-		}
-	}
-	super.openWhenClosed(pm, buffer);
-}
+
 /**
  * @see IWorkingCopy
  */ 

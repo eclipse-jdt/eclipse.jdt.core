@@ -131,7 +131,7 @@ public boolean isReadOnly() {
 /**
  * @see Openable#openWhenClosed()
  */
-protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 	// Open my jar
 	getOpenableParent().open(pm);
 }

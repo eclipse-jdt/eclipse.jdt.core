@@ -213,10 +213,11 @@ IJavaElement getParent();
 IPath getPath();
 /**
  * Returns the innermost resource enclosing this element. 
- * If this element is not included in an external archive, 
- * this is the underlying resource, corresponding to the archive. 
+ * If this element is included in an archive and this archive is not external, 
+ * this is the underlying resource corresponding to the archive. 
  * If this element is included in an external archive, <code>null</code>
  * is returned.
+ * If this element is a working copy, <code>null</code> is returned.
  * This is a handle-only method.
  * 
  * @since 2.0

@@ -367,12 +367,23 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	if (mapper != null) {
 		char[] contents = mapper.findSource(getType());
 		if (contents != null) {
+			// create buffer
 			BufferManager bufManager = getBufferManager();
-			IBuffer buf = bufManager.openBuffer(contents, pm, this, isReadOnly());
-			buf.addBufferChangedListener(this);			
+			IBuffer buffer = bufManager.getDefaultBufferFactory().createBuffer(this);
+			bufManager.addBuffer(buffer);
+			
+			// set the buffer source
+			if (buffer != null && buffer.getCharacters() == null){
+				buffer.setContents(contents);
+			}
+			
+			// listen to buffer changes
+			buffer.addBufferChangedListener(this);	
+					
 			// do the source mapping
 			mapper.mapSource(getType(), contents);
-			return buf;
+			
+			return buffer;
 		}
 	} else {
 		// Attempts to find the corresponding java file

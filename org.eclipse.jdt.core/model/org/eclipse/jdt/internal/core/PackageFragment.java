@@ -218,7 +218,12 @@ public IResource getResource() {
 	if (root.isArchive()) {
 		return root.getResource();
 	} else {
-		return ((IContainer)root.getResource()).getFolder(new Path(this.getElementName().replace('.', '/')));
+		String elementName = this.getElementName();
+		if (elementName.length() == 0) {
+			return root.getResource();
+		} else {
+			return ((IContainer)root.getResource()).getFolder(new Path(this.getElementName().replace('.', '/')));
+		}
 	}
 }
 /**

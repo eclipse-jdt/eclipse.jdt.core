@@ -19,7 +19,6 @@ import java.util.*;
  * @see IBuffer
  */
 public class Buffer implements IBuffer {
-	protected BufferManager fManager;
 	protected IFile fFile;
 	protected int fFlags;
 	protected char[] fContents;
@@ -35,24 +34,12 @@ public class Buffer implements IBuffer {
 	protected static final int F_HAS_UNSAVED_CHANGES= 1;
 	protected static final int F_IS_READ_ONLY= 2;
 	protected static final int F_IS_CLOSED= 4;
-/**
- * Creates a new buffer without an underlying resource.
- */
-protected Buffer(BufferManager manager, char[] contents, IOpenable owner, boolean readOnly) {
-	fManager = manager;
-	fFile = null;
-	fContents = contents;
-	fOwner = owner;
-	fFlags |= F_HAS_UNSAVED_CHANGES;
-	setReadOnly(readOnly);
-}
+
 /**
  * Creates a new buffer on an underlying resource.
  */
-protected Buffer(BufferManager manager, IFile file, char[] contents, IOpenable owner, boolean readOnly) {
-	fManager = manager;
+protected Buffer(IFile file, IOpenable owner, boolean readOnly) {
 	fFile = file;
-	fContents = contents;
 	fOwner = owner;
 	setReadOnly(readOnly);
 }
@@ -149,8 +136,7 @@ public char getChar(int position) {
  * @see IBuffer
  */
 public char[] getCharacters() {
-	if (fContents == null)
-		return new char[0];
+	if (fContents == null) return null;
 	synchronized (fLock) {
 		if (fGapStart < 0) {
 			return fContents;
@@ -166,8 +152,7 @@ public char[] getCharacters() {
  * @see IBuffer
  */
 public String getContents() {
-	if (fContents == null)
-		return ""; //$NON-NLS-1$
+	if (fContents == null) return null;
 	synchronized (fLock) {
 		if (fGapStart < 0) {
 			return new String(fContents);
@@ -406,6 +391,14 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
  * @see IBuffer
  */
 public void setContents(char[] contents) {
+	// allow special case for first initialization 
+	// after creation by buffer factory
+	if (fContents == null) {
+		fContents = contents;
+		fFlags &= ~ (F_HAS_UNSAVED_CHANGES);
+		return;
+	}
+	
 	if (!isReadOnly()) {
 		String string = null;
 		if (contents != null) {
@@ -425,6 +418,14 @@ public void setContents(char[] contents) {
  * @see IBuffer
  */
 public void setContents(String contents) {
+	// allow special case for first initialization 
+	// after creation by buffer factory
+	if (fContents == null) {
+		fContents = contents.toCharArray();
+		fFlags &= ~ (F_HAS_UNSAVED_CHANGES);
+		return;
+	}
+	
 	if (!isReadOnly()) {
 		char[] charContents = null;
 		if (contents != null) {

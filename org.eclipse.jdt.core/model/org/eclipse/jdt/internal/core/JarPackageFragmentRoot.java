@@ -590,8 +590,8 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	/**
 	 * @see Openable#openWhenClosed()
 	 */
-	protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-		super.openWhenClosed(pm, buffer);
+	protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+		super.openWhenClosed(pm);
 		try {
 			//restore any stored attached source zip
 			IPath zipPath= getSourceAttachmentPath();

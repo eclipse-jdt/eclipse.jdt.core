@@ -582,7 +582,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 		workingCopy.useCount++;
 
 		if (SHARED_WC_VERBOSE) {
-			System.out.println("Incrementing use count of shared working copy " + workingCopy.toDebugString()); //$NON-NLS-1$
+			System.out.println("Incrementing use count of shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
 		}
 
 		return workingCopy;
@@ -615,8 +615,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
 public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory, problemRequestor);
 	// open the working copy now to ensure contents are that of the current state of this element
-	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
-	workingCopy.open(pm, buffer);
+	workingCopy.open(pm);
 	return workingCopy;
 }
 
@@ -735,9 +734,20 @@ public void offsetSourceRange(int amount) {
  * @see Openable
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
-	IBuffer buf = getBufferManager().openBuffer((IFile) getUnderlyingResource(), pm, this, isReadOnly());
-	buf.addBufferChangedListener(this);
-	return buf;
+	// create buffer
+	BufferManager bufManager = getBufferManager();
+	IBuffer buffer = bufManager.getDefaultBufferFactory().createBuffer(this);
+	bufManager.addBuffer(buffer);
+	
+	// set the buffer source
+	if (buffer != null && buffer.getCharacters() == null){
+		buffer.setContents(Util.getResourceContentsAsCharArray((IFile)this.getResource()));
+	}
+			
+	// listen to buffer changes
+	buffer.addBufferChangedListener(this);
+	
+	return buffer;
 }
 /*
  * @see Openable#openParent(IProgressMonitor)
