@@ -159,8 +159,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}			    
 				}
 				if (argHasError) return null;
-				// TODO (kent) - if ((this.bits & ASTNode.IsSuperType) != 0)
-				if (isClassScope)
+				if ((this.bits & ASTNode.IsSuperType) != 0)
 					if (((ClassScope) scope).detectCycle(currentType, this, argTypes))
 						return null;
 
@@ -182,10 +181,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 				qualifiedType = parameterizedType;
 		    } else {
-   			    if ((this.bits & ASTNode.IsSuperType) != 0)
-   			    	if (((ClassScope) scope).detectCycle(currentType, this, null))
-   			    		return null;
-   			    if (currentType.isGenericType()) { // check raw type
+				if ((this.bits & ASTNode.IsSuperType) != 0)
+					if (((ClassScope) scope).detectCycle(currentType, this, null))
+						return null;
+
+				if (currentType.isGenericType()) { // check raw type
    			    	qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
    			    } else if (qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isRawType())) {
    			    	qualifiedType = scope.createParameterizedType(currentType, null, qualifiedType);
