@@ -328,11 +328,7 @@ public abstract class JobManager implements Runnable {
 			}
 		} catch (RuntimeException e) {
 			// log exception
-			JavaCore.getPlugin().getLog().log(
-				new JavaModelStatus(
-					IJavaModelStatus.ERROR,
-					e)
-			);
+			org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
 			
 			// keep job manager alive
 			this.discardJobs(null);

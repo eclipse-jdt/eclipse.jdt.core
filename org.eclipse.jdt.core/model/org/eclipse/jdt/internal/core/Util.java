@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
@@ -534,21 +535,19 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		return JavaConventions.validateIdentifier(folderName).getSeverity() != IStatus.ERROR;
 	}	
 
-/**
- * Add entry into the workspace log file
- */
-public static void log(String message){
-	JavaCore.getPlugin().getLog().log(
-		new JavaModelStatus(IStatus.ERROR, message));
-}	
-
-/**
- * Add entry into the workspace log file
- */
-public static void log(Throwable e){
-	JavaCore.getPlugin().getLog().log(
-		new JavaModelStatus(IStatus.ERROR, e));
-}
+	/*
+	 * Add a log entry
+	 */
+	public static void log(Throwable e, String message) {
+		IStatus status= new Status(
+			IStatus.ERROR, 
+			JavaCore.getPlugin().getDescriptor().getUniqueIdentifier(), 
+			IStatus.ERROR, 
+			message, 
+			e); 
+		JavaCore.getPlugin().getLog().log(status);
+	}	
+	
 /**
  * Normalizes the cariage returns in the given text.
  * They are all changed  to use the given buffer's line sepatator.

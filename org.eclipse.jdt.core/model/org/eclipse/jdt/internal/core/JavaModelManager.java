@@ -48,8 +48,6 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 */
 	public static Map Containers = new HashMap(5);
 
-	public static Hashtable Options = JavaCore.getDefaultOptions();
-
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
 	 */
