@@ -337,7 +337,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
 		IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM | DETAILED)) {
 			buffer.append(Util.bind("classfileformat.methoddescriptor", //$NON-NLS-1$
 				new String[] {
 					Integer.toString(methodInfo.getDescriptorIndex()),
@@ -362,7 +362,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
-		if (mode == DETAILED) {
+		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
@@ -408,7 +408,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			CharOperation.replace(exceptionName, '/', '.');
 			buffer.append(exceptionName);
 		}
-		if (mode == DETAILED) {
+		if (checkMode(mode, DETAILED)) {
 			if (annotationDefaultAttribute != null) {
 				buffer.append(" default "); //$NON-NLS-1$
 				disassembleAsModifier((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
@@ -416,12 +416,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		buffer.append(Util.bind("disassembler.endofmethodheader")); //$NON-NLS-1$
 		
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM | DETAILED)) {
 			if (codeAttribute != null) {
 				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
 			}
 		}
-		if (mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM)) {
 			IClassFileAttribute[] attributes = methodInfo.getAttributes();
 			int length = attributes.length;
 			if (length != 0) {
@@ -486,7 +486,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IClassFileAttribute classFileAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		final int accessFlags = classFileReader.getAccessFlags();
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM | DETAILED)) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
 			buffer.append(Util.bind("disassembler.begincommentline")); //$NON-NLS-1$
@@ -535,7 +535,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
 		
-		if (mode == DETAILED) {
+		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 1);
@@ -605,11 +605,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(superinterface);
 		}
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
-		if (mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM)) {
 			disassemble(classFileReader.getConstantPool(), buffer, lineSeparator, 1);
 		}
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM | DETAILED)) {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
 			length = attributes.length;
 			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
@@ -635,7 +635,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			if (enclosingMethodAttribute != null) {
 				disassemble(enclosingMethodAttribute, buffer, lineSeparator, 0);
 			}
-			if (mode == SYSTEM) {
+			if (checkMode(mode, SYSTEM)) {
 				if (runtimeVisibleAnnotationsAttribute != null) {
 					disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0);
 				}
@@ -951,7 +951,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] fieldDescriptor = fieldInfo.getDescriptor();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		if (mode == DETAILED || mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM | DETAILED)) {
 			buffer.append(Util.bind("classfileformat.fieldddescriptor", //$NON-NLS-1$
 					new String[] {
 						Integer.toString(fieldInfo.getDescriptorIndex()),
@@ -970,7 +970,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-		if (mode == DETAILED) {
+		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
 				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1);
@@ -1026,7 +1026,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		buffer.append(Util.bind("disassembler.endoffieldheader")); //$NON-NLS-1$
-		if (mode == SYSTEM) {
+		if (checkMode(mode, SYSTEM)) {
 			IClassFileAttribute[] attributes = fieldInfo.getAttributes();
 			int length = attributes.length;
 			if (length != 0) {
@@ -1458,6 +1458,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		return false;
+	}
+	
+	private boolean checkMode(int mode, int flag) {
+		return (mode & flag) != 0;
 	}
 	
 	private void writeNewLine(StringBuffer buffer, String lineSeparator, int tabNumber) {
