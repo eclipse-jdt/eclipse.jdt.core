@@ -85,6 +85,46 @@ protected int matchField(FieldBinding field, boolean matchName) {
 	if (fieldPattern.declaringSimpleName == null) return declaringLevel;
 
 	int typeLevel = resolveLevelForType(fieldPattern.typeSimpleName, fieldPattern.typeQualification, field.type);
+	
+		// SEARCH_15 (frederic) Specific field pattern verification for generics (not fully tested yet...)
+		if (typeLevel == IMPOSSIBLE_MATCH) {
+			return IMPOSSIBLE_MATCH;
+		}
+		TypeBinding typeBinding = field.type;
+		if (typeBinding != null) {
+			boolean isParameterized = typeBinding.isParameterizedType();
+			boolean isRawType = typeBinding.isRawType();
+			if (fieldPattern.typeNames== null) {
+				if (isParameterized && !isRawType) return IMPOSSIBLE_MATCH;
+			} else {
+				if (!isParameterized) return IMPOSSIBLE_MATCH;
+				ParameterizedTypeBinding paramTypeBinding = (ParameterizedTypeBinding) typeBinding;
+				if (paramTypeBinding.arguments == null) {
+					return IMPOSSIBLE_MATCH;
+				}
+				int length = fieldPattern.typeNames.length;
+				if (paramTypeBinding.arguments.length != length) return IMPOSSIBLE_MATCH;
+				for (int i= 0; i<length; i++) {
+					char[] argType = fieldPattern.typeNames[i];
+					TypeBinding argTypeBinding = paramTypeBinding.arguments[i];
+					if (!CharOperation.equals(argType, argTypeBinding.shortReadableName(), fieldPattern.isCaseSensitive) &&
+						!CharOperation.equals(argType, argTypeBinding.readableName(), fieldPattern.isCaseSensitive)) {
+						return IMPOSSIBLE_MATCH;
+					}
+				}
+			}
+		}
+		/* Try to pull-up generics verification in PatternLocator?
+		int typeLevel = resolveLevelForType(
+				fieldPattern.typeSimpleName,
+				fieldPattern.typeQualification,
+				fieldPattern.typeNames,
+				fieldPattern.mustResolve(),
+				true // parameterized,
+				field.type);
+		*/
+		// end
+
 	return declaringLevel > typeLevel ? typeLevel : declaringLevel; // return the weaker match
 }
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {

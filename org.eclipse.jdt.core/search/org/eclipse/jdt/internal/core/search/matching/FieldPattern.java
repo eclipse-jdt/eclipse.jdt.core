@@ -23,6 +23,9 @@ protected char[] declaringSimpleName;
 // type
 protected char[] typeQualification;
 protected char[] typeSimpleName;
+	
+// SEARCH_15 Store type names
+protected char[][] typeNames;
 
 protected static char[][] REF_CATEGORIES = { REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
@@ -51,6 +54,25 @@ public FieldPattern(
 	this.typeSimpleName = isCaseSensitive() ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
 
 	((InternalSearchPattern)this).mustResolve = mustResolve();
+}
+// SEARCH_15 Create field pattern with generics additional information
+public FieldPattern(
+	boolean findDeclarations,
+	boolean readAccess,
+	boolean writeAccess,
+	char[] name, 
+	char[] declaringQualification,
+	char[] declaringSimpleName,	
+	char[] typeQualification, 
+	char[] typeSimpleName,
+	char[][] typeNames,
+	int matchRule) {
+
+	this(findDeclarations, readAccess, writeAccess, name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, matchRule);
+
+	if (typeNames != null) {
+		this.typeNames= typeNames;
+	}
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;
