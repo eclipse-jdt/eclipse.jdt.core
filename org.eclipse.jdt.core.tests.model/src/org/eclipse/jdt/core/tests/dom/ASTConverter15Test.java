@@ -1034,6 +1034,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
-	}	
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=70292
+	 */
+	public void test0035() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0035", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}
 }
 
