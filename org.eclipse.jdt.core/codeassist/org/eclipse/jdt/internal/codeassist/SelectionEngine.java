@@ -859,7 +859,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				char[] genericTypeSignature = null;
 				if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 					completeLocalTypes(typeBinding);
-					genericTypeSignature = typeBinding.computeUniqueKey();
+					genericTypeSignature = typeBinding.genericTypeSignature();
 				}
 				if (typeBinding.isAnnotationType()) {
 					this.requestor.acceptAnnotation(
@@ -918,10 +918,24 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 					((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
 				} else {
-					char[] uniqueKey = null;
+					char[] genericDeclaringTypeSignature = null;
+					char[] genericSignature = null;
+					char[][] genericTypeArgumentsSignatures = null;
 					if(methodBinding instanceof ParameterizedMethodBinding) {
 						completeLocalTypes(methodBinding);
-						uniqueKey = methodBinding.computeUniqueKey();
+						genericDeclaringTypeSignature = methodBinding.declaringClass.genericTypeSignature();
+						genericSignature = methodBinding.genericSignature();
+						if(methodBinding instanceof ParameterizedGenericMethodBinding) {
+							ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
+							if(!genericMethodBinding.isRaw) {
+								TypeBinding[] typeArguments = genericMethodBinding.typeArguments;
+								int typeArgumentsCount = typeArguments.length;
+								genericTypeArgumentsSignatures = new char[typeArgumentsCount][];
+								for (int i = 0; i < typeArgumentsCount; i++) {
+									genericTypeArgumentsSignatures[i] = typeArguments[i].genericTypeSignature();
+								}
+							}
+						}
 					}
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
@@ -935,7 +949,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						parameterSignatures,
 						methodBinding.isConstructor(), 
 						isDeclaration,
-						uniqueKey,
+						genericDeclaringTypeSignature,
+						genericSignature,
+						genericTypeArgumentsSignatures,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 				}
@@ -952,17 +968,20 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							}
 							((SelectionRequestor)this.requestor).acceptLocalField(fieldBinding);
 						} else {
-							char[] uniqueKey = null;
+							char[] genericDeclaringTypeSignature = null;
+							char[] genericSignature = null;
 							if(fieldBinding instanceof ParameterizedFieldBinding) {
 								completeLocalTypes(fieldBinding.declaringClass);
-								uniqueKey = fieldBinding.computeUniqueKey();
+								genericDeclaringTypeSignature = fieldBinding.declaringClass.genericTypeSignature();
+								genericSignature = fieldBinding.genericSignature();
 							}
 							this.requestor.acceptField(
 								declaringClass.qualifiedPackageName(),
 								declaringClass.qualifiedSourceName(),
 								fieldBinding.name,
 								false,
-								uniqueKey,
+								genericDeclaringTypeSignature,
+								genericSignature,
 								this.actualSelectionStart,
 								this.actualSelectionEnd);
 						}
@@ -1272,6 +1291,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					fields[i].name,
 					true,
 					null,
+					null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
 
@@ -1302,6 +1322,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					method.isConstructor(),
 					true,
+					null,
+					null,
 					null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);

@@ -59,8 +59,8 @@ public abstract class NamedMember extends Member {
 		return this.name;
 	}
 
-	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, String uniqueKey) throws JavaModelException {
-		char[][] typeArguments = Signature.getTypeArguments(uniqueKey.toCharArray());
+	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, String genericTypeSignature) throws JavaModelException {
+		char[][] typeArguments = Signature.getTypeArguments(genericTypeSignature.toCharArray());
 		int length = typeArguments.length;
 		if (length == 0) return fullyQualifiedName;
 		StringBuffer buffer = new StringBuffer();

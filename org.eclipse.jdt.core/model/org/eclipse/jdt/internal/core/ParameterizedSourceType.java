@@ -18,18 +18,18 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class ParameterizedSourceType extends SourceType {
 	
-	public String uniqueKey;
+	public String genericTypeSignature;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedSourceType(JavaElement parent, String name, String uniqueKey) {
+	public ParameterizedSourceType(JavaElement parent, String name, String genericTypeSignature) {
 		super(parent, name);
-		this.uniqueKey = uniqueKey;
+		this.genericTypeSignature = genericTypeSignature;
 	}
 	
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
-		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
+		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.genericTypeSignature);
 	}
 	
 	/**
@@ -37,7 +37,7 @@ public class ParameterizedSourceType extends SourceType {
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" key="); //$NON-NLS-1$
-		buffer.append(uniqueKey);
+		buffer.append(" genericTypeSignature="); //$NON-NLS-1$
+		buffer.append(genericTypeSignature);
 	}
 }

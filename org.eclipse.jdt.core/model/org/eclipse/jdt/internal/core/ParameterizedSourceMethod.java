@@ -16,14 +16,18 @@ package org.eclipse.jdt.internal.core;
  */
 public class ParameterizedSourceMethod extends SourceMethod {
 	
-	public String uniqueKey;
+	public String genericDeclaringTypeSignature;
+	public String genericSignature;
+	public String[] genericTypeArgumentsSignatures;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
+	public ParameterizedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String genericDeclaringTypeSignature, String genericSignature, String[] genericTypeArgumentsSignatures) {
 		super(parent, name, parameterTypes);
-		this.uniqueKey = uniqueKey;
+		this.genericDeclaringTypeSignature = genericDeclaringTypeSignature;
+		this.genericSignature = genericSignature;
+		this.genericTypeArgumentsSignatures = genericTypeArgumentsSignatures;
 	}
 
 	/**
@@ -31,7 +35,21 @@ public class ParameterizedSourceMethod extends SourceMethod {
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" key="); //$NON-NLS-1$
-		buffer.append(uniqueKey);
+		buffer.append(" declaringSignature="); //$NON-NLS-1$
+		buffer.append(genericDeclaringTypeSignature);
+		buffer.append(" signature="); //$NON-NLS-1$
+		buffer.append(genericSignature);
+		buffer.append(" typeArgumentsSignature="); //$NON-NLS-1$
+		int length = this.genericTypeArgumentsSignatures == null ? 0 : this.genericTypeArgumentsSignatures.length;
+		if(length > 0) {
+			buffer.append('<');
+			for (int i = 0; i < length; i++) {
+				if(i != 0) buffer.append(',');
+				buffer.append(genericTypeArgumentsSignatures[i]);
+			}
+			buffer.append('>');
+		} else {
+			buffer.append("null"); //$NON-NLS-1$
+		}
 	}
 }
