@@ -49,6 +49,24 @@ public class SearchEngine {
 	private IWorkingCopy[] workingCopies = null;	
 
 /**
+ * Creates a new search engine.
+ */
+public SearchEngine() {
+}
+/**
+ * Creates a new search engine with a list of working copies that will take precedence over 
+ * their original compilation units in the subsequent search operations.
+ * <p>
+ * Note that passing an empty working copy will be as if the orignal compilation
+ * unit had been deleted.
+ * 
+ * @param workingCopies the working copies that take precdence over their original compilation units
+ * @since 2.0
+ */
+public SearchEngine(IWorkingCopy[] workingCopies) {
+	this.workingCopies = workingCopies;
+}
+/**
  * Returns a java search scope limited to the hierarchy of the given type.
  * The java elements resulting from a search with this scope will
  * be types in this hierarchy, or members of the types in this hierarchy.
@@ -623,14 +641,5 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		search(workspace, pattern, scope, resultCollector);
 	}
 }
-/**
- * Sets the list of working copies that will take precedence over their original 
- * compilation units in the subsequent search operations on this search engine.
- * <p>
- * Note that passing an empty working copy will be as if the orignal compilation
- * unit had been deleted.
- */
-public void setWorkingCopies(IWorkingCopy[] workingCopies) {
-	this.workingCopies = workingCopies;
-}
+
 }
