@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 147 };
+//		TESTS_NUMBERS = new int[] { 148 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4421,4 +4421,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
     }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87350
+    public void test0148() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public enum X {\n" + 
+    		"    RED, GREEN(), BLUE(17), PINK(1) {/*anon*};\n" + 
+    		"    Color() {}\n" + 
+    		"    Color(int i) {}\n";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+		String expectedErrors = "The constructor X(int) is undefined\n" + 
+			"The constructor X(int) is undefined\n" + 
+			"Unexpected end of comment";
+    	assertProblemsSize(compilationUnit, 3, expectedErrors);
+    }	
 }
