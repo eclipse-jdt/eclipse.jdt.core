@@ -228,6 +228,7 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, CompilationUnitScope sc
 					types[i].traverse(visitor, scope);
 			}
 		}
+		visitor.endVisit(this, scope);
 	} catch (AbortCompilationUnit e) {
 	}
 }
