@@ -1381,9 +1381,6 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				return false;
 			}
 		} else {
-			// check source attachment change
-			this.checkSourceAttachmentChange(delta, res);
-			
 			// not yet inside a package fragment root
 			processChildren = true;
 		}
@@ -1426,9 +1423,12 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			for (int i = 0; i < length; i++) {
 				IResourceDelta child = children[i];
 				IResource childRes = child.getResource();
-				IPath childPath = childRes.getFullPath();
+
+				// check source attachment change
+				this.checkSourceAttachmentChange(child, childRes);
 
 				// find out whether the child is a package fragment root of the current project
+				IPath childPath = childRes.getFullPath();
 				IJavaProject projectOfRoot = (IJavaProject)this.roots.get(childPath);
 				boolean isPkgFragmentRoot = 
 					projectOfRoot != null 

@@ -14,17 +14,10 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
 /**
@@ -33,7 +26,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
  * - don't use assertTrue where assertEquals should be used
  * - don't hardcode positions
 */
-public class AttachSourceTests extends AbstractJavaModelTests {
+public class AttachSourceTests extends ModifyingResourceTests {
 
 /**
  * Attaches a source zip to the given jar package fragment root.
@@ -70,6 +63,7 @@ public static Test suite() {
 	suite.addTest(new AttachSourceTests("testAttachSourceNameRange"));
 	suite.addTest(new AttachSourceTests("testClassFileGetElementAt"));
 	suite.addTest(new AttachSourceTests("testAttachSourcePersisted"));
+	suite.addTest(new AttachSourceTests("testChangeSourceAttachmentFile"));
 	suite.addTest(new AttachSourceTests("testDetachSource"));
 	suite.addTest(new AttachSourceTests("testAttachSourceWithRootPath"));
 	return suite;
@@ -135,7 +129,7 @@ public void testAttachSourcePersisted() throws JavaModelException {
 	testAttachSourceRetrievalMethod();
 }
 /**
- * Retrieves the source code for "String#equals(Object)".
+ * Retrieves the source code for methods of class A.
  */
 public void testAttachSourceRetrievalMethod() throws JavaModelException {
 	IClassFile cf = this.jarRoot.getPackageFragment("x.y").getClassFile("A.class");
@@ -226,6 +220,46 @@ public void testClassFileGetElementAt() throws JavaModelException {
 		elt != null &&
 		elt.getElementType() == IJavaElement.METHOD &&
 		elt.getElementName().equals("foo"));
+}
+/**
+ * Changing the source attachment file should update the java model.
+ * (regression test for bug 23292 Must restart Eclipse after debug of source in .zip is updated)
+ */
+public void testChangeSourceAttachmentFile() throws CoreException {
+	IClassFile cf = this.jarRoot.getPackageFragment("x.y").getClassFile("A.class");
+	IMethod method = cf.getType().getMethod("foo", new String[] {});
+	String lineSeparator = System.getProperty("line.separator");
+	
+	// check initial source
+	assertEquals(
+		"unexpected initial source for foo()",
+		"public void foo() {" + lineSeparator +
+		"	}",
+		method.getSource());
+
+	// replace source attachment file
+	this.swapFiles("AttachSourceTests/attachsrc.zip", "AttachSourceTests/attachsrc.new.zip");
+	assertEquals(
+		"unexpected source for foo() after replacement",
+		"public void foo() {" + lineSeparator +
+		"		System.out.println(\"foo\");" + lineSeparator +
+		"	}",
+		method.getSource());
+		
+	// delete source attachment file
+	this.deleteFile("AttachSourceTests/attachsrc.zip");
+	assertEquals(
+		"unexpected source for foo() after deletion",
+		null,
+		method.getSource());
+		
+	// add source attachment file back
+	this.moveFile("AttachSourceTests/attachsrc.new.zip", "AttachSourceTests/attachsrc.zip");
+	assertEquals(
+		"unexpected source for foo() after addition",
+		"public void foo() {" + lineSeparator +
+		"	}",
+		method.getSource());
 }
 /**
  * Removes the source attachment from the jar.

@@ -16,11 +16,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -98,7 +101,9 @@ protected IFolder createFolder(String path) throws CoreException {
 	folder.create(true, true, null);
 	return folder;
 }
-
+protected void deleteFile(String filePath) throws CoreException {
+	this.getFile(filePath).delete(true, null);
+}
 protected void deleteFolder(String folderPath) throws CoreException {
 	this.getFolder(folderPath).delete(true, null);
 }
@@ -126,14 +131,9 @@ private void expandAll(IJavaElement element, int tab, StringBuffer buffer) throw
 		}
 	}
 }
-
-
 protected void renameProject(String project, String newName) throws CoreException {
 	this.getProject(project).move(new Path(newName), true, null);
 }
-
-
-
 protected ICompilationUnit getCompilationUnit(String path) {
 	return (ICompilationUnit)JavaCore.create(this.getFile(path));
 }
@@ -157,6 +157,20 @@ protected String getDeltas() {
 		}
 	}
 	return buffer.toString();
+}
+protected IFile getFile(String path) {
+	return getWorkspaceRoot().getFile(new Path(path));
+}
+protected IFolder getFolder(String path) {
+	return getWorkspaceRoot().getFolder(new Path(path));
+}
+protected IPackageFragment getPackage(String path) {
+	if (path.indexOf('/') != -1) {
+		return (IPackageFragment)JavaCore.create(this.getFolder(path));
+	} else {
+		IProject project = this.getProject(path);
+		return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
+	}
 }
 protected String getSortedByProjectDeltas() {
 	StringBuffer buffer = new StringBuffer();
@@ -187,20 +201,21 @@ protected String getSortedByProjectDeltas() {
 	}
 	return buffer.toString();
 }
+protected void moveFile(String sourcePath, String destPath) throws CoreException {
+	this.getFile(sourcePath).move(this.getFile(destPath).getFullPath(), false, null);
+}
+protected void swapFiles(String firstPath, String secondPath) throws CoreException {
+	final IFile first = this.getFile(firstPath);
+	final IFile second = this.getFile(secondPath);
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(	) {
+		public void run(IProgressMonitor monitor) throws CoreException {
+			IPath tempPath = first.getParent().getFullPath().append("swappingFile.temp");
+			first.move(tempPath, false, monitor);
+			second.move(first.getFullPath(), false, monitor);
+			getWorkspaceRoot().getFile(tempPath).move(second.getFullPath(), false, monitor);
+		}
+	};
+	getWorkspace().run(runnable, null);
+}
 
-
-protected IFile getFile(String path) {
-	return getWorkspaceRoot().getFile(new Path(path));
-}
-protected IFolder getFolder(String path) {
-	return getWorkspaceRoot().getFolder(new Path(path));
-}
-protected IPackageFragment getPackage(String path) {
-	if (path.indexOf('/') != -1) {
-		return (IPackageFragment)JavaCore.create(this.getFolder(path));
-	} else {
-		IProject project = this.getProject(path);
-		return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
-	}
-}
 }
