@@ -64,7 +64,7 @@ public void codeComplete(String codeSnippet, int position, ICodeCompletionReques
 		codeSnippet.toCharArray(),
 		position,
 		this.project.getSearchableNameEnvironment(),
-		new CompletionRequestorWrapper(requestor),
+		new CompletionRequestorWrapper(requestor,this.project.getNameLookup()),
 		JavaCore.getOptions()
 	);
 }

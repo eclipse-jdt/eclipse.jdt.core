@@ -80,8 +80,8 @@ public final class CompletionEngine
 	static final char[] classField = "class".toCharArray();  //$NON-NLS-1$
 	static final char[] lengthField = "length".toCharArray();  //$NON-NLS-1$
 	static final char[] THIS = "this".toCharArray();  //$NON-NLS-1$
-	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
-	
+	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
+
 	/**
 	 * The CompletionEngine is responsible for computing source completions.
 	 *
@@ -661,7 +661,7 @@ public final class CompletionEngine
 		// No visibility checks can be performed without the scope & invocationSite
 
 		int fieldLength = fieldName.length;
-		next : for (int f = fields.length; --f >= 0;) {
+		next : for (int f = fields.length; --f >= 0;) {			
 			FieldBinding field = fields[f];
 			if (onlyStaticFields && !field.isStatic())
 				continue next;
@@ -687,53 +687,27 @@ public final class CompletionEngine
 				}
 			}
 
-			fieldsFound.add(field);
+			boolean prefixRequired = false;
+			char[] completion = field.name;
 
 			for (int l = localsFound.size; --l >= 0;) {
 				LocalVariableBinding local = (LocalVariableBinding) localsFound.elementAt(l);
 
 				if (CharOperation.equals(field.name, local.name, true)) {
-					char[] completion = field.name;
-					SourceTypeBinding enclosing = scope.enclosingSourceType();
-
-					if (field.isStatic()) {
-						char[] name = enclosing.compoundName[enclosing.compoundName.length - 1];
-						completion = CharOperation.concat(name, completion, '.');
-
-					} else if (enclosing == invocationScope.enclosingSourceType()) {
-						completion = CharOperation.concat(THIS, completion, '.');
-
-					} else {
-
-						char[] name = enclosing.compoundName[enclosing.compoundName.length - 1];
-
-						if (!enclosing.isNestedType()) {
-							completion = CharOperation.concat(THIS, completion, '.');
-							completion = CharOperation.concat(name, completion, '.');
-
-						} else if (enclosing.isAnonymousType()) {
-							continue next;
-						} else {
-							completion = CharOperation.concat(THIS, completion, '.');
-							int index = CharOperation.lastIndexOf('$', name);
-							char[] shortName = CharOperation.subarray(name, index + 1, name.length);
-							completion = CharOperation.concat(shortName, completion, '.');
-						}
+					SourceTypeBinding declarationType = scope.enclosingSourceType();
+					if (declarationType.isAnonymousType() && declarationType != invocationScope.enclosingSourceType()) {
+						continue next;
 					}
-
-					requestor
-						.acceptField(
-							field.declaringClass.qualifiedPackageName(),
-							field.declaringClass.qualifiedSourceName(),
-							field.name,
-							field.type.qualifiedPackageName(),
-							field.type.qualifiedSourceName(),
-							completion,
-
-					// may include some qualification to resolve ambiguities
-					field.modifiers, startPosition, endPosition);
-					continue next;
+					prefixRequired = true;
+					break;
 				}
+			}
+			
+			fieldsFound.add(field);
+			
+			if(prefixRequired){
+				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), field.isStatic());
+				completion = CharOperation.concat(prefix,completion,'.');
 			}
 
 			requestor
@@ -743,7 +717,7 @@ public final class CompletionEngine
 					field.name,
 					field.type.qualifiedPackageName(),
 					field.type.qualifiedSourceName(),
-					field.name,
+					completion,
 			// may include some qualification to resolve ambiguities
 			field.modifiers, startPosition, endPosition);
 		}
@@ -1348,13 +1322,45 @@ public final class CompletionEngine
 				completion.append('(');
 
 				for(int i = 0; i < length ; i++){
+					if(mustQualifyType(CharOperation.splitOn('.',parameterPackageNames[i]), parameterTypeNames[i])){
+						completion.append(parameterPackageNames[i]);
+						completion.append('.');
+					}
 					completion.append(parameterTypeNames[i]);
 					completion.append(' ');
-					completion.append(parameterNames[i]);
+					if(parameterNames != null){
+						completion.append(parameterNames[i]);
+					} else {
+						completion.append('%');
+					}
 					if(i != (length - 1))
 						completion.append(',');	
 				}
 				completion.append(')');
+				
+				ReferenceBinding[] exceptions = method.thrownExceptions;
+				int exceptionCount =0;
+				if (exceptions != null && (( exceptionCount = exceptions.length) > 0)){
+					completion.append(' ');
+					completion.append(THROWS);
+					completion.append(' ');
+					for(int i = 0; i < exceptionCount ; i++){
+						ReferenceBinding exception = exceptions[i];
+						char[] typeName = exception.qualifiedSourceName();
+						char[] packageName = exception.qualifiedPackageName();
+							
+						if(mustQualifyType(CharOperation.splitOn('.',packageName), typeName)){
+							completion.append(packageName);
+							completion.append('.');
+						}
+						completion.append(typeName);
+						
+						if(i != (exceptionCount - 1)){
+							completion.append(',');
+							completion.append(' ');
+						}
+					}
+				}
 			}
 
 			requestor.acceptMethodDeclaration(
@@ -1386,9 +1392,11 @@ public final class CompletionEngine
 
 		if (selector == null)
 			return;
-
+			
+		boolean isInterface = receiverType.isInterface();
+		
 		ReferenceBinding currentType = receiverType;
-		if (currentType.isInterface()) {
+		if (isInterface || isCompletingDeclaration) {
 			if(!isCompletingDeclaration){
 				findLocalMethods(
 					selector,
@@ -1468,11 +1476,17 @@ public final class CompletionEngine
 					}
 				}
 			}
+			
 			currentType = scope.getJavaLangObject();
 		}
 		
-		if(isCompletingDeclaration && currentType != null)
-			currentType = currentType.superclass();
+		if(!isInterface){
+			if(isCompletingDeclaration){
+				currentType = receiverType.superclass();
+			} else {
+				currentType = receiverType;
+			}
+		}
 		
 		while (currentType != null) {
 
@@ -1554,37 +1568,9 @@ public final class CompletionEngine
 							break;
 						}
 					}
-				} else if(answer.isBinaryType()) {
-					IBinaryType binaryType = answer.getBinaryType();
-					IBinaryMethod[] binaryMethods = binaryType.getMethods();
-					
-					for(int i = 0; i < binaryMethods.length ; i++){
-						IBinaryMethod binaryMethod = binaryMethods[i];
-						String[] argTypeStringNames = Signature.getParameterTypes(new String(binaryMethod.getMethodDescriptor()));
-						char[][] argTypeNames = new char[argTypeStringNames.length][];
-						for(int j = 0; j < argTypeStringNames.length; j++){
-							argTypeNames[j] = argTypeStringNames[j].toCharArray();
-						}
-						
-						if(argTypeNames != null &&
-							CharOperation.equals(method.selector,binaryMethod.getSelector()) &&
-							CharOperation.equals(argTypeNames,parameterTypeNames)){
-							parameterNames = binaryMethod.getArgumentNames();
-							break;
-						}
-					}
-				}
-				
+				} 
 			}
 		}
-		// default parameters name
-		if(parameterNames == null) {
-			parameterNames = new char[length][];
-			for (int i = 0; i < length; i++) {
-				parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
-			}
-		}
-		
 		return parameterNames;
 	}
 	
@@ -1882,5 +1868,35 @@ public final class CompletionEngine
 
 		this.startPosition = start;
 		this.endPosition = end + 1;
+	}
+	
+	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){
+		
+		StringBuffer completion = new StringBuffer(10);
+
+		if (isStatic) {
+			completion.append(declarationType.sourceName());
+			
+		} else if (declarationType == invocationType) {
+			completion.append(THIS);
+			
+		} else {
+			
+			if (!declarationType.isNestedType()) {
+				
+				completion.append(declarationType.sourceName());
+				completion.append('.');
+				completion.append(THIS);
+
+			} else if (!declarationType.isAnonymousType()) {
+				
+				completion.append(declarationType.sourceName());
+				completion.append('.');
+				completion.append(THIS);
+				
+			}
+		}
+		
+		return completion.toString().toCharArray();
 	}
 }
