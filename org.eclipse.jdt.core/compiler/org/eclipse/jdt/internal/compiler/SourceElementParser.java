@@ -1269,10 +1269,4 @@ private void visitIfNeeded(Initializer initializer) {
 			}
 	}
 }
-
-protected void reportSyntaxError(int act, int currentKind, int currrentStateStackTop) {
-	if (compilationUnit == null) return;
-	super.reportSyntaxError(act, currentKind,currrentStateStackTop);
-}
-
 }

@@ -49,7 +49,6 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 	protected boolean hasError;
 	protected boolean hasReportedError;
-	public static boolean fineErrorDiagnose = true; //TODO (david) remove the static modifier when new diagnose is ready
 	public boolean reportSyntaxErrorIsRequired = true;
 	public boolean reportOnlyOneSyntaxError = false;
 	protected int recoveredStaticInitializerStart;
@@ -5571,12 +5570,6 @@ protected void parse() {
 		if (act == ERROR_ACTION || restartRecovery) {
 			int errorPos = scanner.currentPosition;
 			if (!hasReportedError){
-				if(!fineErrorDiagnose) {
-					if(reportSyntaxErrorIsRequired) {
-						this.reportSyntaxError(ERROR_ACTION, currentToken, stateStackTop);
-					}
-					hasReportedError = true;
-				}
 				hasError = true;
 			}
 			if (resumeOnSyntaxError()) {
@@ -5632,7 +5625,7 @@ protected void parse() {
 	}
 	endParse(act);
 	
-	if(reportSyntaxErrorIsRequired && fineErrorDiagnose && hasError) {
+	if(reportSyntaxErrorIsRequired && hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}
 }
@@ -6278,115 +6271,6 @@ public void recoveryTokenCheck() {
 		}
 	}
 	ignoreNextOpeningBrace = false;
-}
-protected void reportSyntaxError(int act, int currentKind, int topOfStackState) {
-
-	/* remember current scanner position */
-	int startPos = scanner.startPosition;
-	int currentPos = scanner.currentPosition;
-	
-	String[] expectings;
-	String tokenName = name[terminal_index[currentKind]];
-
-	//fetch all "accurate" possible terminals that could recover the error
-	int start, end = start = asi(stack[topOfStackState]);
-	while (asr[end] != 0)
-		end++;
-	int length = end - start;
-	expectings = new String[length];
-	if (length != 0) {
-		char[] indexes = new char[length];
-		System.arraycopy(asr, start, indexes, 0, length);
-		for (int i = 0; i < length; i++) {
-			expectings[i] = name[terminal_index[indexes[i]]];
-		}
-	}
-
-	//if the pb is an EOF, try to tell the user that they are some 
-	if (tokenName.equals(UNEXPECTED_EOF)) {
-		if (!this.checkAndReportBracketAnomalies()) {
-			char[] tokenSource;
-			try {
-				tokenSource = this.scanner.getCurrentTokenSource();
-			} catch (Exception e) {
-				tokenSource = new char[] {};
-			}
-			problemReporter().parseError(
-				this.scanner.startPosition, 
-				this.scanner.currentPosition - 1, 
-				currentKind,
-				tokenSource, 
-				tokenName, 
-				expectings); 
-		}
-	} else { //the next test is HEAVILY grammar DEPENDENT.
-		if ((length == 14)
-			&& (expectings[0] == "=") //$NON-NLS-1$
-			&& (expectings[1] == "*=") //$NON-NLS-1$
-			&& (expressionPtr > -1)) {
-				switch(currentKind) {
-					case TerminalTokens.TokenNameSEMICOLON:
-					case TerminalTokens.TokenNamePLUS:
-					case TerminalTokens.TokenNameMINUS:
-					case TerminalTokens.TokenNameDIVIDE:
-					case TerminalTokens.TokenNameREMAINDER:
-					case TerminalTokens.TokenNameMULTIPLY:
-					case TerminalTokens.TokenNameLEFT_SHIFT:
-					case TerminalTokens.TokenNameRIGHT_SHIFT:
-					case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
-					case TerminalTokens.TokenNameLESS:
-					case TerminalTokens.TokenNameGREATER:
-					case TerminalTokens.TokenNameLESS_EQUAL:
-					case TerminalTokens.TokenNameGREATER_EQUAL:
-					case TerminalTokens.TokenNameEQUAL_EQUAL:
-					case TerminalTokens.TokenNameNOT_EQUAL:
-					case TerminalTokens.TokenNameXOR:
-					case TerminalTokens.TokenNameAND:
-					case TerminalTokens.TokenNameOR:
-					case TerminalTokens.TokenNameOR_OR:
-					case TerminalTokens.TokenNameAND_AND:
-						// the ; is not the expected token ==> it ends a statement when an expression is not ended
-						problemReporter().invalidExpressionAsStatement(expressionStack[expressionPtr]);
-						break;
-					case TerminalTokens.TokenNameRBRACE :
-						problemReporter().missingSemiColon(expressionStack[expressionPtr]);
-						break;
-					default:
-						char[] tokenSource;
-						try {
-							tokenSource = this.scanner.getCurrentTokenSource();
-						} catch (Exception e) {
-							tokenSource = new char[] {};
-						}
-						problemReporter().parseError(
-							this.scanner.startPosition, 
-							this.scanner.currentPosition - 1, 
-							currentKind,
-							tokenSource, 
-							tokenName, 
-							expectings); 
-						this.checkAndReportBracketAnomalies();
-				}
-		} else {
-			char[] tokenSource;
-			try {
-				tokenSource = this.scanner.getCurrentTokenSource();
-			} catch (Exception e) {
-				tokenSource = new char[] {};
-			}
-			problemReporter().parseError(
-				this.scanner.startPosition, 
-				this.scanner.currentPosition - 1, 
-				currentKind,
-				tokenSource, 
-				tokenName, 
-				expectings); 
-			this.checkAndReportBracketAnomalies();
-		}
-	}
-	/* reset scanner where it was */
-	scanner.startPosition = startPos;
-	scanner.currentPosition = currentPos;
 }
 protected void resetModifiers() {
 	modifiers = AccDefault;

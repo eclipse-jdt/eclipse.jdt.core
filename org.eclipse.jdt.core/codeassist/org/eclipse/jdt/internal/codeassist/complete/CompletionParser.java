@@ -2364,14 +2364,6 @@ public void recoveryTokenCheck() {
 			break;
 	}
 }
-protected void reportSyntaxError(int act, int currentKind, int stackTop) {
-
-	/* Intercept error state on EOF inside method bodies, due to 
-	   cursor location being used as an EOF position.
-	*/
-	if (!diet && currentToken == TokenNameEOF) return;
-	super.reportSyntaxError(act, currentKind, stackTop);
-}
 /*
  * Reset internal state after completion is over
  */

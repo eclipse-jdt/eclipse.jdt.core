@@ -56,7 +56,6 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
@@ -2286,11 +2285,6 @@ public final class JavaCore extends Plugin {
 		
 		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
-		
-		// TODO (david) can be removed when the new syntax error diagnose is officially released.
-		final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
-		preferences.setDefault(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION, ENABLED); //$NON-NLS-1$
-		optionNames.add(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);
 	}
 	
 	/**
@@ -3375,18 +3369,6 @@ public final class JavaCore extends Plugin {
 
 			startIndexing();
 			workspace.addSaveParticipant(this, manager);
-			
-			// TODO (david) can be removed when the new syntax error diagnose is officially released.
-			{
-				final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
-				Object newDiagnoseParserActivation = JavaCore.getOption(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);
-				if (JavaCore.ENABLED.equals(newDiagnoseParserActivation)) {
-					Parser.fineErrorDiagnose = true;
-				} else {
-					Parser.fineErrorDiagnose = false;
-				}
-			}
-			
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;

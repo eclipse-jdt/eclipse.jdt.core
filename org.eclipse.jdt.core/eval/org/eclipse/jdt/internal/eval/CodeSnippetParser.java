@@ -656,14 +656,6 @@ private void recordLastStatementIfNeeded() {
 		this.lastStatement = this.scanner.startPosition;
 	}
 }
-protected void reportSyntaxError(int act, int currentKind, int state) {
-	if (!this.diet) {
-		this.scanner.initialPosition = this.codeSnippetStart; // for correct bracket match diagnosis
-		this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression 
-	}
-	super.reportSyntaxError(act, currentKind, state);
-}
-
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if (!isDietParse) {
 		this.scanner.initialPosition = this.lastStatement;
