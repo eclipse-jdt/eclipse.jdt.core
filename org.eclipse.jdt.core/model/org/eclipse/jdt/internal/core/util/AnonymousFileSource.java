@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URL;
-import java.security.MessageDigest;
 
 /**
  * An anonymous file source creates files in the given directory.

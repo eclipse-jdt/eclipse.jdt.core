@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
