@@ -156,6 +156,6 @@ boolean isTypeSubstituable(TypeBinding one, TypeBinding two) {
 	subType = BinaryTypeBinding.resolveType(subType, this.environment, true);
 	if (superType.isInterface())
 		return subType.implementsInterface(superType, true);
-	return subType.isClass() && isSameClassOrSubclassOf(subType, superType);
+	return isSameClassOrSubclassOf(subType, superType); // interfaces are subclasses of Object too
 }
 }
