@@ -167,7 +167,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}			    
 				}
 				if (argHasError) {
-					this.resolvedType = null;
 					return null;
 				}
 // TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
