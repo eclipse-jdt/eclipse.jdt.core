@@ -940,10 +940,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	
-	/*
-	 * TODO (philippe) reactivate when signature is fixed for parameterized method
-	 */
-	public void _test013() {
+	public void test013() {
 		final String[] testsSource = new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" + 

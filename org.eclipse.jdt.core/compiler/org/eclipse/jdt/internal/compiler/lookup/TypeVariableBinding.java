@@ -87,7 +87,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
 	public String debugName() {
-	    return toString();		
+	    return new String(this.sourceName);		
 	}		
 	public TypeBinding erasure() {
 	    if (this.firstBound != null) {
