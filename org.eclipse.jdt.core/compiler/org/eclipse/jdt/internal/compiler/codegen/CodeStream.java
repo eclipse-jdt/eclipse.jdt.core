@@ -2027,7 +2027,8 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBi
 			|| accessBinding.kind == SyntheticMethodBinding.SuperMethodAccess){
 			this.invokespecial(methodBinding);
 		} else {
-			if (methodBinding.declaringClass.isInterface()){
+			if (methodBinding.declaringClass.isInterface()
+				|| methodBinding.declaringClass.isAnnotationType()){
 				this.invokeinterface(methodBinding);
 			} else {
 				this.invokevirtual(methodBinding);

@@ -2972,7 +2972,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80328
-	public void test098() {
+	public void test099() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2992,5 +2992,33 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	       ^^^^^^^\n" + 
 			"Syntax error on token \"default\", = expected\n" + 
 			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80780
+	public void test098() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Object o = new X();\n" +
+				"        for (Method m : o.getClass().getMethods()) {\n" +
+				"            if (m.isAnnotationPresent(MyAnon.class)) {\n" +
+				"                System.out.println(m.getAnnotation(MyAnon.class).c());\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"    @MyAnon(c = X.class) \n" +
+				"    public void foo() {}\n" +
+				"\n" +
+				"    @Retention(RetentionPolicy.RUNTIME) \n" +
+				"    public @interface MyAnon {\n" +
+				"        Class c();\n" +
+				"    }\n" +
+				"}"
+			},
+			"class X");
 	}
 }

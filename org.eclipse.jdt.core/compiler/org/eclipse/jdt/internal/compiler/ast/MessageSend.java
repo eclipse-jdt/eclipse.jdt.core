@@ -112,7 +112,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			if( (receiver.isSuper()) || this.codegenBinding.isPrivate()){
 				codeStream.invokespecial(this.codegenBinding);
 			} else {
-				if (this.codegenBinding.declaringClass.isInterface()){
+				if (this.codegenBinding.declaringClass.isInterface()
+					|| this.codegenBinding.declaringClass.isAnnotationType()){
 					codeStream.invokeinterface(this.codegenBinding);
 				} else {
 					codeStream.invokevirtual(this.codegenBinding);

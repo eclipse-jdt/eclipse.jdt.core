@@ -598,7 +598,7 @@ public int literalIndex(MethodBinding aMethodBinding) {
 		}
 		// Write the interface method ref constant into the constant pool
 		// First add the tag
-		writeU1(constantPoolDeclaringClass.isInterface() ? InterfaceMethodRefTag : MethodRefTag);
+		writeU1(constantPoolDeclaringClass.isInterface() || constantPoolDeclaringClass.isAnnotationType() ? InterfaceMethodRefTag : MethodRefTag);
 		// Then write the class index
 		writeU2(classIndex);
 		// The write the nameAndType index
