@@ -2743,5 +2743,40 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"	         ^^^^^^\n" + 
 			"The annotation @Annot is disallowed for this location\n" + 
 			"----------\n");
-	}		
+	}
+	// Add check for parameter
+	public void test089() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    @Target(ElementType.PARAMETER) @interface I {}\n" +
+				"    \n" +
+				"    void m(@I int i){\n" +
+				"    }\n" +
+				"}"
+			},
+			"");
+	}
+	// Add check that type includes annotation type
+	public void test090() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    @Target(ElementType.TYPE) @interface Annot1 {}\n" +
+				"    \n" +
+				"    @Annot1 @interface Annot2 {}\n" +
+				"}"
+			},
+			"");
+	}
 }
