@@ -263,7 +263,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelManager manager,
 		JavaProject project) {
 
-		boolean hasChangedSourceEntries = false;
+		boolean hasChangedContentForDependents = false;
 
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 		boolean hasDelta = false;
@@ -279,7 +279,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
 
 				int changeKind = oldResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
+				hasChangedContentForDependents |= 
+					(changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
 
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
 				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
@@ -290,16 +291,18 @@ public class SetClasspathOperation extends JavaModelOperation {
 				}
 				hasDelta = true;
 
-			} else if (
-				oldResolvedPathLongest && index != i) { //reordering of the classpath
-				addClasspathDeltas(
-					project.getPackageFragmentRoots(oldResolvedPath[i]),
-					IJavaElementDelta.F_CLASSPATH_REORDER,
-					delta);
-				int changeKind = oldResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
-
-				hasDelta = true;
+			} else {
+				hasChangedContentForDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
+				if (oldResolvedPathLongest && index != i) { //reordering of the classpath
+					addClasspathDeltas(
+						project.getPackageFragmentRoots(oldResolvedPath[i]),
+						IJavaElementDelta.F_CLASSPATH_REORDER,
+						delta);
+					int changeKind = oldResolvedPath[i].getEntryKind();
+					hasChangedContentForDependents |= (changeKind == IClasspathEntry.CPE_SOURCE);
+	
+					hasDelta = true;
+				}
 			}
 		}
 
@@ -332,18 +335,21 @@ public class SetClasspathOperation extends JavaModelOperation {
 					}
 				}
 				
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
+				hasChangedContentForDependents |= 
+					(changeKind == IClasspathEntry.CPE_SOURCE) || newResolvedPath[i].isExported();
 				hasDelta = true;
 
-			} else if (
-				!oldResolvedPathLongest && index != i) { //reordering of the classpath
-				addClasspathDeltas(
-					project.getPackageFragmentRoots(newResolvedPath[i]),
-					IJavaElementDelta.F_CLASSPATH_REORDER,
-					delta);
-				int changeKind = newResolvedPath[i].getEntryKind();
-				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
-				hasDelta = true;
+			} else {
+				hasChangedContentForDependents |= (newResolvedPath[i].isExported() != oldResolvedPath[index].isExported());
+				if (!oldResolvedPathLongest && index != i) { //reordering of the classpath
+					addClasspathDeltas(
+						project.getPackageFragmentRoots(newResolvedPath[i]),
+						IJavaElementDelta.F_CLASSPATH_REORDER,
+						delta);
+					int changeKind = newResolvedPath[i].getEntryKind();
+					hasChangedContentForDependents |= changeKind == IClasspathEntry.CPE_SOURCE;
+					hasDelta = true;
+				}
 			}
 		}
 		if (hasDelta) {
@@ -355,7 +361,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			// loose all built state - next build will be a full one
 			manager.setLastBuiltState(project.getProject(), null);
 
-			if (hasChangedSourceEntries)
+			if (hasChangedContentForDependents)
 				updateAffectedProjects(project.getProject().getFullPath());
 		}
 	}
