@@ -403,8 +403,6 @@ public class JavaProject
 			
 				if (!insideOriginalProject && !resolvedEntry.isExported()) return;
 
-				String extension = entryPath.getFileExtension();
-
 				Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
 				if (target == null) return;
 
@@ -419,19 +417,16 @@ public class JavaProject
 							rootIDs.add(rootID);
 							break;
 						case IResource.FILE :
-							if ("jar".equalsIgnoreCase(extension) //$NON-NLS-1$
-								|| "zip".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+							if (Util.isArchiveFileName(resource.getName())) {
 								accumulatedRoots.add(
 									new JarPackageFragmentRoot(resource, this));
-								}
 								rootIDs.add(rootID);
+							}
 						break;
 					}
 				} else {
 					// external target - only JARs allowed
-					if (((java.io.File)target).isFile()
-						&& ("jar".equalsIgnoreCase(extension) //$NON-NLS-1$
-							|| "zip".equalsIgnoreCase(extension))) { //$NON-NLS-1$
+					if (((java.io.File)target).isFile() && (Util.isArchiveFileName(entryPath.lastSegment()))) {
 						accumulatedRoots.add(
 							new JarPackageFragmentRoot(entryPath.toOSString(), this));
 						rootIDs.add(rootID);
