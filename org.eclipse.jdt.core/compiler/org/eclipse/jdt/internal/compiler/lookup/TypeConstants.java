@@ -50,6 +50,7 @@ public interface TypeConstants {
 	final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
 	final char[] NULL = "null".toCharArray(); //$NON-NLS-1$
 	final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+    final char[] VALUE = "value".toCharArray(); //$NON-NLS-1$
     final char[] VALUES = "values".toCharArray(); //$NON-NLS-1$
     final char[] VALUEOF = "valueOf".toCharArray(); //$NON-NLS-1$
     
