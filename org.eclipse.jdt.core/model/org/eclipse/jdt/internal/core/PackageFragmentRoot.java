@@ -82,12 +82,15 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 		IResource[] members = folder.members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];
-			if (member.getType() == IResource.FOLDER && member.getName().indexOf('.') < 0) {
+			String memberName = member.getName();
+			if (member.getType() == IResource.FOLDER 
+				&& Util.isValidFolderNameForPackage(memberName)) {
+					
 				String newPrefix;
 				if (prefix.length() == 0) {
-					newPrefix = member.getName();
+					newPrefix = memberName;
 				} else {
-					newPrefix = prefix + "." + member.getName(); //$NON-NLS-1$
+					newPrefix = prefix + "." + memberName; //$NON-NLS-1$
 				}
 				// eliminate binary output only if nested inside direct subfolders
 				if (!member.getFullPath().equals(outputLocationPath)) {

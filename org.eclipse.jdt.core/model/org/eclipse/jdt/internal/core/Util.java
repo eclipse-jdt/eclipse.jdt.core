@@ -478,7 +478,7 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 	 * false if it is not.
 	 */
 	public static boolean isValidFolderNameForPackage(String folderName) {
-		return folderName.indexOf('.') == -1;
+		return JavaConventions.validateIdentifier(folderName).isOK();
 	}	
 
 /**
