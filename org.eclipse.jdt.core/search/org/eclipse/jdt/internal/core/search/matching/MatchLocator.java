@@ -693,7 +693,9 @@ protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
  * Create a new parser for the given project, as well as a lookup environment.
  */
 public void initialize(JavaProject project, int possibleMatchSize) throws JavaModelException {
-	if (this.nameEnvironment != null)
+	// clean up name environment only if there are several possible match as it is reused
+	// when only one possible match (bug 58581)
+	if (this.nameEnvironment != null && possibleMatchSize != 1)
 		this.nameEnvironment.cleanup();
 
 	SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.workingCopies);
