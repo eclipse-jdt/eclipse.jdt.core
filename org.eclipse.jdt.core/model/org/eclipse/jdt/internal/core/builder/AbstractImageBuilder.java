@@ -79,6 +79,7 @@ public void acceptResult(CompilationResult result) {
 		try {
 			workQueue.finished(compilationUnit);
 			updateProblemsFor(compilationUnit, result); // record compilation problems before potentially adding duplicate errors
+			updateTasksFor(compilationUnit, result); // record tasks
 
 			String typeLocator = compilationUnit.typeLocator();
 			ClassFile[] classFiles = result.getClassFiles();
@@ -310,9 +311,8 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 				break;
 		}
 
-		IMarker marker;
 		if (id != IProblem.Task) {
-			marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+			IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttributes(
 				new String[] {
 					IMarker.MESSAGE, 
@@ -330,30 +330,6 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 					new Integer(problem.getSourceEnd() + 1),
 					new Integer(problem.getSourceLineNumber()),
 					Util.getProblemArgumentsForMarker(problem.getArguments())
-				});
-		} else {
-			marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
-			int priority = IMarker.PRIORITY_NORMAL;
-			String compilerPriority = problem.getArguments()[2];
-			if (JavaCore.COMPILER_TASK_PRIORITY_HIGH.equals(compilerPriority))
-				priority = IMarker.PRIORITY_HIGH;
-			else if (JavaCore.COMPILER_TASK_PRIORITY_LOW.equals(compilerPriority))
-				priority = IMarker.PRIORITY_LOW;
-			marker.setAttributes(
-				new String[] {
-					IMarker.MESSAGE, 
-					IMarker.PRIORITY, 
-					IMarker.DONE, 
-					IMarker.CHAR_START, 
-					IMarker.CHAR_END, 
-					IMarker.LINE_NUMBER},
-				new Object[] { 
-					problem.getMessage(),
-					new Integer(priority),
-					new Boolean(false),
-					new Integer(problem.getSourceStart()),
-					new Integer(problem.getSourceEnd() + 1),
-					new Integer(problem.getSourceLineNumber()),
 				});
 		}
 
@@ -380,12 +356,53 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 	}
 }
 
+protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws CoreException {
+	if (sourceFile == null || tasks == null || tasks.length == 0) return;
+
+	IResource resource = sourceFile.resource;
+	for (int i = 0, l = tasks.length; i < l; i++) {
+		IProblem task = tasks[i];
+		if (task.getID() == IProblem.Task) {
+			IMarker marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
+			int priority = IMarker.PRIORITY_NORMAL;
+			String compilerPriority = task.getArguments()[2];
+			if (JavaCore.COMPILER_TASK_PRIORITY_HIGH.equals(compilerPriority))
+				priority = IMarker.PRIORITY_HIGH;
+			else if (JavaCore.COMPILER_TASK_PRIORITY_LOW.equals(compilerPriority))
+				priority = IMarker.PRIORITY_LOW;
+			marker.setAttributes(
+				new String[] {
+					IMarker.MESSAGE, 
+					IMarker.PRIORITY, 
+					IMarker.DONE, 
+					IMarker.CHAR_START, 
+					IMarker.CHAR_END, 
+					IMarker.LINE_NUMBER},
+				new Object[] { 
+					task.getMessage(),
+					new Integer(priority),
+					new Boolean(false),
+					new Integer(task.getSourceStart()),
+					new Integer(task.getSourceEnd() + 1),
+					new Integer(task.getSourceLineNumber()),
+				});
+		}
+	}
+}
+
 protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
 	IProblem[] problems = result.getProblems();
 	if (problems == null || problems.length == 0) return;
 
 	notifier.updateProblemCounts(problems);
 	storeProblemsFor(sourceFile, problems);
+}
+
+protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
+	IProblem[] tasks = result.getTasks();
+	if (tasks == null || tasks.length == 0) return;
+
+	storeTasksFor(sourceFile, tasks);
 }
 
 protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, boolean isSecondaryType) throws CoreException {

@@ -523,12 +523,21 @@ protected void resetCollections() {
 
 protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
 	IMarker[] markers = JavaBuilder.getProblemsFor(sourceFile.resource);
-	IProblem[] problems = result.getProblems(); // contains both true problems and todo tasks
-	if (problems == null && markers.length == 0 && JavaBuilder.getTasksFor(sourceFile.resource).length == 0) return;
+	IProblem[] problems = result.getProblems();
+	if (problems == null && markers.length == 0) return;
 
 	notifier.updateProblemCounts(markers, problems);
-	JavaBuilder.removeProblemsAndTasksFor(sourceFile.resource);
+	JavaBuilder.removeProblemsFor(sourceFile.resource);
 	storeProblemsFor(sourceFile, problems);
+}
+
+protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
+	IMarker[] markers = JavaBuilder.getTasksFor(sourceFile.resource);
+	IProblem[] tasks = result.getTasks();
+	if (tasks == null && markers.length == 0) return;
+
+	JavaBuilder.removeTasksFor(sourceFile.resource);
+	storeTasksFor(sourceFile, tasks);
 }
 
 protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType) throws CoreException {

@@ -60,6 +60,20 @@ public static IMarker[] getTasksFor(IResource resource) {
 	return new IMarker[0];
 }
 
+public static void removeProblemsFor(IResource resource) {
+	try {
+		if (resource != null && resource.exists())
+			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+	} catch (CoreException e) {} // assume there were no problems
+}
+
+public static void removeTasksFor(IResource resource) {
+	try {
+		if (resource != null && resource.exists())
+			resource.deleteMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
+	} catch (CoreException e) {} // assume there were no problems
+}
+
 public static void removeProblemsAndTasksFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists()) {
