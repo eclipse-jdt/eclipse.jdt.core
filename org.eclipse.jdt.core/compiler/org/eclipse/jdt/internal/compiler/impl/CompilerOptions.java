@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 
 public class CompilerOptions implements ProblemReasons, ProblemSeverities {
@@ -48,8 +49,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_Encoding = "org.eclipse.jdt.core.encoding"; //$NON-NLS-1$
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
-	public static final String OPTION_ReportToDo = "org.eclipse.jdt.core.compiler.problem.todo"; //$NON-NLS-1$
-	public static final String OPTION_ToDoTag = "org.eclipse.jdt.core.compiler.problem.todoTag"; //$NON-NLS-1$
+	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -88,7 +88,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int AssertUsedAsAnIdentifier = 0x200000;
 	public static final int UnusedImport = 0x400000;
 	public static final int StaticAccessReceiver = 0x800000;
-	public static final int ToDo = 0x1000000;
+	public static final int Task = 0x1000000;
 	
 	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
@@ -142,9 +142,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// max problems per compilation unit
 	public int maxProblemsPerUnit = 100; // no more than 100 problems per default
 	
-	// tag used to recognize TODO tasks in comments
-	public char[] toDoTag = DEFAULT_TODO_TAG;
-	public static final char[] DEFAULT_TODO_TAG = "TODO:".toCharArray(); //$NON-NLS-1$
+	// tags used to recognize tasks in comments
+	public char[][] taskTags = null;
 
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
@@ -468,23 +467,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			} 
-			// Report todo
-			if(optionID.equals(OPTION_ReportToDo)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= ToDo;
-					this.warningThreshold &= ~ToDo;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~ToDo;
-					this.warningThreshold |= ToDo;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~ToDo;
-					this.warningThreshold &= ~ToDo;
+			// Report task
+			if(optionID.equals(OPTION_TaskTags)){
+				if (optionValue.length() == 0) {
+					this.taskTags = null;
+				} else {
+					this.taskTags = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} 
-			// Report todo
-			if(optionID.equals(OPTION_ToDoTag)){
-				this.toDoTag = optionValue.toCharArray();
 				continue;
 			} 
 		}
@@ -638,15 +627,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-static access receiver: IGNORE"); //$NON-NLS-1$
 			}
 		}
-		if ((errorThreshold & ToDo) != 0){
-			buf.append("\n-TODO task: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & ToDo) != 0){
-				buf.append("\n-TODO task: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-TODO task: IGNORE"); //$NON-NLS-1$
-			}
-		}
 		switch(targetJDK){
 			case JDK1_1 :
 				buf.append("\n-target JDK: 1.1"); //$NON-NLS-1$
@@ -685,7 +665,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
 		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-TODO tag : " + (this.toDoTag == null ? "<null>" : new String(this.toDoTag))); //$NON-NLS-1$
+		buf.append("\n-task tag : " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')))); //$NON-NLS-1$
 		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}

@@ -647,6 +647,9 @@ public class Main implements ProblemSeverities {
 				options.put(
 					CompilerOptions.OPTION_ReportStaticAccessReceiver,
 					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_TaskTags,
+					""); //$NON-NLS-1$
 
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
@@ -701,10 +704,20 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportStaticAccessReceiver,
 							CompilerOptions.WARNING);
-					} else if (token.equals("todo")) { //$NON-NLS-1$
+					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
+						String taskTags = ""; //$NON-NLS-1$
+						int start = token.indexOf('(');
+						int end = token.indexOf(')');
+						if (start >= 0 && end >= 0 && start < end){
+							taskTags = token.substring(start+1, end).trim();
+							taskTags = taskTags.replace('|',',');
+						}
+						if (taskTags.length() == 0){
+							throw new InvalidInputException(Main.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
+						}
 						options.put(
-							CompilerOptions.OPTION_ReportToDo,
-							CompilerOptions.WARNING);
+							CompilerOptions.OPTION_TaskTags,
+							taskTags);
 					} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportAssertIdentifier,

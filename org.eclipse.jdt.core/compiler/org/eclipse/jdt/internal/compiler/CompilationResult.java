@@ -133,6 +133,26 @@ public ICompilationUnit getCompilationUnit(){
 public char[] getFileName(){
 	return fileName;
 }
+
+/**
+ * Answer the errors encountered during compilation.
+ */
+public IProblem[] getErrors() {
+
+	IProblem[] problems = getProblems();
+	int errorCount = 0;
+	for (int i = 0; i < this.problemCount; i++) {
+		if (problems[i].isError()) errorCount++;
+	}
+	if (errorCount == this.problemCount) return problems;
+	IProblem[] errors = new IProblem[errorCount];
+	int index = 0;
+	for (int i = 0; i < this.problemCount; i++) {
+		if (problems[i].isError()) errors[index++] = problems[i];
+	}
+	return errors;
+}
+
 /**
  * Answer the problems (errors and warnings) encountered during compilation.
  *

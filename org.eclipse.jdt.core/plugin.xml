@@ -175,6 +175,13 @@
 	<attribute name="flags"/>
 	<attribute name="arguments"/>
 </extension>
+
+<!-- Java tasks -->
+
+<extension id="task" name="%javaTaskName" point="org.eclipse.core.resources.markers">
+    <super type="org.eclipse.core.resources.taskmarker"/> 
+    <persistent value="true"/>
+</extension>
     
 <!-- =================================================================================== -->
 <!-- Extension: Javac Ant Adapter                                                        -->

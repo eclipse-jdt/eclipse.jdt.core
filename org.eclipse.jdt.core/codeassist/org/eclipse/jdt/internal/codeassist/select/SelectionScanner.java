@@ -30,7 +30,7 @@ public class SelectionScanner extends Scanner {
  */
  
 public SelectionScanner(boolean assertMode) {
-	super(false /*comment*/, false /*whitespace*/, false /*nls*/, assertMode /*assert*/, null /*todo*/);
+	super(false /*comment*/, false /*whitespace*/, false /*nls*/, assertMode /*assert*/, null /*task*/);
 }
 
 public char[] getCurrentIdentifierSource() {

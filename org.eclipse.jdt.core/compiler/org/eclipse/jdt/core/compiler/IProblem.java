@@ -482,6 +482,6 @@ public interface IProblem {
 	// assertion warning
 	int UseAssertAsAnIdentifier = Internal + 440;
 	
-	// javadoc 
-	int ToDo = Internal + 450;
+	// detected task
+	int Task = Internal + 450;
 }

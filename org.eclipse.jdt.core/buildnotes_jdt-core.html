@@ -33,8 +33,8 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.0 Build - 5th August 2002
-<br>Project org.eclipse.jdt.core v_271
+Eclipse SDK 2.0 Build - ? August 2002
+<br>Project org.eclipse.jdt.core v_272
 <h2>
 What's new in this drop</h2>
 <ul>
@@ -49,29 +49,24 @@ allows to report them all.
 *     		- default:			"disabled"
 </pre>
 </li>
-<li> Compiler can now optionally collect TODO tasks from the source code. Occurrences of
-a TODO tag are looked for inside any type of comments, and reported along with problems.
+<li> Compiler can now optionally collect tasks from the source code. Occurrences of
+a given task tag are looked for inside any type of comments, and reported as custom task markers
+(<code>"org.eclipse.jdt.core.task"</code>).
  <ul>
- <li> New problem ID got created: <code>org.eclipse.jdt.core.compiler.IProblem#ToDo</code>.
+ <li> New problem ID got created: <code>org.eclipse.jdt.core.compiler.IProblem#Task</code>. Note that
+ clients of <code>IProblemRequestor</code> will get detected tasks as warnings with this new ID, they
+ can be filtered out if needed.
  </li>
- <li> JavaCore option added to control the severity of TODO reports (ignore/warning/error).
+ <li> JavaCore option added for specifying the task tag values (default is <code>""</code> meaning no
+ task is detected).
 <pre>
-* COMPILER / Reporting occurrences of TODO tags in comments
-*    When enabled, the compiler will issue an error or a warning whenever it encounters
-*    a TODO tag inside any comment. The tag value itself is defined by the option
-*    "org.eclipse.jdt.core.compiler.problem.todoTag".
-*     - option id:			"org.eclipse.jdt.core.compiler.problem.todo"
-*     - possible values:	{ "error", "warning", "ignore" }
-*     - default:			"ignore"
-</pre>
- </li>
- <li> JavaCore option added for specifying the TODO tag value (default is <code>"TODO:"</code>).
-<pre>
-* COMPILER / Define the TODO task tag
-*    Define the tag used to recognize TODO tasks in comments.
-*     - option id:			"org.eclipse.jdt.core.compiler.problem.todoTag"
-*     - possible values:	"<t>" where <t> is a non-empty string, without any wild-card.
-*     - default:			"TODO:"
+* COMPILER / Define the Automatic Task Tags
+*    When the tag is non empty, the compiler will issue a task marker whenever it encounters
+*    one of the corresponding tag inside any comment in Java source code.
+*    Generated task messages will not include the tag, and range until the next line separator or comment ending, and will be trimmed.
+*     - option id:			"org.eclipse.jdt.core.taskTags"
+*     - possible values:	{ "<tag>[,<tag>]*" } where <tag> is a String without any wild-card 
+*     - default:			""
 </pre>	 
  </li>
  </ul>
@@ -152,11 +147,7 @@ Error in javadoc for JavaCore.getResolvedClasspathEntry
 Exported libraries and source folders
 
 <h3>Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23154">23154</a>
-Locale.getAvailableLocales() return only 2 Locales (en, en)
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=19466">19466</a>  
-Delta processing should only consider delta inside prefix/suffix of package fragment root paths  
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23055">23055</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23055">23055</a>
 DOM - SuperMethodInvocation.resolveTypeBinding() returns null 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21843">21843</a>  
 Qualifier in "Type Hierarchy" View  

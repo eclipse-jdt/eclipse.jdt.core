@@ -178,7 +178,7 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	AbstractMethodDeclaration[] methodDeclarations = typeDeclaration.methods;
 	int maxMethodDecl = methodDeclarations == null ? 0 : methodDeclarations.length;
 	int problemsLength;
-	IProblem[] problems = unitResult.getProblems();
+	IProblem[] problems = unitResult.getErrors();
 	if (problems == null) {
 		problems = new IProblem[0];
 	}

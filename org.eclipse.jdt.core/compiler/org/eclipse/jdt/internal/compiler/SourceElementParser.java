@@ -1119,7 +1119,7 @@ public void parseTypeMemberDeclarations(
 		/* scanner initialization */
 		scanner.setSource(contents);
 		scanner.recordLineSeparator = false;
-		scanner.toDoTag = null;
+		scanner.taskTags = null;
 		scanner.resetTo(start, end);
 
 		/* unit creation */

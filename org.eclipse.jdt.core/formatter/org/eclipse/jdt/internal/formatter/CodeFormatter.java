@@ -150,11 +150,11 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 		currentCommentOffset = -1;
 
 		// initialize primary and secondary scanners
-		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*todo*/); // regular scanner for forming lines
+		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*task*/); // regular scanner for forming lines
 		scanner.recordLineSeparator = true;
 
 		// to remind of the position of the beginning of the line.
-		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*todo*/);
+		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*task*/);
 		// secondary scanner to split long lines formed by primary scanning
 
 		// initialize current line buffer

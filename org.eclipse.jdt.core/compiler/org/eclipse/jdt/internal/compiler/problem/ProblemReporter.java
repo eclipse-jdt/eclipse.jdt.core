@@ -547,14 +547,8 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;		
-		case IProblem.ToDo :
-			if ((errorThreshold & CompilerOptions.ToDo) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.ToDo) != 0){
-				return Warning;
-			}
-			return Ignore;		
+		case IProblem.Task :
+			return Warning;			
 		default:
 			return Error;
 	}
@@ -2582,9 +2576,9 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclarat
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
-public void todo(String message, int start, int end){
+public void task(String message, int start, int end){
 	this.handle(
-		IProblem.ToDo,
+		IProblem.Task,
 		new String[] { message },
 		new String[] { message },
 		start,

@@ -63,11 +63,11 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public int[] commentStarts = new int[10];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
 
-	// TODO tag support
-	public char[][] todoMessages;
-	public int[][] todoPositions;
-	public int todoCount = 0;
-	public char[] toDoTag = null;
+	// task tag support
+	public char[][] taskMessages;
+	public int[][] taskPositions;
+	public int taskCount = 0;
+	public char[][] taskTags = null;
 	
 	//diet parsing support - jump over some method body when requested
 	public boolean diet = false;
@@ -162,21 +162,21 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*toDoTag*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*taskTag*/);
 }
 public Scanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
 	boolean checkNonExternalizedStringLiterals, 
 	boolean assertMode,
-	char[] toDoTag) {
+	char[][] taskTags) {
 		
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.assertMode = assertMode;
-	this.toDoTag = toDoTag;
+	this.taskTags = taskTags;
 }
 
 
@@ -187,65 +187,68 @@ public  final boolean atEnd() {
 	return source.length == currentPosition;
 }
 
-// chech presence of TODO: tags
-public void checkToDoTag(int commentStart, int commentEnd) {
+// chech presence of task: tags
+public void checkTaskTag(int commentStart, int commentEnd) {
 
-	// only look for newer TODO: tags
-	if (this.todoCount > 0 && this.todoPositions[this.todoCount-1][0] >= commentStart) {
+	// only look for newer task: tags
+	if (this.taskCount > 0 && this.taskPositions[this.taskCount-1][0] >= commentStart) {
 		return;
 	}
-	int tagLength = this.toDoTag.length;
-	for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
+	nextChar: for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
 
+		int nextPos = -1;
+		
 		// check for tag occurrence
-		boolean foundTag = true;
-		for (int t = 0; t < tagLength; t++){
-			if (this.source[i+t] != this.toDoTag[t]){
-				foundTag = false;
+		nextTag: for (int itag = 0; itag < this.taskTags.length; itag++){
+			char[] tag = this.taskTags[itag];
+			int tagLength = tag.length;
+			for (int t = 0; t < tagLength; t++){
+				if (this.source[i+t] != tag[t]) continue nextTag;
+			}
+			nextPos = i + tagLength;
+			break;
+		}
+		if (nextPos < 0) continue nextChar;
+
+		// extract message
+		char c = this.source[nextPos];
+		int start = i; 
+		int msgStart = nextPos;
+		int end = -1;
+		for (int j = nextPos; j < commentEnd; j++){
+			if ((c = this.source[j]) == '\n' || c == '\r'){
+				end = j - 1;
+				i = j+1;
 				break;
 			}
 		}
-		if (foundTag){
-
-			int nextPos = i+5;
-			char c = this.source[nextPos];
-
-			int start = i; 
-			int end = -1;
-			for (int j = nextPos; j < commentEnd; j++){
-				if ((c = this.source[j]) == '\n' || c == '\r'){
+		if (end < 0){
+			for (int j = commentEnd; j >= nextPos; j--){
+				if ((c = this.source[j]) == '*') {
 					end = j - 1;
-					i = j+1;
 					break;
 				}
 			}
-			if (end < 0){
-				for (int j = commentEnd; j >= nextPos; j--){
-					if ((c = this.source[j]) == '*') {
-						end = j - 1;
-						break;
-					}
-				}
-				if (end < 0) end = nextPos+1;
-			}
-			
-			// trim message
-			while (source[end] == ' ' && start <= end) end--;
-			
-			char[] message = new char[end-start+1];
-			System.arraycopy(source, start, message, 0, end-start+1);
-					
-			if (this.todoMessages == null){
-				this.todoMessages = new char[5][];
-				this.todoPositions = new int[5][];
-			} else if (this.todoCount == this.todoMessages.length) {
-				System.arraycopy(this.todoMessages, 0, this.todoMessages = new char[this.todoCount*2][], 0, this.todoCount);
-				System.arraycopy(this.todoPositions, 0, this.todoPositions = new int[this.todoCount*2][], 0, this.todoCount);
-			}
-			this.todoMessages[this.todoCount] = message;
-			this.todoPositions[this.todoCount] = new int[]{ start, end };
-			this.todoCount++;
+			if (end < 0) end = nextPos+1;
 		}
+		
+		// trim message
+		while (source[msgStart] == ' ' && msgStart <= end) msgStart++;
+		while (source[end] == ' ' && start <= end) end--;
+		
+		char[] message = new char[end-msgStart+1];
+		System.arraycopy(source, msgStart, message, 0, end-msgStart+1);
+				
+		if (this.taskMessages == null){
+			this.taskMessages = new char[5][];
+			this.taskPositions = new int[5][];
+		} else if (this.taskCount == this.taskMessages.length) {
+			System.arraycopy(this.taskMessages, 0, this.taskMessages = new char[this.taskCount*2][], 0, this.taskCount);
+			System.arraycopy(this.taskPositions, 0, this.taskPositions = new int[this.taskCount*2][], 0, this.taskCount);
+		}
+		this.taskMessages[this.taskCount] = message;
+		this.taskPositions[this.taskCount] = new int[]{ start, end };
+		this.taskCount++;
 	}
 }
 
@@ -1120,7 +1123,7 @@ public int getNextToken() throws InvalidInputException {
 									endPositionForLineComment = currentPosition - 1;
 								}
 								recordComment(false);
-								if (this.toDoTag != null) checkToDoTag(this.startPosition, this.currentPosition);
+								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
 									checkNonExternalizeString();
 									if (recordLineSeparator) {
@@ -1211,7 +1214,7 @@ public int getNextToken() throws InvalidInputException {
 									} //jump over the \\
 								}
 								recordComment(isJavadoc);
-								if (this.toDoTag != null) checkToDoTag(this.startPosition, this.currentPosition);
+								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (tokenizeComments) {
 									if (isJavadoc)
 										return TokenNameCOMMENT_JAVADOC;
@@ -2009,7 +2012,7 @@ public void resetTo(int begin, int end) {
 	initialPosition = startPosition = currentPosition = begin;
 	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
-	todoCount = 0;
+	taskCount = 0;
 
 }
 

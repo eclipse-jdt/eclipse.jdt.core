@@ -41,7 +41,6 @@ public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
-static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
 /**
  * A list of project names that have been built.
  * This list is used to reset the JavaModel.existingExternalFiles cache when a build cycle begins
@@ -52,15 +51,17 @@ static ArrayList builtProjects = null;
 public static IMarker[] getProblemsFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
-			return resource.findMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
+			return resource.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 	} catch (CoreException e) {} // assume there are no problems
 	return new IMarker[0];
 }
 
 public static void removeProblemsFor(IResource resource) {
 	try {
-		if (resource != null && resource.exists())
-			resource.deleteMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
+		if (resource != null && resource.exists()) {
+			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			resource.deleteMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
+		}
 	} catch (CoreException e) {} // assume there were no problems
 }
 
@@ -123,19 +124,19 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
-		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject")); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (ImageBuilderInternalException e) {
 		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException"); //$NON-NLS-1$
-		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject")); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (MissingClassFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing class files
 		if (DEBUG)
 			System.out.println(Util.bind("build.incompleteClassPath", e.missingClassFile)); //$NON-NLS-1$
-		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath", e.missingClassFile)); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (MissingSourceFileException e) {
@@ -143,7 +144,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		if (DEBUG)
 			System.out.println(Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
 		removeProblemsFor(currentProject); // make this the only problem for this project
-		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} finally {
@@ -465,7 +466,7 @@ private boolean isWorthBuilding() throws CoreException {
 
 		removeProblemsFor(currentProject); // remove all compilation problems
 
-		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.abortDueToClasspathProblems")); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		return false;
@@ -484,7 +485,7 @@ private boolean isWorthBuilding() throws CoreException {
 			new BatchImageBuilder(this).scrubOutputFolder();
 
 			removeProblemsFor(currentProject); // make this the only problem for this project
-			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			return false;

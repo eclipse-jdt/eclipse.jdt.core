@@ -494,7 +494,13 @@ protected void updateProblemsFor(String sourceLocation, CompilationResult result
 	IResource resource = resourceForLocation(sourceLocation);
 	IMarker[] markers = JavaBuilder.getProblemsFor(resource);
 	IProblem[] problems = result.getProblems();
-	if (problems == null || problems.length == 0)
+	int problemCount = 0;
+	if (problems != null){
+		for (int i = 0; i < problems.length; i++){
+			if (problems[i].getID() != IProblem.Task) problemCount++;
+		}
+	}
+	if (problemCount == 0)
 		if (markers.length == 0) return;
 
 	notifier.updateProblemCounts(markers, problems);

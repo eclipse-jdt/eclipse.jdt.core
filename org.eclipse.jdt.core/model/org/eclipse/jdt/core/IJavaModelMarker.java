@@ -34,6 +34,17 @@ public interface IJavaModelMarker {
 	 * detected by the outliner, or a problem detected during a code completion)
 	 */
 	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem"; //$NON-NLS-1$
+
+	/**
+	 * Java model task marker type (value <code>"org.eclipse.jdt.core.task"</code>).
+	 * This can be used to recognize task markers in the workspace that correspond to tasks
+	 * specified in Java source comments and detected during compilation (e.g. 'TODO: ...').
+	 * Tasks are identified by a task tag, which can be customized through <code>JavaCore</code>
+	 * option <code>"org.eclipse.jdt.core.compiler.taskTag"</code>.
+	 * @since 2.1
+	 */
+	public static final String TASK_MARKER = JavaCore.PLUGIN_ID + ".task"; //$NON-NLS-1$
+
     
     /** 
 	 * Id marker attribute (value <code>"arguments"</code>).

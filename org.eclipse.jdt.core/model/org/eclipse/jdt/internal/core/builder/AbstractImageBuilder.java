@@ -227,7 +227,7 @@ void compile(SourceFile[] units, String[] initialTypeNames, String[] additionalF
 
 protected void createErrorFor(IResource resource, String message) {
 	try {
-		IMarker marker = resource.createMarker(JavaBuilder.ProblemMarkerTag);
+		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttributes(
 			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END},
 			new Object[] {message, new Integer(IMarker.SEVERITY_ERROR), new Integer(0), new Integer(1)});
@@ -309,6 +309,7 @@ protected IResource resourceForLocation(String sourceLocation) {
  *	 - it has an extra attribute "ID" which holds the problem's id
  */
 protected void storeProblemsFor(IResource resource, IProblem[] problems) throws CoreException {
+	
 	if (resource == null || problems == null || problems.length == 0) return;
 
 	String missingClassFile = null;
@@ -340,21 +341,49 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 				String fileLocation = resource.getLocation().toString();
 				if (!problemTypeLocations.contains(fileLocation))
 					problemTypeLocations.add(fileLocation);
+				break;
 		}
 
-		IMarker marker = resource.createMarker(JavaBuilder.ProblemMarkerTag);
-		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.ID, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER, IJavaModelMarker.ARGUMENTS},
-			new Object[] { 
-				problem.getMessage(),
-				new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
-				new Integer(id),
-				new Integer(problem.getSourceStart()),
-				new Integer(problem.getSourceEnd() + 1),
-				new Integer(problem.getSourceLineNumber()),
-				Util.getProblemArgumentsForMarker(problem.getArguments())
-			});
-
+		IMarker marker;
+		if (id != IProblem.Task) {
+			marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+			marker.setAttributes(
+				new String[] {
+					IMarker.MESSAGE, 
+					IMarker.SEVERITY, 
+					IJavaModelMarker.ID, 
+					IMarker.CHAR_START, 
+					IMarker.CHAR_END, 
+					IMarker.LINE_NUMBER, 
+					IJavaModelMarker.ARGUMENTS},
+				new Object[] { 
+					problem.getMessage(),
+					new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
+					new Integer(id),
+					new Integer(problem.getSourceStart()),
+					new Integer(problem.getSourceEnd() + 1),
+					new Integer(problem.getSourceLineNumber()),
+					Util.getProblemArgumentsForMarker(problem.getArguments())
+				});
+		} else {
+			marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
+			marker.setAttributes(
+				new String[] {
+					IMarker.MESSAGE, 
+					IMarker.PRIORITY, 
+					IMarker.DONE, 
+					IMarker.CHAR_START, 
+					IMarker.CHAR_END, 
+					IMarker.LINE_NUMBER},
+				new Object[] { 
+					problem.getMessage(),
+					new Integer(IMarker.PRIORITY_NORMAL),
+					new Boolean(false),
+					new Integer(problem.getSourceStart()),
+					new Integer(problem.getSourceEnd() + 1),
+					new Integer(problem.getSourceLineNumber()),
+				});
+		}
 		// compute a user-friendly location
 		IJavaElement element = JavaCore.create(resource);
 		if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
@@ -367,6 +396,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 			location = ((JavaElement) element).readableName();
 		if (location != null)
 			marker.setAttribute(IMarker.LOCATION, location);
+		
 		if (missingClassFile != null)
 			throw new MissingClassFileException(missingClassFile);
 	}
