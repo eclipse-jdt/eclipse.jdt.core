@@ -171,7 +171,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 
 void compile(CompilationUnit[] units, String[] initialTypeNames, String[] additionalFilenames) {
 	if (units.length == 0) return;
-	notifier.compiled(units[0]); // just to change the message
+	notifier.aboutToCompile(units[0]); // just to change the message
 
 	// extend additionalFilenames with all hierarchical problem types found during this entire build
 	if (!problemTypeLocations.isEmpty()) {

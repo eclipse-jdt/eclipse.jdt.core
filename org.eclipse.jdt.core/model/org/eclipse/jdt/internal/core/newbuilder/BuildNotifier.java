@@ -44,6 +44,19 @@ public BuildNotifier(IProgressMonitor monitor, IProject project) {
 	this.totalWork = 1000000;
 }
 
+/**
+ * Notification before a compile that a unit is about to be compiled.
+ */
+public void aboutToCompile(ICompilationUnit unit) {
+	String message = new String(unit.getFileName());
+	message = message.replace('\\', '/');
+	int end = message.lastIndexOf('/');
+	message = end <= rootPathLength
+		? Util.bind("build.compiling", message.substring(rootPathLength)) //$NON-NLS-1$
+		: Util.bind("build.compilingContent", message.substring(rootPathLength, end)); //$NON-NLS-1$
+	subTask(message);
+}
+
 public void begin() {
 	if (monitor != null)
 		monitor.beginTask("", totalWork); //$NON-NLS-1$
