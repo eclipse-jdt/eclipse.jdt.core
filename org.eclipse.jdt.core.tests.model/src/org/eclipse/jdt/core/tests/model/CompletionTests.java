@@ -113,6 +113,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionUnresolvedReturnType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedParameterType"));
 	suite.addTest(new CompletionTests("testCompletionUnresolvedFieldType"));
+	suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
 	
 	return suite;
 }
@@ -1420,6 +1421,19 @@ public void testCompletionUnresolvedFieldType() throws JavaModelException {
 		"element:barPlus    completion:barPlus()    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
+/*
+ * bug : http://dev.eclipse.org/bugs/show_bug.cgi?id=24440 */
+public void testCompletionUnresolvedEnclosingType() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionUnresolvedEnclosingType.java");
 
+	String str = cu.getSource();
+	String completeBehind = "new ZZZ(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertTrue(
+		requestor.getResults().length() == 0);
+}
 
 }

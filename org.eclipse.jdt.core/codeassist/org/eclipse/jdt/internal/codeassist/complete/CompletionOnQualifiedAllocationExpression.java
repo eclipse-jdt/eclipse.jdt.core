@@ -42,8 +42,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	TypeBinding typeBinding = null;
 	if (enclosingInstance != null) {
 		TypeBinding enclosingType = enclosingInstance.resolveType(scope);
-		if (!(enclosingType instanceof ReferenceBinding)) {
-			scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(enclosingType, enclosingInstance);
+		if (enclosingType == null || !(enclosingType instanceof ReferenceBinding)) {
 			throw new CompletionNodeFound();
 		}
 		typeBinding = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
