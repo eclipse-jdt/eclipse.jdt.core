@@ -36,17 +36,29 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.1 Build - ? January 2003
+Eclipse SDK 2.1 Build - ?th January 2003
 <br>Project org.eclipse.jdt.core v_293
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Extended compiler optional warning for interface methods incompatible with Object
+non public methods to scenario where thrown exceptions are not compatible (problem ID:
+<code>IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod</code>).
+This problem is optional, and its severity is also controlled by the <code>JavaCore</code>
+preference <code>"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"</code>.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23134">23134</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29894">29894</a>
+Path matching failure (CharOperation)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29761">29761</a>
+Regular expression pattern in exclusion filter is too greedy in M4
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29761">29803</a>
+Source path exclusion filter not relative source folder
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23134">23134</a>
 Odd behavior from code formatter
-      
+
 <h3>Problem Reports Closed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29239">29239</a>  
 Refactoring throws exception if .project or .classpath read-only in 2.1 M4 
@@ -54,7 +66,7 @@ Refactoring throws exception if .project or .classpath read-only in 2.1 M4
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.1 Build - 21th January 2003
+Eclipse SDK 2.1 Build - 21st January 2003
 <br>Project org.eclipse.jdt.core v_292a
 <h2>
 What's new in this drop</h2>
@@ -91,7 +103,7 @@ is now an optional problem (default severity is WARNING). Corresponding problem 
 got added to control the severity of these new problems (default severity is IGNORE). Note that currently only a valid local usage 
 is considered as a true usage (e.g. if a message send targets this method, but cannot see it, then the target method will still be 
 reported as unused). Corresponding problem IDs are: <code>IProblem.UnusedPrivateMethod</code>, <code>IProblem.UnusedPrivateField</code>, 
-<code>IProblem.UnusedPrivateType</code>.
+<code>IProblem.UnusedPrivateType</code> and <code>IProblem.UnusedPrivateConstructor</code>.
 <pre>
 * COMPILER / Reporting Unused Private Members
 *    When enabled, the compiler will issue an error or a warning whenever a private 

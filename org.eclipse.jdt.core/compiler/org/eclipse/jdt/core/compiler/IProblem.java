@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2002 IBM Corp. and others.
+ * Copyright (c) 2000, 2003 IBM Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@
  *								   UnusedPrivateConstructor
  *								   UnusedPrivateType
  *								   UnusedPrivateField
+ *								   IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -518,6 +519,8 @@ public interface IProblem {
 	int OverridingDeprecatedMethod = MethodRelated + 412;
 	/** @since 2.1 */
 	int IncompatibleReturnTypeForNonInheritedInterfaceMethod = MethodRelated + 413;
+	/** @since 2.1 */
+	int IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod = MethodRelated + 414;
 	
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;

@@ -95,7 +95,7 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 		messageTemplates[(id & IProblem.IgnoreCategoriesMask)]; 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
-			+ id
+			+ (id & IProblem.IgnoreCategoriesMask)
 			+ ". Check compiler resources.";  //$NON-NLS-1$
 	}
 

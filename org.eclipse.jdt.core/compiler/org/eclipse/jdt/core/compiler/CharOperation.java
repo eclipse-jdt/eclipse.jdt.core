@@ -1623,7 +1623,7 @@ public final class CharOperation {
 	 * name will be lowercased character per character as comparing.
 	 * 
 	 * @param pattern the given pattern
-	 * @param filepath the given path
+	 * @param filepath the given path 
 	 * @param isCaseSensitive to find out whether or not the matching should be case sensitive
 	 * @param pathSeparator the given path separator
 	 * @return true if the pattern matches the filepath using the pathSepatator, false otherwise
@@ -1725,6 +1725,7 @@ public final class CharOperation {
 			if (pSegmentEnd < 0) pSegmentEnd = pLength;
 			pSegmentRestart = pSegmentStart;
 		} else {
+			if (pSegmentStart >= pLength) return fSegmentStart >= fLength; // true if filepath is done too.
 			pSegmentRestart = 0; // force fSegmentStart check
 		}
 		int fSegmentRestart = fSegmentStart;
