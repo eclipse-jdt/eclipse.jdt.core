@@ -18,8 +18,9 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.codeassist.IExtendedCompletionRequestor;
 
-public class CompletionRequestorWrapper implements ICompletionRequestor {
+public class CompletionRequestorWrapper implements IExtendedCompletionRequestor {
 	private static Object NO_ATTACHED_SOURCE = new Object();
 	
 	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
@@ -386,6 +387,30 @@ private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[
 		
 	}
 	return parameterNames;
+}
+public void acceptPotentialMethodDeclaration(char[] declaringTypePackageName,
+		char[] declaringTypeName, char[] selector, int completionStart,
+		int completionEnd, int relevance) {
+	if(this.clientRequestor instanceof IExtendedCompletionRequestor) {
+		if(CompletionEngine.DEBUG) {
+			printDebug("acceptPotentialMethodDeclaration",  new String[]{ //$NON-NLS-1$
+				String.valueOf(declaringTypePackageName),
+				String.valueOf(declaringTypeName),
+				String.valueOf(selector),
+				String.valueOf(completionStart),
+				String.valueOf(completionEnd),
+				String.valueOf(relevance)
+			});
+		}
+		
+		((IExtendedCompletionRequestor)this.clientRequestor).acceptPotentialMethodDeclaration(
+			declaringTypePackageName,
+			declaringTypeName,
+			selector,
+			completionStart,
+			completionEnd,
+			relevance);
+	}
 }
 
 private void printDebug(String header, String[] param){

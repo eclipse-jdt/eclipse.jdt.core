@@ -208,7 +208,6 @@ class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append("[]");//$NON-NLS-1$
 		}
 		if (node.getInitializer() != null) {
-			this.buffer.append("=");//$NON-NLS-1$
 			node.getInitializer().accept(this);
 		}
 		return false;

@@ -72,7 +72,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	}
 	public static Test suite() {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
-			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
+			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
 		} else {
 			return setupSuite(testClass());
 		}

@@ -331,44 +331,145 @@ public void test014() {
 	);
 }
 /*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
  */
 public void _test015() {
 	this.runNegativeTest(
 		new String[] {
-			"Hello.java",
-			"void ___eval() {\n" +
-			"	new Runnable() {\n" +
-			"		int ___run() throws Throwable {\n" +
-			"			return blah;\n" +
-			"		}\n" +
-			"		private String blarg;\n" +
-			"		public void run() {\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n" +
-			"public class Hello {\n" +
-			"	private static int x;\n" +
-			"	private String blah;\n" +
-			"	public static void main(String[] args) {\n" +
-			"	}\n" +
-			"	public void hello() {\n" +
-			"	}\n" +
-			"	public boolean blah() {\n" +
-			"		return false;\n" +
-			"	}\n" +
-			"	public void foo() {\n" +
-			"	}\n" +
-			"}\n"
+			"X.java",
+			"public class X {\n" + 
+			"// some code\n" + 
+			"}\n" + 
+			"/*\n" + 
+			"// some comments\n"
 		},
 		"----------\n" + 
-		"1. ERROR in Hello.java (at line 7)\n" + 
-		"	public void run() {\n" + 
-		"		}\n" + 
-		"	};\n" + 
-		"}\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	/*\n" + 
+		"// some comments\n" + 
+		"\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unexpected end of comment\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test016() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	String s = \""
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	String s = \"\n" + 
+		"	           ^\n" + 
+		"String literal is not properly closed by a double-quote\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test017() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	char c = '"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	char c = \'\n" + 
+		"	         ^\n" + 
+		"Invalid character constant\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test018() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	char c = '\\u0"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	char c = \'\\u0\n" + 
+		"	          ^^^\n" + 
+		"Invalid unicode\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=21187
+ */
+public void test019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public void doit() {\n" + 
+			"		int[] foo = null;\n" + 
+			"		foo[0] = \n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	foo[0] = \n" + 
+		"	       ^\n" + 
+		"Syntax error, insert \"AssignmentOperator ArrayInitializer\" to complete ArrayInitializerAssignement\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	foo[0] = \n" + 
+		"	       ^\n" + 
+		"Syntax error, insert \";\" to complete Statement\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=38895
+ */
+public void test020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
+			"	public static int newLibraryEntry() {\n" + 
+			
+			"		if (sourceAttachmentPath != null) {\n" + 
+			"			if (sourceAttachmentPath.isEmpty()) { && !\n" + 
+			"sourceAttachmentPath.isAbsolute()) {\n" + 
+			"			foo();\n" + 
+			"		}\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	}\n" + 
+			"	public void foo() {\n" + 
+			"	}\n" + 
+			"	public void bar() {\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (sourceAttachmentPath.isEmpty()) { && !\n" + 
+		"	                                      ^^\n" + 
+		"Syntax error on token \"&&\", invalid (\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	sourceAttachmentPath.isAbsolute()) {\n" + 
+		"	                                   ^\n" + 
+		"Syntax error on token \"{\", invalid AssignmentOperator\n" + 
 		"----------\n"
 	);
 }

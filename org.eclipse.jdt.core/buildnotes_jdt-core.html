@@ -90,7 +90,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60556">60556</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">59258</a>
+Possibility to share compiler preferences for a shared project
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60556">60556</a>
 [1.5] Collections.unmodifiableList(List<A>)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58978">58978</a>
 [1.5] Generic method needs better error reporting
@@ -132,11 +134,41 @@ Incorrect highlighting for type problem in qualified type name
 [1.5] ArrayStoreException in 1.5 parser
 
 
+<a name="v_427"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M9 Build - ?th May 2004
+<br>Project org.eclipse.jdt.core v_427
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_427">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added new flag IJavaElementDelta.F_PRIMARY_RESOURCE that is set when the resource of a primary working copy 
+     changes (or when it is added or removed).</li>
+<li>Removed dependency on org.eclipse.runtime.compatibility.</li>
+<li>Tuned the diagnosis for unnecessary else statements to tolerate else-if constructs.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60867">60867</a>
+LocalVariableReferenceMatch should offer isReadAccess(), etc. 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59638">59638</a>
+ConcurrentModificationException in JavaModelManager.saving 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12287">12287</a>
+Compile error message too verbose 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61052">61052</a>
+Flatten cp container initialization 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60848">60848</a>
+[reconciling] Unclosed Comment in Java Texteditor
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60822">60822</a>
+Reacting to Project > Clean... 
+	  	
 <a name="v_426"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M9 Build - ?th April 2004
+Eclipse SDK 3.0M9 Build - 4th May 2004
 <br>Project org.eclipse.jdt.core v_426
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_426">cvs</a>).
 <h2>
@@ -153,7 +185,7 @@ What's new in this drop</h2>
 NPE in JavaCore.getEncoding
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60581">60581</a>
 "Java AST creation" error.
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id= 48502">48502</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48502">48502</a>
 Exception during "Java AST creation"
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59750">59750</a>
 DCR: Code Assist: Hook to add getter and setters

@@ -254,7 +254,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Returns a collection of (immediate) children of this node of the
 	 * specified type.
 	 *
-	 * @param type - one of constants defined by IJavaLanguageElementTypes
+	 * @param type - one of the JEM_* constants defined by JavaElement
 	 */
 	public ArrayList getChildrenOfType(int type) throws JavaModelException {
 		IJavaElement[] children = getChildren();

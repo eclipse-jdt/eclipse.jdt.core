@@ -192,7 +192,6 @@ public class ASTRewriteFlattener extends GenericVisitor {
 		}
 		ASTNode initializer= getChildNode(node, ArrayCreation.INITIALIZER_PROPERTY);
 		if (initializer != null) {
-			this.result.append('=');
 			getChildNode(node, ArrayCreation.INITIALIZER_PROPERTY).accept(this);
 		}
 		return false;

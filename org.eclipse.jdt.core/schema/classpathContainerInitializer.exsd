@@ -2,14 +2,14 @@
 <!-- Schema file written by PDE -->
 <schema targetNamespace="org.eclipse.jdt.core">
 <annotation>
-   <appInfo>
-      <meta.schema plugin="org.eclipse.jdt.core" id="classpathContainerInitializer" name="Classpath Container Initializers"/>
-   </appInfo>
-   <documentation>
-      This extension point allows clients to contribute custom classpath container initializers, 
+      <appInfo>
+         <meta.schema plugin="org.eclipse.jdt.core" id="classpathContainerInitializer" name="Classpath Container Initializers"/>
+      </appInfo>
+      <documentation>
+         This extension point allows clients to contribute custom classpath container initializers, 
       which are used to lazily bind classpath containers to instances of org.eclipse.jdt.core.IClasspathContainer.
-   </documentation>
-</annotation>
+      </documentation>
+   </annotation>
 
    <element name="extension">
       <complexType>
@@ -74,11 +74,11 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         Example of a declaration of a &lt;code&gt;ClasspathContainerInitializer&lt;/code&gt; for a classpath container named "JDK/1.2":  &lt;pre&gt;                                                                       
-&lt;extension point="org.eclipse.jdt.core.classpathContainerInitializer"&gt;            
+         Example of a declaration of a &lt;code&gt;ClasspathContainerInitializer&lt;/code&gt; for a classpath container named &quot;JDK&quot;:  &lt;pre&gt;                                                                       
+&lt;extension point=&quot;org.eclipse.jdt.core.classpathContainerInitializer&quot;&gt;            
    &lt;classpathContainerInitializer                                          
-      id="JDK"                                                        
-      class="com.example.MyInitializer"/&gt;                           
+      id=&quot;JDK&quot;                                                        
+      class=&quot;com.example.MyInitializer&quot;/&gt;                           
 &lt;/extension&gt;
 &lt;/pre&gt;
       </documentation>
@@ -108,9 +108,9 @@
       </appInfo>
       <documentation>
          &lt;p&gt;
-&lt;a href="hglegal.htm"&gt;
- &lt;img SRC="ngibmcpy.gif"
-   ALT="Copyright IBM Corp. 2000, 2004. All Rights Reserved."
+&lt;a href=&quot;hglegal.htm&quot;&gt;
+ &lt;img SRC=&quot;ngibmcpy.gif&quot;
+   ALT=&quot;Copyright IBM Corp. 2000, 2004. All Rights Reserved.&quot;
    BORDER=0 height=14 width=324&gt;&lt;/a&gt;
 &lt;/p&gt;
       </documentation>

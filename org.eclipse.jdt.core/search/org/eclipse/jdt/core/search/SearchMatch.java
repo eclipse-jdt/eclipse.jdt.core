@@ -175,6 +175,7 @@ public class SearchMatch {
 		buffer.append(this.length);
 		buffer.append("\n  element="); //$NON-NLS-1$
 		buffer.append(((JavaElement)getElement()).toStringWithAncestors());
+		buffer.append("\n"); //$NON-NLS-1$
 		return buffer.toString();
 	}
 }

@@ -42,7 +42,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	}
 	
 	public static Test suite() {
-		return suite(EncodingTests.class, null);
+		return buildTestSuite(EncodingTests.class);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
@@ -67,6 +67,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		getWorkspaceRoot().setDefaultCharset(null);
+		deleteProject("Encoding");
 	}
 	protected void setUp() throws Exception {
 		super.setUp();
