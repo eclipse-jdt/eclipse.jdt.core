@@ -27,7 +27,7 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final String DEFAULT_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
 	public static final int DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
-	public static final int DEFAULT_BINARY_EXPRESSION_ALIGNMENT = Alignment.M_ONE_PER_LINE_SPLIT;
+	public static final int DEFAULT_BINARY_EXPRESSION_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_BLANK_LINES_AFTER_IMPORTS = 0;
 	public static final int DEFAULT_BLANK_LINES_AFTER_PACKAGE = 0;
 	public static final int DEFAULT_BLANK_LINES_BEFORE_FIELD = 0;
@@ -1188,7 +1188,7 @@ public class DefaultCodeFormatterOptions {
 		sunSettings.allocation_expression_arguments_alignment = Alignment.M_COMPACT_SPLIT;
 		sunSettings.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
 		sunSettings.array_initializer_expressions_alignment = Alignment.M_COMPACT_SPLIT;
-		sunSettings.binary_expression_alignment = Alignment.M_NEXT_PER_LINE_SPLIT;
+		sunSettings.binary_expression_alignment = Alignment.M_COMPACT_SPLIT;
 		sunSettings.blank_lines_after_imports = 1;
 		sunSettings.blank_lines_after_package = 1;
 		sunSettings.blank_lines_before_field = 1;

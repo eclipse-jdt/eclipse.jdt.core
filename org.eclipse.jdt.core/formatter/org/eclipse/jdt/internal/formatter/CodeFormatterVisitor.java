@@ -192,8 +192,28 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
 		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
-		
+
 		switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
+			case OperatorIds.PLUS :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.MINUS :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameMINUS));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.OR :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameOR));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.AND :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameAND));
+				binaryExpression.right.traverse(builder, scope);
+				break;
 			case OperatorIds.AND_AND :
 				binaryExpression.left.traverse(builder, scope);
 				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameAND_AND));
@@ -299,7 +319,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		BinaryExpressionFragmentBuilder builder = buildFragments(binaryExpression, scope);
 		final int fragmentsSize = builder.size();
 		
-		if (fragmentsSize > 1) {
+		if (fragmentsSize > 1 && numberOfParens == 0) {
 			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);
 			boolean ok = false;

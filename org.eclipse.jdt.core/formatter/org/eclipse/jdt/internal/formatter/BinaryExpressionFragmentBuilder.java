@@ -40,12 +40,17 @@ import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
+import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.PostfixExpression;
 import org.eclipse.jdt.internal.compiler.ast.PrefixExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -160,7 +165,43 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
-		this.fragmentsList.add(binaryExpression);
+		final int numberOfParens = (binaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			this.fragmentsList.add(binaryExpression);
+		} else {
+			switch((binaryExpression.bits & AstNode.OperatorMASK) >> AstNode.OperatorSHIFT) {
+				case OperatorIds.PLUS :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
+						return true;
+					} else {
+						return false;
+					}
+				case OperatorIds.MINUS :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameMINUS));
+						return true;
+					} else {
+						return false;
+					}
+				case OperatorIds.OR :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR));
+						return true;
+					} else {
+						return false;
+					}
+				case OperatorIds.AND :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameAND));
+						return true;
+					} else {
+						return false;
+					}
+				default:
+					this.fragmentsList.add(binaryExpression);
+			}
+		}
 		return false;
 	}
 
@@ -281,6 +322,26 @@ class BinaryExpressionFragmentBuilder
 			return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(
+		QualifiedSuperReference qualifiedSuperReference,
+		BlockScope scope) {
+		// TODO Auto-generated method stub
+		return super.visit(qualifiedSuperReference, scope);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(
+		QualifiedThisReference qualifiedThisReference,
+		BlockScope scope) {
+		// TODO Auto-generated method stub
+		return super.visit(qualifiedThisReference, scope);
+	}
+
 	public boolean visit(
 		SingleNameReference singleNameReference,
 		BlockScope scope) {
@@ -290,6 +351,19 @@ class BinaryExpressionFragmentBuilder
 
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
 		this.fragmentsList.add(stringLiteral);
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SuperReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(SuperReference superReference, BlockScope scope) {
+		// TODO Auto-generated method stub
+		return super.visit(superReference, scope);
+	}
+
+	public boolean visit(ThisReference thisReference, BlockScope scope) {
+		this.fragmentsList.add(thisReference);
 		return false;
 	}
 
