@@ -105,7 +105,7 @@ public void addBinary(IFile resource, IPath indexedContainer){
 /**
  * Index the content of the given source folder.
  */
-public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder) {
+public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final char[][] exclusionPattern) {
 	IProject project = javaProject.getProject();
 	final IPath container = project.getFullPath();
 	IContainer folder;
@@ -121,7 +121,8 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder) {
 			 */
 			public boolean visit(IResource resource) throws CoreException {
 				if (resource instanceof IFile) {
-					if ("java".equalsIgnoreCase(resource.getFileExtension())) {  //$NON-NLS-1$
+					if (org.eclipse.jdt.internal.core.Util.isJavaFileName(resource.getName()) 
+							&& !org.eclipse.jdt.internal.core.Util.isExcluded(resource, exclusionPattern)) {
 						addSource((IFile)resource, container);
 					}
 					return false;

@@ -26,12 +26,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 public class IndexAllProject extends IndexRequest implements IResourceVisitor {
+	char[][] currentExclusionPatterns;
 	IProject project;
 	IndexManager manager;
 	Hashtable indexedFileNames;
@@ -108,6 +111,7 @@ public int hashCode() {
 					IPath entryPath = entry.getPath();
 					IResource sourceFolder = root.findMember(entryPath);
 					if (sourceFolder != null) {
+						this.currentExclusionPatterns = ((ClasspathEntry)entry).fulExclusionPatternChars();
 						sourceFolder.accept(this);
 					}
 				}
@@ -151,8 +155,8 @@ public int hashCode() {
 		if (this.isCancelled) return false;
 		
 		if (resource.getType() == IResource.FILE) {
-			String extension = resource.getFileExtension();
-			if ("java".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+			if (Util.isJavaFileName(resource.getName()) 
+					&& !Util.isExcluded(resource, IndexAllProject.this.currentExclusionPatterns)) {
 				IPath path = resource.getLocation();
 				if (path != null) {
 					File resourceFile = path.toFile();

@@ -395,16 +395,18 @@ public class SetClasspathOperation extends JavaModelOperation {
 							}
 							break;
 						case IClasspathEntry.CPE_SOURCE:
-							final IPath path = newResolvedPath[i].getPath();
+							IClasspathEntry entry = newResolvedPath[i];
+							final IPath path = entry.getPath();
+							final char[][] exclusionPatterns = ((ClasspathEntry)entry).fulExclusionPatternChars();
 							postAction(new IPostAction() {
 								public String getID() {
 									return path.toString();
 								}
 								public void run() throws JavaModelException {
-									indexManager.indexSourceFolder(project, path);
+									indexManager.indexSourceFolder(project, path, exclusionPatterns);
 								}
 							}, 
-							REMOVEALL_APPEND);
+							APPEND); // append so that a removeSourceFolder action is not removed
 							break;
 					}
 				}

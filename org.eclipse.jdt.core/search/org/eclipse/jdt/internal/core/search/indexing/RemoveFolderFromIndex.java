@@ -49,7 +49,7 @@ class RemoveFolderFromIndex implements IJob {
 				return COMPLETE; // index got deleted since acquired
 			try {
 				monitor.enterRead(); // ask permission to read
-				IQueryResult[] results = index.queryInDocumentNames(this.folderPath); // all file names beonlonging to the folder or its subfolders
+				IQueryResult[] results = index.queryInDocumentNames(this.folderPath); // all file names belonging to the folder or its subfolders
 				for (int i = 0, max = results == null ? 0 : results.length; i < max; i++) {
 					String fileName = results[i].getPath();
 					manager.remove(fileName, this.indexedContainer); // write lock will be acquired by the remove operation
