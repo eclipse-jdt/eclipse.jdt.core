@@ -303,7 +303,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testDeclarationOfReferencedTypes10" };
+//	testsNames = new String[] { "testTypeReferenceBug73336" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -3377,6 +3377,25 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
+		resultCollector);
+}
+/**
+ * Type reference for 1.5.
+ * Bug 73336: [1.5][search] Search Engine does not find type references of actual generic type parameters
+ * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=73336)
+ */
+public void testTypeReferenceBug73336() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/bug73336/A73336.java").getType("A73336");
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/bug73336/AA73336.java bug73336.AA73336 [A73336]\n" + 
+		"src/bug73336/B73336.java bug73336.B73336 [A73336]\n" + 
+		"src/bug73336/B73336.java bug73336.B73336 [A73336]\n" + 
+		"src/bug73336/C73336.java bug73336.C73336 [A73336]\n" + 
+		"src/bug73336/C73336.java void bug73336.C73336.foo() [A73336]\n" + 
+		"src/bug73336/C73336.java void bug73336.C73336.foo() [A73336]",
 		resultCollector);
 }
 /**

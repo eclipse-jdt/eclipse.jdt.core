@@ -1577,17 +1577,12 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	} else {
 		TypeReference superClass = type.superclass;
 		if (superClass != null) {
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superClass);
-			if (level != null && matchedClassContainer)
-				this.patternLocator.matchReportReference(superClass, enclosingElement, level.intValue(), this);
+			reportMatchingSuper(superClass, enclosingElement, nodeSet, matchedClassContainer);
 		}
 		TypeReference[] superInterfaces = type.superInterfaces;
 		if (superInterfaces != null) {
 			for (int i = 0, l = superInterfaces.length; i < l; i++) {
-				TypeReference superInterface = superInterfaces[i];
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(superInterface);
-				if (level != null && matchedClassContainer)
-					this.patternLocator.matchReportReference(superInterface, enclosingElement, level.intValue(), this);
+				reportMatchingSuper(superInterfaces[i], enclosingElement, nodeSet, matchedClassContainer);
 			}
 		}
 	}
@@ -1627,6 +1622,42 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
 			reportMatching(memberType, enclosingElement, value, nodeSet, 1);
 		}
+	}
+}
+protected void reportMatchingSuper(TypeReference superReference, IJavaElement enclosingElement, MatchingNodeSet nodeSet, boolean matchedClassContainer) throws CoreException {
+	ASTNode[] nodes = null;
+	if (superReference instanceof ParameterizedSingleTypeReference) {
+		TypeReference[] typeArguments = ((ParameterizedSingleTypeReference)superReference).typeArguments;
+		if (typeArguments != null && typeArguments.length > 0) {
+			nodes = nodeSet.matchingNodes(superReference.sourceStart, typeArguments[typeArguments.length-1].sourceEnd);
+		}
+	} else if (superReference instanceof ParameterizedQualifiedTypeReference) {
+		TypeReference[][] typeArguments = ((ParameterizedQualifiedTypeReference)superReference).typeArguments;
+		if (typeArguments != null && typeArguments.length > 0) {
+			TypeReference[] lastTypeArgs = typeArguments[typeArguments.length-1];
+			int end = superReference.sourceEnd;
+			if (lastTypeArgs != null && lastTypeArgs.length > 0 && lastTypeArgs[lastTypeArgs.length-1].sourceEnd > end) {
+				end = lastTypeArgs[lastTypeArgs.length-1].sourceEnd;
+			}
+			nodes = nodeSet.matchingNodes(superReference.sourceStart, end);
+		}
+	}
+	if (nodes != null) {
+		if ((this.matchContainer & PatternLocator.CLASS_CONTAINER) == 0) {
+			for (int i = 0, l = nodes.length; i < l; i++)
+				nodeSet.matchingNodes.removeKey(nodes[i]);
+		} else {
+			if (encloses(enclosingElement))
+				for (int i = 0, l = nodes.length; i < l; i++) {
+					ASTNode node = nodes[i];
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+				}
+		}
+	} else {
+		Integer level = (Integer) nodeSet.matchingNodes.removeKey(superReference);
+		if (level != null && matchedClassContainer)
+			this.patternLocator.matchReportReference(superReference, enclosingElement, level.intValue(), this);
 	}
 }
 protected boolean typeInHierarchy(ReferenceBinding binding) {
