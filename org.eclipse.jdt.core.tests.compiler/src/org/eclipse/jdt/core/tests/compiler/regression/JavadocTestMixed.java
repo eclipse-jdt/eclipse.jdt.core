@@ -50,10 +50,7 @@ public class JavadocTestMixed extends JavadocTest {
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug45958"));
-			ts.addTest(new JavadocTestMixed("testBug45958a"));
-			ts.addTest(new JavadocTestMixed("testBug45958b"));
-			ts.addTest(new JavadocTestMixed("testBug45958c"));
+			ts.addTest(new JavadocTestMixed("testBug47339"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -800,62 +797,65 @@ public class JavadocTestMixed extends JavadocTest {
 	/**
 	 * Additional test for bug 45596.
 	 * Verify correct complain about missing parameter javadoc entries in anonymous class.
+	 * Since bug 47132, @param, @return and @throws tags are not resolved in javadoc of anonymous
+	 * class...
 	 */
 	public void testBug45596a() {
 		reportMissingJavadoc = CompilerOptions.DISABLED;
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
-		"X.java",
-		"public class X {\n" + 
-		"	void foo(int x, String str) {}\n" + 
-		"}\n",
-		"Y1.java",
-		"public class Y1 {\n" + 
-		"	/** */\n" + 
-		"	protected X field = new X() {\n" + 
-		"		/** Invalid javadoc comment in anonymous class */\n" + 
-		"		void foo(String str) {}\n" + 
-		"	};\n" + 
-		"}\n",
-		"Y2.java",
-		"public class Y2 {\n" + 
-		"	/** */\n" + 
-		"	void foo() {\n" + 
-		"		X x = new X() {\n" + 
-		"			/** Invalid javadoc comment in anonymous class */\n" + 
-		"			void foo(String str) {}\n" + 
-		"		};\n" + 
-		"		x.foo(0, \"\");\n" + 
-		"	}\n" + 
-		"}\n",
-		"Y3.java",
-		"public class Y3 {\n" + 
-		"	static X x;\n" + 
-		"	static {\n" + 
-		"		x = new X() {\n" + 
-		"			/** Invalid javadoc comment in anonymous class */\n" + 
-		"			void foo(String str) {}\n" + 
-		"		};\n" + 
-		"	}\n" + 
-		"}\n" },
-		"----------\n" + 
-		"1. ERROR in Y1.java (at line 5)\n" + 
-		"	void foo(String str) {}\n" + 
-		"	                ^^^\n" + 
-		"Javadoc: Missing tag for parameter str\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in Y2.java (at line 6)\n" + 
-		"	void foo(String str) {}\n" + 
-		"	                ^^^\n" + 
-		"Javadoc: Missing tag for parameter str\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in Y3.java (at line 6)\n" + 
-		"	void foo(String str) {}\n" + 
-		"	                ^^^\n" + 
-		"Javadoc: Missing tag for parameter str\n" + 
-		"----------\n"
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(int x, String str) {}\n" + 
+				"}\n",
+				"Y1.java",
+				"public class Y1 {\n" + 
+				"	/** */\n" +
+				"	protected X field = new X() {\n" + 
+				"		/** Invalid javadoc comment in anonymous class */\n" + 
+				"		void foo(String str) {}\n" + 
+				"	};\n" + 
+				"}\n",
+				"Y2.java",
+				"public class Y2 {\n" + 
+				"	/** */\n" + 
+				"	void foo() {\n" + 
+				"		X x = new X() {\n" + 
+				"			/** Invalid javadoc comment in anonymous class */\n" + 
+				"			void foo(String str) {}\n" + 
+				"		};\n" + 
+				"		x.foo(0, \"\");\n" + 
+				"	}\n" + 
+				"}\n",
+				"Y3.java",
+				"public class Y3 {\n" + 
+				"	static X x;\n" + 
+				"	static {\n" + 
+				"		x = new X() {\n" + 
+				"			/** Invalid javadoc comment in anonymous class */\n" + 
+				"			void foo(String str) {}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n" } /*,
+				"----------\n" + 
+				"1. ERROR in Y1.java (at line 5)\n" + 
+				"	void foo(String str) {}\n" + 
+				"	                ^^^\n" + 
+				"Javadoc: Missing tag for parameter str\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in Y2.java (at line 6)\n" + 
+				"	void foo(String str) {}\n" + 
+				"	                ^^^\n" + 
+				"Javadoc: Missing tag for parameter str\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in Y3.java (at line 6)\n" + 
+				"	void foo(String str) {}\n" + 
+				"	                ^^^\n" + 
+				"Javadoc: Missing tag for parameter str\n" + 
+				"----------\n"
+				*/
 			);
 	}
 
@@ -1122,40 +1122,40 @@ public class JavadocTestMixed extends JavadocTest {
 		);
 	}
 	public void testBug45958b() {
-	reportMissingJavadoc = CompilerOptions.DISABLED;
-	this.runNegativeTest(
-		new String[] {
-		   "X.java",
-	   		"public class X {\n" + 
-	   		"	int x;\n" + 
-	   		"	public X(int i) {\n" + 
-	   		"		x = i;\n" + 
-	   		"	}\n" + 
-	   		"	/**\n" + 
-	   		"	 * @see #X(int)\n" + 
-	   		"	 */\n" + 
-	   		"	void foo() {\n" + 
-	   		"	}\n" + 
-	   		"}\n",
-	   		"XX.java",
-	   		"public class XX extends X {\n" + 
-	   		"	/**\n" + 
-	   		"	 * @param i\n" + 
-	   		"	 * @see #X(int)\n" + 
-	   		"	 */\n" + 
-	   		"	XX(int i) {\n" + 
-	   		"		super(i);\n" + 
-	   		"		x++;\n" + 
-	   		"	}\n" + 
-	   		"}\n"
-		},
-		"----------\n" + 
-			"1. ERROR in XX.java (at line 4)\n" + 
-			"	* @see #X(int)\n" + 
-			"	        ^\n" + 
-			"Javadoc: The method X(int) is undefined for the type XX\n" + 
-			"----------\n"
-		);
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+			   "X.java",
+		   		"public class X {\n" + 
+		   		"	int x;\n" + 
+		   		"	public X(int i) {\n" + 
+		   		"		x = i;\n" + 
+		   		"	}\n" + 
+		   		"	/**\n" + 
+		   		"	 * @see #X(int)\n" + 
+		   		"	 */\n" + 
+		   		"	void foo() {\n" + 
+		   		"	}\n" + 
+		   		"}\n",
+		   		"XX.java",
+		   		"public class XX extends X {\n" + 
+		   		"	/**\n" + 
+		   		"	 * @param i\n" + 
+		   		"	 * @see #X(int)\n" + 
+		   		"	 */\n" + 
+		   		"	XX(int i) {\n" + 
+		   		"		super(i);\n" + 
+		   		"		x++;\n" + 
+		   		"	}\n" + 
+		   		"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in XX.java (at line 4)\n" + 
+				"	* @see #X(int)\n" + 
+				"	        ^\n" + 
+				"Javadoc: The method X(int) is undefined for the type XX\n" + 
+				"----------\n"
+			);
 	}
 	public void testBug45958c() {
 		reportMissingJavadoc = CompilerOptions.DISABLED;
@@ -1198,6 +1198,218 @@ public class JavadocTestMixed extends JavadocTest {
 				"	public X() { super(); }\n" + 
 				"}\n"
 			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 47215.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47215">47215</a>
+	 */
+	public void testBug47215() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"	/**\n" + 
+				"	 * @see X\n" + 
+				"	 * @see X#X(int)\n" + 
+				"	 * @see X(double)\n" + 
+				"	 * @see X   (double)\n" + 
+				"	 * @see X[double]\n" + 
+				"	 * @see X!=}}\n" + 
+				"	 * @see foo()\n" + 
+				"	 * @see foo  ()\n" + 
+				"	 */\n" + 
+				"	public class X {\n" + 
+				"		public X(int i){}\n" + 
+				"		public void foo() {}\n" + 
+				"	}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* @see X(double)\n" + 
+			"	        ^^^^^^^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	* @see X   (double)\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	* @see foo()\n" + 
+			"	          ^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	* @see foo  ()\n" + 
+			"	            ^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 47341.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47341">47341</a>
+	 */
+	public void testBug47341() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" + 
+				"public class X {\n" + 
+				"	void foo_package() {}\n" + 
+				"	protected void foo_protected() {}\n" + 
+				"}\n",
+				"p1/Y.java",
+				"package p1;\n" + 
+				"public class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see #foo_package()\n" + 
+				"	 */\n" + 
+				"	protected void bar() {\n" + 
+				"		foo_package();\n" + 
+				"	}\n" + 
+				"}\n",
+				"p2/Y.java",
+				"package p2;\n" + 
+				"import p1.X;\n" + 
+				"\n" + 
+				"public class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#foo_protected()\n" + 
+				"	 */\n" + 
+				"	protected void bar() {\n" + 
+				"		foo_protected();\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 47132.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47132">47132</a>
+	 */
+	public void testBug47132() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X {\n" + 
+				"  /** */\n" + 
+				"  public void foo(){\n" + 
+				"    new Object(){\n" + 
+				"		int x;\n" + 
+				"      public void bar(){\n" + 
+				"      }\n" + 
+				"    };\n" + 
+				"  }\n" + 
+				"}\n"
+			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 47339.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47339">47339</a>
+	 */
+	public void testBug47339() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X implements Comparable {\n" + 
+				"	/**\n" + 
+				"	 * @see java.lang.Comparable#compareTo(java.lang.Object)\n" + 
+				"	 */\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	/** @see Object#toString() */\n" + 
+				"	public String toString(){\n" + 
+				"		return \"\";\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug47339a() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X extends RuntimeException {\n" + 
+				"	\n" + 
+				"	/**\n" + 
+				"	 * @see RuntimeException#RuntimeException(java.lang.String)\n" + 
+				"	 */\n" + 
+				"	public X(String message) {\n" + 
+				"		super(message);\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug47339b() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X implements Comparable {\n" + 
+				"	/** */\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	/** */\n" + 
+				"	public String toString(){\n" + 
+				"		return \"\";\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"	       ^^^\n" + 
+				"Javadoc: Missing tag for return type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"	                            ^\n" + 
+				"Javadoc: Missing tag for parameter o\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	public String toString(){\n" + 
+				"	       ^^^^^^\n" + 
+				"Javadoc: Missing tag for return type\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug47339c() {
+		reportMissingJavadoc = CompilerOptions.DISABLED;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X extends RuntimeException {\n" + 
+				"	\n" + 
+				"	/** */\n" + 
+				"	public X(String message) {\n" + 
+				"		super(message);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	public X(String message) {\n" + 
+				"	                ^^^^^^^\n" + 
+				"Javadoc: Missing tag for parameter message\n" + 
+				"----------\n"
 		);
 	}
 }
