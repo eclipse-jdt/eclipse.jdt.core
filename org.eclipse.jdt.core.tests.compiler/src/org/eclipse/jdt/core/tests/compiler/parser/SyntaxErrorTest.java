@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
@@ -78,8 +79,8 @@ public void checkParse(
  	//System.out.println(Util.displayString(computedSyntaxErrorDiagnosis));
 	assertEquals(
 		"Invalid syntax error diagnosis" + testName,
-		expectedSyntaxErrorDiagnosis,
-		computedSyntaxErrorDiagnosis);
+		Util.convertToIndependantLineDelimiter(expectedSyntaxErrorDiagnosis),
+		Util.convertToIndependantLineDelimiter(computedSyntaxErrorDiagnosis));
 }
 /*
  * Should diagnose parenthesis mismatch

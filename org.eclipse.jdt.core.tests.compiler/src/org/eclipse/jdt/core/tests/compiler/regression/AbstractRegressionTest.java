@@ -365,8 +365,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options,
 				requestor, problemFactory);
 		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
-		String computedProblemLog = requestor.problemLog.toString();
-		if (!expectedProblemLog.equals(computedProblemLog)) {
+		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
+		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
 			System.out.println(getClass().getName() + '#' + getName());
 			System.out.println(Util.displayString(computedProblemLog, 2));
 			for (int i = 0; i < testFiles.length; i += 2) {
@@ -376,7 +377,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				System.out.println("]"); //$NON-NLS-1$
 			}
 		}
-		assertEquals("Invalid problem log ", expectedProblemLog, computedProblemLog);
+		assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
 	}
 	protected void setUp() throws Exception {
 		if (this.verifier == null) {

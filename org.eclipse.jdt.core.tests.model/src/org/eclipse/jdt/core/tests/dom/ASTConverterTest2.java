@@ -4287,6 +4287,63 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
+	/*
+	 * Ensures that bindings are created during reconcile if force problem detection is turned on.
+	 * Case of a unit containing an anonymous type.
+	 * (regression test for bug 55102 NPE when using ICU.reconcile(GET_AST_TRUE, ...))
+	 */
+	public void test0538f() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  void foo() {\n" +
+				"    new Object() {\n" +
+				"      void bar() {\n" +
+				"      }\n" +
+				"    };\n" +
+				"  }\n" +
+				"}"
+			);
+			CompilationUnit unit = sourceUnit.reconcile(true, true/*force pb detection*/, null, null);
+			ASTNode node = getASTNode(unit, 0);
+			assertNotNull("No node", node);
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
+	/*
+	 * Ensures that bindings are created during reconcile if force problem detection is turned on.
+	 * Case of a unit containing an anonymous type.
+	 * (regression test for bug 55102 NPE when using ICU.reconcile(GET_AST_TRUE, ...))
+	 */
+	public void test0538g() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			sourceUnit.getBuffer().setContents(
+				"package test0538;\n" +
+				"public class A {\n" +
+				"  void foo() {\n" +
+				"    new Object() {\n" +
+				"      void bar() {\n" +
+				"      }\n" +
+				"    };\n" +
+				"  }\n" +
+				"}"
+			);
+			sourceUnit.reconcile(false/*don't create AST*/, false/* don't force pb detection*/, null, null);
+			CompilationUnit unit = sourceUnit.reconcile(true/*create AST*/, true/*force pb detection*/, null, null);
+			ASTNode node = getASTNode(unit, 0);
+			assertNotNull("No node", node);
+		} finally {
+			sourceUnit.discardWorkingCopy();
+		}
+	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=53477
 	 */

@@ -2016,22 +2016,12 @@ public final class JavaCore extends Plugin {
 		Preferences preferences = getPlugin().getPluginPreferences();
 		HashSet optionNames = JavaModelManager.OptionNames;
 		
-		// get preferences set to their default
-		String[] defaultPropertyNames = preferences.defaultPropertyNames();
-		for (int i = 0; i < defaultPropertyNames.length; i++){
-			String propertyName = defaultPropertyNames[i];
-			if (optionNames.contains(propertyName)) {
-				defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
-			}
-		}		
-		// get preferences not set to their default
-		String[] propertyNames = preferences.propertyNames();
-		for (int i = 0; i < propertyNames.length; i++){
-			String propertyName = propertyNames[i];
-			if (optionNames.contains(propertyName)) {
-				defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
-			}
-		}		
+		// initialize preferences to their default
+		Iterator iterator = optionNames.iterator();
+		while (iterator.hasNext()) {
+		    String propertyName = (String) iterator.next();
+		    defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
+		}
 		// get encoding through resource plugin
 		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); 
 		// backward compatibility
@@ -2110,14 +2100,12 @@ public final class JavaCore extends Plugin {
 			Preferences preferences = getPlugin().getPluginPreferences();
 			HashSet optionNames = JavaModelManager.OptionNames;
 			
-			// get preferences set to their default
-			String[] defaultPropertyNames = preferences.defaultPropertyNames();
-			for (int i = 0; i < defaultPropertyNames.length; i++){
-				String propertyName = defaultPropertyNames[i];
-				if (optionNames.contains(propertyName)){
-					options.put(propertyName, preferences.getDefaultString(propertyName));
-				}
-			}		
+			// initialize preferences to their default
+			Iterator iterator = optionNames.iterator();
+			while (iterator.hasNext()) {
+			    String propertyName = (String) iterator.next();
+			    options.put(propertyName, preferences.getDefaultString(propertyName));
+			}
 			// get preferences not set to their default
 			String[] propertyNames = preferences.propertyNames();
 			for (int i = 0; i < propertyNames.length; i++){

@@ -160,6 +160,21 @@ class DefaultCommentMapper {
 		return node.getStartPosition();
 	}
 
+	/*
+	 * Returns the extended end position of the given node.
+	 */
+	public int getExtendedEnd(ASTNode node) {
+		int end = node.getStartPosition() + node.getLength();
+		if (this.trailingComments != null) {
+			int[] range = (int[]) this.trailingComments.get(node);
+			if (range != null) {
+				Comment lastComment = this.comments[range[1]];
+				end = lastComment.getStartPosition() + lastComment.getLength();
+			}
+		}
+		return end;
+	}
+
 	/**
 	 * Returns the extended source length of the given node. Unlike
 	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
@@ -170,18 +185,11 @@ class DefaultCommentMapper {
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getExtendedStartPosition(ASTNode)
+	 * @see #getExtendedEnd(ASTNode)
 	 * @since 3.0
 	 */
 	public int getExtendedLength(ASTNode node) {
-		int lastPosition = lastPosition = node.getStartPosition() + node.getLength();
-		if (this.trailingComments != null) {
-			int[] range = (int[]) this.trailingComments.get(node);
-			if (range != null) {
-				Comment lastComment = this.comments[range[1]];
-				lastPosition = lastComment.getStartPosition() + lastComment.getLength();
-			}
-		}
-		return lastPosition - getExtendedStartPosition(node);
+		return getExtendedEnd(node) - getExtendedStartPosition(node);
 	}
 
 	/*
@@ -218,40 +226,31 @@ class DefaultCommentMapper {
 	 * end next start for last child is the first token after the end of the node which
 	 * is neither a comment nor white spaces.
 	 * 
-	 * Compute first leading and trailing comment tables at this let us to optimize
+	 * Compute first leading and trailing comment tables as this let us to optimize
 	 * comment look up in the table. As all comments on a same level are ordered
 	 * by position, we store the index to start the search from it instead of restarting
-	 * each time from the beginning (see in storeLeadingComments and streTrailingComments
+	 * each time from the beginning (see in storeLeadingComments and storeTrailingComments
 	 * methods).
 	 */
 	private void doExtraRangesForChildren(ASTNode node, Scanner scanner) {
 		// Compute node children
 		List children= getChildren(node);
-		int lastChild= children.size() ;
+		int size = children.size() ;
 		
 		// Compute last next start and previous end. Next start is the starting position
 		// of first token following node end which is neither a comment nor white spaces.
-		int lastPos = node.getStartPosition() + node.getLength();
-		scanner.resetTo(lastPos, scanner.source.length-1);
-		try {
-			int token = -1;
-			do {
-				token = scanner.getNextToken();
-			} while (token >= TerminalTokens.TokenNameWHITESPACE && token <= TerminalTokens.TokenNameCOMMENT_JAVADOC);
-			lastPos = scanner.getCurrentTokenStartPosition();
-		} catch (InvalidInputException e) {
-			// do nothing
-		}
+		int lastPos = getExtendedEnd(node);
 		int previousEnd = node.getStartPosition();
 		
 		// Compute leading and trailing comments for all children nodes at this level
 		this.commentIndex = 0;
 		try {
-			for (int i= 0; i < lastChild; i++) {
+			for (int i= 0; i < size; i++) {
 				ASTNode current = (ASTNode) children.get(i);
-				int nextStart = i==(lastChild-1) ? lastPos : ((ASTNode) children.get(i+1)).getStartPosition();
+				boolean lastChild = i==(size-1);
+				int nextStart = lastChild ? lastPos : ((ASTNode) children.get(i+1)).getStartPosition();
 				storeLeadingComments(current, previousEnd,scanner);
-				previousEnd = storeTrailingComments(current, nextStart,scanner);
+				previousEnd = storeTrailingComments(current, nextStart, scanner, lastChild);
 			}
 		}
 		catch (Exception ex) {
@@ -259,7 +258,7 @@ class DefaultCommentMapper {
 		}
 		
 		// Compute extended ranges at sub-levels
-		for (int i= 0; i < lastChild; i++) {
+		for (int i= 0; i < size; i++) {
 			doExtraRangesForChildren((ASTNode) children.get(i), scanner);
 		}
 	}
@@ -308,12 +307,12 @@ class DefaultCommentMapper {
 			// Verify for each comment that there's only white spaces between end and start of {following comment|node}
 			Comment comment = this.comments[idx];
 			int commentStart = comment.getStartPosition();
-			int end = commentStart+comment.getLength();
+			int end = commentStart+comment.getLength()-1;
 			int commentLine = scanner.getLineNumber(commentStart);
 			if (end <= previousEnd || (commentLine == previousEndLine && commentLine != nodeStartLine)) {
 				break;
-			} else if (end < previousStart) { // may be equals => then no scan is necessary
-				scanner.resetTo(end, previousStart);
+			} else if ((end+1) < previousStart) { // may be equals => then no scan is necessary
+				scanner.resetTo(end+1, previousStart);
 				try {
 					int token = scanner.getNextToken();
 					if (token != TerminalTokens.TokenNameWHITESPACE || scanner.currentPosition != previousStart) {
@@ -346,20 +345,20 @@ class DefaultCommentMapper {
 			// Verify that there's no token on the same line before first leading comment
 			int commentStart = this.comments[startIdx].getStartPosition();
 			if (previousEnd < commentStart && previousEndLine != nodeStartLine) {
-				int startPosition = previousEnd;
+				int lastTokenEnd = previousEnd;
 				scanner.resetTo(previousEnd, commentStart);
 				try {
 					while (scanner.currentPosition != commentStart) {
 						if (scanner.getNextToken() != TerminalTokens.TokenNameWHITESPACE) {
-							startPosition =  scanner.getCurrentTokenStartPosition();
+							lastTokenEnd =  scanner.getCurrentTokenEndPosition();
 						}
 					}
 				} catch (InvalidInputException e) {
 					// do nothing
 				}
-				int lastTokenLine = scanner.getLineNumber(startPosition);
+				int lastTokenLine = scanner.getLineNumber(lastTokenEnd);
 				int length = this.comments.length;
-				while (startIdx<length && lastTokenLine == scanner.getLineNumber(this.comments[startIdx].getStartPosition())) {
+				while (startIdx<length && lastTokenLine == scanner.getLineNumber(this.comments[startIdx].getStartPosition()) && nodeStartLine != lastTokenLine) {
 					startIdx++;
 				}
 			}
@@ -395,7 +394,7 @@ class DefaultCommentMapper {
 	 * in trailing comments table.
 	 * 
 	 */
-	int storeTrailingComments(ASTNode node, int nextStart, Scanner scanner) {
+	int storeTrailingComments(ASTNode node, int nextStart, Scanner scanner, boolean lastChild) {
 		// Init extended position
 		int nodeEnd = node.getStartPosition()+node.getLength()-1;
 		int extended = nodeEnd;
@@ -413,12 +412,12 @@ class DefaultCommentMapper {
 		int commentStart = extended+1;
 		int previousEnd = nodeEnd+1;
 		int sameLineIdx = -1;
-		while (idx<length && commentStart <= nextStart) {
+		while (idx<length && commentStart < nextStart) {
 			// get comment and leave if next starting position has been reached
 			Comment comment = this.comments[idx];
 			commentStart = comment.getStartPosition();
 			// verify that there's nothing else than white spaces between node/comments
-			if (commentStart > nextStart) {
+			if (commentStart >= nextStart) {
 				break;
 			} else if (previousEnd < commentStart) {
 				scanner.resetTo(previousEnd, commentStart);
@@ -458,11 +457,13 @@ class DefaultCommentMapper {
 		}
 		if (endIdx != -1) {
 			// Verify that following node start is separated
-			int nextLine = scanner.getLineNumber(nextStart);
-			int previousLine = scanner.getLineNumber(previousEnd);
-			if((nextLine - previousLine) <= 1) {
-				if (sameLineIdx == -1) return nodeEnd;
-				endIdx = sameLineIdx;
+			if (!lastChild) {
+				int nextLine = scanner.getLineNumber(nextStart);
+				int previousLine = scanner.getLineNumber(previousEnd);
+				if((nextLine - previousLine) <= 1) {
+					if (sameLineIdx == -1) return nodeEnd;
+					endIdx = sameLineIdx;
+				}
 			}
 			// Store leading comments indexes
 			this.trailingComments.put(node, new int[] { startIdx, endIdx });

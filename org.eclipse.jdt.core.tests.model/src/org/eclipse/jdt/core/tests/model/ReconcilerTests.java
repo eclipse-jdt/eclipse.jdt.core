@@ -68,13 +68,14 @@ public static Test suite() {
 	return new Suite(ReconcilerTests.class);
 }
 protected void assertProblems(String message, String expected) {
-	String actual = this.problemRequestor.problems.toString();
-	if (!expected.equals(actual)){
+	String actual = Util.convertToIndependantLineDelimiter(this.problemRequestor.problems.toString());
+	String independantExpectedString = Util.convertToIndependantLineDelimiter(expected);
+	if (!independantExpectedString.equals(actual)){
 	 	System.out.println(Util.displayString(actual, 2));
 	}
 	assertEquals(
 		message,
-		expected,
+		independantExpectedString,
 		actual);
 }
 /**

@@ -514,9 +514,9 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in Object.java (at line 1)\n" + 
-			"	package java.lang;\n" + 
-			"	^\n" + 
+			"1. ERROR in Object.java (at line 2)\n" + 
+			"	public class Object <T> {\n" + 
+			"	                     ^\n" + 
 			"The type java.lang.Object cannot be declared as a generic\n" + 
 			"----------\n");
 	}

@@ -92,8 +92,8 @@ public void checkParse(
 	}
 	assertEquals(
 		"Invalid syntax error diagnosis" + testName,
-		expectedSyntaxErrorDiagnosis,
-		computedSyntaxErrorDiagnosis);
+		Util.convertToIndependantLineDelimiter(expectedSyntaxErrorDiagnosis),
+		Util.convertToIndependantLineDelimiter(computedSyntaxErrorDiagnosis));
 }
 
 public void test01() {
