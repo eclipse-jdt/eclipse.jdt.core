@@ -12,7 +12,6 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.ast.*;

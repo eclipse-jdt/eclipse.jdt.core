@@ -11,21 +11,14 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
-import org.eclipse.jdt.core.util.IModifierConstants;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
 	
