@@ -44,7 +44,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
 				String line = null;
 				while ((line = reader.readLine()) != null) {
-					buffer.append(this.type).append("->").append(line);
+					this.buffer./*append(this.type).append("->").*/append(line).append("\n");
 				}
 				reader.close();
 			} catch (IOException e) {
@@ -77,7 +77,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
-//		testsRange = new int[] { 66, -1 };
+//		testsRange = new int[] { 78, -1 };
 //		testsNumbers = new int[] { 65 };
 	}
 	public static Test suite() {
@@ -175,90 +175,98 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	protected void runJavac(String[] testFiles, final String expectedProblemLog) {
 		try {
 			// Write files in dir
-			/*final*/ IPath dirFilePath = writeFiles(testFiles);
+			IPath dirFilePath = writeFiles(testFiles);
 			
-			// Create thread to run process
-//			Thread waitThread = new Thread() {
-//				public void run() {
-					String testName = shortTestName();
-					Process process = null;
-					try {
-						// Compute classpath
-						String[] classpath = getDefaultClassPaths();
-						StringBuffer cp = new StringBuffer();
-						int length = classpath.length;
-						for (int i = 0; i < length; i++) {
-							if (classpath[i].indexOf(" ") != -1) {
-								cp.append("\"" + classpath[i] + "\"");
-							} else {
-								cp.append(classpath[i]);
-							}
-							if (i<(length-1)) cp.append(";");
-						}
-						// Compute command line
-						IPath jdkDir = (new Path(Util.getJREDirectory())).removeLastSegments(1);
-						IPath javacPath = jdkDir.append("bin").append("javac.exe");
-						StringBuffer cmdLine = new StringBuffer(javacPath.toString());
-						cmdLine.append(" -classpath ");
-						cmdLine.append(cp);
-						cmdLine.append(" -source 1.5 -deprecation -Xlint "); // enable recommended warnings
-						if (GenericTypeTest.this.dirPath.equals(dirFilePath)) {
-							cmdLine.append("*.java");
-						} else {
-							IPath subDirPath = dirFilePath.append("*.java").removeFirstSegments(GenericTypeTest.this.dirPath.segmentCount());
-							String subDirName = subDirPath.toString().substring(subDirPath.getDevice().length());
-							cmdLine.append(subDirName);
-						}
-//						System.out.println(testName+": "+cmdLine.toString());
-//						System.out.println(GenericTypeTest.this.dirPath.toFile().getAbsolutePath());
-						// Launch process
-						process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeTest.this.dirPath.toFile());
-			            // Log errors
-			            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
-			            
-			            // Log output
-			            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
-			                
-			            // start the threads to run outputs (standard/error)
-			            errorLogger.start();
-			            outputLogger.start();
-			            
-						process.waitFor();
-						// Compare compilation results
-						int exitValue = process.exitValue();
-						if (expectedProblemLog == null && exitValue != 0) {
-							System.out.println(testName+": javac has found error(s) although we're expecting conform result!");
-						}
-						else if (expectedProblemLog != null && exitValue == 0) {
-							System.out.println(testName+": javac has found no error although we're expecting negative result:");
-							System.out.println(expectedProblemLog);
-						}
-					} catch (IOException ioe) {
-						System.out.println(testName+": Not possible to launch Sun javac compilation!");
-					} catch (InterruptedException e1) {
-						if (process != null) process.destroy();
-						System.out.println(testName+": Sun javac compilation was aborted!");
+			String testName = shortTestName();
+			Process process = null;
+			try {
+				// Compute classpath
+				String[] classpath = getDefaultClassPaths();
+				StringBuffer cp = new StringBuffer();
+				int length = classpath.length;
+				for (int i = 0; i < length; i++) {
+					if (classpath[i].indexOf(" ") != -1) {
+						cp.append("\"" + classpath[i] + "\"");
+					} else {
+						cp.append(classpath[i]);
 					}
-//				}
-//			};
-			
-			// Run thread and wait 5 seconds for end of compilation
-//			waitThread.start();
-//			try {
-//				waitThread.join(5000);
-//
-//			} catch (InterruptedException e1) {
-//				// do nothing
-//			}
-//			if (waitThread.isAlive()) {
-//				waitThread.interrupt();
-//			}
+					if (i<(length-1)) cp.append(";");
+				}
+				// Compute command line
+				IPath jdkDir = (new Path(Util.getJREDirectory())).removeLastSegments(1);
+				IPath javacPath = jdkDir.append("bin").append("javac.exe");
+				StringBuffer cmdLine = new StringBuffer(javacPath.toString());
+				cmdLine.append(" -classpath ");
+				cmdLine.append(cp);
+				cmdLine.append(" -source 1.5 -deprecation -Xlint:unchecked "); // enable recommended warnings
+				if (GenericTypeTest.this.dirPath.equals(dirFilePath)) {
+					cmdLine.append("*.java");
+				} else {
+					IPath subDirPath = dirFilePath.append("*.java").removeFirstSegments(GenericTypeTest.this.dirPath.segmentCount());
+					String subDirName = subDirPath.toString().substring(subDirPath.getDevice().length());
+					cmdLine.append(subDirName);
+				}
+//				System.out.println(testName+": "+cmdLine.toString());
+//				System.out.println(GenericTypeTest.this.dirPath.toFile().getAbsolutePath());
+				// Launch process
+				process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeTest.this.dirPath.toFile());
+	            // Log errors
+	            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
+	            
+	            // Log output
+	            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
+	                
+	            // start the threads to run outputs (standard/error)
+	            errorLogger.start();
+	            outputLogger.start();
+
+	            // Wait for end of process
+				int exitValue = process.waitFor();
+
+				// Compare compilation results
+				if (expectedProblemLog == null) {
+					if (exitValue != 0) {
+						System.out.println(testName+": javac has found error(s) although we're expecting conform result:\n");
+						System.out.println(errorLogger.buffer.toString());
+					}
+					if (errorLogger.buffer.length() > 0) {
+						System.out.println(testName+": javac displays warning(s) although we're expecting conform result:\n");
+						System.out.println(errorLogger.buffer.toString());
+					}
+				}
+				else if (expectedProblemLog != null) {
+					if (exitValue == 0) {
+						if (errorLogger.buffer.length() == 0) {
+							System.out.println(testName+": javac has found no error/warning although we're expecting negative result:");
+							System.out.println(expectedProblemLog);
+						} else if (expectedProblemLog.indexOf("ERROR") >0 ){
+							System.out.println(testName+": javac has found warning(s) although we're expecting error(s):");
+							System.out.print("javac:\n"+errorLogger.buffer.toString());
+							System.out.println("eclipse:");
+							System.out.println(expectedProblemLog);
+						} else {
+							// TODO (frederic) compare warnings in each result and verify they are similar...
+//							System.out.println(testName+": javac has found warnings :");
+//							System.out.print(errorLogger.buffer.toString());
+//							System.out.println(testName+": we're expecting warning results:");
+//							System.out.println(expectedProblemLog);
+						}
+					} else if (errorLogger.buffer.length() == 0) {
+						System.out.println(testName+": javac displays no output although we're expecting negative result:\n");
+						System.out.println(expectedProblemLog);
+					}
+				}
+			} catch (IOException ioe) {
+				System.out.println(testName+": Not possible to launch Sun javac compilation!");
+			} catch (InterruptedException e1) {
+				if (process != null) process.destroy();
+				System.out.println(testName+": Sun javac compilation was aborted!");
+			}
 
 			// Clean up written file(s)
 			IPath testDir =  new Path(Util.getOutputDirectory()).append(shortTestName());
 			cleanupDirectory(testDir.toFile());
 		} catch (Exception e) {
-			// fails silently...
 			e.printStackTrace();
 		}
 	}
@@ -2291,4 +2299,180 @@ public void test057() {
 		"----------\n");
 	}	
 
+	// JSR14-v10[§2.4]: Valid consecutive Type Parameters Brackets
+	public void test079() {
+		this.runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+					"public class X<A extends X1<X2<X3<String>>>> {\n" + 
+					"	A a;\n" +
+					"	public static void main(String[] args) {\n" + 
+					"		X<X1<X2<X3<String>>>> x = new X<X1<X2<X3<String>>>>();\n" + 
+					"		x.a = new X1<X2<X3<String>>>();\n" + 
+					"		x.a.a1 = new X2<X3<String>>();\n" + 
+					"		x.a.a1.a2 = new X3<String>();\n" + 
+					"		x.a.a1.a2.a3 = \"SUCCESS\";\n" + 
+					"		System.out.println(x.a.a1.a2.a3);\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"class X1<A extends X2<X3<String>>> {\n" + 
+					"	A a1;\n" +
+					"}\n" + 
+					"class X2<A extends X3<String>> {\n" + 
+					"	A a2;\n" +
+					"}\n" + 
+					"class X3<A> {\n" + 
+					"	A a3;\n" +
+					"}\n"
+			},
+			"SUCCESS" 
+		);
+	}
+	// TODO (david) remove errors: insert dimension to complete array type
+	public void test080() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+					"public class X<A extends X1<X2<X3<String>>> {}\n" + 
+					"class X1<A extends X2<X3<String>> {}\n" + 
+					"class X2<A extends X3<String> {}\n" + 
+					"class X3<A {}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String>>> {}\n" + 
+				"	                                        ^^^\n" + 
+				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String>>> {}\n" + 
+				"	                                        ^^^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\X.java (at line 3)\n" + 
+				"	class X1<A extends X2<X3<String>> {}\n" + 
+				"	                               ^^\n" + 
+				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+				"----------\n" + 
+				"4. ERROR in test\\X.java (at line 3)\n" + 
+				"	class X1<A extends X2<X3<String>> {}\n" + 
+				"	                               ^^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"5. ERROR in test\\X.java (at line 4)\n" + 
+				"	class X2<A extends X3<String> {}\n" + 
+				"	                            ^\n" + 
+				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+				"----------\n" + 
+				"6. ERROR in test\\X.java (at line 4)\n" + 
+				"	class X2<A extends X3<String> {}\n" + 
+				"	                            ^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"7. ERROR in test\\X.java (at line 5)\n" + 
+				"	class X3<A {}\n" + 
+				"	         ^\n" + 
+				"Syntax error on token \"A\", > expected after this token\n" + 
+				"----------\n"
+		);
+	}
+	// TODO (david) remove errors: insert dimension to complete array type
+	public void test081() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+					"public class X<A extends X1<X2<X3<String>> {}\n" + 
+					"class X1<A extends X2<X3<String> {}\n" + 
+					"class X2<A extends X3<String {}\n" + 
+					"class X3<A> {}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String>> {}\n" + 
+				"	                                        ^^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String>> {}\n" + 
+				"	                                        ^^\n" + 
+				"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\X.java (at line 3)\n" + 
+				"	class X1<A extends X2<X3<String> {}\n" + 
+				"	                               ^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"4. ERROR in test\\X.java (at line 3)\n" + 
+				"	class X1<A extends X2<X3<String> {}\n" + 
+				"	                               ^\n" + 
+				"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+				"----------\n" + 
+				"5. ERROR in test\\X.java (at line 4)\n" + 
+				"	class X2<A extends X3<String {}\n" + 
+				"	                      ^^^^^^\n" + 
+				"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+				"----------\n"
+		);
+	}
+	// TODO (david) remove error: insert dimension to complete array type
+	public void test082() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+					"public class X<A extends X1<X2<X3<String> {}\n" + 
+					"class X1<A extends X2<X3<String {}\n" + 
+					"class X2<A extends X3<String>> {}\n" + 
+					"class X3<A> {}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String> {}\n" + 
+				"	                                        ^\n" + 
+				"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String> {}\n" + 
+				"	                                        ^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\X.java (at line 3)\n" + 
+				"	class X1<A extends X2<X3<String {}\n" + 
+				"	                         ^^^^^^\n" + 
+				"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
+				"----------\n"
+		);
+	}
+	// TODO (david) remove error: insert dimension to complete array type
+	public void test083() {
+		this.runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+					"public class X<A extends X1<X2<X3<String {}\n" + 
+					"class X1<A extends X2<X3<String>>> {}\n" + 
+					"class X2<A extends X3<String>> {}\n" + 
+					"class X3<A> {}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String {}\n" + 
+				"	                                  ^^^^^^\n" + 
+				"Syntax error, insert \">>>\" to complete ReferenceType3\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String {}\n" + 
+				"	                                  ^^^^^^\n" + 
+				"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\X.java (at line 2)\n" + 
+				"	public class X<A extends X1<X2<X3<String {}\n" + 
+				"	                                  ^^^^^^\n" + 
+				"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+				"----------\n"
+		);
+	}
 }
