@@ -41,7 +41,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0571"};
+//		TESTS_NAMES = new String[] {"test0572"};
 //		TESTS_NUMBERS =  new int[] { 536 };
 	}
 	public static Test suite() {
@@ -5219,4 +5219,33 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			deleteProject("P");
 		}
 	}
+	
+	/*
+	 * Ensures that the method bindings of an anonymous type are correct.
+	 */
+	public void test0572() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			AnonymousClassDeclaration type = (AnonymousClassDeclaration) buildAST(
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    new X() /*start*/{\n" +
+				"      void bar() {}\n" +
+				"    }/*end*/;\n" +
+				"  }\n" +
+				"}",
+				workingCopy);
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertBindingsEqual(
+				"LX$40;.(LX;)V\n" + 
+				"LX$40;.bar()V",
+				typeBinding.getDeclaredMethods());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+
 }
