@@ -484,12 +484,6 @@ protected IType createTypeHandle(char[] simpleTypeName) {
 		return null;
 	}
 }
-/**
- * Creates an IType from the given simple inner type name and parent type. 
- */
-protected IType createTypeHandle(IType parent, char[] simpleTypeName) {
-	return parent.getType(new String(simpleTypeName));
-}
 protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) throws CoreException {
 	BinaryType binaryType = (BinaryType) classFile.getType();
 	if (classFile.isOpen())
@@ -846,7 +840,7 @@ protected IType lookupType(TypeBinding typeBinding) {
 	IType type = createTypeHandle(qualifiedName[0]);
 	if (type == null) return null;
 	for (int i = 1; i < length; i++) {
-		type = createTypeHandle(type, qualifiedName[i]);
+		type = type.getType(new String(qualifiedName[i]));
 		if (type == null) return null;
 	}
 	if (type.exists()) return type;
@@ -1250,7 +1244,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, Matchin
 	if (parent == null) {
 		enclosingElement = createTypeHandle(type.name);
 	} else if (parent instanceof IType) {
-		enclosingElement = createTypeHandle((IType) parent, type.name);
+		enclosingElement = ((IType) parent).getType(new String(type.name));
 		if (enclosingElement == null) return;
 	} else {
 		enclosingElement = parent;
@@ -1405,7 +1399,7 @@ protected void reportTypeDeclaration(TypeDeclaration typeDeclaration, IJavaEleme
 		(parent == null)
 			? createTypeHandle(typeDeclaration.name)
 			: ((parent instanceof IType)
-				? createTypeHandle((IType) parent, typeDeclaration.name)
+				? ((IType) parent).getType(new String(typeDeclaration.name))
 				: parent),
 		accuracy);
 }
