@@ -112,24 +112,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	public void enterClass(TypeInfo typeInfo) {
-		enterClass(typeInfo.declarationStart, typeInfo.modifiers, typeInfo.name, typeInfo.nameSourceStart, typeInfo.nameSourceEnd, typeInfo.superclass, typeInfo.superinterfaces, null, null);
-	}
-	
-	// TODO remove once JavaParseTreeBuilder subclasses are removed
-	public void enterClass(
-		int declarationStart,
-		int modifiers,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[] superclass,
-		char[][] superinterfaces,
-		char[][] typeParameterNames,
-		char[][][] typeParameterBounds) {
-		
 		// default implementation: do nothing
 	}
-
+	
 	/**
 	 * @see ISourceElementRequestor#enterCompilationUnit()
 	 */
@@ -138,25 +123,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	public void enterConstructor(MethodInfo methodInfo) {
-		enterConstructor(methodInfo.declarationStart, methodInfo.modifiers, methodInfo.name, methodInfo.nameSourceStart, methodInfo.nameSourceEnd, methodInfo.parameterNames, methodInfo.parameterNames, methodInfo.exceptionTypes, null, null);
-
-	}
-	
-	// TODO remove once JavaParseTreeBuilder subclasses are removed
-	public void enterConstructor(
-		int declarationStart,
-		int modifiers,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[][] parameterTypes,
-		char[][] parameterNames,
-		char[][] exceptionTypes,
-		char[][] typeParameterNames, 
-		char[][][] typeParameterBounds) {
-		
 		// default implementation: do nothing
 	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(TypeInfo)
 	 */
@@ -168,20 +137,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#enterField(FieldInfo)
 	 */
 	public void enterField(FieldInfo fieldInfo) {
-		enterField(fieldInfo.declarationStart, fieldInfo.modifiers, fieldInfo.type, fieldInfo.name, fieldInfo.nameSourceStart, fieldInfo.nameSourceEnd);
-	}
-	
-	// TODO remove once JavaParseTreeBuilder subclasses are removed
-	public void enterField(
-		int declarationStart,
-		int modifiers,
-		char[] type,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd) {
 		// default implementation: do nothing
 	}
-
+	
 	/**
 	 * @see ISourceElementRequestor#enterInitializer(int, int)
 	 */
@@ -190,45 +148,13 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	public void enterInterface(TypeInfo typeInfo) {
-		enterInterface(typeInfo.declarationStart, typeInfo.modifiers, typeInfo.name, typeInfo.nameSourceStart, typeInfo.nameSourceEnd, typeInfo.superinterfaces, null, null);
-	}
-	
-	// TODO remove once JavaParseTreeBuilder subclasses are removed
-	public void enterInterface(
-		int declarationStart,
-		int modifiers,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[][] superinterfaces,
-		char[][] typeParameterNames,
-		char[][][] typeParameterBounds) {
-		
 		// default implementation: do nothing
 	}
-
+	
 	public void enterMethod(MethodInfo methodInfo) {
-		enterMethod(methodInfo.declarationStart, methodInfo.modifiers, methodInfo.returnType, methodInfo.name, methodInfo.nameSourceStart, methodInfo.nameSourceEnd, methodInfo.parameterTypes, methodInfo.parameterNames, methodInfo.exceptionTypes, null, null);
-		
-	}
-	
-	// TODO remove once JavaParseTreeBuilder subclasses are removed
-	public void enterMethod(
-		int declarationStart,
-		int modifiers,
-		char[] returnType,
-		char[] name,
-		int nameSourceStart,
-		int nameSourceEnd,
-		char[][] parameterTypes,
-		char[][] parameterNames,
-		char[][] exceptionTypes,
-		char[][] typeParameterNames, 
-		char[][][] typeParameterBounds) {
-		
 		// default implementation: do nothing
 	}
-
+	
 	/**
 	 * @see ISourceElementRequestor#exitClass(int)
 	 */
