@@ -99,6 +99,8 @@ public class AnnotationTypeMemberDeclaration extends AbstractMethodDeclaration {
 
 
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
+		// nothing to do
+		// annotation type member declaration don't have any body
 	}
 	
 	public StringBuffer printReturnType(int indent, StringBuffer output) {
