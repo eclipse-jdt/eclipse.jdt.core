@@ -1082,4 +1082,24 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			// unchecked warning on B.getList()
 		);
 	}
+
+	public void _test023() { // 80739
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A<T> {\n" + 
+				"	void foo(T t) {}\n" + 
+				"	void foo(String i) {}\n" + 
+				"}\n" + 
+				"class B extends A<String> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 5)\r\n" + 
+			"	class B extends A<String> {}\r\n" + 
+			"	      ^\n" + 
+			"Duplicate methods named foo with the parameters (String) and (T) are defined by the type A<String>\n" + 
+			"----------\n"
+			// methods foo(T) from A<java.lang.String> and foo(java.lang.String) from A<java.lang.String> are inherited with the same signature
+		);
+	}
 }
