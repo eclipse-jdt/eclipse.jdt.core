@@ -158,6 +158,12 @@ class AddJarFileToIndex extends IndexRequest {
 				// index already existed: recreate it so that we forget about previous entries
 				SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 				index = manager.recreateIndex(this.containerPath);
+				if (index == null) {
+					// failed to recreate index, see 73330
+					manager.removeIndex(this.containerPath);
+					return false;
+				}
+
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)
