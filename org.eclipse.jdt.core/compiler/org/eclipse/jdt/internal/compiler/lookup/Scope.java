@@ -433,22 +433,99 @@ public abstract class Scope
 			currentType = currentType.superclass();
 		}
 
-		// abstract superclass superinterface lookup (since maybe missing default
-		// abstract methods)
-		if (hierarchyContainsAbstractClasses){
-			currentType = classHierarchyStart;
-			while (currentType != null){
-				if (currentType.isAbstract()){
-					matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
-				}
-				currentType = currentType.superclass();
+		int foundSize = found.size;
+		if (foundSize == 0) {
+			if (matchingMethod == null && hierarchyContainsAbstractClasses){
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			}
+			return matchingMethod; // may be null - have not checked arg types or visibility
+		}
+		MethodBinding[] candidates = new MethodBinding[foundSize];
+		int candidatesCount = 0;
+
+		// argument type compatibility check
+		for (int i = 0; i < foundSize; i++) {
+			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
+				candidates[candidatesCount++] = methodBinding;
+		}
+		if (candidatesCount == 1)
+			return candidates[0]; // have not checked visibility
+		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
+			if (hierarchyContainsAbstractClasses){
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			}
+			int argLength = argumentTypes.length;
+			nextMethod : for (int i = 0; i < foundSize; i++) {
+				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+				TypeBinding[] params = methodBinding.parameters;
+				int paramLength = params.length;
+				nextArg: for (int a = 0; a < argLength; a++) {
+					TypeBinding arg = argumentTypes[a];
+					for (int p = 0; p < paramLength; p++)
+						if (params[p] == arg)
+							continue nextArg;
+					continue nextMethod;
+				}
+				return methodBinding;
+			}
+			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
 
-		int foundSize = found.size;
-		if (foundSize == 0)
-			return matchingMethod; // may be null - have not checked arg types or visibility
+		// visibility check
+		int visiblesCount = 0;
+		for (int i = 0; i < candidatesCount; i++) {
+			MethodBinding methodBinding = candidates[i];
+			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
+				if (visiblesCount != i) {
+					candidates[i] = null;
+					candidates[visiblesCount] = methodBinding;
+				}
+				visiblesCount++;
+			}
+		}
+		if (visiblesCount == 1) {
+			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+			return candidates[0];
+		}
+		if (visiblesCount == 0) {
+			if (hierarchyContainsAbstractClasses){
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			}
+			return new ProblemMethodBinding(
+				candidates[0].selector,
+				argumentTypes,
+				candidates[0].declaringClass,
+				NotVisible);
+		}	
+		if (candidates[0].declaringClass.isClass()) {
+			return mostSpecificClassMethodBinding(candidates, visiblesCount);
+		} else {
+			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+		}
+	}
 
+	// abstract superclass superinterface lookup (since maybe missing default
+	// abstract methods)
+	public MethodBinding findDefaultAbstractMethod(
+		ReferenceBinding receiverType, 
+		char[] selector,
+		TypeBinding[] argumentTypes,
+		InvocationSite invocationSite,
+		ReferenceBinding classHierarchyStart,
+		MethodBinding matchingMethod,
+		ObjectVector found){
+			
+			ReferenceBinding currentType = classHierarchyStart;
+			found.removeAll();
+			while (currentType != null){
+				if (currentType.isAbstract()) matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+				currentType = currentType.superclass();
+			}
+		int foundSize = found.size;
+		if (foundSize == 0) {
+			return matchingMethod; // may be null - have not checked arg types or visibility
+		}		
 		MethodBinding[] candidates = new MethodBinding[foundSize];
 		int candidatesCount = 0;
 
@@ -501,11 +578,7 @@ public abstract class Scope
 				candidates[0].declaringClass,
 				NotVisible);
 				
-		if (candidates[0].declaringClass.isClass()) {
-			return mostSpecificClassMethodBinding(candidates, visiblesCount);
-		} else {
-			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
-		}
+		return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
 	}
 
 	public MethodBinding findMethodInSuperInterfaces(
