@@ -497,6 +497,7 @@ public class JavaModelManager implements ISaveParticipant {
 		public boolean triedRead;
 		public IClasspathEntry[] classpath;
 		public IClasspathEntry[] lastResolvedClasspath;
+		public Map resolvedPathToRawEntries; // reverse map from resolved path to raw entries
 		public IPath outputLocation;
 		public Preferences preferences;
 		public PerProjectInfo(IProject project) {

@@ -541,38 +541,16 @@ public IPath getPath() {
  * @see IPackageFragmentRoot 
  */
 public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
-	IPath path= this.getPath();
-	IClasspathEntry[] entries= this.getJavaProject().getRawClasspath();
-	for (int i= 0; i < entries.length; i++) {
-		IClasspathEntry entry = entries[i];
-	
-		switch (entry.getEntryKind()) {
-			case IClasspathEntry.CPE_PROJECT:
-				// a root's project always refers directly to the root
-				// no need to follow the project reference
-				continue;
-			case IClasspathEntry.CPE_CONTAINER:
-				IClasspathContainer container = JavaCore.getClasspathContainer(entry.getPath(), this.getJavaProject());
-				if (container != null){
-					IClasspathEntry[] containerEntries = container.getClasspathEntries();
-					for (int j = 0; j < containerEntries.length; j++){
-						IClasspathEntry containerEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
-						if (containerEntry != null && path.equals(containerEntry.getPath())) {
-							return entry; // answer original entry
-						}
-					}
-				}
-				break;
-			case IClasspathEntry.CPE_VARIABLE:
-				entry = JavaCore.getResolvedClasspathEntry(entry);
-				// don't break so as to run default
-			default:
-				if (entry != null && path.equals(entry.getPath())) {
-					return entries[i];
-				}
-		}
+
+	IClasspathEntry rawEntry = null;
+	IJavaProject project = this.getJavaProject();
+	project.getResolvedClasspath(true); // force the reverse rawEntry cache to be populated
+	JavaModelManager.PerProjectInfo perProjectInfo = 
+		JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+	if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
+		rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(this.getPath());
 	}
-	return null;
+	return rawEntry;
 }
 
 /*
