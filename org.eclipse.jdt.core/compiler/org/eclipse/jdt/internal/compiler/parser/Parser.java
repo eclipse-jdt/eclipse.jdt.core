@@ -4308,11 +4308,13 @@ protected void consumePushLeftBrace() {
 	pushOnIntStack(this.endPosition); // modifiers
 }
 protected void consumePushRealModifiers() {
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(this.modifiers); // modifiers
 	pushOnIntStack(this.modifiersSourceStart);
 	resetModifiers();
 }
 protected void consumePushModifiers() {
+	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(this.modifiers); // modifiers
 	pushOnIntStack(this.modifiersSourceStart);
 	resetModifiers();
