@@ -2047,6 +2047,18 @@ public void testMethodReferenceBug74776() throws CoreException {
 	assertSearchResults("", resultCollector);
 }
 /**
+ * Regression test for bug 72866: [search] references to endVisit(MethodInvocation) reports refs to endVisit(SuperMethodInvocation)
+ */
+public void testMethodReferenceBug72866() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b72866/V.java").getType("V");
+	IMethod method = type.getMethod("bar", new String[] {"QX;"});
+	
+	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b72866/X.java void b72866.X.foo(V) [bar(this)]",
+		resultCollector);
+}
+/**
  * OrPattern test.
  * (regression test for bug 5862 search : too many matches on search with OrPattern)
  */
