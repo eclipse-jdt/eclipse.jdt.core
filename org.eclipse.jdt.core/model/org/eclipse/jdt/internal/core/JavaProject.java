@@ -1937,7 +1937,8 @@ public class JavaProject
 			true, // canChangeResource
 			true, // forceSave
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true); // needCycleCheck
+			true, // needCycleCheck
+			true); // needValidation
 	}
 
 	public void setRawClasspath(
@@ -1947,7 +1948,8 @@ public class JavaProject
 		boolean canChangeResource,
 		boolean forceSave,
 		IClasspathEntry[] oldResolvedPath,
-		boolean needCycleCheck)
+		boolean needCycleCheck,
+		boolean needValidation)
 		throws JavaModelException {
 
 		JavaModelManager manager =
@@ -1965,7 +1967,8 @@ public class JavaProject
 					newOutputLocation,
 					canChangeResource, 
 					forceSave,
-					needCycleCheck);
+					needCycleCheck,
+					needValidation);
 			runOperation(op, monitor);
 			
 		} catch (JavaModelException e) {
@@ -1989,7 +1992,8 @@ public class JavaProject
 			true, // canChangeResource
 			true, // forceSave
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true); // needCycleCheck
+			true, // needCycleCheck
+			true); // needValidation
 	}
 
 	/**

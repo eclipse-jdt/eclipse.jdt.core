@@ -219,7 +219,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 											true, // canChangeResource
 											false, // forceSave
 											project.getResolvedClasspath(true), // ignoreUnresolvedVariable
-											true); // needCycleCheck
+											true, // needCycleCheck
+											true); // needValidation
 									} catch (JavaModelException e) {
 									}
 								} catch (IOException e) {

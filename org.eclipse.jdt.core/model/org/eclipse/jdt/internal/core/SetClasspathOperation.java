@@ -47,6 +47,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResource;
 	boolean needCycleCheck;
+	boolean needValidation;
 	
 	IPath newOutputLocation;
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
@@ -62,7 +63,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IPath newOutputLocation,
 		boolean canChangeResource,
 		boolean forceSave,
-		boolean needCycleCheck) {
+		boolean needCycleCheck,
+		boolean needValidation) {
 
 		super(new IJavaElement[] { project });
 		this.oldResolvedPath = oldResolvedPath;
@@ -70,6 +72,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		this.newOutputLocation = newOutputLocation;
 		this.canChangeResource = canChangeResource;
 		this.needCycleCheck = needCycleCheck;
+		this.needValidation = needValidation;
 	}
 
 	/**
@@ -495,7 +498,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 								this.canChangeResource, 
 								false, 
 								project.getResolvedClasspath(true), 
-								false); // no further cycle check
+								false, // no further cycle check
+								false); // updating only - no validation
 							break;
 						}
 					}
@@ -646,31 +650,35 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (!status.isOK()) {
 			return status;
 		}
-		IJavaProject project = (IJavaProject) getElementToProcess();
 
-		// retrieve classpath 
-		IClasspathEntry[] entries = this.newRawPath;
-		if (entries == ReuseClasspath){
-			try {
-				entries = project.getRawClasspath();			
-			} catch (JavaModelException e) {
-				return e.getJavaModelStatus();
+		if (needValidation) {
+			IJavaProject project = (IJavaProject) getElementToProcess();
+			// retrieve classpath 
+			IClasspathEntry[] entries = this.newRawPath;
+			if (entries == ReuseClasspath){
+				try {
+					entries = project.getRawClasspath();			
+				} catch (JavaModelException e) {
+					return e.getJavaModelStatus();
+				}
+			}		
+			// retrieve output location
+			IPath outputLocation = this.newOutputLocation;
+			if (outputLocation == ReuseOutputLocation){
+				try {
+					outputLocation = project.getOutputLocation();
+				} catch (JavaModelException e) {
+					return e.getJavaModelStatus();
+				}
 			}
-		}		
-		// retrieve output location
-		IPath outputLocation = this.newOutputLocation;
-		if (outputLocation == ReuseOutputLocation){
-			try {
-				outputLocation = project.getOutputLocation();
-			} catch (JavaModelException e) {
-				return e.getJavaModelStatus();
-			}
+					
+			// perform validation
+			return JavaConventions.validateClasspath(
+				project,
+				entries,
+				outputLocation);
 		}
 		
-		// perform validation
-		return JavaConventions.validateClasspath(
-			project,
-			entries,
-			outputLocation);
+		return JavaModelStatus.VERIFIED_OK;
 	}
 }

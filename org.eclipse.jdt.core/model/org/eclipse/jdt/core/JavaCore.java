@@ -458,8 +458,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					container = (IClasspathContainer)projectContainers.get(containerPath);
 					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 					ok = true;
-				} catch(CoreException e){
-					throw new JavaModelException(e);
 				} finally {
 					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
 				}
@@ -1757,21 +1755,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						true,
 						affectedProject.getWorkspace().isAutoBuilding(),
 						oldResolvedPaths[i],
-						remaining == 1); // no individual cycle check if more than 1 project
+						remaining == 1, // no individual cycle check if more than 1 project
+						false); // updating - no validation
 			}
 			if (remaining > 1){
-				try {
-					// use workspace runnable so as to allow marker creation - workaround bug 14733
-//					ResourcesPlugin.getWorkspace().run(
-//						new IWorkspaceRunnable() {
-//							public void run(IProgressMonitor monitor) throws CoreException {
-								JavaProject.updateAllCycleMarkers(); // update them all at once
-//							}
-//						}, 
-//						monitor);					
-				} catch(CoreException e){
-					throw new JavaModelException(e);
-				}
+				// use workspace runnable so as to allow marker creation - workaround bug 14733
+//				ResourcesPlugin.getWorkspace().run(
+//					new IWorkspaceRunnable() {
+//						public void run(IProgressMonitor monitor) throws CoreException {
+							JavaProject.updateAllCycleMarkers(); // update them all at once
+//						}
+//					}, 
+//					monitor);					
 			}
 		} finally {
 			if (wasFiring) {
@@ -2093,21 +2088,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							project.getWorkspace().isAutoBuilding(),
 							// force build if in auto build mode
 							(IClasspathEntry[]) affectedProjects.get(project),
-							size == 1 && needCycleCheck); // no individual check if more than 1 project to update
+							size == 1 && needCycleCheck, // no individual check if more than 1 project to update
+							false); // updating - no validation
 				}
 				if (size > 1 && needCycleCheck){
-					try {
-						// use workspace runnable for protecting marker manipulation
-//						ResourcesPlugin.getWorkspace().run(
-//							new IWorkspaceRunnable() {
-//								public void run(IProgressMonitor monitor) throws CoreException {
-									JavaProject.updateAllCycleMarkers(); // update them all at once
-//								}
-//							}, 
-//							monitor);					
-					} catch(CoreException e){
-						throw new JavaModelException(e);
-					}
+					// use workspace runnable for protecting marker manipulation
+//					ResourcesPlugin.getWorkspace().run(
+//						new IWorkspaceRunnable() {
+//							public void run(IProgressMonitor monitor) throws CoreException {
+								JavaProject.updateAllCycleMarkers(); // update them all at once
+//							}
+//						}, 
+//						monitor);					
 				}
 			} finally {
 				if (wasFiring) {
