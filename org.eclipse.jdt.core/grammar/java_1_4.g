@@ -160,7 +160,6 @@ protected void consumeRule(int act) {
 
 Goal ::= '++' CompilationUnit
 Goal ::= '--' MethodBody
-Goal ::= '==' ConstructorBody
 -- Initializer
 Goal ::= '>>' StaticInitializer
 Goal ::= '>>' Initializer
@@ -179,7 +178,6 @@ Goal ::= '&' ClassBodyDeclarations
 -- code snippet
 Goal ::= '%' Expression
 -- completion parser
-Goal ::= '!' ConstructorBlockStatementsopt
 Goal ::= '~' BlockStatementsopt
 
 Literal -> IntegerLiteral
@@ -518,7 +516,7 @@ StaticOnly ::= 'static'
 --    | 'private'
 --
 --
-ConstructorDeclaration ::= ConstructorHeader ConstructorBody
+ConstructorDeclaration ::= ConstructorHeader MethodBody
 /.$putCase consumeConstructorDeclaration() ; $break ./ 
 
 -- These rules are added to be able to parse constructors with no body
@@ -527,18 +525,6 @@ ConstructorDeclaration ::= ConstructorHeader ';'
 
 -- the rules ExplicitConstructorInvocationopt has been expanded
 -- in the rule below in order to make the grammar lalr(1).
--- ConstructorBody ::= '{' ExplicitConstructorInvocationopt BlockStatementsopt '}'
--- Other inlining has occured into the next rule too....
-
-ConstructorBody ::= NestedMethod  '{' ConstructorBlockStatementsopt '}'
-/.$putCase consumeConstructorBody(); $break ./
-
-ConstructorBlockStatementsopt -> BlockStatementsopt
-
-ConstructorBlockStatementsopt -> ExplicitConstructorInvocation
-
-ConstructorBlockStatementsopt ::= ExplicitConstructorInvocation BlockStatements
-/.$putCase  consumeConstructorBlockStatements(); $break ./
 
 ExplicitConstructorInvocation ::= 'this' '(' ArgumentListopt ')' ';'
 /.$putCase consumeExplicitConstructorInvocation(0,ExplicitConstructorCall.This); $break ./
@@ -602,7 +588,7 @@ InterfaceMemberDeclaration ::= InvalidMethodDeclaration
 /.$putCase ignoreMethodBody(); $break ./
 
 -- These rules are added to be able to parse constructors inside interface and then report a relevent error message
-InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody
+InvalidConstructorDeclaration ::= ConstructorHeader MethodBody
 /.$putCase ignoreInvalidConstructorDeclaration(true);  $break ./
 
 InvalidConstructorDeclaration ::= ConstructorHeader ';'
@@ -699,6 +685,7 @@ LabeledStatementNoShortIf ::= 'Identifier' ':' StatementNoShortIf
 
 ExpressionStatement ::= StatementExpression ';'
 /. $putCase consumeExpressionStatement(); $break ./
+ExpressionStatement ::= ExplicitConstructorInvocation
 
 StatementExpression ::= Assignment
 StatementExpression ::= PreIncrementExpression
