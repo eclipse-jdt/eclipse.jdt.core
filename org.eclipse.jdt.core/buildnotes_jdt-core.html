@@ -42,12 +42,24 @@ Eclipse SDK 3.0 Build - ?th July 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added optional diagnosis for unnecessary cast or instanceof operations.
+<pre>
+* COMPILER / Reporting Unnecessary Type Check
+*    When enabled, the compiler will issue an error or a warning when a cast or an instanceof operation 
+*    is unnecessary.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>	 
+</li>
 <li> Changed Java element delta processing to be thread-safe.
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39841">39841</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=35442">35442</a>
+flag unnecessary casts
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39841">39841</a>
 Give better explanation of why abstract class can't be instantiated
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39467">39467</a>
 Classes not implementing abstract methods compile without error

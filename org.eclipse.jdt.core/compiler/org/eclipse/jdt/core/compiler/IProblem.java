@@ -39,8 +39,9 @@
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
  *								   BooleanMethodThrowingException
- *								   UnnecessaryWideningCast
- *								   UnnecessaryNarrowingCast
+ *								   UnnecessaryCast
+ *								   UnnecessaryArgumentCast
+ *								   UnnecessaryInstanceof
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
