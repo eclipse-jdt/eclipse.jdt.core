@@ -33,22 +33,25 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
-public class DeclarationOfAccessedFieldsPattern extends FieldReferencePattern {
-	HashSet knownFields;
-	IJavaElement enclosingElement;
+public class DeclarationOfAccessedFieldsPattern extends FieldPattern {
+
+HashSet knownFields;
+IJavaElement enclosingElement;
+
 public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
 	super(
+		false,
+		true,  // read access
+		true, // write access
 		null, 
 		PATTERN_MATCH, 
 		false, 
 		null, 
 		null,
 		null,
-		null,
-		true,  // read access
-		true); // write access
+		null);
 	this.enclosingElement = enclosingElement;
-	this.needsResolve = true;
+	this.mustResolve = true;
 	this.knownFields = new HashSet();
 }
 

@@ -34,10 +34,10 @@ public QualifiedTypeDeclarationPattern(
 	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 	
-	this.needsResolve = qualification != null;
+	this.mustResolve = qualification != null;
 }
 
-public void decodeIndexEntry(IEntryResult entryResult){
+protected void decodeIndexEntry(IEntryResult entryResult){
 	
 	char[] word = entryResult.getWord();
 	int size = word.length;

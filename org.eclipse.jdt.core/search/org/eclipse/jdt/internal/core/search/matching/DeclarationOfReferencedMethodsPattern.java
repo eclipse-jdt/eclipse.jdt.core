@@ -31,12 +31,14 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class DeclarationOfReferencedMethodsPattern extends MethodReferencePattern {
+public class DeclarationOfReferencedMethodsPattern extends MethodPattern {
 	HashSet knownMethods;
 	IJavaElement enclosingElement;
 	
 public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
 	super(
+		false,
+		true,
 		null, 
 		PATTERN_MATCH, 
 		false, 
@@ -48,7 +50,7 @@ public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
 		null,
 		null);
 	this.enclosingElement = enclosingElement;
-	this.needsResolve = true;
+	this.mustResolve = true;
 	this.knownMethods = new HashSet();
 }
 

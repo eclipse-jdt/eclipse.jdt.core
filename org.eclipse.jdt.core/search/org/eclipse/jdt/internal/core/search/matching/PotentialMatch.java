@@ -213,7 +213,7 @@ public class PotentialMatch implements ICompilationUnit, SuffixConstants {
 		}
 	
 		boolean compilationAborted = false;
-		if (this.locator.pattern.needsResolve) {
+		if (this.locator.pattern.mustResolve) {
 			// resolve
 			BinaryTypeBinding binding = null;
 			try {

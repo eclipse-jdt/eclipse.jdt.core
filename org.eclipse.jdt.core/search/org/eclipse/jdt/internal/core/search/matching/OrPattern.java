@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -25,122 +24,145 @@ import org.eclipse.jdt.internal.core.search.IInfoConstants;
 
 public class OrPattern extends SearchPattern {
 
-	public SearchPattern leftPattern;
-	public SearchPattern rightPattern;
-public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
-	super(-1, false); // values ignored for a OrPattern
-		
-	this.leftPattern = leftPattern;
-	this.rightPattern = rightPattern;
+protected SearchPattern[] patterns;
+protected SearchPattern bestMatch;
 
-	this.matchMode = Math.min(leftPattern.matchMode, rightPattern.matchMode);
-	this.isCaseSensitive = leftPattern.isCaseSensitive || rightPattern.isCaseSensitive;
-	this.needsResolve = leftPattern.needsResolve || rightPattern.needsResolve;
+public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
+	super(
+		Math.max(leftPattern.matchMode, rightPattern.matchMode),
+		false); // not used
+
+	this.mustResolve = leftPattern.mustResolve || rightPattern.mustResolve;
+
+	SearchPattern[] leftPatterns = leftPattern instanceof OrPattern ? ((OrPattern) leftPattern).patterns : null;
+	SearchPattern[] rightPatterns = rightPattern instanceof OrPattern ? ((OrPattern) rightPattern).patterns : null;
+	int leftSize = leftPatterns == null ? 1 : leftPatterns.length;
+	int rightSize = rightPatterns == null ? 1 : rightPatterns.length;
+	this.patterns = new SearchPattern[leftSize + rightSize];
+
+	if (leftPatterns == null)
+		this.patterns[0] = leftPattern;
+	else
+		System.arraycopy(leftPatterns, 0, this.patterns, 0, leftSize);
+	if (rightPatterns == null)
+		this.patterns[leftSize] = rightPattern;
+	else
+		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 }
 /**
  * see SearchPattern.findMatches
  */
 public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
-
-	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-
 	IIndexSearchRequestor orCombiner = 
 		detailLevel == IInfoConstants.NameInfo
 			? (IIndexSearchRequestor) new OrNameCombiner(requestor)
 			: (IIndexSearchRequestor) new OrPathCombiner(requestor);
-	leftPattern.findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
-	if (progressMonitor != null && progressMonitor.isCanceled())
-		throw new OperationCanceledException();
-	rightPattern.findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
+
+	for (int i = 0, length = this.patterns.length; i < length; i++)
+		this.patterns[i].findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
 }
 /**
  * see SearchPattern.initializePolymorphicSearch
  */
 public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
-	this.leftPattern.initializePolymorphicSearch(locator, progressMonitor);
-	this.rightPattern.initializePolymorphicSearch(locator, progressMonitor);
+	for (int i = 0, length = this.patterns.length; i < length; i++)
+		this.patterns[i].initializePolymorphicSearch(locator, progressMonitor);
 }
 /**
  * see SearchPattern.isPolymorphicSearch
  */
 public boolean isPolymorphicSearch() {
-	return this.leftPattern.isPolymorphicSearch() || this.rightPattern.isPolymorphicSearch();
+	for (int i = 0, length = this.patterns.length; i < length; i++)
+		if (this.patterns[i].isPolymorphicSearch()) return true;
+	return false;
 }
 /**
  * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
-	return leftPattern.matchContainer() | rightPattern.matchContainer();
+	int result = 0;
+	for (int i = 0, length = this.patterns.length; i < length; i++)
+		result |= this.patterns[i].matchContainer();
+	return result;
 }
 /**
  * @see SearchPattern#matchesBinary
  */
 public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
-	return this.leftPattern.matchesBinary(binaryInfo, enclosingBinaryInfo) 
-		|| this.rightPattern.matchesBinary(binaryInfo, enclosingBinaryInfo);
+	for (int i = 0, length = this.patterns.length; i < length; i++)
+		if (this.patterns[i].matchesBinary(binaryInfo, enclosingBinaryInfo)) return true;
+	return false;
 }
 /**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
-	return this.leftPattern.matchIndexEntry() || this.rightPattern.matchIndexEntry();
+	for (int i = 0, length = this.patterns.length; i < length; i++)
+		if (this.patterns[i].matchIndexEntry()) return true;
+	return false;
 }
 /**
  * @see SearchPattern#matchLevel(AstNode, boolean)
  */
 public int matchLevel(AstNode node, boolean resolve) {
-	switch (this.leftPattern.matchLevel(node, resolve)) {
-		case IMPOSSIBLE_MATCH:
-			return this.rightPattern.matchLevel(node, resolve);
-		case POSSIBLE_MATCH:
-			return POSSIBLE_MATCH;
-		case INACCURATE_MATCH:
-			int rightLevel = this.rightPattern.matchLevel(node, resolve);
-			if (rightLevel != IMPOSSIBLE_MATCH) {
-				return rightLevel;
-			} else {
-				return INACCURATE_MATCH;
-			}
-		case ACCURATE_MATCH:
-			return ACCURATE_MATCH;
-		default:
-			return IMPOSSIBLE_MATCH;
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patterns.length; i < length; i++) {
+		int newLevel = this.patterns[i].matchLevel(node, resolve);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel; // want to answer the stronger match
+		}
 	}
+	return level;
 }
 /**
  * @see SearchPattern#matchLevel(Binding)
  */
 public int matchLevel(Binding binding) {
-	switch (this.leftPattern.matchLevel(binding)) {
-		case IMPOSSIBLE_MATCH:
-			return this.rightPattern.matchLevel(binding);
-		case POSSIBLE_MATCH:
-			return POSSIBLE_MATCH;
-		case INACCURATE_MATCH:
-			int rightLevel = this.rightPattern.matchLevel(binding);
-			if (rightLevel != IMPOSSIBLE_MATCH) {
-				return rightLevel;
-			} else {
-				return INACCURATE_MATCH;
-			}
-		case ACCURATE_MATCH:
-			return ACCURATE_MATCH;
-		default:
-			return IMPOSSIBLE_MATCH;
+	this.bestMatch = null;
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patterns.length; i < length; i++) {
+		int newLevel = this.patterns[i].matchLevel(binding);
+		if (newLevel > level) {
+			this.bestMatch = this.patterns[i]; // cache the best match
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel; // want to answer the stronger match
+		}
 	}
+	return level;
 }
 /**
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	int leftLevel = this.leftPattern.matchLevel(reference, true);
-	if (leftLevel == ACCURATE_MATCH || leftLevel == INACCURATE_MATCH) {
-		this.leftPattern.matchReportReference(reference, element, accuracy, locator);
-	} else {
-		this.rightPattern.matchReportReference(reference, element, accuracy, locator);
+	if (this.bestMatch != null) {
+		this.bestMatch.matchReportReference(reference, element, accuracy, locator);
+		return;
 	}
+
+	SearchPattern closestPattern = null;
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patterns.length; i < length; i++) {
+		int newLevel = this.patterns[i].matchLevel(reference, true);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) {
+				this.patterns[i].matchReportReference(reference, element, accuracy, locator);
+				return;
+			}
+			level = newLevel;
+			closestPattern = this.patterns[i];
+		}
+	}
+	if (closestPattern != null)
+		closestPattern.matchReportReference(reference, element, accuracy, locator);
 }
-public String toString(){
-	return this.leftPattern.toString() + "\n| " + this.rightPattern.toString(); //$NON-NLS-1$
+public String toString() {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append(this.patterns[0].toString());
+	for (int i = 1, length = this.patterns.length; i < length; i++) {
+		buffer.append("\n| "); //$NON-NLS-1$
+		buffer.append(this.patterns[i].toString());
+	}
+	return buffer.toString();
 }
 }

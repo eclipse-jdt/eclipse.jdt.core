@@ -34,7 +34,6 @@ import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 import junit.framework.Test;
@@ -541,22 +540,6 @@ public void testSearchPatternCreation08() {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation09() {
-
-	SearchPattern searchPattern = (SearchPattern)SearchEngine.createSearchPattern(
-			"foo*(X, int, int, X, int)", 
-			IJavaSearchConstants.METHOD,
-			IJavaSearchConstants.DECLARATIONS,
-			CASE_SENSITIVE);
-	
-	assertEquals(
-		"methodDecl/foo",
-		searchPattern == null ? null : new String(searchPattern.indexEntryPrefix()));
-}
-
-/**
- * Test pattern creation
- */
 public void testSearchPatternCreation10() {
 
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
@@ -568,22 +551,6 @@ public void testSearchPatternCreation10() {
 	assertPattern(
 		"FieldDeclarationPattern: x.y.z.Bar.field --> Foo, exact match, case sensitive",
 		searchPattern);
-}
-
-/**
- * Test pattern creation
- */
-public void testSearchPatternCreation11() {
-
-	SearchPattern searchPattern = (SearchPattern)SearchEngine.createSearchPattern(
-			"x.y.z.Bar.field Foo", 
-			IJavaSearchConstants.FIELD,
-			IJavaSearchConstants.DECLARATIONS,
-			CASE_SENSITIVE);
-	
-	assertEquals(
-		"fieldDecl/field",
-		searchPattern == null ? null : new String(searchPattern.indexEntryPrefix()));
 }
 
 /**
@@ -624,8 +591,7 @@ public void testSearchPatternCreation14() throws CoreException {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"FieldDeclarationPattern: x.y.z.Foo.field --> int, exact match, case sensitive\n" +
-		"| FieldReferencePattern: x.y.z.Foo.field --> int, exact match, case sensitive",
+		"FieldCombinedPattern: x.y.z.Foo.field --> int, exact match, case sensitive",
 		searchPattern);
 }
 
@@ -681,8 +647,7 @@ public void testSearchPatternCreation18() throws CoreException {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"MethodDeclarationPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive\n" +
-		"| MethodReferencePattern: x.y.z.Foo.bar() --> void, exact match, case sensitive",
+		"MethodCombinedPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive",
 		searchPattern);
 }
 

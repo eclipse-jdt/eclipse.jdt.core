@@ -90,11 +90,10 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 			/* eliminate potential references that don't match the current references */
 			int potentialLength = potentialRefs.length;
 			for (int i = 0, length = references.length; i < length; i++) {
-				if (i < potentialLength) {
+				if (i < potentialLength)
 					potentialRefs[i] &= references[i];
-				} else {
+				else
 					potentialRefs[i] = 0;
-				}
 			}
 			// check to see that there are still potential references after the merge
 			while (--potentialLength >= 0 && potentialRefs[potentialLength] == 0) {}
@@ -108,9 +107,8 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		int refsLength = 0;
 		for (int reference = 1; reference <= maxRefs; reference++) {
 			int vectorIndex = reference / 64; // a long has 64 bits
-			if ((potentialRefs[vectorIndex] & (1L << (reference % 64))) != 0) {
+			if ((potentialRefs[vectorIndex] & (1L << (reference % 64))) != 0)
 				refs[refsLength++] = reference;
-			}
 		}
 		System.arraycopy(refs, 0, refs = new int[refsLength], 0, refsLength);
 		this.feedIndexRequestor(requestor, detailLevel, refs, input, scope);

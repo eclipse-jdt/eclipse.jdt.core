@@ -59,7 +59,7 @@ public SuperTypeReferencePattern(
 	this.superQualification = isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
 	this.superSimpleName = isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	
-	this.needsResolve = superQualification != null;
+	this.mustResolve = superQualification != null;
 }
 protected void acceptPath(IIndexSearchRequestor requestor, String path) {
 	requestor.acceptSuperTypeReference(path, decodedQualification, decodedSimpleName, decodedEnclosingTypeName, decodedClassOrInterface, decodedSuperQualification, decodedSuperSimpleName, decodedSuperClassOrInterface, decodedModifiers);
@@ -68,7 +68,7 @@ protected void acceptPath(IIndexSearchRequestor requestor, String path) {
  * "superRef/Object/java.lang/X/p" represents "class p.X extends java.lang.Object"
  * "superRef/Exception//X/p" represents "class p.X extends Exception"
  */
-public void decodeIndexEntry(IEntryResult entryResult){
+ protected void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
 	int slash = SUPER_REF.length - 1;
@@ -158,7 +158,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 /**
  * see SearchPattern.indexEntryPrefix()
  */
-public char[] indexEntryPrefix(){
+protected char[] indexEntryPrefix(){
 	return AbstractIndexer.bestReferencePrefix(
 			SUPER_REF,
 			superSimpleName, 
@@ -265,7 +265,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 		}
 	} else {
 		if (this.superSimpleName == null) {
-			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+			return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 		} else {
 			char[] typeRefSimpleName = null;
 			if (typeRef instanceof SingleTypeReference) {
@@ -275,7 +275,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 				typeRefSimpleName = tokens[tokens.length-1];
 			}				
 			if (this.matchesName(this.superSimpleName, typeRefSimpleName))
-				return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 			else
 				return IMPOSSIBLE_MATCH;
 		}

@@ -792,7 +792,7 @@ public class MatchLocator implements ITypeRequestor {
 			
 			int length = filePaths.length;
 			if (progressMonitor != null) {
-				if (this.pattern.needsResolve) {
+				if (this.pattern.mustResolve) {
 					progressMonitor.beginTask("", length * 10); // 1 for file path, 4 for parsing and binding creation, 5 for binding resolution //$NON-NLS-1$
 				} else {
 					progressMonitor.beginTask("", length * 5); // 1 for file path, 4 for parsing and binding creation //$NON-NLS-1$
@@ -909,9 +909,9 @@ public class MatchLocator implements ITypeRequestor {
 		IWorkspace workspace)
 		throws JavaModelException {
 		if (searchPattern instanceof OrPattern) {
-			OrPattern orPattern = (OrPattern) searchPattern;
-			this.locatePackageDeclarations(orPattern.leftPattern, workspace);
-			this.locatePackageDeclarations(orPattern.rightPattern, workspace);
+			SearchPattern[] patterns = ((OrPattern) searchPattern).patterns;
+			for (int i = 0, length = patterns.length; i < length; i++)
+				this.locatePackageDeclarations(patterns[i], workspace);
 		} else
 			if (searchPattern instanceof PackageDeclarationPattern) {
 				PackageDeclarationPattern pkgPattern =
@@ -1014,7 +1014,7 @@ public class MatchLocator implements ITypeRequestor {
 			matchingNodeSet.cuHasBeenResolved = this.compilationAborted;
 			matchingNodeSet.reportMatching(unit);
 
-			if (this.pattern.needsResolve 
+			if (this.pattern.mustResolve 
 					&& unit.types != null 
 					&& !this.compilationAborted) {
 

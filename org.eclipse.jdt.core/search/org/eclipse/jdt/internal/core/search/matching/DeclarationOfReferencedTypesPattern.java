@@ -42,7 +42,7 @@ public class DeclarationOfReferencedTypesPattern extends TypeReferencePattern {
 public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
 	super(null, null, PATTERN_MATCH, false);
 	this.enclosingElement = enclosingElement;
-	this.needsResolve = true;
+	this.mustResolve = true;
 	this.knownTypes = new HashSet();
 }
 /**

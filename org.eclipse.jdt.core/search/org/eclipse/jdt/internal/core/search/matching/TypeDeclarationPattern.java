@@ -68,9 +68,9 @@ public TypeDeclarationPattern(
 	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 	
-	this.needsResolve = pkg != null && enclosingTypeNames != null;
+	this.mustResolve = pkg != null && enclosingTypeNames != null;
 }
-public void decodeIndexEntry(IEntryResult entryResult){
+protected void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
 	int size = word.length;
@@ -115,7 +115,7 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 /**
  * see SearchPattern.indexEntryPrefix()
  */
-public char[] indexEntryPrefix(){
+protected char[] indexEntryPrefix(){
 
 	return AbstractIndexer.bestTypeDeclarationPrefix(
 			pkg,
@@ -281,7 +281,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 		if (this.simpleName != null && !this.matchesName(this.simpleName, type.name))
 			return IMPOSSIBLE_MATCH;
 		else
-			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+			return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 	}
 }
 

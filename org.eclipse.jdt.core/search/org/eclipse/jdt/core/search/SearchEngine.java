@@ -468,7 +468,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		SearchPattern pattern = (SearchPattern)searchPattern;
 		if (scope instanceof HierarchyScope) {
 			((HierarchyScope)scope).needsRefresh = false;
-			pattern.needsResolve = true; // force resolve to compute type bindings
+			pattern.mustResolve = true; // force resolve to compute type bindings
 		}
 
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();

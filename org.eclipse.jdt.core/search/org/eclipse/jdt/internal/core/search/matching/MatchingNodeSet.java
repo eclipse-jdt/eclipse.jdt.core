@@ -129,7 +129,7 @@ public void addPossibleMatch(AstNode node) {
 	}
 
 	// add node to set
-	this.potentialMatchingNodes.put(node, new Integer(SearchPattern.POSSIBLE_MATCH));
+	this.potentialMatchingNodes.put(node, new Integer(SearchPattern.POTENTIAL_MATCH));
 	this.potentialMatchingNodesKeys.put(key, node);
 }
 public void addTrustedMatch(AstNode node) {
@@ -517,8 +517,8 @@ public String toString() {
 				case SearchPattern.IMPOSSIBLE_MATCH:
 					result.append("IMPOSSIBLE_MATCH: "); //$NON-NLS-1$
 					break;
-				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: "); //$NON-NLS-1$
+				case SearchPattern.POTENTIAL_MATCH:
+					result.append("POTENTIAL_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.INACCURATE_MATCH:
 					result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
@@ -542,8 +542,8 @@ public String toString() {
 				case SearchPattern.IMPOSSIBLE_MATCH:
 					result.append("IMPOSSIBLE_MATCH: "); //$NON-NLS-1$
 					break;
-				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: "); //$NON-NLS-1$
+				case SearchPattern.POTENTIAL_MATCH:
+					result.append("POTENTIAL_MATCH: "); //$NON-NLS-1$
 					break;
 				case SearchPattern.INACCURATE_MATCH:
 					result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
