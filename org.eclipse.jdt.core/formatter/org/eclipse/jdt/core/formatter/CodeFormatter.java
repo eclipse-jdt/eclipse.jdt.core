@@ -52,7 +52,8 @@ public abstract class CodeFormatter {
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
 	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
 	 * @param string the string to format
-	 * @param region The region to format. If null, the whole given string is formatted.
+	 * @param offset the given offset to start recording the edits (inclusive).
+	 * @param length the given length to stop recording the edits (exclusive).
 	 * @param indentationLevel the initial indentation level, used 
 	 *      to shift left/right the entire source fragment. An initial indentation
 	 *      level of zero or below has no effect.
