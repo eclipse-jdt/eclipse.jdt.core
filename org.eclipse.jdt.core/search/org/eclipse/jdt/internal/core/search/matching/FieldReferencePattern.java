@@ -248,7 +248,7 @@ private int matchLevel(FieldReference fieldRef, boolean resolve) {
 
 	if (resolve) {
 		// receiver type and field type
-		return this.matchLevel(fieldRef.receiverType, fieldRef.isSuperAccess(), fieldRef.binding);
+		return this.matchLevel(fieldRef.binding);
 	} else {
 		return POSSIBLE_MATCH;
 	}
@@ -282,28 +282,23 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 		} else {
 			if (nameRef instanceof SingleNameReference){
 				if (binding instanceof FieldBinding){
-					return this.matchLevel(nameRef.receiverType, false, (FieldBinding) binding);
+					return this.matchLevel((FieldBinding) binding);
 				} else {
 					return IMPOSSIBLE_MATCH; // must be a field binding
 				}
 			} else { // QualifiedNameReference
 				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
-				TypeBinding receiverType = qNameRef.receiverType;
 				FieldBinding fieldBinding = null;
 				if (binding instanceof FieldBinding && this.matchesName(this.name, (fieldBinding = (FieldBinding)binding).name)) {
-					return this.matchLevel(receiverType, false, fieldBinding);
+					return this.matchLevel(fieldBinding);
 				} else {
-					if (binding instanceof VariableBinding){
-						receiverType = ((VariableBinding) binding).type;
-					}
 					int otherLevel = IMPOSSIBLE_MATCH;
 					int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
 					for (int i = 0; i < otherMax && (otherLevel == IMPOSSIBLE_MATCH); i++){
 						FieldBinding otherBinding = qNameRef.otherBindings[i];
 						if (this.matchesName(this.name, otherBinding.name)) {
-							otherLevel = this.matchLevel(receiverType, false, otherBinding);
+							otherLevel = this.matchLevel(otherBinding);
 						}
-						receiverType = otherBinding.type;
 					}
 					return otherLevel;
 				}
@@ -315,17 +310,14 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 }
 
 /**
- * Returns whether this field reference pattern matches the given field binding and receiver type.
+ * Returns whether this field reference pattern matches the given field binding.
  */
-private int matchLevel(TypeBinding receiverType, boolean isSuperAccess, FieldBinding binding) {
-	if (receiverType == null || binding == null) return INACCURATE_MATCH;
+private int matchLevel(FieldBinding binding) {
+	if (binding == null) return INACCURATE_MATCH;
 	int level;
 	
 	// receiver type
-	ReferenceBinding receiverBinding = 
-		isSuperAccess || binding.isStatic() ? 
-			binding.declaringClass : 
-			(ReferenceBinding)receiverType;
+	ReferenceBinding receiverBinding = binding.declaringClass;
 	if (receiverBinding == null) {
 		return INACCURATE_MATCH;
 	} else {
