@@ -1211,8 +1211,8 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 *  Returns the info for this element without
 	 *  disturbing the cache ordering.
-	 */ // TODO: (jerome) should be synchronized, could answer unitialized info or if cache is in middle of rehash, could even answer distinct element info
-	protected Object peekAtInfo(IJavaElement element) {
+	 */
+	protected synchronized Object peekAtInfo(IJavaElement element) {
 		return this.cache.peekAtInfo(element);
 	}
 
