@@ -22,8 +22,8 @@ public class ConditionalExpression extends OperatorExpression {
 	private int returnTypeSlotSize = 1;
 
 	// for local variables table attributes
-	int thenInitStateIndex = -1;
-	int elseInitStateIndex = -1;
+	int trueInitStateIndex = -1;
+	int falseInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 	
 	public ConditionalExpression(
@@ -42,70 +42,44 @@ public class ConditionalExpression extends OperatorExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant cst = this.condition.constant;
-		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
-
-		cst = this.condition.optimizedBooleanConstant();
+		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
 		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 
+		int mode = flowInfo.reachMode();
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, cst == NotAConstant);
-
-		if (isConditionTrue) {
-			// TRUE ? left : right
-			FlowInfo resultInfo =
-				valueIfTrue.analyseCode(currentScope, flowContext, flowInfo.initsWhenTrue().unconditionalInits());
-			// analyse valueIfFalse, but do not take into account any of its infos
-			valueIfFalse.analyseCode(
-				currentScope,
-				flowContext,
-				flowInfo.initsWhenFalse().copy().unconditionalInits().setReachMode(FlowInfo.SILENT_FAKE_REACHABLE));
-			mergedInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(resultInfo);
-			return resultInfo;
-		} else if (isConditionFalse) {
-			// FALSE ? left : right
-			// analyse valueIfTrue, but do not take into account any of its infos			
-			valueIfTrue.analyseCode(
-				currentScope,
-				flowContext,
-				flowInfo.initsWhenTrue().copy().unconditionalInits().setReachMode(FlowInfo.SILENT_FAKE_REACHABLE));
-			FlowInfo mergeInfo =
-				valueIfFalse.analyseCode(currentScope, flowContext, flowInfo.initsWhenFalse().unconditionalInits());
-			mergedInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(mergeInfo);
-			return mergeInfo;
-		}
-
-		// propagate analysis
-		FlowInfo trueInfo = flowInfo.initsWhenTrue().copy();
-		int mode = trueInfo.reachMode();
-		if (isConditionOptimizedFalse) trueInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
-		thenInitStateIndex = currentScope.methodScope().recordInitializationStates(trueInfo);
-		trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo);
-		trueInfo.setReachMode(mode);
 		
-		FlowInfo falseInfo = flowInfo.initsWhenFalse().copy();
-		mode = falseInfo.reachMode();
-		if (isConditionOptimizedTrue) falseInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
-		elseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseInfo);
-		falseInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseInfo);
-		falseInfo.setReachMode(mode);
+		// process the if-true part
+		FlowInfo trueFlowInfo = flowInfo.initsWhenTrue().copy();
+		if (isConditionOptimizedFalse) trueFlowInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
+		trueInitStateIndex = currentScope.methodScope().recordInitializationStates(trueFlowInfo);
+		trueFlowInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueFlowInfo);
 
+		// process the if-false part
+		FlowInfo falseFlowInfo = flowInfo.initsWhenFalse().copy();
+		if (isConditionOptimizedTrue) falseFlowInfo.setReachMode(FlowInfo.CHECK_POT_INIT_FAKE_REACHABLE);
+		falseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseFlowInfo);
+		falseFlowInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseFlowInfo);
 
-		// merge using a conditional info -  1GK2BLM
-		// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
-		FlowInfo mergedInfo =
-			FlowInfo.conditional(
-				trueInfo.initsWhenTrue().copy().unconditionalInits().mergedWith( // must copy, since could be shared with trueInfo.initsWhenFalse()...
-					falseInfo.initsWhenTrue().copy().unconditionalInits()),
-				trueInfo.initsWhenFalse().unconditionalInits().mergedWith(
-					falseInfo.initsWhenFalse().unconditionalInits()));
-
-		// store a copy of the merged info, so as to compute the local variable attributes afterwards
+		// merge if-true & if-false initializations
+		FlowInfo mergedInfo;
+		if (isConditionOptimizedTrue){
+			mergedInfo = trueFlowInfo;
+		} else if (isConditionOptimizedFalse) {
+			mergedInfo = falseFlowInfo;
+		} else {
+			// merge using a conditional info -  1GK2BLM
+			// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
+			mergedInfo =
+				FlowInfo.conditional(
+					trueFlowInfo.initsWhenTrue().copy().unconditionalInits().mergedWith( // must copy, since could be shared with trueInfo.initsWhenFalse()...
+						falseFlowInfo.initsWhenTrue().copy().unconditionalInits()),
+					trueFlowInfo.initsWhenFalse().unconditionalInits().mergedWith(
+						falseFlowInfo.initsWhenFalse().unconditionalInits()));
+		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
+		mergedInfo.setReachMode(mode);
 		return mergedInfo;
 	}
 
@@ -148,11 +122,11 @@ public class ConditionalExpression extends OperatorExpression {
 			(falseLabel = new Label(codeStream)),
 			needConditionValue);
 
-		if (thenInitStateIndex != -1) {
+		if (trueInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
-				thenInitStateIndex);
-			codeStream.addDefinitelyAssignedVariables(currentScope, thenInitStateIndex);
+				trueInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, trueInitStateIndex);
 		}
 		// Then code generation
 		if (needTruePart) {
@@ -170,11 +144,11 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		if (needFalsePart) {
 			falseLabel.place();
-			if (elseInitStateIndex != -1) {
+			if (falseInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
-					elseInitStateIndex);
-				codeStream.addDefinitelyAssignedVariables(currentScope, elseInitStateIndex);
+					falseInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, falseInitStateIndex);
 			}
 			valueIfFalse.generateCode(currentScope, codeStream, valueRequired);
 			// End of if statement
@@ -227,11 +201,11 @@ public class ConditionalExpression extends OperatorExpression {
 				internalFalseLabel = new Label(codeStream),
 				needConditionValue);
 
-		if (thenInitStateIndex != -1) {
+		if (trueInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
-				thenInitStateIndex);
-			codeStream.addDefinitelyAssignedVariables(currentScope, thenInitStateIndex);
+				trueInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, trueInitStateIndex);
 		}
 		// Then code generation
 		if (needTruePart) {
@@ -248,11 +222,11 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		if (needFalsePart) {
 			internalFalseLabel.place();
-			if (elseInitStateIndex != -1) {
+			if (falseInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
-					elseInitStateIndex);
-				codeStream.addDefinitelyAssignedVariables(currentScope, elseInitStateIndex);
+					falseInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, falseInitStateIndex);
 			}
 			valueIfFalse.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 

@@ -114,7 +114,7 @@ public class WhileStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if (isConditionTrue) {
+		if (isConditionOptimizedTrue) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(
 					mergedInfo = loopingContext.initsOnBreak);

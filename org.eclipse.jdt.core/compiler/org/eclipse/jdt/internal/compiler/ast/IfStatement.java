@@ -68,11 +68,7 @@ public class IfStatement extends Statement {
 		// process the condition
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 
-		Constant cst = this.condition.constant;
-		boolean isConditionTrue = cst != NotAConstant && cst.booleanValue() == true;
-		boolean isConditionFalse = cst != NotAConstant && cst.booleanValue() == false;
-
-		cst = this.condition.optimizedBooleanConstant();
+		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
 		boolean isConditionOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
 		
@@ -114,16 +110,22 @@ public class IfStatement extends Statement {
 		
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo;
-		if (isConditionTrue){
-			mergedInfo = this.thenExit ? elseFlowInfo : thenFlowInfo;
-		} else if (isConditionFalse) {
-			mergedInfo = elseExit ? thenFlowInfo : elseFlowInfo;
+		if (isConditionOptimizedTrue){
+			if (!this.thenExit) {
+				mergedInfo = thenFlowInfo;
+			} else {
+				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+			}
+
+		} else if (isConditionOptimizedFalse) {
+			if (!elseExit) {
+				mergedInfo = elseFlowInfo;
+			} else {
+				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
+			}
+
 		} else {
 			mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
-		}
-		if ((isConditionOptimizedTrue && this.thenExit)
-				|| (isConditionOptimizedFalse && elseExit)) {
-			mergedInfo.setReachMode(FlowInfo.FAKE_REACHABLE);
 		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
