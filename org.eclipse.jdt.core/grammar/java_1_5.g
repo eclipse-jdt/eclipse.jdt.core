@@ -284,8 +284,26 @@ QualifiedName ::= Name '.' SimpleName
 /.$putCase consumeQualifiedName(); $break ./
 /:$readableName QualifiedName:/
 
-CompilationUnit ::= EnterCompilationUnit PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+CompilationUnit ::= EnterCompilationUnit InternalCompilationUnit
 /.$putCase consumeCompilationUnit(); $break ./
+/:$readableName CompilationUnit:/
+
+InternalCompilationUnit ::= PackageDeclaration
+/.$putCase consumeInternalCompilationUnitWithPackage(); $break ./
+InternalCompilationUnit ::= PackageDeclaration ImportDeclarations
+/.$putCase consumeInternalCompilationUnitWithPackageAndImports(); $break ./
+InternalCompilationUnit ::= PackageDeclaration ImportDeclarations TypeDeclarations
+/.$putCase consumeInternalCompilationUnitWithPackageImportsTypes(); $break ./
+InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
+/.$putCase consumeInternalCompilationUnitWithPackageTypes(); $break ./
+InternalCompilationUnit ::= ImportDeclarations
+/.$putCase consumeInternalCompilationUnitWithImports(); $break ./
+InternalCompilationUnit ::= TypeDeclarations
+/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
+InternalCompilationUnit ::= ImportDeclarations TypeDeclarations
+/.$putCase consumeInternalCompilationUnitWithImportsTypes(); $break ./
+InternalCompilationUnit ::= $empty
+/.$putCase consumeEmptyInternalCompilationUnit(); $break ./
 /:$readableName CompilationUnit:/
 
 EnterCompilationUnit ::= $empty
@@ -322,7 +340,7 @@ PackageDeclaration ::= PackageDeclarationName ';'
 /.$putCase  consumePackageDeclaration(); $break ./
 /:$readableName PackageDeclaration:/
 
-PackageDeclarationName ::= 'package' Name
+PackageDeclarationName ::= Modifiersopt 'package' Name
 /.$putCase  consumePackageDeclarationName(); $break ./
 /:$readableName PackageDeclarationName:/
 
@@ -1389,11 +1407,6 @@ Expression -> AssignmentExpression
 
 -- The following rules are for optional nonterminals.
 --
-
-PackageDeclarationopt -> $empty 
-PackageDeclarationopt -> PackageDeclaration
-/:$readableName PackageDeclaration:/
-
 ClassHeaderExtendsopt ::= $empty
 ClassHeaderExtendsopt -> ClassHeaderExtends
 /:$readableName ClassHeaderExtends:/
@@ -1421,18 +1434,6 @@ ConstantExpression -> Expression
 ,opt -> $empty
 ,opt -> ,
 /:$readableName ,:/
-
-ImportDeclarationsopt ::= $empty
-/.$putCase consumeEmptyImportDeclarationsopt(); $break ./
-ImportDeclarationsopt ::= ImportDeclarations
-/.$putCase consumeImportDeclarationsopt(); $break ./
-/:$readableName ImportDeclarations:/
-
-TypeDeclarationsopt ::= $empty
-/.$putCase consumeEmptyTypeDeclarationsopt(); $break ./
-TypeDeclarationsopt ::= TypeDeclarations
-/.$putCase consumeTypeDeclarationsopt(); $break ./
-/:$readableName TypeDeclarations:/
 
 ClassBodyDeclarationsopt ::= $empty
 /.$putCase consumeEmptyClassBodyDeclarationsopt(); $break ./
