@@ -181,8 +181,21 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 		}
 		element.setAttribute("path", xmlPath.toString()); //$NON-NLS-1$
+		
 		if (this.sourceAttachmentPath != null) {
-			element.setAttribute("sourcepath", this.sourceAttachmentPath.toString()); //$NON-NLS-1$
+			xmlPath = this.sourceAttachmentPath;
+			// translate to project relative from absolute (unless a device path)
+			if (xmlPath.isAbsolute()) {
+				if (projectPath != null && projectPath.isPrefixOf(xmlPath)) {
+					if (xmlPath.segment(0).equals(projectPath.segment(0))) {
+						xmlPath = xmlPath.removeFirstSegments(1);
+						xmlPath = xmlPath.makeRelative();
+					} else {
+						xmlPath = xmlPath.makeAbsolute();
+					}
+				}
+			}
+			element.setAttribute("sourcepath", xmlPath.toString()); //$NON-NLS-1$
 		}
 		if (this.sourceAttachmentRootPath != null) {
 			element.setAttribute("rootpath", this.sourceAttachmentRootPath.toString()); //$NON-NLS-1$
@@ -225,6 +238,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			element.hasAttribute("sourcepath")	//$NON-NLS-1$
 			? new Path(element.getAttribute("sourcepath")) //$NON-NLS-1$
 			: null;
+		if (sourceAttachmentPath != null && !sourceAttachmentPath.isAbsolute()) {
+			sourceAttachmentPath = projectPath.append(sourceAttachmentPath);
+		}
 		IPath sourceAttachmentRootPath = 
 			element.hasAttribute("rootpath") //$NON-NLS-1$
 			? new Path(element.getAttribute("rootpath")) //$NON-NLS-1$
