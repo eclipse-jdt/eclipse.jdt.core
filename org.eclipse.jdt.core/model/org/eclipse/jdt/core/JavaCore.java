@@ -959,6 +959,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     		- possible values:	{ "error", "warning", "ignore" }
 	 *     		- default:			"warning"
 	 *
+	 *	COMPILER / Reporting Deprecation Inside Deprecated Code
+	 *		When enabled, the compiler will signal use of deprecated API inside deprecated code.
+	 *     The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"
+	 *     		- possible values:	{ "enabled", "disabled" }
+	 *     		- default:			"disabled"
+	 *
 	 *	COMPILER / Reporting Hidden Catch Block
 	 *		Locally to a try statement, some catch blocks may hide others , e.g.
 	 *			try {	throw new java.io.CharConversionException();

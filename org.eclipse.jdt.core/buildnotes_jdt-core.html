@@ -38,6 +38,17 @@ Eclipse SDK 2.0 Build - ? August 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Deprecation warning inside deprecated code are now ignored by default. A new JavaCore option
+allows to report them all.
+<pre>
+*	COMPILER / Reporting Deprecation Inside Deprecated Code
+*		When enabled, the compiler will signal use of deprecated API inside deprecated code.
+*     The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
+*     		- option id:		"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"
+*     		- possible values:	{ "enabled", "disabled" }
+*     		- default:			"disabled"
+</pre>
+</li>
 <li> Compiler can now optionally collect TODO tasks from the source code. Occurrences of
 a TODO tag are looked for inside any type of comments, and reported along with problems.
  <ul>
@@ -71,7 +82,9 @@ a TODO tag are looked for inside any type of comments, and reported along with p
 </li>
 </ul> 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23050">23050</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22526">22526</a>
+Warning given when implementing deprecated methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23050">23050</a>
 DOM - IVariableBinding.getModifiers() doesn't give final modifier for local variables
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22939">22939</a>
 ast: incorrect range for a name in brackets
