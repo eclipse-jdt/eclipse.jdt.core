@@ -149,6 +149,18 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		return parser.createAST(null);
 	}
 
+	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		parser.createAST(null);
+		
+		parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		return parser.createAST(null);
+	}
+	
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, int position, boolean resolveBindings) {
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);

@@ -699,29 +699,16 @@ public class ASTParser {
 		AST ast = AST.newAST(this.apiLevel);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit compilationUnit = null;
-		if (AST.JLS2 == this.apiLevel) {
-			ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
-			if (needToResolveBindings) {
-				resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
-			} else {
-				resolver = new BindingResolver();
-			}
-			ast.setBindingResolver(resolver);
-			converter.setAST(ast);
-			compilationUnit = converter.convert(compilationUnitDeclaration, source);
-			compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		ASTConverter converter = new ASTConverter(this.compilerOptions, needToResolveBindings, monitor);
+		if (needToResolveBindings) {
+			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 		} else {
-			ASTConverter2 converter = new ASTConverter2(this.compilerOptions, needToResolveBindings, monitor);
-			if (needToResolveBindings) {
-				resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
-			} else {
-				resolver = new BindingResolver();
-			}
-			ast.setBindingResolver(resolver);
-			converter.setAST(ast);
-			compilationUnit = converter.convert(compilationUnitDeclaration, source);
-			compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+			resolver = new BindingResolver();
 		}
+		ast.setBindingResolver(resolver);
+		converter.setAST(ast);
+		compilationUnit = converter.convert(compilationUnitDeclaration, source);
+		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
 		ast.setDefaultNodeFlag(0);
 		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
