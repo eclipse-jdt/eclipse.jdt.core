@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.core.index.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
 public final class ObjectVector {
 	static int INITIAL_SIZE= 10;

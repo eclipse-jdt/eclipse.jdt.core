@@ -1,5 +1,13 @@
 package org.eclipse.jdt.internal.core.index.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.core.*;
 
+/**
+ * This interface provides constants used by the search engine.
+ */
 public interface IIndexConstants {
 	/**
 	 * The signature of the index file.
