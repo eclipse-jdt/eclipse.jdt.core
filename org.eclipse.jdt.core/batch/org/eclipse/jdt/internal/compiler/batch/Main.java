@@ -51,7 +51,7 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 	int globalErrorsCount;
 	int globalWarningsCount;
 
-	String versionID = "0.125.1"/*nonNLS*/;
+	String versionID = "0.125.12 (jck1.3a)"/*nonNLS*/;
 	private static final char[] CLASS_FILE_EXTENSION = ".class"/*nonNLS*/.toCharArray();
 
 	int exportedClassFilesCounter;
