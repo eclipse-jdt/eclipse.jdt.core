@@ -7957,5 +7957,63 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"	                                         ^^^^^^^^^^^^^^^\n" + 
 		"The static method start() from the type B should be accessed in a static way\n" + 
 		"----------\n");
-	}			
+	}
+	public void test297() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"import java.util.HashMap;\n" + 
+				"import java.util.Iterator;\n" + 
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"		 public static void main(String[] args) {\n" + 
+				"		 		 Map<String, String> map = new HashMap<String, String>();\n" + 
+				"		 		 \n" + 
+				"		 		 map.put(\"foo\", \"bar\");\n" + 
+				"		 		 \n" + 
+				"		 		 // Error reported on the following line\n" + 
+				"		 		 Iterator<Map.Entry<String,String>> i = map.entrySet().iterator();\n" + 
+				"		 		 while (i.hasNext()) {\n" + 
+				"		 		 		 Map.Entry<String, String> entry = i.next();\n" + 
+				"		 		 		 System.out.println(entry.getKey() + \", \" + entry.getValue());\n" + 
+				"		 		 }\n" + 
+				"		 }\n" + 
+				"}\n",
+			},
+			"foo, bar");	
+	}
+	// 72644
+	public void test298() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"import java.util.Collection;\n" + 
+				"import java.util.Map;\n" + 
+				"import java.util.Set;\n" + 
+				"\n" + 
+				"public class X<V> implements Map<String, V> {\n" + 
+				"   private Map<String, V> backingMap;\n" + 
+				"   \n" + 
+				"   public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"   }\n" + 
+				"   public int size() { return 0; }\n" + 
+				"   public boolean isEmpty() { return false; }\n" + 
+				"   public boolean containsKey(Object key) { return false; }\n" + 
+				"   public boolean containsValue(Object value) { return false; }\n" + 
+				"   public V get(Object key) { return null; }\n" + 
+				"   public V put(String key, V value) { return null; }\n" + 
+				"   public V remove(Object key) { return null; }\n" + 
+				"   public void clear() { }\n" + 
+				"   public Set<String> keySet() { return null; }\n" + 
+				"   public Collection<V> values() { return null; }\n" + 
+				"   public void putAll(Map<String, ? extends V> t) { }\n" + 
+				"   public Set<Map.Entry<String, V>> entrySet() {\n" + 
+				"      return this.backingMap.entrySet();\n" + 
+				"   }\n" + 
+				"}\n",
+			},
+			"SUCCESS");	
+	}
 }
