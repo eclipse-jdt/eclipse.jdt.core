@@ -178,7 +178,7 @@ public class HandleFactory {
 			
 		    public void push(ASTNode node) {
 		    	if (++this.nodeIndex >= this.nodeStack.length) 
-		            System.arraycopy(this.nodeStack, 0, this.nodeStack = new ASTNode[this.nodeStack.length*2], 0, this.nodeIndex-1);
+		            System.arraycopy(this.nodeStack, 0, this.nodeStack = new ASTNode[this.nodeStack.length*2], 0, this.nodeIndex);
 	            this.nodeStack[this.nodeIndex] = node;
 		    }
 		    

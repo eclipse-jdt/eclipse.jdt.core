@@ -1351,4 +1351,18 @@ public void testArrayParameterInsideParent1() throws JavaModelException {
 			elements
 	);
 }
+public void testDeepLocalVariable() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveDeepLocalVariable.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo [in D9() [in D9 [in D8 [in D7 [in D6 [in D5 [in D4 [in D3 [in D2 [in D1 [in ResolveDeepLocalVariable [in ResolveDeepLocalVariable.java [in <default> [in src [in Resolve]]]]]]]]]]]]]]]",
+			elements
+	);
+}
 }
