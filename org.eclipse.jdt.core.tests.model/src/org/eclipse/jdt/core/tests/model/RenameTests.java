@@ -181,7 +181,7 @@ public void setUpSuite() throws Exception {
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(RenameTests.class.getName());
-		suite.addTest(new RenameTests("testRenameEnum"));
+		suite.addTest(new RenameTests("testRenameEnum2"));
 		return suite;
 	}
 	return new Suite(RenameTests.class);
@@ -408,6 +408,35 @@ public void testRenameEnum() throws CoreException {
 			"public enum OtherEnum {\n" +
 			"  ;\n" +
 			"  OtherEnum() {\n" +
+			"  }\n" +
+			"}",
+			renamedCu.getSource()
+		);
+	} finally {
+		deleteProject("P15");
+	}
+}
+/*
+ * Ensures that renaming an enum that contain an enum constant with a body doesn't throw a ClassCastExeption.
+ * (regression test for bug 83593 Rename of enum type does not update constructor / throws ClassCastException)
+ */
+public void testRenameEnum2() throws CoreException {
+	try {
+		createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile(
+			"/P15/En.java",
+			"public enum En {\n" +
+			"  CONST() {\n" +
+			"  }\n" +
+			"}"
+		);
+		ICompilationUnit enumCU = getCompilationUnit("/P15/En.java");
+		enumCU.rename("OtherEnum.java", false, null);
+		ICompilationUnit renamedCu = getCompilationUnit("/P15/OtherEnum.java");
+		assertSourceEquals(
+			"Unexpected source after rename",
+			"public enum OtherEnum {\n" +
+			"  CONST() {\n" +
 			"  }\n" +
 			"}",
 			renamedCu.getSource()

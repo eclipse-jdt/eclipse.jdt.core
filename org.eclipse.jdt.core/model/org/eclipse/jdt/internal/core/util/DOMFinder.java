@@ -33,10 +33,6 @@ import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 
-/*
- * Search a given AST for the ASTNote corresponding to a Java element.
- * Optionally resolve its binding.
- */
 public class DOMFinder extends ASTVisitor {
 	
 	public ASTNode foundNode = null;
@@ -86,8 +82,19 @@ public class DOMFinder extends ASTVisitor {
 	}
 	
 	public boolean visit(AnonymousClassDeclaration node) {
-		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node.getParent();
-		if (found(node, classInstanceCreation.getType()) && this.resolveBinding)
+		ASTNode name;
+		ASTNode parent = node.getParent();
+		switch (parent.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION:
+				name = ((ClassInstanceCreation) parent).getType();
+				break;
+			case ASTNode.ENUM_CONSTANT_DECLARATION:
+				name = ((EnumConstantDeclaration) parent).getName();
+				break;
+			default:
+				return true;
+		}
+		if (found(node, name) && this.resolveBinding)
 			this.foundBinding = node.resolveBinding();
 		return true;
 	}
