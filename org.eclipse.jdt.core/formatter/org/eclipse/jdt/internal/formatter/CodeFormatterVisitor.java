@@ -3394,40 +3394,46 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.indent();
 		}
 		final Statement[] statements = switchStatement.statements;
+		boolean wasACase = false;
+		boolean wasAStatement = false;
 		if (statements != null) {
 			int statementsLength = statements.length;
-			boolean wasACase = false;
-			boolean wasAStatement = false;
 			for (int i = 0; i < statementsLength; i++) {
 				final Statement statement = statements[i];
 				if (statement instanceof CaseStatement) {
+					if ((wasACase && this.preferences.indent_switchstatements_compare_to_cases) 
+						|| (wasAStatement && this.preferences.indent_switchstatements_compare_to_cases)) {
+						this.scribe.unIndent();
+					}
 					statement.traverse(this, scope);
 					wasACase = true;
 					wasAStatement = false;
-				} else if (statement instanceof BreakStatement) {
-					if (wasAStatement && this.preferences.indent_switchstatements_compare_to_cases) {
+					if (this.preferences.indent_switchstatements_compare_to_cases) {
 						this.scribe.indent();
 					}
-					if (wasACase && this.preferences.indent_breaks_compare_to_cases) {
-						this.scribe.indent();
+				} else if (statement instanceof BreakStatement) {
+					if (this.preferences.indent_breaks_compare_to_cases) {
+						if (wasAStatement && !this.preferences.indent_switchstatements_compare_to_cases) {
+							this.scribe.indent();
+						}
+					} else {
+						if (wasAStatement) {
+							if (this.preferences.indent_switchstatements_compare_to_cases) {
+								this.scribe.unIndent();
+							}
+						}
+						if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
+							this.scribe.unIndent();
+						}
 					}
 					statement.traverse(this, scope);
-					if (wasACase && this.preferences.indent_breaks_compare_to_cases) {
-						this.scribe.unIndent();
-					}
-					if (wasAStatement && this.preferences.indent_switchstatements_compare_to_cases) {
+					if (this.preferences.indent_breaks_compare_to_cases) {
 						this.scribe.unIndent();
 					}
 					wasACase = false;
 					wasAStatement = false;
 				} else {
-					if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
-						this.scribe.indent();
-					}
 					statement.traverse(this, scope);
-					if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
-						this.scribe.unIndent();
-					}
 					wasAStatement = true;
 					wasACase = false;
 				}
@@ -3471,6 +3477,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		}		
 		
+		if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
+			this.scribe.unIndent();
+		}
 		if (preferences.indent_switchstatements_compare_to_switch) {
 			this.scribe.unIndent();
 		}
