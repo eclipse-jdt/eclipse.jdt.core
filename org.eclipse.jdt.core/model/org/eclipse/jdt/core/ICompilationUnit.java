@@ -465,8 +465,9 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  * The boolean argument allows to force problem detection even if the
  * working copy is already consistent.
  * </p><p>
- * When problem are computed, the contents of the working copies owned by the given
- * owner take precedence over their original compilation units. 
+ * This functionality allows to specify a working copy owner which is used during problem detection.
+ * All references contained in the working copy are resolved against other units; for which corresponding owned
+ * working copies are taking precedence over their original compilation units. 
  * </p><p>
  * Compilation problems found in the new contents are notified through the
  * <code>IProblemRequestor</code> interface which was passed at
