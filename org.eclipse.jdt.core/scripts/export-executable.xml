@@ -32,6 +32,8 @@
             <arg value='--verbose'/>
             <arg value='-c'/>
             <targetfile/>
+            <arg value="-d"/>
+            <srcfile/>
             <fileset dir='${work}' includes='**/*.properties' />
             <mapper type='regexp' from='^(.*)\.(.*)$' to=' --resource \0 \0 -o \1.o'/>
         </apply>
