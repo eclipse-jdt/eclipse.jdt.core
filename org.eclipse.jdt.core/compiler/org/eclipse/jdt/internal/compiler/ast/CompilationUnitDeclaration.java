@@ -89,7 +89,6 @@ public class CompilationUnitDeclaration
 	 * to compiler structures.
 	 */
 	public void cleanUp() {
-
 		if (this.types != null) {
 			for (int i = 0, max = this.types.length; i < max; i++) {
 				cleanUp(this.types[i]);
