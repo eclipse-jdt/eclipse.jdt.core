@@ -1287,10 +1287,18 @@ public abstract class Scope
 
 		while (currentIndex < typeNameLength) {
 			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
-			if (!typeBinding.isValidBinding())
+			if (!typeBinding.isValidBinding()) {
+				if (typeBinding instanceof ProblemReferenceBinding) {
+					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) typeBinding;
+					return new ProblemReferenceBinding(
+						CharOperation.subarray(compoundName, 0, currentIndex),
+						problemBinding.original,
+						typeBinding.problemId());
+				}
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					typeBinding.problemId());
+			}
 		}
 		return typeBinding;
 	}
