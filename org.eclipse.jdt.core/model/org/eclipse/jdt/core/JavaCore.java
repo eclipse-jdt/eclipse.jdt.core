@@ -2659,13 +2659,16 @@ public final class JavaCore extends Plugin {
 	 * within the root will have children of type <code>IClassFile</code>.
 	 * <p>
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
-	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
+	 * The target JAR can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root) or externally to the workspace (absolute path in the file system).
+	 * The target root folder can only be defined internally to the workspace (absolute path relative
+	 * to the workspace root). To use a binary folder external to the workspace, it must first be
+	 * linked (see IFolder#createLink(...)).
 	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "c:/classes/" </code> - reference to an external binary folder</li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
@@ -2697,13 +2700,16 @@ public final class JavaCore extends Plugin {
 	 * will have children of type <code>IClassFile</code>.
 	 * <p>
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
-	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
+	 * The target JAR can either be defined internally to the workspace (absolute path relative
 	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 *	<p>
+	 * The target root folder can only be defined internally to the workspace (absolute path relative
+	 * to the workspace root). To use a binary folder external to the workspace, it must first be
+	 * linked (see IFolder#createLink(...)).
+	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "c:/classes/" </code> - reference to an external binary folder</li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
