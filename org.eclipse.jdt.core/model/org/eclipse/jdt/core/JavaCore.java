@@ -1020,7 +1020,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    "org.eclipse.jdt.core.compiler.problem.todoTag".
 	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.todo"
 	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"warning"
+	 *     - default:			"ignore"
 	 * 
 	 * COMPILER / Define the TODO task tag
 	 *    Define the tag used to recognize TODO tasks in comments.
