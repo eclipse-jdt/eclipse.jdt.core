@@ -15,13 +15,14 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 
 import java.io.*;
 import java.util.zip.ZipFile;
 
-public class PotentialMatch {
+public class MatchingOpenable {
 	private static char[] EMPTY_FILE_NAME = new char[0];
 	private MatchLocator locator;
 	public IResource resource;
@@ -29,10 +30,28 @@ public class PotentialMatch {
 	private CompilationUnitDeclaration parsedUnit;
 	private MatchSet matchSet;
 	public boolean shouldResolve = true;
-public PotentialMatch(MatchLocator locator, IResource resource, Openable openable) {
+public MatchingOpenable(MatchLocator locator, IResource resource, Openable openable) {
 	this.locator = locator;
 	this.resource = resource;
 	this.openable = openable;
+}
+public MatchingOpenable(
+		MatchLocator locator, 
+		IResource resource, 
+		Openable openable,
+		CompilationUnitDeclaration parsedUnit,
+		MatchSet matchSet) {
+	this.locator = locator;
+	this.resource = resource;
+	this.openable = openable;
+	this.parsedUnit = parsedUnit;
+	this.matchSet = matchSet;
+}
+public void buildTypeBindings() {
+	
+	// if a parsed unit exits, its bindings have already been built
+	if (this.parsedUnit != null) return;
+	
 	if (openable instanceof CompilationUnit) {
 		this.buildTypeBindings(this.getSource());
 	} else if (openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
@@ -68,18 +87,6 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 		} catch (JavaModelException e) {
 		}
 	}
-}
-public PotentialMatch(
-		MatchLocator locator, 
-		IResource resource, 
-		Openable openable,
-		CompilationUnitDeclaration parsedUnit,
-		MatchSet matchSet) {
-	this.locator = locator;
-	this.resource = resource;
-	this.openable = openable;
-	this.parsedUnit = parsedUnit;
-	this.matchSet = matchSet;
 }
 private void buildTypeBindings(final char[] source) {
 	// get qualified name
@@ -144,6 +151,19 @@ public char[] getSource() {
 		return null;
 	}
 }
+public boolean hasAlreadyDefinedType() {
+	if (this.parsedUnit == null) return false;
+	CompilationResult result = this.parsedUnit.compilationResult;
+	if (result == null) return false;
+	for (int i = 0; i < result.problemCount; i++) {
+		IProblem problem = result.problems[i];
+		if (problem.getID() == ProblemIrritants.DuplicateTypes) {
+			return true;
+		}
+	}
+	return false;
+}
+
 public void locateMatches() throws CoreException {
 	if (this.openable instanceof CompilationUnit) {
 		this.locateMatchesInCompilationUnit(this.getSource());

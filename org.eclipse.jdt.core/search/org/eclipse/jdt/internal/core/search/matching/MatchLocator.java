@@ -56,10 +56,10 @@ public class MatchLocator implements ITypeRequestor {
 	public MatchLocatorParser parser;
 	public LookupEnvironment lookupEnvironment;
 	public HashtableOfObject parsedUnits;
-	private PotentialMatch[] potentialMatches;
-	private int potentialMatchesIndex;
-	private int potentialMatchesLength;
+	private MatchingOpenableSet matchingOpenables;
+	private MatchingOpenable currentMatchingOpenable;
 	public HandleFactory handleFactory;
+
 	public MatchLocator(
 		SearchPattern pattern,
 		int detailLevel,
@@ -170,15 +170,15 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			if (!this.parser.matchSet.isEmpty() 
 					&& unit != null) {
 				// potential matches were found while initializing the search pattern
-				// from the lookup environment: add them in the list of potential matches
-				PotentialMatch potentialMatch = 
-					new PotentialMatch(
+				// from the lookup environment: add the corresponding openable in the list
+				MatchingOpenable matchingOpenable = 
+					new MatchingOpenable(
 						this,
 						file, 
 						(CompilationUnit)compilationUnit, 
 						unit,
 						this.parser.matchSet);
-				this.addPotentialMatch(potentialMatch);
+				this.matchingOpenables.add(matchingOpenable);
 			}
 			this.parser.matchSet = null;
 		} else {
@@ -336,16 +336,9 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		return parent.getType(new String(simpleTypeName));
 	}
 	protected IResource getCurrentResource() {
-		return this.potentialMatches[this.potentialMatchesIndex].resource;
+		return this.currentMatchingOpenable.resource;
 	}
-	protected boolean includesPotentialMatch(PotentialMatch potentialMatch) {
-		for (int i = 0; i < this.potentialMatchesLength; i++) {
-			if (potentialMatch.openable.equals(this.potentialMatches[i].openable)) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 	protected Scanner getScanner() {
 		return this.parser == null ? null : this.parser.scanner;
 	}
@@ -364,8 +357,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		double increment = 100.0 / length;
 		double totalWork = 0;
 		int lastProgress = 0;
-		this.potentialMatches = new PotentialMatch[10];
-		this.potentialMatchesLength = 0;
+		this.matchingOpenables = new MatchingOpenableSet();
 		for (int i = 0; i < length; i++) {
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
@@ -389,7 +381,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 					// locate matches in previous project
 					if (previousJavaProject != null) {
 						try {
-							this.locateMatches();
+							this.locateMatches(previousJavaProject);
 						} catch (JavaModelException e) {
 							if (e.getException() instanceof CoreException) {
 								throw e;
@@ -397,7 +389,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 								// problem with classpath in this project -> skip it
 							}
 						}
-						this.potentialMatchesLength = 0;
+						this.matchingOpenables = new MatchingOpenableSet();
 					}
 
 					// create parser for this project
@@ -409,8 +401,8 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 				continue;
 			}
 
-			// add potential match
-			this.addPotentialMatch(resource, openable);
+			// add matching openable
+			this.addMatchingOpenable(resource, openable);
 
 			if (monitor != null) {
 				totalWork = totalWork + increment;
@@ -423,7 +415,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		// last project
 		if (previousJavaProject != null) {
 			try {
-				this.locateMatches();
+				this.locateMatches(previousJavaProject);
 			} catch (JavaModelException e) {
 				if (e.getException() instanceof CoreException) {
 					throw e;
@@ -431,7 +423,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 					// problem with classpath in last project -> skip it
 				}
 			}
-			this.potentialMatchesLength = 0;
+			this.matchingOpenables = new MatchingOpenableSet();
 		}
 
 	}
@@ -475,9 +467,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 								if (resource == null) { // case of a file in an external jar
 									resource = javaProject.getProject();
 								}
-								this.potentialMatchesIndex = 0;
-								this.potentialMatches =
-									new PotentialMatch[] { new PotentialMatch(this, resource, null)};
+								this.currentMatchingOpenable = new MatchingOpenable(this, resource, null);
 								try {
 									this.report(-1, -2, pkg, IJavaSearchResultCollector.EXACT_MATCH);
 								} catch (CoreException e) {
@@ -585,7 +575,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		Scanner scanner = parser.scanner;
 		int nameSourceStart = methodDeclaration.sourceStart;
 		scanner.setSourceBuffer(
-			this.potentialMatches[this.potentialMatchesIndex].getSource());
+			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(nameSourceStart, methodDeclaration.sourceEnd);
 		try {
 			scanner.getNextToken();
@@ -629,7 +619,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
 		scanner.setSourceBuffer(
-			this.potentialMatches[this.potentialMatchesIndex].getSource());
+			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(sourceStart, sourceEnd);
 
 		int refSourceStart = -1, refSourceEnd = -1;
@@ -695,7 +685,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
 		scanner.setSourceBuffer(
-			this.potentialMatches[this.potentialMatchesIndex].getSource());
+			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(sourceStart, sourceEnd);
 
 		int refSourceStart = -1, refSourceEnd = -1;
@@ -855,37 +845,25 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			accuracy);
 	}
 
-private PotentialMatch newPotentialMatch(IResource resource, Openable openable) {
-	PotentialMatch potentialMatch;
+private MatchingOpenable newMatchingOpenable(IResource resource, Openable openable) {
+	MatchingOpenable matchingOpenable;
 	try {
-		potentialMatch = new PotentialMatch(this, resource, openable);
+		matchingOpenable = new MatchingOpenable(this, resource, openable);
 	} catch (AbortCompilation e) {
-		// problem with class path: ignore this potential match
+		// problem with class path: ignore this matching openable
 		return null;
 	}
-	return potentialMatch;
+	return matchingOpenable;
 }
-private void addPotentialMatch(IResource resource, Openable openable)
+private void addMatchingOpenable(IResource resource, Openable openable)
 		throws JavaModelException {
 		
-	PotentialMatch potentialMatch = this.newPotentialMatch(resource, openable);
-	if (potentialMatch != null) {
-		this.addPotentialMatch(potentialMatch);
+	MatchingOpenable matchingOpenable = this.newMatchingOpenable(resource, openable);
+	if (matchingOpenable != null) {
+		this.matchingOpenables.add(matchingOpenable);
 	}
 }
-private void addPotentialMatch(PotentialMatch potentialMatch) {
-	if (this.potentialMatchesLength == this.potentialMatches.length) {
-		System.arraycopy(
-			this.potentialMatches,
-			0,
-			this.potentialMatches = new PotentialMatch[this.potentialMatchesLength * 2],
-			0,
-			this.potentialMatchesLength);
-	}
-	if (!this.includesPotentialMatch(potentialMatch)) {
-		this.potentialMatches[this.potentialMatchesLength++] = potentialMatch;
-	}
-}
+
 
 	/**
 	 * Create a new parser for the given project, as well as a lookup environment.
@@ -909,13 +887,20 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 	}
 
 	protected Openable getCurrentOpenable() {
-		return this.potentialMatches[this.potentialMatchesIndex].openable;
+		return this.currentMatchingOpenable.openable;
 	}
 
 	/**
-	 * Locate the matches amongst the potential matches.
+	 * Locate the matches amongst the matching openables.
 	 */
-	private void locateMatches() throws JavaModelException {
+	private void locateMatches(JavaProject previousJavaProject) throws JavaModelException {
+		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(previousJavaProject.getPackageFragmentRoots());
+	
+		// binding creation
+		for (int i = 0, length = openables.length; i < length; i++) { 
+			openables[i].buildTypeBindings();
+		}
+
 		// binding resolution
 		boolean shouldResolve = true;
 		try {
@@ -926,25 +911,27 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 			shouldResolve = false;
 		}
 
-		// potential match resolution
-		for (this.potentialMatchesIndex = 0;
-			this.potentialMatchesIndex < this.potentialMatchesLength;
-			this.potentialMatchesIndex++) {
-				
+		// matching openable resolution
+		for (int i = 0, length = openables.length; i < length; i++) { 
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 			
 			try {
-				PotentialMatch potentialMatch =
-					this.potentialMatches[this.potentialMatchesIndex];
-				potentialMatch.shouldResolve = shouldResolve;
-				potentialMatch.locateMatches();
-				potentialMatch.reset();
+				this.currentMatchingOpenable = openables[i];
+				
+				// skip type has it is hidden so not visible
+				if (this.currentMatchingOpenable.hasAlreadyDefinedType()) {
+					continue;
+				}
+				
+				this.currentMatchingOpenable.shouldResolve = shouldResolve;
+				this.currentMatchingOpenable.locateMatches();
+				this.currentMatchingOpenable.reset();
 			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
-				// continue and try next potential match
+				// continue and try next matching openable
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
 					throw (JavaModelException) e;
@@ -953,5 +940,6 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 				}
 			}
 		}
+		this.currentMatchingOpenable = null;
 	}
 }
