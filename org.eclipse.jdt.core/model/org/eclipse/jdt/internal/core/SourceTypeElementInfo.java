@@ -266,7 +266,7 @@ public char[][] getTypeParameterSignatures() {
 					int boundsLength = bounds.length;
 					char[][] boundSignatures = new char[boundsLength][];
 					for (int j = 0; j < boundsLength; j++) {
-						boundSignatures[i] = Signature.createCharArrayTypeSignature(bounds[j], false);
+						boundSignatures[j] = Signature.createCharArrayTypeSignature(bounds[j], false);
 					}
 					this.typeParameterSignatures[i] = Signature.createTypeParameterSignature(this.typeParameterNames[i], boundSignatures);
 				}
