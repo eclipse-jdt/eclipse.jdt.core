@@ -715,7 +715,7 @@ public void testOperations() throws JavaModelException {
 	// move to same location as original cu
 	ex= false;
 	try {
-		this.copy.move((IPackageFragment)this.cu.getParent(), null, "someName.java", false, null);
+		this.copy.move(this.cu.getParent(), null, "someName.java", false, null);
 	} catch (JavaModelException jme) {
 		assertTrue("Incorrect status code for attempting to move working copy", jme.getStatus().getCode() == IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 		ex= true;
