@@ -679,7 +679,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 			TypeVariableBinding[] typeVariables = genericType.typeVariables();
 			if (rank < typeVariables.length)
 				return createWildcard(typeVariables[rank], genericType.getPackage(), Wildcard.UNBOUND);
-			throw new AbortCompilation(
+			throw new AbortCompilation(// TODO (kent) we need a problem to log against this unit (btw it raises NPEs)
 				this.unitBeingCompleted.compilationResult,
 				new IncompatibleClassChangeError(Util.bind("error.missingBound", enclosingType.debugName(), genericType.debugName()))); //$NON-NLS-1$
 		default :
