@@ -56,8 +56,7 @@ public class JavaModel extends Openable implements IJavaModel {
 	 * Note this cache is kept for the whole session.
 	 */ 
 	public static HashSet existingExternalFiles = new HashSet();
-	public static HashMap externalTimeStamps = new HashMap();
-	
+		
 /**
  * Constructs a new Java Model on the given workspace.
  *
@@ -112,6 +111,13 @@ public IJavaProject findJavaProject(IProject project) {
 	} catch (JavaModelException e) {
 	}
 	return null;
+}
+
+/**
+ * Flushes the cache of external files known to be existing.
+ */
+public static void flushExternalFileCache() {
+	existingExternalFiles = new HashSet();
 }
 
 /**
@@ -407,6 +413,13 @@ public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
 }
 
 /**
+ * @see IJavaModel#refreshExternalJARs(IProgressMonitor)
+ */
+public void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException {
+	getJavaModelManager().deltaProcessor.checkExternalJarChanges(monitor);
+}
+
+/**
  * @see IJavaModel
  */
 public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[] renamings, boolean force, IProgressMonitor monitor) throws JavaModelException {
@@ -449,13 +462,6 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	}
 }
 
-
-/**
- * Flushes the cache of external files known to be existing.
- */
-public static void flushExternalFileCache() {
-	existingExternalFiles = new HashSet();
-}
 /**
  * Helper method - returns the targeted item (IResource if internal or java.io.File if external), 
  * or null if unbound
@@ -478,29 +484,16 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 		return externalFile;
 	} else if (existingExternalFiles.contains(externalFile)) {
 		return externalFile;
-	} else {
+	} else { 
 		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 			System.out.println("(" + Thread.currentThread() + ") [JavaModel.getTarget(...)] Checking existence of " + path.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (externalFile.exists()) {
 			// cache external file
 			existingExternalFiles.add(externalFile);
-			
-			// check timestamp to figure if JAR has changed in some way
-			Long oldTimestamp =(Long) externalTimeStamps.get(path);
-			long newTimeStamp = externalFile.lastModified() + externalFile.length();
-			if (oldTimestamp != null){
-				if (oldTimestamp.longValue() != newTimeStamp){
-					// jar has changed - need to refresh
-					JavaModelManager.getJavaModelManager().deltaProcessor.externalJarPathsToUpdate.add(path);
-				}
-			}
-			
-			externalTimeStamps.put(path, new Long(newTimeStamp));
 			return externalFile;
 		}
 	}
-
 	return null;	
 }
 }

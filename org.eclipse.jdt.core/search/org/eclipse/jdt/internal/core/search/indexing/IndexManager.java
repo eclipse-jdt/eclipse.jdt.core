@@ -33,6 +33,8 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.DeltaProcessor;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -421,6 +423,9 @@ public void indexLibrary(IPath path, IProject referingProject) {
 	if (target instanceof IFile) {
 		request = new AddJarFileToIndex((IFile)target, this, referingProject.getName());
 	} else if (target instanceof java.io.File) {
+		// remember the timestamp of this library
+		long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+		JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));
 		request = new AddJarFileToIndex(path, this, referingProject.getName());
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
