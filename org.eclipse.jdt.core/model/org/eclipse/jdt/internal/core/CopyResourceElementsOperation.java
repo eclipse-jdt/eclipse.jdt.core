@@ -599,6 +599,13 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			
 		if (element.isReadOnly() && (isRename() || isMove()))
 			error(IJavaModelStatusConstants.READ_ONLY, element);
+
+		IResource resource = element.getResource();
+		if (resource instanceof IFolder) {
+			if (resource.isLinked()) {
+				error(JavaModelStatus.INVALID_RESOURCE, element);
+			}
+		}
 	
 		int elementType = element.getElementType();
 	

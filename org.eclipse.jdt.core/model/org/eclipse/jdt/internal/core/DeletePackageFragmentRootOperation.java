@@ -141,6 +141,13 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		if (root == null || !root.exists()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, root);
 		}
+
+		IResource resource = root.getResource();
+		if (resource instanceof IFolder) {
+			if (resource.isLinked()) {
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE, root);
+			}
+		}
 		return JavaModelStatus.VERIFIED_OK;
 	}
 
