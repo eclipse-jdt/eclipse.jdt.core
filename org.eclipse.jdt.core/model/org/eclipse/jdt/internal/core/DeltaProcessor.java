@@ -1032,28 +1032,6 @@ public class DeltaProcessor {
 					project = (JavaProject) element.getJavaProject();
 					this.projectCachesToReset.add(project);						
 
-					// add subpackages
-					if (delta != null){
-						PackageFragmentRoot root = element.getPackageFragmentRoot();
-						String name = element.getElementName();
-						IResourceDelta[] children = delta.getAffectedChildren();
-						for (int i = 0, length = children.length; i < length; i++) {
-							IResourceDelta child = children[i];
-							IResource resource = child.getResource();
-							if (resource instanceof IFolder) {
-								String folderName = resource.getName();
-								if (Util.isValidFolderNameForPackage(folderName)) {
-									String subpkgName = 
-										name.length() == 0 ? 
-											folderName : 
-											name + "." + folderName; //$NON-NLS-1$
-									Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
-									this.updateIndex(subpkg, child);
-									this.elementAdded(subpkg, child, rootInfo);
-								}
-							}
-						}
-					}
 					break;
 			}
 		}
@@ -1151,28 +1129,6 @@ public class DeltaProcessor {
 				project = (JavaProject) element.getJavaProject();
 				this.projectCachesToReset.add(project);
 
-				// remove subpackages
-				if (delta != null){
-					PackageFragmentRoot root = element.getPackageFragmentRoot();
-					String name = element.getElementName();
-					IResourceDelta[] children = delta.getAffectedChildren();
-					for (int i = 0, length = children.length; i < length; i++) {
-						IResourceDelta child = children[i];
-						IResource resource = child.getResource();
-						if (resource instanceof IFolder) {
-							String folderName = resource.getName();
-							if (Util.isValidFolderNameForPackage(folderName)) {
-								String subpkgName = 
-									name.length() == 0 ? 
-										folderName : 
-										name + "." + folderName; //$NON-NLS-1$
-								Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
-								this.updateIndex(subpkg, child);
-								this.elementRemoved(subpkg, child, rootInfo);
-							}
-						}
-					}
-				}
 				break;
 		}
 	}
@@ -2272,7 +2228,7 @@ public class DeltaProcessor {
 				}
 				updateIndex(element, delta);
 				elementAdded(element, delta, rootInfo);
-				return false;
+				return elementType == IJavaElement.PACKAGE_FRAGMENT;
 			case IResourceDelta.REMOVED :
 				deltaRes = delta.getResource();
 				element = createElement(deltaRes, elementType, rootInfo);
@@ -2288,7 +2244,7 @@ public class DeltaProcessor {
 					// reset the corresponding project built state, since cannot reuse if added back
 					this.manager.setLastBuiltState((IProject)deltaRes, null /*no state*/);
 				}
-				return false;
+				return elementType == IJavaElement.PACKAGE_FRAGMENT;
 			case IResourceDelta.CHANGED :
 				int flags = delta.getFlags();
 				if ((flags & IResourceDelta.CONTENT) != 0) {
