@@ -2536,8 +2536,8 @@ public void invalidType(ASTNode location, TypeBinding type) {
 	}
 	this.handle(
 		id,
-		new String[] {new String(type.readableName()) },	
-		new String[] {new String(type.shortReadableName())},
+		new String[] {new String(type.leafComponentType().readableName()) },	
+		new String[] {new String(type.leafComponentType().shortReadableName())},
 		location.sourceStart,
 		end);
 }

@@ -216,7 +216,7 @@ public void test0005() {
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
 		"	         ^^^^^\n" + 
-		"Z[] cannot be resolved to a type\n" + 
+		"Z cannot be resolved to a type\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -226,7 +226,7 @@ public void test0005() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
 		"	         ^^^^^\n" + 
-		"Z[] cannot be resolved to a type\n" + 
+		"Z cannot be resolved to a type\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(
@@ -641,7 +641,7 @@ public void test0016() {
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
 		"	         ^^^^^\n" + 
-		"Z[] cannot be resolved to a type\n" + 
+		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	#\n" + 
@@ -656,7 +656,7 @@ public void test0016() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	void foo(Z ... arg){\n" + 
 		"	         ^^^^^\n" + 
-		"Z[] cannot be resolved to a type\n" + 
+		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	#\n" + 
