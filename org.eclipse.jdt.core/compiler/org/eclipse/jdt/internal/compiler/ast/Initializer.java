@@ -111,6 +111,6 @@ public class Initializer extends FieldDeclaration {
 		if (visitor.visit(this, scope)) {
 			block.traverse(visitor, scope);
 		}
-		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
 	}
 }
