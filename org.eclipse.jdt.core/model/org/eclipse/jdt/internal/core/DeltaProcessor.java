@@ -1266,6 +1266,16 @@ public class DeltaProcessor {
 		return false;
 	}
 	/*
+	 * Returns whether the given element is a primary compilation unit in working copy mode.
+	 */
+	private boolean isPrimaryWorkingCopy(IJavaElement element, int elementType) {
+		if (elementType == IJavaElement.COMPILATION_UNIT) {
+			CompilationUnit cu = (CompilationUnit)element;
+			return cu.isPrimary() && cu.isWorkingCopy();
+		}
+		return false;
+	}
+	/*
 	 * Returns whether the given resource is in one of the given output folders and if
 	 * it is filtered out from this output folder.
 	 */
@@ -2097,25 +2107,33 @@ public class DeltaProcessor {
 		switch (delta.getKind()) {
 			case IResourceDelta.ADDED :
 				IResource deltaRes = delta.getResource();
-				element = this.createElement(deltaRes, elementType, rootInfo);
+				element = createElement(deltaRes, elementType, rootInfo);
 				if (element == null) {
 					// resource might be containing shared roots (see bug 19058)
 					this.state.updateRoots(deltaRes.getFullPath(), delta, this);
 					return false;
 				}
-				this.updateIndex(element, delta);
-				this.elementAdded(element, delta, rootInfo);
+				updateIndex(element, delta);
+				
+				// filter out changes to primary compilation unit in working copy mode
+				if (!isPrimaryWorkingCopy(element, elementType)) {
+					elementAdded(element, delta, rootInfo);
+				}
 				return false;
 			case IResourceDelta.REMOVED :
 				deltaRes = delta.getResource();
-				element = this.createElement(deltaRes, elementType, rootInfo);
+				element = createElement(deltaRes, elementType, rootInfo);
 				if (element == null) {
 					// resource might be containing shared roots (see bug 19058)
 					this.state.updateRoots(deltaRes.getFullPath(), delta, this);
 					return false;
 				}
-				this.updateIndex(element, delta);
-				this.elementRemoved(element, delta, rootInfo);
+				updateIndex(element, delta);
+
+				// filter out changes to primary compilation unit in working copy mode
+				if (!isPrimaryWorkingCopy(element, elementType)) {
+					elementRemoved(element, delta, rootInfo);
+				}
 	
 				if (deltaRes.getType() == IResource.PROJECT){			
 					// reset the corresponding project built state, since cannot reuse if added back
@@ -2126,15 +2144,19 @@ public class DeltaProcessor {
 				int flags = delta.getFlags();
 				if ((flags & IResourceDelta.CONTENT) != 0) {
 					// content has changed
-					element = this.createElement(delta.getResource(), elementType, rootInfo);
+					element = createElement(delta.getResource(), elementType, rootInfo);
 					if (element == null) return false;
-					this.updateIndex(element, delta);
-					this.contentChanged(element);
+					updateIndex(element, delta);
+					
+					// filter out changes to primary compilation unit in working copy mode
+					if (!isPrimaryWorkingCopy(element, elementType)) {
+						contentChanged(element);
+					}
 				} else if (elementType == IJavaElement.JAVA_PROJECT) {
 					if ((flags & IResourceDelta.OPEN) != 0) {
 						// project has been opened or closed
 						IProject res = (IProject)delta.getResource();
-						element = this.createElement(res, elementType, rootInfo);
+						element = createElement(res, elementType, rootInfo);
 						if (element == null) {
 							// resource might be containing shared roots (see bug 19058)
 							this.state.updateRoots(res.getFullPath(), delta, this);
@@ -2142,14 +2164,14 @@ public class DeltaProcessor {
 						}
 						if (res.isOpen()) {
 							if (JavaProject.hasJavaNature(res)) {
-								this.elementAdded(element, delta, rootInfo);
+								elementAdded(element, delta, rootInfo);
 								this.manager.indexManager.indexAll(res);
 							}
 						} else {
 							JavaModel javaModel = this.manager.getJavaModel();
 							boolean wasJavaProject = javaModel.findJavaProject(res) != null;
 							if (wasJavaProject) {
-								this.elementRemoved(element, delta, rootInfo);
+								elementRemoved(element, delta, rootInfo);
 								this.manager.indexManager.discardJobs(element.getElementName());
 								this.manager.indexManager.removeIndexFamily(res.getFullPath());
 							}
@@ -2166,10 +2188,10 @@ public class DeltaProcessor {
 							element = this.createElement(res, elementType, rootInfo);
 							if (element == null) return false; // note its resources are still visible as roots to other projects
 							if (isJavaProject) {
-								this.elementAdded(element, delta, rootInfo);
+								elementAdded(element, delta, rootInfo);
 								this.manager.indexManager.indexAll(res);
 							} else {
-								this.elementRemoved(element, delta, rootInfo);
+								elementRemoved(element, delta, rootInfo);
 								this.manager.indexManager.discardJobs(element.getElementName());
 								this.manager.indexManager.removeIndexFamily(res.getFullPath());
 								// reset the corresponding project built state, since cannot reuse if added back

@@ -162,6 +162,79 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensures that no delta is issued when a primary working copy that is consistent is commited.
+	 * (regression test for bug 40782 Primary working copies: unnecessary deltas on save)
+	 */
+	public void testDeltaCommitPrimaryWorkingCopy1() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			workingCopy.getBuffer().setContents(
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}"
+			);
+			workingCopy.makeConsistent(null);
+			
+			startDeltas();
+			workingCopy.commitWorkingCopy(false, null);
+			assertDeltas(
+				"Unexpected delta",
+				""
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+	}
+
+	/*
+	 * Ensures that the correct delta is issued when a primary working copy that is not consistent is commited.
+	 */
+	public void testDeltaCommitPrimaryWorkingCopy2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile(
+				"P/Y.java",
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			workingCopy.getBuffer().setContents(
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}"
+			);
+			
+			startDeltas();
+			workingCopy.commitWorkingCopy(false, null);
+			assertDeltas(
+				"Unexpected delta",
+				"Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"	foo()[+]: {}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("P/Y.java");
+		}
+	}
+
+	/*
 	 * Ensures that the correct delta is issued when a non-primary working copy is created.
 	 */
 	public void testDeltaCreateNonPrimaryWorkingCopy() throws CoreException {
