@@ -39,6 +39,7 @@ public void setUpSuite() throws Exception {
 		"  protected Object f2;\n" +
 		"  private X f3;\n" +
 		"  java.lang.String f4;\n" +
+		"  int f5, f6, f7;\n" +
 		"  public class Inner {\n" +
 		"    class InnerInner {\n" +
 		"    }\n" +
@@ -142,6 +143,50 @@ public void testGetElementAt2() throws JavaModelException {
 		"p2.*",
 		 element.getElementName());
 }
+/*
+ * Ensures that the right field is returnd in a muti-declaration field.
+ */
+public void testGetElementAt3() throws JavaModelException {
+	int fieldPos = this.cu.getSource().indexOf("f5");
+	IJavaElement element= this.cu.getElementAt(fieldPos);
+	assertEquals(
+		"Unexpected field found",
+		this.cu.getType("X").getField("f5"),
+		 element);
+}
+/*
+ * Ensures that the right field is returnd in a muti-declaration field.
+ */
+public void testGetElementAt4() throws JavaModelException {
+	int fieldPos = this.cu.getSource().indexOf("f6");
+	IJavaElement element= this.cu.getElementAt(fieldPos);
+	assertEquals(
+		"Unexpected field found",
+		this.cu.getType("X").getField("f6"),
+		 element);
+}
+/*
+ * Ensures that the right field is returnd in a muti-declaration field.
+ */
+public void testGetElementAt5() throws JavaModelException {
+	int fieldPos = this.cu.getSource().indexOf("f7");
+	IJavaElement element= this.cu.getElementAt(fieldPos);
+	assertEquals(
+		"Unexpected field found",
+		this.cu.getType("X").getField("f7"),
+		 element);
+}
+/*
+ * Ensures that the right field is returnd in a muti-declaration field.
+ */
+public void testGetElementAt6() throws JavaModelException {
+	int fieldPos = this.cu.getSource().indexOf("int f5");
+	IJavaElement element= this.cu.getElementAt(fieldPos);
+	assertEquals(
+		"Unexpected field found",
+		this.cu.getType("X").getField("f5"),
+		 element);
+}
 /**
  * Ensures that correct number of fields with the correct names, modifiers, signatures
  * and declaring types exist in a type.
@@ -149,9 +194,9 @@ public void testGetElementAt2() throws JavaModelException {
 public void testGetFields() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IField[] fields= type.getFields();
-	String[] fieldNames = new String[] {"f1", "f2", "f3", "f4"};
-	String[] flags = new String[] {"public", "protected", "private", ""};
-	String[] signatures = new String[] {"I", "QObject;", "QX;", "Qjava.lang.String;"};
+	String[] fieldNames = new String[] {"f1", "f2", "f3", "f4", "f5", "f6", "f7"};
+	String[] flags = new String[] {"public", "protected", "private", "", "", "", ""};
+	String[] signatures = new String[] {"I", "QObject;", "QX;", "Qjava.lang.String;", "I", "I", "I"};
 	assertEquals("Wrong number of fields returned",  fieldNames.length, fields.length);
 	for (int i = 0; i < fields.length; i++) {
 		assertEquals("Incorrect name for the " + i + " field", fieldNames[i], fields[i].getElementName());
