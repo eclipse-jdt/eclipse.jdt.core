@@ -625,6 +625,40 @@ public void testDeletePackageFragment2() throws CoreException {
 		deleteProject("P1");
 	}
 }
+/*
+ * Ensures that deleting a default package where prj=src removes its compilation units.
+ * (regression test for bug 39926 deleting default package (not in source folder) does nothing)
+ */
+public void testDeletePackageFragment3() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IFile file = createFile(
+			"P1/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragment pkg = getPackage("P1");
+		IProject project = getProject("P1");
+		ICompilationUnit cu = getCompilationUnit("P1/X.java");
+
+		startDeltas();
+		pkg.delete(false, null);
+		assertTrue("Project should still exist", project.exists());
+		assertTrue("Fragment should still exist", pkg.exists());
+		assertTrue("File should no longer exist", !file.exists());
+		assertTrue("Compilation unit should no longer exist", !cu.exists());
+		assertDeltas(
+			"Unexpected delta",
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.java[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
 /**
  * Ensures that a field can be deleted if it contains syntax errors
  */

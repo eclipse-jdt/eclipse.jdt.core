@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -42,7 +43,7 @@ protected DeleteResourceElementsOperation(IJavaElement[] elementsToProcess, bool
 private void deletePackageFragment(IPackageFragment frag)
 	throws JavaModelException {
 	IResource res = frag.getResource();
-	if (res != null && res.getType() == IResource.FOLDER) {
+	if (res != null) {
 		// collect the children to remove
 		IJavaElement[] childrenOfInterest = frag.getChildren();
 		if (childrenOfInterest.length > 0) {
@@ -69,14 +70,14 @@ private void deletePackageFragment(IPackageFragment frag)
 		// delete remaining files in this package (.class file in the case where Proj=src=bin)
 		IResource[] remainingFiles;
 		try {
-			remainingFiles = ((IFolder) res).members();
+			remainingFiles = ((IContainer) res).members();
 		} catch (CoreException ce) {
 			throw new JavaModelException(ce);
 		}
 		boolean isEmpty = true;
 		for (int i = 0, length = remainingFiles.length; i < length; i++) {
 			IResource file = remainingFiles[i];
-			if (file instanceof IFile) {
+			if (file instanceof IFile && Util.isClassFileName(file.getFileExtension())) {
 				this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 			} else {
 				isEmpty = false;
