@@ -6,7 +6,8 @@
  * http://www.eclipse.org/legal/cpl-v05.html
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     IBM Corporation  - initial API and implementation
+ * 	   Genady Beriozkin - added support for reporting assignment with no effect
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
