@@ -1317,6 +1317,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			.append(Util.bind("classformat.invokeinterfacemethod")) //$NON-NLS-1$
 			.append(returnDeclaringClassName(constantInterfaceMethodref))
 			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
+			.append(constantInterfaceMethodref.getMethodName())
 			.append(constantInterfaceMethodref.getMethodDescriptor())
 			.append(Util.bind("classformat.invokeinterfacemethodclose")); //$NON-NLS-1$
 		writeNewLine();
