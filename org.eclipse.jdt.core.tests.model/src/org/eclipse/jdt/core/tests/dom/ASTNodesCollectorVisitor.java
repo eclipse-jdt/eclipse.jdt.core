@@ -287,6 +287,8 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(QualifiedName node) {
 		add(node);
+		node.setQualifier(node.getAST().newSimpleName("sss"));
+		node.setName(node.getAST().newSimpleName("sss"));
 	}
 
 	/**
