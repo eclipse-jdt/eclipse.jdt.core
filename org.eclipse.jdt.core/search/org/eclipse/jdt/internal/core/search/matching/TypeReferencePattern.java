@@ -443,7 +443,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				int lastIndex = tokens.length-1;
 				switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 					case BindingIds.FIELD : // reading a field
-						typeBinding = ((FieldBinding)binding).declaringClass;
+						typeBinding = nameRef.actualReceiverType;
 						// no valid match amongst fields
 						int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
 						lastIndex -= otherBindingsCount + 1;
