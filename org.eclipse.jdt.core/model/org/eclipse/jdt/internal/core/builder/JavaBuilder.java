@@ -386,27 +386,26 @@ private void initializeBuilder() throws CoreException {
 
 private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
-	if (abortBuilds) {
-		IMarker[] markers =
-			currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
-		if (markers.length > 0) {
-			if (DEBUG)
-				System.out.println("Aborted build because project is involved in a cycle or has classpath problems"); //$NON-NLS-1$
+	if (!abortBuilds) return true;
 
-			// remove all existing class files... causes all dependent projects to do the same
-			new BatchImageBuilder(this).scrubOutputFolder();
+	IMarker[] markers =
+		currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+	if (markers.length > 0) {
+		if (DEBUG)
+			System.out.println("Aborted build because project is involved in a cycle or has classpath problems"); //$NON-NLS-1$
 
-			removeProblemsFor(currentProject); // make this the only problem for this project
-			return false;
-		}
+		// remove all existing class files... causes all dependent projects to do the same
+		new BatchImageBuilder(this).scrubOutputFolder();
+
+		removeProblemsFor(currentProject); // make this the only problem for this project
+		return false;
 	}
 
-	// make sure all prereq projects have valid build states
+	// make sure all prereq projects have valid build states... only when aborting builds since projects in cycles do not have build states
 	IProject[] requiredProjects = getRequiredProjects(false);
 	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
 		IProject p = requiredProjects[i];
 		if (getLastState(p) == null)  {
-			if (!abortBuilds && !p.isOpen()) continue next; // skip closed projects if we're not aborting builds because of classpath problems
 			if (DEBUG)
 				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
 					+ " was not built"); //$NON-NLS-1$
