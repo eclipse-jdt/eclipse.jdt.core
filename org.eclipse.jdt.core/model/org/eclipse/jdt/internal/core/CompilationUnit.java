@@ -10,20 +10,10 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.IDOMNode;
@@ -547,6 +537,11 @@ public IType[] getTypes() throws JavaModelException {
 	IType[] array= new IType[list.size()];
 	list.toArray(array);
 	return array;
+}
+/*
+ * TODO: Remove when UI has updated to use getResource() for cu outside classpath */
+public IResource getUnderlyingResource() throws JavaModelException {
+	return getResource();
 }
 /**
  * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
