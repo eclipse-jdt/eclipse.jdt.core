@@ -5,6 +5,8 @@ package org.eclipse.jdt.internal.compiler.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
@@ -389,7 +391,11 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 				if (optionValue.length() == 0){
 					this.defaultEncoding = null;
 				} else {
-					this.defaultEncoding = optionValue;
+					try { // ignore unsupported encoding
+						new InputStreamReader(new ByteArrayInputStream(new byte[0]), optionValue);
+						this.defaultEncoding = optionValue;
+					} catch(UnsupportedEncodingException e){
+					}
 				}
 				continue;
 			}

@@ -1215,6 +1215,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "compute", "ignore" }
 	 *     - default:				"ignore"	 
 	 * 
+	 * JAVACORE / Default Source Encoding Format
+	 *    Select the encoding format for compiled sources.
+	 *     - option id:				"org.eclipse.jdt.core.encoding"
+	 *     - possible values:	{ "" for platform default, or any of the supported sun.
+	 *     - default:				""
+	 * 
 	 *	FORMATTER / Inserting New Line Before Opening Brace
 	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
 	 *    is inserted
@@ -1322,6 +1328,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		// JavaCore settings
 		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.encoding", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	
 		// Formatter settings
 		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.openingBrace", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
