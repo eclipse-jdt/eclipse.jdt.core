@@ -121,10 +121,13 @@ STREAM: 2.0
   ===============================================================================
   1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences
   1GKYXK5: ITPJUI:WIN2000 - usability: parameter hints 
-
+  1GEV78E: ITPJUI:WIN2000 - Code assist: private superclass methods show up, but others don't
+  1GDKKTS: ITPJUI:WINNT - CodeCompletion - import assist shows invisible types
+  1G7317O: ITPJCORE:WIN2000 - DCR - CodeAssist - code assist shows invisible members
+  
 
 **********************************************************************************
-*** STABLE CONTENT (2.0 STREAM, v_203_03) ****************************************
+*** STABLE CONTENT (2.0 STREAM, v_203_06) ****************************************
 **********************************************************************************
   
   What's new in this drop
@@ -191,6 +194,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GL4F3J: ITPJCORE:WINNT - Completion on declaration should also provide thrown exceptions
   1GL11J6: ITPJCORE:WIN2000 - search: missing field references (nested types)
   1GL12XE: ITPJCORE:WIN2000 - search: missing field references in inner class
   1GL0X82: ITPJCORE:ALL - ClassCastException setting args on class file
