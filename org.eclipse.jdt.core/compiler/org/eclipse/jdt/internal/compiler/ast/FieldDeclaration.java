@@ -63,17 +63,28 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		}
 		// cannot define static non-constant field inside nested class
 		if (this.binding != null
-			&& this.binding.isValidBinding()
-			&& this.binding.isStatic()
-			&& !this.binding.isConstantValue()
-			&& this.binding.declaringClass.isNestedType()
-			&& this.binding.declaringClass.isClass()
-			&& !this.binding.declaringClass.isStatic()) {
+				&& this.binding.isValidBinding()
+				&& this.binding.isStatic()
+				&& !this.binding.isConstantValue()
+				&& this.binding.declaringClass.isNestedType()
+				&& this.binding.declaringClass.isClass()
+				&& !this.binding.declaringClass.isStatic()) {
 			initializationScope.problemReporter().unexpectedStaticModifierForField(
 				(SourceTypeBinding) this.binding.declaringClass,
 				this);
 		}
 
+		checkAnnotationField: {
+			if (!this.binding.declaringClass.isAnnotationType())
+				break checkAnnotationField;
+			if (this.initialization != null) {
+				if (this.binding.type.isArrayType() && (this.initialization instanceof ArrayInitializer))
+					break checkAnnotationField;
+				if (this.initialization.constant != NotAConstant)
+					break checkAnnotationField;
+			}
+			initializationScope.problemReporter().annotationFieldNeedConstantInitialization(this);
+		}
 		if (this.initialization != null) {
 			flowInfo =
 				this.initialization

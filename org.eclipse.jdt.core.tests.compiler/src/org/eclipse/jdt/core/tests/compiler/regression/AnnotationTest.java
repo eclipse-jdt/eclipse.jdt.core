@@ -929,4 +929,69 @@ public class AnnotationTest extends AbstractComparisonTest {
 			false,
 			null);
 	}
+	
+	// check annotation member modifiers
+	public void test039() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	native int id() default 0;\n" + 
+				"}"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	native int id() default 0;\n" + 
+		"	           ^^\n" + 
+		"Illegal modifier for the annotation attribute X.id; only public & abstract are permitted\n" + 
+		"----------\n");
+	}		
+	
+	// check annotation array member initializer
+	public void test040() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	int[] tab;\n" + 
+				"	int[] value();\n" + 
+				"}\n" 
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int[] tab;\n" + 
+		"	      ^^^\n" + 
+		"The annotation field X.tab must be initialized with a constant expression\n" + 
+		"----------\n");
+	}		
+	
+	// check annotation array member initializer
+	public void test041() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	int[] tab = value();\n" + 
+				"	int[] value();\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int[] tab = value();\n" + 
+		"	      ^^^\n" + 
+		"The annotation field X.tab must be initialized with a constant expression\n" + 
+		"----------\n");
+	}			
+	
+	// check annotation array member initializer
+	public void test042() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" + 
+				"	int[] tab = { 0 , \"aaa\".length() };\n" + 
+				"}\n"
+			},
+		"");
+	}		
 }

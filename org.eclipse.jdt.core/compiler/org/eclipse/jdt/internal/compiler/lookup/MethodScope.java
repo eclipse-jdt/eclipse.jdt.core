@@ -135,7 +135,7 @@ public class MethodScope extends BlockScope {
 		if ((methodBinding.declaringClass.modifiers & AccInterface) != 0) {
 			if ((realModifiers & ~(AccPublic | AccAbstract)) != 0) {
 				if ((methodBinding.declaringClass.modifiers & AccAnnotation) != 0) {
-					problemReporter().illegalModifierForAnnotationMethod((AbstractMethodDeclaration) referenceContext);
+					problemReporter().illegalModifierForAnnotationMember((AbstractMethodDeclaration) referenceContext);
 				} else {
 					problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) referenceContext);
 				}

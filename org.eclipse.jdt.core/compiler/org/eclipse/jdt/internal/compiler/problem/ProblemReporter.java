@@ -135,8 +135,17 @@ public void annotationCircularity(TypeBinding sourceType, TypeBinding otherType,
 			reference.sourceStart,
 			reference.sourceEnd);
 }
+public void annotationFieldNeedConstantInitialization(FieldDeclaration fieldDecl) {
+	String str = new String(fieldDecl.name);
+	this.handle(
+		IProblem.AnnotationFieldNeedConstantInitialization,
+		new String[] { new String(fieldDecl.binding.declaringClass.readableName()), str },
+		new String[] { new String(fieldDecl.binding.declaringClass.shortReadableName()), str},
+		fieldDecl.sourceStart,
+		fieldDecl.sourceEnd);
+}
 public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[] name, Expression value) {
-	String str = 	new String(name);
+	String str = new String(name);
 	this.handle(
 		IProblem.AnnotationValueMustBeClassLiteral,
 		new String[] { new String(annotationType.readableName()), str },
@@ -1469,14 +1478,14 @@ public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDe
 	this.handle(
 		IProblem.IllegalModifierForInterfaceMethod,
 		new String[] {
+			new String(methodDecl.binding.declaringClass.readableName()),
 			new String(methodDecl.selector),
 			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, false),
-			new String(methodDecl.binding.declaringClass.readableName()),
 		},		
 		new String[] {
+			new String(methodDecl.binding.declaringClass.shortReadableName()),
 			new String(methodDecl.selector),
 			typesAsString(methodDecl.binding.isVarargs(), methodDecl.binding.parameters, true),
-			new String(methodDecl.binding.declaringClass.shortReadableName()),
 		},	
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
@@ -1526,16 +1535,16 @@ public void illegalModifierForAnnotationMemberType(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalModifierForAnnotationMethod(AbstractMethodDeclaration methodDecl) {
+public void illegalModifierForAnnotationMember(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.IllegalModifierForAnnotationMethod,
 		new String[] {
-			new String(methodDecl.selector),
 			new String(methodDecl.binding.declaringClass.readableName()),
+			new String(methodDecl.selector),
 		},		
 		new String[] {
-			new String(methodDecl.selector),
 			new String(methodDecl.binding.declaringClass.shortReadableName()),
+			new String(methodDecl.selector),
 		},		
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);

@@ -991,6 +991,9 @@ public interface IProblem {
 	int AnnotationValueMustBeClassLiteral = Internal + 612;
 	/** @since 3.1 */
 	int AnnotationValueMustBeConstant = Internal + 613;
+	/** @since 3.1 */
+	int AnnotationFieldNeedConstantInitialization = Internal + 614;
+
 
 	/**
 	 * Corrupted binaries
