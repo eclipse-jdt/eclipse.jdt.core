@@ -84,14 +84,14 @@ void buildFieldsAndMethods() {
 }
 void buildTypeBindings() {
 	topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
-	if (referenceContext.compilationResult.compilationUnit != null) {
+/*	if (referenceContext.compilationResult.compilationUnit != null) {
 		char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
 		if (expectedPackageName != null && !CharOperation.equals(currentPackageName, expectedPackageName)) {
 			problemReporter().packageIsNotExpectedPackage(referenceContext);
 			currentPackageName = expectedPackageName.length == 0 ? NoCharChar : expectedPackageName;
 		}
 	}
-	if (currentPackageName == NoCharChar) {
+*/	if (currentPackageName == NoCharChar) {
 		if ((fPackage = environment.defaultPackage) == null) {
 			problemReporter().mustSpecifyPackage(referenceContext);
 			return;
