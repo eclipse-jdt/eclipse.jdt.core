@@ -71,7 +71,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 								proposal.getRelevance());
 					} else {
 						this.requestor.acceptInterface(
-								proposal.getPackageName(),
+								proposal.getPackageName() == null ? CharOperation.NO_CHAR : proposal.getPackageName(),
 								proposal.getTypeName(),
 								proposal.getCompletion(),
 								proposal.getFlags() & ~Flags.AccInterface,
@@ -91,7 +91,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 								proposal.getRelevance());
 					} else {
 						this.requestor.acceptClass(
-								proposal.getPackageName(),
+								proposal.getPackageName() == null ? CharOperation.NO_CHAR : proposal.getPackageName(),
 								proposal.getTypeName(),
 								proposal.getCompletion(),
 								proposal.getFlags(),
@@ -117,11 +117,11 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 					);
 				} else {
 					this.requestor.acceptField(
-							proposal.getDeclarationPackageName(),
-							proposal.getDeclarationTypeName(),
+							proposal.getDeclarationPackageName() == null ? CharOperation.NO_CHAR : proposal.getDeclarationPackageName(),
+							proposal.getDeclarationTypeName() == null ? CharOperation.NO_CHAR : proposal.getDeclarationTypeName(),
 							proposal.getName(),
-							proposal.getPackageName(),
-							proposal.getTypeName(),
+							proposal.getPackageName() == null ? CharOperation.NO_CHAR : proposal.getPackageName(),
+							proposal.getTypeName() == null ? CharOperation.NO_CHAR : proposal.getTypeName(),
 							proposal.getCompletion(),
 							proposal.getFlags(),
 							proposal.getReplaceStart(),
@@ -138,7 +138,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							proposal.getName(),
 							getParameterPackages(proposal.getSignature()),
 							getParameterTypes(proposal.getSignature()),
-							proposal.findParameterNames(null),
+							proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
 							Signature.getSignatureQualifier(Signature.getReturnType(proposal.getSignature())),
 							Signature.getSignatureSimpleName(Signature.getReturnType(proposal.getSignature())),
 							proposal.getCompletion(),
@@ -149,14 +149,14 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 						);
 				} else {
 					this.requestor.acceptMethod(
-							proposal.getDeclarationPackageName(),
-							proposal.getDeclarationTypeName(),
+							proposal.getDeclarationPackageName() == null ? CharOperation.NO_CHAR : proposal.getDeclarationPackageName(),
+							proposal.getDeclarationTypeName() == null ? CharOperation.NO_CHAR : proposal.getDeclarationTypeName(),
 							proposal.getName(),
 							proposal.getParameterPackageNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterPackageNames(),
 							proposal.getParameterTypeNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterTypeNames(),
-							proposal.findParameterNames(null),
-							proposal.getPackageName(),
-							proposal.getTypeName(),
+							proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
+							proposal.getPackageName() == null ? CharOperation.NO_CHAR : proposal.getPackageName(),
+							proposal.getTypeName() == null ? CharOperation.NO_CHAR : proposal.getTypeName(),
 							proposal.getCompletion(),
 							proposal.getFlags(),
 							proposal.getReplaceStart(),
@@ -173,7 +173,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							proposal.getName(),
 							getParameterPackages(proposal.getSignature()),
 							getParameterTypes(proposal.getSignature()),
-							proposal.findParameterNames(null),
+							proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
 							Signature.getSignatureQualifier(Signature.getReturnType(proposal.getSignature())),
 							Signature.getSignatureSimpleName(Signature.getReturnType(proposal.getSignature())),
 							proposal.getCompletion(),
@@ -189,7 +189,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							proposal.getName(),
 							proposal.getParameterPackageNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterPackageNames(),
 							proposal.getParameterTypeNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterTypeNames(),
-							proposal.findParameterNames(null),
+							proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
 							proposal.getPackageName(),
 							proposal.getTypeName(),
 							proposal.getCompletion(),
@@ -207,7 +207,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							Signature.getSignatureSimpleName(proposal.getDeclarationSignature()), 
 							getParameterPackages(proposal.getSignature()),
 							getParameterTypes(proposal.getSignature()),
-							proposal.findParameterNames(null),
+							proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
 							proposal.getCompletion(),
 							proposal.getFlags(),
 							proposal.getReplaceStart(),
@@ -220,7 +220,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 						proposal.getDeclarationTypeName(),
 						proposal.getParameterPackageNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterPackageNames(),
 						proposal.getParameterTypeNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterTypeNames(),
-						proposal.findParameterNames(null),
+						proposal.findParameterNames(null) == null ? CharOperation.NO_CHAR_CHAR : proposal.findParameterNames(null),
 						proposal.getCompletion(),
 						proposal.getFlags(),
 						proposal.getReplaceStart(),
@@ -251,7 +251,7 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 				} else {
 					this.requestor.acceptLocalVariable(
 							proposal.getCompletion(),
-							proposal.getPackageName(),
+							proposal.getPackageName() == null ? CharOperation.NO_CHAR : proposal.getPackageName(),
 							proposal.getTypeName(),
 							proposal.getFlags(),
 							proposal.getReplaceStart(),
