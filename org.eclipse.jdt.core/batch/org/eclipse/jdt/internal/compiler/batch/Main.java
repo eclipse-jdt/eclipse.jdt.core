@@ -44,7 +44,6 @@ private boolean noWarn = false;
 	int globalErrorsCount;
 	int globalWarningsCount;
 
-	String versionID = "0.201.1"; //$NON-NLS-1$
 	private static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
 
 	int exportedClassFilesCounter;
@@ -570,7 +569,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	 * Standalone options
 	 */
 	if (versionIDRequired) {
-		out.println(Main.bind("configure.version",this.versionID)); //$NON-NLS-1$
+		out.println(Main.bind("configure.version",Main.bind("compiler.version"))); //$NON-NLS-1$
 		out.println();
 		proceed = false;
 		return;
@@ -791,7 +790,7 @@ protected void performCompilation() throws InvalidInputException {
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
-	out.println(Main.bind("misc.usage",this.versionID)); //$NON-NLS-1$
+	out.println(Main.bind("misc.usage",Main.bind("compiler.version"))); //$NON-NLS-1$
 	out.flush();
 }
 
