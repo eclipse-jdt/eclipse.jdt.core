@@ -388,8 +388,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	ReferenceBinding resolve() {
-		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
-		boolean isDifferent = resolvedType != this.type;
+	    TypeBinding originalType = this.type;
+		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(originalType, this.environment, null, 0);
+		boolean isDifferent = resolvedType != originalType;
 		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
 		int argLength = originalArguments.length;
 		for (int i = 0; i < argLength; i++) {
