@@ -97,7 +97,11 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	if (requestor == null) {
 		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
 	}
-	if (position < -1 || position > getBuffer().getLength()) {
+	IBuffer buffer = getBuffer();
+	if (buffer == null) {
+		return;
+	}
+	if (position < -1 || position > buffer.getLength()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 	SearchableEnvironment environment = (SearchableEnvironment) ((JavaProject) getJavaProject()).getSearchableNameEnvironment();
@@ -125,7 +129,11 @@ protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 		return;
 	}
 	
-	int end= getBuffer().getLength();
+	IBuffer buffer = getBuffer();
+	if (buffer == null) {
+		return;
+	}
+	int end= buffer.getLength();
 	if (offset < 0 || length < 0 || offset + length > end ) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
