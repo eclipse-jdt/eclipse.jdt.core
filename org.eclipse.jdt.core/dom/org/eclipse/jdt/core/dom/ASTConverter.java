@@ -903,7 +903,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(classInstanceCreation, expression);
 			recordNodes(anonymousClassDeclaration, expression);
-			classInstanceCreation.resolveTypeBinding();
+			anonymousClassDeclaration.resolveBinding();
 		}
 		return classInstanceCreation;
 	}

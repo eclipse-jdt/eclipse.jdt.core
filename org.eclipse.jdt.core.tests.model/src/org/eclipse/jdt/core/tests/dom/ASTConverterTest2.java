@@ -39,7 +39,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0467"));			
+		suite.addTest(new ASTConverterTest2("test0433"));			
+		suite.addTest(new ASTConverterTest2("test0450"));	
 		return suite;
 	}
 	/**
@@ -183,6 +184,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0406() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0406", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
@@ -206,6 +208,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Wrong type", binding2.getKind() == IBinding.METHOD); //$NON-NLS-1$
 		IMethodBinding methodBinding = (IMethodBinding) binding2;
 		assertEquals("Wrong name", "foo", methodBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertNull("Got a declaring node in the unit", unit.findDeclaringNode(methodBinding));
 	}	
 
 	/**
@@ -216,6 +219,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		CompilationUnit unit = (CompilationUnit) result;
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -232,6 +236,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		simpleName = methodDeclaration.getName();
 		IBinding binding2 = simpleName.resolveBinding();
 		assertNull("Got a binding2", binding2); //$NON-NLS-1$
+		
+		ASTNode astNode = unit.findDeclaringNode(methodBinding);
+		assertNotNull("No declaring node", astNode);
+		assertEquals("wrong declaring node", methodDeclaration, astNode);
 	}
 	
 	/**
@@ -957,6 +965,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong binding", IBinding.VARIABLE, binding.getKind());
 		IVariableBinding variableBinding = superFieldAccess.resolveFieldBinding();
 		assertTrue("Different binding", binding == variableBinding);
+		ASTNode astNode = unit.findDeclaringNode(variableBinding);
+		assertTrue("Wrong type", astNode.getNodeType() == ASTNode.SINGLE_VARIABLE_DECLARATION || astNode.getNodeType() == ASTNode.VARIABLE_DECLARATION_FRAGMENT || astNode.getNodeType() == ASTNode.VARIABLE_DECLARATION_EXPRESSION);
 	}
 
 	/**
@@ -1340,6 +1350,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNull("Got a key", typeBinding.getKey());
 		astNode = unit.findDeclaringNode(typeBinding.getKey());
 		assertNull("Got a declaring node", astNode);
+		
+		ITypeBinding typeBinding3 = classInstanceCreation.resolveTypeBinding();
+		assertEquals("wrong binding", typeBinding, typeBinding3);
 		
 		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 2, bodyDeclarations.size());
@@ -1790,6 +1803,44 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			JavaCore.setOptions(options);
 		}
 	}	
-	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=36772
+	 */
+	public void test0468() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0468", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("No node", node);
+		assertTrue("not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertTrue("not a field access", expression.getNodeType() == ASTNode.FIELD_ACCESS); //$NON-NLS-1$
+		FieldAccess fieldAccess = (FieldAccess) expression;
+		Name name = fieldAccess.getName();
+		IBinding binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("Wrong name", "i", variableBinding.getName());
+		assertEquals("Wrong type", "int", variableBinding.getType().getName());
+		IVariableBinding variableBinding2 = fieldAccess.resolveFieldBinding();
+		assertTrue("different binding", variableBinding == variableBinding2);
+		
+		node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull("No node", node);
+		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		
+		ASTNode foundNode = compilationUnit.findDeclaringNode(variableBinding);
+		assertNotNull("No found node", foundNode);
+		assertEquals("wrong node", fragment, foundNode);
+	}		
 }
 

@@ -417,16 +417,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (oldNode instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) oldNode;
 			if (messageSend != null) {
-				IMethodBinding methodBinding = this.getMethodBinding(messageSend.binding);
-				if (methodBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(methodBinding, method);
-				String key = methodBinding.getKey();
-				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, method);				
-				}
-				return methodBinding;
+				return this.getMethodBinding(messageSend.binding);
 			}
 		}
 		return null;
@@ -439,16 +430,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (oldNode instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) oldNode;
 			if (messageSend != null) {
-				IMethodBinding methodBinding = this.getMethodBinding(messageSend.binding);
-				if (methodBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(methodBinding, method);
-				String key = methodBinding.getKey();
-				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, method);				
-				}
-				return methodBinding;
+				return this.getMethodBinding(messageSend.binding);
 			}
 		}
 		return null;
@@ -650,16 +632,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (oldNode instanceof FieldReference) {
 			FieldReference fieldReference = (FieldReference) oldNode;
 			if (fieldReference != null) {
-				IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
-				if (variableBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(variableBinding, fieldAccess);
-				String key = variableBinding.getKey();
-				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, fieldAccess);				
-				}
-				return variableBinding;
+				return this.getVariableBinding(fieldReference.binding);
 			}
 		}
 		return null;
@@ -673,16 +646,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (oldNode instanceof FieldReference) {
 			FieldReference fieldReference = (FieldReference) oldNode;
 			if (fieldReference != null) {
-				IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
-				if (variableBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(variableBinding, fieldAccess);
-				String key = variableBinding.getKey();
-				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, fieldAccess);				
-				}
-				return variableBinding;
+				return this.getVariableBinding(fieldReference.binding);
 			}
 		}
 		return null;
