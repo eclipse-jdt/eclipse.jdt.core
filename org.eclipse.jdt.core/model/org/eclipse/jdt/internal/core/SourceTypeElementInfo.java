@@ -285,4 +285,7 @@ protected void setSuperclassName(char[] superclassName) {
 protected void setSuperInterfaceNames(char[][] superInterfaceNames) {
 	fSuperInterfaceNames = superInterfaceNames;
 }
+public String toString() {
+	return "Info for " + fHandle.toString(); //$NON-NLS-1$
+}
 }

@@ -94,9 +94,9 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		this.searchableEnvironment.unitToLookInside =
 			(CompilationUnit) focusType.getCompilationUnit();
 
-		// set focus type on hierarchy resolver
-		char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-		//this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+		//NB: no need to set focus type on hierarchy resolver since no other type is injected
+		//    in the hierarchy resolver, thus there is no need to check that a type is 
+		//    a sub or super type of the focus type.
 
 		// resolve
 		this.hierarchyResolver.resolve(type);
