@@ -29,6 +29,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	*/
 	if (constantExpression.constant == NotAConstant) 
 		currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
+		
+	this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
 	return flowInfo;
 }
 /**
