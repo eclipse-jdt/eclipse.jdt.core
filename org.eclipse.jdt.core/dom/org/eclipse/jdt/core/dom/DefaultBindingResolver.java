@@ -275,7 +275,12 @@ class DefaultBindingResolver extends BindingResolver {
 			} else {
 				// should be an AllocationExpression
 				AllocationExpression allocationExpression = (AllocationExpression) astNode;
-				return this.getMethodBinding(allocationExpression.binding).getDeclaringClass();
+				IMethodBinding methodBinding = this.getMethodBinding(allocationExpression.binding);
+				if (methodBinding == null) {
+					return null;
+				} else {
+					return methodBinding.getDeclaringClass();
+				}
 			}
 		} else if (expression instanceof Name) {
 			IBinding binding = this.resolveName((Name) expression);
@@ -338,10 +343,20 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(operatorExpression.typeBinding);
 		} else if (expression instanceof FieldAccess) {
 			FieldReference fieldReference = (FieldReference) this.newAstToOldAst.get(expression);
-			return this.getVariableBinding(fieldReference.binding).getType();
+			IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
+			if (variableBinding == null) {
+				return null;
+			} else {
+				return variableBinding.getType();
+			}
 		} else if (expression instanceof SuperFieldAccess) {
 			FieldReference fieldReference = (FieldReference) this.newAstToOldAst.get(expression);
-			return this.getVariableBinding(fieldReference.binding).getType();
+			IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
+			if (variableBinding == null) {
+				return null;
+			} else {
+				return variableBinding.getType();
+			}
 		} else if (expression instanceof ArrayAccess) {
 			ArrayReference arrayReference = (ArrayReference) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(arrayReference.arrayElementBinding);
@@ -350,7 +365,12 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(thisReference.resolveType(this.retrieveEnclosingScope(expression)));
 		} else if (expression instanceof MethodInvocation) {
 			MessageSend messageSend = (MessageSend)  this.newAstToOldAst.get(expression);
-			return this.getMethodBinding(messageSend.binding).getReturnType();
+			IMethodBinding methodBinding = this.getMethodBinding(messageSend.binding);
+			if (methodBinding == null) {
+				return null;
+			} else {
+				return methodBinding.getReturnType();
+			}
 		} else if (expression instanceof ParenthesizedExpression) {
 			ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
 			return this.resolveExpressionType(parenthesizedExpression.getExpression());
