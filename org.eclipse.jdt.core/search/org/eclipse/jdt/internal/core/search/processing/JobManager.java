@@ -302,6 +302,8 @@ public abstract class JobManager implements Runnable {
 	 * Flush current state
 	 */
 	public void reset() {
+		if (VERBOSE)
+			JobManager.verbose("Reset"); //$NON-NLS-1$
 
 		if (thread != null) {
 			discardJobs(null); // discard all jobs

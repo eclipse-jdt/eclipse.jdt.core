@@ -52,12 +52,9 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 public class IndexManager extends JobManager implements IIndexConstants {
 	/* number of file contents in memory */
 	public static int MAX_FILES_IN_MEMORY = 0;
-	
+
 	public IWorkspace workspace;
-
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
-
-	/* indexes */
 	private Map indexes = new HashMap(5);
 
 	/* read write monitors */
@@ -68,11 +65,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	private static final CRC32 checksumCalculator = new CRC32();
 	private IPath javaPluginLocation = null;
 
-	private File savedIndexNamesFile =
-		new File(getJavaPluginWorkingLocation().append("savedIndexNames.txt").toOSString()); //$NON-NLS-1$
-
 	/* can only replace a current state if its less than the new one */
 	private SimpleLookupTable indexStates = null;
+	private File savedIndexNamesFile =
+		new File(getJavaPluginWorkingLocation().append("savedIndexNames.txt").toOSString()); //$NON-NLS-1$
 	public static Integer SAVED_STATE = new Integer(0);
 	public static Integer UPDATING_STATE = new Integer(1);
 	public static Integer UNKNOWN_STATE = new Integer(2);
@@ -84,6 +80,7 @@ public synchronized void aboutToUpdateIndex(IPath path, Integer newIndexState) {
 	String indexName = computeIndexName(path);
 	Object state = getIndexStates().get(indexName);
 	Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
+	if (currentIndexState.equals(REBUILDING_STATE)) return; // already rebuilding the index
 
 	int compare = newIndexState.compareTo(currentIndexState);
 	if (compare > 0) {
@@ -320,9 +317,10 @@ public String processName(){
 	return Util.bind("process.name"); //$NON-NLS-1$
 }
 private void rebuildIndex(String indexName, IPath path) {
-	updateIndexState(indexName, REBUILDING_STATE);
-
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+	if (target == null) return;
+
+	updateIndexState(indexName, REBUILDING_STATE);
 	IndexRequest request = null;
 	if (target instanceof IProject) {
 		request = new IndexAllProject((IProject) target, this);
@@ -375,6 +373,8 @@ public void remove(String resourceName, IPath indexedContainer){
  * This is a no-op if the index did not exist.
  */
 public synchronized void removeIndex(IPath path) {
+	if (VERBOSE)
+		JobManager.verbose("removing index " + path); //$NON-NLS-1$
 	String indexName = computeIndexName(path);
 	File indexFile = new File(indexName);
 	if (indexFile.exists())
@@ -507,6 +507,7 @@ private void updateIndexState(String indexName, Integer indexState) {
 		if (indexState.equals(indexStates.get(indexName))) return; // not changed
 		indexStates.put(indexName, indexState);
 	} else {
+		if (!indexStates.containsKey(indexName)) return; // did not exist anyway
 		indexStates.removeKey(indexName);
 	}
 
