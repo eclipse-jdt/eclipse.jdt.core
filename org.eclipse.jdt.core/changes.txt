@@ -108,6 +108,20 @@ STREAM: 2.0
 
   What's new in this drop
   ================================================================================
+
+  PRs Fixed in this Release
+  ================================================================================
+
+  PRs Closed in this Release
+  ================================================================================
+
+
+**********************************************************************************
+*** BUILD 20011108 (2.0 STREAM, v_210) *******************************************
+**********************************************************************************
+
+  What's new in this drop
+  ================================================================================
   * Project references are maintained by the JavaCore, in parallel with build path.
   * Resurrected deprecated APIs from 0.9 which were discarded previously.
   * ICodeCompletion reverted to 1.0 version, and got deprecated. Use ICompletionRequestor instead.

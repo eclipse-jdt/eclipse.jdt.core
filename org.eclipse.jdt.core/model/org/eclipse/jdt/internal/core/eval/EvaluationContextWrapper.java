@@ -288,6 +288,11 @@ public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelExc
  * @deprecated - use codeComplete(String, int, ICompletionRequestor) instead
  */
 public void codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
+
+	if (requestor == null){
+		codeComplete(codeSnippet, position, (ICompletionRequestor)null);
+		return;
+	}
 	codeComplete(
 		codeSnippet,
 		position,

@@ -453,6 +453,10 @@ public static char[] translatedName(char[] name) {
  */
 public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
 	
+	if (requestor == null){
+		codeComplete(offset, (ICompletionRequestor)null);
+		return;
+	}
 	codeComplete(
 		offset,
 		new ICompletionRequestor(){

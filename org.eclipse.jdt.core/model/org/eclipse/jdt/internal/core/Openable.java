@@ -409,6 +409,11 @@ public PackageFragmentRoot getPackageFragmentRoot() {
  * @deprecated - use codeComplete(ICompilationUnit, ICompilationUnit, int, ICompletionRequestor) instead
  */
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
+
+	if (requestor == null){
+		codeComplete(cu, unitToSkip, position, (ICompletionRequestor)null);
+		return;
+	}
 	codeComplete(
 		cu,
 		unitToSkip,
