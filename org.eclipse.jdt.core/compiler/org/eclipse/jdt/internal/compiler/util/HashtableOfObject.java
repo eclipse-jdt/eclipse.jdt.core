@@ -60,8 +60,7 @@ public final class HashtableOfObject implements Cloneable {
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
-			if (currentKey.length == keyLength
-				&& CharOperation.prefixEquals(currentKey, key))
+			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return true;
 			index = (index + 1) % keyTable.length;
 		}
@@ -74,8 +73,7 @@ public final class HashtableOfObject implements Cloneable {
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
-			if (currentKey.length == keyLength
-				&& CharOperation.prefixEquals(currentKey, key))
+			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return valueTable[index];
 			index = (index + 1) % keyTable.length;
 		}
@@ -88,8 +86,7 @@ public final class HashtableOfObject implements Cloneable {
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
-			if (currentKey.length == keyLength
-				&& CharOperation.prefixEquals(currentKey, key))
+			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 				return valueTable[index] = value;
 			index = (index + 1) % keyTable.length;
 		}
@@ -108,15 +105,14 @@ public final class HashtableOfObject implements Cloneable {
 		int keyLength = key.length;
 		char[] currentKey;
 		while ((currentKey = keyTable[index]) != null) {
-			if (currentKey.length == keyLength
-				&& CharOperation.prefixEquals(currentKey, key)) {
-					Object value = valueTable[index];
-					elementSize--;
-					keyTable[index] = null;
-					valueTable[index] = null;
-					rehash();
-					return value;
-				}
+			if (currentKey.length == keyLength && CharOperation.equals(currentKey, key)) {
+				Object value = valueTable[index];
+				elementSize--;
+				keyTable[index] = null;
+				valueTable[index] = null;
+				rehash();
+				return value;
+			}
 			index = (index + 1) % keyTable.length;
 		}
 		return null;

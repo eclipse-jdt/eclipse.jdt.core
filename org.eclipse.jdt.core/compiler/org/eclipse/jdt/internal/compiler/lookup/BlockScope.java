@@ -334,13 +334,12 @@ public class BlockScope extends Scope {
 
 	public LocalVariableBinding findVariable(char[] variable) {
 
-		int variableLength = variable.length;
+		int varLength = variable.length;
 		for (int i = 0, length = locals.length; i < length; i++) {
 			LocalVariableBinding local = locals[i];
 			if (local == null)
 				return null;
-			if (local.name.length == variableLength
-				&& CharOperation.prefixEquals(local.name, variable))
+			if (local.name.length == varLength && CharOperation.equals(local.name, variable))
 				return local;
 		}
 		return null;

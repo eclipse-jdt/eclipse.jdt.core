@@ -37,7 +37,7 @@ public boolean containsKey(char[] key) {
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = keyTable[index]) != null) {
-		if (currentKey.length == keyLength && CharOperation.prefixEquals(currentKey, key))
+		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 			return true;
 		index = (index + 1) % keyTable.length;
 	}
@@ -48,7 +48,7 @@ public PackageBinding get(char[] key) {
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = keyTable[index]) != null) {
-		if (currentKey.length == keyLength && CharOperation.prefixEquals(currentKey, key))
+		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 			return valueTable[index];
 		index = (index + 1) % keyTable.length;
 	}
@@ -59,7 +59,7 @@ public PackageBinding put(char[] key, PackageBinding value) {
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = keyTable[index]) != null) {
-		if (currentKey.length == keyLength && CharOperation.prefixEquals(currentKey, key))
+		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
 			return valueTable[index] = value;
 		index = (index + 1) % keyTable.length;
 	}

@@ -188,7 +188,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		// have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
-			if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+			if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 				foundNothing = false; // inner type lookups must know that a method with this name exists
 				if (method.parameters.length == argCount) {
 					TypeBinding[] toMatch = method.parameters;
@@ -220,9 +220,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		int fieldLength = fieldName.length;
 		for (int f = fields.length; --f >= 0;) {
 			FieldBinding field = fields[f];
-			if (field.name.length == fieldLength && CharOperation.prefixEquals(field.name, fieldName)) { // TODO (kent) why do we use prefixEquals vs. equals ?
+			if (field.name.length == fieldLength && CharOperation.equals(field.name, fieldName))
 				return field;
-			}
 		}
 		return null;
 }
@@ -247,7 +246,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 			// have resolved all arg types & return type of the methods
 			for (int m = 0, length = methods.length; m < length; m++) {
 				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 					count++;
 					lastIndex = m;
 				}
@@ -259,7 +258,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 				count = 0;
 				for (int m = 0; m <= lastIndex; m++) {
 					MethodBinding method = methods[m];
-					if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector))
+					if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector))
 						result[count++] = method;
 				}
 				return result;
