@@ -133,12 +133,18 @@ protected void executeOperation() throws JavaModelException {
 	}
 	
 	project.setOutputLocation0(fOutputLocation);
+	worked(1);
+	try {
+		project.saveClasspath();
+	} catch(JavaModelException e){
+		project.setOutputLocation0(oldLocation);
+		throw e;
+	}
+	worked(1);
+
 	if (deltaToFire) {
 		addDelta(delta);	
 	}
-	worked(1);
-	project.saveClasspath();
-	worked(1);
 
 	// loose all built state - next build will be a full one
 	JavaModelManager.getJavaModelManager().setLastBuiltState(project.getProject(), null);
