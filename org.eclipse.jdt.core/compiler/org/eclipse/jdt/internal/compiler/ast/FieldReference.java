@@ -124,12 +124,14 @@ public class FieldReference extends Reference implements InvocationSite {
 	 */
 	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
 		// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
-		FieldBinding originalBinding = this.binding.original();
-		if (originalBinding != this.binding) {
-		    // extra cast needed if method return type has type variable
-		    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
-		        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
-		    }
+		if (this.binding != null && this.binding.isValidBinding()) {
+			FieldBinding originalBinding = this.binding.original();
+			if (originalBinding != this.binding) {
+			    // extra cast needed if method return type has type variable
+			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+			        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
+			    }
+			}
 		} 	
 		super.computeConversion(scope, runtimeTimeType, compileTimeType);
 	}
