@@ -2883,38 +2883,47 @@ public void init(ClassFile targetClassFile) {
  */
 public void initializeMaxLocals(MethodBinding methodBinding) {
 
-	maxLocals = (methodBinding == null || methodBinding.isStatic()) ? 0 : 1;
+	if (methodBinding == null) {
+		this.maxLocals = 0;
+		return;
+	}
+	
+	this.maxLocals = methodBinding.isStatic() ? 0 : 1;
+	
+	// take into account enum constructor synthetic name+ordinal
+	if (methodBinding.isConstructor() && methodBinding.declaringClass.isEnum()) {
+		this.maxLocals += 2; // String and int (enum constant name+ordinal)
+	}
+	
 	// take into account the synthetic parameters
-	if (methodBinding != null) {
-		if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
-			ReferenceBinding enclosingInstanceTypes[];
-			if ((enclosingInstanceTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes()) != null) {
-				for (int i = 0, max = enclosingInstanceTypes.length; i < max; i++) {
-					maxLocals++; // an enclosingInstanceType can only be a reference binding. It cannot be
-					// LongBinding or DoubleBinding
-				}
+	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
+		ReferenceBinding enclosingInstanceTypes[];
+		if ((enclosingInstanceTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes()) != null) {
+			for (int i = 0, max = enclosingInstanceTypes.length; i < max; i++) {
+				this.maxLocals++; // an enclosingInstanceType can only be a reference binding. It cannot be
+				// LongBinding or DoubleBinding
 			}
-			SyntheticArgumentBinding syntheticArguments[];
-			if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
-				for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-					TypeBinding argType;
-					if (((argType = syntheticArguments[i].type) == LongBinding) || (argType == DoubleBinding)) {
-						maxLocals += 2;
-					} else {
-						maxLocals++;
-					}
+		}
+		SyntheticArgumentBinding syntheticArguments[];
+		if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
+			for (int i = 0, max = syntheticArguments.length; i < max; i++) {
+				TypeBinding argType;
+				if (((argType = syntheticArguments[i].type) == LongBinding) || (argType == DoubleBinding)) {
+					this.maxLocals += 2;
+				} else {
+					this.maxLocals++;
 				}
 			}
 		}
-		TypeBinding[] arguments;
-		if ((arguments = methodBinding.parameters) != null) {
-			for (int i = 0, max = arguments.length; i < max; i++) {
-				TypeBinding argType;
-				if (((argType = arguments[i]) == LongBinding) || (argType == DoubleBinding)) {
-					maxLocals += 2;
-				} else {
-					maxLocals++;
-				}
+	}
+	TypeBinding[] arguments;
+	if ((arguments = methodBinding.parameters) != null) {
+		for (int i = 0, max = arguments.length; i < max; i++) {
+			TypeBinding argType;
+			if (((argType = arguments[i]) == LongBinding) || (argType == DoubleBinding)) {
+				this.maxLocals += 2;
+			} else {
+				this.maxLocals++;
 			}
 		}
 	}

@@ -1339,6 +1339,22 @@ public class EnumTest extends AbstractComparisonTest {
 			"FIRSTSECONDTHIRD"
 		);
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78464
+	 */
+	public void test046() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"  a(1);\n" + 
+				"  X(int i) {\n" + 
+				"  }\n" + 
+				"}"
+			},
+			""
+		);
+	}	
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
