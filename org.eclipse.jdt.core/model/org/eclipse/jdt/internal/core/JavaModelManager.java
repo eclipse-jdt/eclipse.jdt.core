@@ -536,10 +536,7 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
-				String newValue = (String)event.getNewValue();
-				if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
-					recreatePersistedContainer(propertyName, newValue, false);
-				}
+				recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
 			}
 		}
 	}
@@ -1144,7 +1141,7 @@ public class JavaModelManager implements ISaveParticipant {
 				PreviousSessionVariables.put(varName, varPath);
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
-				recreatePersistedContainer(propertyName, preferences.getString(propertyName).trim(), true/*add to container values*/);
+				recreatePersistedContainer(propertyName, preferences.getString(propertyName), true/*add to container values*/);
 			}
 		}
 		// override persisted values for variables which have a registered initializer
@@ -1273,6 +1270,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public static void recreatePersistedContainer(String propertyName, String containerString, boolean addToContainerValues) {
 		int containerPrefixLength = CP_CONTAINER_PREFERENCES_PREFIX.length();
 		int index = propertyName.indexOf('|', containerPrefixLength);
+		if (containerString != null) containerString = containerString.trim();
 		if (index > 0) {
 			final String projectName = propertyName.substring(containerPrefixLength, index).trim();
 			JavaProject project = (JavaProject)getJavaModelManager().getJavaModel().getJavaProject(projectName);
