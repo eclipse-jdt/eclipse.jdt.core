@@ -1097,8 +1097,12 @@ public void rollback(ISaveContext context){
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
 		boolean hadAwaitingDeltas = !fJavaModelDeltas.isEmpty();		try {
-			// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
-			this.getJavaModel().getWorkspace().run(operation, monitor);
+			if (operation.isReadOnly()) {
+				operation.run(monitor);
+			} else {
+				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
+				this.getJavaModel().getWorkspace().run(operation, monitor);
+			}
 		} catch (CoreException ce) {
 			if (ce instanceof JavaModelException) {
 				throw (JavaModelException)ce;
