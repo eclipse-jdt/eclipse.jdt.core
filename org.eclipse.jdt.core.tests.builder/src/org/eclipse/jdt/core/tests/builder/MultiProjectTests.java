@@ -282,15 +282,19 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
-		env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-		fullBuild();
-		
-		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$//$NON-NLS-7$
-		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
-		
-		JavaCore.setOptions(options);
+		try {
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			fullBuild();
+			
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$//$NON-NLS-7$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
+			
+			JavaCore.setOptions(options);
+		} finally {
+			env.setBuildOrder(null);
+		}
 	}
 	
 	public void testCycle2() throws JavaModelException {
@@ -372,18 +376,22 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
-		env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
-		fullBuild();
-		
-		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
-		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-				new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
-		
-		JavaCore.setOptions(options);
+		try {
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			fullBuild();
+			
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemsFor(p2,new Problem[]{
+					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2),//$NON-NLS-1$ //$NON-NLS-2$
+					new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
+			
+			JavaCore.setOptions(options);
+		} finally {
+			env.setBuildOrder(null);
+		}
 	}
 	
 	public void testCycle3() throws JavaModelException {
@@ -465,34 +473,38 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
-		env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
-		fullBuild();
-		
-		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
-		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
-		
-		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"import p2.Y;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"  public void bar(Y y, int i){\n"+ //$NON-NLS-1$
-			"    y.zork();\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
-		incrementalBuild();
-		
-		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
-		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-				new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
-
-		JavaCore.setOptions(options);
+		try {
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			fullBuild();
+			
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
+			
+			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p1;\n"+ //$NON-NLS-1$
+				"import p2.Y;\n"+ //$NON-NLS-1$
+				"public class X {\n"+ //$NON-NLS-1$
+				"  public void bar(Y y, int i){\n"+ //$NON-NLS-1$
+				"    y.zork();\n"+ //$NON-NLS-1$
+				"  }\n"+ //$NON-NLS-1$
+				"}\n" //$NON-NLS-1$
+				);
+			incrementalBuild();
+			
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemsFor(p2,new Problem[]{
+					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2),//$NON-NLS-1$ //$NON-NLS-2$
+					new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
+	
+			JavaCore.setOptions(options);
+		} finally {
+			env.setBuildOrder(null);
+		}
 	}
 	
 	public void testCycle4() throws JavaModelException {
@@ -564,40 +576,44 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
-		env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
-		fullBuild();
-		
-		expectingCompilingOrder(new String[]{"p2.Y", "p3.Z", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-			new Problem("p2", "The import p1 cannot be resolved", c2),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p2", "X cannot be resolved (or is not a valid return type) for the method zork", c2),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p2", "X cannot be resolved or is not a type", c2),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p2", "The method foo() is undefined for the type Y", c2),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		expectingOnlySpecificProblemsFor(p3,new Problem[]{
-			new Problem("p3", "X cannot be resolved (or is not a valid return type) for the method foo", c3),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p3", "The import p1 cannot be resolved", c3),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p3", "A cycle was detected in the project's classpath.", p3)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-
-		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p1;\n"+ //$NON-NLS-1$
-			"import p2.Y;\n"+ //$NON-NLS-1$
-			"public class X {\n"+ //$NON-NLS-1$
-			"  public void bar(Y y){\n"+ //$NON-NLS-1$
-			"    y.zork();\n"+ //$NON-NLS-1$
-			"  }\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
-		incrementalBuild();
-		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ 
-		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));//$NON-NLS-1$ //$NON-NLS-2$
-		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
-
-		JavaCore.setOptions(options);
+		try {
+			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
+			fullBuild();
+			
+			expectingCompilingOrder(new String[]{"p2.Y", "p3.Z", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemsFor(p2,new Problem[]{
+				new Problem("p2", "The import p1 cannot be resolved", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "X cannot be resolved (or is not a valid return type) for the method zork", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "X cannot be resolved or is not a type", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "The method foo() is undefined for the type Y", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			expectingOnlySpecificProblemsFor(p3,new Problem[]{
+				new Problem("p3", "X cannot be resolved (or is not a valid return type) for the method foo", c3),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p3", "The import p1 cannot be resolved", c3),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p3", "A cycle was detected in the project's classpath.", p3)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+	
+			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p1;\n"+ //$NON-NLS-1$
+				"import p2.Y;\n"+ //$NON-NLS-1$
+				"public class X {\n"+ //$NON-NLS-1$
+				"  public void bar(Y y){\n"+ //$NON-NLS-1$
+				"    y.zork();\n"+ //$NON-NLS-1$
+				"  }\n"+ //$NON-NLS-1$
+				"}\n" //$NON-NLS-1$
+				);
+			incrementalBuild();
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ 
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));//$NON-NLS-1$ //$NON-NLS-2$
+	
+			JavaCore.setOptions(options);
+		} finally {
+			env.setBuildOrder(null);
+		}
 	}
 	
 	public void testCycle5() throws JavaModelException {
@@ -651,42 +667,46 @@ public class MultiProjectTests extends Tests {
 		// for Project2
 		env.addRequiredProject(p2, p1);
 
-		env.setBuildOrder(new String[]{"P1", "P2"});//$NON-NLS-1$ //$NON-NLS-2$
-		fullBuild();
-		
-		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ 
-		expectingOnlySpecificProblemsFor(p1,new Problem[]{
-			new Problem("p1", "The import p22 cannot be resolved", c1),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p1", "A cycle was detected in the project's classpath.", p1)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-			new Problem("p2", "The import p11 cannot be resolved", c2),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		
-		env.addClass(root1, "p11", "XX", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p11;\n"+ //$NON-NLS-1$
-			"public class XX {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
-		env.addClass(root2, "p22", "YY", //$NON-NLS-1$ //$NON-NLS-2$
-			"package p22;\n"+ //$NON-NLS-1$
-			"public class YY {\n"+ //$NON-NLS-1$
-			"}\n" //$NON-NLS-1$
-			);
+		try {
+			env.setBuildOrder(new String[]{"P1", "P2"});//$NON-NLS-1$ //$NON-NLS-2$
+			fullBuild();
 			
-		incrementalBuild();
-		
-		expectingCompilingOrder(new String[]{"p11.XX", "p22.YY", "p2.Y", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
-		expectingOnlySpecificProblemsFor(p1,new Problem[]{
-			new Problem("p1", "The import p22 is never used", c1),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p1", "A cycle was detected in the project's classpath.", p1)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-			new Problem("p2", "The import p11 is never used", c2),//$NON-NLS-1$ //$NON-NLS-2$
-			new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
-		});
-		
-		JavaCore.setOptions(options);
+			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ 
+			expectingOnlySpecificProblemsFor(p1,new Problem[]{
+				new Problem("p1", "The import p22 cannot be resolved", c1),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "A cycle was detected in the project's classpath.", p1)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			expectingOnlySpecificProblemsFor(p2,new Problem[]{
+				new Problem("p2", "The import p11 cannot be resolved", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			
+			env.addClass(root1, "p11", "XX", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p11;\n"+ //$NON-NLS-1$
+				"public class XX {\n"+ //$NON-NLS-1$
+				"}\n" //$NON-NLS-1$
+				);
+			env.addClass(root2, "p22", "YY", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p22;\n"+ //$NON-NLS-1$
+				"public class YY {\n"+ //$NON-NLS-1$
+				"}\n" //$NON-NLS-1$
+				);
+				
+			incrementalBuild();
+			
+			expectingCompilingOrder(new String[]{"p11.XX", "p22.YY", "p2.Y", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+			expectingOnlySpecificProblemsFor(p1,new Problem[]{
+				new Problem("p1", "The import p22 is never used", c1),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "A cycle was detected in the project's classpath.", p1)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			expectingOnlySpecificProblemsFor(p2,new Problem[]{
+				new Problem("p2", "The import p11 is never used", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "A cycle was detected in the project's classpath.", p2)//$NON-NLS-1$ //$NON-NLS-2$
+			});
+			
+			JavaCore.setOptions(options);
+		} finally {
+			env.setBuildOrder(null);
+		}
 	}
 }
