@@ -257,7 +257,7 @@ public static ClassFileReader classFileReader(IType type) {
 	IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 	try {
 		if (!root.isArchive())
-			return ClassFileReader.read(type.getPath().toOSString());
+			return ClassFileReader.read(type.getResource().getLocation().toOSString());
 
 		IPath zipPath = root.isExternal() ? root.getPath() : root.getResource().getLocation();
 		if (zipPath == null) return null; // location is null
