@@ -1648,8 +1648,16 @@ public class Util {
 	public static void verbose(String log) {
 		verbose(log, System.out);
 	}
-	public static void verbose(String log, PrintStream printStream) {
-		printStream.println("[" + Thread.currentThread() + "] " + log); //$NON-NLS-1$//$NON-NLS-2$
+	public static synchronized void verbose(String log, PrintStream printStream) {
+		int start = 0;
+		do {
+			int end = log.indexOf('\n', start);
+			printStream.print(Thread.currentThread());
+			printStream.print(" "); //$NON-NLS-1$
+			printStream.print(log.substring(start, end == -1 ? log.length() : end+1));
+			start = end+1;
+		} while (start != 0);
+		printStream.println();
 	}
 	/**
 	 * Writes a string to the given output stream using UTF-8 
