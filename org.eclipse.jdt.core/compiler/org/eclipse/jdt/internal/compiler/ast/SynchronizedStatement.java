@@ -73,7 +73,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// generate  the body of the synchronized block
 		ExceptionLabel anyExceptionHandler = new ExceptionLabel(codeStream, null); //'null' denotes any kind of exception
 		block.generateCode(scope, codeStream);
-		anyExceptionHandler.placeEnd();
 		Label endLabel = new Label(codeStream);
 		if (!blockExit) {
 			codeStream.load(synchroVariable);
@@ -81,6 +80,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			codeStream.goto_(endLabel);
 		}
 		// generate the body of the exception handler
+		anyExceptionHandler.placeEnd();
 		anyExceptionHandler.place();
 		codeStream.incrStackSize(1);
 		codeStream.load(synchroVariable);

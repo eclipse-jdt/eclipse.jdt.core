@@ -6,6 +6,7 @@
     <classpathentry kind="lib"
         path="/org.eclipse.core.runtime/runtime.jar" sourcepath="/org.eclipse.core.runtime/runtimesrc.zip"/>
     <classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
+    <classpathentry kind="src" path="Eclipse Java Ant Compiler"/>
     <classpathentry kind="src" path="Eclipse Java Batch Compiler"/>
     <classpathentry kind="src" path="Eclipse Java Code Assist"/>
     <classpathentry kind="src" path="Eclipse Java Compiler"/>
