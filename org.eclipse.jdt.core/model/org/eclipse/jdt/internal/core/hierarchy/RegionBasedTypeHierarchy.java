@@ -137,14 +137,14 @@ protected void removeType(IType type) {
 	IType superclass = (IType)this.classToSuperclass.remove(type);
 	if (superclass != null) {
 		TypeVector types = (TypeVector)this.typeToSubtypes.get(superclass);
-		types.remove(type);
+		if (types != null) types.remove(type);
 	}
 	IType[] superinterfaces = (IType[])this.typeToSuperInterfaces.remove(type);
 	if (superinterfaces != null) {
 		for (int i = 0, length = superinterfaces.length; i < length; i++) {
 			IType superinterface = superinterfaces[i];
 			TypeVector types = (TypeVector)this.typeToSubtypes.get(superinterface);
-			types.remove(type);
+			if (types != null) types.remove(type);
 		}
 	}
 }
