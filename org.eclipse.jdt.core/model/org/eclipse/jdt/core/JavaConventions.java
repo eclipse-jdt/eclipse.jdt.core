@@ -170,6 +170,9 @@ public final class JavaConventions {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"), null); //$NON-NLS-1$
 		}
+		if (!Util.isJavaFileName(name)) {
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
+		}
 		String identifier;
 		int index;
 		index = name.lastIndexOf('.');
@@ -180,9 +183,6 @@ public final class JavaConventions {
 		IStatus status = validateIdentifier(identifier);
 		if (!status.isOK()) {
 			return status;
-		}
-		if (!Util.isJavaFileName(name)) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 		}
 		status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
 		if (!status.isOK()) {
@@ -212,6 +212,9 @@ public final class JavaConventions {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.nullName"), null); //$NON-NLS-1$
 		}
+		if (!Util.isClassFileName(name)) {
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
+		}
 		String identifier;
 		int index;
 		index = name.lastIndexOf('.');
@@ -222,9 +225,6 @@ public final class JavaConventions {
 		IStatus status = validateIdentifier(identifier);
 		if (!status.isOK()) {
 			return status;
-		}
-		if (!Util.isClassFileName(name)) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
 		}
 		status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
 		if (!status.isOK()) {
