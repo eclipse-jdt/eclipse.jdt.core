@@ -91,11 +91,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0555"));
+		suite.addTest(new ASTConverterTest2("test0556"));
+		suite.addTest(new ASTConverterTest2("test0557"));
 		return suite;
 	}
 	/**
@@ -4900,5 +4901,55 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IVariableBinding variableBinding = fields[0];
 		Object constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant value", constantValue);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=62463
+	 */
+	public void test0556() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0556", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not an method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		checkSourceRange(expression2, "(aa.bar())", source);
+		SimpleName simpleName = methodInvocation.getName();
+		checkSourceRange(simpleName, "size", source);
+		checkSourceRange(expression, "(aa.bar()).size()", source);
+		checkSourceRange(expressionStatement, "(aa.bar()).size();", source);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=62463
+	 */
+	public void test0557() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0557", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		final IProblem[] problems = unit.getProblems();
+		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not an method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		Expression expression2 = methodInvocation.getExpression();
+		checkSourceRange(expression2, "(aa.bar())", source);
+		SimpleName simpleName = methodInvocation.getName();
+		checkSourceRange(simpleName, "get", source);
+		checkSourceRange(expression, "(aa.bar()).get(0)", source);
+		checkSourceRange(expressionStatement, "(aa.bar()).get(0);", source);
 	}
 }

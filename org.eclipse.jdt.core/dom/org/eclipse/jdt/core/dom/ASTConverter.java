@@ -1727,13 +1727,18 @@ class ASTConverter {
 				}
 			}
 			Expression qualifier = null;
-			if (expression.receiver instanceof MessageSend) {
-				qualifier = convert((MessageSend) expression.receiver);
+			org.eclipse.jdt.internal.compiler.ast.Expression receiver = expression.receiver;
+			if (receiver instanceof MessageSend) {
+				if ((receiver.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) != 0) {
+					qualifier = convertToParenthesizedExpression(receiver);
+				} else {
+					qualifier = convert((MessageSend) receiver);
+				}
 			} else {
-				qualifier = convert(expression.receiver);
+				qualifier = convert(receiver);
 			}
 			if (qualifier instanceof Name && this.resolveBindings) {
-				recordNodes(qualifier, expression.receiver);
+				recordNodes(qualifier, receiver);
 			}
 			methodInvocation.setExpression(qualifier);
 			if (qualifier != null) {
