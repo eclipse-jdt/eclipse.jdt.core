@@ -6,6 +6,8 @@ package org.eclipse.jdt.internal.core;
  */
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.DOMFactory;
@@ -15,7 +17,8 @@ import java.io.*;
 
 /**
  * <p>This operation creates a compilation unit (CU).
- *	The operation will fail if the CU already exists.
+ * If the CU doesn't exist yet, a new compilation unit will be created with the content provided.
+ * Otherwise the operation will override the contents of an existing CU with the new content.
  *
  * <p>Note: It is possible to create a CU automatically when creating a
  * class or interface. Thus, the preferred method of creating a CU is
@@ -60,18 +63,35 @@ protected void executeOperation() throws JavaModelException {
 	ICompilationUnit unit = getCompilationUnit();
 	IPackageFragment pkg = (IPackageFragment) getParentElement();
 	IContainer folder = (IContainer) pkg.getUnderlyingResource();
-	InputStream stream = new ByteArrayInputStream(BufferManager.stringToBytes(fSource));
 	worked(1);
-	createFile(folder, unit.getElementName(), stream, fForce);
-	worked(1);
-	fResultElements = new IJavaElement[] {unit};
-	if (unit.getParent().exists()) {
-		for (int i = 0; i < fResultElements.length; i++) {
-			delta.added(fResultElements[i]);
+	IFile compilationUnitFile = folder.getFile(new Path(fName));
+	if (compilationUnitFile.exists()) {
+		// update the contents of the existing unit if fForce is true
+		if (fForce) {
+			unit.getBuffer().setContents(fSource);
+			unit.save(new NullProgressMonitor(), false);
+			fResultElements = new IJavaElement[] {unit};
+			if (unit.getParent().exists()) {
+				for (int i = 0; i < fResultElements.length; i++) {
+					delta.changed(fResultElements[i], IJavaElementDelta.F_CONTENT);
+				}
+				addDelta(delta);
+			}
+		} else {
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 		}
-		addDelta(delta);
-	} // else unit is created outside classpath
-	  // non-java resource delta will be notified by delta processor
+	} else {
+		InputStream stream = new ByteArrayInputStream(BufferManager.stringToBytes(fSource));
+		createFile(folder, unit.getElementName(), stream, false);
+		fResultElements = new IJavaElement[] {unit};
+		if (unit.getParent().exists()) {
+			for (int i = 0; i < fResultElements.length; i++) {
+				delta.added(fResultElements[i]);
+			}
+			addDelta(delta);
+		}
+	} 
+	worked(1);
 	done();
 }
 /**
