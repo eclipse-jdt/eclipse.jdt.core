@@ -284,7 +284,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testSimplePackageReference"));
+		suite.addTest(new JavaSearchTests("testTypeReference5"));
 		return suite;
 	}
 	
@@ -320,6 +320,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReference2"));
 	suite.addTest(new JavaSearchTests("testTypeReference3"));
 	suite.addTest(new JavaSearchTests("testTypeReference4"));
+	suite.addTest(new JavaSearchTests("testTypeReference5"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInInitializer"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceAsSingleNameReference"));
 	suite.addTest(new JavaSearchTests("testMemberTypeReference"));
@@ -2868,6 +2869,24 @@ public void testTypeReference4() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"otherSrc()/Y31997.java Y31997 [X31997]",
+		resultCollector);
+}
+/**
+ * Type reference test.
+ * (Regression test for bug 48261 Search does not show results)
+ */
+public void testTypeReference5() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "test48261.jar", "p", "X.java").getType("X");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment().getParent()});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"test48261.jar p.X$Y(java.lang.String)",
 		resultCollector);
 }
 /**

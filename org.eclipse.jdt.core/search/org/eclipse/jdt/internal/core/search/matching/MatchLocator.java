@@ -338,7 +338,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 			if (methods != null) {
 				boolean firstIsSynthetic = false;
 				try {
-					if (type.isMember() && method.isConstructor() && !method.isStatic()) {
+					if (type.isMember() && method.isConstructor() && !Flags.isStatic(type.getFlags())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
 						firstIsSynthetic = true;
 						argCount++;
 					}
