@@ -29,14 +29,14 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
 
-/*		Class c = ASTConverterTest2.class;
+		Class c = ASTConverterTest2.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
-		}*/
-		suite.addTest(new ASTConverterTest2("test0416"));
+		}
+//		suite.addTest(new ASTConverterTest2("test0416"));
 		return suite;
 	}
 	/**
