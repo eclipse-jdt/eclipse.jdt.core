@@ -310,8 +310,10 @@ public abstract class JobManager implements Runnable {
 			jobStart = 0;
 		}
 		awaitingJobs[jobEnd] = job;
-		if (VERBOSE)
+		if (VERBOSE) {
 			JobManager.verbose("REQUEST   background job - " + job); //$NON-NLS-1$
+			JobManager.verbose("AWAITING JOBS count: " + awaitingJobsCount()); //$NON-NLS-1$
+		}
 		this.notifyAll(); // wake up the background thread if it is waiting
 	}
 	/**
