@@ -39,7 +39,7 @@ public class SourceModifierTest extends ASTRewritingTest {
 		if (true) {
 			return allTests();
 		} else {
-			TestSuite suite= new TestSuite();
+			TestSuite suite= new Suite("one test");
 			suite.addTest(new SourceModifierTest("testCollapsedTargetNodes2"));
 			return suite;
 		}

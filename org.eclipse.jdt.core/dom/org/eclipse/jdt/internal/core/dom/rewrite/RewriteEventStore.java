@@ -73,9 +73,9 @@ public final class RewriteEventStore {
 	 * Store element to associate event and node position/
 	 */
 	private static class EventHolder {
-		public ASTNode parent;
-		public StructuralPropertyDescriptor childProperty;
-		public RewriteEvent event;
+		public final ASTNode parent;
+		public final StructuralPropertyDescriptor childProperty;
+		public final RewriteEvent event;
 		
 		public EventHolder(ASTNode parent, StructuralPropertyDescriptor childProperty, RewriteEvent change) {
 			this.parent= parent;
@@ -85,19 +85,19 @@ public final class RewriteEventStore {
 		
 		public String toString() {
 			StringBuffer buf= new StringBuffer();
-			buf.append(parent).append(" - "); //$NON-NLS-1$
-			buf.append(childProperty.getId()).append(": "); //$NON-NLS-1$
-			buf.append(event).append('\n');
+			buf.append(this.parent).append(" - "); //$NON-NLS-1$
+			buf.append(this.childProperty.getId()).append(": "); //$NON-NLS-1$
+			buf.append(this.event).append('\n');
 			return buf.toString();
 		}
 	}
 	
 	public static class CopySourceInfo {
-		public ASTNode parent;
-		public StructuralPropertyDescriptor childProperty;
-		private ASTNode first;
-		private ASTNode last;
-		public boolean isMove;
+		public final ASTNode parent;
+		public final StructuralPropertyDescriptor childProperty;
+		private final ASTNode first;
+		private final ASTNode last;
+		public final boolean isMove;
 		
 		public CopySourceInfo(ASTNode parent, StructuralPropertyDescriptor childProperty, ASTNode first, ASTNode last, boolean isMove) {
 			this.parent= parent;
@@ -120,7 +120,7 @@ public final class RewriteEventStore {
 			if (this.first != this.last) {
 				buf.append("range ");  //$NON-NLS-1$
 			}
-			if (isMove) {
+			if (this.isMove) {
 				buf.append("move source: "); //$NON-NLS-1$
 			} else {
 				buf.append("copy source: "); //$NON-NLS-1$
@@ -160,19 +160,19 @@ public final class RewriteEventStore {
 		private Iterator trackedNodeIter;
 		
 		public ParentIterator() {
-			this.eventIter= events.iterator();
-			if (nodeCopySources != null) {
-				this.sourceNodeIter= nodeCopySources.iterator();
+			this.eventIter= RewriteEventStore.this.events.iterator();
+			if (RewriteEventStore.this.nodeCopySources != null) {
+				this.sourceNodeIter= RewriteEventStore.this.nodeCopySources.iterator();
 			} else {
 				this.sourceNodeIter= Collections.EMPTY_LIST.iterator();
 			}
-			if (rangeCopySources != null) {
-				this.rangeNodeIter= rangeCopySources.iterator();
+			if (RewriteEventStore.this.rangeCopySources != null) {
+				this.rangeNodeIter= RewriteEventStore.this.rangeCopySources.iterator();
 			} else {
 				this.rangeNodeIter= Collections.EMPTY_LIST.iterator();
 			}
-			if (trackedNodes != null) {
-				this.trackedNodeIter= trackedNodes.keySet().iterator();
+			if (RewriteEventStore.this.trackedNodes != null) {
+				this.trackedNodeIter= RewriteEventStore.this.trackedNodes.keySet().iterator();
 			} else {
 				this.trackedNodeIter= Collections.EMPTY_LIST.iterator();
 			}

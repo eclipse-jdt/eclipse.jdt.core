@@ -91,7 +91,6 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_before_else_in_if_statement;
 	public boolean insert_new_line_before_finally_in_try_statement;
 	public boolean insert_new_line_before_while_in_do_statement;
-	public boolean insert_new_line_in_control_statements;
 	public boolean insert_new_line_in_empty_anonymous_type_declaration;
 	public boolean insert_new_line_in_empty_block;
 	public boolean insert_new_line_in_empty_method_body;
@@ -284,7 +283,6 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT, this.insert_new_line_before_else_in_if_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_FINALLY_IN_TRY_STATEMENT, this.insert_new_line_before_finally_in_try_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT, this.insert_new_line_before_while_in_do_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, this.insert_new_line_in_control_statements? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION, this.insert_new_line_in_empty_anonymous_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, this.insert_new_line_in_empty_block? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY, this.insert_new_line_in_empty_method_body? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -815,10 +813,6 @@ public class DefaultCodeFormatterOptions {
 		final Object insertNewLineBeforeWhileInDoStatementOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT);
 		if (insertNewLineBeforeWhileInDoStatementOption != null) {
 			this.insert_new_line_before_while_in_do_statement = JavaCore.INSERT.equals(insertNewLineBeforeWhileInDoStatementOption);
-		}
-		final Object insertNewLineInControlStatementsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS);
-		if (insertNewLineInControlStatementsOption != null) {
-			this.insert_new_line_in_control_statements = JavaCore.INSERT.equals(insertNewLineInControlStatementsOption);
 		}
 		final Object insertNewLineInEmptyAnonymousTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION);
 		if (insertNewLineInEmptyAnonymousTypeDeclarationOption != null) {
@@ -1375,7 +1369,6 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_before_else_in_if_statement = false;
 		this.insert_new_line_before_finally_in_try_statement = false;
 		this.insert_new_line_before_while_in_do_statement = false;
-		this.insert_new_line_in_control_statements = false;
 		this.insert_new_line_in_empty_anonymous_type_declaration = true;
 		this.insert_new_line_in_empty_block = true;
 		this.insert_new_line_in_empty_method_body = true;
@@ -1550,7 +1543,6 @@ public class DefaultCodeFormatterOptions {
 		this.insert_new_line_before_else_in_if_statement = false;
 		this.insert_new_line_before_finally_in_try_statement = false;
 		this.insert_new_line_before_while_in_do_statement = false;
-		this.insert_new_line_in_control_statements = false;
 		this.insert_new_line_in_empty_anonymous_type_declaration = true;
 		this.insert_new_line_in_empty_block = true;
 		this.insert_new_line_in_empty_method_body = true;

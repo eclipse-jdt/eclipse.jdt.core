@@ -4255,7 +4255,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 60556
-	public void test152() {
+	public void _test152() {
 		this.runConformTest(
 			new String[] {
 				"X.java",

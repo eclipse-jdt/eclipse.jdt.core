@@ -64,24 +64,21 @@ public abstract class ClassFileStruct {
 				+ (reference[position] & 0xFF));
 	}
 	protected char[] utf8At(byte[] reference, int relativeOffset, int structOffset, int bytesAvailable) {
-		int x, y, z;
 		int length = bytesAvailable;
 		char outputBuf[] = new char[bytesAvailable];
 		int outputPos = 0;
 		int readOffset = structOffset + relativeOffset;
 
 		while (length != 0) {
-			x = reference[readOffset++] & 0xFF;
+			int x = reference[readOffset++] & 0xFF;
 			length--;
 			if ((0x80 & x) != 0) {
-				y = reference[readOffset++] & 0xFF;
-				length--;
 				if ((x & 0x20) != 0) {
-					z = reference[readOffset++] & 0xFF;
-					length--;
-					x = ((x & 0x1F) << 12) + ((y & 0x3F) << 6) + (z & 0x3F);
+					length-=2;
+					x = ((x & 0xF) << 12) + ((reference[readOffset++] & 0x3F) << 6) + (reference[readOffset++] & 0x3F);
 				} else {
-					x = ((x & 0x1F) << 6) + (y & 0x3F);
+					length--;
+					x = ((x & 0x1F) << 6) + (reference[readOffset++] & 0x3F);
 				}
 			}
 			outputBuf[outputPos++] = (char) x;

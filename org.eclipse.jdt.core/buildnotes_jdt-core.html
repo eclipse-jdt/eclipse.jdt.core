@@ -142,12 +142,26 @@ Eclipse SDK 3.0M9 Build - ?th April 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new flag IJavaElementDelta.F_PRIMARY_RESOURCE that is set when the resource of a primary working copy 
+     changes (or when it is added or removed).</li>
 <li>Removed dependency on org.eclipse.runtime.compatibility.</li>
 <li>Tuned the diagnosis for unnecessary else statements to tolerate else-if constructs.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59500">59500</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60687">60687</a>
+NPE in JavaCore.getEncoding
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60581">60581</a>
+"Java AST creation" error.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id= 48502">48502</a>
+Exception during "Java AST creation"
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59750">59750</a>
+DCR: Code Assist: Hook to add getter and setters
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47227">47227</a>
+Syntax error diagnosis shouldn't expose internal goal tokens
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60595">60595</a>
+AST: AST from reconcile does not have 'ORIGINAL' bit set
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59500">59500</a>
 Java Model Notification needs notification that a java class was physically saved 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60459">60459</a>
 AST: 'malformed' flag overwrites other flags

@@ -760,6 +760,8 @@ public abstract class ASTNode {
 	 * 
 	 * @param nodeType AST node type
 	 * @return the corresponding <code>ASTNode</code> subclass
+	 * @exception IllegalArgumentException if <code>nodeType</code> is 
+	 * not a legal AST node type
 	 * @see #getNodeType()
 	 * @since 3.0
 	 */

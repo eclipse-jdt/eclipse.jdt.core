@@ -10,21 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
-import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.text.edits.TextEdit;
-
 import org.eclipse.jface.text.Document;
+
+import org.eclipse.text.edits.TextEdit;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -37,16 +35,13 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 
 /**
   */
 public class ASTRewritingTest extends AbstractJavaModelTests {
-	protected IJavaProject fJProject1;
-	protected IPackageFragmentRoot fSourceFolder;
-	
-	private Hashtable oldOptions;
+	protected IJavaProject project1;
+	protected IPackageFragmentRoot sourceFolder;
 	
 	public static Test suite() {
 		TestSuite suite= new TestSuite();
@@ -56,6 +51,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		suite.addTest(ASTRewritingMoveCodeTest.allTests());
 		suite.addTest(ASTRewritingStatementsTest.allTests());
 		suite.addTest(ASTRewritingTrackingTest.allTests());
+		suite.addTest(ASTRewritingJavadocTest.allTests());
 		suite.addTest(ASTRewritingTypeDeclTest.allTests());
 		suite.addTest(SourceModifierTest.allTests());
 		suite.addTest(ASTRewritingJavadocTest.allTests());
@@ -70,24 +66,21 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		
-		Hashtable options = JavaCore.getOptions();
-		this.oldOptions = (Hashtable)options.clone();
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
-		JavaCore.setOptions(options);
 	}
 	
 	public void tearDownSuite() throws Exception {
-		JavaCore.setOptions(this.oldOptions);
 		super.tearDownSuite();
 	}
 	
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		fJProject1 = createJavaProject("P", new String[] {"src"}, "bin");
-		fSourceFolder = this.getPackageFragmentRoot("P", "src");
+		IJavaProject proj= createJavaProject("P", new String[] {"src"}, "bin");
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
+		
+		this.project1 = proj;
+		this.sourceFolder = this.getPackageFragmentRoot("P", "src");
 		
 		waitUntilIndexesReady();
 	}
@@ -104,9 +97,6 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return (CompilationUnit) parser.createAST(null);
 	}
 	
-	/**
-	 * Returns the result of a rewrite.
-	 */
 	protected String evaluateRewrite(ICompilationUnit cu, ASTRewrite rewrite) throws Exception {
 		Document document= new Document(cu.getSource());
 		TextEdit res= rewrite.rewriteAST(document, cu.getJavaProject().getOptions(true));

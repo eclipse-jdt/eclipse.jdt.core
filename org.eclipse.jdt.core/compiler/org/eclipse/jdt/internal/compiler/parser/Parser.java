@@ -7850,7 +7850,7 @@ public final void memberValueArrayInitializer(int length) {
 	int searchPosition = length == 0 ? this.endPosition + 1 : memberValueArrayInitializer.memberValues[0].sourceStart;
 	try {
 		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
-		while (this.scanner.source[--searchPosition] != '{');
+		while (this.scanner.source[--searchPosition] != '{') {/*empty*/}
 	} catch (IndexOutOfBoundsException ex) {
 		//should never occur (except for strange cases like whose describe above)
 		searchPosition = (length == 0 ? this.endPosition : memberValueArrayInitializer.memberValues[0].sourceStart) - 1;

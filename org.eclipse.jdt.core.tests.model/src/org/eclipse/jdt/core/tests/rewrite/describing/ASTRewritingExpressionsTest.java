@@ -43,7 +43,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testArrayAccess() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -99,7 +99,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 
 	public void testArrayCreation() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -224,7 +224,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 	public void testArrayInitializer() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -306,7 +306,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	
 	
 	public void testAssignment() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -369,7 +369,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 	public void testCastExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -434,7 +434,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	
 	public void testCastExpression_bug28824() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -488,7 +488,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	
 	
 	public void testCatchClause() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -555,7 +555,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 	public void testClassInstanceCreation() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -643,7 +643,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testConditionalExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -697,7 +697,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testFieldAccess() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -749,7 +749,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testInfixExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -829,7 +829,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 	public void testInstanceofExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -879,7 +879,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testMethodInvocation() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -957,7 +957,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	public void testMethodParamsRenameReorder() throws Exception {
 		if (true)
 			return;
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1036,7 +1036,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testMethodInvocation1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1099,7 +1099,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	public void testParenthesizedExpression() throws Exception {
 		//System.out.println(getClass().getName()+"::" + getName() +" disabled (bug 23362)");
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1147,7 +1147,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testPrefixExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1194,7 +1194,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}	
 	
 	public void testPostfixExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1241,7 +1241,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}		
 
 	public void testSuperConstructorInvocation() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1322,7 +1322,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testSuperFieldInvocation() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1371,7 +1371,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}	
 	public void testSuperMethodInvocation() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1451,7 +1451,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testThisExpression() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1506,7 +1506,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public void testTypeLiteral() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");

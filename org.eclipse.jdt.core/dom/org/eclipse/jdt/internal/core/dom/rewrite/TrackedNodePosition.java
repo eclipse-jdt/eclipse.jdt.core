@@ -21,31 +21,31 @@ import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
  */
 public class TrackedNodePosition implements ITrackedNodePosition {
 
-	private TextEditGroup fGroup;
-	private ASTNode fNode;
+	private final TextEditGroup group;
+	private final ASTNode node;
 	
 	public TrackedNodePosition(TextEditGroup group, ASTNode node) {
-		fGroup= group;
-		fNode= node;
+		this.group= group;
+		this.node= node;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.ITrackedNodePosition#getStartPosition()
 	 */
 	public int getStartPosition() {
-		if (fGroup.isEmpty()) {
-			return fNode.getStartPosition();
+		if (this.group.isEmpty()) {
+			return this.node.getStartPosition();
 		}
-		return TextEdit.getCoverage(fGroup.getTextEdits()).getOffset();
+		return TextEdit.getCoverage(this.group.getTextEdits()).getOffset();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.ITrackedNodePosition#getLength()
 	 */
 	public int getLength() {
-		if (fGroup.isEmpty()) {
-			return fNode.getLength();
+		if (this.group.isEmpty()) {
+			return this.node.getLength();
 		}
-		return TextEdit.getCoverage(fGroup.getTextEdits()).getLength();
+		return TextEdit.getCoverage(this.group.getTextEdits()).getLength();
 	}
 }

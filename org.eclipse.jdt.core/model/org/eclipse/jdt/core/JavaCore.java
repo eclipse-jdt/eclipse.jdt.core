@@ -904,7 +904,7 @@ public final class JavaCore extends Plugin {
 		super();
 		JAVA_CORE_PLUGIN = this;
 		
-		// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=60537
+		// TODO (jerome) remove workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=60537
 		String option = Platform.getDebugOption(JavaCore.PLUGIN_ID + "/debug"); //$NON-NLS-1$
 		setDebugging(option != null && option.equalsIgnoreCase("true")); //$NON-NLS-1$
 	}
@@ -2186,9 +2186,11 @@ public final class JavaCore extends Plugin {
 	public static String getEncoding() {
 		try {
 			return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
-		} catch (CoreException e) {
-			return ResourcesPlugin.getEncoding();
+		} catch (Exception e) {
+			// fails silently and return plugin global encoding if core exception occurs or
+			// if workspace is shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
 		} 
+		return ResourcesPlugin.getEncoding();
 	}
 
 	/**
@@ -3447,7 +3449,7 @@ public final class JavaCore extends Plugin {
 							return buffer.toString();
 						}
 					}) +
-				"\n	}\ninvocation stack trace:"); //$NON-NLS-1$
+				"\n	}\n	invocation stack trace:"); //$NON-NLS-1$
 				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 		}
 
