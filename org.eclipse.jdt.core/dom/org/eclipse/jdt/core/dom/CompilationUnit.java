@@ -806,6 +806,7 @@ public class CompilationUnit extends ASTNode {
 	 * @throws RewriteException if this compilation unit is marked
 	 * as unmodifiable, or if this compilation unit has already 
 	 * been tampered with, or recording has already been enabled
+	 * TODO - eliminate RewriteException in favor of an unchecked exception
 	 * @see #rewrite(IDocument, Map)
 	 * @since 3.0
 	 */
@@ -844,6 +845,7 @@ public class CompilationUnit extends ASTNode {
 	 * document corresponding to the recorded AST modifications
 	 * @throws RewriteException if <code>recordModifications</code>
 	 * was not called to enable recording
+	 * TODO - eliminate RewriteException in favor of an unchecked exception
 	 * @see #recordModifications()
 	 * @since 3.0
 	 */
