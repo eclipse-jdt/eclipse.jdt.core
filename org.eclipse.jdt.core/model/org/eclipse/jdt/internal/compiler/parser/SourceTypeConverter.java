@@ -89,12 +89,14 @@ public class SourceTypeConverter implements CompilerModifiers {
 	 * at least contain one type.
 	 */
 	private CompilationUnitDeclaration convert(ISourceType[] sourceTypes, CompilationResult compilationResult) {
-		ISourceType sourceType = sourceTypes[0];
-		if (sourceType.getName() == null)
-			return null; // do a basic test that the sourceType is valid
-
 		this.unit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
 		// not filled at this point
+
+		if (sourceTypes.length == 0) return this.unit;
+		ISourceType sourceType = sourceTypes[0];
+		if (sourceType.getName() == null)
+		    // TODO (jerome) investigate when this can happen : if this can happen, fix clients to protect themselves
+			return null; // do a basic test that the sourceType is valid
 
 		/* only positions available */
 		int start = sourceType.getNameSourceStart();

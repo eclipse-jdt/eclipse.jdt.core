@@ -585,6 +585,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					try {
 						IType[] topLevelTypes = cu.getTypes();
 						int topLevelLength = topLevelTypes.length;
+						if (topLevelLength == 0) continue; // empty cu: no need to parse (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65677)
 						typeInfos = new SourceTypeElementInfo[topLevelLength];
 						for (int j = 0; j < topLevelLength; j++) {
 							IType topLevelType = topLevelTypes[j];
