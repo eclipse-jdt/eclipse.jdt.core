@@ -171,11 +171,15 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 		// index wasn't found on disk, consider creating an empty new one
 		if (createIfMissing) {
 			try {
+				if (VERBOSE)
+					JobManager.verbose("-> create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(path, index);
 				monitors.put(index, new ReadWriteMonitor());
 				return index;
 			} catch (IOException e) {
+				if (VERBOSE)
+					JobManager.verbose("-> unable to create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 				// The file could not be created. Possible reason: the project has been deleted.
 				return null;
 			}
