@@ -263,4 +263,31 @@ CompilationResult tagAsAccepted(){
 	this.problemsMap = null; // flush
 	return this;
 }
+
+public String toString(){
+	StringBuffer buffer = new StringBuffer();
+	if (this.fileName != null){
+		buffer.append("Filename : ").append(this.fileName).append('\n'); //$NON-NLS-1$
+	}
+	if (this.compiledTypes != null){
+		buffer.append("COMPILED type(s)	\n");  //$NON-NLS-1$
+		Enumeration typeNames = this.compiledTypes.keys();
+		while (typeNames.hasMoreElements()) {
+			char[] typeName = (char[]) typeNames.nextElement();
+			buffer.append("\t - ").append(typeName).append('\n');   //$NON-NLS-1$
+			
+		}
+	} else {
+		buffer.append("No COMPILED type\n");  //$NON-NLS-1$
+	}
+	if (problems != null){
+		buffer.append(this.problemCount).append(" PROBLEM(s) detected \n"); //$NON-NLS-1$//$NON-NLS-2$
+		for (int i = 0; i < this.problemCount; i++){
+			buffer.append("\t - ").append(this.problems[i]).append('\n'); //$NON-NLS-1$
+		}
+	} else {
+		buffer.append("No PROBLEM\n"); //$NON-NLS-1$
+	} 
+	return buffer.toString();
+}
 }
